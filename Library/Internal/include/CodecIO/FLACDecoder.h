@@ -8,14 +8,13 @@ extern "C" {
     typedef struct FLACFile {
         uint32_t           MetadataSize;
         FLACStreamInfo    *StreamInfo;
-        FLACCueSheet      *Cue;
-        FLACFrame         *Frame;
-        FLACVorbisComment *Vorbis;
         FLACSeekTable     *Seek;
+        FLACVorbisComment *Vorbis;
+        FLACCueSheet      *Cue;
         FLACPicture       *Pic;
+        FLACFrame         *Frame;
         bool               GetSampleRateFromStreamInfo;
         uint32_t           RAWAudio[FLACMaxChannels][FLACMaxSamplesInBlock];
-
     } FLACFile;
 
     uint8_t   GetBlockSizeInSamples(uint8_t BlockSize);
@@ -28,9 +27,9 @@ extern "C" {
 
     void      FLACReadFrame(BitInput *BitI, FLACFile *FLAC);
 
-    void      FLACReadMetadata(BitInput *BitI, FLACFile *FLAC, int64_t MaxPicBuffer);
+    void      FLACReadMetadata(BitInput *BitI, FLACFile *FLAC);
 
-    void      FLACReadPicture(BitInput *BitI, FLACFile *FLAC, int64_t MaxPicBuffer);
+    void      FLACReadPicture(BitInput *BitI, FLACFile *FLAC);
 
     void      FLACReadCuesheet(BitInput *BitI, FLACFile *FLAC);
 

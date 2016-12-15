@@ -71,7 +71,6 @@ void FLACReadSeekTable(BitInput *BitI, FLACFile *FLAC) { // 378
     FLAC->Seek->NumSeekPoints = FLAC->MetadataSize / 18; // 21
 
     for (uint16_t SeekPoint = 0; SeekPoint < FLAC->Seek->NumSeekPoints; SeekPoint++) {
-        // FIXME: Not sure if this is correct
         FLAC->Seek->SampleInTargetFrame[SeekPoint]        = ReadBits(BitI, 64);
         FLAC->Seek->OffsetFrom1stSample[SeekPoint]        = ReadBits(BitI, 64);
         FLAC->Seek->TargetFrameSize[SeekPoint]            = ReadBits(BitI, 16);
@@ -79,16 +78,14 @@ void FLACReadSeekTable(BitInput *BitI, FLACFile *FLAC) { // 378
 }
 
 void FLACReadCuesheet(BitInput *BitI, FLACFile *FLAC) {
-    for (uint8_t CatalogChar = 0; CatalogChar < 128; CatalogChar++) {
+    for (uint8_t CatalogChar = 0; CatalogChar < FLACMedizCatalogNumberSize; CatalogChar++) {
         FLAC->Cue->CatalogID[CatalogChar] = ReadBits(BitI, 8);
     }
     FLAC->Cue->LeadIn = ReadBits(BitI, 64);
     FLAC->Cue->IsCD   = ReadBits(BitI, 1);
     SkipBits(BitI, 2071); // Reserved
     FLAC->Cue->NumTracks = ReadBits(BitI, 8);
-    // struct to contain the info for each track in the cuesheet
 
-     // CUESHEET_TRACK
     for (uint8_t Track = 0; Track < FLAC->Cue->NumTracks; Track++) {
         FLAC->Cue->TrackOffset[Track]  = ReadBits(BitI, 64);
         FLAC->Cue->TrackNum[Track]     = ReadBits(BitI, 64);
@@ -102,7 +99,6 @@ void FLACReadCuesheet(BitInput *BitI, FLACFile *FLAC) {
         FLAC->Cue->NumTrackIndexPoints[Track] = ReadBits(BitI, 8);
     }
 
-    // CUESHEET_TRACK_INDEX
     FLAC->Cue->IndexOffset    = ReadBits(BitI, 64);
     FLAC->Cue->IndexPointNum  = ReadBits(BitI, 8);
     SkipBits(BitI, 24); // Reserved
@@ -133,77 +129,33 @@ void FLACReadPicture(BitInput *BitI, FLACFile *FLAC, int64_t MaxPicBuffer) { // 
 }
 
 void FLACReadCustom(BitInput *BitI, FLACFile *FLAC) { // 134,775
-
-    // ALL ZERO! OVER 100 KILOBYTES OF NOTHING!
     SkipBits(BitI, Bytes2Bits(FLAC->MetadataSize + 1));
 }
 
-void FLACReadMetadata(BitInput *BitI, FLACFile *FLAC, int64_t MaxPicBuffer) { // FIXME: NEED TO LOOP UNTIL THERE IS NO METADATA LEFT
-    // METADATA_BLOCK_HEADER
-    //bool     IsLastMetadataBlock         = 0;
-    // METADATA_BLOCK_DATA
-
-    /*
-     while ((BitI->FilePosition < BitI->FileSize) && (IsLastMetadataBlock == false)) { // Loops after it's done for some reason.
-     // METADATA_BLOCK_HEADER
-     */
-    bool IsLastMetadataBlock         = ReadBits(BitI, 1);  // 1 YES!
+void FLACReadMetadata(BitInput *BitI, FLACFile *FLAC) { // FIXME: NEED TO LOOP UNTIL THERE IS NO METADATA LEFT
+    bool     IsLastMetadataBlock     = ReadBits(BitI, 1);  // 1 YES!
     uint8_t  MetadataBlockType       = ReadBits(BitI, 7);  // 1
     FLAC->MetadataSize               = ReadBits(BitI, 24); // 134,775 // Does NOT count the 2 fields above.
 
-    if (MetadataBlockType == StreamInfo) { // MetadataBlockType == StreamInfo // 0
+    if (MetadataBlockType == StreamInfo) {
         FLACReadStreamInfo(BitI, FLAC);
-    } else if (MetadataBlockType == Padding) { // MetadataBlockType == Padding // 2
+    } else if (MetadataBlockType == Padding) {
         SkipMetadataPadding(BitI, FLAC);
-    } else if (MetadataBlockType == Custom) { // MetadataBlockType == Custom // Application specific chunk
+    } else if (MetadataBlockType == Custom) {
         FLACReadCustom(BitI, FLAC);
-    } else if (MetadataBlockType == SeekTable) { //  MetadataBlockType == SeekTable // 3
+    } else if (MetadataBlockType == SeekTable) {
         FLACReadSeekTable(BitI, FLAC);
-    } else if (MetadataBlockType == VorbisComment) { // MetadataBlockType == VorbisComment // 4
+    } else if (MetadataBlockType == VorbisComment) {
         FLACReadVorbisComment(BitI, FLAC);
-    } else if (MetadataBlockType == Cuesheet) { // MetadataBlockType == Cuesheet // 5
+    } else if (MetadataBlockType == Cuesheet) {
         FLACReadCuesheet(BitI, FLAC);
-    } else if (MetadataBlockType == Picture) { // MetadataBlockType == Picture // 6
-        FLACReadPicture(BitI, FLAC, FLACMaxPicBuffer);
+    } else if (MetadataBlockType == Picture) {
+        FLACReadPicture(BitI, FLAC);
     } else {
-        return;
-        /*
-         char ErrorDescription[BitIOStringSize];
-         snprintf(ErrorDescription, BitIOStringSize, "Invalid Block type: %d", FLAC->MetadataBlockType);
-         Log(SYSError, NULL, NULL, "NewFLAC", "FLACReadMetadata", ErrorDescription);
-         */
+        char ErrorDescription[BitIOStringSize];
+        snprintf(ErrorDescription, BitIOStringSize, "Invalid Block type: %d, Is last metadata block: %d", MetadataBlockType, IsLastMetadataBlock);
+        Log(SYSError, "NewFLAC", "FLACReadMetadata", ErrorDescription);
     }
-
-    /*
-    // METADATA_BLOCK_HEADER
-    bool     IsLastMetadataBlock     = ReadBits(BitI, 1); // 1 YES!
-    char     MetadataBlockType       = ReadBits(BitI, 7); //
-    FLAC->MetadataSize               = ReadBits(BitI, 24); // 17,151 // Does NOT count the 2 fields above.
-                                                           //FLAC->MetadataSize               = SwapEndian32(FLAC->MetadataSize);
-                                                           // METADATA_BLOCK_DATA
-
-    while (IsLastMetadataBlock == false) {
-        if (MetadataBlockType == StreamInfo) { // MetadataBlockType == StreamInfo // 0
-            FLACReadStreamInfo(BitI, FLAC);
-        } else if (MetadataBlockType == Custom) { // MetadataBlockType == Custom // Application specific chunk
-            FLACReadCustom(BitI, FLAC);
-        } else if (MetadataBlockType == Padding) { // MetadataBlockType == Padding // 2
-            SkipMetadataPadding(BitI);
-        } else if (MetadataBlockType == SeekTable) { //  MetadataBlockType == SeekTable // 3
-            FLACReadSeekTable(BitI, FLAC);
-        } else if (MetadataBlockType == VorbisComment) { // MetadataBlockType == VorbisComment // 4
-            FLACReadVorbisComment(BitI, FLAC);
-        } else if (MetadataBlockType == Cuesheet) { // MetadataBlockType == Cuesheet // 5
-            FLACReadCuesheet(BitI, FLAC);
-        } else if (MetadataBlockType == Picture) { // MetadataBlockType == Picture // 6
-            FLACReadPicture(BitI, FLAC, MaxPicBuffer);
-        } else {
-            char ErrorDescription[BitIOStringSize];
-            snprintf(ErrorDescription, BitIOStringSize, "Invalid Block type: %d", FLAC->MetadataBlockType);
-            Log(SYSError, NULL, NULL, "NewFLAC", "FLACReadMetadata", ErrorDescription);
-        }
-    }
-     */
 }
 
 void FLACSampleRate(BitInput *BitI, FLACFile *FLAC) { // 9
@@ -275,7 +227,7 @@ void FLACReadSubFrame(BitInput *BitI, FLACFile *FLAC, uint8_t Channel) {
 
 
     if (SubFrameType == Subframe_Constant) {
-        Constant         = ReadBits(BitI, FLAC->Frame->BitDepth);
+        Constant                  = ReadBits(BitI, FLAC->Frame->BitDepth);
     }
     for (uint16_t Sample = 0; Sample < FLAC->Frame->BlockSize; Sample++) { // SamplesInBlock
         if (SubFrameType == Subframe_Constant) { // Subframe CONSTANT
@@ -293,23 +245,6 @@ void FLACReadSubFrame(BitInput *BitI, FLACFile *FLAC, uint8_t Channel) {
             FLAC->RAWAudio[Channel][Sample] = ReadBits(BitI, FLAC->StreamInfo->BitDepth);
         }
     }
-    /*
-    if (SubFrameType == Subframe_Constant) { // Subframe CONSTANT
-        int32_t Constant    = ReadBits(BitI, FLAC->Frame->BitDepth);
-        memset(FLAC->RAWAudio[Channel], Constant, FLAC->Frame->SamplesInBlock);
-    } else {
-        for (uint16_t Sample = 0; Sample < FLAC->Frame->SamplesInBlock; Sample++) {
-            if (((SubFrameType & 20) >> 5) == 1) { // LPC subframe
-                LPCOrder = SubFrameType & 0x1F;
-                FLAC->RAWAudio[Channel][Sample] = ReadBits(BitI, 0); // FIXME: 0 is bullshit
-            } else if (((SubFrameType & 8) >> 3) == 1) { // LPC Fixed
-                LPCOrder = SubFrameType & 0x7;
-            } else if (SubFrameType == Subframe_Verbatim) { // Subframe VERBATIM aka raw PCM
-                FLAC->RAWAudio[Channel][Sample] = ReadBits(BitI, FLAC->StreamInfo->BitDepth);
-            }
-        }
-    }
-     */
 }
 
 void FLACDecodeRICEPartition(BitInput *BitI, FLACFile *FLAC, uint32_t BlockSize, uint8_t PredictorOrder) {
@@ -369,8 +304,8 @@ void FLACDecodeRicePartition(BitInput *BitI, FLACFile *FLAC, uint8_t PartitionTy
         }
     } else {
         char Error[BitIOStringSize];
-        snprintf(Error, BitIOStringSize, "Invalid Rice partition %d at offset %d\n", PartitionType, (BitI->FilePosition + Bits2Bytes(BitI->BitsUnavailable)));
-        Log(SYSError, NULL, NULL, "libFLAC2", "FLACParseRicePartition", Error);
+        snprintf(Error, BitIOStringSize, "Invalid Rice partition %d at offset %llu\n", PartitionType, (BitI->FilePosition + Bits2Bytes(BitI->BitsUnavailable)));
+        Log(SYSError, "NewFLAC", "FLACParseRicePartition", Error);
     }
 
     if (BitsPerSample > 0) {
@@ -484,11 +419,11 @@ void SkipMetadataPadding(BitInput *BitI, FLACFile *FLAC) {
 
 void InitFLACFile(FLACFile *FLAC) {
     FLAC->StreamInfo                     = calloc(sizeof(FLACStreamInfo), 1);
-    FLAC->Cue                            = calloc(sizeof(FLACCueSheet), 1);
-    FLAC->Frame                          = calloc(sizeof(FLACFrame), 1);
-    FLAC->Vorbis                         = calloc(sizeof(FLACVorbisComment), 1);
     FLAC->Seek                           = calloc(sizeof(FLACSeekTable), 1);
+    FLAC->Vorbis                         = calloc(sizeof(FLACVorbisComment), 1);
+    FLAC->Cue                            = calloc(sizeof(FLACCueSheet), 1);
     FLAC->Pic                            = calloc(sizeof(FLACPicture), 1);
+    FLAC->Frame                          = calloc(sizeof(FLACFrame), 1);
 }
 
 void FLACDecodeFile(int argc, const char *argv[]) {
@@ -499,9 +434,14 @@ void FLACDecodeFile(int argc, const char *argv[]) {
     InitBitInput(BitI, Error, argc, argv);
     InitBitOutput(BitO, Error, argc, argv);
     InitFLACFile(FLAC);
+    
+    uint32_t FileMagic = ReadBits(BitI, 32);
 
-    if (ReadBits(BitI, 32) != FLACMagic) {
+    if (FileMagic != FLACMagic) {
         // Not a FLAC file
+        char Error[1024];
+        snprintf(Error, 1024, "Not a FLAC file, magic was: %d\n", FileMagic);
+        Log(SYSError, "NewFLAC", "FLACDecodeFile", Error);
     } else {
         SkipBits(BitI, 32);
         FLACReadMetadata(BitI, FLAC, 0xFFFFFFFF);

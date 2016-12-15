@@ -24,6 +24,7 @@ extern "C" {
         FLACVorbisMaxComments                                       =        100,
         FLACISRCSize                                                =         12,
         FLACMaxLPCCoefficents                                       =         32,
+        FLACMedizCatalogNumberSize                                  =        128,
     } FLACConstants;
 
     enum FLACPictureTypes {
@@ -167,40 +168,6 @@ extern "C" {
         uint64_t OffsetFrom1stSample[FLACMaxSeekPoints]; // in bytes
         uint16_t     TargetFrameSize[FLACMaxSeekPoints];
     } FLACSeekTable;
-
-    /*
-     typedef struct FLACMetadata {
-     bool     IsLastMetadataBlock;
-     uint8_t  MetadataBlockType;
-     uint32_t MetadataSize;
-
-     // Vorbis Comment
-     uint32_t VendorTagSize; // 32 bits
-     char     VendorString[BitIOStringSize];
-     uint32_t NumUserComments;
-     uint32_t UserCommentSize[FLACMaxVorbisComments];
-     char     UserCommentString[FLACMaxVorbisComments][BitIOStringSize];
-     bool     VorbisFramingBit;
-
-
-     // Start Cuesheet
-     uint8_t  CatalogID[128];
-     uint64_t LeadIn;              // in samples
-     bool     IsCD;                // 1 if it came from a CD; 0 otherwise
-     // 265 bytes of 0s to be skipped
-     uint8_t  NumTracks;           // the number of tracks, CD has a max of 100 (including lead out)
-
-     // Cuesheet_Track
-     CueSheetTrack CueTracks[100];     // Pointer to array of CueSheetTrack structs.
-
-
-     // Cuesheet_Track_Index
-     uint64_t       IndexOffset; // no idea. must be multiple of CD sector for cd sources
-     uint8_t      IndexPointNum;
-     // 3 bytes of padding
-     // End Cuesheet
-     } FLACMetadata;
-     */
 
     typedef struct FLACStream {
         uint32_t BlockSize;
