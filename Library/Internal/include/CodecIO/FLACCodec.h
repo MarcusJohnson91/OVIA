@@ -6,7 +6,7 @@
 extern "C" {
 #endif
 
-    enum FLACConstants {
+    extern enum FLACConstants {
         FLACMagic                                                   = 0x664c6143, // fLaC
         FLACFrameMagic                                              =     0x3FFE,
         FLACMaxChannels                                             =          8,
@@ -27,7 +27,7 @@ extern "C" {
         FLACMedizCatalogNumberSize                                  =        128,
     } FLACConstants;
 
-    enum FLACPictureTypes {
+    extern enum FLACPictureTypes {
         Other                                                       = 0,
         FileIcon                                                    = 1, // 32x32, PNG only
         OtherFileIcon                                               = 2,
@@ -51,7 +51,7 @@ extern "C" {
         PublisherLogo                                               = 20,
     } FLACPictureTypes;
 
-    enum SpeakerLayout {
+    extern enum SpeakerLayout {
         Mono                                                        = 0,
         Left_Right                                                  = 1,
         Left_Right_Center                                           = 2,
@@ -65,24 +65,24 @@ extern "C" {
         Average_Diff                                                = 10,
     };
 
-    enum WAVEConstants {
+    extern enum WAVEConstants {
         RIFFMagic                                                   = 0x52494646,
         WAVEMagic                                                   = 0x57415645,
     } WAVEConstants;
 
-    enum FLACPredictionTypes {
+    extern enum FLACPredictionTypes {
         Verbatim                                                    = 0,
         Constant                                                    = 1,
         FixedLinear                                                 = 2,
         FIRLinear                                                   = 3,
     } FLACPredictionTypes;
 
-    enum FLACResidualTypes {
+    extern enum FLACResidualTypes {
         Simple                                                      = 0,
         Complex                                                     = 1,
     } FLACResidualTypes;
 
-    enum FLACMetadataTypes {
+    extern enum FLACMetadataTypes {
         StreamInfo                                                  = 0, // 0x30 = 0 in ascii, 0x31 = 1, etc.
         Padding                                                     = 1,
         Custom                                                      = 2, // Application aka App specific
@@ -92,14 +92,14 @@ extern "C" {
         Picture                                                     = 6,
     } FLACMetadataTypes;
 
-    enum FLACSubFrameTypes {
+    extern enum FLACSubFrameTypes {
         Subframe_Constant                                           =  0,
         Subframe_Verbatim                                           =  1,
         Subframe_Fixed                                              =  8,
         Subframe_LPC                                                = 63,
     } FLACSubFrameTypes;
 
-    enum FLACBlockType {
+    extern enum FLACBlockType {
         FixedBlockSize    = 0,
         VariableBlockSize = 1,
     } FLACBlockType;
