@@ -1,4 +1,4 @@
-#include "Common.h"
+#include "libNewFLAC.h"
 #pragma once
 
 #ifdef __cplusplus
