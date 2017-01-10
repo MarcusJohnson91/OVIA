@@ -143,20 +143,20 @@ extern "C" {
         return LPCOrder;
     }
     
-    void FLACDecodeSubFrameLPC(BitInput *BitI, FLACFile *FLAC, uint8_t SubFrameType, uint8_t Channel) {
+    void FLACDecodeSubFrameLPC(BitInput *BitI, FLACFile *FLAC, uint8_t SubFrameType, uint8_t Channel, int64_t *DecodedSamples[FLACMaxSamplesInBlock]) {
         uint8_t LPCOrder = 0, LPCPrecision = 0, LPCShift = 0, LPCCoeff[65535] = {0};
         
         LPCOrder              = FLACLPCOrder(SubFrameType);
         for (uint16_t Sample = 0; Sample < FLAC->Data->Frame->BitDepth * LPCOrder; Sample++) {
-            FLAC->RAWAudio[Channel][Sample] = ReadExpGolomb(BitI, false, false);
+            DecodedSamples[Sample] = ReadExpGolomb(BitI, false, false);
+            LPCPrecision           = ReadBits(BitI, 4) + 1;
+            LPCShift               = ReadBits(BitI, 5);
+            LPCCoeff[Sample]       = ReadBits(BitI, LPCPrecision * LPCOrder) + 1;
         }
-        LPCPrecision          = ReadBits(BitI, 4) + 1;
-        LPCShift              = ReadBits(BitI, 5);
-        LPCCoeff[Sample]      = ReadBits(BitI, LPCPrecision * LPCOrder) + 1;
         FLACDecodeResidual(BitI, FLAC, FLAC->Data->Frame->BlockSize, LPCOrder);
     }
     
-    void FLACReadSubFrame(BitInput *BitI, FLACFile *FLAC, uint8_t Channel) {
+    void FLACReadSubFrame(BitInput *BitI, FLACFile *FLAC, uint8_t Channel, int64_t *DecodedSamples[FLACMaxSamplesInBlock]) {
         bool    WastedBitsFlag                  = false;
         uint8_t SubFrameType                    = 0, LPCOrder = 0, WarmUpSamples = 0, LPCPrecision = 0, WastedBits = 0;
         int8_t  LPCShift                        = 0;
@@ -170,23 +170,23 @@ extern "C" {
         }
         WastedBitsFlag      = ReadBits(BitI, 1); // 1
         if (WastedBitsFlag == true) {
-            WastedBits      = ReadRICE(BitI, 1); // 2
+            WastedBits      = ReadRICE(BitI, false, 1); // 2
         }
         uint8_t  PredictorOrder = 0;
         
         
         if (SubFrameType == Subframe_Constant) {
-            Constant                  = ReadBits(BitI, FLAC->Frame->BitDepth);
+            Constant                  = ReadBits(BitI, FLAC->Data->Frame->BitDepth);
         }
-        for (uint16_t Sample = 0; Sample < FLAC->Frame->BlockSize; Sample++) { // SamplesInBlock
+        for (uint16_t Sample = 0; Sample < FLAC->Data->Frame->BlockSize; Sample++) { // SamplesInBlock
             if (SubFrameType == Subframe_Constant) { // Subframe CONSTANT
-                FLAC->RAWAudio[Channel][Sample] = Constant;
+                DecodedSamples[Sample] = Constant;
             } else if (((SubFrameType & 20) >> 5) == 1) { // SUBFRAME_LPC
                 
             } else if (((SubFrameType & 8) >> 3) == 1) {
                 LPCOrder = (SubFrameType & 0x7) - 1;
             } else if (SubFrameType == Subframe_Verbatim) {
-                FLAC->RAWAudio[Channel][Sample] = ReadBits(BitI, FLAC->Meta->StreamInfo->BitDepth);
+                DecodedSamples[Sample] = ReadBits(BitI, FLAC->Meta->StreamInfo->BitDepth);
             }
         }
     }
@@ -263,7 +263,7 @@ extern "C" {
         }
     }
     
-    void FLACReadFrame(BitInput *BitI, FLACFile *FLAC) {
+    void FLACReadFrame(BitInput *BitI, FLACFile *FLAC, int64_t *DecodedSamples[FLACMaxSamplesInBlock]) {
         uint8_t CodedSamplesInBlock = 0;
         
         SkipBits(BitI, 1); // 0
@@ -279,7 +279,7 @@ extern "C" {
         FLAC->Data->Frame->ChannelLayout        = ReadBits(BitI, 4) + 1; // 0x1 aka stereo, right difference
         FLAC->Data->Frame->CodedBitDepth        = ReadBits(BitI, 3); // 6 aka 24 bits per sample
         if (FLAC->Data->Frame->CodedBitDepth != 0) {
-            FLAC->Data->Frame->BitDepth         = FLACBitDepth(FLAC); // 24
+            FLACBitDepth(FLAC); // 24
         }
         SkipBits(BitI, 1); // 0
         
@@ -308,7 +308,7 @@ extern "C" {
         
         for (uint8_t Channel = 0; Channel < FLAC->Meta->StreamInfo->Channels; Channel++) {
             // read SubFrame
-            FLACReadSubFrame(BitI, FLAC, Channel);
+            FLACReadSubFrame(BitI, FLAC, Channel, DecodedSamples);
         }
     }
     

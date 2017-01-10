@@ -21,26 +21,7 @@ extern "C" {
     // Well, in the library I need to just run through one frame of audio at a time.
     // So, let's set it all up so all the user metadata is in one struct, and all the audio data is in another.
     
-    typedef struct FLACMeta {
-        uint32_t           MetadataSize;
-        FLACStreamInfo    *StreamInfo;
-        FLACSeekTable     *Seek; // Because the user may want to skip around, but this has nothing to do with decoding.
-        FLACVorbisComment *Vorbis;
-        FLACCueSheet      *Cue;
-        FLACPicture       *Pic;
-    } FLACMeta;
     
-    typedef struct FLACData {
-        bool               GetSampleRateFromStreamInfo;
-        FLACFrame         *Frame;
-        FLACLPC           *LPC;
-        uint32_t           RAWAudio[FLACMaxChannels][FLACMaxSamplesInBlock];
-    } FLACData;
-
-    typedef struct FLACFile {
-        FLACMeta *Meta;
-        FLACData *Data;
-    } FLACFile;
     
     void      FLACDecodeLPC(FLACFile *FLAC, uint8_t *LPCData2Decode, uint16_t LPCDataSize);
 
@@ -48,11 +29,9 @@ extern "C" {
 
     void      FLACSampleRate(BitInput *BitI, FLACFile *FLAC);
 
-    uint32_t  FLACBitDepth(FLACFile *FLAC);
-
     void      SkipMetadataPadding(BitInput *BitI, FLACFile *FLAC);
 
-    void      FLACReadFrame(BitInput *BitI, FLACFile *FLAC);
+    void      FLACReadFrame(BitInput *BitI, FLACFile *FLAC, int64_t *DecodedSamples[FLACMaxSamplesInBlock]);
 
     void      FLACReadMetadata(BitInput *BitI, FLACFile *FLAC);
 
@@ -70,7 +49,7 @@ extern "C" {
     
     void      InitDecodeFLACFile(FLACFile *FLAC);
 
-    void      FLACReadSubFrame(BitInput *BitI, FLACFile *FLAC, uint8_t Channel);
+    void      FLACReadSubFrame(BitInput *BitI, FLACFile *FLAC, uint8_t Channel, int64_t *DecodedSamples[FLACMaxSamplesInBlock]);
 
     void      FLACDecodeResidual(BitInput *BitI, FLACFile *FLAC, uint32_t BlockSize, uint8_t PredictorOrder);
 
