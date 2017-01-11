@@ -1,24 +1,25 @@
-#include "../include/libModernFLAC.h"
+//#include "../include/libModernFLAC.h"
+#include "../include/DecodeFLAC.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
     
-    void FLACParseStreamInfo(BitInput *BitI, FLACFile *FLAC);
+    void FLACParseStreamInfo(BitInput *BitI, FLACDecoder *FLAC);
     
-    void FLACSkipPadding(BitInput *BitI, FLACFile *FLAC);
+    void FLACSkipPadding(BitInput *BitI, FLACDecoder *FLAC);
     
-    void FLACSkipCustom(BitInput *BitI, FLACFile *FLAC);
+    void FLACSkipCustom(BitInput *BitI, FLACDecoder *FLAC);
     
-    void FLACParseSeekTable(BitInput *BitI, FLACFile *FLAC);
+    void FLACParseSeekTable(BitInput *BitI, FLACDecoder *FLAC);
     
-    void FLACParseVorbisComment(BitInput *BitI, FLACFile *FLAC);
+    void FLACParseVorbisComment(BitInput *BitI, FLACDecoder *FLAC);
     
-    void FLACParseCuesheet(BitInput *BitI, FLACFile *FLAC);
+    void FLACParseCuesheet(BitInput *BitI, FLACDecoder *FLAC);
     
-    void FLACParsePicture(BitInput *BitI, FLACFile *FLAC);
+    void FLACParsePicture(BitInput *BitI, FLACDecoder *FLAC);
     
-    void FLACParseMetadata(BitInput *BitI, FLACFile *FLAC);
+    void FLACParseMetadata(BitInput *BitI, FLACDecoder *FLAC);
     
 #ifdef __cplusplus
 }
