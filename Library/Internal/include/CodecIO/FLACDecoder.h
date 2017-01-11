@@ -27,28 +27,33 @@ extern "C" {
         int64_t   DecodedSamples[FLACMaxSamplesInBlock];
     } FLACDecoder;
     
-    void    InitDecodeFLACFile(FLACDecoder *FLAC);
+    void    InitFLACDecoder(FLACDecoder *FLAC);
     
-    void    FLACDecodeSubFrameLPC(BitInput *BitI, FLACDecoder *FLAC, uint8_t Channel);
+    void    FLACReadFrame(BitInput *BitI, FLACDecoder *FLAC);
+    
+    void    FLACReadSubFrame(BitInput *BitI, FLACDecoder *FLAC, uint8_t Channel);
+    
+    void    FLACDecodeSubFrameVerbatim(BitInput *BitI, FLACDecoder *FLAC);
     
     void    FLACDecodeSubFrameConstant(BitInput *BitI, FLACDecoder *FLAC);
     
-    void    FLACReadSubFrame(BitInput *BitI, FLACDecoder *FLAC, uint8_t Channel);
+    void    FLACDecodeSubFrameFixed(BitInput *BitI, FLACDecoder *FLAC);
+    
+    void    FLACDecodeSubFrameLPC(BitInput *BitI, FLACDecoder *FLAC, uint8_t Channel);
+    
+    void    FLACDecodeResidual(BitInput *BitI, FLACDecoder *FLAC);
     
     void    FLACDecodeRice1Partition(BitInput *BitI, FLACDecoder *FLAC);
     
     void    FLACDecodeRice2Partition(BitInput *BitI, FLACDecoder *FLAC);
     
-    void    FLACReadFrame(BitInput *BitI, FLACDecoder *FLAC);
     
-    uint8_t GetBlockSizeInSamples(uint8_t BlockSize);
     
     void    FLACBitDepth(FLACDecoder *FLAC);
     
     void    FLACSampleRate(BitInput *BitI, FLACDecoder *FLAC);
     
-    void    FLACDecodeSubFrameVerbatim(BitInput *BitI, FLACDecoder *FLAC);
-    
+    uint8_t GetBlockSizeInSamples(uint8_t BlockSize);
     
 #ifdef __cplusplus
 }

@@ -4,7 +4,7 @@
 extern "C" {
 #endif
     
-    void InitDecodeFLACFile(FLACDecoder *FLAC) {
+    void InitFLACDecoder(FLACDecoder *FLAC) {
         FLAC->Meta                           = calloc(sizeof(FLACMeta), 1);
         FLAC->Meta->StreamInfo               = calloc(sizeof(FLACStreamInfo), 1);
         FLAC->Meta->Seek                     = calloc(sizeof(FLACSeekTable), 1);
@@ -81,7 +81,7 @@ extern "C" {
         } else if (FLAC->Data->SubFrame->SubFrameType == Subframe_Constant) {
             FLACDecodeSubFrameConstant(BitI, FLAC);
         } else if (FLAC->Data->SubFrame->SubFrameType == Subframe_Fixed) {
-            
+            FLACDecodeSubFrameFixed(BitI, FLAC);
         } else if (FLAC->Data->SubFrame->SubFrameType == Subframe_LPC) {
             FLACDecodeSubFrameLPC(BitI, FLAC, Channel);
         } else {
@@ -91,25 +91,15 @@ extern "C" {
         }
     }
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    void FLACDecodeResidual(BitInput *BitI, FLACDecoder *FLAC) {
-        FLAC->Data->LPC->RicePartitionType      = ReadBits(BitI, 2);
-        if (FLAC->Data->LPC->RicePartitionType == RICE1) {
-            FLACDecodeRice1Partition(BitI, FLAC);
-        } else if (FLAC->Data->LPC->RicePartitionType == RICE2) {
-            FLACDecodeRice2Partition(BitI, FLAC);
+    void FLACDecodeSubFrameVerbatim(BitInput *BitI, FLACDecoder *FLAC) {
+        for (uint16_t Sample = 0; Sample < FLAC->Data->Frame->BlockSize; Sample++) {
+            FLAC->DecodedSamples[Sample] = ReadBits(BitI, FLAC->Data->Frame->BitDepth);
         }
+    }
+    
+    void FLACDecodeSubFrameConstant(BitInput *BitI, FLACDecoder *FLAC) {
+        int64_t Constant = ReadBits(BitI, FLAC->Data->Frame->BitDepth);
+        memset(FLAC->DecodedSamples, Constant, FLAC->Data->Frame->BlockSize);
     }
     
     void FLACDecodeSubFrameFixed(BitInput *BitI, FLACDecoder *FLAC) {
@@ -137,14 +127,12 @@ extern "C" {
         FLACDecodeResidual(BitI, FLAC);
     }
     
-    void FLACDecodeSubFrameConstant(BitInput *BitI, FLACDecoder *FLAC) {
-        int64_t Constant = ReadBits(BitI, FLAC->Data->Frame->BitDepth);
-        memset(FLAC->DecodedSamples, Constant, FLAC->Data->Frame->BlockSize);
-    }
-    
-    void FLACDecodeSubFrameVerbatim(BitInput *BitI, FLACDecoder *FLAC) {
-        for (uint16_t Sample = 0; Sample < FLAC->Data->Frame->BlockSize; Sample++) {
-            FLAC->DecodedSamples[Sample] = ReadBits(BitI, FLAC->Data->Frame->BitDepth);
+    void FLACDecodeResidual(BitInput *BitI, FLACDecoder *FLAC) {
+        FLAC->Data->LPC->RicePartitionType      = ReadBits(BitI, 2);
+        if (FLAC->Data->LPC->RicePartitionType == RICE1) {
+            FLACDecodeRice1Partition(BitI, FLAC);
+        } else if (FLAC->Data->LPC->RicePartitionType == RICE2) {
+            FLACDecodeRice2Partition(BitI, FLAC);
         }
     }
     

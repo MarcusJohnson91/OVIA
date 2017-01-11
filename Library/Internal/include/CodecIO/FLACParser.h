@@ -5,21 +5,21 @@
 extern "C" {
 #endif
     
-    void FLACParseStreamInfo(BitInput *BitI, FLACDecoder *FLAC);
+    int8_t   FLACParseMetadata(BitInput *BitI, FLACDecoder *FLAC);
     
-    void FLACSkipPadding(BitInput *BitI, FLACDecoder *FLAC);
+    void     FLACParseStreamInfo(BitInput *BitI, FLACDecoder *FLAC);
     
-    void FLACSkipCustom(BitInput *BitI, FLACDecoder *FLAC);
+    void     FLACSkipPadding(BitInput *BitI, FLACDecoder *FLAC);
     
-    void FLACParseSeekTable(BitInput *BitI, FLACDecoder *FLAC);
+    void     FLACSkipCustom(BitInput *BitI, FLACDecoder *FLAC);
     
-    void FLACParseVorbisComment(BitInput *BitI, FLACDecoder *FLAC);
+    void     FLACParseSeekTable(BitInput *BitI, FLACDecoder *FLAC);
     
-    void FLACParseCuesheet(BitInput *BitI, FLACDecoder *FLAC);
+    void     FLACParseVorbisComment(BitInput *BitI, FLACDecoder *FLAC);
     
-    void FLACParsePicture(BitInput *BitI, FLACDecoder *FLAC);
+    void     FLACParseCuesheet(BitInput *BitI, FLACDecoder *FLAC);
     
-    void FLACParseMetadata(BitInput *BitI, FLACDecoder *FLAC);
+    void     FLACParsePicture(BitInput *BitI, FLACDecoder *FLAC);
     
 #ifdef __cplusplus
 }

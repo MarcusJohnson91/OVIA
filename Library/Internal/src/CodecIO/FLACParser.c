@@ -5,6 +5,42 @@
 extern "C" {
 #endif
     
+    int8_t FLACParseMetadata(BitInput *BitI, FLACDecoder *FLAC) {
+        bool     IsLastMetadataBlock     = ReadBits(BitI, 1);
+        uint8_t  MetadataBlockType       = ReadBits(BitI, 7);
+        FLAC->Meta->MetadataSize         = ReadBits(BitI, 24); // Does NOT count the 2 fields above.
+        char Description[BitIOStringSize];
+        
+        switch (MetadataBlockType) {
+            case StreamInfo:
+                FLACParseStreamInfo(BitI, FLAC);
+                break;
+            case Padding:
+                FLACSkipPadding(BitI, FLAC);
+                break;
+            case Custom:
+                FLACSkipCustom(BitI, FLAC);
+                break;
+            case SeekTable:
+                FLACParseSeekTable(BitI, FLAC);
+                break;
+            case VorbisComment:
+                FLACParseVorbisComment(BitI, FLAC);
+                break;
+            case Cuesheet:
+                FLACParseCuesheet(BitI, FLAC);
+                break;
+            case Picture:
+                FLACParsePicture(BitI, FLAC);
+                break;
+            default:
+                snprintf(Description, BitIOStringSize, "Invalid Metadata Type: %d\n", MetadataBlockType);
+                Log(SYSWarning, "ModernFLAC", "FLACParseMetadata", Description);
+                break;
+        }
+        return IsLastMetadataBlock;
+    }
+    
     void FLACParseStreamInfo(BitInput *BitI, FLACDecoder *FLAC) {
         FLAC->Meta->StreamInfo->MinimumBlockSize        = ReadBits(BitI, 16);
         FLAC->Meta->StreamInfo->MaximumBlockSize        = ReadBits(BitI, 16);
@@ -98,42 +134,6 @@ extern "C" {
         FLAC->Meta->Pic->PictureSize = ReadBits(BitI, 32); // 17,109
                                                            // Pop in the address of the start of the data, and skip over the data instead of buffering it.
     }
-    
-    void FLACParseMetadata(BitInput *BitI, FLACDecoder *FLAC) {
-        bool     IsLastMetadataBlock     = ReadBits(BitI, 1);
-        uint8_t  MetadataBlockType       = ReadBits(BitI, 7);
-        FLAC->Meta->MetadataSize         = ReadBits(BitI, 24); // Does NOT count the 2 fields above.
-        char Description[BitIOStringSize];
-        
-        switch (MetadataBlockType) {
-            case StreamInfo:
-                FLACParseStreamInfo(BitI, FLAC);
-                break;
-            case Padding:
-                FLACSkipPadding(BitI, FLAC);
-                break;
-            case Custom:
-                FLACSkipCustom(BitI, FLAC);
-                break;
-            case SeekTable:
-                FLACParseSeekTable(BitI, FLAC);
-                break;
-            case VorbisComment:
-                FLACParseVorbisComment(BitI, FLAC);
-                break;
-            case Cuesheet:
-                FLACParseCuesheet(BitI, FLAC);
-                break;
-            case Picture:
-                FLACParsePicture(BitI, FLAC);
-                break;
-            default:
-                snprintf(Description, BitIOStringSize, "Invalid Metadata Type: %d\n", MetadataBlockType);
-                Log(SYSWarning, "ModernFLAC", "FLACParseMetadata", Description);
-                break;
-        }
-    }
-    
     
 #ifdef __cplusplus
 }
