@@ -21,25 +21,33 @@ extern "C" {
     // Well, in the library I need to just run through one frame of audio at a time.
     // So, let's set it all up so all the user metadata is in one struct, and all the audio data is in another.
     
-    void    InitDecodeFLACFile(FLACFile *FLAC);
+    typedef struct FLACDecoder {
+        FLACMeta *Meta;
+        FLACData *Data;
+        int64_t   DecodedSamples[FLACMaxSamplesInBlock];
+    } FLACDecoder;
     
-    void    FLACDecodeSubFrameLPC(BitInput *BitI, FLACFile *FLAC, uint8_t Channel);
+    void    InitDecodeFLACFile(FLACDecoder *FLAC);
     
-    void    FLACDecodeSubFrameConstant(BitInput *BitI, FLACFile *FLAC);
+    void    FLACDecodeSubFrameLPC(BitInput *BitI, FLACDecoder *FLAC, uint8_t Channel);
     
-    void    FLACReadSubFrame(BitInput *BitI, FLACFile *FLAC, uint8_t Channel);
+    void    FLACDecodeSubFrameConstant(BitInput *BitI, FLACDecoder *FLAC);
     
-    void    FLACDecodeRice1Partition(BitInput *BitI, FLACFile *FLAC);
+    void    FLACReadSubFrame(BitInput *BitI, FLACDecoder *FLAC, uint8_t Channel);
     
-    void    FLACDecodeRice2Partition(BitInput *BitI, FLACFile *FLAC);
+    void    FLACDecodeRice1Partition(BitInput *BitI, FLACDecoder *FLAC);
     
-    void    FLACReadFrame(BitInput *BitI, FLACFile *FLAC);
+    void    FLACDecodeRice2Partition(BitInput *BitI, FLACDecoder *FLAC);
+    
+    void    FLACReadFrame(BitInput *BitI, FLACDecoder *FLAC);
     
     uint8_t GetBlockSizeInSamples(uint8_t BlockSize);
     
-    void    FLACBitDepth(FLACFile *FLAC);
+    void    FLACBitDepth(FLACDecoder *FLAC);
     
-    void    FLACSampleRate(BitInput *BitI, FLACFile *FLAC);
+    void    FLACSampleRate(BitInput *BitI, FLACDecoder *FLAC);
+    
+    void    FLACDecodeSubFrameVerbatim(BitInput *BitI, FLACDecoder *FLAC);
     
     
 #ifdef __cplusplus

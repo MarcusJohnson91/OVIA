@@ -5,7 +5,7 @@
 extern "C" {
 #endif
     
-    void FLACParseStreamInfo(BitInput *BitI, FLACFile *FLAC) {
+    void FLACParseStreamInfo(BitInput *BitI, FLACDecoder *FLAC) {
         FLAC->Meta->StreamInfo->MinimumBlockSize        = ReadBits(BitI, 16);
         FLAC->Meta->StreamInfo->MaximumBlockSize        = ReadBits(BitI, 16);
         FLAC->Meta->StreamInfo->MinimumFrameSize        = ReadBits(BitI, 24);
@@ -19,15 +19,15 @@ extern "C" {
         }
     }
     
-    void FLACSkipPadding(BitInput *BitI, FLACFile *FLAC) {
+    void FLACSkipPadding(BitInput *BitI, FLACDecoder *FLAC) {
         SkipBits(BitI, Bytes2Bits(FLAC->Meta->MetadataSize));
     }
     
-    void FLACSkipCustom(BitInput *BitI, FLACFile *FLAC) { // 134,775
+    void FLACSkipCustom(BitInput *BitI, FLACDecoder *FLAC) { // 134,775
         SkipBits(BitI, Bytes2Bits(FLAC->Meta->MetadataSize + 1));
     }
     
-    void FLACParseSeekTable(BitInput *BitI, FLACFile *FLAC) { // 378
+    void FLACParseSeekTable(BitInput *BitI, FLACDecoder *FLAC) { // 378
         FLAC->Meta->Seek->NumSeekPoints = FLAC->Meta->MetadataSize / 18; // 21
         
         for (uint16_t SeekPoint = 0; SeekPoint < FLAC->Meta->Seek->NumSeekPoints; SeekPoint++) {
@@ -37,7 +37,7 @@ extern "C" {
         }
     }
     
-    void FLACParseVorbisComment(BitInput *BitI, FLACFile *FLAC) { // LITTLE ENDIAN
+    void FLACParseVorbisComment(BitInput *BitI, FLACDecoder *FLAC) { // LITTLE ENDIAN
         uint32_t UserCommentSize[FLACMaxVorbisComments] = {0};
         
         uint32_t VendorTagSize = SwapEndian32(ReadBits(BitI, 32));
@@ -54,7 +54,7 @@ extern "C" {
         }
     }
     
-    void FLACParseCuesheet(BitInput *BitI, FLACFile *FLAC) {
+    void FLACParseCuesheet(BitInput *BitI, FLACDecoder *FLAC) {
         for (uint8_t CatalogChar = 0; CatalogChar < FLACMedizCatalogNumberSize; CatalogChar++) {
             FLAC->Meta->Cue->CatalogID[CatalogChar] = ReadBits(BitI, 8);
         }
@@ -81,7 +81,7 @@ extern "C" {
         SkipBits(BitI, 24); // Reserved
     }
     
-    void FLACParsePicture(BitInput *BitI, FLACFile *FLAC) { // 17,151
+    void FLACParsePicture(BitInput *BitI, FLACDecoder *FLAC) { // 17,151
         FLAC->Meta->Pic->PicType  = ReadBits(BitI, 32); // 3
         FLAC->Meta->Pic->MIMESize = ReadBits(BitI, 32); // 10
         for (uint32_t MIMEByte = 0; MIMEByte < FLAC->Meta->Pic->MIMESize; MIMEByte++) {
@@ -99,7 +99,7 @@ extern "C" {
                                                            // Pop in the address of the start of the data, and skip over the data instead of buffering it.
     }
     
-    void FLACParseMetadata(BitInput *BitI, FLACFile *FLAC) {
+    void FLACParseMetadata(BitInput *BitI, FLACDecoder *FLAC) {
         bool     IsLastMetadataBlock     = ReadBits(BitI, 1);
         uint8_t  MetadataBlockType       = ReadBits(BitI, 7);
         FLAC->Meta->MetadataSize         = ReadBits(BitI, 24); // Does NOT count the 2 fields above.
