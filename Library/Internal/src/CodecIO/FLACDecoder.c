@@ -3,6 +3,46 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+    /* Start User facing functions */
+    
+    /*!
+     @abstract          Copies frames from the stream pointed to by BitI, to OutputFrameBuffer (which needs to be freed by you)
+     @param     StartFrame IS NOT zero indexed.
+     */
+    uint8_t *CopyFLACFrame(BitInput *BitI, FLACDecoder *FLAC) { // for apps that don't care about metadata
+        
+        // scan stream for FrameMagic, once found, start counting until you hit StartFrame
+        
+        // See if there's a seektable, if so use that to get as close as possible, otherwise scan byte by byte.
+        // Which means we need metadata flags.
+        //
+        for (size_t StreamByte = 0; StreamByte < BitI->FileSize; StreamByte++) {
+            uint16_t Marker = ReadBits(BitI, 14);
+            if (Marker == FLACFrameMagic) {
+                // Get frame size by reading ahead until you find either the end of the stream, or another FLACFrameMagic
+                // then skip back, and read it all.
+                // OR could we somehow just read it until we got to the end of the frame, and
+                size_t FrameSizeInBits = 0;
+                while (ReadBits(BitI, 14) != FLACFrameMagic || (BitI->FilePosition + BitI->BitsUnavailable) < BitI->FileSize) {
+                    FrameSizeInBits += 14;
+                }
+                SkipBits(BitI, Bits2Bytes(FrameSizeInBits));
+                // Create buffer that's FrameSizeInBits, and then start copying each byte into the buffer
+                uint8_t FrameBuffer[1];
+                realloc(FrameBuffer, Bits2Bytes(FrameSizeInBits));
+                for (size_t FrameByte = 0; FrameByte < Bits2Bytes(FrameSizeInBits); FrameByte++) {
+                    FrameByte[FrameByte] = BitI->Buffer[FrameByte];
+                }
+            }
+        }
+        
+        return NULL;
+    }
+    
+    /* End User Facing Functions */
+    
+    
+    
     
     void InitFLACDecoder(FLACDecoder *FLAC) {
         FLAC->Meta                           = calloc(sizeof(FLACMeta), 1);

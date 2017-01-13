@@ -22,6 +22,10 @@ extern "C" {
     // So, let's set it all up so all the user metadata is in one struct, and all the audio data is in another.
     
     typedef struct FLACDecoder {
+        bool      SeekTableIsPresent;
+        bool      CuesheetIsPresent;
+        bool      VorbisCommentIsPresent;
+        bool      PictureIsPresent;
         FLACMeta *Meta;
         FLACData *Data;
         int64_t   DecodedSamples[FLACMaxSamplesInBlock];
@@ -46,8 +50,6 @@ extern "C" {
     void    FLACDecodeRice1Partition(BitInput *BitI, FLACDecoder *FLAC);
     
     void    FLACDecodeRice2Partition(BitInput *BitI, FLACDecoder *FLAC);
-    
-    
     
     void    FLACBitDepth(FLACDecoder *FLAC);
     
