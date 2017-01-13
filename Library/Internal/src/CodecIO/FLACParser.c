@@ -6,8 +6,8 @@ extern "C" {
 #endif
     
     int8_t FLACParseMetadata(BitInput *BitI, FLACDecoder *FLAC) {
-        bool     IsLastMetadataBlock     = ReadBits(BitI, 1);
-        uint8_t  MetadataBlockType       = ReadBits(BitI, 7);
+        bool     IsLastMetadataBlock     = ReadBits(BitI, 1); // true
+        uint8_t  MetadataBlockType       = ReadBits(BitI, 7); // 1
         FLAC->Meta->MetadataSize         = ReadBits(BitI, 24); // Does NOT count the 2 fields above.
         char Description[BitIOStringSize];
         
@@ -42,20 +42,20 @@ extern "C" {
     }
     
     void FLACParseStreamInfo(BitInput *BitI, FLACDecoder *FLAC) {
-        FLAC->Meta->StreamInfo->MinimumBlockSize        = ReadBits(BitI, 16);
-        FLAC->Meta->StreamInfo->MaximumBlockSize        = ReadBits(BitI, 16);
-        FLAC->Meta->StreamInfo->MinimumFrameSize        = ReadBits(BitI, 24);
-        FLAC->Meta->StreamInfo->MaximumFrameSize        = ReadBits(BitI, 24);
-        FLAC->Meta->StreamInfo->SampleRate              = ReadBits(BitI, 20);
-        FLAC->Meta->StreamInfo->Channels                = ReadBits(BitI, 3) + 1;
-        FLAC->Meta->StreamInfo->BitDepth                = ReadBits(BitI, 5) + 1;
-        FLAC->Meta->StreamInfo->SamplesInStream         = ReadBits(BitI, 36);
+        FLAC->Meta->StreamInfo->MinimumBlockSize        = ReadBits(BitI, 16); // 0x4000, 16384
+        FLAC->Meta->StreamInfo->MaximumBlockSize        = ReadBits(BitI, 16); // 0x4000, 18384
+        FLAC->Meta->StreamInfo->MinimumFrameSize        = ReadBits(BitI, 24); // 12
+        FLAC->Meta->StreamInfo->MaximumFrameSize        = ReadBits(BitI, 24); // 12
+        FLAC->Meta->StreamInfo->SampleRate              = ReadBits(BitI, 20); // 48,000
+        FLAC->Meta->StreamInfo->Channels                = ReadBits(BitI, 3) + 1; // 1
+        FLAC->Meta->StreamInfo->BitDepth                = ReadBits(BitI, 5) + 1; // 24
+        FLAC->Meta->StreamInfo->SamplesInStream         = ReadBits(BitI, 36); // 16384
         for (uint8_t MD5Byte = 0; MD5Byte < 16; MD5Byte++) {
-            FLAC->Meta->StreamInfo->MD5[MD5Byte] = ReadBits(BitI, 8); // MD5 = 0x58B4285B9CFD75081C9E6A3B4C9E0D28
+            FLAC->Meta->StreamInfo->MD5[MD5Byte] = ReadBits(BitI, 8); // MD5 = 0xA36961002FA9736BE71CA42AD657C8D5
         }
     }
     
-    void FLACSkipPadding(BitInput *BitI, FLACDecoder *FLAC) {
+    void FLACSkipPadding(BitInput *BitI, FLACDecoder *FLAC) { // 8192
         SkipBits(BitI, Bytes2Bits(FLAC->Meta->MetadataSize));
     }
     
@@ -63,25 +63,25 @@ extern "C" {
         SkipBits(BitI, Bytes2Bits(FLAC->Meta->MetadataSize + 1));
     }
     
-    void FLACParseSeekTable(BitInput *BitI, FLACDecoder *FLAC) { // 378
+    void FLACParseSeekTable(BitInput *BitI, FLACDecoder *FLAC) { // 18
         FLAC->Meta->Seek->NumSeekPoints = FLAC->Meta->MetadataSize / 18; // 21
         
         for (uint16_t SeekPoint = 0; SeekPoint < FLAC->Meta->Seek->NumSeekPoints; SeekPoint++) {
-            FLAC->Meta->Seek->SampleInTargetFrame[SeekPoint]        = ReadBits(BitI, 64);
-            FLAC->Meta->Seek->OffsetFrom1stSample[SeekPoint]        = ReadBits(BitI, 64);
-            FLAC->Meta->Seek->TargetFrameSize[SeekPoint]            = ReadBits(BitI, 16);
+            FLAC->Meta->Seek->SampleInTargetFrame[SeekPoint]        = ReadBits(BitI, 64); // 0
+            FLAC->Meta->Seek->OffsetFrom1stSample[SeekPoint]        = ReadBits(BitI, 64); // 0
+            FLAC->Meta->Seek->TargetFrameSize[SeekPoint]            = ReadBits(BitI, 16); // 16384
         }
     }
     
     void FLACParseVorbisComment(BitInput *BitI, FLACDecoder *FLAC) { // LITTLE ENDIAN
-        uint32_t UserCommentSize[FLACMaxVorbisComments] = {0};
+        uint32_t UserCommentSize[FLACMaxVorbisComments] = {0}; // 40
         
-        uint32_t VendorTagSize = SwapEndian32(ReadBits(BitI, 32));
+        uint32_t VendorTagSize = SwapEndian32(ReadBits(BitI, 32)); // 32
         for (uint32_t TagByte = 0; TagByte < VendorTagSize; TagByte++) {
-            FLAC->Meta->Vorbis->VendorString[TagByte]  = ReadBits(BitI, 8); // reference libFLAC 1.3.1 20141125
+            FLAC->Meta->Vorbis->VendorString[TagByte]  = ReadBits(BitI, 8); // reference libFLAC 1.3.2 20170101
         }
         
-        uint32_t NumUserComments = SwapEndian32(ReadBits(BitI, 32)); // 28
+        uint32_t NumUserComments = SwapEndian32(ReadBits(BitI, 32)); // 0
         for (uint32_t UserComment = 0; UserComment < NumUserComments; UserComment++) {
             UserCommentSize[UserComment] = SwapEndian32(ReadBits(BitI, 32)); // 28
             for (uint32_t TagByte = 0; TagByte < UserCommentSize[UserComment]; TagByte++) {

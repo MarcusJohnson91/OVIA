@@ -4,7 +4,7 @@
 extern "C" {
 #endif
     
-    void   InitEncodeFLAC(FLACEncoder *FLAC) {
+    void   InitFLACEncoder(FLACEncoder *FLAC) {
         FLAC->Meta             = calloc(sizeof(FLACMeta), 1);
         FLAC->Meta->StreamInfo = calloc(sizeof(FLACStreamInfo), 1);
         FLAC->Meta->Seek       = calloc(sizeof(FLACSeekTable), 1);
