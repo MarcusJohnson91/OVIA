@@ -15,10 +15,6 @@
 extern "C" {
 #endif
 
-    extern enum MPEGTSConstants {
-        MPEGTSMaxPrivateData = 256,
-    } MPEGTSConstants;
-
     extern enum TSPIDTable {
         ProgramAssociationTable         =    0, // Program association table
         ConditionalAccesTable           =    1, // Conditional access table
@@ -67,6 +63,11 @@ extern "C" {
         FastRewind  = 3,
         SlowRewind  = 4,
     } TSTrickModeTypes;
+    
+    extern enum MPEGTSConstants {
+        MPEGTSMaxPrivateData     = 256,
+        PESPacketStartCodePrefix = 0x000001,
+    } MPEGTSConstants;
 
     typedef struct PacketizedElementaryStream {
         int32_t  PacketStartCodePrefix:24;     // packet_start_code_prefix
