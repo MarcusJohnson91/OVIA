@@ -14,12 +14,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-    
+
     extern enum MPEGTSConstants {
         MPEGTSMaxPrivateData = 256,
     } MPEGTSConstants;
 
-    extern enum PIDTable {
+    extern enum TSPIDTable {
         ProgramAssociationTable         =    0, // Program association table
         ConditionalAccesTable           =    1, // Conditional access table
         TransportStreamDescriptionTable =    2, // Transport stream description table
@@ -28,12 +28,69 @@ extern "C" {
         LastReserved                    = 8191,
     } PIDTable;
 
-    extern enum AdaptationFieldTable {
+    extern enum TSAdaptationFieldTable {
         Reserved                        =    0,
         PayloadOnly                     =    1,
         AdaptationFieldOnly             =    2,
         AdaptationThenPayload           =    3,
     } AdaptationFieldTable;
+
+    extern enum TSStreamIDTypes {
+        ProgramStreamMap                =  188,
+        PrivateStream1                  =  189,
+        PaddingStream                   =  190,
+        PrivateStream2                  =  191,
+        AudioStream                     =  192, // & 0xC0, the 5 least significant bits are the audio stream number.
+        VideoStream                     =  224, // & 0xE0, the 4 least significant bits are the video stream number.
+        ECMStream                       =  240,
+        EMMStream                       =  241,
+        AnnexA_DSMCCStream              =  242, // or 13818-1 Annex A
+        Stream13522                     =  243,
+        TypeAStream                     =  244,
+        TypeBStream                     =  245,
+        TypeCStream                     =  246,
+        TypeDStream                     =  247,
+        TypeEStream                     =  248,
+        AncillaryStream                 =  249,
+        SLPacketizedStream              =  250,
+        FlexMuxStream                   =  251,
+        MetadataStream                  =  252,
+        ExtendedStreamID                =  253,
+        ReservedStream                  =  254,
+        ProgramStreamFolder             =  255,
+    } TSStreamIDTypes;
+
+    extern enum TSTrickModeTypes {
+        FastForward = 0,
+        SlowMotion  = 1,
+        FreezeFrame = 2,
+        FastRewind  = 3,
+        SlowRewind  = 4,
+    } TSTrickModeTypes;
+
+    typedef struct PacketizedElementaryStream {
+        int32_t  PacketStartCodePrefix:24;     // packet_start_code_prefix
+        uint8_t  StreamID;                     // stream_id
+        uint16_t PESPacketSize;                // PES_packet_length
+        uint8_t  PESScramblingControl;         // PES_scrambling_control
+        bool     PESPriority:1;                // PES_priority
+        bool     AlignmentIndicator:1;         // data_alignment_indicator
+        bool     CopyrightIndicator:1;         // copyright
+        bool     OriginalOrCopy:1;             // original_or_copy
+        uint8_t  PTSDTSFlags:2;                // PTS_DTS_flags
+        bool     ESCRFlag:1;                   // ESCR_flag
+        bool     ESRateFlag:1;                 // ES_rate_flag
+        bool     DSMTrickModeFlag:1;           // DSM_trick_mode_flag
+        bool     AdditionalCopyInfoFlag:1;     // additional_copy_info_flag
+        bool     PESCRCFlag:1;                 // PES_CRC_flag
+        bool     PESExtensionFlag:1;           // PES_extension_flag
+        uint8_t  PESHeaderSize;                // PES_header_data_length
+        uint64_t PTS:33;                       // PTS
+        uint64_t DTS:33;                       // DTS
+        uint64_t ESCR:33;                      // ESCR
+        uint32_t ESRate:22;                    // ES_rate
+        uint8_t  TrickModeControl:3;           // trick_mode_control
+    } PacketizedElementaryStream;
     
     typedef struct TransportStreamPacket {
         int8_t   SyncByte;                     // sync_byte
@@ -75,8 +132,9 @@ extern "C" {
     } TSAdaptationField;
     
     typedef struct MPEGTransportStream {
-        TransportStreamPacket *Packet;
-        TSAdaptationField     *Adaptation;
+        TransportStreamPacket      *Packet;
+        TSAdaptationField          *Adaptation;
+        PacketizedElementaryStream *PES;
     } MPEGTransportStream;
     
 #ifdef __cplusplus
