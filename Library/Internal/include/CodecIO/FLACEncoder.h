@@ -6,6 +6,8 @@ extern "C" {
 #endif
     
     typedef struct FLACEncoder {
+        bool      EncodeSubset;
+        bool      OptimizeFile;
         uint16_t  MaxBlockSize;
         uint8_t   MaxFilterOrder;
         uint8_t   MaxRICEPartitionOrder;
