@@ -9,6 +9,7 @@ extern "C" {
      @abstract          Copies frames from the stream pointed to by BitI, to OutputFrameBuffer (which needs to be freed by you)
      @param     StartFrame IS NOT zero indexed.
      */
+    /*
     uint8_t *CopyFLACFrame(BitInput *BitI, FLACDecoder *FLAC) { // for apps that don't care about metadata
         
         // scan stream for FrameMagic, once found, start counting until you hit StartFrame
@@ -38,6 +39,7 @@ extern "C" {
         
         return NULL;
     }
+     */
     
     /* End User Facing Functions */
     

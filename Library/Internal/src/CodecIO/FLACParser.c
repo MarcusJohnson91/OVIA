@@ -74,19 +74,30 @@ extern "C" {
     }
     
     void FLACParseVorbisComment(BitInput *BitI, FLACDecoder *FLAC) { // LITTLE ENDIAN
-        uint32_t UserCommentSize[FLACMaxVorbisComments] = {0}; // 40
-        
-        uint32_t VendorTagSize = SwapEndian32(ReadBits(BitI, 32)); // 32
-        for (uint32_t TagByte = 0; TagByte < VendorTagSize; TagByte++) {
-            FLAC->Meta->Vorbis->VendorString[TagByte]  = ReadBits(BitI, 8); // reference libFLAC 1.3.2 20170101
+        char Description[BitIOStringSize] = {0};
+        FLAC->Meta->Vorbis->VendorTagSize = SwapEndian32(ReadBits(BitI, 32)); // 32
+        FLAC->Meta->Vorbis->VendorTag     = calloc(FLAC->Meta->Vorbis->VendorTagSize, 1);
+        for (uint32_t TagByte = 0; TagByte < FLAC->Meta->Vorbis->VendorTagSize; TagByte++) {
+            FLAC->Meta->Vorbis->VendorTag[TagByte]  = ReadBits(BitI, 8); // reference libFLAC 1.3.2 20170101
         }
         
-        uint32_t NumUserComments = SwapEndian32(ReadBits(BitI, 32)); // 0
-        for (uint32_t UserComment = 0; UserComment < NumUserComments; UserComment++) {
-            UserCommentSize[UserComment] = SwapEndian32(ReadBits(BitI, 32)); // 28
-            for (uint32_t TagByte = 0; TagByte < UserCommentSize[UserComment]; TagByte++) {
-                FLAC->Meta->Vorbis->UserCommentString[UserComment][TagByte] = ReadBits(BitI, 8);
+        FLAC->Meta->Vorbis->NumUserTags   = SwapEndian32(ReadBits(BitI, 32)); // 0
+        FLAC->Meta->Vorbis->UserTagString = calloc(FLAC->Meta->Vorbis->NumUserTags, 1);
+        FLAC->Meta->Vorbis->UserTagSize   = calloc(FLAC->Meta->Vorbis->NumUserTags, 1);
+        for (uint32_t Comment = 0; Comment < FLAC->Meta->Vorbis->NumUserTags; Comment++) {
+            FLAC->Meta->Vorbis->UserTagSize[Comment] = SwapEndian32(ReadBits(BitI, 32));
+            FLAC->Meta->Vorbis->UserTagString[Comment] = calloc(FLAC->Meta->Vorbis->UserTagSize[Comment], 1);
+            char UserTagString[FLAC->Meta->Vorbis->UserTagSize[Comment]];
+            for (uint32_t CommentByte = 0; CommentByte < FLAC->Meta->Vorbis->UserTagSize[Comment]; CommentByte++) {
+                UserTagString[CommentByte] = ReadBits(BitI, 8);
             }
+            FLAC->Meta->Vorbis->UserTagString[Comment] = UserTagString;
+        }
+        
+        for (uint32_t UserTag = 0; UserTag < FLAC->Meta->Vorbis->NumUserTags; UserTag++) {
+            snprintf(Description, BitIOStringSize, "User Tag %d of %d: %s\n", UserTag, FLAC->Meta->Vorbis->NumUserTags, FLAC->Meta->Vorbis->UserTagString[UserTag]);
+            printf(Description);
+            Log(SYSInformation, "ModernFLAC", "FLACParseVorbisComment", Description);
         }
     }
     
