@@ -56,7 +56,7 @@ extern "C" {
         }
     }
     
-    void ParseWAVFile(BitInput *BitI, WAVHeader *WAV) {
+    void ParseWAVFile(BitInput *BitI, PCMFile *PCM) {
         char ErrorDescription[BitIOStringSize];
         
         uint32_t ChunkID   = ReadBits(BitI, 32);
@@ -64,16 +64,16 @@ extern "C" {
         
         switch (ChunkID) {
             case WAV_LIST:
-                ParseWavLISTChunk(BitI, WAV, ChunkSize);
+                ParseWavLISTChunk(BitI, PCM, ChunkSize);
                 break;
             case WAV_FMT:
-                ParseWavFMTChunk(BitI, WAV, ChunkSize);
+                ParseWavFMTChunk(BitI, PCM, ChunkSize);
                 break;
             case WAV_WAVE:
                 SkipBits(BitI, 32);
                 break;
             case WAV_DATA:
-                ParseWavDATAChunk(BitI, WAV, ChunkSize);
+                ParseWavDATAChunk(BitI, PCM, ChunkSize);
                 break;
                 
             default:
@@ -130,6 +130,7 @@ extern "C" {
         if (InputMagic == WAV_RIFF) {
             PCM->FileType = WAV_Type;
             WAVHeader *WAV = calloc(sizeof(WAVHeader), 1);
+            PCM->WAV = WAV;
             ParseWAVFile(BitI, WAV);
         } else if (InputMagic == W64_RIFF) {
             PCM->FileType = W64_Type;
