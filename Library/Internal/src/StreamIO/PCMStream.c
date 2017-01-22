@@ -152,7 +152,7 @@ extern "C" {
         }
     }
     
-    void IdentifyPCMFile(BitInput *BitI) {
+    uint8_t IdentifyPCMFile(BitInput *BitI) {
         uint32_t InputMagic = ReadBits(BitI, 32);
         if (InputMagic == WAV_RIFF) {
             WAVHeader *WAV = calloc(sizeof(WAVHeader), 1);
@@ -166,6 +166,7 @@ extern "C" {
             AIFHeader *AIF = calloc(sizeof(AIFHeader), 1);
             ParseAIFFile(BitI, AIF);
         }
+        return 0;
     }
     
 #ifdef __cplusplus
