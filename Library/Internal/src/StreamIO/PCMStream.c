@@ -11,30 +11,11 @@ extern "C" {
     
     // So, We need to accept a BitInput pointer, and start reading the input file to discover it's file type, then call the dedicated format metadata parser to get the info we need and verify it's raw PCM, and then line us up with the PCM samples, and wait for calls to ExtractSamples
     
-    enum PCMFileTypes {
-        Unknown = 0,
-        WAV     = 1,
-        W64     = 2,
-        RF64    = 3,
-        AIFF    = 4,
-        AIFC    = 5,
-    } PCMFileTypes;
-
-    typedef struct PCMData {
-        uint8_t   FileType;
-        bool      MetadataHasBeenParsed;
-        uint64_t  SampleRate;
-        uint64_t  BitDepth;
-        uint64_t  NumChannels;
-        uint64_t  NumChannelAgnosticSamplesInBuffer;
-        uint64_t *SampleArray[PCMMaxChannels];
-    } PCMData;
-    
-    void FreePCMData(PCMData *PCMData2Free) {
-        for (uint64_t Channel = 0; Channel < PCMData2Free->NumChannels; Channel++) {
-            free(PCMData2Free->SampleArray[Channel]);
+    void FreePCMFile(PCMFile *PCM) {
+        for (uint64_t Channel = 0; Channel < PCM->Data->NumChannels; Channel++) {
+            free(PCM->Samples);
         }
-        free(PCMData2Free);
+        free(PCM->Meta);
     }
     
     // I want to just hand a file pointer here, and tell it to extract X samples (regardless of channel count)
@@ -47,7 +28,7 @@ extern "C" {
     /*!
      @param NumSamples2Extract is the number of channel agnostic samples to read from the input file
      */
-    void ExtractSamples(BitInput *BitI, PCMData *PCM, uint64_t NumSamples2Extract) {
+    void ExtractSamples(BitInput *BitI, PCMFile *PCM, uint64_t NumSamples2Extract) {
         WAVHeader *WAV = calloc(sizeof(WAVHeader), 1);
         W64Header *W64 = calloc(sizeof(W64Header), 1);
         AIFHeader *AIF = calloc(sizeof(AIFHeader), 1);
@@ -67,20 +48,10 @@ extern "C" {
                 default:
                     break;
             }
-            if (PCM->FileType == WAV) {
-                
-            } else if (PCM->FileType == W64) {
-                
-            } else if (PCM->FileType == AIFF) {
-                
-            }
         } else {
             // just read the requested samples
-            for (uint64_t Channel = 0; Channel < PCM->NumChannels; Channel++) {
-                PCM->SampleArray[Channel] = calloc(NumSamples2Extract, sizeof(uint64_t));
-                for (uint64_t Sample = 0; Sample < NumSamples2Extract; Sample++) {
-                    PCM->SampleArray[Channel][Sample] = ReadBits(BitI, PCM->BitDepth);
-                }
+            if (PCM->FileType == WAV_Type) {
+                WAVExtractSamples(BitI, PCM, NumSamples2Extract);
             }
         }
     }
@@ -152,21 +123,25 @@ extern "C" {
         }
     }
     
-    uint8_t IdentifyPCMFile(BitInput *BitI) {
+    void IdentifyPCMFile(BitInput *BitI, PCMFile *PCM) {
+        uint8_t  FileType = 0;
+        
         uint32_t InputMagic = ReadBits(BitI, 32);
         if (InputMagic == WAV_RIFF) {
+            PCM->FileType = WAV_Type;
             WAVHeader *WAV = calloc(sizeof(WAVHeader), 1);
             ParseWAVFile(BitI, WAV);
         } else if (InputMagic == W64_RIFF) {
+            PCM->FileType = W64_Type;
             SkipBits(BitI, 96); // Rest of the W64 RIFF GUID
             SkipBits(BitI, 64); // RIFF ChunkSize
             W64Header *W64 = calloc(sizeof(W64Header), 1);
             ParseW64File(BitI, W64);
         } else if (InputMagic == AIF_FORM) {
+            PCM->FileType = AIFF_Type;
             AIFHeader *AIF = calloc(sizeof(AIFHeader), 1);
             ParseAIFFile(BitI, AIF);
         }
-        return 0;
     }
     
 #ifdef __cplusplus
