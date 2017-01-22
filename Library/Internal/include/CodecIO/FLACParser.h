@@ -1,4 +1,3 @@
-//#include "../include/libModernFLAC.h"
 #include "../include/DecodeFLAC.h"
 
 #ifdef __cplusplus

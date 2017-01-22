@@ -18,7 +18,7 @@ extern "C" {
     
     void   InitFLACEncoder(FLACEncoder *FLAC);
     
-    int8_t EncodeFLAC(BitInput *BitI, BitOutput *BitO, FLACEncoder *FLAC, bool CreateSubsetStream);
+    int8_t EncodeFLAC(BitInput *BitI, BitOutput *BitO, FLACEncoder *FLAC);
 
 #ifdef __cplusplus
 }

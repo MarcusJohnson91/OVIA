@@ -6,9 +6,9 @@ extern "C" {
 #endif
     
     int8_t FLACParseMetadata(BitInput *BitI, FLACDecoder *FLAC) {
-        bool     IsLastMetadataBlock     = ReadBits(BitI, 1); // true
-        uint8_t  MetadataBlockType       = ReadBits(BitI, 7); // 1
-        FLAC->Meta->MetadataSize         = ReadBits(BitI, 24); // Does NOT count the 2 fields above.
+        bool     IsLastMetadataBlock     = ReadBits(BitI, 1);  // false
+        uint8_t  MetadataBlockType       = ReadBits(BitI, 7);  // 6
+        FLAC->Meta->MetadataSize         = ReadBits(BitI, 24); // 3391 Does NOT count the 2 fields above.
         char Description[BitIOStringSize];
         
         switch (MetadataBlockType) {
@@ -42,16 +42,16 @@ extern "C" {
     }
     
     void FLACParseStreamInfo(BitInput *BitI, FLACDecoder *FLAC) {
-        FLAC->Meta->StreamInfo->MinimumBlockSize        = ReadBits(BitI, 16); // 0x4000, 16384
-        FLAC->Meta->StreamInfo->MaximumBlockSize        = ReadBits(BitI, 16); // 0x4000, 18384
-        FLAC->Meta->StreamInfo->MinimumFrameSize        = ReadBits(BitI, 24); // 12
-        FLAC->Meta->StreamInfo->MaximumFrameSize        = ReadBits(BitI, 24); // 12
-        FLAC->Meta->StreamInfo->SampleRate              = ReadBits(BitI, 20); // 48,000
-        FLAC->Meta->StreamInfo->Channels                = ReadBits(BitI, 3) + 1; // 1
-        FLAC->Meta->StreamInfo->BitDepth                = ReadBits(BitI, 5) + 1; // 24
-        FLAC->Meta->StreamInfo->SamplesInStream         = ReadBits(BitI, 36); // 16384
+        FLAC->Meta->StreamInfo->MinimumBlockSize        = ReadBits(BitI, 16); // 4096
+        FLAC->Meta->StreamInfo->MaximumBlockSize        = ReadBits(BitI, 16); // 4096
+        FLAC->Meta->StreamInfo->MinimumFrameSize        = ReadBits(BitI, 24); // 752
+        FLAC->Meta->StreamInfo->MaximumFrameSize        = ReadBits(BitI, 24); // 13,594
+        FLAC->Meta->StreamInfo->SampleRate              = ReadBits(BitI, 20); // 44,100
+        FLAC->Meta->StreamInfo->Channels                = ReadBits(BitI, 3) + 1; // stereo
+        FLAC->Meta->StreamInfo->BitDepth                = ReadBits(BitI, 5) + 1; // 16
+        FLAC->Meta->StreamInfo->SamplesInStream         = ReadBits(BitI, 36); // 24,175,621
         for (uint8_t MD5Byte = 0; MD5Byte < 16; MD5Byte++) {
-            FLAC->Meta->StreamInfo->MD5[MD5Byte] = ReadBits(BitI, 8); // MD5 = 0xA36961002FA9736BE71CA42AD657C8D5
+            FLAC->Meta->StreamInfo->MD5[MD5Byte] = ReadBits(BitI, 8); // MD5 = 0xF296D726DAED094F660800131C52CED4
         }
     }
     
@@ -78,15 +78,30 @@ extern "C" {
         FLAC->Meta->Vorbis->VendorTagSize = SwapEndian32(ReadBits(BitI, 32)); // 32
         FLAC->Meta->Vorbis->VendorTag     = calloc(FLAC->Meta->Vorbis->VendorTagSize, 1);
         for (uint32_t TagByte = 0; TagByte < FLAC->Meta->Vorbis->VendorTagSize; TagByte++) {
-            FLAC->Meta->Vorbis->VendorTag[TagByte]  = ReadBits(BitI, 8); // reference libFLAC 1.3.2 20170101
+            FLAC->Meta->Vorbis->VendorTag[TagByte]  = ReadBits(BitI, 8); // reference libFLAC 1.3.1 20141125
         }
         
-        FLAC->Meta->Vorbis->NumUserTags   = SwapEndian32(ReadBits(BitI, 32)); // 0
-        FLAC->Meta->Vorbis->UserTagString = calloc(FLAC->Meta->Vorbis->NumUserTags, 1);
+        FLAC->Meta->Vorbis->NumUserTags   = SwapEndian32(ReadBits(BitI, 32)); // 13
         FLAC->Meta->Vorbis->UserTagSize   = calloc(FLAC->Meta->Vorbis->NumUserTags, 1);
+        FLAC->Meta->Vorbis->UserTagString = calloc(FLAC->Meta->Vorbis->NumUserTags, 1);
         for (uint32_t Comment = 0; Comment < FLAC->Meta->Vorbis->NumUserTags; Comment++) {
             FLAC->Meta->Vorbis->UserTagSize[Comment] = SwapEndian32(ReadBits(BitI, 32));
-            FLAC->Meta->Vorbis->UserTagString[Comment] = calloc(FLAC->Meta->Vorbis->UserTagSize[Comment], 1);
+            FLAC->Meta->Vorbis->UserTagString[Comment] = alloca(FLAC->Meta->Vorbis->UserTagSize[Comment]);
+            // 39   // ALBUM=My Beautiful Dark Twisted Fantasy
+            // 17   // ARTIST=Kanye West
+            // 6    // BPM=87
+            // 13   // BPM=00000 BPM
+            // 12   // DISCNUMBER=1
+            // 9    // genre=Rap
+            // 98   //iTunNORM=00001B05 00001A8D 0000D69A 0000E522 00026C39 00026C39 00008000 00008000 0000947A 0000947A
+            // 13   // TITLE=Runaway
+            // 12   // totaldiscs=1
+            // 14   // totaltracks=13
+            // 3044 // UNSYNCEDLYRICS=[Kanye West] (Look at You [X14]) (Look at You [X8]) (Ladies and Gentlemen, La-Ladies and Gentlemen) (And I Want to Show You How You All Look Like Beautiful Stars Tonight) (And I Want to Show You How You All Look Like Beautiful Stars Tonight) (And I Want to Show You How You All Look Like Beautiful Stars Tonight) And I Always Find, Yeah, I Always Find Somethin' Wrong You Been Puttin' up Wit' My Shit Just Way Too Long I'm So Gifted at Findin' What I Don't Like the Most So I Think It's Time for Us to Have a Toast Let's Have a Toast for the Douchebags, Let's Have a Toast for the Assholes, Let's Have a Toast for the Scumbags, Every One of Them That I Know Let's Have a Toast to the Jerkoffs That'll Never Take Work off Baby, I Got a Plan Run Away Fast As You Can She Find Pictures in My Email I Sent This Girl a Picture of My, Hey! I Don't Know What It Is with Females But I'm Not Too Good with That, Hey! See, I Could Have Me a Good Girl And Still Be Addicted to Them Hoodrats And I Just Blame Everything on You At Least You Know That's What I'm Good at See, I Always Find And I Always Find Yeah, I Always Find Somethin' Wrong You Been Puttin' up with My Shit Just Way Too Long I'm So Gifted at Findin' What I Don't Like the Most So I Think It's Time for Us to Have a Toast Let's Have a Toast for the Douchebags, Let's Have a Toast for the Assholes, Let's Have a Toast for the Scumbags, Every One of Them That I Know Let's Have a Toast to the Jerkoffs That'll Never Take Work off Baby, I Got a Plan Run Away Fast As You Can R-R-Ru-Ru-Ru-Run Away Run Away from Me, Baby (Look at, Look at, Look at, Look at You) Run Away from Me, Baby (Look at You, Look at You, Look at You) Run Away Run Away from Me, Baby [Pusha T] 24/7, 365, Jenny Stays on My Mind I-I-I-I Did It, All Right, All Right, I Admit It Now Pick Your Best Move, You Could Leave or Live Wit' It Ichabod Crane with That Lamborghini Top off Split and Go Where? Back to Wearin' Knockoffs, Huh? Knock It off, Neiman's, Shop It off Let's Talk Over Mai Tais, Waitress, Top It off (Inaudible) Wanna Fly in Your Freddy Loafers You Can't Blame 'em, They Ain't Never Seen Versace Sofas Every Bag, Every Blouse, Every Bracelet Comes with a Price Tag, Baby, Face It You Should Leave If You Can't Accept the Basics Plenty Bitches in the Baller-Player's Matrix Invisibly Set, the Rolex Is Faceless I'm Just Young, Rich, and Tasteless P! [Kanye] Oh I Haven't Fucked in So Long You Been Puttin' up with My Shit Just Way Too Long I'm So Gifted at Findin' What I Don't Like the Most So I Think It's Time for Us to Have a Toast (Ladies and Gentlemen! ) Yeah, I Always Find Somethin' Wrong You Been Puttin' up with My Shit Just Way Too Long I'm So Gifted at Findin' What I Don't Like the Most So I Think It's Time for Us to Have a Toast Let's Have a Toast for the Douchebags, Let's Have a Toast for the Assholes, Let's Have a Toast for the Scumbags, Every One of Them That I Know Let's Have a Toast to the Jerkoffs That'll Never Take Work off Baby, I Got a Plan Run Away Fast As You Can
+            
+            // 9  // DATE=2010
+            // 13 // TRACKNUMBER=9
+            
             char UserTagString[FLAC->Meta->Vorbis->UserTagSize[Comment]];
             for (uint32_t CommentByte = 0; CommentByte < FLAC->Meta->Vorbis->UserTagSize[Comment]; CommentByte++) {
                 UserTagString[CommentByte] = ReadBits(BitI, 8);

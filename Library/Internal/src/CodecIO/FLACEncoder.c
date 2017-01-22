@@ -19,8 +19,8 @@ extern "C" {
         FLAC->Data->Rice       = calloc(sizeof(RICEPartition), 1);
     }
     
-    int8_t EncodeFLAC(BitInput *BitI, BitOutput *BitO, FLACEncoder *FLAC, bool CreateSubsetStream) {
-        if (CreateSubsetStream == true && FLAC->Data->Frame->SampleRate <= 48000) {
+    int8_t EncodeFLAC(BitInput *BitI, BitOutput *BitO, FLACEncoder *FLAC) {
+        if (FLAC->EncodeSubset == true && FLAC->Data->Frame->SampleRate <= 48000) {
             FLAC->MaxBlockSize          =  4608;
             FLAC->MaxFilterOrder        =    12;
             FLAC->MaxRICEPartitionOrder =     8;
@@ -28,6 +28,14 @@ extern "C" {
             FLAC->MaxBlockSize          = 16384;
             FLAC->MaxFilterOrder        =    32;
             FLAC->MaxRICEPartitionOrder =    15;
+        }
+        
+        if (FLAC->OptimizeFile == true) {
+            // Optimize this mufucka
+#pragma omp parallel
+            for (uint8_t Coeff = 0; Coeff < 32; Coeff++) {
+                
+            }
         }
         
         return 0;
