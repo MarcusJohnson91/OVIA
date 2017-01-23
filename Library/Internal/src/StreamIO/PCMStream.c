@@ -36,13 +36,16 @@ extern "C" {
             uint32_t Magic = ReadBits(BitI, 32);
             switch (Magic) {
                 case WAVMagic:
-                    ParseWAVMetadata(BitI, WAV);
+                    PCM->FileType = WAV_Type;
+                    IdentifyPCMFile(BitI, PCM);
                     break;
                 case W64Magic:
-                    ParseW64Metadata(BitI, W64);
+                    PCM->FileType = W64_Type;
+                    IdentifyPCMFile(BitI, PCM);
                     break;
                 case AIFMagic:
-                    ParseAIFMetadata(BitI, AIF);
+                    PCM->FileType = AIFF_Type;
+                    IdentifyPCMFile(BitI, PCM);
                     break;
                     
                 default:
