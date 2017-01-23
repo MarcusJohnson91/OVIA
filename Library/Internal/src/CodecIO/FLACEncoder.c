@@ -4,6 +4,31 @@
 extern "C" {
 #endif
     
+    void   FLACWriteStreaminfo(BitOutput *BitO, FLACEncoder *FLAC) {
+        WriteBits(BitO, 34, 24); // StreamInfoSize
+        WriteBits(BitO, FLAC->Meta->StreamInfo->MinimumBlockSize, 16);
+        WriteBits(BitO, FLAC->Meta->StreamInfo->MaximumBlockSize, 16);
+        WriteBits(BitO, FLAC->Meta->StreamInfo->MinimumFrameSize, 24);
+        WriteBits(BitO, FLAC->Meta->StreamInfo->MaximumFrameSize, 24);
+        WriteBits(BitO, FLAC->Meta->StreamInfo->SampleRate, 20);
+        WriteBits(BitO, FLAC->Meta->StreamInfo->MinimumFrameSize, 24);
+        WriteBits(BitO, FLAC->Meta->StreamInfo->Channels - 1, 3);
+        WriteBits(BitO, FLAC->Meta->StreamInfo->BitDepth - 1, 5);
+        WriteBits(BitO, FLAC->Meta->StreamInfo->SamplesInStream, 36);
+        WriteBits(BitO, 0, 128); // ROOM for the MD5.
+    }
+    
+    void   FLACWriteVorbisComment(BitOutput *BitO, FLACEncoder *FLAC) {
+        
+    }
+    
+    void   FLACWriteMetadata(BitOutput *BitO, FLACEncoder *FLAC) {
+        WriteBits(BitO, FLACMagic, 32);
+        WriteBits(BitO, 0, 1); // IsLastMetadataBlock
+        //WriteBits(BitO, FLACMetadataTypes, 7); // MetadataBlockType
+        
+    }
+    
     void   InitFLACEncoder(FLACEncoder *FLAC) {
         FLAC->Meta             = calloc(sizeof(FLACMeta), 1);
         FLAC->Meta->StreamInfo = calloc(sizeof(FLACStreamInfo), 1);
@@ -32,10 +57,7 @@ extern "C" {
         
         if (FLAC->OptimizeFile == true) {
             // Optimize this mufucka
-#pragma omp parallel
-            for (uint8_t Coeff = 0; Coeff < 32; Coeff++) {
-                
-            }
+
         }
         
         return 0;

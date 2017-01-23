@@ -26,6 +26,7 @@ extern "C" {
         bool      CuesheetIsPresent;
         bool      VorbisCommentIsPresent;
         bool      PictureIsPresent;
+        bool      LastMetadataBlock;
         FLACMeta *Meta;
         FLACData *Data;
         int64_t   DecodedSamples[FLACMaxSamplesInBlock];

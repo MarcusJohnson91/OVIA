@@ -5,8 +5,8 @@
 extern "C" {
 #endif
     
-    int8_t FLACParseMetadata(BitInput *BitI, FLACDecoder *FLAC) {
-        bool     IsLastMetadataBlock     = ReadBits(BitI, 1);  // false
+    void FLACParseMetadata(BitInput *BitI, FLACDecoder *FLAC) {
+        FLAC->LastMetadataBlock          = ReadBits(BitI, 1);
         uint8_t  MetadataBlockType       = ReadBits(BitI, 7);  // 6
         FLAC->Meta->MetadataSize         = ReadBits(BitI, 24); // 3391 Does NOT count the 2 fields above.
         char Description[BitIOStringSize];
@@ -38,7 +38,6 @@ extern "C" {
                 Log(SYSWarning, "ModernFLAC", "FLACParseMetadata", Description);
                 break;
         }
-        return IsLastMetadataBlock;
     }
     
     void FLACParseStreamInfo(BitInput *BitI, FLACDecoder *FLAC) {
@@ -85,7 +84,7 @@ extern "C" {
         FLAC->Meta->Vorbis->UserTagString = calloc(FLAC->Meta->Vorbis->NumUserTags, 1);
         for (uint32_t Comment = 0; Comment < FLAC->Meta->Vorbis->NumUserTags; Comment++) {
             FLAC->Meta->Vorbis->UserTagSize[Comment] = SwapEndian32(ReadBits(BitI, 32));
-            FLAC->Meta->Vorbis->UserTagString[Comment] = alloca(FLAC->Meta->Vorbis->UserTagSize[Comment]);
+            FLAC->Meta->Vorbis->UserTagString[Comment] = calloc(FLAC->Meta->Vorbis->UserTagSize[Comment], 1);
             // 39   // ALBUM=My Beautiful Dark Twisted Fantasy
             // 17   // ARTIST=Kanye West
             // 6    // BPM=87
@@ -110,8 +109,8 @@ extern "C" {
         
         for (uint32_t UserTag = 0; UserTag < FLAC->Meta->Vorbis->NumUserTags; UserTag++) {
             snprintf(Description, BitIOStringSize, "User Tag %d of %d: %c\n", UserTag, FLAC->Meta->Vorbis->NumUserTags, FLAC->Meta->Vorbis->UserTagString[UserTag]);
-            printf("%s", Description);
-            Log(SYSInformation, "ModernFLAC", "FLACParseVorbisComment", Description);
+            //printf("%s", Description);
+            Log(SYSDebug, "ModernFLAC", "FLACParseVorbisComment", Description);
         }
     }
     
@@ -157,7 +156,7 @@ extern "C" {
         FLAC->Meta->Pic->BitDepth    = ReadBits(BitI, 32); // 24, PER PIXEL, NOT SUBPIXEL
         FLAC->Meta->Pic->ColorsUsed  = ReadBits(BitI, 32); // 0
         FLAC->Meta->Pic->PictureSize = ReadBits(BitI, 32); // 17,109
-                                                           // Pop in the address of the start of the data, and skip over the data instead of buffering it.
+    // Pop in the address of the start of the data, and skip over the data instead of buffering it.
     }
     
 #ifdef __cplusplus

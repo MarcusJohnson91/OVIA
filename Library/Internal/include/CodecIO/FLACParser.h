@@ -4,7 +4,7 @@
 extern "C" {
 #endif
     
-    int8_t   FLACParseMetadata(BitInput *BitI, FLACDecoder *FLAC);
+    void     FLACParseMetadata(BitInput *BitI, FLACDecoder *FLAC);
     
     void     FLACParseStreamInfo(BitInput *BitI, FLACDecoder *FLAC);
     

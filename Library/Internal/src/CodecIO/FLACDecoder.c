@@ -62,25 +62,25 @@ extern "C" {
     }
     
     void FLACReadFrame(BitInput *BitI, FLACDecoder *FLAC) {
-        SkipBits(BitI, 1); // 1
-        FLAC->Data->Frame->BlockType            = ReadBits(BitI, 1); // 0
-        FLAC->Data->Frame->CodedSamplesInBlock  = ReadBits(BitI, 4); // 14 aka 16384
+        SkipBits(BitI, 1); // 0
+        FLAC->Data->Frame->BlockType            = ReadBits(BitI, 1); // 0 aka Fixed
+        FLAC->Data->Frame->CodedSamplesInBlock  = ReadBits(BitI, 4); // 12 aka 4096
         if (((FLAC->Data->Frame->CodedSamplesInBlock != 6) || (FLAC->Data->Frame->CodedSamplesInBlock != 7))) {
             FLAC->Data->Frame->BlockSize        = GetBlockSizeInSamples(FLAC->Data->Frame->CodedSamplesInBlock); // SamplesInBlock
         }
-        FLAC->Data->Frame->CodedSampleRate      = ReadBits(BitI, 4); // 10
+        FLAC->Data->Frame->CodedSampleRate      = ReadBits(BitI, 4); // 9 aka 44100
         if ((FLAC->Data->Frame->CodedSampleRate >= 0) && (FLAC->Data->Frame->CodedSampleRate <= 11)) {
-            FLACSampleRate(BitI, FLAC); // 48,000
+            FLACSampleRate(BitI, FLAC);
         }
-        FLAC->Data->Frame->ChannelLayout        = ReadBits(BitI, 4) + 1; // 1
-        FLAC->Data->Frame->CodedBitDepth        = ReadBits(BitI, 3); // 6 aka 24 bits per sample
+        FLAC->Data->Frame->ChannelLayout        = ReadBits(BitI, 4) + 1; // 2
+        FLAC->Data->Frame->CodedBitDepth        = ReadBits(BitI, 3); // 4 aka 16 bits per sample
         if (FLAC->Data->Frame->CodedBitDepth != 0) {
-            FLACBitDepth(FLAC); // 24
+            FLACBitDepth(FLAC);
         }
         SkipBits(BitI, 1); // 0
         
         if (FLAC->Data->Frame->BlockType        == FixedBlockSize) { // variable blocktype
-            FLAC->Data->Frame->FrameNumber      = ReadBits(BitI, 31); // 2,064,447
+            FLAC->Data->Frame->FrameNumber      = ReadBits(BitI, 31); // 6,367,232
         } else if (FLAC->Data->Frame->BlockType == VariableBlockSize) {
             FLAC->Data->Frame->SampleNumber     = ReadBits(BitI, 36);
         }
@@ -100,7 +100,7 @@ extern "C" {
             FLAC->Data->Frame->SampleRate       = ReadBits(BitI, 16) * 10;
         }
         
-        FLAC->Data->Frame->FLACFrameCRC         = ReadBits(BitI, 8); // CRC, 0xFF, 1 bit still remaining
+        FLAC->Data->Frame->FLACFrameCRC         = ReadBits(BitI, 8); // CRC, 0x4
         
         for (uint8_t Channel = 0; Channel < FLAC->Meta->StreamInfo->Channels; Channel++) { // read SubFrame
             FLACReadSubFrame(BitI, FLAC, Channel);
@@ -109,22 +109,22 @@ extern "C" {
     
     void FLACReadSubFrame(BitInput *BitI, FLACDecoder *FLAC, uint8_t Channel) {
         SkipBits(BitI, 1); // Reserved
-        FLAC->Data->SubFrame->SubFrameType      = ReadBits(BitI, 6); // 63
+        FLAC->Data->SubFrame->SubFrameType      = ReadBits(BitI, 6); // 127
         if (FLAC->Data->SubFrame->SubFrameType > 0) {
-            FLAC->Data->LPC->LPCOrder = (FLAC->Data->SubFrame->SubFrameType & 0x1F) - 1; // 63 & 0x1F = 31. 31 - 1 = 30
+            FLAC->Data->LPC->LPCOrder = (FLAC->Data->SubFrame->SubFrameType & 0x1F) - 1; // 30
         }
         FLAC->Data->SubFrame->WastedBitsFlag    = ReadBits(BitI, 1); // 1
         if (FLAC->Data->SubFrame->WastedBitsFlag == true) {
-            FLAC->Data->SubFrame->WastedBits    = ReadRICE(BitI, false, 0); // 7
+            FLAC->Data->SubFrame->WastedBits    = ReadRICE(BitI, false, 0); // 11111 0 00000
         }
         
         if (FLAC->Data->SubFrame->SubFrameType == Subframe_Verbatim) { // PCM
             FLACDecodeSubFrameVerbatim(BitI, FLAC);
         } else if (FLAC->Data->SubFrame->SubFrameType == Subframe_Constant) {
             FLACDecodeSubFrameConstant(BitI, FLAC);
-        } else if (FLAC->Data->SubFrame->SubFrameType == Subframe_Fixed) {
+        } else if (FLAC->Data->SubFrame->SubFrameType >= Subframe_Fixed && FLAC->Data->SubFrame->SubFrameType <= Subframe_LPC) { // Fixed
             FLACDecodeSubFrameFixed(BitI, FLAC);
-        } else if (FLAC->Data->SubFrame->SubFrameType == Subframe_LPC) {
+        } else if (FLAC->Data->SubFrame->SubFrameType >= Subframe_LPC) { // LPC
             FLACDecodeSubFrameLPC(BitI, FLAC, Channel);
         } else {
             char Description[BitIOStringSize];
@@ -151,10 +151,9 @@ extern "C" {
         FLACDecodeResidual(BitI, FLAC);
     }
     
-    void FLACDecodeSubFrameLPC(BitInput *BitI, FLACDecoder *FLAC, uint8_t Channel) {
-        FLAC->Data->LPC->LPCOrder; // TODO: DELETE THIS, 30
-        // 24 * 30 = 720 warmup samples
-        for (uint16_t WarmupSample = 0; WarmupSample < FLAC->Data->Frame->BitDepth * FLAC->Data->LPC->LPCOrder; WarmupSample++) {
+    void FLACDecodeSubFrameLPC(BitInput *BitI, FLACDecoder *FLAC, uint8_t Channel) { // 4 0's
+        for (uint16_t WarmupSample = 0; WarmupSample < FLAC->Data->Frame->BitDepth * FLAC->Data->LPC->LPCOrder; WarmupSample++) { // 16 * 30= 480 aka 960 bytes
+            // 004F, FFB0, 004F, 
             FLAC->DecodedSamples[WarmupSample]  = ReadBits(BitI, FLAC->Data->Frame->BitDepth);
         }
         
