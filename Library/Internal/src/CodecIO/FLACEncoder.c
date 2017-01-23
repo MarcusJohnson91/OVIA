@@ -19,7 +19,7 @@ extern "C" {
         FLAC->Data->Rice       = calloc(sizeof(RICEPartition), 1);
     }
     
-    int8_t EncodeFLAC(BitInput *BitI, BitOutput *BitO, FLACEncoder *FLAC) {
+    int8_t EncodeFLAC(PCMFile *PCM, BitOutput *BitO, FLACEncoder *FLAC) {
         if (FLAC->EncodeSubset == true && FLAC->Data->Frame->SampleRate <= 48000) {
             FLAC->MaxBlockSize          =  4608;
             FLAC->MaxFilterOrder        =    12;

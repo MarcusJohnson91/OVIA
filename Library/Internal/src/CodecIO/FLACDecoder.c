@@ -303,6 +303,11 @@ extern "C" {
     
     void FLACDecodeLPC(BitInput BitI, FLACDecoder *FLAC) {
         // Basically you use the warmup samples in FLAC->DecodedSamples, along with the info in FLAC->LPC to deocde the file by using summation.
+        // LPC is lossy, which is why you use filters to reduce the size of the residual.
+        
+        
+        
+        
         // I need 2 loops, one for the warmup samples, and one for the LPC encoded samples.
         
         

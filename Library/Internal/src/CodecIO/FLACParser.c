@@ -109,8 +109,8 @@ extern "C" {
         }
         
         for (uint32_t UserTag = 0; UserTag < FLAC->Meta->Vorbis->NumUserTags; UserTag++) {
-            snprintf(Description, BitIOStringSize, "User Tag %d of %d: %s\n", UserTag, FLAC->Meta->Vorbis->NumUserTags, FLAC->Meta->Vorbis->UserTagString[UserTag]);
-            printf(Description);
+            snprintf(Description, BitIOStringSize, "User Tag %d of %d: %c\n", UserTag, FLAC->Meta->Vorbis->NumUserTags, FLAC->Meta->Vorbis->UserTagString[UserTag]);
+            printf("%s", Description);
             Log(SYSInformation, "ModernFLAC", "FLACParseVorbisComment", Description);
         }
     }
