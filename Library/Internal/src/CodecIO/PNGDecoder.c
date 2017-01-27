@@ -1,4 +1,4 @@
-#include "libModernPNG.h"
+#include "../../include/libModernPNG.h"
 
 #ifdef __cplusplus
 extern "C" {
