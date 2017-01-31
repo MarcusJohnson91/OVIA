@@ -19,7 +19,7 @@ extern "C" {
         "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
     };
     
-    enum PNGFlags {
+    extern enum PNGFlags {
         PNGIsStereoscopic       = 0,
         PNGNeedsColorCorrection = 0,
     } PNGFlags;
