@@ -158,6 +158,7 @@ extern "C" {
     /* End APNG */
     
     void ParseIDAT(BitInput *BitI, PNGDecoder *PNG, uint32_t ChunkSize) { // IDAT
+        DecodeINFLATE
         uint32_t CRC = ReadBits(BitI, 32);
     }
     
@@ -181,7 +182,7 @@ extern "C" {
         uint32_t CRC = ReadBits(BitI, 32);
     }
     
-    uint8_t ParsePNG(BitInput *BitI, PNGDecoder *PNG) {
+    uint8_t ParsePNGMetadata(BitInput *BitI, PNGDecoder *PNG) {
         uint64_t FileMagic    = ReadBits(BitI, 64);
         if (FileMagic != PNGMagic) { // File identification failed.
             char Error[BitIOStringSize];
@@ -260,10 +261,19 @@ extern "C" {
         return EXIT_SUCCESS;
     }
     
-    void DecodePNG(BitInput *BitI, PNGDecoder *PNG) {
+    void DecodePNGData(BitInput *BitI, PNGDecoder *PNG) {
+        // read the iDAT/fDAT chunk header, then do the other stuff.
+    }
+    
+    void DecodePNGImage(BitInput *BitI, PNGDecoder *PNG, uint8_t *DecodedImage) {
         // Parse all chunks except iDAT, fDAT, and iEND first.
         // When you come across an iDAT or fDAT. you need to store the start address, then return to parsing the meta chunks, then at the end  decode the i/f DATs.
+        ParsePNGMetadata(BitI, PNG);
+        
         if (PNG->Is3D == true) {
+            
+        }
+        while (BitI->FilePosition < BitI->FileSize) {
             
         }
     }
