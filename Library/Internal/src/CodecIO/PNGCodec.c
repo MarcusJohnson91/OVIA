@@ -158,6 +158,15 @@ extern "C" {
         bkGD          *bkGD;
     } PNGEncoder;
     
+    static const uint8_t ChannelsPerColorType[8] = {
+        1, 0, 3, 3, 4, 4
+    };
+    
+    static const char Number2Month[12][3] = {
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+    };
+    
     void CalculateSTERPadding(PNGDecoder *PNG) {
         PNG->LinePadding = 7 - ((PNG->iHDR->Width - 1) % 8);
         PNG->LineWidth   = (PNG->iHDR->Width * 2) + PNG->LinePadding;
