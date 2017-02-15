@@ -58,6 +58,24 @@ extern "C" {
     
     uint8_t GetBlockSizeInSamples(uint8_t BlockSize);
     
+    void    FLACReadStream(BitInput *BitI, FLACDecoder *FLAC);
+    
+    void    FLACParseMetadata(BitInput *BitI, FLACDecoder *FLAC);
+    
+    void    FLACParseStreamInfo(BitInput *BitI, FLACDecoder *FLAC);
+    
+    void    FLACSkipPadding(BitInput *BitI, FLACDecoder *FLAC);
+    
+    void    FLACSkipCustom(BitInput *BitI, FLACDecoder *FLAC);
+    
+    void    FLACParseSeekTable(BitInput *BitI, FLACDecoder *FLAC);
+    
+    void    FLACParseVorbisComment(BitInput *BitI, FLACDecoder *FLAC);
+    
+    void    FLACParseCuesheet(BitInput *BitI, FLACDecoder *FLAC);
+    
+    void    FLACParsePicture(BitInput *BitI, FLACDecoder *FLAC);
+    
 #ifdef __cplusplus
 }
 #endif
