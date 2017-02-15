@@ -81,7 +81,7 @@ extern "C" {
                 
             default:
                 snprintf(ErrorDescription, BitIOStringSize, "Invalid ChunkID: 0x%X", ChunkID);
-                Log(SYSError, "libPCM", "ParseWAVFile", ErrorDescription);
+                Log(LOG_ERR, "libPCM", "ParseWAVFile", ErrorDescription);
                 break;
         }
     }
