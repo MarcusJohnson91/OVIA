@@ -187,7 +187,7 @@ extern "C" {
         if (FileMagic != PNGMagic) { // File identification failed.
             char Error[BitIOStringSize];
             snprintf(Error, BitIOStringSize, "File Magic 0x%llX is not PNG, exiting\n", FileMagic);
-            Log(SYSCritical, "NewFLAC", "ParsePNG", Error);
+            Log(LOG_CRIT, "NewFLAC", "ParsePNG", Error);
             exit(EXIT_FAILURE);
         } else {
             char     ChunkID[4];
@@ -253,7 +253,7 @@ extern "C" {
             } else {
                 char ErrorDescription[BitIOStringSize];
                 snprintf(ErrorDescription, BitIOStringSize, "Unknown ChunkID: 0x%s, ChunkSize: %d, ChunkCRC: 0x%X\n", ChunkID, ChunkSize, ChunkCRC);
-                Log(SYSError, "NewPNG", "ParsePNG", ErrorDescription);
+                Log(LOG_ERR, "NewPNG", "ParsePNG", ErrorDescription);
                 
                 SkipBits(BitI, Bytes2Bits(ChunkSize));
             }
