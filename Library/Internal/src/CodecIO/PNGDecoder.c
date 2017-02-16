@@ -4,6 +4,36 @@
 extern "C" {
 #endif
     
+    struct PNGDecoder {
+        uint32_t      iHDRSize;
+        uint32_t      CurrentFrame;
+        uint32_t      LineWidth;
+        uint32_t      LinePadding;
+        bool          IsVideo:1;
+        bool          Is3D:1;
+        bool          acTLExists:1;
+        bool          fcTLExists:1;
+        bool          cHRMExists:1;
+        bool          gAMAExists:1;
+        bool          iCCPExists:1;
+        bool          sRGBExists:1;
+        struct iHDR   *iHDR;
+        struct acTL   *acTL;
+        struct fcTL   *fcTL;
+        struct fdAT   *fdAT;
+        struct tRNS   *tRNS;
+        struct cHRM   *cHRM;
+        struct sBIT   *sBIT;
+        struct Text   *Text;
+        struct gAMA   *gAMA;
+        struct oFFs   *oFFs;
+        struct iCCP   *iCCP;
+        struct sRGB   *sRGB;
+        struct sTER   *sTER;
+        struct PLTE   *PLTE;
+        struct bkGD   *bkGD;
+    };
+    
     void ParseIHDR(BitInput *BitI, PNGDecoder *PNG, uint32_t ChunkSize) {
         PNG->iHDR->Width          = ReadBits(BitI, 32);
         PNG->iHDR->Height         = ReadBits(BitI, 32);
@@ -42,26 +72,31 @@ extern "C" {
     
     void ParseBKGD(BitInput *BitI, PNGDecoder *PNG, uint32_t ChunkSize) { // Background
                                                                           // WARNING: *MUST* have PLTE chunk.
-        uint8_t BackgroundPaletteEntry = ReadBits(BitI, 8);
-        uint32_t CRC = ReadBits(BitI, 32);
+        for (uint8_t Entry = 0; Entry < 3; Entry++) {
+            PNG->bkGD->BackgroundPaletteEntry[Entry] = ReadBits(BitI, 8);
+        }
+        PNG->bkGD->CRC = ReadBits(BitI, 32);
     }
     
     void ParseCHRM(BitInput *BitI, PNGDecoder *PNG, uint32_t ChunkSize) { // Chromaticities
-        float Chromaticities[4][2] = {{0.0},{0.0}};
-        for (uint8_t Color = 0; Color < 4; Color++) {
-            for (uint8_t Piece = 0; Piece < 2; Piece++) {
-                Chromaticities[Color][Piece] = ReadBits(BitI, 32);
-            }
-        }
-        uint32_t CRC = ReadBits(BitI, 32);
+        PNG->cHRM->WhitePoint[0] = ReadBits(BitI, 32);
+        PNG->cHRM->WhitePoint[1] = ReadBits(BitI, 32);
+        PNG->cHRM->Red[0]        = ReadBits(BitI, 32);
+        PNG->cHRM->Red[1]        = ReadBits(BitI, 32);
+        PNG->cHRM->Green[0]      = ReadBits(BitI, 32);
+        PNG->cHRM->Green[1]      = ReadBits(BitI, 32);
+        PNG->cHRM->Blue[0]       = ReadBits(BitI, 32);
+        PNG->cHRM->Blue[1]       = ReadBits(BitI, 32);
+        PNG->cHRM->CRC           = ReadBits(BitI, 32);
     }
     
     void ParseGAMA(BitInput *BitI, PNGDecoder *PNG, uint32_t ChunkSize) { // Gamma
-        float Gamma = (float)ReadBits(BitI, 32);
-        uint32_t CRC = ReadBits(BitI, 32);
+        PNG->gAMA->Gamma = ReadBits(BitI, 32);
+        PNG->gAMA->CRC = ReadBits(BitI, 32);
     }
     
     void ParseOFFS(BitInput *BitI, PNGDecoder *PNG, uint32_t ChunkSize) { // Image Offset
+        PNG->oFFs
         bool Type    = ReadBits(BitI, 8);
         uint32_t X   = ReadBits(BitI, 32);
         uint32_t Y   = ReadBits(BitI, 32);
@@ -278,21 +313,24 @@ extern "C" {
         }
     }
     
-    PNGDecoder *InitPNGDecoder(PNGDecoder *PNG) {
-        PNG->iHDR = calloc(sizeof(iHDR), 1);
-        PNG->acTL = calloc(sizeof(acTL), 1);
-        PNG->fdAT = calloc(sizeof(fdAT), 1);
-        PNG->tRNS = calloc(sizeof(tRNS), 1);
-        PNG->cHRM = calloc(sizeof(cHRM), 1);
-        PNG->sBIT = calloc(sizeof(sBIT), 1);
-        PNG->fcTL = calloc(sizeof(fcTL), 1);
-        PNG->Text = calloc(sizeof(Text), 1);
-        PNG->gAMA = calloc(sizeof(gAMA), 1);
-        PNG->iCCP = calloc(sizeof(iCCP), 1);
-        PNG->sRGB = calloc(sizeof(sRGB), 1);
-        PNG->sTER = calloc(sizeof(sTER), 1);
-        PNG->PLTE = calloc(sizeof(PLTE), 1);
-        PNG->bkGD = calloc(sizeof(bkGD), 1);
+    PNGDecoder *InitPNGDecoder(void) {
+        PNGDecoder *Dec = calloc(sizeof(PNGDecoder), 1);
+        Dec->iHDR       = calloc(sizeof(iHDR), 1);
+        Dec->acTL       = calloc(sizeof(acTL), 1);
+        Dec->fdAT       = calloc(sizeof(fdAT), 1);
+        Dec->tRNS       = calloc(sizeof(tRNS), 1);
+        Dec->cHRM       = calloc(sizeof(cHRM), 1);
+        Dec->sBIT       = calloc(sizeof(sBIT), 1);
+        Dec->fcTL       = calloc(sizeof(fcTL), 1);
+        Dec->Text       = calloc(sizeof(Text), 1);
+        Dec->gAMA       = calloc(sizeof(gAMA), 1);
+        Dec->oFFs       = calloc(sizeof(oFFs), 1);
+        Dec->iCCP       = calloc(sizeof(iCCP), 1);
+        Dec->sRGB       = calloc(sizeof(sRGB), 1);
+        Dec->sTER       = calloc(sizeof(sTER), 1);
+        Dec->PLTE       = calloc(sizeof(PLTE), 1);
+        Dec->bkGD       = calloc(sizeof(bkGD), 1);
+        return Dec;
     }
     
 #ifdef __cplusplus

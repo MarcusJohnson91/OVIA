@@ -23,7 +23,7 @@ extern "C" {
         uint8_t    NumChannels;
         uint8_t ***ImageData; // Pointer to 3D, pointer to channels, pointer to sample.
     } GenericDecompressedImage;
-    
+    /*
     typedef struct iHDR iHDR;
     
     typedef struct acTL acTl;
@@ -55,7 +55,7 @@ extern "C" {
     typedef struct PNGDecoder PNGDecoder;
     
     typedef struct PNGEncoder PNGEncoder;
-    
+    */
     PNGDecoder *InitPNGDecoder(void);
     
     PNGEncoder *InitPNGEncoder(void);

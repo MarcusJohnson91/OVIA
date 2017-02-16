@@ -1,4 +1,5 @@
 #include "libModernPNG.h"
+#include "PNGTypes.h"
 
 #pragma once
 
@@ -56,6 +57,7 @@ extern "C" {
     
     uint8_t ParsePNGMetadata(BitInput *BitI, PNGDecoder *PNG);
     
+    PNGDecoder *InitPNGDecoder(void);
     
 #ifdef __cplusplus
 }

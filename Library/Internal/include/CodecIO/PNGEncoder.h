@@ -1,4 +1,5 @@
 #include "libModernPNG.h"
+#include "PNGTypes.h"
 
 #pragma once
 
