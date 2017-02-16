@@ -1,4 +1,4 @@
-#include "../../include/libModernPNG.h"
+#include "../include/DecodePNG.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -278,7 +278,7 @@ extern "C" {
         }
     }
     
-    void InitPNGDecoder(PNGDecoder *PNG) {
+    PNGDecoder *InitPNGDecoder(PNGDecoder *PNG) {
         PNG->iHDR = calloc(sizeof(iHDR), 1);
         PNG->acTL = calloc(sizeof(acTL), 1);
         PNG->fdAT = calloc(sizeof(fdAT), 1);
