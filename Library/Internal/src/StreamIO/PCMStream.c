@@ -33,7 +33,7 @@ extern "C" {
         W64Header *W64 = calloc(sizeof(W64Header), 1);
         AIFHeader *AIF = calloc(sizeof(AIFHeader), 1);
         if (PCM->MetadataHasBeenParsed == false) {
-            uint32_t Magic = ReadBits(BitI, 32);
+            uint32_t Magic = ReadBits(BitI, 32, true);
             switch (Magic) {
                 case WAVMagic:
                     PCM->FileType = WAV_Type;
@@ -62,8 +62,8 @@ extern "C" {
     void ParseWAVFile(BitInput *BitI, PCMFile *PCM) {
         char ErrorDescription[BitIOStringSize];
         
-        uint32_t ChunkID   = ReadBits(BitI, 32);
-        uint32_t ChunkSize = ReadBits(BitI, 32);
+        uint32_t ChunkID   = ReadBits(BitI, 32, true);
+        uint32_t ChunkSize = ReadBits(BitI, 32, true);
         
         switch (ChunkID) {
             case WAV_LIST:
@@ -87,9 +87,9 @@ extern "C" {
     }
     
     void ParseW64File(BitInput *BitI, W64Header *W64) {
-        uint32_t ChunkID   = ReadBits(BitI, 32);
+        uint32_t ChunkID   = ReadBits(BitI, 32, true);
         SkipBits(BitI, 96); // The rest of the GUID.
-        uint64_t ChunkSize = ReadBits(BitI, 64);
+        uint64_t ChunkSize = ReadBits(BitI, 64, true);
         switch (ChunkID) {
             case W64_FMT:
                 ParseW64FMTChunk(BitI, W64);
@@ -113,8 +113,8 @@ extern "C" {
     
     void ParseAIFFile(BitInput *BitI, AIFHeader *AIF) {
         // if NumFrames = 0, SNSD may not exist.
-        uint32_t AIFSize = ReadBits(BitI, 32);
-        uint32_t ChunkID = ReadBits(BitI, 32);
+        uint32_t AIFSize = ReadBits(BitI, 32, true);
+        uint32_t ChunkID = ReadBits(BitI, 32, true);
         switch (ChunkID) { // If the number of sound data bytes is odd, appened a padding sample.
             case AIF_AIFF:
                 
@@ -129,7 +129,7 @@ extern "C" {
     void IdentifyPCMFile(BitInput *BitI, PCMFile *PCM) {
         uint8_t  FileType = 0;
         
-        uint32_t InputMagic = ReadBits(BitI, 32);
+        uint32_t InputMagic = ReadBits(BitI, 32, true);
         if (InputMagic == WAV_RIFF) {
             PCM->FileType = WAV_Type;
             WAVHeader *WAV = calloc(sizeof(WAVHeader), 1);
