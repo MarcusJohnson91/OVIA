@@ -56,9 +56,8 @@ extern "C" {
     
     typedef struct PNGEncoder PNGEncoder;
     */
-    PNGDecoder *InitPNGDecoder(void);
     
-    PNGEncoder *InitPNGEncoder(void);
+    static const uint8_t ChannelsPerColorType[8];
     
     void        CalculateSTERPadding(PNGDecoder *PNG);
     

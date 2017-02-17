@@ -43,9 +43,9 @@ extern "C" {
     };
     
     struct tRNS {
-        uint8_t  NumEntries;
-        uint8_t  Palette[3][256];
-        uint32_t CRC;
+        uint8_t   NumEntries;
+        uint8_t **Palette;
+        uint32_t  CRC;
     };
     
     struct bkGD {
@@ -104,6 +104,42 @@ extern "C" {
         uint8_t  RenderingIntent;
         uint32_t CRC;
     };
+    
+    struct pHYs {
+        uint32_t PixelsPerUnitXAxis;
+        uint32_t PixelsPerUnitYAxis;
+        uint8_t  UnitSpecifier;
+        uint32_t CRC;
+    };
+    
+    struct pCAL {
+        char *CalibrationName;
+    };
+    
+    struct sCAL {
+        uint8_t   UnitSpecifier;
+        char    *PixelWidth; // ASCII float
+                             // null seperator.
+        char    *PixelHeight; // ASCII float
+    };
+    
+    struct gIFg {
+        
+    };
+    
+    struct gIFs {
+        
+    };
+    
+    struct fRAc {
+        
+    };
+    
+    struct hIST {
+        
+    };
+    
+    
     
     struct Text { // Replaces:  tEXt, iTXt, zTXt
         uint8_t TextType;

@@ -7,6 +7,42 @@
 extern "C" {
 #endif
     
+    struct PNGDecoder {
+        uint32_t      iHDRSize;
+        uint32_t      CurrentFrame;
+        uint32_t      LineWidth;
+        uint32_t      LinePadding;
+        bool          IsVideo:1;
+        bool          Is3D:1;
+        bool          acTLExists:1;
+        bool          fcTLExists:1;
+        bool          cHRMExists:1;
+        bool          gAMAExists:1;
+        bool          iCCPExists:1;
+        bool          sRGBExists:1;
+        struct acTL   *acTL;
+        struct bkGD   *bkGD;
+        struct cHRM   *cHRM;
+        struct fcTL   *fcTL;
+        struct fdAT   *fdAT;
+        struct gAMA   *gAMA;
+        struct hIST   *hIST;
+        struct iCCP   *iCCP;
+        struct iHDR   *iHDR;
+        struct oFFs   *oFFs;
+        struct pCAL   *pCAL;
+        struct pHYs   *pHYs;
+        struct PLTE   *PLTE;
+        struct sBIT   *sBIT;
+        struct sCAL   *sCAL;
+        struct sRGB   *sRGB;
+        struct sTER   *sTER;
+        struct Text   *Text;
+        struct tRNS   *tRNS;
+    };
+    
+    typedef struct PNGDecoder PNGDecoder;
+    
     void ParseIHDR(BitInput *BitI, PNGDecoder *PNG, uint32_t ChunkSize);
     
     void ParsePLTE(BitInput *BitI, PNGDecoder *PNG, uint32_t ChunkSize);

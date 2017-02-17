@@ -1,4 +1,5 @@
 #include "../include/libModernPNG.h"
+#include "../include/PNGTypes.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -13,9 +14,9 @@ extern "C" {
         "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
     };
     
-    void CalculateSTERPadding(PNGDecoder *PNG) {
-        PNG->LinePadding = 7 - ((PNG->iHDR->Width - 1) % 8);
-        PNG->LineWidth   = (PNG->iHDR->Width * 2) + PNG->LinePadding;
+    void CalculateSTERPadding(uint32_t Width) {
+        PNG->LinePadding = 7 - ((Width - 1) % 8);
+        PNG->LineWidth   = (Width * 2) + PNG->LinePadding;
     }
     
     /* PNG Decode Filters, Filters operate on bytes, not pixels. */
@@ -141,7 +142,7 @@ extern "C" {
                     break;
                 default:
                     snprintf(Error, BitIOStringSize, "Filter type: %d is invalid\n", FilterType);
-                    Log(LOG_ERR, "NewPNG", "PNGDecodeFilteredLine", Error);
+                    Log(LOG_ERR, "ModernPNG", "PNGDecodeFilteredLine", Error);
                     break;
             }
         }
