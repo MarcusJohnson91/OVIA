@@ -27,11 +27,11 @@ extern "C" {
                 while (ReadBits(BitI, 14, true) != FLACFrameMagic || (BitI->FilePosition + BitI->BitsUnavailable) < BitI->FileSize) {
                     FrameSizeInBits += 14;
                 }
-                SkipBits(BitI, Bits2Bytes(FrameSizeInBits));
+                SkipBits(BitI, FrameSizeInBits);
                 // Create buffer that's FrameSizeInBits, and then start copying each byte into the buffer
                 uint8_t FrameBuffer[1];
-                realloc(FrameBuffer, Bits2Bytes(FrameSizeInBits));
-                for (size_t FrameByte = 0; FrameByte < Bits2Bytes(FrameSizeInBits); FrameByte++) {
+                realloc(FrameBuffer, Bits2Bytes(FrameSizeInBits, true));
+                for (size_t FrameByte = 0; FrameByte < Bits2Bytes(FrameSizeInBits, true); FrameByte++) {
                     FrameByte[FrameByte] = BitI->Buffer[FrameByte];
                 }
             }
