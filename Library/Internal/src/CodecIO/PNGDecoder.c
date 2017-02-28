@@ -39,7 +39,7 @@ extern "C" {
         Dec->tRNS->NumEntries = ReadBits(BitI, 32, true);
         uint16_t **Entries = calloc(Dec->tRNS->NumEntries, 1);
         for (uint8_t Color = 0; Color < ChannelsPerColorType[Dec->iHDR->ColorType]; Color++) {
-            Entries[Color] = ReadBits(BitI, Bits2Bytes(Dec->iHDR->BitDepth), true);
+            Entries[Color] = ReadBits(BitI, Bits2Bytes(Dec->iHDR->BitDepth, true), true);
         }
         Dec->tRNS->Palette = Entries;
         Dec->tRNS->CRC = ReadBits(BitI, 32, true);

@@ -21,26 +21,26 @@ extern "C" {
     
     /* PNG Decode Filters, Filters operate on bytes, not pixels. */
     void PNGDecodeNonFilter(PNGDecoder *PNG, uint8_t *DeEntropyedData[], uint8_t *DeFilteredData[], size_t Line) {
-        for (size_t Byte = 1; Byte < Bits2Bytes(PNG->iHDR->BitDepth); Byte++) {
+        for (size_t Byte = 1; Byte < Bits2Bytes(PNG->iHDR->BitDepth, true); Byte++) {
             DeFilteredData[Byte - 1] = DeEntropyedData[Byte]; // Remove filter indicating byte
         }
     }
     
     void PNGDecodeSubFilter(PNGDecoder *PNG, uint8_t *DeEntropyedData[], uint8_t *DeFilteredData[], size_t Line) {
-        for (size_t Byte = 1; Byte < Bits2Bytes(PNG->iHDR->BitDepth); Byte++) {
+        for (size_t Byte = 1; Byte < Bits2Bytes(PNG->iHDR->BitDepth, true); Byte++) {
             DeFilteredData[Line][Byte - 1] = (DeEntropyedData[Line][Byte] + DeEntropyedData[Line][Byte+1]) & 0xFF;
         }
     }
     
     void PNGDecodeUpFilter(PNGDecoder *PNG, uint8_t *DeEntropyedData[], uint8_t *DeFilteredData[], size_t Line) {
-        for (size_t Byte = 1; Byte < Bits2Bytes(PNG->iHDR->BitDepth); Byte++) {
+        for (size_t Byte = 1; Byte < Bits2Bytes(PNG->iHDR->BitDepth, true); Byte++) {
             DeFilteredData[Line][Byte - 1] = DeEntropyedData[Line][Byte] + DeEntropyedData[Line - 1][Byte] & 0xFF;
         }
     }
     
     void PNGDecodeAverageFilter(PNGDecoder *PNG, uint8_t *DeEntropyedData[], uint8_t *DeFilteredData[], size_t Line) {
-        uint8_t PixelSize = Bits2Bytes(PNG->iHDR->BitDepth);
-        for (size_t Byte = 1; Byte < Bits2Bytes(PNG->iHDR->BitDepth); Byte++) {
+        uint8_t PixelSize = Bits2Bytes(PNG->iHDR->BitDepth, true);
+        for (size_t Byte = 1; Byte < Bits2Bytes(PNG->iHDR->BitDepth, true); Byte++) {
             uint8_t Average = floor((DeEntropyedData[Line][Byte - (PixelSize)] + DeEntropyedData[Line - 1][Byte]) / 2);
             DeFilteredData[Line][Byte - 1] = DeEntropyedData[Line][Byte] + Average;
         }
@@ -80,8 +80,8 @@ extern "C" {
     
     void PNGDecodePaethFilter(PNGDecoder *PNG, uint8_t *DeEntropyedData[], uint8_t *DeFilteredData[], size_t Line) {
         // Filtering is applied to bytes, not pixels
-        uint8_t PixelSize = Bits2Bytes(PNG->iHDR->BitDepth);
-        for (size_t Byte = 1; Byte < Bits2Bytes(PNG->iHDR->BitDepth); Byte++) {
+        uint8_t PixelSize = Bits2Bytes(PNG->iHDR->BitDepth, true);
+        for (size_t Byte = 1; Byte < Bits2Bytes(PNG->iHDR->BitDepth, true); Byte++) {
             if (Line == 0) { // Assume top and top left = 0
                 DeFilteredData[Line][Byte] = PaethPredictor(DeEntropyedData[Line][Byte], 0, 0);
             } else {
