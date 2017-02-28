@@ -110,7 +110,7 @@ extern "C" {
     }
     
     void ParseWavDATAChunk(BitInput *BitI, PCMFile *PCM, uint32_t ChunkSize) { //
-        PCM->WAV->SampleCount            = ((ChunkSize / PCM->WAV->Channels) / Bits2Bytes(PCM->WAV->BitDepth));
+        PCM->WAV->SampleCount            = ((ChunkSize / PCM->WAV->Channels) / Bits2Bytes(PCM->WAV->BitDepth, true));
     }
     
     void ParseWavFMTChunk(BitInput *BitI, PCMFile *PCM, uint32_t ChunkSize) {
@@ -139,7 +139,7 @@ extern "C" {
         uint32_t   Samples[PCM->Data->NumChannels][NumSamples2Extract];
         for (uint16_t Channel = 0; Channel < PCM->Data->NumChannels; Channel++) {
             for (uint32_t Sample = 0; Sample < NumSamples2Extract; Sample++) {
-                Samples[Channel][Sample] = ReadBits(BitI, Bits2Bytes(PCM->Data->BitDepth));
+                Samples[Channel][Sample] = ReadBits(BitI, Bits2Bytes(PCM->Data->BitDepth, true));
             }
         }
         PCM->Samples    = *Samples;
