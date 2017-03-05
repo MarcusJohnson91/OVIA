@@ -1,5 +1,3 @@
-#include "libModernPNG.h"
-
 #pragma once
 
 #ifdef __cplusplus
@@ -17,13 +15,13 @@ extern "C" {
         uint32_t CRC;
     } iHDR;
     
-    struct acTL {
+    typedef struct acTL {
         uint32_t NumFrames;
         uint32_t TimesToLoop;
         uint32_t CRC;
-    };
+    } acTL;
     
-    struct fcTL {
+    typedef struct fcTL {
         uint32_t NumFrames;
         uint32_t Width;
         uint32_t Height;
@@ -34,119 +32,115 @@ extern "C" {
         uint8_t  DisposeMethod;
         bool     BlendMethod;
         uint32_t CRC;
-    };
+    } fcTL;
     
-    struct PLTE {
-        uint8_t NumEntries;
-        uint8_t  Palette[3][256];
-        uint32_t CRC;
-    };
-    
-    struct tRNS {
+    typedef struct PLTE {
         uint8_t   NumEntries;
         uint8_t **Palette;
         uint32_t  CRC;
-    };
+    } PLTE;
     
-    struct bkGD {
-        uint8_t  BackgroundPaletteEntry[3];
+    typedef struct tRNS {
+        uint8_t   NumEntries;
+        uint8_t **Palette;
+        uint32_t  CRC;
+    } tRNS;
+    
+    typedef struct bkGD {
+        uint8_t *BackgroundPaletteEntry;
         uint32_t CRC;
-    };
+    } bkGD;
     
-    struct sTER {
+    typedef struct sTER {
         bool     ChunkExists:1;
         bool     StereoType:1;
         uint32_t CRC;
-    };
+    } sTER;
     
-    struct fdAT {
+    typedef struct fdAT {
         uint32_t FrameNum;
-    };
+        uint32_t CRC;
+    } fdAT;
     
-    struct cHRM { // sRGB or iCCP overrides cHRM
+    typedef struct cHRM { // sRGB or iCCP overrides cHRM
         uint32_t WhitePoint[2]; // X = 0, Y = 1
         uint32_t Red[2];
         uint32_t Green[2];
         uint32_t Blue[2];
         uint32_t CRC;
-    };
+    } cHRM;
     
-    struct gAMA { // sRGB or iCCP overrides gAMA
+    typedef struct gAMA { // sRGB or iCCP overrides gAMA
         uint32_t Gamma;
         uint32_t CRC;
-    };
+    } gAMA;
     
-    struct oFFs {
+    typedef struct oFFs {
         int32_t  XOffset;
         int32_t  YOffset;
         bool     UnitSpecifier;
         uint32_t CRC;
-    };
+    } oFFs;
     
-    struct iCCP {
-        uint8_t  ProfileName[80];
-        uint8_t  NullSeperator; // Basically, once you've seen a null, subtract the bytes left in the chunk from the bytes read in order to find how large the compressed profile is.
+    typedef struct iCCP {
+        uint8_t *ProfileName;
         uint8_t  CompressionType;
         uint8_t *CompressedICCPProfile;
         uint32_t CRC;
-    };
+    } iCCP;
     
-    struct sBIT {
+    typedef struct sBIT {
         uint8_t  Grayscale;
         uint8_t  Red;
         uint8_t  Green;
         uint8_t  Blue;
         uint8_t  Alpha;
         uint32_t CRC;
-    };
+    } sBIT;
     
-    struct sRGB {
+    typedef struct sRGB {
         uint8_t  RenderingIntent;
         uint32_t CRC;
-    };
+    } sRGB;
     
-    struct pHYs {
+    typedef struct pHYs {
         uint32_t PixelsPerUnitXAxis;
         uint32_t PixelsPerUnitYAxis;
         uint8_t  UnitSpecifier;
         uint32_t CRC;
-    };
+    } pHYs;
     
-    struct pCAL {
-        char *CalibrationName;
-    };
+    typedef struct pCAL {
+        char    *CalibrationName;
+        uint32_t CRC;
+    } pCAL;
     
-    struct sCAL {
-        uint8_t   UnitSpecifier;
+    typedef struct sCAL {
+        uint8_t  UnitSpecifier;
         char    *PixelWidth; // ASCII float
-                             // null seperator.
         char    *PixelHeight; // ASCII float
-    };
+        uint32_t CRC;
+    } sCAL;
     
-    struct gIFg {
-        
-    };
+    typedef struct gIFg {
+        uint32_t CRC;
+    } gIFg;
     
-    struct gIFs {
-        
-    };
+    typedef struct gIFs {
+        uint32_t CRC;
+    } gIFs;
     
-    struct fRAc {
-        
-    };
+    typedef struct hIST {
+        uint32_t CRC;
+    } hIST;
     
-    struct hIST {
-        
-    };
-    
-    
-    
-    struct Text { // Replaces:  tEXt, iTXt, zTXt
-        uint8_t TextType;
-        uint8_t Keyword[80];
-        uint8_t NullSeperator;
-        uint8_t TextString[];
-    };
+    typedef struct Text { // Replaces:  tEXt, iTXt, zTXt
+        uint8_t  TextType;
+        uint8_t *Keyword;
+        uint8_t  NullSeperator;
+        uint8_t *TextString;
+        uint32_t CRC;
+    } Text;
     
 #ifdef __cplusplus
 }
