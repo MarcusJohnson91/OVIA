@@ -17,6 +17,13 @@ extern "C" {
         fDATMarker = 0x66444154,
         sTERMarker = 0x73544552,
         bKGDMarker = 0x626b4744,
+        cHRMMarker = 0x6348524d,
+        gAMAMarker = 0x67414d41,
+        oFFsMarker = 0x6f464673,
+        iCCPMarker = 0x69434350,
+        sBITMarker = 0x73424954,
+        sRGBMarker = 0x73524742,
+        pHYsMarker = 0x70485973,
     };
     
     extern enum PNGFlags {

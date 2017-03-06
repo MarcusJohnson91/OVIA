@@ -62,10 +62,14 @@ extern "C" {
     } fdAT;
     
     typedef struct cHRM { // sRGB or iCCP overrides cHRM
-        uint32_t WhitePoint[2]; // X = 0, Y = 1
-        uint32_t Red[2];
-        uint32_t Green[2];
-        uint32_t Blue[2];
+        uint32_t WhitePointX; // X = 0, Y = 1
+        uint32_t WhitePointY;
+        uint32_t RedX;
+        uint32_t RedY;
+        uint32_t GreenX;
+        uint32_t GreenY;
+        uint32_t BlueX;
+        uint32_t BlueY;
         uint32_t CRC;
     } cHRM;
     
@@ -82,9 +86,13 @@ extern "C" {
     } oFFs;
     
     typedef struct iCCP {
+        uint8_t  ProfileNameSize;
+        uint32_t CompressedICCPProfileSize;
+        
         uint8_t *ProfileName;
         uint8_t  CompressionType;
         uint8_t *CompressedICCPProfile;
+        
         uint32_t CRC;
     } iCCP;
     
@@ -110,7 +118,17 @@ extern "C" {
     } pHYs;
     
     typedef struct pCAL {
+        uint8_t  CalibrationNameSize;
+        uint8_t  UnitNameSize;
+        
         char    *CalibrationName;
+        int32_t  OriginalZero;
+        int32_t  OriginalMax;
+        uint8_t  EquationType;
+        uint8_t  NumParams;
+        uint8_t *UnitName;
+        
+        
         uint32_t CRC;
     } pCAL;
     

@@ -72,7 +72,7 @@ extern "C" {
     }
     
     void WriteBKGDChunk(BitOutput *BitO, EncodePNG *Enc) {
-        uint8_t NumChannels    = ChannelsPerColorType[Enc->iHDR->ColorType];
+        uint8_t  NumChannels   = ChannelsPerColorType[Enc->iHDR->ColorType];
         uint32_t Size          = 0;
         uint8_t  BKGDEntrySize = 0; // in bits
         
@@ -101,6 +101,117 @@ extern "C" {
         uint32_t GeneratedCRC = 0;
         GenerateCRC(Enc->bkGD->BackgroundPaletteEntry, BKGDEntrySize, GeneratedCRC);
         WriteBits(BitO, GeneratedCRC, 32, true);
+    }
+    
+    void WriteCHRMChunk(BitOutput *BitO, EncodePNG *Enc) {
+        WriteBits(BitO, 32, 32, true);
+        WriteBits(BitO, cHRMMarker, 32, true);
+        WriteBits(BitO, Enc->cHRM->WhitePointX, 32, true);
+        WriteBits(BitO, Enc->cHRM->WhitePointY, 32, true);
+        WriteBits(BitO, Enc->cHRM->RedX, 32, true);
+        WriteBits(BitO, Enc->cHRM->RedY, 32, true);
+        WriteBits(BitO, Enc->cHRM->GreenX, 32, true);
+        WriteBits(BitO, Enc->cHRM->GreenY, 32, true);
+        WriteBits(BitO, Enc->cHRM->BlueX, 32, true);
+        WriteBits(BitO, Enc->cHRM->BlueY, 32, true);
+        uint32_t GeneratedCRC = 0;
+        GenerateCRC(Enc->cHRM, 32, GeneratedCRC);
+        WriteBits(BitO, GeneratedCRC, 32, true);
+    }
+    
+    void WriteGAMAChunk(BitOutput *BitO, EncodePNG *Enc) {
+        WriteBits(BitO, 4, 32, true);
+        WriteBits(BitO, gAMAMarker, 32, true);
+        WriteBits(BitO, Enc->gAMA->Gamma, 32, true);
+        uint32_t GeneratedCRC = 0;
+        GenerateCRC(Enc->gAMA->Gamma, 32, GeneratedCRC);
+        WriteBits(BitO, GeneratedCRC, 32, true);
+    }
+    
+    void WriteOFFSChunk(BitOutput *BitO, EncodePNG *Enc) {
+        WriteBits(BitO, 9, 32, true);
+        WriteBits(BitO, oFFsMarker, 32, true);
+        WriteBits(BitO, Enc->oFFs->XOffset, 32, true);
+        WriteBits(BitO, Enc->oFFs->YOffset, 32, true);
+        WriteBits(BitO, Enc->oFFs->UnitSpecifier, 8, true);
+        uint32_t GeneratedCRC = 0;
+        GenerateCRC(Enc->oFFs, 32, GeneratedCRC);
+        WriteBits(BitO, GeneratedCRC, 32, true);
+    }
+    
+    void WriteICCPChunk(BitOutput *BitO, EncodePNG *Enc) {
+        WriteBits(BitO, Enc->iCCP->CompressedICCPProfileSize + Enc->iCCP->ProfileNameSize + 8, 32, true);
+        WriteBits(BitO, iCCPMarker, 32, true);
+        WriteBits(BitO, Enc->iCCP->ProfileName, Bytes2Bits(Enc->iCCP->ProfileName), true);
+        WriteBits(BitO, Enc->iCCP->CompressionType, 8, true);
+        WriteBits(BitO, Enc->iCCP->CompressedICCPProfile, Bytes2Bits(Enc->iCCP->CompressedICCPProfileSize), true);
+        uint32_t GeneratedCRC = 0;
+        GenerateCRC(Enc->iCCP, 32, GeneratedCRC);
+        WriteBits(BitO, GeneratedCRC, 32, true);
+    }
+    
+    void WriteSBITChunk(BitOutput *BitO, EncodePNG *Enc) {
+        uint8_t ChunkSize = 0;
+        uint8_t NumChannels = ChannelsPerColorType[Enc->iHDR->ColorType];
+        if (Enc->iHDR->ColorType == Grayscale) {
+            ChunkSize = 1;
+        } else if (Enc->iHDR->ColorType == RGB || Enc->iHDR->ColorType == PalettedRGB) {
+            ChunkSize = 3;
+        } else if (Enc->iHDR->ColorType == GrayAlpha) {
+            ChunkSize = 2;
+        } else if (Enc->iHDR->ColorType == RGBA) {
+            ChunkSize = 4;
+        }
+        
+        WriteBits(BitO, ChunkSize, 32, true);
+        WriteBits(BitO, sBITMarker, 32, true);
+        
+        if (Enc->iHDR->ColorType == RGB || Enc->iHDR->ColorType == PalettedRGB) {
+            WriteBits(BitO, Enc->sBIT->Red, 8, true);
+            WriteBits(BitO, Enc->sBIT->Green, 8, true);
+            WriteBits(BitO, Enc->sBIT->Blue, 8, true);
+        } else if (Enc->iHDR->ColorType == RGBA) {
+            WriteBits(BitO, Enc->sBIT->Red, 8, true);
+            WriteBits(BitO, Enc->sBIT->Green, 8, true);
+            WriteBits(BitO, Enc->sBIT->Blue, 8, true);
+            WriteBits(BitO, Enc->sBIT->Alpha, 8, true);
+        } else if (Enc->iHDR->ColorType == Grayscale) {
+            WriteBits(BitO, Enc->sBIT->Grayscale, 8, true);
+        } else if (Enc->iHDR->ColorType == GrayAlpha) {
+            WriteBits(BitO, Enc->sBIT->Grayscale, 8, true);
+            WriteBits(BitO, Enc->sBIT->Alpha, 8, true);
+        }
+        uint32_t GeneratedCRC = 0;
+        GenerateCRC(Enc->sBIT, 32, GeneratedCRC); // Make sure it skips 0s
+        WriteBits(BitO, GeneratedCRC, 32, true);
+    }
+    
+    void WriteSRGBChunk(BitOutput *BitO, EncodePNG *Enc) {
+        WriteBits(BitO, 1, 8, true);
+        WriteBits(BitO, sRGBMarker, 32, true);
+        WriteBits(BitO, Enc->sRGB->RenderingIntent, 8, true);
+        uint32_t GeneratedCRC = 0;
+        GenerateCRC(Enc->sRGB, 32, GeneratedCRC);
+        WriteBits(BitO, GeneratedCRC, 32, true);
+    }
+    
+    void WritePHYSChunk(BitOutput *BitO, EncodePNG *Enc) {
+        WriteBits(BitO, 9, 8, true);
+        WriteBits(BitO, pHYsMarker, 32, true);
+        WriteBits(BitO, Enc->pHYs->PixelsPerUnitXAxis, 32, true);
+        WriteBits(BitO, Enc->pHYs->PixelsPerUnitYAxis, 32, true);
+        WriteBits(BitO, Enc->pHYs->UnitSpecifier, 8, true);
+        uint32_t GeneratedCRC = 0;
+        GenerateCRC(Enc->pHYs, 32, GeneratedCRC);
+        WriteBits(BitO, GeneratedCRC, 32, true);
+    }
+    
+    void WritePCALChunk(BitOutput *BitO, EncodePNG *Enc) {
+        
+    }
+    
+    void WriteChunk(BitOutput *BitO, EncodePNG *Enc) {
+        
     }
     
     void PNGEncodeFilterPaeth(EncodePNG *Enc, uint8_t *Line, size_t LineSize) {
