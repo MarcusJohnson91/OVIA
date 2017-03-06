@@ -22,13 +22,13 @@ extern "C" {
     } acTL;
     
     typedef struct fcTL {
-        uint32_t NumFrames;
+        uint32_t FrameNum;
         uint32_t Width;
         uint32_t Height;
         uint32_t XOffset;
         uint32_t YOffset;
-        uint16_t Delay1;
-        uint16_t Delay2;
+        uint16_t FrameDelayNumerator;
+        uint16_t FrameDelayDenominator;
         uint8_t  DisposeMethod;
         bool     BlendMethod;
         uint32_t CRC;
@@ -52,7 +52,6 @@ extern "C" {
     } bkGD;
     
     typedef struct sTER {
-        bool     ChunkExists:1;
         bool     StereoType:1;
         uint32_t CRC;
     } sTER;
