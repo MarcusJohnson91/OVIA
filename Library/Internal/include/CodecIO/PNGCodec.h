@@ -24,6 +24,8 @@ extern "C" {
         sBITMarker = 0x73424954,
         sRGBMarker = 0x73524742,
         pHYsMarker = 0x70485973,
+        pCALMarker = 0x7043414c,
+        
     };
     
     extern enum PNGFlags {
@@ -52,7 +54,7 @@ extern "C" {
         1, 0, 3, 3, 4, 4
     };
     
-    void        DecodePNGImage(BitInput *BitI, DecodePNG *PNG, uint8_t *DecodedImage);
+    void        DecodePNGImage(BitInput *BitI, DecodePNG *PNG, uint16_t *DecodedImage);
 
 #ifdef __cplusplus
 }

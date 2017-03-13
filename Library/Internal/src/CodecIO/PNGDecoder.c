@@ -60,15 +60,15 @@ extern "C" {
     }
     
     void ParseCHRM(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize) { // Chromaticities
-        Dec->cHRM->WhitePoint[0] = ReadBits(BitI, 32, true);
-        Dec->cHRM->WhitePoint[1] = ReadBits(BitI, 32, true);
-        Dec->cHRM->Red[0]        = ReadBits(BitI, 32, true);
-        Dec->cHRM->Red[1]        = ReadBits(BitI, 32, true);
-        Dec->cHRM->Green[0]      = ReadBits(BitI, 32, true);
-        Dec->cHRM->Green[1]      = ReadBits(BitI, 32, true);
-        Dec->cHRM->Blue[0]       = ReadBits(BitI, 32, true);
-        Dec->cHRM->Blue[1]       = ReadBits(BitI, 32, true);
-        Dec->cHRM->CRC           = ReadBits(BitI, 32, true);
+        Dec->cHRM->WhitePointX = ReadBits(BitI, 32, true);
+        Dec->cHRM->WhitePointY = ReadBits(BitI, 32, true);
+        Dec->cHRM->RedX        = ReadBits(BitI, 32, true);
+        Dec->cHRM->RedY        = ReadBits(BitI, 32, true);
+        Dec->cHRM->GreenX      = ReadBits(BitI, 32, true);
+        Dec->cHRM->GreenY      = ReadBits(BitI, 32, true);
+        Dec->cHRM->BlueX       = ReadBits(BitI, 32, true);
+        Dec->cHRM->BlueY       = ReadBits(BitI, 32, true);
+        Dec->cHRM->CRC         = ReadBits(BitI, 32, true);
     }
     
     void ParseGAMA(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize) { // Gamma
@@ -231,7 +231,6 @@ extern "C" {
             ChunkID[3] = ReadBits(BitI, 8, true);
             uint32_t ChunkCRC   = ReadBits(BitI, 32, true);
             
-            
             if (strcasecmp(ChunkID, "iHDR") == 0) {        // iHDR
                 ParseIHDR(BitI, Dec, ChunkSize);
             } else if (strcasecmp(ChunkID, "PLTE") == 0) { // PLTE
@@ -345,7 +344,7 @@ extern "C" {
         return Output;
     }
     
-    void PNGDecodePaethFilter(DecodePNG *Dec, uint8_t **DeEntropyedData, uint8_t *DeFilteredData, size_t Line) {
+    void PNGDecodePaethFilter(DecodePNG *Dec, uint8_t **DeEntropyedData, uint8_t **DeFilteredData, size_t Line) {
         // Filtering is applied to bytes, not pixels
         uint8_t PixelSize = Bits2Bytes(Dec->iHDR->BitDepth, true);
         for (size_t Byte = 1; Byte < Bits2Bytes(Dec->iHDR->BitDepth, true); Byte++) {
@@ -404,7 +403,7 @@ extern "C" {
         }
     }
     
-    void DecodePNGImage(BitInput *BitI, DecodePNG *Dec, uint8_t *DecodedImage) {
+    void DecodePNGImage(BitInput *BitI, DecodePNG *Dec, uint16_t *DecodedImage) {
         // Parse all chunks except iDAT, fDAT, and iEND first.
         // When you come across an iDAT or fDAT. you need to store the start address, then return to parsing the meta chunks, then at the end  decode the i/f DATs.
         ParsePNGMetadata(BitI, Dec);
@@ -419,6 +418,10 @@ extern "C" {
     
     uint16_t **DecodeAdam7(DecodePNG *Dec, uint16_t **DecodedImage) {
         
+        // Break the image into 8x8 blocks.
+        // MARK: if the image is not a multiple of 8, I assume you pad the edge blocks?
+        
+        return 0;
     }
     
     // Let's do this library right, by adding attach and delete functions for the various chunks, and let's also have a fancy function that applies color profiles to the pixels.

@@ -133,6 +133,8 @@ extern "C" {
     } pCAL;
     
     typedef struct sCAL {
+        
+        
         uint8_t  UnitSpecifier;
         char    *PixelWidth; // ASCII float
         char    *PixelHeight; // ASCII float

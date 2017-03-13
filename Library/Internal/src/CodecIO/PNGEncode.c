@@ -207,7 +207,14 @@ extern "C" {
     }
     
     void WritePCALChunk(BitOutput *BitO, EncodePNG *Enc) {
+        uint32_t ChunkSize = 0;
+        WriteBits(BitO, ChunkSize, 32, true);
+        WriteBits(BitO, pCALMarker, 32, true);
         
+    }
+    
+    void WriteSCALChunk(BitOutput *BitO, EncodePNG *Enc) {
+        uint32_t ChunkSize = 0;
     }
     
     void WriteChunk(BitOutput *BitO, EncodePNG *Enc) {
