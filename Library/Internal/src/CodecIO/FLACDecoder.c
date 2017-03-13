@@ -1,3 +1,4 @@
+#include "/usr/local/Packages/libBitIO/include/BitIO.h"
 #include "../include/DecodeFLAC.h"
 
 #ifdef __cplusplus
@@ -294,18 +295,18 @@ extern "C" {
     
     void FLACDecodeSubFrameVerbatim(BitInput *BitI, FLACDecoder *FLAC) {
         for (uint16_t Sample = 0; Sample < FLAC->Data->Frame->BlockSize; Sample++) {
-            FLAC->DecodedSamples[Sample] = ReadBits(BitI, FLAC->Data->Frame->BitDepth);
+            FLAC->DecodedSamples[Sample] = ReadBits(BitI, FLAC->Data->Frame->BitDepth, true);
         }
     }
     
     void FLACDecodeSubFrameConstant(BitInput *BitI, FLACDecoder *FLAC) {
-        int64_t Constant = ReadBits(BitI, FLAC->Data->Frame->BitDepth);
+        int64_t Constant = ReadBits(BitI, FLAC->Data->Frame->BitDepth, true);
         memset(FLAC->DecodedSamples, Constant, FLAC->Data->Frame->BlockSize);
     }
     
     void FLACDecodeSubFrameFixed(BitInput *BitI, FLACDecoder *FLAC) {
         for (uint16_t WarmupSample = 0; WarmupSample < FLAC->Data->Frame->BitDepth * FLAC->Data->LPC->LPCOrder; WarmupSample++) {
-            FLAC->DecodedSamples[WarmupSample]  = ReadBits(BitI, FLAC->Data->Frame->BitDepth);
+            FLAC->DecodedSamples[WarmupSample]  = ReadBits(BitI, FLAC->Data->Frame->BitDepth, true);
         }
         FLACDecodeResidual(BitI, FLAC);
     }
@@ -313,7 +314,7 @@ extern "C" {
     void FLACDecodeSubFrameLPC(BitInput *BitI, FLACDecoder *FLAC, uint8_t Channel) { // 4 0's
         for (uint16_t WarmupSample = 0; WarmupSample < FLAC->Data->Frame->BitDepth * FLAC->Data->LPC->LPCOrder; WarmupSample++) { // 16 * 30= 480 aka 960 bytes
             // 004F, FFB0, 004F, 
-            FLAC->DecodedSamples[WarmupSample]  = ReadBits(BitI, FLAC->Data->Frame->BitDepth);
+            FLAC->DecodedSamples[WarmupSample]  = ReadBits(BitI, FLAC->Data->Frame->BitDepth, true);
         }
         
         FLAC->Data->LPC->LPCPrecision           = ReadBits(BitI, 4, true) + 1; // 0x1F aka 31
@@ -322,7 +323,7 @@ extern "C" {
         
         
         for (uint16_t LPCCoefficent = 0; LPCCoefficent < FLAC->Data->LPC->NumLPCCoeffs; LPCCoefficent++) {
-            FLAC->Data->LPC->LPCCoeff[LPCCoefficent] = ReadBits(BitI, FLAC->Data->LPC->NumLPCCoeffs) + 1;
+            FLAC->Data->LPC->LPCCoeff[LPCCoefficent] = ReadBits(BitI, FLAC->Data->LPC->NumLPCCoeffs, true) + 1;
         }
         FLACDecodeResidual(BitI, FLAC);
     }
@@ -344,11 +345,11 @@ extern "C" {
                 // Escape code, meaning the partition is in unencoded binary form using n bits per sample; n follows as a 5-bit number.
             } else {
                 if (FLAC->Data->LPC->PartitionOrder == 0) {
-                    FLAC->Data->Rice->RICEParameter[Partition] = ReadBits(BitI, FLAC->Data->Frame->BlockSize - FLAC->Data->LPC->LPCOrder);
+                    FLAC->Data->Rice->RICEParameter[Partition] = ReadBits(BitI, FLAC->Data->Frame->BlockSize - FLAC->Data->LPC->LPCOrder, true);
                 } else if (FLAC->Data->LPC->PartitionOrder > 0) {
-                    FLAC->Data->Rice->RICEParameter[Partition] = ReadBits(BitI, (FLAC->Data->Frame->BlockSize / pow(2, FLAC->Data->LPC->PartitionOrder)));
+                    FLAC->Data->Rice->RICEParameter[Partition] = ReadBits(BitI, (FLAC->Data->Frame->BlockSize / pow(2, FLAC->Data->LPC->PartitionOrder)), true);
                 } else {
-                    FLAC->Data->Rice->RICEParameter[Partition] = ReadBits(BitI, (FLAC->Data->Frame->BlockSize / pow(2, FLAC->Data->LPC->PartitionOrder)) - FLAC->Data->LPC->LPCOrder);
+                    FLAC->Data->Rice->RICEParameter[Partition] = ReadBits(BitI, (FLAC->Data->Frame->BlockSize / pow(2, FLAC->Data->LPC->PartitionOrder)) - FLAC->Data->LPC->LPCOrder, true);
                 }
             }
         }
@@ -361,11 +362,11 @@ extern "C" {
                 // Escape code, meaning the partition is in unencoded binary form using n bits per sample; n follows as a 5-bit number.
             } else {
                 if (FLAC->Data->LPC->PartitionOrder == 0) {
-                    FLAC->Data->Rice->RICEParameter[Partition] = ReadBits(BitI, FLAC->Data->Frame->BlockSize - FLAC->Data->LPC->LPCOrder);
+                    FLAC->Data->Rice->RICEParameter[Partition] = ReadBits(BitI, FLAC->Data->Frame->BlockSize - FLAC->Data->LPC->LPCOrder, true);
                 } else if (FLAC->Data->LPC->PartitionOrder > 0) {
-                    FLAC->Data->Rice->RICEParameter[Partition] = ReadBits(BitI, (FLAC->Data->Frame->BlockSize / pow(2, FLAC->Data->LPC->PartitionOrder)));
+                    FLAC->Data->Rice->RICEParameter[Partition] = ReadBits(BitI, (FLAC->Data->Frame->BlockSize / pow(2, FLAC->Data->LPC->PartitionOrder)), true);
                 } else {
-                    FLAC->Data->Rice->RICEParameter[Partition] = ReadBits(BitI, (FLAC->Data->Frame->BlockSize / pow(2, FLAC->Data->LPC->PartitionOrder)) - FLAC->Data->LPC->LPCOrder);
+                    FLAC->Data->Rice->RICEParameter[Partition] = ReadBits(BitI, (FLAC->Data->Frame->BlockSize / pow(2, FLAC->Data->LPC->PartitionOrder)) - FLAC->Data->LPC->LPCOrder, true);
                 }
             }
         }

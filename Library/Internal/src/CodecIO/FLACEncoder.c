@@ -1,3 +1,4 @@
+#include "/usr/local/Packages/libBitIO/include/BitIO.h"
 #include "../include/EncodeFLAC.h"
 
 #ifdef __cplusplus
@@ -5,17 +6,17 @@ extern "C" {
 #endif
     
     void   FLACWriteStreaminfo(BitOutput *BitO, FLACEncoder *FLAC) {
-        WriteBits(BitO, 34, 24); // StreamInfoSize
-        WriteBits(BitO, FLAC->Meta->StreamInfo->MinimumBlockSize, 16);
-        WriteBits(BitO, FLAC->Meta->StreamInfo->MaximumBlockSize, 16);
-        WriteBits(BitO, FLAC->Meta->StreamInfo->MinimumFrameSize, 24);
-        WriteBits(BitO, FLAC->Meta->StreamInfo->MaximumFrameSize, 24);
-        WriteBits(BitO, FLAC->Meta->StreamInfo->SampleRate, 20);
-        WriteBits(BitO, FLAC->Meta->StreamInfo->MinimumFrameSize, 24);
-        WriteBits(BitO, FLAC->Meta->StreamInfo->Channels - 1, 3);
-        WriteBits(BitO, FLAC->Meta->StreamInfo->BitDepth - 1, 5);
-        WriteBits(BitO, FLAC->Meta->StreamInfo->SamplesInStream, 36);
-        WriteBits(BitO, 0, 128); // ROOM for the MD5.
+        WriteBits(BitO, 34, 24, true); // StreamInfoSize
+        WriteBits(BitO, FLAC->Meta->StreamInfo->MinimumBlockSize, 16, true);
+        WriteBits(BitO, FLAC->Meta->StreamInfo->MaximumBlockSize, 16, true);
+        WriteBits(BitO, FLAC->Meta->StreamInfo->MinimumFrameSize, 24, true);
+        WriteBits(BitO, FLAC->Meta->StreamInfo->MaximumFrameSize, 24, true);
+        WriteBits(BitO, FLAC->Meta->StreamInfo->SampleRate, 20, true);
+        WriteBits(BitO, FLAC->Meta->StreamInfo->MinimumFrameSize, 24, true);
+        WriteBits(BitO, FLAC->Meta->StreamInfo->Channels - 1, 3, true);
+        WriteBits(BitO, FLAC->Meta->StreamInfo->BitDepth - 1, 5, true);
+        WriteBits(BitO, FLAC->Meta->StreamInfo->SamplesInStream, 36, true);
+        WriteBits(BitO, 0, 128, true); // ROOM for the MD5.
     }
     
     void   FLACWriteVorbisComment(BitOutput *BitO, FLACEncoder *FLAC) {
