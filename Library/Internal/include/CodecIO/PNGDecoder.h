@@ -77,6 +77,8 @@ extern "C" {
     
     typedef struct PNGDecoder DecodePNG;
     
+    void CalculateSTERPadding(DecodePNG *Dec);
+    
     void ParseIHDR(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize);
     
     void ParsePLTE(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize);
@@ -128,6 +130,20 @@ extern "C" {
     uint8_t ParsePNGMetadata(BitInput *BitI, DecodePNG *Dec);
     
     DecodePNG *InitPNGDecoder(void);
+    
+    void PNGDecodeSubFilter(DecodePNG *Dec, uint8_t **DeEntropyedData, uint8_t **DeFilteredData, size_t Line);
+    
+    void PNGDecodeNonFilter(DecodePNG *Dec, uint8_t *DeEntropyedData, uint8_t *DeFilteredData, size_t Line);
+    
+    void PNGDecodeUpFilter(DecodePNG *Dec, uint8_t **DeEntropyedData, uint8_t **DeFilteredData, size_t Line);
+    
+    void PNGDecodeAverageFilter(DecodePNG *Dec, uint8_t **DeEntropyedData, uint8_t **DeFilteredData, size_t Line);
+    
+    uint8_t PaethPredictor(int64_t Left, int64_t Above, int64_t UpperLeft);
+    
+    void PNGDecodePaethFilter(DecodePNG *Dec, uint8_t **DeEntropyedData, uint8_t **DeFilteredData, size_t Line);
+    
+    void PNGDecodeFilter(DecodePNG *Dec, uint8_t ***InflatedBuffer);
     
 #ifdef __cplusplus
 }

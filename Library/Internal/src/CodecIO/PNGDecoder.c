@@ -301,25 +301,25 @@ extern "C" {
         return EXIT_SUCCESS;
     }
     
-    void PNGDecodeNonFilter(DecodePNG *Dec, uint8_t *DeEntropyedData[], uint8_t *DeFilteredData[], size_t Line) {
+    void PNGDecodeNonFilter(DecodePNG *Dec, uint8_t *DeEntropyedData, uint8_t *DeFilteredData, size_t Line) {
         for (size_t Byte = 1; Byte < Bits2Bytes(Dec->iHDR->BitDepth, true); Byte++) {
             DeFilteredData[Byte - 1] = DeEntropyedData[Byte]; // Remove filter indicating byte
         }
     }
     
-    void PNGDecodeSubFilter(DecodePNG *Dec, uint8_t *DeEntropyedData[], uint8_t *DeFilteredData[], size_t Line) {
+    void PNGDecodeSubFilter(DecodePNG *Dec, uint8_t **DeEntropyedData, uint8_t **DeFilteredData, size_t Line) {
         for (size_t Byte = 1; Byte < Bits2Bytes(Dec->iHDR->BitDepth, true); Byte++) {
             DeFilteredData[Line][Byte - 1] = (DeEntropyedData[Line][Byte] + DeEntropyedData[Line][Byte+1]) & 0xFF;
         }
     }
     
-    void PNGDecodeUpFilter(DecodePNG *Dec, uint8_t *DeEntropyedData[], uint8_t *DeFilteredData[], size_t Line) {
+    void PNGDecodeUpFilter(DecodePNG *Dec, uint8_t **DeEntropyedData, uint8_t **DeFilteredData, size_t Line) {
         for (size_t Byte = 1; Byte < Bits2Bytes(Dec->iHDR->BitDepth, true); Byte++) {
             DeFilteredData[Line][Byte - 1] = DeEntropyedData[Line][Byte] + DeEntropyedData[Line - 1][Byte] & 0xFF;
         }
     }
     
-    void PNGDecodeAverageFilter(DecodePNG *Dec, uint8_t *DeEntropyedData[], uint8_t *DeFilteredData[], size_t Line) {
+    void PNGDecodeAverageFilter(DecodePNG *Dec, uint8_t **DeEntropyedData, uint8_t **DeFilteredData, size_t Line) {
         uint8_t PixelSize = Bits2Bytes(Dec->iHDR->BitDepth, true);
         for (size_t Byte = 1; Byte < Bits2Bytes(Dec->iHDR->BitDepth, true); Byte++) {
             uint8_t Average = floor((DeEntropyedData[Line][Byte - (PixelSize)] + DeEntropyedData[Line - 1][Byte]) / 2);
@@ -366,18 +366,23 @@ extern "C" {
             switch (FilterType) {
                 case 0:
                     // copy the Line except byte 0 (the filter indication byte) to the output buffer.
+                    PNGDecodeNonFilter(Dec, InflatedBuffer, DeFilteredData, Line);
                     break;
                 case 1:
                     // SubFilter
+                    PNGDecodeSubFilter(Dec, InflatedBuffer, DeFilteredData, Line);
                     break;
                 case 2:
                     // UpFilter
+                    PNGDecodeUpFilter(Dec, InflatedBuffer, DeFilteredData, Line);
                     break;
                 case 3:
                     // AverageFilter
+                    PNGDecodeAverageFilter(Dec, InflatedBuffer, DeFilteredData, Line);
                     break;
                 case 4:
                     // PaethFilter
+                    PNGDecodePaethFilter(Dec, InflatedBuffer, DeFilteredData, Line);
                     break;
                 default:
                     snprintf(Error, BitIOStringSize, "Filter type: %d is invalid\n", FilterType);
