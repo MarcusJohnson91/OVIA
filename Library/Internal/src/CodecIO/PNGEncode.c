@@ -217,10 +217,6 @@ extern "C" {
         uint32_t ChunkSize = 0;
     }
     
-    void WriteChunk(BitOutput *BitO, EncodePNG *Enc) {
-        
-    }
-    
     void PNGEncodeFilterPaeth(EncodePNG *Enc, uint8_t *Line, size_t LineSize) {
         // RawData is after decoding the I/f DATs, and after INFLAT'ing and De-LZ77'ing it.
         // Each line is preceded by a filter type byte, so decode it by a line by line basis.
@@ -240,7 +236,16 @@ extern "C" {
     }
     
     void PNGEncodeAdam7(EncodePNG *Enc, uint8_t *RawFrame) {
+        uint8_t WidthPadding = 0, HeightPadding = 0;
         // Break image into 8x8 blocks, then break each chunk into 7 layers.
+        if (Enc->iHDR->Width % 8 != 0) {
+            WidthPadding = 8 - (Enc->iHDR->Width % 8);
+        }
+        if (Enc->iHDR->Height % 8 != 0) {
+            HeightPadding = 8 - (Enc->iHDR->Height % 8);
+        }
+        // Pad the RawFrame by WidthPadding and HeightPadding
+        // Then Split the image into 8x8 chunks, or maybe I should just have a few loops?
     }
     
 #ifdef __cplusplus

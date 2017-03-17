@@ -422,9 +422,10 @@ extern "C" {
     }
     
     uint16_t **DecodeAdam7(DecodePNG *Dec, uint16_t **DecodedImage) {
-        
         // Break the image into 8x8 blocks.
         // MARK: if the image is not a multiple of 8, I assume you pad the edge blocks?
+        
+        
         
         return 0;
     }
