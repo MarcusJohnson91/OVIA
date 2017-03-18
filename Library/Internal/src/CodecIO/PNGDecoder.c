@@ -6,6 +6,67 @@
 extern "C" {
 #endif
     
+    struct PNGDecoder {
+        uint32_t      CurrentFrame;
+        uint32_t      LineWidth;
+        uint32_t      LinePadding;
+        bool          IsVideo:1;
+        bool          Is3D:1;
+        bool          acTLExists:1;
+        bool          bkGDExists:1;
+        bool          cHRMExists:1;
+        bool          fcTLExists:1;
+        bool          gAMAExists:1;
+        bool          hISTExists:1;
+        bool          iCCPExists:1;
+        bool          oFFsExists:1;
+        bool          pCALExists:1;
+        bool          pHYsExists:1;
+        bool          PLTEExists:1;
+        bool          sBITExists:1;
+        bool          sCALExists:1;
+        bool          sPLTExists:1;
+        bool          sRGBExists:1;
+        bool          sTERExists:1;
+        bool          TextExists:1;
+        bool          tIMEExists:1;
+        bool          tRNSExists:1;
+        struct acTL   *acTL;
+        struct bkGD   *bkGD;
+        struct cHRM   *cHRM;
+        struct fcTL   *fcTL;
+        struct fdAT   *fdAT;
+        struct gAMA   *gAMA;
+        struct hIST   *hIST;
+        struct iCCP   *iCCP;
+        struct iHDR   *iHDR;
+        struct oFFs   *oFFs;
+        struct pCAL   *pCAL;
+        struct pHYs   *pHYs;
+        struct PLTE   *PLTE;
+        struct sBIT   *sBIT;
+        struct sCAL   *sCAL;
+        struct sRGB   *sRGB;
+        struct sTER   *sTER;
+        struct Text   *Text;
+        struct tRNS   *tRNS;
+        struct tIMe   *tIMe;
+    };
+    
+    bool VerifyChunkCRC(BitInput *BitI, uint32_t ChunkSize) {
+        // So basically we need to read ChunkSize bytes into an array, then read the following 4 bytes as the CRC
+        // then run VerifyCRC over the buffer, and finally compare the generated CRC with the extracted one, and return whether they match.
+        // Then call SkipBits(BitI, Bytes2Bits(ChunkSize)); to reset to the beginning of the chunk
+        uint8_t *Buffer2CRC = calloc(ChunkSize, 1);
+        for (uint32_t Byte = 0; Byte < ChunkSize; Byte++) {
+            Buffer2CRC[Byte] = BitI->Buffer[BitI->BitsUnavailable / 8];
+        }
+        uint32_t ChunkCRC = ReadBits(BitI, 32, true);
+        bool CRCsMatch = VerifyCRC(Buffer2CRC, ChunkSize, 0x82608EDB, 32, 0xFFFFFFFF, ChunkCRC);
+        SkipBits(BitI, -Bytes2Bits(ChunkSize));
+        return CRCsMatch;
+    }
+    
     void CalculateSTERPadding(DecodePNG *Dec) {
         Dec->LinePadding = 7 - ((Dec->iHDR->Width - 1) % 8);
         Dec->LineWidth   = (Dec->iHDR->Width * 2) + Dec->LinePadding;
@@ -16,8 +77,8 @@ extern "C" {
         Dec->iHDR->Height         = ReadBits(BitI, 32, true);
         Dec->iHDR->BitDepth       = ReadBits(BitI, 8, true);
         Dec->iHDR->ColorType      = ReadBits(BitI, 8, true);
-        if ((Dec->iHDR->ColorType != 0) || (Dec->iHDR->ColorType != 2) || (Dec->iHDR->ColorType != 3) || (Dec->iHDR->ColorType != 4) || (Dec->iHDR->ColorType != 6)) {
-            printf("Invalid color type!\n");
+        if (Dec->iHDR->ColorType == 1 || Dec->iHDR->ColorType == 5 || Dec->iHDR->ColorType >= 7) {
+            Log(LOG_ALERT, "ModernPNG", "ParseiHDR", "Invalid color type: %d", Dec->iHDR->ColorType);
         }
         Dec->iHDR->Compression    = ReadBits(BitI, 8, true);
         Dec->iHDR->FilterMethod   = ReadBits(BitI, 8, true);
@@ -29,10 +90,18 @@ extern "C" {
     
     void ParsePLTE(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize) { // Palette
         if (Dec->iHDR->BitDepth > 8) { // INVALID
+            Log(LOG_ALERT, "ModernPNG", "ParsePLTE", "Invalid bit depth %d and palette combination\n", Dec->iHDR->BitDepth);
             SkipBits(BitI, Bytes2Bits(ChunkSize));
-            return;
         } else {
-            uint8_t Palette[4][ChunkSize / 3]; // 1st index is the color plane
+            uint8_t **Palette;
+            
+            if (Dec->iHDR->ColorType == PalettedRGB || Dec->iHDR->ColorType == RGB) {
+                Palette = calloc(3 * Dec->PLTE->NumEntries, 1);
+            } else if (Dec->iHDR->ColorType == RGBA) {
+                Palette = calloc(4 * Dec->PLTE->NumEntries, 1);
+            }
+            
+            
             for (uint8_t Channel = 0; Channel < ChannelsPerColorType[Dec->iHDR->ColorType]; Channel++) {
                 for (uint16_t Pixel = 0; Pixel < ChunkSize / 3; Pixel++) {
                     Palette[Channel][Pixel] = ReadBits(BitI, Dec->iHDR->BitDepth, true);
@@ -118,21 +187,21 @@ extern "C" {
     }
     
     void ParseSBIT(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize) { // Significant bits per sample
-        uint8_t Red   = ReadBits(BitI, 8, true);
-        uint8_t Green = ReadBits(BitI, 8, true);
-        uint8_t Blue  = ReadBits(BitI, 8, true);
-        uint32_t CRC  = ReadBits(BitI, 32, true);
+        Dec->sBIT->Red                   = ReadBits(BitI, 8, true);
+        Dec->sBIT->Green                 = ReadBits(BitI, 8, true);
+        Dec->sBIT->Blue                  = ReadBits(BitI, 8, true);
+        Dec->sBIT->CRC                   = ReadBits(BitI, 32, true);
     }
     
     void ParseSRGB(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize) {
-        uint8_t sRGBRenderingIntent = ReadBits(BitI, 8, true);
-        uint32_t CRC                = ReadBits(BitI, 32, true);
+        Dec->sRGB->RenderingIntent       = ReadBits(BitI, 8, true);
+        Dec->sRGB->CRC                   = ReadBits(BitI, 32, true);
     }
     
     void ParseSTER(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize) {
         Dec->Is3D = true;
-        Dec->sTER->StereoType = ReadBits(BitI, 8, true);
-        uint32_t CRC          = ReadBits(BitI, 32, true);
+        Dec->sTER->StereoType            = ReadBits(BitI, 8, true);
+        uint32_t CRC                     = ReadBits(BitI, 32, true);
         
         // No matter what StereoType is used, both images are arranged side by side, and the left edge is aligned on a boundary of the 8th column in case interlacing is used.
         // The two sub images must have the same dimensions after padding is removed.
@@ -155,40 +224,39 @@ extern "C" {
     }
     
     void ParseITXt(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize) { // International Text
+        
         uint32_t CRC = ReadBits(BitI, 32, true);
     }
     
     void ParseTIME(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize) {
-        uint16_t Year   = ReadBits(BitI, 16, true);
-        uint8_t  Month  = ReadBits(BitI, 8, true);
-        uint8_t  Day    = ReadBits(BitI, 8, true);
-        uint8_t  Hour   = ReadBits(BitI, 8, true);
-        uint8_t  Minute = ReadBits(BitI, 8, true);
-        uint8_t  Second = ReadBits(BitI, 8, true);
-        
-        uint32_t CRC    = ReadBits(BitI, 32, true);
+        Dec->tIMe->Year                  = ReadBits(BitI, 16, true);
+        Dec->tIMe->Month                 = ReadBits(BitI, 8, true);
+        Dec->tIMe->Day                   = ReadBits(BitI, 8, true);
+        Dec->tIMe->Hour                  = ReadBits(BitI, 8, true);
+        Dec->tIMe->Minute                = ReadBits(BitI, 8, true);
+        Dec->tIMe->Second                = ReadBits(BitI, 8, true);
+        Dec->tIMe->CRC                   = ReadBits(BitI, 32, true);
     }
     
     /* APNG */
     void ParseACTL(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize) { // Animation control, part of APNG
         Dec->IsVideo = true;
-        uint32_t NumberOfFrames = ReadBits(BitI, 32, true);
-        uint32_t TimesToLoop    = ReadBits(BitI, 32, true); // If 0, loop forever.
-        uint32_t CRC            = ReadBits(BitI, 32, true);
+        Dec->acTL->NumFrames             = ReadBits(BitI, 32, true);
+        Dec->acTL->TimesToLoop           = ReadBits(BitI, 32, true); // If 0, loop forever.
+        Dec->acTL->CRC                   = ReadBits(BitI, 32, true);
     }
     
     void ParseFCTL(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize) { // Frame Control, part of APNG
-        uint32_t FrameNumber    = ReadBits(BitI, 32, true);
-        uint32_t Width          = ReadBits(BitI, 32, true);
-        uint32_t Height         = ReadBits(BitI, 32, true);
-        uint32_t XOffset        = ReadBits(BitI, 32, true);
-        uint32_t YOffset        = ReadBits(BitI, 32, true);
-        uint16_t Delay1         = ReadBits(BitI, 16, true);
-        uint16_t Delay2         = ReadBits(BitI, 16, true);
-        uint8_t  DisposeMethod  = ReadBits(BitI, 8, true);
-        bool     BlendMethod    = ReadBits(BitI, 8, true);
-        
-        uint32_t CRC            = ReadBits(BitI, 32, true);
+        Dec->fcTL->FrameNum              = ReadBits(BitI, 32, true);
+        Dec->fcTL->Width                 = ReadBits(BitI, 32, true);
+        Dec->fcTL->Height                = ReadBits(BitI, 32, true);
+        Dec->fcTL->XOffset               = ReadBits(BitI, 32, true);
+        Dec->fcTL->YOffset               = ReadBits(BitI, 32, true);
+        Dec->fcTL->FrameDelayNumerator   = ReadBits(BitI, 16, true);
+        Dec->fcTL->FrameDelayDenominator = ReadBits(BitI, 16, true);
+        Dec->fcTL->DisposeMethod         = ReadBits(BitI, 8, true);
+        Dec->fcTL->BlendMethod           = ReadBits(BitI, 8, true);
+        uint32_t CRC                     = ReadBits(BitI, 32, true);
     }
     /* End APNG */
     
@@ -198,8 +266,7 @@ extern "C" {
     }
     
     void ParseHIST(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize) {
-        // Dec->hIST->
-        uint32_t CRC = ReadBits(BitI, 32, true);
+        Dec->hIST->CRC = ReadBits(BitI, 32, true);
     }
     
     void ParseICCP(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize) {
@@ -439,6 +506,29 @@ extern "C" {
     
     void PNGReadMetadata(BitInput *BitI, DecodePNG *Dec) {
         ParsePNGMetadata(BitI, Dec);
+    }
+    
+    DecodePNG *InitDecodePNG(void) {
+        DecodePNG *Dec  = calloc(sizeof(DecodePNG), 1);
+        Dec->PLTE       = calloc(sizeof(PLTE),1);
+        Dec->Text       = calloc(sizeof(Text),1);
+        Dec->acTL       = calloc(sizeof(acTL),1);
+        Dec->bkGD       = calloc(sizeof(bkGD),1);
+        Dec->cHRM       = calloc(sizeof(cHRM),1);
+        Dec->fcTL       = calloc(sizeof(fcTL),1);
+        Dec->fdAT       = calloc(sizeof(fdAT),1);
+        Dec->gAMA       = calloc(sizeof(gAMA),1);
+        Dec->hIST       = calloc(sizeof(hIST),1);
+        Dec->iCCP       = calloc(sizeof(iCCP),1);
+        Dec->oFFs       = calloc(sizeof(oFFs),1);
+        Dec->pCAL       = calloc(sizeof(pCAL),1);
+        Dec->sBIT       = calloc(sizeof(sBIT),1);
+        Dec->sRGB       = calloc(sizeof(sRGB),1);
+        Dec->sTER       = calloc(sizeof(sTER),1);
+        Dec->tIMe       = calloc(sizeof(tIMe),1);
+        Dec->tRNS       = calloc(sizeof(tRNS),1);
+        Dec->iHDR       = calloc(sizeof(iHDR),1);
+        return Dec;
     }
     
 #ifdef __cplusplus

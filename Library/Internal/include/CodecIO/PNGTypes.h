@@ -88,7 +88,6 @@ extern "C" {
     typedef struct iCCP {
         uint8_t  ProfileNameSize;
         uint32_t CompressedICCPProfileSize;
-        
         uint8_t *ProfileName;
         uint8_t  CompressionType;
         uint8_t *CompressedICCPProfile;
@@ -120,21 +119,16 @@ extern "C" {
     typedef struct pCAL {
         uint8_t  CalibrationNameSize;
         uint8_t  UnitNameSize;
-        
         char    *CalibrationName;
         int32_t  OriginalZero;
         int32_t  OriginalMax;
         uint8_t  EquationType;
         uint8_t  NumParams;
         uint8_t *UnitName;
-        
-        
         uint32_t CRC;
     } pCAL;
     
     typedef struct sCAL {
-        
-        
         uint8_t  UnitSpecifier;
         char    *PixelWidth; // ASCII float
         char    *PixelHeight; // ASCII float
@@ -160,6 +154,16 @@ extern "C" {
         uint8_t *TextString;
         uint32_t CRC;
     } Text;
+    
+    typedef struct tIMe {
+        uint16_t Year;
+        uint8_t  Month;
+        uint8_t  Day;
+        uint8_t  Hour;
+        uint8_t  Minute;
+        uint8_t  Second;
+        uint32_t CRC;
+    } tIMe;
     
 #ifdef __cplusplus
 }

@@ -25,7 +25,6 @@ extern "C" {
         sRGBMarker = 0x73524742,
         pHYsMarker = 0x70485973,
         pCALMarker = 0x7043414c,
-        
     };
     
     extern enum PNGFlags {
@@ -50,8 +49,8 @@ extern "C" {
         "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
     };
     
-    static const uint8_t ChannelsPerColorType[8] = {
-        1, 0, 3, 3, 4, 4
+    static const uint8_t ChannelsPerColorType[7] = {
+        1, 0, 3, 3, 4, 0, 4
     };
     
     void        DecodePNGImage(BitInput *BitI, DecodePNG *PNG, uint16_t *DecodedImage);
