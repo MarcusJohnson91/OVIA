@@ -49,8 +49,8 @@ extern "C" {
         struct sRGB   *sRGB;
         struct sTER   *sTER;
         struct Text   *Text;
-        struct tRNS   *tRNS;
         struct tIMe   *tIMe;
+        struct tRNS   *tRNS;
     };
     
     bool VerifyChunkCRC(BitInput *BitI, uint32_t ChunkSize) {
@@ -510,8 +510,6 @@ extern "C" {
     
     DecodePNG *InitDecodePNG(void) {
         DecodePNG *Dec  = calloc(sizeof(DecodePNG), 1);
-        Dec->PLTE       = calloc(sizeof(PLTE),1);
-        Dec->Text       = calloc(sizeof(Text),1);
         Dec->acTL       = calloc(sizeof(acTL),1);
         Dec->bkGD       = calloc(sizeof(bkGD),1);
         Dec->cHRM       = calloc(sizeof(cHRM),1);
@@ -520,14 +518,16 @@ extern "C" {
         Dec->gAMA       = calloc(sizeof(gAMA),1);
         Dec->hIST       = calloc(sizeof(hIST),1);
         Dec->iCCP       = calloc(sizeof(iCCP),1);
+        Dec->iHDR       = calloc(sizeof(iHDR),1);
         Dec->oFFs       = calloc(sizeof(oFFs),1);
         Dec->pCAL       = calloc(sizeof(pCAL),1);
+        Dec->PLTE       = calloc(sizeof(PLTE),1);
         Dec->sBIT       = calloc(sizeof(sBIT),1);
         Dec->sRGB       = calloc(sizeof(sRGB),1);
         Dec->sTER       = calloc(sizeof(sTER),1);
+        Dec->Text       = calloc(sizeof(Text),1);
         Dec->tIMe       = calloc(sizeof(tIMe),1);
         Dec->tRNS       = calloc(sizeof(tRNS),1);
-        Dec->iHDR       = calloc(sizeof(iHDR),1);
         return Dec;
     }
     

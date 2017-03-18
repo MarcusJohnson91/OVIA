@@ -49,6 +49,7 @@ extern "C" {
         struct sRGB   *sRGB;
         struct sTER   *sTER;
         struct Text   *Text;
+        struct tIMe   *tIMe;
         struct tRNS   *tRNS;
     };
     
@@ -60,14 +61,17 @@ extern "C" {
         Enc->fcTL       = calloc(sizeof(fcTL), 1);
         Enc->fdAT       = calloc(sizeof(fdAT), 1);
         Enc->gAMA       = calloc(sizeof(gAMA), 1);
+        Enc->hIST       = calloc(sizeof(hIST), 1);
         Enc->iCCP       = calloc(sizeof(iCCP), 1);
         Enc->iHDR       = calloc(sizeof(iHDR), 1);
         Enc->oFFs       = calloc(sizeof(oFFs), 1);
+        Enc->pCAL       = calloc(sizeof(pCAL), 1);
         Enc->PLTE       = calloc(sizeof(PLTE), 1);
         Enc->sBIT       = calloc(sizeof(sBIT), 1);
         Enc->sRGB       = calloc(sizeof(sRGB), 1);
         Enc->sTER       = calloc(sizeof(sTER), 1);
         Enc->Text       = calloc(sizeof(Text), 1);
+        Enc->tIMe       = calloc(sizeof(tIMe), 1);
         Enc->tRNS       = calloc(sizeof(tRNS), 1);
         return Enc;
     }
