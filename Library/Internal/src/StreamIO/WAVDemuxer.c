@@ -1,8 +1,18 @@
-#include "../include/WAVCommon.h"
+#include "/usr/local/Packages/libBitIO/include/BitIO.h"
+
+#include "../../include/libPCM.h"
+#include "../../include/WAVCommon.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+    
+    const static uint8_t BitDepth2SampleSizeInBytes[32] = {
+         0,  8,  8,  8,  8,  8,  8,  8,
+         8, 16, 16, 16, 16, 16, 16, 16,
+        16, 24, 24, 24, 24, 24, 24, 24,
+        24, 32, 32, 32, 32, 32, 32, 32
+    };
     
     void ReadINFO_IART(BitInput *BitI, PCMFile *PCM, uint32_t ChunkSize) {
         char *Artist = calloc(ChunkSize, 1);
@@ -135,14 +145,12 @@ extern "C" {
         }
     }
     
-    void WAVExtractSamples(BitInput *BitI, PCMFile *PCM, uint32_t NumSamples2Extract) {
-        uint32_t   Samples[PCM->Data->NumChannels][NumSamples2Extract];
-        for (uint16_t Channel = 0; Channel < PCM->Data->NumChannels; Channel++) {
-            for (uint32_t Sample = 0; Sample < NumSamples2Extract; Sample++) {
-                Samples[Channel][Sample] = ReadBits(BitI, Bits2Bytes(PCM->Data->BitDepth, true));
+    void WAVExtractSamples(BitInput *BitI, struct PCMFile *PCM, uint64_t NumSamples2Extract) {
+        for (uint8_t Channel = 0; Channel < PCM->NumChannels; Channel++) {
+            for (uint64_t Sample = 0; Sample < NumSamples2Extract; Sample++) {
+                PCM->Samples[Channel][Sample] = ReadBits(BitI, BitDepth2SampleSizeInBytes[PCM->BitDepth], false);
             }
         }
-        PCM->Samples    = *Samples;
         PCM->NumSamples = NumSamples2Extract;
     }
     

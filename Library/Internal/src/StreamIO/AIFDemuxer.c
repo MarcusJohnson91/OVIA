@@ -1,4 +1,7 @@
-#include "../include/AIFCommon.h"
+#include "/usr/local/Packages/libBitIO/include/BitIO.h"
+
+#include "../../include/libPCM.h"
+#include "../../include/AIFCommon.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -1,10 +1,38 @@
 #include "libPCM.h"
 
+#ifndef LIBPCM_W64COMMON_H
+#define LIBPCM_W64COMMON_H
+
 #pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+    
+    typedef struct W64Header {
+        uint16_t FormatType;
+        uint16_t Channels;
+        uint32_t SampleRate;
+        uint32_t ByteRate;
+        uint16_t BlockAlign;
+        uint16_t BitDepth;
+        uint64_t DataSize;
+        uint64_t NumSamples; // Channel independent
+    };
+    
+    enum W64ChunkIDs {
+        W64_RIFF = 0x72696666,
+        W64_WAVE = 0x77617665,
+        W64_FMT  = 0x666D7420,
+        W64_DATA = 0x64617461,
+        W64_LEVL = 0x6C76656C,
+        W64_JUNK = 0x6B6E756A,
+        W64_BEXT = 0x74786562,
+        W64_FACT = 0x74636166,
+        W64_LIST = 0x7473696C,
+        W64_MRKR = 0xABF76256,
+        W64_SUMM = 0x925F94BC,
+    };
     
     static const char RIFF_UUID[BitIOUUIDSize] = {
         0x66,0x66,0x69,0x72,0x45,0x91,0x2E,0x45,0x11,0xCF,0x45,0xA5,0xD6,0x45,0x28,0xDB,0x04,0xC1,0x00,0x00,0x00
@@ -59,3 +87,5 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+
+#endif /* LIBPCM_W64COMMON_H */
