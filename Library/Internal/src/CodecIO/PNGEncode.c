@@ -76,6 +76,10 @@ extern "C" {
         return Enc;
     }
     
+    uint64_t GenerateCRCFromOutputBuffer(BitOutput *BitO, uint32_t ChunkSize) {
+        return false;
+    }
+    
     void WriteIHDRChunk(BitOutput *BitO, EncodePNG *Enc) {
         WriteBits(BitO, 13, 32, true);
         WriteBits(BitO, iHDRMarker, 32, true);
@@ -86,8 +90,8 @@ extern "C" {
         WriteBits(BitO, Enc->iHDR->Compression, 8, true);
         WriteBits(BitO, Enc->iHDR->FilterMethod, 8, true);
         WriteBits(BitO, Enc->iHDR->IsInterlaced, 8, true);
-        uint32_t GeneratedCRC = 0;
-        GenerateCRC(Enc->iHDR, 13, GeneratedCRC);
+        
+        
         WriteBits(BitO, GeneratedCRC, 32, true);
         
     }
@@ -305,8 +309,8 @@ extern "C" {
         }
     }
     
-    void PNGEncodeAdam7(EncodePNG *Enc, uint8_t *RawFrame) {
-        uint8_t WidthPadding = 0, HeightPadding = 0;
+    void PNGEncodeAdam7(EncodePNG *Enc, uint8_t ****RawFrame) {
+        uint8_t WidthPadding = 0, HeightPadding = 0, WidthStart = 0, HeightStart = 0;
         // Break image into 8x8 blocks, then break each chunk into 7 layers.
         if (Enc->iHDR->Width % 8 != 0) {
             WidthPadding = 8 - (Enc->iHDR->Width % 8);
@@ -316,6 +320,23 @@ extern "C" {
         }
         // Pad the RawFrame by WidthPadding and HeightPadding
         // Then Split the image into 8x8 chunks, or maybe I should just have a few loops?
+        
+        // Create an array with size (Enc->iHDR->Width + WidthPadding) * (Enc->iHDR->Height + HeightPadding)
+        uint16_t ****Image = calloc(((Enc->iHDR->Width + WidthPadding) * (Enc->iHDR->Height + HeightPadding)) * (Enc->Is3D * 2), 1);
+        // Now copy the image into the new array, in the middle so the amount of padding is even on both sized
+        // If the padding amount is odd, start at (Padding / 2)
+        
+        for (uint8_t StereoChannel = 0; StereoChannel < Enc->Is3D; StereoChannel++) {
+            for (uint8_t Color = 0; Color < ChannelsPerColorType[Enc->iHDR->ColorType]; Color++) {
+                for (uint64_t Height = HeightPadding / 2; Height < Enc->iHDR->Height; Height++) {
+                    for (uint64_t Width = WidthPadding / 2; Width < Enc->iHDR->Width; Width++) {
+                        Image[StereoChannel][Color][Height][Width] = RawFrame[StereoChannel][Color][Height][Width];
+                    }
+                }
+            }
+        }
+        
+        // Now I need to break up the image into 8x8 blocks
     }
     
 #ifdef __cplusplus

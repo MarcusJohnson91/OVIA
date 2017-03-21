@@ -51,6 +51,7 @@ extern "C" {
         struct Text   *Text;
         struct tIMe   *tIMe;
         struct tRNS   *tRNS;
+        uint16_t    ***DecodedImage;
     };
     
     bool VerifyChunkCRC(BitInput *BitI, uint32_t ChunkSize) {
