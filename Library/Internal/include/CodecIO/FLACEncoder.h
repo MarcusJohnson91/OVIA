@@ -1,5 +1,4 @@
 #include "../libModernFLAC.h"
-#include "/usr/local/Packages/libPCM/include/libPCM.h"
 
 #pragma once
 
@@ -10,7 +9,7 @@
 extern "C" {
 #endif
     
-    int8_t EncodeFLAC(PCMFile *PCM, BitOutput *BitO, EncodeFLAC *Enc);
+    int8_t EncodeFLACFile(PCMFile *PCM, BitOutput *BitO, EncodeFLAC *Enc);
 
 #ifdef __cplusplus
 }

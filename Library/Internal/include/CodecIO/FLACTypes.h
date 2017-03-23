@@ -8,7 +8,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-    /*
+    
     typedef struct FLACVorbisComment FLACVorbisComment;
     
     typedef struct FLACStreamInfo FLACStreamInfo;
@@ -26,9 +26,8 @@ extern "C" {
     typedef struct FLACFrame FLACFrame;
     
     typedef struct FLACLPC FLACLPC;
-     */
     
-    typedef struct FLACStreamInfo {
+    struct FLACStreamInfo {
         uint16_t MinimumBlockSize:16; // in samples; must be at least 16
         uint16_t MaximumBlockSize:16; // If these match than it's fixed blocksize format
         uint32_t MinimumFrameSize:24;
@@ -43,7 +42,7 @@ extern "C" {
         uint8_t     MD5[BitIOMD5Size]; // MD5
     };
     
-    typedef struct CueSheetTrack {
+    struct CueSheetTrack {
         uint64_t *TrackOffset;         // samples from the beginning of the FLAC file to the first sample of the track
         uint8_t  *TrackNum;            // which track is this again?
         uint8_t  **ISRC;            // the tracks's ISRC number.
@@ -53,7 +52,7 @@ extern "C" {
         uint8_t  NumTrackIndexPoints;
     };
     
-    typedef struct FLACCueSheet {
+    struct FLACCueSheet {
         size_t    CatalogIDSize;
         char     *CatalogID;
         uint64_t  LeadIn;              // in samples
@@ -81,7 +80,7 @@ extern "C" {
         uint8_t      IndexPointNum;
     };
     
-    typedef struct FLACVorbisComment {
+    struct FLACVorbisComment {
         bool      VorbisFramingBit;
         uint8_t   VendorTagSize;
         char     *VendorTag;
@@ -90,20 +89,20 @@ extern "C" {
         char     *UserTagString; // Array of tags.
     };
     
-    typedef struct FLACSeekTable {
+    struct FLACSeekTable {
         uint32_t NumSeekPoints;
         uint64_t *SampleInTargetFrame; // FIXME: Sample in the whole file, or sample in a specific frame?
         uint64_t *OffsetFrom1stSample; // in bytes
         uint16_t     *TargetFrameSize;
     };
     
-    typedef struct FLACStream {
+    struct FLACStream {
         uint32_t BlockSize;
         uint32_t SampleRate;
         uint8_t  BitDepth;
     };
     
-    typedef struct FLACPicture {
+    struct FLACPicture {
         uint32_t PicType;
         uint32_t MIMESize; // size of the MIME string in bytes
         uint8_t  *MIMEString;
@@ -117,13 +116,13 @@ extern "C" {
         uint32_t *PictureStart; // Pointer to the start of the picture
     };
     
-    typedef struct FLACSubFrame {
+    struct FLACSubFrame {
         uint8_t SubFrameType:6;
         bool    WastedBitsFlag:1;
         uint8_t WastedBits:6; // Uses unary coding
     };
     
-    typedef struct FLACFrame {
+    struct FLACFrame {
         bool          BlockType:1;
         uint8_t       CodedSamplesInBlock;
         uint16_t      BlockSize; // SamplesInBlock
@@ -144,13 +143,13 @@ extern "C" {
         uint8_t       SamplesInPartition;
     };
     
-    typedef struct RICEPartition {
+    struct RICEPartition {
         uint8_t       NumRICEPartitions:4;
         uint8_t       EscapeBitDepth:5;
         uint8_t      *RICEParameter;
     };
     
-    typedef struct FLACLPC {
+    struct FLACLPC {
         uint8_t       LPCOrder;
         uint8_t       LPCPrecision:4;
         uint8_t       LPCShift:5;
@@ -167,7 +166,7 @@ extern "C" {
         FLACVorbisComment *Vorbis;
         FLACCueSheet      *Cue;
         FLACPicture       *Pic;
-    };
+    } FLACMeta;
     
     typedef struct FLACData {
         bool               GetSampleRateFromStreamInfo;
@@ -176,6 +175,28 @@ extern "C" {
         FLACLPC           *LPC;
         RICEPartition     *Rice;
         uint32_t         **RAWAudio;
+    } FLACData;
+    
+    struct FLACEncoder {
+        bool      EncodeSubset;
+        bool      OptimizeFile;
+        uint16_t  MaxBlockSize;
+        uint8_t   MaxFilterOrder;
+        uint8_t   MaxRICEPartitionOrder;
+        FLACMeta *Meta;
+        FLACData *Data;
+        int64_t   RawSamples[FLACMaxSamplesInBlock];
+    };
+    
+    struct FLACDecoder {
+        bool      SeekTableIsPresent;
+        bool      CuesheetIsPresent;
+        bool      VorbisCommentIsPresent;
+        bool      PictureIsPresent;
+        bool      LastMetadataBlock;
+        FLACMeta *Meta;
+        FLACData *Data;
+        int64_t   DecodedSamples[FLACMaxSamplesInBlock];
     };
     
 #ifdef __cplusplus

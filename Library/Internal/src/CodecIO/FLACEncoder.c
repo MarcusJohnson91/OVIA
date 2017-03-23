@@ -1,4 +1,5 @@
 #include "../../../Dependencies/BitIO/libBitIO/include/BitIO.h"
+#include "../../../Dependencies/libPCM/libPCM/include/libPCM.h"
 #include "../../include/libModernFLAC.h"
 #include "../../include/Encoder/EncodeFLAC.h"
 #include "../../include/FLACTypes.h"
@@ -7,28 +8,17 @@
 extern "C" {
 #endif
     
-    struct FLACEncoder {
-        bool      EncodeSubset;
-        bool      OptimizeFile;
-        uint16_t  MaxBlockSize;
-        uint8_t   MaxFilterOrder;
-        uint8_t   MaxRICEPartitionOrder;
-        FLACMeta *Meta;
-        FLACData *Data;
-        int64_t   RawSamples[FLACMaxSamplesInBlock];
-    };
-    
     void   FLACWriteStreaminfo(BitOutput *BitO, EncodeFLAC *Enc) {
         WriteBits(BitO, 34, 24, true); // StreamInfoSize
-        WriteBits(BitO, FLAC->Meta->StreamInfo->MinimumBlockSize, 16, true);
-        WriteBits(BitO, FLAC->Meta->StreamInfo->MaximumBlockSize, 16, true);
-        WriteBits(BitO, FLAC->Meta->StreamInfo->MinimumFrameSize, 24, true);
-        WriteBits(BitO, FLAC->Meta->StreamInfo->MaximumFrameSize, 24, true);
-        WriteBits(BitO, FLAC->Meta->StreamInfo->SampleRate, 20, true);
-        WriteBits(BitO, FLAC->Meta->StreamInfo->MinimumFrameSize, 24, true);
-        WriteBits(BitO, FLAC->Meta->StreamInfo->Channels - 1, 3, true);
-        WriteBits(BitO, FLAC->Meta->StreamInfo->BitDepth - 1, 5, true);
-        WriteBits(BitO, FLAC->Meta->StreamInfo->SamplesInStream, 36, true);
+        WriteBits(BitO, Enc->Meta->StreamInfo->MinimumBlockSize, 16, true);
+        WriteBits(BitO, Enc->Meta->StreamInfo->MaximumBlockSize, 16, true);
+        WriteBits(BitO, Enc->Meta->StreamInfo->MinimumFrameSize, 24, true);
+        WriteBits(BitO, Enc->Meta->StreamInfo->MaximumFrameSize, 24, true);
+        WriteBits(BitO, Enc->Meta->StreamInfo->SampleRate, 20, true);
+        WriteBits(BitO, Enc->Meta->StreamInfo->MinimumFrameSize, 24, true);
+        WriteBits(BitO, Enc->Meta->StreamInfo->Channels - 1, 3, true);
+        WriteBits(BitO, Enc->Meta->StreamInfo->BitDepth - 1, 5, true);
+        WriteBits(BitO, Enc->Meta->StreamInfo->SamplesInStream, 36, true);
         WriteBits(BitO, 0, 128, true); // ROOM for the MD5.
     }
     
@@ -37,8 +27,8 @@ extern "C" {
     }
     
     void   FLACWriteMetadata(BitOutput *BitO, EncodeFLAC *Enc) {
-        WriteBits(BitO, FLACMagic, 32);
-        WriteBits(BitO, 0, 1); // IsLastMetadataBlock
+        WriteBits(BitO, FLACMagic, 32, true);
+        WriteBits(BitO, false, 1, true); // IsLastMetadataBlock
         //WriteBits(BitO, FLACMetadataTypes, 7); // MetadataBlockType
         
     }
@@ -61,17 +51,17 @@ extern "C" {
     }
     
     int8_t EncodeFLACFile(PCMFile *PCM, BitOutput *BitO, EncodeFLAC *Enc) {
-        if (FLAC->EncodeSubset == true && FLAC->Data->Frame->SampleRate <= 48000) {
-            FLAC->MaxBlockSize          =  4608;
-            FLAC->MaxFilterOrder        =    12;
-            FLAC->MaxRICEPartitionOrder =     8;
+        if (Enc->EncodeSubset == true && Enc->Data->Frame->SampleRate <= 48000) {
+            Enc->MaxBlockSize          =  4608;
+            Enc->MaxFilterOrder        =    12;
+            Enc->MaxRICEPartitionOrder =     8;
         } else {
-            FLAC->MaxBlockSize          = 16384;
-            FLAC->MaxFilterOrder        =    32;
-            FLAC->MaxRICEPartitionOrder =    15;
+            Enc->MaxBlockSize          = 16384;
+            Enc->MaxFilterOrder        =    32;
+            Enc->MaxRICEPartitionOrder =    15;
         }
         
-        if (FLAC->OptimizeFile == true) {
+        if (Enc->OptimizeFile == true) {
             // Optimize this mufucka
 
         }
