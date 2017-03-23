@@ -1,5 +1,5 @@
 #include "../include/libPCM.h"
-
+#include "../include/PCMTypes.h"
 #include "../include/WAVCommon.h"
 #include "../include/W64Common.h"
 #include "../include/AIFCommon.h"
@@ -8,14 +8,18 @@
 extern "C" {
 #endif
     
+    PCMFile *InitPCMFile(void) {
+        PCMFile *PCM = calloc(sizeof(PCMFile), 1);
+        PCM->Meta    = calloc(sizeof(PCMMetadata), 1);
+        return PCM;
+    }
+    
     
     // So, We need to accept a BitInput pointer, and start reading the input file to discover it's file type, then call the dedicated format metadata parser to get the info we need and verify it's raw PCM, and then line us up with the PCM samples, and wait for calls to ExtractSamples
     
-    void FreePCMFile(PCMFile *PCM) {
-        for (uint64_t Channel = 0; Channel < PCM->Data->NumChannels; Channel++) {
-            free(PCM->Samples);
-        }
+    void ClosePCMFile(PCMFile *PCM) {
         free(PCM->Meta);
+        free(PCM);
     }
     
     // I want to just hand a file pointer here, and tell it to extract X samples (regardless of channel count)
