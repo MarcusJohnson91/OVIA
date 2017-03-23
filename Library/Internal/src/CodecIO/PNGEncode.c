@@ -90,8 +90,6 @@ extern "C" {
         WriteBits(BitO, Enc->iHDR->Compression, 8, true);
         WriteBits(BitO, Enc->iHDR->FilterMethod, 8, true);
         WriteBits(BitO, Enc->iHDR->IsInterlaced, 8, true);
-        
-        
         WriteBits(BitO, GeneratedCRC, 32, true);
         
     }

@@ -1,3 +1,5 @@
+#include <math.h>
+
 #include "../include/libModernPNG.h"
 #include "../include/DecodePNG.h"
 #include "../include/PNGTypes.h"
@@ -54,19 +56,22 @@ extern "C" {
         uint16_t    ***DecodedImage;
     };
     
+    /*
     bool VerifyChunkCRC(BitInput *BitI, uint32_t ChunkSize) {
         // So basically we need to read ChunkSize bytes into an array, then read the following 4 bytes as the CRC
         // then run VerifyCRC over the buffer, and finally compare the generated CRC with the extracted one, and return whether they match.
         // Then call SkipBits(BitI, Bytes2Bits(ChunkSize)); to reset to the beginning of the chunk
         uint8_t *Buffer2CRC = calloc(ChunkSize, 1);
         for (uint32_t Byte = 0; Byte < ChunkSize; Byte++) {
-            Buffer2CRC[Byte] = BitI->Buffer[BitI->BitsUnavailable / 8];
+            Buffer2CRC[Byte] = BitI->Buffer[Bits2Bytes(, false)];
+            
         }
         uint32_t ChunkCRC = ReadBits(BitI, 32, true);
         bool CRCsMatch = VerifyCRC(Buffer2CRC, ChunkSize, 0x82608EDB, 32, 0xFFFFFFFF, ChunkCRC);
         SkipBits(BitI, -Bytes2Bits(ChunkSize));
         return CRCsMatch;
     }
+    */
     
     void CalculateSTERPadding(DecodePNG *Dec) {
         Dec->LinePadding = 7 - ((Dec->iHDR->Width - 1) % 8);
@@ -484,7 +489,7 @@ extern "C" {
         if (Dec->Is3D == true) {
             
         }
-        while (BitI->FilePosition < BitI->FileSize) {
+        while (BytesRemainingInFile(BitI) > 0) {
             
         }
     }

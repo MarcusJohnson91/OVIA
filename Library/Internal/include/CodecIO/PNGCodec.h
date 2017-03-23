@@ -6,11 +6,11 @@
 extern "C" {
 #endif
     
-    extern enum PNGConstants {
+    enum PNGConstants {
         PNGMagic  = 0x89504E470D0A1A0A,
     } PNGConstants;
     
-    extern enum PNGChunkMarkers {
+    enum PNGChunkMarkers {
         iHDRMarker = 0x49484452,
         acTLMarker = 0x6163544c,
         fcTLMarker = 0x6663544c,
@@ -27,12 +27,12 @@ extern "C" {
         pCALMarker = 0x7043414c,
     };
     
-    extern enum PNGFlags {
+    enum PNGFlags {
         PNGIsStereoscopic       = false,
         PNGNeedsColorCorrection = false,
     } PNGFlags;
     
-    extern enum PNGColorTypes {
+    enum PNGColorTypes {
         Grayscale   = 0,
         RGB         = 2,
         PalettedRGB = 3,
