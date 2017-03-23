@@ -26,6 +26,8 @@ extern "C" {
     // Well, in the library I need to just run through one frame of audio at a time.
     // So, let's set it all up so all the user metadata is in one struct, and all the audio data is in another.
     
+    DecodeFLAC *InitDecodeFLAC(void);
+    
     void    FLACReadFrame(BitInput *BitI, DecodeFLAC *Dec);
     
     void    FLACReadSubFrame(BitInput *BitI, DecodeFLAC *Dec, uint8_t Channel);

@@ -34,7 +34,7 @@ extern "C" {
     }
     
     EncodeFLAC *InitEncodeFLAC(void) {
-        EncodeFLAC *Enc       = calloc(sizeof(EncodeFLAC), 1);
+        EncodeFLAC *Enc        = calloc(sizeof(EncodeFLAC), 1);
         Enc->Meta              = calloc(sizeof(FLACMeta), 1);
         Enc->Meta->StreamInfo  = calloc(sizeof(FLACStreamInfo), 1);
         Enc->Meta->Seek        = calloc(sizeof(FLACSeekTable), 1);

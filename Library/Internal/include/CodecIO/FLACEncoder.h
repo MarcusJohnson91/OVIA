@@ -10,6 +10,8 @@ extern "C" {
 #endif
     
     int8_t EncodeFLACFile(PCMFile *PCM, BitOutput *BitO, EncodeFLAC *Enc);
+    
+    EncodeFLAC *InitEncodeFLAC(void);
 
 #ifdef __cplusplus
 }
