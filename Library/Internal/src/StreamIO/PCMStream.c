@@ -57,7 +57,7 @@ extern "C" {
             }
         } else {
             // just read the requested samples
-            if (PCM->FileType == WAV_Type) {
+            if (PCM->FileType == WAV_File) {
                 WAVExtractSamples(BitI, PCM, NumSamples2Extract);
             }
         }
@@ -135,7 +135,7 @@ extern "C" {
         
         uint32_t InputMagic = ReadBits(BitI, 32, true);
         if (InputMagic == WAV_RIFF) {
-            PCM->FileType = WAV_Type;
+            PCM->FileType = WAV_File;
             WAVHeader *WAV = calloc(sizeof(WAVHeader), 1);
             PCM->WAV = WAV;
             ParseWAVFile(BitI, WAV);
