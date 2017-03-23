@@ -139,15 +139,15 @@ extern "C" {
             PCM->FileType = WAV_File;
             WAVHeader *WAV = calloc(sizeof(WAVHeader), 1);
             PCM->WAV = WAV;
-            ParseWAVFile(BitI, WAV);
+            ParseWAVFile(BitI, PCM);
         } else if (InputMagic == W64_RIFF) {
-            PCM->FileType = W64_Type;
+            PCM->FileType = W64_File;
             SkipBits(BitI, 96); // Rest of the W64 RIFF GUID
             SkipBits(BitI, 64); // RIFF ChunkSize
             W64Header *W64 = calloc(sizeof(W64Header), 1);
             ParseW64File(BitI, W64);
         } else if (InputMagic == AIF_FORM) {
-            PCM->FileType = AIFF_Type;
+            PCM->FileType = AIFF_File;
             AIFHeader *AIF = calloc(sizeof(AIFHeader), 1);
             ParseAIFFile(BitI, AIF);
         }
