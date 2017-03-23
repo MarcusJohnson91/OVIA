@@ -1,6 +1,11 @@
-#include "/usr/local/Packages/libBitIO/include/BitIO.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
+
+#include "../../../Dependencies/BitIO/libBitIO/include/BitIO.h"
 
 #include "../../include/libPCM.h"
+#include "../../include/PCMTypes.h"
 #include "../../include/WAVCommon.h"
 
 #ifdef __cplusplus
@@ -145,7 +150,7 @@ extern "C" {
         }
     }
     
-    void WAVExtractSamples(BitInput *BitI, struct PCMFile *PCM, uint64_t NumSamples2Extract) {
+    void WAVExtractSamples(BitInput *BitI, PCMFile *PCM, uint64_t NumSamples2Extract) {
         for (uint8_t Channel = 0; Channel < PCM->NumChannels; Channel++) {
             for (uint64_t Sample = 0; Sample < NumSamples2Extract; Sample++) {
                 PCM->Samples[Channel][Sample] = ReadBits(BitI, BitDepth2SampleSizeInBytes[PCM->BitDepth], false);
