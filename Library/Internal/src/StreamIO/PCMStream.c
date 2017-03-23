@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "../include/libPCM.h"
 #include "../include/PCMTypes.h"
 #include "../include/WAVCommon.h"
