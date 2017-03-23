@@ -1,6 +1,9 @@
-#include "/usr/local/Packages/libBitIO/include/BitIO.h"
+#include "../../Dependencies/BitIO/libBitIO/include/BitIO.h"
 
 #pragma once
+
+#ifndef LIBMODERNPNG_LIBMODERNPNG_H
+#define LIBMODERNPNG_LIBMODERNPNG_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,10 +43,6 @@ extern "C" {
         RGBA        = 6,
     };
     
-    typedef struct PNGDecoder DecodePNG;
-    
-    typedef struct PNGEncoder EncodePNG;
-    
     static const char Number2Month[12][3] = {
         "Jan", "Feb", "Mar", "Apr", "May", "Jun",
         "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
@@ -53,8 +52,14 @@ extern "C" {
         1, 0, 3, 3, 4, 0, 4
     };
     
+    typedef struct PNGDecoder DecodePNG;
+    
+    typedef struct PNGEncoder EncodePNG;
+    
     void        DecodePNGImage(BitInput *BitI, DecodePNG *PNG, uint16_t *DecodedImage);
 
 #ifdef __cplusplus
 }
 #endif
+
+#endif /* LIBMODERNPNG_LIBMODERNPNG_H */
