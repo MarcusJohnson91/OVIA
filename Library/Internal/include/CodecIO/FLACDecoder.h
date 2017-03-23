@@ -1,5 +1,10 @@
-#include "libModernFLAC.h"
+#include "../../include/libModernFLAC.h"
+#include "../../include/FLACTypes.h"
+
 #pragma once
+
+#ifndef LIBMODERNFLAC_DECODEFLAC_H
+#define LIBMODERNFLAC_DECODEFLAC_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,61 +26,50 @@ extern "C" {
     // Well, in the library I need to just run through one frame of audio at a time.
     // So, let's set it all up so all the user metadata is in one struct, and all the audio data is in another.
     
-    typedef struct FLACDecoder {
-        bool      SeekTableIsPresent;
-        bool      CuesheetIsPresent;
-        bool      VorbisCommentIsPresent;
-        bool      PictureIsPresent;
-        bool      LastMetadataBlock;
-        FLACMeta *Meta;
-        FLACData *Data;
-        int64_t   DecodedSamples[FLACMaxSamplesInBlock];
-    } FLACDecoder;
+    void    FLACReadFrame(BitInput *BitI, DecodeFLAC *Dec);
     
-    void    InitFLACDecoder(FLACDecoder *FLAC);
+    void    FLACReadSubFrame(BitInput *BitI, DecodeFLAC *Dec, uint8_t Channel);
     
-    void    FLACReadFrame(BitInput *BitI, FLACDecoder *FLAC);
+    void    FLACDecodeSubFrameVerbatim(BitInput *BitI, DecodeFLAC *Dec);
     
-    void    FLACReadSubFrame(BitInput *BitI, FLACDecoder *FLAC, uint8_t Channel);
+    void    FLACDecodeSubFrameConstant(BitInput *BitI, DecodeFLAC *Dec);
     
-    void    FLACDecodeSubFrameVerbatim(BitInput *BitI, FLACDecoder *FLAC);
+    void    FLACDecodeSubFrameFixed(BitInput *BitI, DecodeFLAC *Dec);
     
-    void    FLACDecodeSubFrameConstant(BitInput *BitI, FLACDecoder *FLAC);
+    void    FLACDecodeSubFrameLPC(BitInput *BitI, DecodeFLAC *Dec, uint8_t Channel);
     
-    void    FLACDecodeSubFrameFixed(BitInput *BitI, FLACDecoder *FLAC);
+    void    DecodeFLACesidual(BitInput *BitI, DecodeFLAC *Dec);
     
-    void    FLACDecodeSubFrameLPC(BitInput *BitI, FLACDecoder *FLAC, uint8_t Channel);
+    void    DecodeFLACice1Partition(BitInput *BitI, DecodeFLAC *Dec);
     
-    void    FLACDecodeResidual(BitInput *BitI, FLACDecoder *FLAC);
+    void    DecodeFLACice2Partition(BitInput *BitI, DecodeFLAC *Dec);
     
-    void    FLACDecodeRice1Partition(BitInput *BitI, FLACDecoder *FLAC);
+    void    FLACBitDepth(DecodeFLAC *Dec);
     
-    void    FLACDecodeRice2Partition(BitInput *BitI, FLACDecoder *FLAC);
-    
-    void    FLACBitDepth(FLACDecoder *FLAC);
-    
-    void    FLACSampleRate(BitInput *BitI, FLACDecoder *FLAC);
+    void    FLACSampleRate(BitInput *BitI, DecodeFLAC *Dec);
     
     uint8_t GetBlockSizeInSamples(uint8_t BlockSize);
     
-    void    FLACReadStream(BitInput *BitI, FLACDecoder *FLAC);
+    void    FLACReadStream(BitInput *BitI, DecodeFLAC *Dec);
     
-    void    FLACParseMetadata(BitInput *BitI, FLACDecoder *FLAC);
+    void    FLACParseMetadata(BitInput *BitI, DecodeFLAC *Dec);
     
-    void    FLACParseStreamInfo(BitInput *BitI, FLACDecoder *FLAC);
+    void    FLACParseStreamInfo(BitInput *BitI, DecodeFLAC *Dec);
     
-    void    FLACSkipPadding(BitInput *BitI, FLACDecoder *FLAC);
+    void    FLACSkipPadding(BitInput *BitI, DecodeFLAC *Dec);
     
-    void    FLACSkipCustom(BitInput *BitI, FLACDecoder *FLAC);
+    void    FLACSkipCustom(BitInput *BitI, DecodeFLAC *Dec);
     
-    void    FLACParseSeekTable(BitInput *BitI, FLACDecoder *FLAC);
+    void    FLACParseSeekTable(BitInput *BitI, DecodeFLAC *Dec);
     
-    void    FLACParseVorbisComment(BitInput *BitI, FLACDecoder *FLAC);
+    void    FLACParseVorbisComment(BitInput *BitI, DecodeFLAC *Dec);
     
-    void    FLACParseCuesheet(BitInput *BitI, FLACDecoder *FLAC);
+    void    FLACParseCuesheet(BitInput *BitI, DecodeFLAC *Dec);
     
-    void    FLACParsePicture(BitInput *BitI, FLACDecoder *FLAC);
+    void    FLACParsePicture(BitInput *BitI, DecodeFLAC *Dec);
     
 #ifdef __cplusplus
 }
 #endif
+
+#endif /* LIBMODERNFLAC_DECODEFLAC_H */

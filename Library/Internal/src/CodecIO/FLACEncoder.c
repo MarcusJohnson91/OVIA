@@ -1,11 +1,24 @@
-#include "/usr/local/Packages/libBitIO/include/BitIO.h"
-#include "../include/EncodeFLAC.h"
+#include "../../../Dependencies/BitIO/libBitIO/include/BitIO.h"
+#include "../../include/libModernFLAC.h"
+#include "../../include/Encoder/EncodeFLAC.h"
+#include "../../include/FLACTypes.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
     
-    void   FLACWriteStreaminfo(BitOutput *BitO, FLACEncoder *FLAC) {
+    struct FLACEncoder {
+        bool      EncodeSubset;
+        bool      OptimizeFile;
+        uint16_t  MaxBlockSize;
+        uint8_t   MaxFilterOrder;
+        uint8_t   MaxRICEPartitionOrder;
+        FLACMeta *Meta;
+        FLACData *Data;
+        int64_t   RawSamples[FLACMaxSamplesInBlock];
+    };
+    
+    void   FLACWriteStreaminfo(BitOutput *BitO, EncodeFLAC *Enc) {
         WriteBits(BitO, 34, 24, true); // StreamInfoSize
         WriteBits(BitO, FLAC->Meta->StreamInfo->MinimumBlockSize, 16, true);
         WriteBits(BitO, FLAC->Meta->StreamInfo->MaximumBlockSize, 16, true);
@@ -19,33 +32,35 @@ extern "C" {
         WriteBits(BitO, 0, 128, true); // ROOM for the MD5.
     }
     
-    void   FLACWriteVorbisComment(BitOutput *BitO, FLACEncoder *FLAC) {
+    void   FLACWriteVorbisComment(BitOutput *BitO, EncodeFLAC *Enc) {
         
     }
     
-    void   FLACWriteMetadata(BitOutput *BitO, FLACEncoder *FLAC) {
+    void   FLACWriteMetadata(BitOutput *BitO, EncodeFLAC *Enc) {
         WriteBits(BitO, FLACMagic, 32);
         WriteBits(BitO, 0, 1); // IsLastMetadataBlock
         //WriteBits(BitO, FLACMetadataTypes, 7); // MetadataBlockType
         
     }
     
-    void   InitFLACEncoder(FLACEncoder *FLAC) {
-        FLAC->Meta             = calloc(sizeof(FLACMeta), 1);
-        FLAC->Meta->StreamInfo = calloc(sizeof(FLACStreamInfo), 1);
-        FLAC->Meta->Seek       = calloc(sizeof(FLACSeekTable), 1);
-        FLAC->Meta->Vorbis     = calloc(sizeof(FLACVorbisComment), 1);
-        FLAC->Meta->Cue        = calloc(sizeof(FLACCueSheet), 1);
-        FLAC->Meta->Pic        = calloc(sizeof(FLACPicture), 1);
+    EncodeFLAC *InitEncodeFLAC(void) {
+        EncodeFLAC *Enc       = calloc(sizeof(EncodeFLAC), 1);
+        Enc->Meta              = calloc(sizeof(FLACMeta), 1);
+        Enc->Meta->StreamInfo  = calloc(sizeof(FLACStreamInfo), 1);
+        Enc->Meta->Seek        = calloc(sizeof(FLACSeekTable), 1);
+        Enc->Meta->Vorbis      = calloc(sizeof(FLACVorbisComment), 1);
+        Enc->Meta->Cue         = calloc(sizeof(FLACCueSheet), 1);
+        Enc->Meta->Pic         = calloc(sizeof(FLACPicture), 1);
         
-        FLAC->Data             = calloc(sizeof(FLACData), 1);
-        FLAC->Data->Frame      = calloc(sizeof(FLACFrame), 1);
-        FLAC->Data->SubFrame   = calloc(sizeof(FLACSubFrame), 1);
-        FLAC->Data->LPC        = calloc(sizeof(FLACLPC), 1);
-        FLAC->Data->Rice       = calloc(sizeof(RICEPartition), 1);
+        Enc->Data              = calloc(sizeof(FLACData), 1);
+        Enc->Data->Frame       = calloc(sizeof(FLACFrame), 1);
+        Enc->Data->SubFrame    = calloc(sizeof(FLACSubFrame), 1);
+        Enc->Data->LPC         = calloc(sizeof(FLACLPC), 1);
+        Enc->Data->Rice        = calloc(sizeof(RICEPartition), 1);
+        return Enc;
     }
     
-    int8_t EncodeFLAC(PCMFile *PCM, BitOutput *BitO, FLACEncoder *FLAC) {
+    int8_t EncodeFLACFile(PCMFile *PCM, BitOutput *BitO, EncodeFLAC *Enc) {
         if (FLAC->EncodeSubset == true && FLAC->Data->Frame->SampleRate <= 48000) {
             FLAC->MaxBlockSize          =  4608;
             FLAC->MaxFilterOrder        =    12;
