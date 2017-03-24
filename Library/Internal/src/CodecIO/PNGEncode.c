@@ -59,7 +59,7 @@ extern "C" {
         struct tRNS   *tRNS;
     };
     
-    EncodePNG *InitPNGEncoder(void) {
+    EncodePNG *InitPNGEncode(void) {
         EncodePNG *Enc  = calloc(sizeof(EncodePNG), 1);
         Enc->acTL       = calloc(sizeof(acTL), 1);
         Enc->bkGD       = calloc(sizeof(bkGD), 1);

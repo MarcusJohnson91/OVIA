@@ -11,8 +11,6 @@
 extern "C" {
 #endif
     
-    EncodePNG *InitPNGEncoder(void);
-    
 #ifdef __cplusplus
 }
 #endif

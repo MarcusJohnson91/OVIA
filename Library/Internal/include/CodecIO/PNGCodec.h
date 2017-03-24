@@ -56,6 +56,10 @@ extern "C" {
     
     typedef struct PNGEncoder EncodePNG;
     
+    DecodePNG *InitDecodePNG(void);
+    
+    EncodePNG *InitEncodePNG(void);
+    
     void        DecodePNGImage(BitInput *BitI, DecodePNG *PNG, uint16_t *DecodedImage);
 
 #ifdef __cplusplus

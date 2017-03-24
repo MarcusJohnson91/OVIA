@@ -11,8 +11,6 @@
 extern "C" {
 #endif
     
-    DecodePNG *InitDecodePNG(void);
-    
     void       CalculateSTERPadding(DecodePNG *Dec);
     
     void       ParseIHDR(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize);
