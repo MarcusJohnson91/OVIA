@@ -96,7 +96,7 @@ extern "C" {
         WriteBits(BitO, Enc->iHDR->Compression, 8, true);
         WriteBits(BitO, Enc->iHDR->FilterMethod, 8, true);
         WriteBits(BitO, Enc->iHDR->IsInterlaced, 8, true);
-        WriteBits(BitO, GeneratedCRC, 32, true);
+        //WriteBits(BitO, GeneratedCRC, 32, true);
         
     }
     
@@ -105,9 +105,11 @@ extern "C" {
         WriteBits(BitO, acTLMarker, 32, true);
         WriteBits(BitO, Enc->acTL->NumFrames, 32, true);
         WriteBits(BitO, Enc->acTL->TimesToLoop, 32, true);
+        /*
         uint32_t GeneratedCRC = 0;
         GenerateCRC(Enc->acTL, 8, GeneratedCRC);
         WriteBits(BitO, GeneratedCRC, 32, true);
+         */
     }
     
     void WriteFCTLChunk(BitOutput *BitO, EncodePNG *Enc) {
@@ -122,15 +124,18 @@ extern "C" {
         WriteBits(BitO, Enc->fcTL->FrameDelayDenominator, 16, true);
         WriteBits(BitO, Enc->fcTL->DisposeMethod, 8, true);
         WriteBits(BitO, Enc->fcTL->BlendMethod, 8, true);
+        /*
         uint32_t GeneratedCRC = 0;
         GenerateCRC(Enc->fcTL, 29, GeneratedCRC);
         WriteBits(BitO, GeneratedCRC, 32, true);
+         */
     }
     
     void WriteFDATChunk(BitOutput *BitO, EncodePNG *Enc, uint8_t *DeflatedFrameData, uint32_t DeflatedFrameDataSize) {
         WriteBits(BitO, DeflatedFrameData + 8, 32, true);
         WriteBits(BitO, fDATMarker, 32, true);
         WriteBits(BitO, Enc->fdAT->FrameNum, 32, true);
+        /*
         uint32_t GeneratedCRC = 0;
         GenerateCRC(Enc->fdAT, 8, GeneratedCRC);
         for (uint32_t Byte = 0; Byte < DeflatedFrameDataSize; Byte++) {
@@ -138,15 +143,18 @@ extern "C" {
             WriteBits(BitO, DeflatedFrameData[Byte], 8, true);
         }
         WriteBits(BitO, GeneratedCRC, 32, true);
+         */
     }
     
     void WriteSTERChunk(BitOutput *BitO, EncodePNG *Enc) {
         WriteBits(BitO, 1, 32, true);
         WriteBits(BitO, sTERMarker, 32, true);
         WriteBits(BitO, Enc->sTER->StereoType, 8, true);
+        /*
         uint32_t GeneratedCRC = 0;
         GenerateCRC(Enc->sTER->StereoType, 1, GeneratedCRC);
         WriteBits(BitO, GeneratedCRC, 32, true);
+         */
     }
     
     void WriteBKGDChunk(BitOutput *BitO, EncodePNG *Enc) {
@@ -169,16 +177,19 @@ extern "C" {
         WriteBits(BitO, bKGDMarker, 32, true);
         
         if (Enc->iHDR->ColorType == PalettedRGB || Enc->iHDR->ColorType == Grayscale || Enc->iHDR->ColorType == GrayAlpha) {
-            WriteBits(BitO, Enc->bkGD->BackgroundPaletteEntry, BKGDEntrySize, true);
+            for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
+                WriteBits(BitO, Enc->bkGD->BackgroundPaletteEntry[Channel], BKGDEntrySize, true);
+            }
         } else if (Enc->iHDR->ColorType == RGB || Enc->iHDR->ColorType == RGBA) {
             for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
                 WriteBits(BitO, Enc->bkGD->BackgroundPaletteEntry[Channel], NumChannels * 16, true);
             }
         }
-        
+        /*
         uint32_t GeneratedCRC = 0;
         GenerateCRC(Enc->bkGD->BackgroundPaletteEntry, BKGDEntrySize, GeneratedCRC);
         WriteBits(BitO, GeneratedCRC, 32, true);
+         */
     }
     
     void WriteCHRMChunk(BitOutput *BitO, EncodePNG *Enc) {
@@ -192,18 +203,22 @@ extern "C" {
         WriteBits(BitO, Enc->cHRM->GreenY, 32, true);
         WriteBits(BitO, Enc->cHRM->BlueX, 32, true);
         WriteBits(BitO, Enc->cHRM->BlueY, 32, true);
+        /*
         uint32_t GeneratedCRC = 0;
         GenerateCRC(Enc->cHRM, 32, GeneratedCRC);
         WriteBits(BitO, GeneratedCRC, 32, true);
+         */
     }
     
     void WriteGAMAChunk(BitOutput *BitO, EncodePNG *Enc) {
         WriteBits(BitO, 4, 32, true);
         WriteBits(BitO, gAMAMarker, 32, true);
         WriteBits(BitO, Enc->gAMA->Gamma, 32, true);
+        /*
         uint32_t GeneratedCRC = 0;
         GenerateCRC(Enc->gAMA->Gamma, 32, GeneratedCRC);
         WriteBits(BitO, GeneratedCRC, 32, true);
+         */
     }
     
     void WriteOFFSChunk(BitOutput *BitO, EncodePNG *Enc) {
@@ -212,9 +227,11 @@ extern "C" {
         WriteBits(BitO, Enc->oFFs->XOffset, 32, true);
         WriteBits(BitO, Enc->oFFs->YOffset, 32, true);
         WriteBits(BitO, Enc->oFFs->UnitSpecifier, 8, true);
+        /*
         uint32_t GeneratedCRC = 0;
         GenerateCRC(Enc->oFFs, 32, GeneratedCRC);
         WriteBits(BitO, GeneratedCRC, 32, true);
+         */
     }
     
     void WriteICCPChunk(BitOutput *BitO, EncodePNG *Enc) {
@@ -223,9 +240,11 @@ extern "C" {
         WriteBits(BitO, Enc->iCCP->ProfileName, Bytes2Bits(Enc->iCCP->ProfileName), true);
         WriteBits(BitO, Enc->iCCP->CompressionType, 8, true);
         WriteBits(BitO, Enc->iCCP->CompressedICCPProfile, Bytes2Bits(Enc->iCCP->CompressedICCPProfileSize), true);
+        /*
         uint32_t GeneratedCRC = 0;
         GenerateCRC(Enc->iCCP, 32, GeneratedCRC);
         WriteBits(BitO, GeneratedCRC, 32, true);
+         */
     }
     
     void WriteSBITChunk(BitOutput *BitO, EncodePNG *Enc) {
@@ -259,18 +278,22 @@ extern "C" {
             WriteBits(BitO, Enc->sBIT->Grayscale, 8, true);
             WriteBits(BitO, Enc->sBIT->Alpha, 8, true);
         }
+        /*
         uint32_t GeneratedCRC = 0;
         GenerateCRC(Enc->sBIT, 32, GeneratedCRC); // Make sure it skips 0s
         WriteBits(BitO, GeneratedCRC, 32, true);
+         */
     }
     
     void WriteSRGBChunk(BitOutput *BitO, EncodePNG *Enc) {
         WriteBits(BitO, 1, 8, true);
         WriteBits(BitO, sRGBMarker, 32, true);
         WriteBits(BitO, Enc->sRGB->RenderingIntent, 8, true);
+        /*
         uint32_t GeneratedCRC = 0;
         GenerateCRC(Enc->sRGB, 32, GeneratedCRC);
         WriteBits(BitO, GeneratedCRC, 32, true);
+         */
     }
     
     void WritePHYSChunk(BitOutput *BitO, EncodePNG *Enc) {
@@ -279,9 +302,11 @@ extern "C" {
         WriteBits(BitO, Enc->pHYs->PixelsPerUnitXAxis, 32, true);
         WriteBits(BitO, Enc->pHYs->PixelsPerUnitYAxis, 32, true);
         WriteBits(BitO, Enc->pHYs->UnitSpecifier, 8, true);
+        /*
         uint32_t GeneratedCRC = 0;
         GenerateCRC(Enc->pHYs, 32, GeneratedCRC);
         WriteBits(BitO, GeneratedCRC, 32, true);
+         */
     }
     
     void WritePCALChunk(BitOutput *BitO, EncodePNG *Enc) {
