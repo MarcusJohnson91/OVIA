@@ -36,11 +36,11 @@ extern "C" {
     } PNGFlags;
     
     enum PNGColorTypes {
-        Grayscale   = 0,
-        RGB         = 2,
-        PalettedRGB = 3,
-        GrayAlpha   = 4,
-        RGBA        = 6,
+        PNG_Grayscale   = 0,
+        PNG_RGB         = 2,
+        PNG_PalettedRGB = 3,
+        PNG_GrayAlpha   = 4,
+        PNG_RGBA        = 6,
     };
     
     static const char Number2Month[12][3] = {

@@ -162,13 +162,13 @@ extern "C" {
         uint32_t Size          = 0;
         uint8_t  BKGDEntrySize = 0; // in bits
         
-        if (Enc->iHDR->ColorType == PalettedRGB) {
+        if (Enc->iHDR->ColorType == PNG_PalettedRGB) {
             Size          = 1;
             BKGDEntrySize = Bytes2Bits(1);
-        } else if (Enc->iHDR->ColorType == Grayscale || Enc->iHDR->ColorType == GrayAlpha) {
+        } else if (Enc->iHDR->ColorType == PNG_Grayscale || Enc->iHDR->ColorType == PNG_GrayAlpha) {
             Size          = 2;
             BKGDEntrySize = Bytes2Bits(2);
-        } else if (Enc->iHDR->ColorType == RGB || Enc->iHDR->ColorType == RGBA) {
+        } else if (Enc->iHDR->ColorType == PNG_RGB || Enc->iHDR->ColorType == PNG_RGBA) {
             Size          = NumChannels * 2;
             BKGDEntrySize = Bytes2Bits(NumChannels * 2);
         }
@@ -176,11 +176,11 @@ extern "C" {
         WriteBits(BitO, Size, 32, true);
         WriteBits(BitO, bKGDMarker, 32, true);
         
-        if (Enc->iHDR->ColorType == PalettedRGB || Enc->iHDR->ColorType == Grayscale || Enc->iHDR->ColorType == GrayAlpha) {
+        if (Enc->iHDR->ColorType == PNG_PalettedRGB || Enc->iHDR->ColorType == PNG_Grayscale || Enc->iHDR->ColorType == PNG_GrayAlpha) {
             for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
                 WriteBits(BitO, Enc->bkGD->BackgroundPaletteEntry[Channel], BKGDEntrySize, true);
             }
-        } else if (Enc->iHDR->ColorType == RGB || Enc->iHDR->ColorType == RGBA) {
+        } else if (Enc->iHDR->ColorType == PNG_RGB || Enc->iHDR->ColorType == PNG_RGBA) {
             for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
                 WriteBits(BitO, Enc->bkGD->BackgroundPaletteEntry[Channel], NumChannels * 16, true);
             }
@@ -250,31 +250,31 @@ extern "C" {
     void WriteSBITChunk(BitOutput *BitO, EncodePNG *Enc) {
         uint8_t ChunkSize = 0;
         uint8_t NumChannels = ChannelsPerColorType[Enc->iHDR->ColorType];
-        if (Enc->iHDR->ColorType == Grayscale) {
+        if (Enc->iHDR->ColorType == PNG_Grayscale) {
             ChunkSize = 1;
-        } else if (Enc->iHDR->ColorType == RGB || Enc->iHDR->ColorType == PalettedRGB) {
+        } else if (Enc->iHDR->ColorType == PNG_RGB || Enc->iHDR->ColorType == PNG_PalettedRGB) {
             ChunkSize = 3;
-        } else if (Enc->iHDR->ColorType == GrayAlpha) {
+        } else if (Enc->iHDR->ColorType == PNG_GrayAlpha) {
             ChunkSize = 2;
-        } else if (Enc->iHDR->ColorType == RGBA) {
+        } else if (Enc->iHDR->ColorType == PNG_RGBA) {
             ChunkSize = 4;
         }
         
         WriteBits(BitO, ChunkSize, 32, true);
         WriteBits(BitO, sBITMarker, 32, true);
         
-        if (Enc->iHDR->ColorType == RGB || Enc->iHDR->ColorType == PalettedRGB) {
+        if (Enc->iHDR->ColorType == PNG_RGB || Enc->iHDR->ColorType == PNG_PalettedRGB) {
             WriteBits(BitO, Enc->sBIT->Red, 8, true);
             WriteBits(BitO, Enc->sBIT->Green, 8, true);
             WriteBits(BitO, Enc->sBIT->Blue, 8, true);
-        } else if (Enc->iHDR->ColorType == RGBA) {
+        } else if (Enc->iHDR->ColorType == PNG_RGBA) {
             WriteBits(BitO, Enc->sBIT->Red, 8, true);
             WriteBits(BitO, Enc->sBIT->Green, 8, true);
             WriteBits(BitO, Enc->sBIT->Blue, 8, true);
             WriteBits(BitO, Enc->sBIT->Alpha, 8, true);
-        } else if (Enc->iHDR->ColorType == Grayscale) {
+        } else if (Enc->iHDR->ColorType == PNG_Grayscale) {
             WriteBits(BitO, Enc->sBIT->Grayscale, 8, true);
-        } else if (Enc->iHDR->ColorType == GrayAlpha) {
+        } else if (Enc->iHDR->ColorType == PNG_GrayAlpha) {
             WriteBits(BitO, Enc->sBIT->Grayscale, 8, true);
             WriteBits(BitO, Enc->sBIT->Alpha, 8, true);
         }

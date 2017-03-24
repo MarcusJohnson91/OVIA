@@ -128,9 +128,9 @@ extern "C" {
         } else {
             uint8_t **Palette;
             
-            if (Dec->iHDR->ColorType == PalettedRGB || Dec->iHDR->ColorType == RGB) {
+            if (Dec->iHDR->ColorType == PNG_PalettedRGB || Dec->iHDR->ColorType == PNG_RGB) {
                 Palette = calloc(3 * Dec->PLTE->NumEntries, 1);
-            } else if (Dec->iHDR->ColorType == RGBA) {
+            } else if (Dec->iHDR->ColorType == PNG_RGBA) {
                 Palette = calloc(4 * Dec->PLTE->NumEntries, 1);
             }
             
