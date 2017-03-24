@@ -1,10 +1,12 @@
+#include <stdbool.h>
+#include <stdint.h>
 #include <math.h>
 
-#include "../../Dependencies/BitIO/libBitIO/include/BitIO.h"
+#include "../../../Dependencies/BitIO/libBitIO/include/BitIO.h"
 
-#include "../include/libModernPNG.h"
-#include "../include/EncodePNG.h"
-#include "../include/PNGTypes.h"
+#include "../../include/libModernPNG.h"
+#include "../../include/Encoder/EncodePNG.h"
+#include "../../include/PNGTypes.h"
 
 #ifdef __cplusplus
 extern "C" {

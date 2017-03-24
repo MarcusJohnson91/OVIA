@@ -1,10 +1,12 @@
+#include <stdbool.h>
+#include <stdint.h>
 #include <math.h>
 
-#include "../../Dependencies/BitIO/libBitIO/include/BitIO.h"
+#include "../../../Dependencies/BitIO/libBitIO/include/BitIO.h"
 
-#include "../include/libModernPNG.h"
-#include "../include/DecodePNG.h"
-#include "../include/PNGTypes.h"
+#include "../../include/libModernPNG.h"
+#include "../../include/Decoder/DecodePNG.h"
+#include "../../include/PNGTypes.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -57,6 +59,29 @@ extern "C" {
         struct tRNS   *tRNS;
         uint16_t    ***DecodedImage;
     };
+    
+    DecodePNG *InitDecodePNG(void) {
+        DecodePNG *Dec  = calloc(sizeof(DecodePNG), 1);
+        Dec->acTL       = calloc(sizeof(acTL),1);
+        Dec->bkGD       = calloc(sizeof(bkGD),1);
+        Dec->cHRM       = calloc(sizeof(cHRM),1);
+        Dec->fcTL       = calloc(sizeof(fcTL),1);
+        Dec->fdAT       = calloc(sizeof(fdAT),1);
+        Dec->gAMA       = calloc(sizeof(gAMA),1);
+        Dec->hIST       = calloc(sizeof(hIST),1);
+        Dec->iCCP       = calloc(sizeof(iCCP),1);
+        Dec->iHDR       = calloc(sizeof(iHDR),1);
+        Dec->oFFs       = calloc(sizeof(oFFs),1);
+        Dec->pCAL       = calloc(sizeof(pCAL),1);
+        Dec->PLTE       = calloc(sizeof(PLTE),1);
+        Dec->sBIT       = calloc(sizeof(sBIT),1);
+        Dec->sRGB       = calloc(sizeof(sRGB),1);
+        Dec->sTER       = calloc(sizeof(sTER),1);
+        Dec->Text       = calloc(sizeof(Text),1);
+        Dec->tIMe       = calloc(sizeof(tIMe),1);
+        Dec->tRNS       = calloc(sizeof(tRNS),1);
+        return Dec;
+    }
     
     /*
     bool VerifyChunkCRC(BitInput *BitI, uint32_t ChunkSize) {
@@ -469,7 +494,7 @@ extern "C" {
     
     void DecodePNGData(BitInput *BitI, DecodePNG *Dec) {
         // read the iDAT/fDAT chunk header, then do the other stuff.
-        while (BitI->FilePosition + Bits2Bytes(BitI->BitsAvailable, false) < BitI->FileSize - 12) { // 12 is the start of IEND
+        while (BytesRemainingInFile(BitI) > 0) { // 12 is the start of IEND
             uint32_t ChunkSize = ReadBits(BitI, 32, true);
             uint32_t ChunkID   = ReadBits(BitI, 32, true);
             
@@ -514,29 +539,6 @@ extern "C" {
     
     void PNGReadMetadata(BitInput *BitI, DecodePNG *Dec) {
         ParsePNGMetadata(BitI, Dec);
-    }
-    
-    DecodePNG *InitDecodePNG(void) {
-        DecodePNG *Dec  = calloc(sizeof(DecodePNG), 1);
-        Dec->acTL       = calloc(sizeof(acTL),1);
-        Dec->bkGD       = calloc(sizeof(bkGD),1);
-        Dec->cHRM       = calloc(sizeof(cHRM),1);
-        Dec->fcTL       = calloc(sizeof(fcTL),1);
-        Dec->fdAT       = calloc(sizeof(fdAT),1);
-        Dec->gAMA       = calloc(sizeof(gAMA),1);
-        Dec->hIST       = calloc(sizeof(hIST),1);
-        Dec->iCCP       = calloc(sizeof(iCCP),1);
-        Dec->iHDR       = calloc(sizeof(iHDR),1);
-        Dec->oFFs       = calloc(sizeof(oFFs),1);
-        Dec->pCAL       = calloc(sizeof(pCAL),1);
-        Dec->PLTE       = calloc(sizeof(PLTE),1);
-        Dec->sBIT       = calloc(sizeof(sBIT),1);
-        Dec->sRGB       = calloc(sizeof(sRGB),1);
-        Dec->sTER       = calloc(sizeof(sTER),1);
-        Dec->Text       = calloc(sizeof(Text),1);
-        Dec->tIMe       = calloc(sizeof(tIMe),1);
-        Dec->tRNS       = calloc(sizeof(tRNS),1);
-        return Dec;
     }
     
 #ifdef __cplusplus

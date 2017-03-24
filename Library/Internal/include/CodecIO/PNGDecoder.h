@@ -1,6 +1,6 @@
 #include <stdbool.h>
 #include <stdint.h>
-#include "libModernPNG.h"
+#include "../libModernPNG.h"
 
 #pragma once
 
