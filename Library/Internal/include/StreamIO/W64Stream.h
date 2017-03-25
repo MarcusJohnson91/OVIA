@@ -1,9 +1,9 @@
 #include "libPCM.h"
 
+#pragma once
+
 #ifndef LIBPCM_W64COMMON_H
 #define LIBPCM_W64COMMON_H
-
-#pragma once
 
 #ifdef __cplusplus
 extern "C" {
