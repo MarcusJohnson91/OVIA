@@ -20,7 +20,7 @@ extern "C" {
     };
     
     void ReadINFO_IART(BitInput *BitI, PCMFile *PCM, uint32_t ChunkSize) {
-        char *Artist = calloc(ChunkSize, 1);
+        char *Artist = calloc(1, ChunkSize);
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
             Artist[Byte] = ReadBits(BitI, 8, true);
         }
@@ -32,7 +32,7 @@ extern "C" {
     }
     
     void ReadINFO_ICRD(BitInput *BitI, PCMFile *PCM, uint32_t ChunkSize) {
-        char *ReleaseDate = calloc(ChunkSize, 1);
+        char *ReleaseDate = calloc(1, ChunkSize);
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
             ReleaseDate[Byte] = ReadBits(BitI, 8, true);
         }
@@ -44,7 +44,7 @@ extern "C" {
     }
     
     void ReadINFO_IGNR(BitInput *BitI, PCMFile *PCM, uint32_t ChunkSize) {
-        char *Genre = calloc(ChunkSize, 1);
+        char *Genre = calloc(1, ChunkSize);
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
             Genre[Byte] = ReadBits(BitI, 8, true);
         }
@@ -56,7 +56,7 @@ extern "C" {
     }
     
     void ReadINFO_INAM(BitInput *BitI, PCMFile *PCM, uint32_t ChunkSize) {
-        char *Title = calloc(ChunkSize, 1);
+        char *Title = calloc(1, ChunkSize);
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
             Title[Byte] = ReadBits(BitI, 8, true);
         }
@@ -68,7 +68,7 @@ extern "C" {
     }
     
     void ReadINFO_IPRD(BitInput *BitI, PCMFile *PCM, uint32_t ChunkSize) {
-        char *Album = calloc(ChunkSize, 1);
+        char *Album = calloc(1, ChunkSize);
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
             Album[Byte] = ReadBits(BitI, 8, true);
         }
@@ -80,7 +80,7 @@ extern "C" {
     }
     
     void ReadINFO_ISFT(BitInput *BitI, PCMFile *PCM, uint32_t ChunkSize) { // Encoder
-        char *Encoder = calloc(ChunkSize, 1);
+        char *Encoder = calloc(1, ChunkSize);
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
             Encoder[Byte] = ReadBits(BitI, 8, true);
         }

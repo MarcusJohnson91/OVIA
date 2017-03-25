@@ -9,7 +9,7 @@ extern "C" {
 #endif
     
     void ParseAIFNAME(BitInput *BitI, AIFHeader *AIF, uint32_t ChunkSize) {
-        char *Name = calloc(ChunkSize, 1);
+        char *Name = calloc(1, ChunkSize);
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
             Name[Byte] = ReadBits(BitI, 8, true);
         }

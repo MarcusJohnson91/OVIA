@@ -10,8 +10,8 @@ extern "C" {
 #endif
     
     PCMFile *InitPCMFile(void) {
-        PCMFile *PCM = calloc(sizeof(PCMFile), 1);
-        PCM->Meta    = calloc(sizeof(PCMMetadata), 1);
+        PCMFile *PCM = calloc(1, sizeof(PCMFile));
+        PCM->Meta    = calloc(1, sizeof(PCMMetadata));
         return PCM;
     }
     
@@ -34,9 +34,9 @@ extern "C" {
      @param NumSamples2Extract is the number of channel agnostic samples to read from the input file
      */
     void ExtractSamples(BitInput *BitI, PCMFile *PCM, uint64_t NumSamples2Extract) {
-        WAVHeader *WAV = calloc(sizeof(WAVHeader), 1);
-        W64Header *W64 = calloc(sizeof(W64Header), 1);
-        AIFHeader *AIF = calloc(sizeof(AIFHeader), 1);
+        WAVHeader *WAV = calloc(1, sizeof(WAVHeader));
+        W64Header *W64 = calloc(1, sizeof(W64Header));
+        AIFHeader *AIF = calloc(1, sizeof(AIFHeader));
         if (PCM->MetadataHasBeenParsed == false) {
             uint32_t Magic = ReadBits(BitI, 32, true);
             switch (Magic) {
@@ -137,18 +137,18 @@ extern "C" {
         uint32_t InputMagic = ReadBits(BitI, 32, true);
         if (InputMagic == WAV_RIFF) {
             PCM->FileType = WAV_File;
-            WAVHeader *WAV = calloc(sizeof(WAVHeader), 1);
+            WAVHeader *WAV = calloc(1, sizeof(WAVHeader));
             PCM->WAV = WAV;
             ParseWAVFile(BitI, PCM);
         } else if (InputMagic == W64_RIFF) {
             PCM->FileType = W64_File;
             SkipBits(BitI, 96); // Rest of the W64 RIFF GUID
             SkipBits(BitI, 64); // RIFF ChunkSize
-            W64Header *W64 = calloc(sizeof(W64Header), 1);
+            W64Header *W64 = calloc(1, sizeof(W64Header));
             ParseW64File(BitI, W64);
         } else if (InputMagic == AIF_FORM) {
             PCM->FileType = AIFF_File;
-            AIFHeader *AIF = calloc(sizeof(AIFHeader), 1);
+            AIFHeader *AIF = calloc(1, sizeof(AIFHeader));
             ParseAIFFile(BitI, AIF);
         }
     }
