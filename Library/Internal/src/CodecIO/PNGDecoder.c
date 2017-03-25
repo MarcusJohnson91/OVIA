@@ -61,25 +61,25 @@ extern "C" {
     };
     
     DecodePNG *InitDecodePNG(void) {
-        DecodePNG *Dec  = calloc(sizeof(DecodePNG), 1);
-        Dec->acTL       = calloc(sizeof(acTL), 1);
-        Dec->bkGD       = calloc(sizeof(bkGD), 1);
-        Dec->cHRM       = calloc(sizeof(cHRM), 1);
-        Dec->fcTL       = calloc(sizeof(fcTL), 1);
-        Dec->fdAT       = calloc(sizeof(fdAT), 1);
-        Dec->gAMA       = calloc(sizeof(gAMA), 1);
-        Dec->hIST       = calloc(sizeof(hIST), 1);
-        Dec->iCCP       = calloc(sizeof(iCCP), 1);
-        Dec->iHDR       = calloc(sizeof(iHDR), 1);
-        Dec->oFFs       = calloc(sizeof(oFFs), 1);
-        Dec->pCAL       = calloc(sizeof(pCAL), 1);
-        Dec->PLTE       = calloc(sizeof(PLTE), 1);
-        Dec->sBIT       = calloc(sizeof(sBIT), 1);
-        Dec->sRGB       = calloc(sizeof(sRGB), 1);
-        Dec->sTER       = calloc(sizeof(sTER), 1);
-        Dec->Text       = calloc(sizeof(Text), 1);
-        Dec->tIMe       = calloc(sizeof(tIMe), 1);
-        Dec->tRNS       = calloc(sizeof(tRNS), 1);
+        DecodePNG *Dec  = calloc(1, sizeof(DecodePNG));
+        Dec->acTL       = calloc(1, sizeof(acTL));
+        Dec->bkGD       = calloc(1, sizeof(bkGD));
+        Dec->cHRM       = calloc(1, sizeof(cHRM));
+        Dec->fcTL       = calloc(1, sizeof(fcTL));
+        Dec->fdAT       = calloc(1, sizeof(fdAT));
+        Dec->gAMA       = calloc(1, sizeof(gAMA));
+        Dec->hIST       = calloc(1, sizeof(hIST));
+        Dec->iCCP       = calloc(1, sizeof(iCCP));
+        Dec->iHDR       = calloc(1, sizeof(iHDR));
+        Dec->oFFs       = calloc(1, sizeof(oFFs));
+        Dec->pCAL       = calloc(1, sizeof(pCAL));
+        Dec->PLTE       = calloc(1, sizeof(PLTE));
+        Dec->sBIT       = calloc(1, sizeof(sBIT));
+        Dec->sRGB       = calloc(1, sizeof(sRGB));
+        Dec->sTER       = calloc(1, sizeof(sTER));
+        Dec->Text       = calloc(1, sizeof(Text));
+        Dec->tIMe       = calloc(1, sizeof(tIMe));
+        Dec->tRNS       = calloc(1, sizeof(tRNS));
         return Dec;
     }
     
@@ -88,7 +88,7 @@ extern "C" {
         // So basically we need to read ChunkSize bytes into an array, then read the following 4 bytes as the CRC
         // then run VerifyCRC over the buffer, and finally compare the generated CRC with the extracted one, and return whether they match.
         // Then call SkipBits(BitI, Bytes2Bits(ChunkSize)); to reset to the beginning of the chunk
-        uint8_t *Buffer2CRC = calloc(ChunkSize, 1);
+        uint8_t *Buffer2CRC = calloc(1, ChunkSize);
         for (uint32_t Byte = 0; Byte < ChunkSize; Byte++) {
             Buffer2CRC[Byte] = BitI->Buffer[Bits2Bytes(, false)];
             
@@ -146,7 +146,7 @@ extern "C" {
     
     void ParseTRNS(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize) { // Transparency
         Dec->tRNS->NumEntries = ReadBits(BitI, 32, true);
-        uint16_t **Entries = calloc(Dec->tRNS->NumEntries, 1);
+        uint16_t **Entries = calloc(1, Dec->tRNS->NumEntries);
         for (uint8_t Color = 0; Color < ChannelsPerColorType[Dec->iHDR->ColorType]; Color++) {
             Entries[Color] = ReadBits(BitI, Bits2Bytes(Dec->iHDR->BitDepth, true), true);
         }
