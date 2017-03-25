@@ -34,19 +34,19 @@ extern "C" {
     }
     
     EncodeFLAC *InitEncodeFLAC(void) {
-        EncodeFLAC *Enc        = calloc(sizeof(EncodeFLAC), 1);
-        Enc->Meta              = calloc(sizeof(FLACMeta), 1);
-        Enc->Meta->StreamInfo  = calloc(sizeof(FLACStreamInfo), 1);
-        Enc->Meta->Seek        = calloc(sizeof(FLACSeekTable), 1);
-        Enc->Meta->Vorbis      = calloc(sizeof(FLACVorbisComment), 1);
-        Enc->Meta->Cue         = calloc(sizeof(FLACCueSheet), 1);
-        Enc->Meta->Pic         = calloc(sizeof(FLACPicture), 1);
+        EncodeFLAC *Enc        = calloc(1, sizeof(EncodeFLAC));
+        Enc->Meta              = calloc(1, sizeof(FLACMeta));
+        Enc->Meta->StreamInfo  = calloc(1, sizeof(FLACStreamInfo));
+        Enc->Meta->Seek        = calloc(1, sizeof(FLACSeekTable));
+        Enc->Meta->Vorbis      = calloc(1, sizeof(FLACVorbisComment));
+        Enc->Meta->Cue         = calloc(1, sizeof(FLACCueSheet));
+        Enc->Meta->Pic         = calloc(1, sizeof(FLACPicture));
         
-        Enc->Data              = calloc(sizeof(FLACData), 1);
-        Enc->Data->Frame       = calloc(sizeof(FLACFrame), 1);
-        Enc->Data->SubFrame    = calloc(sizeof(FLACSubFrame), 1);
-        Enc->Data->LPC         = calloc(sizeof(FLACLPC), 1);
-        Enc->Data->Rice        = calloc(sizeof(RICEPartition), 1);
+        Enc->Data              = calloc(1, sizeof(FLACData));
+        Enc->Data->Frame       = calloc(1, sizeof(FLACFrame));
+        Enc->Data->SubFrame    = calloc(1, sizeof(FLACSubFrame));
+        Enc->Data->LPC         = calloc(1, sizeof(FLACLPC));
+        Enc->Data->Rice        = calloc(1, sizeof(RICEPartition));
         return Enc;
     }
     

@@ -122,16 +122,16 @@ extern "C" {
     void FLACParseVorbisComment(BitInput *BitI, DecodeFLAC *Dec) { // LITTLE ENDIAN
         char Description[BitIOStringSize] = {0};
         Dec->Meta->Vorbis->VendorTagSize = SwapEndian32(ReadBits(BitI, 32, true)); // 32
-        Dec->Meta->Vorbis->VendorTag     = calloc(Dec->Meta->Vorbis->VendorTagSize, 1);
+        Dec->Meta->Vorbis->VendorTag     = calloc(1, Dec->Meta->Vorbis->VendorTagSize);
         for (uint32_t TagByte = 0; TagByte < Dec->Meta->Vorbis->VendorTagSize; TagByte++) {
             Dec->Meta->Vorbis->VendorTag[TagByte]  = ReadBits(BitI, 8, true); // reference libFLAC 1.3.1 20141125
         }
         Dec->Meta->Vorbis->NumUserTags   = SwapEndian32(ReadBits(BitI, 32, true)); // 13
-        Dec->Meta->Vorbis->UserTagSize   = calloc(Dec->Meta->Vorbis->NumUserTags, 1);
-        Dec->Meta->Vorbis->UserTagString = calloc(Dec->Meta->Vorbis->NumUserTags, 1);
+        Dec->Meta->Vorbis->UserTagSize   = calloc(1, Dec->Meta->Vorbis->NumUserTags);
+        Dec->Meta->Vorbis->UserTagString = calloc(1, Dec->Meta->Vorbis->NumUserTags);
         for (uint32_t Comment = 0; Comment < Dec->Meta->Vorbis->NumUserTags; Comment++) {
             Dec->Meta->Vorbis->UserTagSize[Comment] = SwapEndian32(ReadBits(BitI, 32, true));
-            Dec->Meta->Vorbis->UserTagString[Comment] = calloc(Dec->Meta->Vorbis->UserTagSize[Comment], 1);
+            Dec->Meta->Vorbis->UserTagString[Comment] = calloc(1, Dec->Meta->Vorbis->UserTagSize[Comment]);
             // 39   // ALBUM=My Beautiful Dark Twisted Fantasy
             // 17   // ARTIST=Kanye West
             // 6    // BPM=87
@@ -216,19 +216,19 @@ extern "C" {
     }
     
     DecodeFLAC *InitDecodeFLAC(void) {
-        DecodeFLAC *Dec       = calloc(sizeof(DecodeFLAC), 1);
-        Dec->Meta             = calloc(sizeof(FLACMeta), 1);
-        Dec->Meta->StreamInfo = calloc(sizeof(FLACStreamInfo), 1);
-        Dec->Meta->Seek       = calloc(sizeof(FLACSeekTable), 1);
-        Dec->Meta->Vorbis     = calloc(sizeof(FLACVorbisComment), 1);
-        Dec->Meta->Cue        = calloc(sizeof(FLACCueSheet), 1);
-        Dec->Meta->Pic        = calloc(sizeof(FLACPicture), 1);
+        DecodeFLAC *Dec       = calloc(1, sizeof(DecodeFLAC));
+        Dec->Meta             = calloc(1, sizeof(FLACMeta));
+        Dec->Meta->StreamInfo = calloc(1, sizeof(FLACStreamInfo));
+        Dec->Meta->Seek       = calloc(1, sizeof(FLACSeekTable));
+        Dec->Meta->Vorbis     = calloc(1, sizeof(FLACVorbisComment));
+        Dec->Meta->Cue        = calloc(1, sizeof(FLACCueSheet));
+        Dec->Meta->Pic        = calloc(1, sizeof(FLACPicture));
 
-        Dec->Data             = calloc(sizeof(FLACData), 1);
-        Dec->Data->Frame      = calloc(sizeof(FLACFrame), 1);
-        Dec->Data->SubFrame   = calloc(sizeof(FLACSubFrame), 1);
-        Dec->Data->LPC        = calloc(sizeof(FLACLPC), 1);
-        Dec->Data->Rice       = calloc(sizeof(RICEPartition), 1);
+        Dec->Data             = calloc(1, sizeof(FLACData));
+        Dec->Data->Frame      = calloc(1, sizeof(FLACFrame));
+        Dec->Data->SubFrame   = calloc(1, sizeof(FLACSubFrame));
+        Dec->Data->LPC        = calloc(1, sizeof(FLACLPC));
+        Dec->Data->Rice       = calloc(1, sizeof(RICEPartition));
         return Dec;
     }
     
