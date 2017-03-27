@@ -4,7 +4,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "../../../Dependencies/BitIO/libBitIO/include/BitIO.h"
+#include "../../../Dependencies/libPCM/Dependencies/BitIO/libBitIO/include/BitIO.h"
 #include "../../../Dependencies/libPCM/libPCM/include/libPCM.h"
 #include "../../include/libModernFLAC.h"
 #include "../../include/Decoder/DecodeFLAC.h"
