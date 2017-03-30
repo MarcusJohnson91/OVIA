@@ -69,6 +69,21 @@ extern "C" {
         return 0;
     }
     
+    void CloseFLACEncoder(EncodeFLAC *Enc) {
+        free(Enc->Meta->StreamInfo);
+        free(Enc->Meta->Seek);
+        free(Enc->Meta->Vorbis);
+        free(Enc->Meta->Cue);
+        free(Enc->Meta->Pic);
+        free(Enc->Meta);
+        free(Enc->Data->Frame);
+        free(Enc->Data->SubFrame);
+        free(Enc->Data->LPC);
+        free(Enc->Data->Rice);
+        free(Enc->Data);
+        free(Enc);
+    }
+    
 #ifdef __cplusplus
 }
 #endif

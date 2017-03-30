@@ -12,6 +12,8 @@ extern "C" {
     int8_t EncodeFLACFile(PCMFile *PCM, BitOutput *BitO, EncodeFLAC *Enc);
     
     EncodeFLAC *InitEncodeFLAC(void);
+    
+    void CloseFLACEncoder(EncodeFLAC *Enc);
 
 #ifdef __cplusplus
 }

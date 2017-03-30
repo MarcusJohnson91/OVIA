@@ -70,6 +70,8 @@ extern "C" {
     
     void    FLACParsePicture(BitInput *BitI, DecodeFLAC *Dec);
     
+    void    CloseFLACDecoder(DecodeFLAC *Dec);
+    
 #ifdef __cplusplus
 }
 #endif

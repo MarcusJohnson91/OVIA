@@ -484,6 +484,21 @@ extern "C" {
         // Original algorithm: X^
     }
     
+    void CloseFLACDecoder(DecodeFLAC *Dec) {
+        free(Dec->Meta->StreamInfo);
+        free(Dec->Meta->Seek);
+        free(Dec->Meta->Vorbis);
+        free(Dec->Meta->Cue);
+        free(Dec->Meta->Pic);
+        free(Dec->Meta);
+        free(Dec->Data->Frame);
+        free(Dec->Data->SubFrame);
+        free(Dec->Data->LPC);
+        free(Dec->Data->Rice);
+        free(Dec->Data);
+        free(Dec);
+    }
+    
 #ifdef __cplusplus
 }
 #endif
