@@ -59,7 +59,7 @@ extern "C" {
         struct tRNS   *tRNS;
     };
     
-    EncodePNG *InitPNGEncode(void) {
+    EncodePNG *InitEncodePNG(void) { // InitPNGEncode
         EncodePNG *Enc  = calloc(1, sizeof(EncodePNG));
         Enc->acTL       = calloc(1, sizeof(acTL));
         Enc->bkGD       = calloc(1, sizeof(bkGD));
@@ -82,10 +82,6 @@ extern "C" {
         return Enc;
     }
     
-    uint64_t GenerateCRCFromOutputBuffer(BitOutput *BitO, uint32_t ChunkSize) {
-        return false;
-    }
-    
     void WriteIHDRChunk(BitOutput *BitO, EncodePNG *Enc) {
         WriteBits(BitO, 13, 32, true);
         WriteBits(BitO, iHDRMarker, 32, true);
@@ -106,9 +102,9 @@ extern "C" {
         WriteBits(BitO, Enc->acTL->NumFrames, 32, true);
         WriteBits(BitO, Enc->acTL->TimesToLoop, 32, true);
         /*
-        uint32_t GeneratedCRC = 0;
-        GenerateCRC(Enc->acTL, 8, GeneratedCRC);
-        WriteBits(BitO, GeneratedCRC, 32, true);
+         uint32_t GeneratedCRC = 0;
+         GenerateCRC(Enc->acTL, 8, GeneratedCRC);
+         WriteBits(BitO, GeneratedCRC, 32, true);
          */
     }
     
@@ -125,9 +121,9 @@ extern "C" {
         WriteBits(BitO, Enc->fcTL->DisposeMethod, 8, true);
         WriteBits(BitO, Enc->fcTL->BlendMethod, 8, true);
         /*
-        uint32_t GeneratedCRC = 0;
-        GenerateCRC(Enc->fcTL, 29, GeneratedCRC);
-        WriteBits(BitO, GeneratedCRC, 32, true);
+         uint32_t GeneratedCRC = 0;
+         GenerateCRC(Enc->fcTL, 29, GeneratedCRC);
+         WriteBits(BitO, GeneratedCRC, 32, true);
          */
     }
     
@@ -136,13 +132,13 @@ extern "C" {
         WriteBits(BitO, fDATMarker, 32, true);
         WriteBits(BitO, Enc->fdAT->FrameNum, 32, true);
         /*
-        uint32_t GeneratedCRC = 0;
-        GenerateCRC(Enc->fdAT, 8, GeneratedCRC);
-        for (uint32_t Byte = 0; Byte < DeflatedFrameDataSize; Byte++) {
-            GenerateCRC(&DeflatedFrameData[Byte], 8, GeneratedCRC); // Generate payload CRC as it's written
-            WriteBits(BitO, DeflatedFrameData[Byte], 8, true);
-        }
-        WriteBits(BitO, GeneratedCRC, 32, true);
+         uint32_t GeneratedCRC = 0;
+         GenerateCRC(Enc->fdAT, 8, GeneratedCRC);
+         for (uint32_t Byte = 0; Byte < DeflatedFrameDataSize; Byte++) {
+         GenerateCRC(&DeflatedFrameData[Byte], 8, GeneratedCRC); // Generate payload CRC as it's written
+         WriteBits(BitO, DeflatedFrameData[Byte], 8, true);
+         }
+         WriteBits(BitO, GeneratedCRC, 32, true);
          */
     }
     
@@ -151,9 +147,9 @@ extern "C" {
         WriteBits(BitO, sTERMarker, 32, true);
         WriteBits(BitO, Enc->sTER->StereoType, 8, true);
         /*
-        uint32_t GeneratedCRC = 0;
-        GenerateCRC(Enc->sTER->StereoType, 1, GeneratedCRC);
-        WriteBits(BitO, GeneratedCRC, 32, true);
+         uint32_t GeneratedCRC = 0;
+         GenerateCRC(Enc->sTER->StereoType, 1, GeneratedCRC);
+         WriteBits(BitO, GeneratedCRC, 32, true);
          */
     }
     
@@ -186,9 +182,9 @@ extern "C" {
             }
         }
         /*
-        uint32_t GeneratedCRC = 0;
-        GenerateCRC(Enc->bkGD->BackgroundPaletteEntry, BKGDEntrySize, GeneratedCRC);
-        WriteBits(BitO, GeneratedCRC, 32, true);
+         uint32_t GeneratedCRC = 0;
+         GenerateCRC(Enc->bkGD->BackgroundPaletteEntry, BKGDEntrySize, GeneratedCRC);
+         WriteBits(BitO, GeneratedCRC, 32, true);
          */
     }
     
@@ -204,9 +200,9 @@ extern "C" {
         WriteBits(BitO, Enc->cHRM->BlueX, 32, true);
         WriteBits(BitO, Enc->cHRM->BlueY, 32, true);
         /*
-        uint32_t GeneratedCRC = 0;
-        GenerateCRC(Enc->cHRM, 32, GeneratedCRC);
-        WriteBits(BitO, GeneratedCRC, 32, true);
+         uint32_t GeneratedCRC = 0;
+         GenerateCRC(Enc->cHRM, 32, GeneratedCRC);
+         WriteBits(BitO, GeneratedCRC, 32, true);
          */
     }
     
@@ -215,9 +211,9 @@ extern "C" {
         WriteBits(BitO, gAMAMarker, 32, true);
         WriteBits(BitO, Enc->gAMA->Gamma, 32, true);
         /*
-        uint32_t GeneratedCRC = 0;
-        GenerateCRC(Enc->gAMA->Gamma, 32, GeneratedCRC);
-        WriteBits(BitO, GeneratedCRC, 32, true);
+         uint32_t GeneratedCRC = 0;
+         GenerateCRC(Enc->gAMA->Gamma, 32, GeneratedCRC);
+         WriteBits(BitO, GeneratedCRC, 32, true);
          */
     }
     
@@ -228,9 +224,9 @@ extern "C" {
         WriteBits(BitO, Enc->oFFs->YOffset, 32, true);
         WriteBits(BitO, Enc->oFFs->UnitSpecifier, 8, true);
         /*
-        uint32_t GeneratedCRC = 0;
-        GenerateCRC(Enc->oFFs, 32, GeneratedCRC);
-        WriteBits(BitO, GeneratedCRC, 32, true);
+         uint32_t GeneratedCRC = 0;
+         GenerateCRC(Enc->oFFs, 32, GeneratedCRC);
+         WriteBits(BitO, GeneratedCRC, 32, true);
          */
     }
     
@@ -241,9 +237,9 @@ extern "C" {
         WriteBits(BitO, Enc->iCCP->CompressionType, 8, true);
         WriteBits(BitO, Enc->iCCP->CompressedICCPProfile, Bytes2Bits(Enc->iCCP->CompressedICCPProfileSize), true);
         /*
-        uint32_t GeneratedCRC = 0;
-        GenerateCRC(Enc->iCCP, 32, GeneratedCRC);
-        WriteBits(BitO, GeneratedCRC, 32, true);
+         uint32_t GeneratedCRC = 0;
+         GenerateCRC(Enc->iCCP, 32, GeneratedCRC);
+         WriteBits(BitO, GeneratedCRC, 32, true);
          */
     }
     
@@ -279,9 +275,9 @@ extern "C" {
             WriteBits(BitO, Enc->sBIT->Alpha, 8, true);
         }
         /*
-        uint32_t GeneratedCRC = 0;
-        GenerateCRC(Enc->sBIT, 32, GeneratedCRC); // Make sure it skips 0s
-        WriteBits(BitO, GeneratedCRC, 32, true);
+         uint32_t GeneratedCRC = 0;
+         GenerateCRC(Enc->sBIT, 32, GeneratedCRC); // Make sure it skips 0s
+         WriteBits(BitO, GeneratedCRC, 32, true);
          */
     }
     
@@ -290,9 +286,9 @@ extern "C" {
         WriteBits(BitO, sRGBMarker, 32, true);
         WriteBits(BitO, Enc->sRGB->RenderingIntent, 8, true);
         /*
-        uint32_t GeneratedCRC = 0;
-        GenerateCRC(Enc->sRGB, 32, GeneratedCRC);
-        WriteBits(BitO, GeneratedCRC, 32, true);
+         uint32_t GeneratedCRC = 0;
+         GenerateCRC(Enc->sRGB, 32, GeneratedCRC);
+         WriteBits(BitO, GeneratedCRC, 32, true);
          */
     }
     
@@ -303,9 +299,9 @@ extern "C" {
         WriteBits(BitO, Enc->pHYs->PixelsPerUnitYAxis, 32, true);
         WriteBits(BitO, Enc->pHYs->UnitSpecifier, 8, true);
         /*
-        uint32_t GeneratedCRC = 0;
-        GenerateCRC(Enc->pHYs, 32, GeneratedCRC);
-        WriteBits(BitO, GeneratedCRC, 32, true);
+         uint32_t GeneratedCRC = 0;
+         GenerateCRC(Enc->pHYs, 32, GeneratedCRC);
+         WriteBits(BitO, GeneratedCRC, 32, true);
          */
     }
     
@@ -366,6 +362,21 @@ extern "C" {
         }
         
         // Now I need to break up the image into 8x8 blocks
+    }
+    
+    void OptimizeAdam7(EncodePNG *Enc, uint8_t ****Image) {
+        
+    }
+    
+    void OptimizePNG(EncodePNG *Enc, uint8_t ****Image) {
+        // call PNGEncodeAdam7, then take the resulting image and try all the filters on an 8x8 block.
+        // Actually, no. we should have a PNGFilterAdam7 function...
+        // } else {
+        // Just take the lines and try all the filters on each one, comparing them by comparing the difference between the bytes.
+    }
+    
+    void PNGEncodeImage(EncodePNG *Enc, BitOutput *BitO) {
+        
     }
     
 #ifdef __cplusplus

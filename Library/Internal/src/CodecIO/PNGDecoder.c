@@ -84,21 +84,21 @@ extern "C" {
     }
     
     /*
-    bool VerifyChunkCRC(BitInput *BitI, uint32_t ChunkSize) {
-        // So basically we need to read ChunkSize bytes into an array, then read the following 4 bytes as the CRC
-        // then run VerifyCRC over the buffer, and finally compare the generated CRC with the extracted one, and return whether they match.
-        // Then call SkipBits(BitI, Bytes2Bits(ChunkSize)); to reset to the beginning of the chunk
-        uint8_t *Buffer2CRC = calloc(1, ChunkSize);
-        for (uint32_t Byte = 0; Byte < ChunkSize; Byte++) {
-            Buffer2CRC[Byte] = BitI->Buffer[Bits2Bytes(, false)];
-            
-        }
-        uint32_t ChunkCRC = ReadBits(BitI, 32, true);
-        bool CRCsMatch = VerifyCRC(Buffer2CRC, ChunkSize, 0x82608EDB, 32, 0xFFFFFFFF, ChunkCRC);
-        SkipBits(BitI, -Bytes2Bits(ChunkSize));
-        return CRCsMatch;
-    }
-    */
+     bool VerifyChunkCRC(BitInput *BitI, uint32_t ChunkSize) {
+     // So basically we need to read ChunkSize bytes into an array, then read the following 4 bytes as the CRC
+     // then run VerifyCRC over the buffer, and finally compare the generated CRC with the extracted one, and return whether they match.
+     // Then call SkipBits(BitI, Bytes2Bits(ChunkSize)); to reset to the beginning of the chunk
+     uint8_t *Buffer2CRC = calloc(1, ChunkSize);
+     for (uint32_t Byte = 0; Byte < ChunkSize; Byte++) {
+     Buffer2CRC[Byte] = BitI->Buffer[Bits2Bytes(, false)];
+     
+     }
+     uint32_t ChunkCRC = ReadBits(BitI, 32, true);
+     bool CRCsMatch = VerifyCRC(Buffer2CRC, ChunkSize, 0x82608EDB, 32, 0xFFFFFFFF, ChunkCRC);
+     SkipBits(BitI, -Bytes2Bits(ChunkSize));
+     return CRCsMatch;
+     }
+     */
     
     void CalculateSTERPadding(DecodePNG *Dec) {
         Dec->LinePadding = 7 - ((Dec->iHDR->Width - 1) % 8);
@@ -294,7 +294,7 @@ extern "C" {
     /* End APNG */
     
     void ParseIDAT(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize) { // IDAT
-        // DecodeINFLATE
+                                                                         // DecodeINFLATE
         uint32_t CRC = ReadBits(BitI, 32, true);
     }
     
@@ -508,7 +508,7 @@ extern "C" {
         }
     }
     
-    void DecodePNGImage(BitInput *BitI, DecodePNG *Dec, uint16_t *DecodedImage) {
+    void PNGDecodeImage(BitInput *BitI, DecodePNG *Dec, uint16_t *DecodedImage) {
         // Parse all chunks except iDAT, fDAT, and iEND first.
         // When you come across an iDAT or fDAT. you need to store the start address, then return to parsing the meta chunks, then at the end  decode the i/f DATs.
         ParsePNGMetadata(BitI, Dec);

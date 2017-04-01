@@ -10,7 +10,7 @@ extern "C" {
 #endif
     
     enum PNGConstants {
-        PNGMagic  = 0x89504E470D0A1A0A,
+        PNGMagic   = 0x89504E470D0A1A0A,
     } PNGConstants;
     
     enum PNGChunkMarkers {
@@ -29,11 +29,6 @@ extern "C" {
         pHYsMarker = 0x70485973,
         pCALMarker = 0x7043414c,
     };
-    
-    enum PNGFlags {
-        PNGIsStereoscopic       = false,
-        PNGNeedsColorCorrection = false,
-    } PNGFlags;
     
     enum PNGColorTypes {
         PNG_Grayscale   = 0,
@@ -56,11 +51,13 @@ extern "C" {
     
     typedef struct PNGEncoder EncodePNG;
     
-    DecodePNG *InitDecodePNG(void);
+    DecodePNG     *InitDecodePNG(void);
     
-    EncodePNG *InitEncodePNG(void);
+    EncodePNG     *InitEncodePNG(void);
     
-    void        DecodePNGImage(BitInput *BitI, DecodePNG *PNG, uint16_t *DecodedImage);
+    void           PNGDecodeImage(BitInput *BitI, DecodePNG *PNG, uint16_t *DecodedImage);
+    
+    void           PNGEncodeImage(EncodePNG *Enc, BitOutput *BitO);
 
 #ifdef __cplusplus
 }

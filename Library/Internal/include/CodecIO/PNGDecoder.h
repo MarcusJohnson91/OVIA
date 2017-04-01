@@ -77,6 +77,8 @@ extern "C" {
     
     void       PNGDecodeFilter(DecodePNG *Dec, uint8_t ***InflatedBuffer);
     
+    void       PNGDecodeImage(BitInput *BitI, DecodePNG *Dec, uint16_t *DecodedImage);
+    
 #ifdef __cplusplus
 }
 #endif
