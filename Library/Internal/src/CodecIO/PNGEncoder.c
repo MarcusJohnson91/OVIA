@@ -158,20 +158,20 @@ extern "C" {
          WriteBits(BitO, GeneratedCRC, 32, true);
          */
     }
-    
+    /*
     void WriteICCPChunk(BitOutput *BitO, EncodePNG *Enc) {
         WriteBits(BitO, Enc->iCCP->CompressedICCPProfileSize + Enc->iCCP->ProfileNameSize + 8, 32, true);
         WriteBits(BitO, iCCPMarker, 32, true);
         WriteBits(BitO, Enc->iCCP->ProfileName, Bytes2Bits(Enc->iCCP->ProfileName), true);
         WriteBits(BitO, Enc->iCCP->CompressionType, 8, true);
         WriteBits(BitO, Enc->iCCP->CompressedICCPProfile, Bytes2Bits(Enc->iCCP->CompressedICCPProfileSize), true);
-        /*
+        /
          uint32_t GeneratedCRC = 0;
          GenerateCRC(Enc->iCCP, 32, GeneratedCRC);
          WriteBits(BitO, GeneratedCRC, 32, true);
-         */
+         /
     }
-    
+    */
     void WriteSBITChunk(BitOutput *BitO, EncodePNG *Enc) {
         uint8_t ChunkSize = 0;
         uint8_t NumChannels = ChannelsPerColorType[Enc->iHDR->ColorType];

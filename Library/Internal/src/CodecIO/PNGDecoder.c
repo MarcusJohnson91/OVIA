@@ -31,6 +31,57 @@ extern "C" {
      }
      */
     
+    enum Adam7Positions {
+        Adam7Level1    =  0,
+        Adam7Level2    =  5,
+        Adam7Level3_1  = 32,
+        Adam7Level3_2  = 36,
+        Adam7Level4_1  =  3,
+        Adam7Level4_2  =  7,
+        Adam7Level4_3  = 35,
+        Adam7Level4_4  = 39,
+        Adam7Level5_1  = 17,
+        Adam7Level5_2  = 19,
+        Adam7Level5_3  = 21,
+        Adam7Level5_4  = 23,
+        Adam7Level5_5  = 49,
+        Adam7Level5_6  = 51,
+        Adam7Level5_7  = 53,
+        Adam7Level5_8  = 55,
+        Adam7Level6_1  =  2,
+        Adam7Level6_2  =  4,
+        Adam7Level6_3  =  6,
+        Adam7Level6_4  =  8,
+        Adam7Level6_5  = 18,
+        Adam7Level6_6  = 20,
+        Adam7Level6_7  = 22,
+        Adam7Level6_8  = 24,
+        Adam7Level6_9  = 34,
+        Adam7Level6_10 = 36,
+        Adam7Level6_11 = 38,
+        Adam7Level6_12 = 40,
+        Adam7Level6_13 = 50,
+        Adam7Level6_14 = 52,
+        Adam7Level6_15 = 54,
+        Adam7Level6_16 = 56,
+    };
+    
+    static const uint8_t Adam7Level5[8] = {
+        17, 19, 21, 23, 49, 51, 53, 55
+    };
+    
+    static const uint8_t Adam7Level6[16] = {
+         2,  4,  6,  8, 18, 20, 22, 24,
+        34, 36, 38, 40, 50, 52, 54, 56,
+    };
+    
+    static const uint8_t Adam7Level7[32] = {
+         9, 10, 11, 12, 13, 14, 15, 16,
+        25, 26, 27, 28, 29, 30, 31, 32,
+        41, 42, 43, 44, 45, 56, 47, 48,
+        57, 58, 59, 60, 61, 62, 63, 64
+    };
+    
     void CalculateSTERPadding(DecodePNG *Dec) {
         Dec->LinePadding = 7 - ((Dec->iHDR->Width - 1) % 8);
         Dec->LineWidth   = (Dec->iHDR->Width * 2) + Dec->LinePadding;
@@ -101,23 +152,23 @@ extern "C" {
             switch (FilterType) {
                 case 0:
                     // copy the Line except byte 0 (the filter indication byte) to the output buffer.
-                    PNGDecodeNonFilter(Dec, InflatedBuffer, DeFilteredData, Line);
+                    PNGDecodeNonFilter(Dec, *InflatedBuffer, DeFilteredData, Line);
                     break;
                 case 1:
                     // SubFilter
-                    PNGDecodeSubFilter(Dec, InflatedBuffer, DeFilteredData, Line);
+                    PNGDecodeSubFilter(Dec, *InflatedBuffer, DeFilteredData, Line);
                     break;
                 case 2:
                     // UpFilter
-                    PNGDecodeUpFilter(Dec, InflatedBuffer, DeFilteredData, Line);
+                    PNGDecodeUpFilter(Dec, *InflatedBuffer, DeFilteredData, Line);
                     break;
                 case 3:
                     // AverageFilter
-                    PNGDecodeAverageFilter(Dec, InflatedBuffer, DeFilteredData, Line);
+                    PNGDecodeAverageFilter(Dec, *InflatedBuffer, DeFilteredData, Line);
                     break;
                 case 4:
                     // PaethFilter
-                    PNGDecodePaethFilter(Dec, InflatedBuffer, DeFilteredData, Line);
+                    PNGDecodePaethFilter(Dec, *InflatedBuffer, DeFilteredData, Line);
                     break;
                 default:
                     snprintf(Error, BitIOStringSize, "Filter type: %d is invalid\n", FilterType);
@@ -159,8 +210,13 @@ extern "C" {
     uint16_t **DecodeAdam7(DecodePNG *Dec, uint16_t **DecodedImage) {
         // Break the image into 8x8 blocks.
         // MARK: if the image is not a multiple of 8, I assume you pad the edge blocks?
-        
-        
+        for (uint32_t WidthBlock = 0; WidthBlock < Dec->iHDR->Width; WidthBlock += 8) {
+            for (uint32_t HeightBlock = 0; HeightBlock < Dec->iHDR->Height; HeightBlock += 8) {
+                for (uint8_t Adam7Level = 0; Adam7Level < 7; Adam7Level++) {
+                    
+                }
+            }
+        }
         
         return 0;
     }

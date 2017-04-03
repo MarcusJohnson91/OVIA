@@ -92,12 +92,10 @@ extern "C" {
     } oFFs;
 
     typedef struct iCCP {
-        uint8_t    ProfileNameSize;
-        uint32_t   CompressedICCPProfileSize;
-        uint8_t   *ProfileName;
-        uint8_t    CompressionType;
-        uint8_t   *CompressedICCPProfile;
-        uint32_t   CRC;
+        const char *ProfileName;
+        uint8_t     CompressionType;
+        uint8_t    *CompressedICCPProfile;
+        uint32_t    CRC;
     } iCCP;
 
     typedef struct sBIT {

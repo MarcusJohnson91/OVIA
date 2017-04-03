@@ -10,8 +10,8 @@ extern "C" {
 #endif
     
     enum PNGConstants {
-        PNGMagic1  = 0x89504E47,
-        PNGMagic2  = 0x0D0A1A0A,
+        PNGMagic1  = 0x89504E47ULL,
+        PNGMagic2  = 0x0D0A1A0AULL,
     } PNGConstants;
     
     enum PNGChunkMarkers {

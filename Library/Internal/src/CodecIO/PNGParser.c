@@ -29,7 +29,7 @@ extern "C" {
             Log(LOG_ALERT, "ModernPNG", "ParsePLTE", "Invalid bit depth %d and palette combination\n", Dec->iHDR->BitDepth);
             SkipBits(BitI, Bytes2Bits(ChunkSize));
         } else {
-            uint8_t **Palette;
+            uint8_t **Palette = NULL;
             
             if (Dec->iHDR->ColorType == PNG_PalettedRGB || Dec->iHDR->ColorType == PNG_RGB) {
                 Palette = calloc(3 * Dec->PLTE->NumEntries, 1);
@@ -206,6 +206,8 @@ extern "C" {
     }
     
     void ParseICCP(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize) {
+        uint8_t ProfileNameSize = 0;
+        ProfileNameSize = ReadBits(BitI, 8, true);
         uint32_t CRC = ReadBits(BitI, 32, true);
     }
     
@@ -304,6 +306,58 @@ extern "C" {
         
         return EXIT_SUCCESS;
     }
+    
+    uint32_t GetPNGWidth(DecodePNG *Dec) {
+        return Dec->iHDR->Width;
+    }
+    
+    uint32_t GetPNGHeight(DecodePNG *Dec) {
+        return Dec->iHDR->Height;
+    }
+    
+    uint8_t GetPNGBitDepth(DecodePNG *Dec) {
+        return Dec->iHDR->BitDepth;
+    }
+    
+    uint8_t GetPNGColorType(DecodePNG *Dec) {
+        return Dec->iHDR->ColorType;
+    }
+    
+    bool GetPNGInterlaceStatus(DecodePNG *Dec) {
+        return Dec->iHDR->IsInterlaced;
+    }
+    
+    bool IsPNGStereoscopic(DecodePNG *Dec) {
+        return Dec->Is3D;
+    }
+    
+    uint32_t GetPNGWhitepointX(DecodePNG *Dec) {
+        return Dec->cHRM->WhitePointX;
+    }
+    
+    uint32_t GetPNGWhitepointY(DecodePNG *Dec) {
+        return Dec->cHRM->WhitePointY;
+    }
+    
+    uint32_t GetPNGGamma(DecodePNG *Dec) {
+        return Dec->gAMA->Gamma;
+    }
+    
+    const char *GetPNGColorProfileName(DecodePNG *Dec) {
+        return Dec->iCCP->ProfileName;
+    }
+    
+    uint8_t *GetColorProfile(DecodePNG *Dec) {
+        return Dec->iCCP->CompressedICCPProfile;
+    }
+    
+    
+    
+    
+    
+    
+    
+    
     
 #ifdef __cplusplus
 }
