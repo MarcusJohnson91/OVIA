@@ -52,159 +52,6 @@ extern "C" {
      */
     
     /* End User Facing Functions */
-    void FLACParseMetadata(BitInput *BitI, DecodeFLAC *Dec) {
-        Dec->LastMetadataBlock          = ReadBits(BitI, 1, true);
-        uint8_t  MetadataBlockType       = ReadBits(BitI, 7, true);  // 6
-        Dec->Meta->MetadataSize         = ReadBits(BitI, 24, true); // 3391 Does NOT count the 2 fields above.
-        char Description[BitIOStringSize];
-        
-        switch (MetadataBlockType) {
-            case StreamInfo:
-                FLACParseStreamInfo(BitI, Dec);
-                break;
-            case Padding:
-                FLACSkipPadding(BitI, Dec);
-                break;
-            case Custom:
-                FLACSkipCustom(BitI, Dec);
-                break;
-            case SeekTable:
-                FLACParseSeekTable(BitI, Dec);
-                break;
-            case VorbisComment:
-                FLACParseVorbisComment(BitI, Dec);
-                break;
-            case Cuesheet:
-                FLACParseCuesheet(BitI, Dec);
-                break;
-            case Picture:
-                FLACParsePicture(BitI, Dec);
-                break;
-            default:
-                snprintf(Description, BitIOStringSize, "Invalid Metadata Type: %d\n", MetadataBlockType);
-                Log(LOG_WARNING, "ModernFLAC", "FLACParseMetadata", Description);
-                break;
-        }
-    }
-    
-    void FLACParseStreamInfo(BitInput *BitI, DecodeFLAC *Dec) {
-        Dec->Meta->StreamInfo->MinimumBlockSize        = ReadBits(BitI, 16, true); // 4096
-        Dec->Meta->StreamInfo->MaximumBlockSize        = ReadBits(BitI, 16, true); // 4096
-        Dec->Meta->StreamInfo->MinimumFrameSize        = ReadBits(BitI, 24, true); // 752
-        Dec->Meta->StreamInfo->MaximumFrameSize        = ReadBits(BitI, 24, true); // 13,594
-        Dec->Meta->StreamInfo->SampleRate              = ReadBits(BitI, 20, true); // 44,100
-        Dec->Meta->StreamInfo->Channels                = ReadBits(BitI, 3, true) + 1; // stereo
-        Dec->Meta->StreamInfo->BitDepth                = ReadBits(BitI, 5, true) + 1; // 16
-        Dec->Meta->StreamInfo->SamplesInStream         = ReadBits(BitI, 36, true); // 24,175,621
-        for (uint8_t MD5Byte = 0; MD5Byte < 16; MD5Byte++) {
-            Dec->Meta->StreamInfo->MD5[MD5Byte] = ReadBits(BitI, 8, true); // MD5 = 0xF296D726DAED094F660800131C52CED4
-        }
-    }
-    
-    void FLACSkipPadding(BitInput *BitI, DecodeFLAC *Dec) { // 8192
-        SkipBits(BitI, Bytes2Bits(Dec->Meta->MetadataSize));
-    }
-    
-    void FLACSkipCustom(BitInput *BitI, DecodeFLAC *Dec) { // 134,775
-        SkipBits(BitI, Bytes2Bits(Dec->Meta->MetadataSize + 1));
-    }
-    
-    void FLACParseSeekTable(BitInput *BitI, DecodeFLAC *Dec) { // 18
-        Dec->Meta->Seek->NumSeekPoints = Dec->Meta->MetadataSize / 18; // 21
-        
-        for (uint16_t SeekPoint = 0; SeekPoint < Dec->Meta->Seek->NumSeekPoints; SeekPoint++) {
-            Dec->Meta->Seek->SampleInTargetFrame[SeekPoint]        = ReadBits(BitI, 64, true); // 0
-            Dec->Meta->Seek->OffsetFrom1stSample[SeekPoint]        = ReadBits(BitI, 64, true); // 0
-            Dec->Meta->Seek->TargetFrameSize[SeekPoint]            = ReadBits(BitI, 16, true); // 16384
-        }
-    }
-    
-    void FLACParseVorbisComment(BitInput *BitI, DecodeFLAC *Dec) { // LITTLE ENDIAN
-        char Description[BitIOStringSize] = {0};
-        Dec->Meta->Vorbis->VendorTagSize = SwapEndian32(ReadBits(BitI, 32, true)); // 32
-        Dec->Meta->Vorbis->VendorTag     = calloc(1, Dec->Meta->Vorbis->VendorTagSize);
-        for (uint32_t TagByte = 0; TagByte < Dec->Meta->Vorbis->VendorTagSize; TagByte++) {
-            Dec->Meta->Vorbis->VendorTag[TagByte]  = ReadBits(BitI, 8, true); // reference libFLAC 1.3.1 20141125
-        }
-        Dec->Meta->Vorbis->NumUserTags   = SwapEndian32(ReadBits(BitI, 32, true)); // 13
-        Dec->Meta->Vorbis->UserTagSize   = calloc(1, Dec->Meta->Vorbis->NumUserTags);
-        Dec->Meta->Vorbis->UserTagString = calloc(1, Dec->Meta->Vorbis->NumUserTags);
-        for (uint32_t Comment = 0; Comment < Dec->Meta->Vorbis->NumUserTags; Comment++) {
-            Dec->Meta->Vorbis->UserTagSize[Comment] = SwapEndian32(ReadBits(BitI, 32, true));
-            Dec->Meta->Vorbis->UserTagString[Comment] = calloc(1, Dec->Meta->Vorbis->UserTagSize[Comment]);
-            // 39   // ALBUM=My Beautiful Dark Twisted Fantasy
-            // 17   // ARTIST=Kanye West
-            // 6    // BPM=87
-            // 13   // BPM=00000 BPM
-            // 12   // DISCNUMBER=1
-            // 9    // genre=Rap
-            // 98   //iTunNORM=00001B05 00001A8D 0000D69A 0000E522 00026C39 00026C39 00008000 00008000 0000947A 0000947A
-            // 13   // TITLE=Runaway
-            // 12   // totaldiscs=1
-            // 14   // totaltracks=13
-            // 3044 // UNSYNCEDLYRICS=[Kanye West] (Look at You [X14]) (Look at You [X8]) (Ladies and Gentlemen, La-Ladies and Gentlemen) (And I Want to Show You How You All Look Like Beautiful Stars Tonight) (And I Want to Show You How You All Look Like Beautiful Stars Tonight) (And I Want to Show You How You All Look Like Beautiful Stars Tonight) And I Always Find, Yeah, I Always Find Somethin' Wrong You Been Puttin' up Wit' My Shit Just Way Too Long I'm So Gifted at Findin' What I Don't Like the Most So I Think It's Time for Us to Have a Toast Let's Have a Toast for the Douchebags, Let's Have a Toast for the Assholes, Let's Have a Toast for the Scumbags, Every One of Them That I Know Let's Have a Toast to the Jerkoffs That'll Never Take Work off Baby, I Got a Plan Run Away Fast As You Can She Find Pictures in My Email I Sent This Girl a Picture of My, Hey! I Don't Know What It Is with Females But I'm Not Too Good with That, Hey! See, I Could Have Me a Good Girl And Still Be Addicted to Them Hoodrats And I Just Blame Everything on You At Least You Know That's What I'm Good at See, I Always Find And I Always Find Yeah, I Always Find Somethin' Wrong You Been Puttin' up with My Shit Just Way Too Long I'm So Gifted at Findin' What I Don't Like the Most So I Think It's Time for Us to Have a Toast Let's Have a Toast for the Douchebags, Let's Have a Toast for the Assholes, Let's Have a Toast for the Scumbags, Every One of Them That I Know Let's Have a Toast to the Jerkoffs That'll Never Take Work off Baby, I Got a Plan Run Away Fast As You Can R-R-Ru-Ru-Ru-Run Away Run Away from Me, Baby (Look at, Look at, Look at, Look at You) Run Away from Me, Baby (Look at You, Look at You, Look at You) Run Away Run Away from Me, Baby [Pusha T] 24/7, 365, Jenny Stays on My Mind I-I-I-I Did It, All Right, All Right, I Admit It Now Pick Your Best Move, You Could Leave or Live Wit' It Ichabod Crane with That Lamborghini Top off Split and Go Where? Back to Wearin' Knockoffs, Huh? Knock It off, Neiman's, Shop It off Let's Talk Over Mai Tais, Waitress, Top It off (Inaudible) Wanna Fly in Your Freddy Loafers You Can't Blame 'em, They Ain't Never Seen Versace Sofas Every Bag, Every Blouse, Every Bracelet Comes with a Price Tag, Baby, Face It You Should Leave If You Can't Accept the Basics Plenty Bitches in the Baller-Player's Matrix Invisibly Set, the Rolex Is Faceless I'm Just Young, Rich, and Tasteless P! [Kanye] Oh I Haven't Fucked in So Long You Been Puttin' up with My Shit Just Way Too Long I'm So Gifted at Findin' What I Don't Like the Most So I Think It's Time for Us to Have a Toast (Ladies and Gentlemen! ) Yeah, I Always Find Somethin' Wrong You Been Puttin' up with My Shit Just Way Too Long I'm So Gifted at Findin' What I Don't Like the Most So I Think It's Time for Us to Have a Toast Let's Have a Toast for the Douchebags, Let's Have a Toast for the Assholes, Let's Have a Toast for the Scumbags, Every One of Them That I Know Let's Have a Toast to the Jerkoffs That'll Never Take Work off Baby, I Got a Plan Run Away Fast As You Can
-            
-            // 9  // DATE=2010
-            // 13 // TRACKNUMBER=9
-            
-            char UserTagString[Dec->Meta->Vorbis->UserTagSize[Comment]];
-            for (uint32_t CommentByte = 0; CommentByte < Dec->Meta->Vorbis->UserTagSize[Comment]; CommentByte++) {
-                UserTagString[CommentByte] = ReadBits(BitI, 8, true);
-            }
-            Dec->Meta->Vorbis->UserTagString[Comment] = UserTagString;
-        }
-        
-        for (uint32_t UserTag = 0; UserTag < Dec->Meta->Vorbis->NumUserTags; UserTag++) {
-            snprintf(Description, BitIOStringSize, "User Tag %d of %d: %c\n", UserTag, Dec->Meta->Vorbis->NumUserTags, Dec->Meta->Vorbis->UserTagString[UserTag]);
-            //printf("%s", Description);
-            Log(LOG_DEBUG, "ModernFLAC", "FLACParseVorbisComment", Description);
-        }
-    }
-    
-    void FLACParseCuesheet(BitInput *BitI, DecodeFLAC *Dec) {
-        for (uint8_t CatalogChar = 0; CatalogChar < FLACMedizCatalogNumberSize; CatalogChar++) {
-            Dec->Meta->Cue->CatalogID[CatalogChar] = ReadBits(BitI, 8, true);
-        }
-        Dec->Meta->Cue->LeadIn = ReadBits(BitI, 64, true);
-        Dec->Meta->Cue->IsCD   = ReadBits(BitI, 1, true);
-        SkipBits(BitI, 2071); // Reserved
-        Dec->Meta->Cue->NumTracks = ReadBits(BitI, 8, true);
-        
-        for (uint8_t Track = 0; Track < Dec->Meta->Cue->NumTracks; Track++) {
-            Dec->Meta->Cue->TrackOffset[Track]  = ReadBits(BitI, 64, true);
-            Dec->Meta->Cue->TrackNum[Track]     = ReadBits(BitI, 64, true);
-            
-            for (uint8_t ISRCByte = 0; ISRCByte < FLACISRCSize; ISRCByte++) {
-                Dec->Meta->Cue->ISRC[Track][ISRCByte]  = ReadBits(BitI, 8, true);
-            }
-            Dec->Meta->Cue->IsAudio[Track] = ReadBits(BitI, 1, true);
-            Dec->Meta->Cue->PreEmphasis[Track] = ReadBits(BitI, 1, true);
-            SkipBits(BitI, 152); // Reserved, all 0
-            Dec->Meta->Cue->NumTrackIndexPoints[Track] = ReadBits(BitI, 8, true);
-        }
-        
-        Dec->Meta->Cue->IndexOffset    = ReadBits(BitI, 64, true);
-        Dec->Meta->Cue->IndexPointNum  = ReadBits(BitI, 8, true);
-        SkipBits(BitI, 24); // Reserved
-    }
-    
-    void FLACParsePicture(BitInput *BitI, DecodeFLAC *Dec) { // 17,151
-        Dec->Meta->Pic->PicType  = ReadBits(BitI, 32, true); // 3
-        Dec->Meta->Pic->MIMESize = ReadBits(BitI, 32, true); // 10
-        for (uint32_t MIMEByte = 0; MIMEByte < Dec->Meta->Pic->MIMESize; MIMEByte++) {
-            Dec->Meta->Pic->MIMEString[MIMEByte] = ReadBits(BitI, 8, true); // image/jpeg
-        }
-        Dec->Meta->Pic->PicDescriptionSize = ReadBits(BitI, 32, true); // 0
-        for (uint32_t Char = 0; Char < Dec->Meta->Pic->PicDescriptionSize; Char++) {
-            Dec->Meta->Pic->PicDescriptionString[Char] = ReadBits(BitI, 8, true);
-        }
-        Dec->Meta->Pic->Width       = ReadBits(BitI, 32, true); // 1144
-        Dec->Meta->Pic->Height      = ReadBits(BitI, 32, true); // 1144
-        Dec->Meta->Pic->BitDepth    = ReadBits(BitI, 32, true); // 24, PER PIXEL, NOT SUBPIXEL
-        Dec->Meta->Pic->ColorsUsed  = ReadBits(BitI, 32, true); // 0
-        Dec->Meta->Pic->PictureSize = ReadBits(BitI, 32, true); // 17,109
-                                                           // Pop in the address of the start of the data, and skip over the data instead of buffering it.
-    }
     
     void FLACReadStream(BitInput *BitI, DecodeFLAC *Dec) {
         uint16_t Marker = PeekBits(BitI, 14, true);
@@ -213,23 +60,6 @@ extern "C" {
         } else {
             FLACParseMetadata(BitI, Dec);
         }
-    }
-    
-    DecodeFLAC *InitDecodeFLAC(void) {
-        DecodeFLAC *Dec       = calloc(1, sizeof(DecodeFLAC));
-        Dec->Meta             = calloc(1, sizeof(FLACMeta));
-        Dec->Meta->StreamInfo = calloc(1, sizeof(FLACStreamInfo));
-        Dec->Meta->Seek       = calloc(1, sizeof(FLACSeekTable));
-        Dec->Meta->Vorbis     = calloc(1, sizeof(FLACVorbisComment));
-        Dec->Meta->Cue        = calloc(1, sizeof(FLACCueSheet));
-        Dec->Meta->Pic        = calloc(1, sizeof(FLACPicture));
-
-        Dec->Data             = calloc(1, sizeof(FLACData));
-        Dec->Data->Frame      = calloc(1, sizeof(FLACFrame));
-        Dec->Data->SubFrame   = calloc(1, sizeof(FLACSubFrame));
-        Dec->Data->LPC        = calloc(1, sizeof(FLACLPC));
-        Dec->Data->Rice       = calloc(1, sizeof(RICEPartition));
-        return Dec;
     }
     
     void FLACReadFrame(BitInput *BitI, DecodeFLAC *Dec) {
@@ -475,28 +305,10 @@ extern "C" {
         // Basically you use the warmup samples in Dec->DecodedSamples, along with the info in Dec->LPC to deocde the file by using summation.
         // LPC is lossy, which is why you use filters to reduce the size of the residual.
         
-        
-        
-        
         // I need 2 loops, one for the warmup samples, and one for the LPC encoded samples.
         
         
         // Original algorithm: X^
-    }
-    
-    void CloseFLACDecoder(DecodeFLAC *Dec) {
-        free(Dec->Meta->StreamInfo);
-        free(Dec->Meta->Seek);
-        free(Dec->Meta->Vorbis);
-        free(Dec->Meta->Cue);
-        free(Dec->Meta->Pic);
-        free(Dec->Meta);
-        free(Dec->Data->Frame);
-        free(Dec->Data->SubFrame);
-        free(Dec->Data->LPC);
-        free(Dec->Data->Rice);
-        free(Dec->Data);
-        free(Dec);
     }
     
 #ifdef __cplusplus

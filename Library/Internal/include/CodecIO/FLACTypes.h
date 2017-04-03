@@ -9,25 +9,7 @@
 extern "C" {
 #endif
     
-    typedef struct FLACVorbisComment FLACVorbisComment;
-    
-    typedef struct FLACStreamInfo FLACStreamInfo;
-    
-    typedef struct RICEPartition RICEPartition;
-    
-    typedef struct FLACSeekTable FLACSeekTable;
-    
-    typedef struct FLACSubFrame FLACSubFrame;
-    
-    typedef struct FLACCueSheet FLACCueSheet;
-    
-    typedef struct FLACPicture FLACPicture;
-    
-    typedef struct FLACFrame FLACFrame;
-    
-    typedef struct FLACLPC FLACLPC;
-    
-    struct FLACStreamInfo {
+    typedef struct FLACStreamInfo {
         uint16_t MinimumBlockSize:16; // in samples; must be at least 16
         uint16_t MaximumBlockSize:16; // If these match than it's fixed blocksize format
         uint32_t MinimumFrameSize:24;
@@ -40,9 +22,9 @@ extern "C" {
         uint32_t            BitDepth;
         uint64_t  SamplesInStream:36; // 36 bits, all the samples in the stream; channel agnostic
         uint8_t     MD5[BitIOMD5Size]; // MD5
-    };
+    } FLACStreamInfo;
     
-    struct CueSheetTrack {
+    typedef struct CueSheetTrack {
         uint64_t *TrackOffset;         // samples from the beginning of the FLAC file to the first sample of the track
         uint8_t  *TrackNum;            // which track is this again?
         uint8_t  **ISRC;            // the tracks's ISRC number.
@@ -50,9 +32,9 @@ extern "C" {
         bool     *PreEmphasis;         // 1 for yes 0 for no.
                                                         // 19 bytes of 0s
         uint8_t  NumTrackIndexPoints;
-    };
+    } CueSheetTrack;
     
-    struct FLACCueSheet {
+    typedef struct FLACCueSheet {
         size_t    CatalogIDSize;
         char     *CatalogID;
         uint64_t  LeadIn;              // in samples
@@ -78,31 +60,31 @@ extern "C" {
         // Cuesheet_Track_Index
         uint64_t       IndexOffset; // no idea. must be multiple of CD sector for cd sources
         uint8_t      IndexPointNum;
-    };
+    } FLACCueSheet;
     
-    struct FLACVorbisComment {
+    typedef struct FLACVorbisComment {
         bool      VorbisFramingBit;
         uint8_t   VendorTagSize;
         char     *VendorTag;
         uint8_t   NumUserTags; // Number of tags.
         uint8_t  *UserTagSize; // array for each tag, that says the size of the tag
         char     *UserTagString; // Array of tags.
-    };
+    } FLACVorbisComment;
     
-    struct FLACSeekTable {
+    typedef struct FLACSeekTable {
         uint32_t NumSeekPoints;
         uint64_t *SampleInTargetFrame; // FIXME: Sample in the whole file, or sample in a specific frame?
         uint64_t *OffsetFrom1stSample; // in bytes
         uint16_t     *TargetFrameSize;
-    };
+    } FLACSeekTable;
     
-    struct FLACStream {
+    typedef struct FLACStream {
         uint32_t BlockSize;
         uint32_t SampleRate;
         uint8_t  BitDepth;
-    };
+    } FLACStream;
     
-    struct FLACPicture {
+    typedef struct FLACPicture {
         uint32_t PicType;
         uint32_t MIMESize; // size of the MIME string in bytes
         uint8_t  *MIMEString;
@@ -114,15 +96,15 @@ extern "C" {
         uint32_t ColorsUsed; // 0 for not paletted
         uint32_t PictureSize;
         uint32_t *PictureStart; // Pointer to the start of the picture
-    };
+    } FLACPicture;
     
-    struct FLACSubFrame {
+    typedef struct FLACSubFrame {
         uint8_t SubFrameType:6;
         bool    WastedBitsFlag:1;
         uint8_t WastedBits:6; // Uses unary coding
-    };
+    } FLACSubFrame;
     
-    struct FLACFrame {
+    typedef struct FLACFrame {
         bool          BlockType:1;
         uint8_t       CodedSamplesInBlock;
         uint16_t      BlockSize; // SamplesInBlock
@@ -141,15 +123,15 @@ extern "C" {
         uint8_t       PartitionOrder;
         uint8_t       CurrentPartition;
         uint8_t       SamplesInPartition;
-    };
+    } FLACFrame;
     
-    struct RICEPartition {
+    typedef struct RICEPartition {
         uint8_t       NumRICEPartitions:4;
         uint8_t       EscapeBitDepth:5;
         uint8_t      *RICEParameter;
-    };
+    } RICEPartition;
     
-    struct FLACLPC {
+    typedef struct FLACLPC {
         uint8_t       LPCOrder;
         uint8_t       LPCPrecision:4;
         uint8_t       LPCShift:5;
@@ -157,7 +139,7 @@ extern "C" {
         int8_t       *LPCCoeff;
         uint8_t       RicePartitionType:2;
         uint8_t       PartitionOrder:4;
-    };
+    } FLACLPC;
     
     typedef struct FLACMeta {
         uint32_t           MetadataSize;
@@ -198,6 +180,40 @@ extern "C" {
         FLACData *Data;
         int64_t   DecodedSamples[FLACMaxSamplesInBlock];
     };
+    
+    DecodeFLAC *InitDecodeFLAC(void) {
+        DecodeFLAC *Dec       = calloc(1, sizeof(DecodeFLAC));
+        Dec->Meta             = calloc(1, sizeof(FLACMeta));
+        Dec->Meta->StreamInfo = calloc(1, sizeof(FLACStreamInfo));
+        Dec->Meta->Seek       = calloc(1, sizeof(FLACSeekTable));
+        Dec->Meta->Vorbis     = calloc(1, sizeof(FLACVorbisComment));
+        Dec->Meta->Cue        = calloc(1, sizeof(FLACCueSheet));
+        Dec->Meta->Pic        = calloc(1, sizeof(FLACPicture));
+        
+        Dec->Data             = calloc(1, sizeof(FLACData));
+        Dec->Data->Frame      = calloc(1, sizeof(FLACFrame));
+        Dec->Data->SubFrame   = calloc(1, sizeof(FLACSubFrame));
+        Dec->Data->LPC        = calloc(1, sizeof(FLACLPC));
+        Dec->Data->Rice       = calloc(1, sizeof(RICEPartition));
+        return Dec;
+    }
+    
+    EncodeFLAC *InitEncodeFLAC(void) {
+        EncodeFLAC *Enc        = calloc(1, sizeof(EncodeFLAC));
+        Enc->Meta              = calloc(1, sizeof(FLACMeta));
+        Enc->Meta->StreamInfo  = calloc(1, sizeof(FLACStreamInfo));
+        Enc->Meta->Seek        = calloc(1, sizeof(FLACSeekTable));
+        Enc->Meta->Vorbis      = calloc(1, sizeof(FLACVorbisComment));
+        Enc->Meta->Cue         = calloc(1, sizeof(FLACCueSheet));
+        Enc->Meta->Pic         = calloc(1, sizeof(FLACPicture));
+        
+        Enc->Data              = calloc(1, sizeof(FLACData));
+        Enc->Data->Frame       = calloc(1, sizeof(FLACFrame));
+        Enc->Data->SubFrame    = calloc(1, sizeof(FLACSubFrame));
+        Enc->Data->LPC         = calloc(1, sizeof(FLACLPC));
+        Enc->Data->Rice        = calloc(1, sizeof(RICEPartition));
+        return Enc;
+    }
     
 #ifdef __cplusplus
 }

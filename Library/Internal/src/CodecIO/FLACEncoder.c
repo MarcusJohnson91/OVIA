@@ -8,46 +8,11 @@
 extern "C" {
 #endif
     
-    void   FLACWriteStreaminfo(BitOutput *BitO, EncodeFLAC *Enc) {
-        WriteBits(BitO, 34, 24, true); // StreamInfoSize
-        WriteBits(BitO, Enc->Meta->StreamInfo->MinimumBlockSize, 16, true);
-        WriteBits(BitO, Enc->Meta->StreamInfo->MaximumBlockSize, 16, true);
-        WriteBits(BitO, Enc->Meta->StreamInfo->MinimumFrameSize, 24, true);
-        WriteBits(BitO, Enc->Meta->StreamInfo->MaximumFrameSize, 24, true);
-        WriteBits(BitO, Enc->Meta->StreamInfo->SampleRate, 20, true);
-        WriteBits(BitO, Enc->Meta->StreamInfo->MinimumFrameSize, 24, true);
-        WriteBits(BitO, Enc->Meta->StreamInfo->Channels - 1, 3, true);
-        WriteBits(BitO, Enc->Meta->StreamInfo->BitDepth - 1, 5, true);
-        WriteBits(BitO, Enc->Meta->StreamInfo->SamplesInStream, 36, true);
-        WriteBits(BitO, 0, 128, true); // ROOM for the MD5.
-    }
-    
-    void   FLACWriteVorbisComment(BitOutput *BitO, EncodeFLAC *Enc) {
-        
-    }
-    
     void   FLACWriteMetadata(BitOutput *BitO, EncodeFLAC *Enc) {
         WriteBits(BitO, FLACMagic, 32, true);
         WriteBits(BitO, false, 1, true); // IsLastMetadataBlock
         //WriteBits(BitO, FLACMetadataTypes, 7); // MetadataBlockType
         
-    }
-    
-    EncodeFLAC *InitEncodeFLAC(void) {
-        EncodeFLAC *Enc        = calloc(1, sizeof(EncodeFLAC));
-        Enc->Meta              = calloc(1, sizeof(FLACMeta));
-        Enc->Meta->StreamInfo  = calloc(1, sizeof(FLACStreamInfo));
-        Enc->Meta->Seek        = calloc(1, sizeof(FLACSeekTable));
-        Enc->Meta->Vorbis      = calloc(1, sizeof(FLACVorbisComment));
-        Enc->Meta->Cue         = calloc(1, sizeof(FLACCueSheet));
-        Enc->Meta->Pic         = calloc(1, sizeof(FLACPicture));
-        
-        Enc->Data              = calloc(1, sizeof(FLACData));
-        Enc->Data->Frame       = calloc(1, sizeof(FLACFrame));
-        Enc->Data->SubFrame    = calloc(1, sizeof(FLACSubFrame));
-        Enc->Data->LPC         = calloc(1, sizeof(FLACLPC));
-        Enc->Data->Rice        = calloc(1, sizeof(RICEPartition));
-        return Enc;
     }
     
     int8_t EncodeFLACFile(PCMFile *PCM, BitOutput *BitO, EncodeFLAC *Enc) {
@@ -67,21 +32,6 @@ extern "C" {
         }
         
         return 0;
-    }
-    
-    void CloseFLACEncoder(EncodeFLAC *Enc) {
-        free(Enc->Meta->StreamInfo);
-        free(Enc->Meta->Seek);
-        free(Enc->Meta->Vorbis);
-        free(Enc->Meta->Cue);
-        free(Enc->Meta->Pic);
-        free(Enc->Meta);
-        free(Enc->Data->Frame);
-        free(Enc->Data->SubFrame);
-        free(Enc->Data->LPC);
-        free(Enc->Data->Rice);
-        free(Enc->Data);
-        free(Enc);
     }
     
 #ifdef __cplusplus
