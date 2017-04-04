@@ -13,6 +13,15 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+    
+    /*!
+     @abstract Reads and decodes MIME Base64
+     */
+    void ReadBase64(BitInput *BitI, uint8_t *Buffer, uint64_t BufferSize, uint64_t LineLength) {
+        
+    }
+    
+    
     /* Start User facing functions */
     
     /*!

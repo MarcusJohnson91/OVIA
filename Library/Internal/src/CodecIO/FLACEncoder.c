@@ -8,6 +8,10 @@
 extern "C" {
 #endif
     
+    void WriteBase64(BitOutput *BitO, uint8_t *Buffer, uint64_t BufferSize) {
+        
+    }
+    
     void   FLACWriteMetadata(BitOutput *BitO, EncodeFLAC *Enc) {
         WriteBits(BitO, FLACMagic, 32, true);
         WriteBits(BitO, false, 1, true); // IsLastMetadataBlock
