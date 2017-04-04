@@ -64,6 +64,38 @@ extern "C" {
         Adam7Level6_14 = 52,
         Adam7Level6_15 = 54,
         Adam7Level6_16 = 56,
+        Adam7Level7_1  = 9,
+        Adam7Level7_2  = 10,
+        Adam7Level7_3  = 11,
+        Adam7Level7_4  = 12,
+        Adam7Level7_5  = 13,
+        Adam7Level7_6  = 14,
+        Adam7Level7_7  = 15,
+        Adam7Level7_8  = 16,
+        Adam7Level7_9  = 25,
+        Adam7Level7_10 = 26,
+        Adam7Level7_11 = 27,
+        Adam7Level7_12 = 28,
+        Adam7Level7_13 = 29,
+        Adam7Level7_14 = 30,
+        Adam7Level7_15 = 31,
+        Adam7Level7_16 = 32,
+        Adam7Level7_17 = 41,
+        Adam7Level7_18 = 42,
+        Adam7Level7_19 = 43,
+        Adam7Level7_20 = 44,
+        Adam7Level7_21 = 45,
+        Adam7Level7_22 = 46,
+        Adam7Level7_23 = 47,
+        Adam7Level7_24 = 48,
+        Adam7Level7_25 = 57,
+        Adam7Level7_26 = 58,
+        Adam7Level7_27 = 59,
+        Adam7Level7_28 = 60,
+        Adam7Level7_29 = 61,
+        Adam7Level7_30 = 62,
+        Adam7Level7_31 = 63,
+        Adam7Level7_32 = 64,
     };
     
     static const uint8_t Adam7Level5[8] = {
@@ -78,7 +110,7 @@ extern "C" {
     static const uint8_t Adam7Level7[32] = {
          9, 10, 11, 12, 13, 14, 15, 16,
         25, 26, 27, 28, 29, 30, 31, 32,
-        41, 42, 43, 44, 45, 56, 47, 48,
+        41, 42, 43, 44, 45, 46, 47, 48,
         57, 58, 59, 60, 61, 62, 63, 64
     };
     
