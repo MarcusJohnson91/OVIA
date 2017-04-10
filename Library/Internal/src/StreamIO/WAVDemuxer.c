@@ -68,9 +68,9 @@ extern "C" {
     }
     
     void ReadINFO_IPRD(BitInput *BitI, PCMFile *PCM, uint32_t ChunkSize) {
-        char *Album = calloc(1, ChunkSize);
-        for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
-            Album[Byte] = ReadBits(BitI, 8, true);
+        char *Album              = calloc(1, ChunkSize);
+        for (uint8_t Byte        = 0; Byte < ChunkSize; Byte++) {
+            Album[Byte]          = ReadBits(BitI, 8, true);
         }
         PCM->WAV->Meta->AlbumTag = Album;
         if (IsOdd(ChunkSize) == true) {
@@ -80,7 +80,7 @@ extern "C" {
     }
     
     void ReadINFO_ISFT(BitInput *BitI, PCMFile *PCM, uint32_t ChunkSize) { // Encoder
-        char *Encoder = calloc(1, ChunkSize);
+        char *Encoder     = calloc(1, ChunkSize);
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
             Encoder[Byte] = ReadBits(BitI, 8, true);
         }
@@ -92,7 +92,7 @@ extern "C" {
     }
     
     void ParseWavLISTChunk(BitInput *BitI, PCMFile *PCM, uint32_t ChunkSize) {
-        uint32_t ShouldBeINFO = ReadBits(BitI, 32, true);
+        uint32_t ShouldBeINFO  = ReadBits(BitI, 32, true);
         if (ShouldBeINFO == WAV_INFO) {
             uint32_t ChunkID   = ReadBits(BitI, 32, true);
             uint32_t ChunkSize = ReadBits(BitI, 32, true);
