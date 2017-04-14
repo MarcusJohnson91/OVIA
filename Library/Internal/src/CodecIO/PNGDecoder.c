@@ -212,7 +212,7 @@ extern "C" {
     
     void DecodePNGData(BitInput *BitI, DecodePNG *Dec) {
         // read the iDAT/fDAT chunk header, then do the other stuff.
-        while (BytesRemainingInFile(BitI) > 0) { // 12 is the start of IEND
+        while (GetBitInputFileSize(BitI) > 0) { // 12 is the start of IEND
             uint32_t ChunkSize = ReadBits(BitI, 32, true);
             uint32_t ChunkID   = ReadBits(BitI, 32, true);
             
@@ -234,7 +234,7 @@ extern "C" {
         if (Dec->Is3D == true) {
             
         }
-        while (BytesRemainingInFile(BitI) > 0) {
+        while (GetBitInputFileSize(BitI) > 0) {
             
         }
     }
