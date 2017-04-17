@@ -1,7 +1,7 @@
 #include "../../../Dependencies/BitIO/libBitIO/include/BitIO.h"
 
 #include "../../include/libModernPNG.h"
-#include "../../include/Encoder/EncodePNG.h"
+#include "../../include/Encode/EncodePNG.h"
 #include "../../include/PNGTypes.h"
 
 #ifdef __cplusplus

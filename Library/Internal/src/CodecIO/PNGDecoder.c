@@ -5,7 +5,7 @@
 #include "../../../Dependencies/BitIO/libBitIO/include/BitIO.h"
 
 #include "../../include/libModernPNG.h"
-#include "../../include/Decoder/DecodePNG.h"
+#include "../../include/Decode/DecodePNG.h"
 #include "../../include/PNGTypes.h"
 #include "../../include/PNGTables.h"
 
