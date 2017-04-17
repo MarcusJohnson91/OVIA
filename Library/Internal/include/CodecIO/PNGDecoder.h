@@ -11,8 +11,6 @@
 extern "C" {
 #endif
     
-    void       CalculateSTERPadding(DecodePNG *Dec);
-    
     uint8_t    ParsePNGMetadata(BitInput *BitI, DecodePNG *Dec);
     
     void       PNGDecodeSubFilter(DecodePNG *Dec, uint8_t **DeEntropyedData, uint8_t **DeFilteredData, size_t Line);

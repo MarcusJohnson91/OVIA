@@ -12,6 +12,10 @@
 extern "C" {
 #endif
     
+    void PNGEncodeFilterNon(DecodePNG *Dec, uint8_t *DeEntropyedData, uint8_t *DeFilteredData, size_t Line) {
+        
+    }
+    
     void PNGEncodeFilterPaeth(EncodePNG *Enc, uint8_t *Line, size_t LineSize) {
         // RawData is after decoding the I/f DATs, and after INFLAT'ing and De-LZ77'ing it.
         // Each line is preceded by a filter type byte, so decode it by a line by line basis.
@@ -58,14 +62,6 @@ extern "C" {
         }
         
         // Now I need to break up the image into 8x8 blocks
-    }
-    
-    void EncodeFilterAdam7(EncodePNG *Enc, uint8_t ****Image) {
-        
-    }
-    
-    void OptimizeAdam7(EncodePNG *Enc, uint8_t ****Image) {
-        
     }
     
     void OptimizePNG(EncodePNG *Enc, uint8_t ****Image) {

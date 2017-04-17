@@ -8,6 +8,9 @@
 extern "C" {
 #endif
     
+    // Hmm, for parsing chunks I should have basically a PNG muxer that pops out bit buffers with the data for each chunk...
+    // So, we need to 
+    
     void ParseIHDR(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize) {
         Dec->iHDR->Width          = ReadBits(BitI, 32, true);
         Dec->iHDR->Height         = ReadBits(BitI, 32, true);
