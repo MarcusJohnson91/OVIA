@@ -224,10 +224,9 @@ extern "C" {
     }
     
     uint8_t ParsePNGMetadata(BitInput *BitI, DecodePNG *Dec) {
-        uint32_t FileMagic1    = ReadBits(BitI, 32, true);
-        uint32_t FileMagic2    = ReadBits(BitI, 32, true);
+        uint64_t FileMagic    = ReadBits(BitI, 64, true);
         
-        if (FileMagic1 == PNGMagic1 && FileMagic2 == PNGMagic2) {
+        if (FileMagic == PNGMagic) {
             char     ChunkID[4];
             uint32_t ChunkSize  = ReadBits(BitI, 32, true);
             ChunkID[0] = ReadBits(BitI, 8, true);
@@ -303,7 +302,7 @@ extern "C" {
                 ParseFCTL(BitI, Dec, ChunkSize);
             }
         } else {
-            Log(LOG_CRIT, "ModernPNG", "ParsePNGMetadata", "File Magic 0x%X%X is not PNG, exiting\n", FileMagic1, FileMagic2);
+            Log(LOG_CRIT, "ModernPNG", "ParsePNGMetadata", "File Magic 0x%X is not PNG, exiting\n", FileMagic);
             exit(EXIT_FAILURE);
         }
         
