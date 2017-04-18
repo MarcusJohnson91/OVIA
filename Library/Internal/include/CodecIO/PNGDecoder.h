@@ -11,7 +11,7 @@
 extern "C" {
 #endif
     
-    uint8_t    ParsePNGMetadata(BitInput *BitI, DecodePNG *Dec);
+    uint8_t    ParsePNGMetadata(BitBuffer *BitB, DecodePNG *Dec);
     
     void       PNGDecodeSubFilter(DecodePNG *Dec, uint8_t **DeEntropyedData, uint8_t **DeFilteredData, size_t Line);
     
@@ -27,7 +27,7 @@ extern "C" {
     
     void       PNGDecodeFilter(DecodePNG *Dec, uint8_t ***InflatedBuffer);
     
-    void       PNGDecodeImage(BitInput *BitI, DecodePNG *Dec, uint16_t *DecodedImage);
+    void       PNGDecodeImage(BitBuffer *BitB, DecodePNG *Dec, uint16_t *DecodedImage);
     
 #ifdef __cplusplus
 }

@@ -53,7 +53,7 @@ extern "C" {
     
     EncodePNG     *InitEncodePNG(void);
     
-    void           PNGDecodeImage(BitInput *BitI, DecodePNG *PNG, uint16_t *DecodedImage);
+    void           PNGDecodeImage(BitBuffer *BitB, DecodePNG *PNG, uint16_t *DecodedImage);
     
     void           PNGEncodeImage(EncodePNG *Enc, BitOutput *BitO);
 

@@ -14,7 +14,7 @@ extern "C" {
 #endif
     
     /*
-     bool VerifyChunkCRC(BitInput *BitI, uint32_t ChunkSize) {
+     bool VerifyChunkCRC(BitBuffer *BitB, uint32_t ChunkSize) {
      // So basically we need to read ChunkSize bytes into an array, then read the following 4 bytes as the CRC
      // then run VerifyCRC over the buffer, and finally compare the generated CRC with the extracted one, and return whether they match.
      // Then call SkipBits(BitI, Bytes2Bits(ChunkSize)); to reset to the beginning of the chunk
@@ -126,7 +126,7 @@ extern "C" {
         }
     }
     
-    void DecodePNGData(BitInput *BitI, DecodePNG *Dec) {
+    void DecodePNGData(BitBuffer *BitB, DecodePNG *Dec) {
         // read the iDAT/fDAT chunk header, then do the other stuff.
         while (GetBitInputFileSize(BitI) > 0) { // 12 is the start of IEND
             uint32_t ChunkSize = ReadBits(BitI, 32, true);
@@ -142,7 +142,7 @@ extern "C" {
         }
     }
     
-    void PNGDecodeImage(BitInput *BitI, DecodePNG *Dec, uint16_t *DecodedImage) {
+    void PNGDecodeImage(BitBuffer *BitB, DecodePNG *Dec, uint16_t *DecodedImage) {
         // Parse all chunks except iDAT, fDAT, and iEND first.
         // When you come across an iDAT or fDAT. you need to store the start address, then return to parsing the meta chunks, then at the end  decode the i/f DATs.
         ParsePNGMetadata(BitI, Dec);
@@ -176,7 +176,7 @@ extern "C" {
         
     }
     
-    void PNGReadMetadata(BitInput *BitI, DecodePNG *Dec) {
+    void PNGReadMetadata(BitBuffer *BitB, DecodePNG *Dec) {
         ParsePNGMetadata(BitI, Dec);
     }
     

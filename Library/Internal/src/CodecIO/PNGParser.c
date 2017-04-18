@@ -11,7 +11,7 @@ extern "C" {
     // Hmm, for parsing chunks I should have basically a PNG muxer that pops out bit buffers with the data for each chunk...
     // So, we need to 
     
-    void ParseIHDR(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize) {
+    void ParseIHDR(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize) {
         Dec->iHDR->Width          = ReadBits(BitI, 32, true);
         Dec->iHDR->Height         = ReadBits(BitI, 32, true);
         Dec->iHDR->BitDepth       = ReadBits(BitI, 8, true);
@@ -27,7 +27,7 @@ extern "C" {
         //VerifyCRC(Dec->iHDR, ChunkSize, 1, 1, CRC);
     }
     
-    void ParsePLTE(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize) { // Palette
+    void ParsePLTE(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize) { // Palette
         if (Dec->iHDR->BitDepth > 8) { // INVALID
             Log(LOG_ALERT, "ModernPNG", "ParsePLTE", "Invalid bit depth %d and palette combination\n", Dec->iHDR->BitDepth);
             SkipBits(BitI, Bytes2Bits(ChunkSize));
@@ -50,7 +50,7 @@ extern "C" {
         Dec->PLTE->CRC = ReadBits(BitI, 32, true);
     }
     
-    void ParseTRNS(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize) { // Transparency
+    void ParseTRNS(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize) { // Transparency
         Dec->tRNS->NumEntries = ReadBits(BitI, 32, true);
         uint16_t **Entries = calloc(1, Dec->tRNS->NumEntries);
         for (uint8_t Color = 0; Color < ChannelsPerColorType[Dec->iHDR->ColorType]; Color++) {
@@ -60,14 +60,14 @@ extern "C" {
         Dec->tRNS->CRC = ReadBits(BitI, 32, true);
     }
     
-    void ParseBKGD(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize) { // Background
+    void ParseBKGD(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize) { // Background
         for (uint8_t Entry = 0; Entry < 3; Entry++) {
             Dec->bkGD->BackgroundPaletteEntry[Entry] = ReadBits(BitI, 8, true);
         }
         Dec->bkGD->CRC = ReadBits(BitI, 32, true);
     }
     
-    void ParseCHRM(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize) { // Chromaticities
+    void ParseCHRM(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize) { // Chromaticities
         Dec->cHRM->WhitePointX = ReadBits(BitI, 32, true);
         Dec->cHRM->WhitePointY = ReadBits(BitI, 32, true);
         Dec->cHRM->RedX        = ReadBits(BitI, 32, true);
@@ -79,26 +79,26 @@ extern "C" {
         Dec->cHRM->CRC         = ReadBits(BitI, 32, true);
     }
     
-    void ParseGAMA(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize) { // Gamma
+    void ParseGAMA(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize) { // Gamma
         Dec->gAMA->Gamma = ReadBits(BitI, 32, true);
         Dec->gAMA->CRC = ReadBits(BitI, 32, true);
     }
     
-    void ParseOFFS(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize) { // Image Offset
+    void ParseOFFS(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize) { // Image Offset
         Dec->oFFs->XOffset       = ReadBits(BitI, 32, true);
         Dec->oFFs->YOffset       = ReadBits(BitI, 32, true);
         Dec->oFFs->UnitSpecifier = ReadBits(BitI, 8, true);
         Dec->oFFs->CRC           = ReadBits(BitI, 32, true);
     }
     
-    void ParsePHYS(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize) { // Aspect ratio, Physical pixel size
+    void ParsePHYS(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize) { // Aspect ratio, Physical pixel size
         Dec->pHYs->PixelsPerUnitXAxis = ReadBits(BitI, 32, true);
         Dec->pHYs->PixelsPerUnitYAxis = ReadBits(BitI, 32, true);
         Dec->pHYs->UnitSpecifier      = ReadBits(BitI, 8, true);
         Dec->pHYs->CRC                = ReadBits(BitI, 32, true);
     }
     
-    void ParseSCAL(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize) { // Physical Scale
+    void ParseSCAL(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize) { // Physical Scale
         char Width[80];
         Dec->sCAL->UnitSpecifier = ReadBits(BitI, 8, true);
         while (PeekBits(BitI, 8, true) != 0x00) {
@@ -114,7 +114,7 @@ extern "C" {
         uint32_t CRC = ReadBits(BitI, 32, true);
     }
     
-    void ParsePCAL(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize) {
+    void ParsePCAL(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize) {
         char CalibrationName[80];
         while (PeekBits(BitI, 8, true) != 0x0) {
             for (uint8_t Byte = 0; Byte < 80; Byte++) {
@@ -125,19 +125,19 @@ extern "C" {
         
     }
     
-    void ParseSBIT(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize) { // Significant bits per sample
+    void ParseSBIT(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize) { // Significant bits per sample
         Dec->sBIT->Red                   = ReadBits(BitI, 8, true);
         Dec->sBIT->Green                 = ReadBits(BitI, 8, true);
         Dec->sBIT->Blue                  = ReadBits(BitI, 8, true);
         Dec->sBIT->CRC                   = ReadBits(BitI, 32, true);
     }
     
-    void ParseSRGB(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize) {
+    void ParseSRGB(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize) {
         Dec->sRGB->RenderingIntent       = ReadBits(BitI, 8, true);
         Dec->sRGB->CRC                   = ReadBits(BitI, 32, true);
     }
     
-    void ParseSTER(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize) {
+    void ParseSTER(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize) {
         Dec->Is3D = true;
         Dec->sTER->StereoType            = ReadBits(BitI, 8, true);
         uint32_t CRC                     = ReadBits(BitI, 32, true);
@@ -154,20 +154,20 @@ extern "C" {
         //
     }
     
-    void ParseTEXt(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize) { // tEXt
+    void ParseTEXt(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize) { // tEXt
         uint32_t CRC = ReadBits(BitI, 32, true);
     }
     
-    void ParseZTXt(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize) { // Compressed text
+    void ParseZTXt(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize) { // Compressed text
         uint32_t CRC = ReadBits(BitI, 32, true);
     }
     
-    void ParseITXt(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize) { // International Text
+    void ParseITXt(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize) { // International Text
         
         uint32_t CRC = ReadBits(BitI, 32, true);
     }
     
-    void ParseTIME(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize) {
+    void ParseTIME(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize) {
         Dec->tIMe->Year                  = ReadBits(BitI, 16, true);
         Dec->tIMe->Month                 = ReadBits(BitI, 8, true);
         Dec->tIMe->Day                   = ReadBits(BitI, 8, true);
@@ -178,14 +178,14 @@ extern "C" {
     }
     
     /* APNG */
-    void ParseACTL(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize) { // Animation control, part of APNG
+    void ParseACTL(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize) { // Animation control, part of APNG
         Dec->IsVideo = true;
         Dec->acTL->NumFrames             = ReadBits(BitI, 32, true);
         Dec->acTL->TimesToLoop           = ReadBits(BitI, 32, true); // If 0, loop forever.
         Dec->acTL->CRC                   = ReadBits(BitI, 32, true);
     }
     
-    void ParseFCTL(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize) { // Frame Control, part of APNG
+    void ParseFCTL(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize) { // Frame Control, part of APNG
         Dec->fcTL->FrameNum              = ReadBits(BitI, 32, true);
         Dec->fcTL->Width                 = ReadBits(BitI, 32, true);
         Dec->fcTL->Height                = ReadBits(BitI, 32, true);
@@ -199,31 +199,31 @@ extern "C" {
     }
     /* End APNG */
     
-    void ParseIDAT(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize) { // IDAT
+    void ParseIDAT(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize) { // IDAT
                                                                          // DecodeINFLATE
         uint32_t CRC = ReadBits(BitI, 32, true);
     }
     
-    void ParseHIST(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize) {
+    void ParseHIST(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize) {
         Dec->hIST->CRC = ReadBits(BitI, 32, true);
     }
     
-    void ParseICCP(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize) {
+    void ParseICCP(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize) {
         uint8_t ProfileNameSize = 0;
         ProfileNameSize = ReadBits(BitI, 8, true);
         uint32_t CRC = ReadBits(BitI, 32, true);
     }
     
-    void ParseSPLT(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize) {
+    void ParseSPLT(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize) {
         uint32_t CRC = ReadBits(BitI, 32, true);
     }
     
-    void ParseFDAT(BitInput *BitI, DecodePNG *Dec, uint32_t ChunkSize) {
+    void ParseFDAT(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize) {
         // DecodeDEFLATE
         uint32_t CRC = ReadBits(BitI, 32, true);
     }
     
-    uint8_t ParsePNGMetadata(BitInput *BitI, DecodePNG *Dec) {
+    uint8_t ParsePNGMetadata(BitBuffer *BitB, DecodePNG *Dec) {
         uint64_t FileMagic    = ReadBits(BitI, 64, true);
         
         if (FileMagic == PNGMagic) {
