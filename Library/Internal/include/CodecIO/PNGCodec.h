@@ -55,7 +55,7 @@ extern "C" {
     
     void           PNGDecodeImage(BitBuffer *BitB, DecodePNG *PNG, uint16_t *DecodedImage);
     
-    void           PNGEncodeImage(EncodePNG *Enc, BitOutput *BitO);
+    void           PNGEncodeImage(EncodePNG *Enc, BitBuffer *BitB);
 
 #ifdef __cplusplus
 }

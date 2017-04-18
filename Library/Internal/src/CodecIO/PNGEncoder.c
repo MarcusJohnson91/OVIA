@@ -12,7 +12,7 @@
 extern "C" {
 #endif
     
-    void WriteIHDRChunk(BitOutput *BitO, EncodePNG *Enc) {
+    void WriteIHDRChunk(BitBuffer *BitB, EncodePNG *Enc) {
         WriteBits(BitO, 13, 32, true);
         WriteBits(BitO, iHDRMarker, 32, true);
         WriteBits(BitO, Enc->iHDR->Width, 32, true);
@@ -25,7 +25,7 @@ extern "C" {
         //WriteBits(BitO, GeneratedCRC, 32, true);
     }
     
-    void WriteACTLChunk(BitOutput *BitO, EncodePNG *Enc) {
+    void WriteACTLChunk(BitBuffer *BitB, EncodePNG *Enc) {
         WriteBits(BitO, 8, 32, true);
         WriteBits(BitO, acTLMarker, 32, true);
         WriteBits(BitO, Enc->acTL->NumFrames, 32, true);
@@ -37,7 +37,7 @@ extern "C" {
          */
     }
     
-    void WriteFCTLChunk(BitOutput *BitO, EncodePNG *Enc) {
+    void WriteFCTLChunk(BitBuffer *BitB, EncodePNG *Enc) {
         WriteBits(BitO, 29, 32, true);
         WriteBits(BitO, fcTLMarker, 32, true);
         WriteBits(BitO, Enc->fcTL->FrameNum, 32, true);
@@ -56,7 +56,7 @@ extern "C" {
          */
     }
     
-    void WriteFDATChunk(BitOutput *BitO, EncodePNG *Enc, uint8_t *DeflatedFrameData, uint32_t DeflatedFrameDataSize) {
+    void WriteFDATChunk(BitBuffer *BitB, EncodePNG *Enc, uint8_t *DeflatedFrameData, uint32_t DeflatedFrameDataSize) {
         WriteBits(BitO, DeflatedFrameData + 8, 32, true);
         WriteBits(BitO, fDATMarker, 32, true);
         WriteBits(BitO, Enc->fdAT->FrameNum, 32, true);
@@ -71,7 +71,7 @@ extern "C" {
          */
     }
     
-    void WriteSTERChunk(BitOutput *BitO, EncodePNG *Enc) {
+    void WriteSTERChunk(BitBuffer *BitB, EncodePNG *Enc) {
         WriteBits(BitO, 1, 32, true);
         WriteBits(BitO, sTERMarker, 32, true);
         WriteBits(BitO, Enc->sTER->StereoType, 8, true);
@@ -82,7 +82,7 @@ extern "C" {
          */
     }
     
-    void WriteBKGDChunk(BitOutput *BitO, EncodePNG *Enc) {
+    void WriteBKGDChunk(BitBuffer *BitB, EncodePNG *Enc) {
         uint8_t  NumChannels   = ChannelsPerColorType[Enc->iHDR->ColorType];
         uint32_t Size          = 0;
         uint8_t  BKGDEntrySize = 0; // in bits
@@ -117,7 +117,7 @@ extern "C" {
          */
     }
     
-    void WriteCHRMChunk(BitOutput *BitO, EncodePNG *Enc) {
+    void WriteCHRMChunk(BitBuffer *BitB, EncodePNG *Enc) {
         WriteBits(BitO, 32, 32, true);
         WriteBits(BitO, cHRMMarker, 32, true);
         WriteBits(BitO, Enc->cHRM->WhitePointX, 32, true);
@@ -135,7 +135,7 @@ extern "C" {
          */
     }
     
-    void WriteGAMAChunk(BitOutput *BitO, EncodePNG *Enc) {
+    void WriteGAMAChunk(BitBuffer *BitB, EncodePNG *Enc) {
         WriteBits(BitO, 4, 32, true);
         WriteBits(BitO, gAMAMarker, 32, true);
         WriteBits(BitO, Enc->gAMA->Gamma, 32, true);
@@ -146,7 +146,7 @@ extern "C" {
          */
     }
     
-    void WriteOFFSChunk(BitOutput *BitO, EncodePNG *Enc) {
+    void WriteOFFSChunk(BitBuffer *BitB, EncodePNG *Enc) {
         WriteBits(BitO, 9, 32, true);
         WriteBits(BitO, oFFsMarker, 32, true);
         WriteBits(BitO, Enc->oFFs->XOffset, 32, true);
@@ -159,7 +159,7 @@ extern "C" {
          */
     }
     /*
-    void WriteICCPChunk(BitOutput *BitO, EncodePNG *Enc) {
+    void WriteICCPChunk(BitBuffer *BitB, EncodePNG *Enc) {
         WriteBits(BitO, Enc->iCCP->CompressedICCPProfileSize + Enc->iCCP->ProfileNameSize + 8, 32, true);
         WriteBits(BitO, iCCPMarker, 32, true);
         WriteBits(BitO, Enc->iCCP->ProfileName, Bytes2Bits(Enc->iCCP->ProfileName), true);
@@ -172,7 +172,7 @@ extern "C" {
          /
     }
     */
-    void WriteSBITChunk(BitOutput *BitO, EncodePNG *Enc) {
+    void WriteSBITChunk(BitBuffer *BitB, EncodePNG *Enc) {
         uint8_t ChunkSize = 0;
         uint8_t NumChannels = ChannelsPerColorType[Enc->iHDR->ColorType];
         if (Enc->iHDR->ColorType == PNG_Grayscale) {
@@ -210,7 +210,7 @@ extern "C" {
          */
     }
     
-    void WriteSRGBChunk(BitOutput *BitO, EncodePNG *Enc) {
+    void WriteSRGBChunk(BitBuffer *BitB, EncodePNG *Enc) {
         WriteBits(BitO, 1, 8, true);
         WriteBits(BitO, sRGBMarker, 32, true);
         WriteBits(BitO, Enc->sRGB->RenderingIntent, 8, true);
@@ -221,7 +221,7 @@ extern "C" {
          */
     }
     
-    void WritePHYSChunk(BitOutput *BitO, EncodePNG *Enc) {
+    void WritePHYSChunk(BitBuffer *BitB, EncodePNG *Enc) {
         WriteBits(BitO, 9, 8, true);
         WriteBits(BitO, pHYsMarker, 32, true);
         WriteBits(BitO, Enc->pHYs->PixelsPerUnitXAxis, 32, true);
@@ -234,14 +234,14 @@ extern "C" {
          */
     }
     
-    void WritePCALChunk(BitOutput *BitO, EncodePNG *Enc) {
+    void WritePCALChunk(BitBuffer *BitB, EncodePNG *Enc) {
         uint32_t ChunkSize = 0;
         WriteBits(BitO, ChunkSize, 32, true);
         WriteBits(BitO, pCALMarker, 32, true);
         
     }
     
-    void WriteSCALChunk(BitOutput *BitO, EncodePNG *Enc) {
+    void WriteSCALChunk(BitBuffer *BitB, EncodePNG *Enc) {
         uint32_t ChunkSize = 0;
     }
     

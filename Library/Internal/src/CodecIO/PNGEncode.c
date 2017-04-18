@@ -71,7 +71,7 @@ extern "C" {
         // Just take the lines and try all the filters on each one, comparing them by comparing the difference between the bytes.
     }
     
-    void PNGEncodeImage(EncodePNG *Enc, BitOutput *BitO) {
+    void PNGEncodeImage(EncodePNG *Enc, BitBuffer *BitB) {
         
     }
     

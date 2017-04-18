@@ -11,35 +11,35 @@
 extern "C" {
 #endif
     
-    void WriteIHDRChunk(BitOutput *BitO, EncodePNG *Enc);
+    void WriteIHDRChunk(BitBuffer *BitB, EncodePNG *Enc);
     
-    void WriteACTLChunk(BitOutput *BitO, EncodePNG *Enc);
+    void WriteACTLChunk(BitBuffer *BitB, EncodePNG *Enc);
     
-    void WriteFCTLChunk(BitOutput *BitO, EncodePNG *Enc);
+    void WriteFCTLChunk(BitBuffer *BitB, EncodePNG *Enc);
     
-    void WriteFDATChunk(BitOutput *BitO, EncodePNG *Enc, uint8_t *DeflatedFrameData, uint32_t DeflatedFrameDataSize);
+    void WriteFDATChunk(BitBuffer *BitB, EncodePNG *Enc, uint8_t *DeflatedFrameData, uint32_t DeflatedFrameDataSize);
     
-    void WriteSTERChunk(BitOutput *BitO, EncodePNG *Enc);
+    void WriteSTERChunk(BitBuffer *BitB, EncodePNG *Enc);
     
-    void WriteBKGDChunk(BitOutput *BitO, EncodePNG *Enc);
+    void WriteBKGDChunk(BitBuffer *BitB, EncodePNG *Enc);
     
-    void WriteCHRMChunk(BitOutput *BitO, EncodePNG *Enc);
+    void WriteCHRMChunk(BitBuffer *BitB, EncodePNG *Enc);
     
-    void WriteGAMAChunk(BitOutput *BitO, EncodePNG *Enc);
+    void WriteGAMAChunk(BitBuffer *BitB, EncodePNG *Enc);
     
-    void WriteOFFSChunk(BitOutput *BitO, EncodePNG *Enc);
+    void WriteOFFSChunk(BitBuffer *BitB, EncodePNG *Enc);
     
-    void WriteICCPChunk(BitOutput *BitO, EncodePNG *Enc);
+    void WriteICCPChunk(BitBuffer *BitB, EncodePNG *Enc);
     
-    void WriteSBITChunk(BitOutput *BitO, EncodePNG *Enc);
+    void WriteSBITChunk(BitBuffer *BitB, EncodePNG *Enc);
     
-    void WriteSRGBChunk(BitOutput *BitO, EncodePNG *Enc);
+    void WriteSRGBChunk(BitBuffer *BitB, EncodePNG *Enc);
     
-    void WritePHYSChunk(BitOutput *BitO, EncodePNG *Enc);
+    void WritePHYSChunk(BitBuffer *BitB, EncodePNG *Enc);
     
-    void WritePCALChunk(BitOutput *BitO, EncodePNG *Enc);
+    void WritePCALChunk(BitBuffer *BitB, EncodePNG *Enc);
     
-    void WriteSCALChunk(BitOutput *BitO, EncodePNG *Enc);
+    void WriteSCALChunk(BitBuffer *BitB, EncodePNG *Enc);
     
     void PNGEncodeFilterPaeth(EncodePNG *Enc, uint8_t *Line, size_t LineSize);
     
@@ -54,7 +54,7 @@ extern "C" {
      */
     void OptimizePNG(EncodePNG *Enc, uint8_t ****Image);
     
-    void PNGEncodeImage(EncodePNG *Enc, BitOutput *BitO);
+    void PNGEncodeImage(EncodePNG *Enc, BitBuffer *BitB);
     
     
     
