@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <math.h>
 
-#include "../../../Dependencies/BitIO/libBitIO/include/BitIO.h"
+#include "../../../Dependencies/BitBO/libBitBO/include/BitBO.h"
 
 #include "../../include/libModernPNG.h"
 #include "../../include/Decode/DecodePNG.h"
@@ -17,15 +17,15 @@ extern "C" {
      bool VerifyChunkCRC(BitBuffer *BitB, uint32_t ChunkSize) {
      // So basically we need to read ChunkSize bytes into an array, then read the following 4 bytes as the CRC
      // then run VerifyCRC over the buffer, and finally compare the generated CRC with the extracted one, and return whether they match.
-     // Then call SkipBits(BitI, Bytes2Bits(ChunkSize)); to reset to the beginning of the chunk
+     // Then call SkipBits(BitB, Bytes2Bits(ChunkSize)); to reset to the beginning of the chunk
      uint8_t *Buffer2CRC = calloc(1, ChunkSize);
      for (uint32_t Byte = 0; Byte < ChunkSize; Byte++) {
-     Buffer2CRC[Byte] = BitI->Buffer[Bits2Bytes(, false)];
+     Buffer2CRC[Byte] = BitB->Buffer[Bits2Bytes(, false)];
      
      }
-     uint32_t ChunkCRC = ReadBits(BitI, 32, true);
+     uint32_t ChunkCRC = ReadBits(BitB, 32, true);
      bool CRCsMatch = VerifyCRC(Buffer2CRC, ChunkSize, 0x82608EDB, 32, 0xFFFFFFFF, ChunkCRC);
-     SkipBits(BitI, -Bytes2Bits(ChunkSize));
+     SkipBits(BitB, -Bytes2Bits(ChunkSize));
      return CRCsMatch;
      }
      */
@@ -91,7 +91,7 @@ extern "C" {
     // ALSO keep in mind concurrency.
     
     void PNGDecodeFilteredImage(DecodePNG *Dec, uint8_t ***InflatedBuffer) {
-        char Error[BitIOStringSize];
+        char Error[BitBOStringSize];
         
         uint8_t DeFilteredData[Dec->iHDR->Height][Dec->iHDR->Width - 1];
         
@@ -119,7 +119,7 @@ extern "C" {
                     PNGDecodePaethFilter(Dec, *InflatedBuffer, DeFilteredData, Line);
                     break;
                 default:
-                    snprintf(Error, BitIOStringSize, "Filter type: %d is invalid\n", FilterType);
+                    snprintf(Error, BitBOStringSize, "Filter type: %d is invalid\n", FilterType);
                     Log(LOG_ERR, "ModernPNG", "PNGDecodeFilteredLine", Error);
                     break;
             }
@@ -128,16 +128,16 @@ extern "C" {
     
     void DecodePNGData(BitBuffer *BitB, DecodePNG *Dec) {
         // read the iDAT/fDAT chunk header, then do the other stuff.
-        while (GetBitInputFileSize(BitI) > 0) { // 12 is the start of IEND
-            uint32_t ChunkSize = ReadBits(BitI, 32, true);
-            uint32_t ChunkID   = ReadBits(BitI, 32, true);
+        while (GetBitBnputFileSize(BitB) > 0) { // 12 is the start of IEND
+            uint32_t ChunkSize = ReadBits(BitB, 32, true);
+            uint32_t ChunkID   = ReadBits(BitB, 32, true);
             
             if (strcasecmp(ChunkID, "iDAT") == 0) {
-                ParseIDAT(BitI, Dec, ChunkSize);
+                ParseIDAT(BitB, Dec, ChunkSize);
             } else if (strcasecmp(ChunkID, "acTL") == 0) {
                 
             } else if (strcasecmp(ChunkID, "fdAT") == 0) {
-                ParseFDAT(BitI, Dec, ChunkSize);
+                ParseFDAT(BitB, Dec, ChunkSize);
             }
         }
     }
@@ -145,12 +145,12 @@ extern "C" {
     void PNGDecodeImage(BitBuffer *BitB, DecodePNG *Dec, uint16_t *DecodedImage) {
         // Parse all chunks except iDAT, fDAT, and iEND first.
         // When you come across an iDAT or fDAT. you need to store the start address, then return to parsing the meta chunks, then at the end  decode the i/f DATs.
-        ParsePNGMetadata(BitI, Dec);
+        ParsePNGMetadata(BitB, Dec);
         
         if (Dec->Is3D == true) {
             
         }
-        while (GetBitInputFileSize(BitI) > 0) {
+        while (GetBitBnputFileSize(BitB) > 0) {
             
         }
     }
@@ -177,7 +177,7 @@ extern "C" {
     }
     
     void PNGReadMetadata(BitBuffer *BitB, DecodePNG *Dec) {
-        ParsePNGMetadata(BitI, Dec);
+        ParsePNGMetadata(BitB, Dec);
     }
     
 #ifdef __cplusplus
