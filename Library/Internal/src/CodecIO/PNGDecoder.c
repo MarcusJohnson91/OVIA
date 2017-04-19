@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <math.h>
 
-#include "../../../Dependencies/BitBO/libBitBO/include/BitBO.h"
+#include "../../../Dependencies/BitIO/libBitIO/include/BitIO.h"
 
 #include "../../include/libModernPNG.h"
 #include "../../include/Decode/DecodePNG.h"
@@ -91,7 +91,7 @@ extern "C" {
     // ALSO keep in mind concurrency.
     
     void PNGDecodeFilteredImage(DecodePNG *Dec, uint8_t ***InflatedBuffer) {
-        char Error[BitBOStringSize];
+        char Error[BitIOStringSize];
         
         uint8_t DeFilteredData[Dec->iHDR->Height][Dec->iHDR->Width - 1];
         
@@ -119,7 +119,7 @@ extern "C" {
                     PNGDecodePaethFilter(Dec, *InflatedBuffer, DeFilteredData, Line);
                     break;
                 default:
-                    snprintf(Error, BitBOStringSize, "Filter type: %d is invalid\n", FilterType);
+                    snprintf(Error, BitIOStringSize, "Filter type: %d is invalid\n", FilterType);
                     Log(LOG_ERR, "ModernPNG", "PNGDecodeFilteredLine", Error);
                     break;
             }
@@ -128,7 +128,7 @@ extern "C" {
     
     void DecodePNGData(BitBuffer *BitB, DecodePNG *Dec) {
         // read the iDAT/fDAT chunk header, then do the other stuff.
-        while (GetBitBnputFileSize(BitB) > 0) { // 12 is the start of IEND
+        while (GetBitBufferSize(BitB) > 0) { // 12 is the start of IEND
             uint32_t ChunkSize = ReadBits(BitB, 32, true);
             uint32_t ChunkID   = ReadBits(BitB, 32, true);
             
@@ -150,7 +150,7 @@ extern "C" {
         if (Dec->Is3D == true) {
             
         }
-        while (GetBitBnputFileSize(BitB) > 0) {
+        while (GetBitBufferSize(BitB) > 0) {
             
         }
     }
