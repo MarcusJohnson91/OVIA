@@ -13,8 +13,8 @@ extern "C" {
     
     enum PNGChunkMarkers {
         iHDRMarker = 0x49484452,
-        acTLMarker = 0x6163544c,
-        fcTLMarker = 0x6663544c,
+        acTLMarker = 0x6163544C,
+        fcTLMarker = 0x6663544C,
         fDATMarker = 0x66444154,
         sTERMarker = 0x73544552,
         bKGDMarker = 0x626b4744,
@@ -25,7 +25,7 @@ extern "C" {
         sBITMarker = 0x73424954,
         sRGBMarker = 0x73524742,
         pHYsMarker = 0x70485973,
-        pCALMarker = 0x7043414c,
+        pCALMarker = 0x7043414C,
     };
     
     enum PNGColorTypes {
