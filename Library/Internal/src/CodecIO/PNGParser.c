@@ -32,18 +32,17 @@ extern "C" {
             Log(LOG_ALERT, "ModernPNG", "ParsePLTE", "Invalid bit depth %d and palette combination\n", Dec->iHDR->BitDepth);
             SkipBits(BitB, Bytes2Bits(ChunkSize));
         } else {
-            uint8_t **Palette = NULL;
             
             if (Dec->iHDR->ColorType == PNG_PalettedRGB || Dec->iHDR->ColorType == PNG_RGB) {
-                Palette = calloc(3 * Dec->PLTE->NumEntries, 1);
+                Dec->PLTE->Palette = calloc(3 * Dec->PLTE->NumEntries, 1);
             } else if (Dec->iHDR->ColorType == PNG_RGBA) {
-                Palette = calloc(4 * Dec->PLTE->NumEntries, 1);
+                Dec->PLTE->Palette = calloc(4 * Dec->PLTE->NumEntries, 1);
             }
             
             
             for (uint8_t Channel = 0; Channel < ChannelsPerColorType[Dec->iHDR->ColorType]; Channel++) {
-                for (uint16_t Pixel = 0; Pixel < ChunkSize / 3; Pixel++) {
-                    Palette[Channel][Pixel] = ReadBits(BitB, Dec->iHDR->BitDepth, true);
+                for (uint16_t PaletteEntry = 0; PaletteEntry < ChunkSize / 3; PaletteEntry++) {
+                    Dec->PLTE->Palette[Channel][PaletteEntry] = ReadBits(BitB, Dec->iHDR->BitDepth, true);
                 }
             }
         }
