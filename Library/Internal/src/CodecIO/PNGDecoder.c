@@ -93,7 +93,7 @@ extern "C" {
     void PNGDecodeFilteredImage(DecodePNG *Dec, uint8_t ***InflatedBuffer) {
         char Error[BitIOStringSize];
         
-        uint8_t DeFilteredData[Dec->iHDR->Height][Dec->iHDR->Width - 1];
+		uint8_t *DeFilteredData = calloc(1, Dec->iHDR->Height * Dec->iHDR->Width);
         
         for (size_t Line = 0; Line < Dec->iHDR->Height; Line++) {
             uint8_t FilterType = *InflatedBuffer[Line][0];

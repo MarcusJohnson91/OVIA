@@ -24,7 +24,7 @@ extern "C" {
     
     void PNGEncodeFilterSub(EncodePNG *Enc, uint8_t *Line, size_t NumPixels) {
         // NumPixel means whole pixel not sub pixel.
-        uint8_t EncodedLine[NumPixels];
+        uint8_t *EncodedLine = (uint8_t*)calloc(1, Enc->iHDR->Width);
         for (size_t Pixel = 1; Pixel < NumPixels; Pixel++) {
             if (Pixel == 1) {
                 EncodedLine[Pixel] = Line[Pixel];
