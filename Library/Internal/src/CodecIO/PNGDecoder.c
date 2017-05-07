@@ -155,20 +155,6 @@ extern "C" {
         }
     }
     
-    uint16_t **DecodeAdam7(DecodePNG *Dec, uint16_t **DecodedImage) {
-        // Break the image into 8x8 blocks.
-        // MARK: if the image is not a multiple of 8, I assume you pad the edge blocks?
-        for (uint32_t WidthBlock = 0; WidthBlock < Dec->iHDR->Width; WidthBlock += 8) {
-            for (uint32_t HeightBlock = 0; HeightBlock < Dec->iHDR->Height; HeightBlock += 8) {
-                for (uint8_t Adam7Level = 0; Adam7Level < 7; Adam7Level++) {
-                    
-                }
-            }
-        }
-        
-        return 0;
-    }
-    
     // Let's do this library right, by adding attach and delete functions for the various chunks, and let's also have a fancy function that applies color profiles to the pixels.
     // that's kinda a lot of work tho...
     

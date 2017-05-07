@@ -352,14 +352,6 @@ extern "C" {
         return Dec->iCCP->CompressedICCPProfile;
     }
     
-    
-    
-    
-    
-    
-    
-    
-    
 #ifdef __cplusplus
 }
 #endif
