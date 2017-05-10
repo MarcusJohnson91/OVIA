@@ -1,8 +1,8 @@
-#include "../../../Dependencies/BitIO/libBitIO/include/BitIO.h"
+#include "../../Dependencies/BitIO/libBitIO/include/BitIO.h"
 
-#include "../../include/libPCM.h"
-#include "../../include/PCMTypes.h"
-#include "../../include/AIFCommon.h"
+#include "../include/libPCM.h"
+#include "../include/PCMTypes.h"
+#include "../include/AIFCommon.h"
 
 #ifdef __cplusplus
 extern "C" {
