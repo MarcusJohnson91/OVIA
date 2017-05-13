@@ -8,6 +8,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#ifdef _WIN32
+#define strcasecmp _stricmp
+#endif
     
     /*
      bool VerifyChunkCRC(BitBuffer *BitB, uint32_t ChunkSize) {

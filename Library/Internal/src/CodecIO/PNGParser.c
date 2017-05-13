@@ -5,6 +5,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#ifdef _WIN32
+#define strcasecmp _stricmp
+#endif
     
     // Hmm, for parsing chunks I should have basically a PNG muxer that pops out bit buffers with the data for each chunk...
     // So, we need to 
