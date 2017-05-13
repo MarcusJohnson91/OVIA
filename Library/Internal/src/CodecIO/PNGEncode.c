@@ -1,8 +1,4 @@
-#include <stdbool.h>
-#include <stdint.h>
 #include <math.h>
-
-#include "../../../Dependencies/BitIO/libBitIO/include/BitIO.h"
 
 #include "../../include/libModernPNG.h"
 #include "../../include/Encode/EncodePNG.h"

@@ -1,6 +1,3 @@
-#include <stdbool.h>
-#include <stdint.h>
-
 #pragma once
 
 #ifndef LIBMODERNPNG_PNGTYPES_H

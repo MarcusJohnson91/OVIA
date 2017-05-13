@@ -1,5 +1,3 @@
-#include <stdint.h>
-
 #pragma once
 
 #ifndef LIBMODERNPNG_TABLES_H

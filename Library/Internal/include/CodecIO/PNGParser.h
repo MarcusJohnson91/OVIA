@@ -1,5 +1,3 @@
-#include <stdbool.h>
-#include <stdint.h>
 #include "../libModernPNG.h"
 #include "../PNGTypes.h"
 
