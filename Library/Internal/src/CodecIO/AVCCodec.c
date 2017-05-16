@@ -351,6 +351,36 @@ extern "C" {
         return 0;
     }
     
+    AVCFile *InitDecodeAVC(void) {
+        AVCFile *AVC              = (AVCFile*)                      calloc(1, sizeof(AVCFile));
+        AVC->NAL                  = (NALHeader*)                    calloc(1, sizeof(NALHeader));
+        AVC->SPS                  = (SequenceParameterSet*)         calloc(1, sizeof(SequenceParameterSet));
+        AVC->PPS                  = (PictureParameterSet*)          calloc(1, sizeof(PictureParameterSet));
+        AVC->VUI                  = (VideoUsabilityInformation*)    calloc(1, sizeof(VideoUsabilityInformation));
+        AVC->HRD                  = (HypotheticalReferenceDecoder*) calloc(1, sizeof(HypotheticalReferenceDecoder));
+        AVC->SEI                  = (SupplementalEnhancementInfo*)  calloc(1, sizeof(SupplementalEnhancementInfo));
+        AVC->Slice                = (Slice*)                        calloc(1, sizeof(Slice));
+        AVC->SVC                  = (ScalableVideoCoding*)          calloc(1, sizeof(ScalableVideoCoding));
+        AVC->DPS                  = (DepthParameterSet*)            calloc(1, sizeof(DepthParameterSet));
+        AVC->MacroBlock           = (MacroBlock*)                   calloc(1, sizeof(MacroBlock));
+        return AVC;
+    }
+    
+    AVCFile *InitEncodeAVC(void) {
+        AVCFile *AVC              = (AVCFile*)                      calloc(1, sizeof(AVCFile));
+        AVC->NAL                  = (NALHeader*)                    calloc(1, sizeof(NALHeader));
+        AVC->SPS                  = (SequenceParameterSet*)         calloc(1, sizeof(SequenceParameterSet));
+        AVC->PPS                  = (PictureParameterSet*)          calloc(1, sizeof(PictureParameterSet));
+        AVC->VUI                  = (VideoUsabilityInformation*)    calloc(1, sizeof(VideoUsabilityInformation));
+        AVC->HRD                  = (HypotheticalReferenceDecoder*) calloc(1, sizeof(HypotheticalReferenceDecoder));
+        AVC->SEI                  = (SupplementalEnhancementInfo*)  calloc(1, sizeof(SupplementalEnhancementInfo));
+        AVC->Slice                = (Slice*)                        calloc(1, sizeof(Slice));
+        AVC->SVC                  = (ScalableVideoCoding*)          calloc(1, sizeof(ScalableVideoCoding));
+        AVC->DPS                  = (DepthParameterSet*)            calloc(1, sizeof(DepthParameterSet));
+        AVC->MacroBlock           = (MacroBlock*)                   calloc(1, sizeof(MacroBlock));
+        return AVC;
+    }
+    
 #ifdef __cplusplus
 }
 #endif

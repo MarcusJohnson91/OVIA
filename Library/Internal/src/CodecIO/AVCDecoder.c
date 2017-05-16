@@ -727,21 +727,6 @@ extern "C" {
         
     }
     
-    AVCFile *InitDecodeAVC(void) {
-        AVCFile *AVC              = calloc(1, sizeof(AVCFile));
-        AVC->NAL                  = calloc(1, sizeof(NALHeader));
-        AVC->SPS                  = calloc(1, sizeof(SequenceParameterSet));
-        AVC->PPS                  = calloc(1, sizeof(PictureParameterSet));
-        AVC->VUI                  = calloc(1, sizeof(VideoUsabilityInformation));
-        AVC->HRD                  = calloc(1, sizeof(HypotheticalReferenceDecoder));
-        AVC->SEI                  = calloc(1, sizeof(SupplementalEnhancementInfo));
-        AVC->Slice                = calloc(1, sizeof(Slice));
-        AVC->SVC                  = calloc(1, sizeof(ScalableVideoCoding));
-        AVC->DPS                  = calloc(1, sizeof(DepthParameterSet));
-        AVC->MacroBlock           = calloc(1, sizeof(MacroBlock));
-        return AVC;
-    }
-    
     void rbsp_trailing_bits(AVCFile *AVC, BitBuffer *BitB) { // rbsp_trailing_bits
         bool rbsp_stop_one_bit:1 = 0;
         rbsp_stop_one_bit = ReadBits(BitB, 1, true);

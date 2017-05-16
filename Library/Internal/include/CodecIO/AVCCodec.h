@@ -14,7 +14,7 @@
 extern "C" {
 #endif
     
-    enum AVCConstants {
+    enum ModernAVCConstants {
         AVCMagic                                    = 0x00000001,
         MVCMaxViews                                 = 2,
         MaxChromaChannels                           = 2,
@@ -358,6 +358,10 @@ extern "C" {
     };
     
     typedef struct AVCFile AVCFile;
+    
+    AVCFile *InitDecodeAVC(void);
+    
+    
     
 #ifdef __cplusplus
 }
