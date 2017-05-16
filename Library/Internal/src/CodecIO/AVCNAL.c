@@ -6,7 +6,7 @@
 #include "../../include/Decode/DecodeMacroBlock.h"
 #include "../../include/Decode/DecodeSlice.h"
 #include "../../include/Decode/ParseNAL.h"
-#include "../../include/Tables.h"
+#include "../../include/ModernAVCTables.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -98,7 +98,7 @@ extern "C" {
     void ParseNALSequenceParameterSetExtended(AVCFile *AVC, BitBuffer *BitB) { // seq_parameter_set_extension_rbsp?
         AVC->SPS->SeqParamSetID                        = ReadExpGolomb(BitB, false);
         AVC->SPS->AuxiliaryFormatID                    = ReadExpGolomb(BitB, false);
-        if (AVC->SPS->AuxiliaryFormatID !              = 0) {
+        if (AVC->SPS->AuxiliaryFormatID != 0) {
             AVC->SPS->AuxiliaryBitDepth                = ReadExpGolomb(BitB, false) + 8;
             AVC->SPS->AlphaIncrFlag                    = ReadBits(BitB, 1, true);
             AVC->SPS->AlphaOpaqueValue                 = ReadBits(BitB, AVC->SPS->AuxiliaryBitDepth + 9, true);
@@ -606,7 +606,7 @@ extern "C" {
         for (uint8_t SchedSelIdx = 0; SchedSelIdx < AVC->HRD->NumCodedPictureBuffers; SchedSelIdx++) {
             AVC->HRD->BitRate[SchedSelIdx]           = ReadExpGolomb(BitB, false) + 1;
             AVC->HRD->CodedPictureSize[SchedSelIdx]  = ReadExpGolomb(BitB, false) + 1;
-            AVC->HRD->IsConstantBitRate[SchedSelIdx] = ReadBits(BitB, 1, true) +;
+            AVC->HRD->IsConstantBitRate[SchedSelIdx] = ReadBits(BitB, 1, true) + 1; // FIXME: is +1 correct
         }
         AVC->HRD->InitialCPBDelayLength              = ReadBits(BitB, 5, true) + 1;
         AVC->HRD->CBPDelay                           = ReadBits(BitB, 5, true) + 1;
@@ -684,7 +684,7 @@ extern "C" {
         if (AVC->NAL->NALRefIDC != 0) {
             DecodeRefPicMarking(AVC, BitB);
         }
-        if ((AVC->PPS->EntropyCodingMode  = = true) && (((AVC->Slice->Type ! = SliceI1) || (AVC->Slice->Type != SliceI2) || (AVC->Slice->Type != SliceSI1) || (AVC->Slice->Type != SliceSI2)))) {
+        if ((AVC->PPS->EntropyCodingMode  == true) && (((AVC->Slice->Type != SliceI1) || (AVC->Slice->Type != SliceI2) || (AVC->Slice->Type != SliceSI1) || (AVC->Slice->Type != SliceSI2)))) {
             AVC->Slice->CabacInitIDC                                       = ReadExpGolomb(BitB, true);
         }
         AVC->Slice->SliceQPDelta                                           = ReadExpGolomb(BitB, true);
@@ -699,7 +699,7 @@ extern "C" {
         }
         if (AVC->PPS->DeblockingFilterFlag == true) {
             AVC->Slice->DisableDeblockingFilterIDC                         = ReadExpGolomb(BitB, false);
-            if (AVC->Slice->DisableDeblockingFilterIDC  !                  = true) {
+            if (AVC->Slice->DisableDeblockingFilterIDC  != true) {
                 AVC->Slice->SliceAlphaOffsetC0                             = ReadExpGolomb(BitB, true);
                 AVC->Slice->SliceBetaOffset                                = ReadExpGolomb(BitB, true);
             }

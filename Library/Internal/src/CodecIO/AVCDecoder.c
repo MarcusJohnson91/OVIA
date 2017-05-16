@@ -31,18 +31,7 @@ extern "C" {
     
     // MVCD  = Multi-View Coding with Depth, aka 3D.
     // AVC3D =
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
     // Basically I need to parse the NAL bytestream into the VCL (Video Coding Layer) aka Samples.
     
     // Find AVCMagic, then Find the NAL Size, then Parse the NAL, everything after step 1 needs to be on a loop.

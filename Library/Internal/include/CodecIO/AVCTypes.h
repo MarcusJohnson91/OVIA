@@ -969,8 +969,8 @@ extern "C" {
         MacroBlock                        *MacroBlock;
         
         /* Raw PCM */
-        uint16_t     **RawMacroBlock;
-        uint8_t    ***DisparityScale;
+        uint16_t      **RawMacroBlock;
+        uint8_t     ***DisparityScale;
         uint8_t    ***DisparityOffset;
     };
     

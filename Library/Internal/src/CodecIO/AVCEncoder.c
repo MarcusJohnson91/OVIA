@@ -5,6 +5,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+    
+    /*
+     So, the frontend will handle decoding input PNGs, and all we need to do is take in the command line info as well as the raw PNG
+     */
+    
+    
     /*
      void ConvertRGB2YCgCo(AVCFile *AVC, uint8_t NumChannels, uint8_t NumPixels, uint16_t *DecodedMB[3][256]) {
      uint16_t Temp, Green[NumChannels][NumPixels], Red[NumChannels][NumPixels], Blue[NumChannels][NumPixels];
