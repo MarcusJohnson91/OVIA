@@ -42,8 +42,7 @@ extern "C" {
         
         StartBufferPosition = GetBitBufferPosition(BitB) + Bits2Bytes(GetBitBufferPosition(BitB), false);
         StreamIsByteAligned = IsBitBufferAligned(BitB, 4);
-        NotEOF              = (GetBitBufferPosition(BitB) + Bits2Bytes(BitB->BitsUnavailable, true)) < BitB->FileSize ? true : false;
-        GetBitBuffer
+        NotEOF              = GetBitBufferPosition(BitB) < GetBitBufferSize(BitB) ? false : true;
         Marker              = PeekBits(BitB, 24, true);
         
         if ((NotEOF == true && StreamIsByteAligned == true && ((Marker == 0x000000) || (Marker == 0x000001)))) {
@@ -59,7 +58,7 @@ extern "C" {
     }
     
     void ParseAVCFile(DecodeAVC *Dec, BitBuffer *BitB) { // byte_stream_nal_unit
-        Log(LOG_INFO, "LibAVC", "ParseAVCFile", "Parsing AVC File...\n");
+        Log(LOG_INFO, "libModernAVC", "ParseAVCFile", "Parsing AVC File...\n");
         
         // Found a start code.
         if (ReadBits(BitB, 32, true) == AVCMagic && GetBitBufferPosition(BitB) == 0) {
@@ -691,9 +690,7 @@ extern "C" {
                 // slice_layer_extension_rbsp
                 break;
             default:
-                char Description[BitBOStringSize];
-                snprintf(Description, BitBOStringSize, "NAL ID 0x%X is not supported, seeking to next NAL\n", Dec->NAL->NALUnitType)
-                Log(LOG_ERR, "LibAVC", "ScanNALUnits", Description);
+                Log(LOG_ERR, "libModernAVC", "ScanNALUnits", "NAL ID 0x%X is not supported, seeking to next NAL\n", Dec->NAL->NALUnitType);
                 break;
         }
     }

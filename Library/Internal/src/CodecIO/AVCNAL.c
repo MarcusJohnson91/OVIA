@@ -1882,8 +1882,6 @@ extern "C" {
     }
     
     void ParseSEIMessage(DecodeAVC *Dec, BitBuffer *BitB) { // sei_message
-        char ErrorDescription[BitIOStringSize];
-        
         while (PeekBits(BitB, 8, true) == 0xFF) {
             SkipBits(BitB, 8);
             Dec->SEI->SEIType += 255;
@@ -2066,8 +2064,7 @@ extern "C" {
                 ParseSEIMeteringDisplayColorVolume(Dec, BitB);
                 break;
             default:
-                snprintf(ErrorDescription, BitIOStringSize, "Unrecognized SEIType: %d", Dec->SEI->SEIType);
-                Log(LOG_ERR, "libAVC", "ParseSEIMessage", ErrorDescription);
+                Log(LOG_ERR, "libModernAVC", "ParseSEIMessage", "Unrecognized SEIType: %d", Dec->SEI->SEIType);
                 SkipBits(BitB, Dec->SEI->SEISize);
                 break;
         }
