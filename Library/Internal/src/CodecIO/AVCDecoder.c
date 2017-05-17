@@ -40,9 +40,10 @@ extern "C" {
         bool     StreamIsByteAligned, NotEOF;
         uint32_t Marker;
         
-        StartBufferPosition = GetBitBufferPosition(BitB); + Bits2Bytes(GetBitBufferPosition(BitI->BitB), false);
-        StreamIsByteAligned = IsBitBufferAligned(BitI->BitB, 4);
-        NotEOF              = (BitB->FilePosition + Bits2Bytes(BitB->BitsUnavailable, true)) < BitB->FileSize ? true : false;
+        StartBufferPosition = GetBitBufferPosition(BitB) + Bits2Bytes(GetBitBufferPosition(BitB), false);
+        StreamIsByteAligned = IsBitBufferAligned(BitB, 4);
+        NotEOF              = (GetBitBufferPosition(BitB) + Bits2Bytes(BitB->BitsUnavailable, true)) < BitB->FileSize ? true : false;
+        GetBitBuffer
         Marker              = PeekBits(BitB, 24, true);
         
         if ((NotEOF == true && StreamIsByteAligned == true && ((Marker == 0x000000) || (Marker == 0x000001)))) {
@@ -61,8 +62,8 @@ extern "C" {
         Log(LOG_INFO, "LibAVC", "ParseAVCFile", "Parsing AVC File...\n");
         
         // Found a start code.
-        if (ReadBits(BitB, 32, true) == AVCMagic && BitB->FilePosition == 0) {
-            while (BitB->FilePosition + Bits2Bytes(BitB->BitsUnavailable, true) < BitB->FileSize) {
+        if (ReadBits(BitB, 32, true) == AVCMagic && GetBitBufferPosition(BitB) == 0) {
+            while (GetBitBufferPosition(BitB) + Bits2Bytes(BitB->BitsUnavailable, true) < BitB->FileSize) {
                 ParseAVCHeader(Dec, BitB);
                 FindNALSize(Dec, BitB);
                 ScanNALUnits(Dec, BitB);
@@ -70,7 +71,7 @@ extern "C" {
         } else {
             SkipBits(BitB, 8);
         }
-        Dec->CurrentFilePosition = BitB->FilePosition + Bits2Bytes(BitB->BitsUnavailable, false);
+        Dec->CurrentFilePosition = GetBitBufferPosition(BitB) + Bits2Bytes(BitB->BitsUnavailable, false);
     }
     
     void ParseAVCHeader(DecodeAVC *Dec, BitBuffer *BitB) { // nal_unit
