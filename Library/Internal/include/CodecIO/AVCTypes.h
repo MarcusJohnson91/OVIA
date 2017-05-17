@@ -195,6 +195,7 @@ extern "C" {
         uint64_t     RawMacroBlockSizeInBits;                      // RawMbBits
         uint8_t      MacroBlockSkipRun;                            // mb_skip_run, PicSizeInMbs − CurrMbAddr
         uint8_t      PreviousMacroBlockSkipped;                    // prevMbSkipped
+        uint64_t     ScaledRefLayerPicHeightInSamplesL;            // ScaledRefLayerPicHeightInSamplesL
         
         /* AVC3D CODING */
         uint8_t      PreSliceHeaderSrc:2;                          // pre_slice_header_src

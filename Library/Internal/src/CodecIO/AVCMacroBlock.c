@@ -14,7 +14,7 @@ extern "C" {
     
     void ParseMacroBlockLayerInSVC(DecodeAVC *Dec, BitBuffer *BitB) { // macroblock_layer_in_scalable_extension
         if (Dec->PPS->EntropyCodingMode == ExpGolomb) {
-            if (InCropWindow(Dec->Slice->CurrentMacroBlockAddress) && (Dec->Slice->AdaptiveBaseModeFlag == true)) {
+            if (InCropWindow(Dec, Dec->Slice->CurrentMacroBlockAddress) && (Dec->Slice->AdaptiveBaseModeFlag == true)) {
                 Dec->MacroBlock->BaseModeFlag = ReadBits(BitB, 1, true); // base_mode_flag
             }
             if (Dec->MacroBlock->BaseModeFlag == false) {
@@ -52,7 +52,7 @@ extern "C" {
                         ParseMBPredictionInSVC(AVC, BitB);
                     }
                 }
-                if ((Dec->Slice->AdaptiveResidualPredictionFlag == true) && ((Dec->Slice->Type != SliceEI1) || (Dec->Slice->Type != SliceEI2)) && InCropWindow(Dec->Slice->CurrentMacroBlockAddress) && (Dec->MacroBlock->BaseModeFlag || (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Intra_16x16 && MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Intra_8x8 && MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Intra_4x4))) {
+                if ((Dec->Slice->AdaptiveResidualPredictionFlag == true) && ((Dec->Slice->Type != SliceEI1) || (Dec->Slice->Type != SliceEI2)) && InCropWindow(Dec, Dec->Slice->CurrentMacroBlockAddress) && (Dec->MacroBlock->BaseModeFlag || (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Intra_16x16 && MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Intra_8x8 && MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Intra_4x4))) {
                     Dec->Slice->ResidualPredictionFlag = ReadBits(BitB, 1, true);
                 }
                 if (Dec->Slice->ScanIndexEnd >= Dec->Slice->ScanIndexStart) {
@@ -69,7 +69,7 @@ extern "C" {
                 }
             }
         } else if (Dec->PPS->EntropyCodingMode == Arithmetic) {
-            if (InCropWindow(Dec->Slice->CurrentMacroBlockAddress) && (Dec->Slice->AdaptiveBaseModeFlag == true)) {
+            if (InCropWindow(Dec, Dec->Slice->CurrentMacroBlockAddress) && (Dec->Slice->AdaptiveBaseModeFlag == true)) {
                 Dec->MacroBlock->BaseModeFlag = ReadArithmetic(BitB, NULL, NULL, NULL, NULL);
             }
             if (Dec->MacroBlock->BaseModeFlag == false) {
@@ -107,7 +107,7 @@ extern "C" {
                         ParseMBPredictionInSVC(AVC, BitB);
                     }
                 }
-                if ((Dec->Slice->AdaptiveResidualPredictionFlag == true) && ((Dec->Slice->Type != SliceEI1) || (Dec->Slice->Type != SliceEI2)) && InCropWindow(Dec->Slice->CurrentMacroBlockAddress) && (Dec->MacroBlock->BaseModeFlag || (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Intra_16x16 && MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Intra_8x8 && MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Intra_4x4))) {
+                if ((Dec->Slice->AdaptiveResidualPredictionFlag == true) && ((Dec->Slice->Type != SliceEI1) || (Dec->Slice->Type != SliceEI2)) && InCropWindow(Dec, Dec->Slice->CurrentMacroBlockAddress) && (Dec->MacroBlock->BaseModeFlag || (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Intra_16x16 && MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Intra_8x8 && MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Intra_4x4))) {
                     Dec->Slice->ResidualPredictionFlag = Dec->PPS->EntropyCodingMode = ExpGolomb ? ReadBits(BitB, 1, true) : ReadArithmetic(BitB, NULL, NULL, NULL, NULL);
                 }
                 if (Dec->Slice->ScanIndexEnd >= Dec->Slice->ScanIndexStart) {
@@ -167,7 +167,7 @@ extern "C" {
                     Dec->MacroBlock->IntraChromaPredictionMode = ReadExpGolomb(BitB, false);
                 }
             } else if (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Direct) {
-                if (InCropWindow(Dec->Slice->CurrentMacroBlockAddress) && Dec->Slice->AdaptiveMotionPredictionFlag) {
+                if (InCropWindow(Dec, Dec->Slice->CurrentMacroBlockAddress) && Dec->Slice->AdaptiveMotionPredictionFlag) {
                     for (uint32_t MBPartitionIndex = 0; MBPartitionIndex < NumMacroBlockPartitions(Dec->MacroBlock->Type); MBPartitionIndex++) {
                         if (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Pred_L1) {
                             Dec->MacroBlock->MotionPredictionFlagLevel0[MBPartitionIndex] = ReadBits(BitB, 1, true);
@@ -218,7 +218,7 @@ extern "C" {
                     Dec->MacroBlock->IntraChromaPredictionMode = ReadArithmetic(BitB, NULL, NULL, NULL, NULL);
                 }
             } else if (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Direct) {
-                if (InCropWindow(Dec->Slice->CurrentMacroBlockAddress) && Dec->Slice->AdaptiveMotionPredictionFlag) {
+                if (InCropWindow(Dec, Dec->Slice->CurrentMacroBlockAddress) && Dec->Slice->AdaptiveMotionPredictionFlag) {
                     for (uint32_t MBPartitionIndex = 0; MBPartitionIndex < NumMacroBlockPartitions(Dec->MacroBlock->Type); MBPartitionIndex++) {
                         if (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 1) != Pred_L1) {
                             Dec->MacroBlock->MotionPredictionFlagLevel0[MBPartitionIndex] = ReadArithmetic(BitB, NULL, NULL, NULL, NULL);
@@ -484,7 +484,7 @@ extern "C" {
             for (uint8_t MacroBlockPiece = 0; MacroBlockPiece < 4; MacroBlockPiece++) { // MBPartitionIndex
                 Dec->MacroBlock->SubMacroBlockType[MacroBlockPiece] = ReadExpGolomb(BitB, false);
             }
-            if ((InCropWindow(Dec->Slice->CurrentMacroBlockAddress) == true) && (Dec->Slice->AdaptiveMotionPredictionFlag == true)) {
+            if ((InCropWindow(Dec, Dec->Slice->CurrentMacroBlockAddress) == true) && (Dec->Slice->AdaptiveMotionPredictionFlag == true)) {
                 for (uint8_t MacroBlockPiece = 0; MacroBlockPiece < 4; MacroBlockPiece++) {
                     if (SubMbPredMode(SubMacroBlockType[MacroBlockPiece]) != Direct && SubMbPredMode(SubMacroBlockType[MacroBlockPiece]) != Pred_L1) {
                         Dec->MacroBlock->MotionPredictionFlagLevel0[MacroBlockPiece] = ReadBits(BitB, 1, true);
@@ -525,7 +525,7 @@ extern "C" {
             for (uint8_t MacroBlockPiece = 0; MacroBlockPiece < 4; MacroBlockPiece++) { // MBPartitionIndex
                 Dec->MacroBlock->SubMacroBlockType[MacroBlockPiece] = ReadArithmetic(BitB, NULL, NULL, NULL, NULL);
             }
-            if ((InCropWindow(Dec->Slice->CurrentMacroBlockAddress) == true) && (Dec->Slice->AdaptiveMotionPredictionFlag == true)) {
+            if ((InCropWindow(Dec, Dec->Slice->CurrentMacroBlockAddress) == true) && (Dec->Slice->AdaptiveMotionPredictionFlag == true)) {
                 for (uint8_t MacroBlockPiece = 0; MacroBlockPiece < 4; MacroBlockPiece++) {
                     if (SubMbPredMode(SubMacroBlockType[MacroBlockPiece]) != Direct && SubMbPredMode(SubMacroBlockType[MacroBlockPiece]) != Pred_L1) {
                         Dec->MacroBlock->MotionPredictionFlagLevel0[MacroBlockPiece] = ReadArithmetic(BitB, NULL, NULL, NULL, NULL);
