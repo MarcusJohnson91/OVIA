@@ -11,23 +11,23 @@
 extern "C" {
 #endif
     
-    void     ParseMacroBlockLayerInSVC(AVCFile *AVC, BitBuffer *BitB);
+    void     ParseMacroBlockLayerInSVC(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void     CalculateMacroBlockDimensions(AVCFile *AVC);
+    void     CalculateMacroBlockDimensions(DecodeAVC *Dec);
     
-    void     ParseMBPredictionInSVC(AVCFile *AVC, BitBuffer *BitB);
+    void     ParseMBPredictionInSVC(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void     ParseAVC3DMacroBlockPredictionExtension(AVCFile *AVC, BitBuffer *BitB);
+    void     ParseAVC3DMacroBlockPredictionExtension(DecodeAVC *Dec, BitBuffer *BitB);
     
-    uint64_t NextMacroBlockAddress(AVCFile *AVC, uint64_t CurrentMacroBlockAddress);
+    uint64_t NextMacroBlockAddress(DecodeAVC *Dec, uint64_t CurrentMacroBlockAddress);
     
     uint8_t  NumMacroBlockPartitions(uint8_t MacroBlockType);
     
-    void     MacroBlockLayer(AVCFile *AVC, BitBuffer *BitB);
+    void     MacroBlockLayer(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void     mb_pred(AVCFile *AVC, BitBuffer *BitB, uint8_t mb_type);
+    void     mb_pred(DecodeAVC *Dec, BitBuffer *BitB, uint8_t mb_type);
     
-    void     DecodeMacroBlock(AVCFile *AVC, uint8_t *MacroBlock, size_t MacroBlockSize);
+    void     DecodeMacroBlock(DecodeAVC *Dec, uint8_t *MacroBlock, size_t MacroBlockSize);
     
 #ifdef __cplusplus
 }

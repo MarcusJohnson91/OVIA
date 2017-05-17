@@ -357,11 +357,13 @@ extern "C" {
         CAVLC444_Intra_Profile                      = 244, //
     };
     
-    typedef struct AVCFile AVCFile;
+    typedef struct AVCEncoder EncodeAVC;
     
-    AVCFile *InitDecodeAVC(void);
+    typedef struct AVCDecoder DecodeAVC;
     
+    EncodeAVC *InitAVCEncoder(void);
     
+    DecodeAVC *InitAVCDecoder(void);
     
 #ifdef __cplusplus
 }

@@ -937,41 +937,46 @@ extern "C" {
         bool         CpbDpbDelaysPresentFlag:1;                    // CpbDpbDelaysPresentFlag
     } SupplementalEnhancementInfo;
     
-    struct AVCFile {
-        /* Global Variables */
-        size_t                           CurrentFilePosition;
-        size_t                           NALSize;
+    struct AVCEncoder {
+        bool                          EncodeInterlaced;
+        bool                          EncodeLosslessly;
+        uint64_t                      Bitrate;
+        uint8_t                       SubsampleType;
+        uint8_t                       ProfileMajor;
+        uint8_t                       ProfileMinor;
+        uint64_t                      FrameRateNumerator;
+        uint64_t                      FrameRateDenominator;
         
-        /* Global Flags */
-        bool                             StreamIsLowDelay:1;
+        NALHeader                    *NAL;
+        SequenceParameterSet         *SPS;
+        PictureParameterSet          *PPS;
+        VideoUsabilityInformation    *VUI;
+        HypotheticalReferenceDecoder *HRD;
+        SupplementalEnhancementInfo  *SEI;
+        ScalableVideoCoding          *SVC;
+        Slice                        *Slice;
+        DepthParameterSet            *DPS;
+        MacroBlock                   *MacroBlock;
+    };
+    
+    struct AVCDecoder {
+        bool                          EncodedInterlaced;
+        bool                          EncodedLosslessly;
+        uint8_t                       ProfileMajor;
+        uint8_t                       ProfileMinor;
+        uint64_t                      FrameRateNumerator;
+        uint64_t                      FrameRateDenominator;
         
-        /* Regular AVC */
-        NALHeader                                *NAL;
-        
-        SequenceParameterSet                     *SPS; // [MaxSeqParamSets]
-        PictureParameterSet                      *PPS; // [MaxSeqParamSets]
-        VideoUsabilityInformation                *VUI;
-        HypotheticalReferenceDecoder             *HRD;
-        SupplementalEnhancementInfo              *SEI;
-        
-        /* SVC */
-        ScalableVideoCoding                      *SVC;
-        
-        /* Slice */
-        Slice                                  *Slice;
-        
-        /**            MVC Extension               **/
-        
-        /* MVC */
-        DepthParameterSet                        *DPS;
-        
-        /* MacroBlock */
-        MacroBlock                        *MacroBlock;
-        
-        /* Raw PCM */
-        uint16_t      **RawMacroBlock;
-        uint8_t     ***DisparityScale;
-        uint8_t    ***DisparityOffset;
+        NALHeader                    *NAL;
+        SequenceParameterSet         *SPS;
+        PictureParameterSet          *PPS;
+        VideoUsabilityInformation    *VUI;
+        HypotheticalReferenceDecoder *HRD;
+        SupplementalEnhancementInfo  *SEI;
+        ScalableVideoCoding          *SVC;
+        Slice                        *Slice;
+        DepthParameterSet            *DPS;
+        MacroBlock                   *MacroBlock;
     };
     
 #ifdef __cplusplus

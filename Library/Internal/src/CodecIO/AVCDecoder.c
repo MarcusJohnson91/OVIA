@@ -35,7 +35,7 @@ extern "C" {
     // Basically I need to parse the NAL bytestream into the VCL (Video Coding Layer) aka Samples.
     
     // Find AVCMagic, then Find the NAL Size, then Parse the NAL, everything after step 1 needs to be on a loop.
-    size_t FindNALSize(AVCFile *AVC, BitInput *BitI) {
+    size_t FindNALSize(DecodeAVC *Dec, BitInput *BitI) {
         size_t   StartBufferPosition, EndOfBufferPosition, NALSize;
         bool     StreamIsByteAligned, NotEOF;
         uint32_t Marker;
@@ -57,7 +57,7 @@ extern "C" {
         return NALSize;
     }
     
-    void ParseAVCFile(AVCFile *AVC, BitBuffer *BitB) { // byte_stream_nal_unit
+    void ParseAVCFile(DecodeAVC *Dec, BitBuffer *BitB) { // byte_stream_nal_unit
         Log(LOG_INFO, "LibAVC", "ParseAVCFile", "Parsing AVC File...\n");
         
         // Found a start code.
@@ -70,30 +70,30 @@ extern "C" {
         } else {
             SkipBits(BitB, 8);
         }
-        AVC->CurrentFilePosition = BitB->FilePosition + Bits2Bytes(BitB->BitsUnavailable, false);
+        Dec->CurrentFilePosition = BitB->FilePosition + Bits2Bytes(BitB->BitsUnavailable, false);
     }
     
-    void ParseAVCHeader(AVCFile *AVC, BitBuffer *BitB) { // nal_unit
+    void ParseAVCHeader(DecodeAVC *Dec, BitBuffer *BitB) { // nal_unit
         size_t BytesInNALUnit                 = 1; // nalUnitHeaderBytes
         if (PeekBits(BitB, 1, true) == 0) {
             SkipBits(BitB, 1);
-            AVC->NAL->NALRefIDC               = ReadBits(BitB, 2, true); // 0
-            AVC->NAL->NALUnitType             = ReadBits(BitB, 5, true); // 6
+            Dec->NAL->NALRefIDC               = ReadBits(BitB, 2, true); // 0
+            Dec->NAL->NALUnitType             = ReadBits(BitB, 5, true); // 6
             
             int     NumBytesInRBSP = 0;
             int nalUnitHeaderBytes = 1;
             
-            if ((AVC->NAL->NALUnitType == NAL_PrefixUnit) || (AVC->NAL->NALUnitType == NAL_AuxiliarySliceExtension) ||(AVC->NAL->NALUnitType == NAL_MVCDepthView) ) {
-                if (AVC->NAL->NALUnitType == NAL_MVCDepthView) {
-                    AVC->NAL->AVC3DExtensionFlag = ReadBits(BitB, 1, true);
+            if ((Dec->NAL->NALUnitType == NAL_PrefixUnit) || (Dec->NAL->NALUnitType == NAL_AuxiliarySliceExtension) ||(Dec->NAL->NALUnitType == NAL_MVCDepthView) ) {
+                if (Dec->NAL->NALUnitType == NAL_MVCDepthView) {
+                    Dec->NAL->AVC3DExtensionFlag = ReadBits(BitB, 1, true);
                 } else {
-                    AVC->NAL->SVCExtensionFlag   = ReadBits(BitB, 1, true);
+                    Dec->NAL->SVCExtensionFlag   = ReadBits(BitB, 1, true);
                 }
                 
-                if (AVC->NAL->SVCExtensionFlag == true) {
+                if (Dec->NAL->SVCExtensionFlag == true) {
                     ParseNALSVCExtension(AVC, BitB);
                     BytesInNALUnit += 3;
-                } else if (AVC->NAL->AVC3DExtensionFlag == true) {
+                } else if (Dec->NAL->AVC3DExtensionFlag == true) {
                     ParseNAL3DAVCExtension(AVC, BitB);
                     BytesInNALUnit += 2;
                 } else {
@@ -101,8 +101,8 @@ extern "C" {
                     BytesInNALUnit += 3;
                 }
             }
-            for (uint64_t NALByte = BytesInNALUnit; NALByte < AVC->NAL->NALUnitSize; NALByte++) {
-                if (NALByte + 2 < AVC->NAL->NALUnitSize) {
+            for (uint64_t NALByte = BytesInNALUnit; NALByte < Dec->NAL->NALUnitSize; NALByte++) {
+                if (NALByte + 2 < Dec->NAL->NALUnitSize) {
                     uint32_t NALID = ReadBits(BitB, 24, true);
                     if (NALID == 0x000003) {
                         uint8_t NALID2 = ReadBits(BitB, 8, true);
@@ -133,7 +133,7 @@ extern "C" {
      In order to facilitate both of those, I need a DecodeAVCFile function, and a DecodeNAL function, that's fed data by the calling program.
      */
     
-    void ExtractNALFromByteStream(AVCFile *AVC, BitBuffer *BitB, size_t NALSize) {
+    void ExtractNALFromByteStream(DecodeAVC *Dec, BitBuffer *BitB, size_t NALSize) {
         // Make sure the stream is byte algined by verifying there are 4 the data = 0x0000001
         // Once you've got that, you've got byte alignment.
         
@@ -169,7 +169,7 @@ extern "C" {
         }
     }
     
-    uint64_t ScalingList(AVCFile *AVC, BitBuffer *BitB, uint8_t *scalingList, size_t ScalingListSize, bool UseDefaultScalingMatrixFlag) { // scaling_list
+    uint64_t ScalingList(DecodeAVC *Dec, BitBuffer *BitB, uint8_t *scalingList, size_t ScalingListSize, bool UseDefaultScalingMatrixFlag) { // scaling_list
         uint8_t LastScale  = 8;
         uint8_t NextScale  = 8;
         uint8_t DeltaScale = 0;
@@ -286,7 +286,7 @@ extern "C" {
         return Type;
     }
     
-    void AcquisitionElement3DV(AVCFile *AVC, BitBuffer *BitB, uint8_t numViews, uint8_t DeltaFlag, uint8_t PredDirection, uint8_t precMode, uint8_t expLen, uint8_t OutSign[MVCMaxViews], uint8_t OutExp, uint8_t OutMantissa, uint8_t OutManLen[MVCMaxViews]) { // 3dv_acquisition_element
+    void AcquisitionElement3DV(DecodeAVC *Dec, BitBuffer *BitB, uint8_t numViews, uint8_t DeltaFlag, uint8_t PredDirection, uint8_t precMode, uint8_t expLen, uint8_t OutSign[MVCMaxViews], uint8_t OutExp, uint8_t OutMantissa, uint8_t OutManLen[MVCMaxViews]) { // 3dv_acquisition_element
         
         uint8_t element_equal_flag, numValues, matissa_len_minus1, prec, sign0, exponent0, mantissa0, skip_flag, sign1, exponent_skip_flag, manLen;
         uint8_t mantissaPred, mantissa_diff, exponent1;
@@ -333,22 +333,22 @@ extern "C" {
                         exponent1 = ReadBits(BitB, expLen);
                         OutExp[index, Value] = exponent1;
                     } else {
-                        OutExp[index, Value] = OutExp[AVC->DPS->ReferenceDPSID[1], Value];
+                        OutExp[index, Value] = OutExp[Dec->DPS->ReferenceDPSID[1], Value];
                     }
                     mantissa_diff = ReadExpGolomb(BitB, true);
-                    mantissaPred = ((OutMantissa[AVC->DPS->ReferenceDPSID[1], Value] * AVC->DPS->PredictedWeight0 + OutMantissa[AVC->DPS->ReferenceDPSID[1], Value] * (64 - AVC->DPS->PredictedWeight0) + 32) >> 6);
+                    mantissaPred = ((OutMantissa[Dec->DPS->ReferenceDPSID[1], Value] * Dec->DPS->PredictedWeight0 + OutMantissa[Dec->DPS->ReferenceDPSID[1], Value] * (64 - Dec->DPS->PredictedWeight0) + 32) >> 6);
                     OutMantissa[index, Value] = mantissaPred + mantissa_diff;
-                    OutManLen[index, Value] = OutManLen[AVC->DPS->ReferenceDPSID[1], Value];
+                    OutManLen[index, Value] = OutManLen[Dec->DPS->ReferenceDPSID[1], Value];
                 } else {
-                    OutSign[index, Value] = OutSign[AVC->DPS->ReferenceDPSID[1], Value];
-                    OutExp[index, Value] = OutExp[AVC->DPS->ReferenceDPSID[1], Value];
-                    OutMantissa[index, Value] = OutMantissa[AVC->DPS->ReferenceDPSID[1], Value];
-                    OutManLen[index, Value] = OutManLen[AVC->DPS->ReferenceDPSID[1], Value];
+                    OutSign[index, Value] = OutSign[Dec->DPS->ReferenceDPSID[1], Value];
+                    OutExp[index, Value] = OutExp[Dec->DPS->ReferenceDPSID[1], Value];
+                    OutMantissa[index, Value] = OutMantissa[Dec->DPS->ReferenceDPSID[1], Value];
+                    OutManLen[index, Value] = OutManLen[Dec->DPS->ReferenceDPSID[1], Value];
                 }
             }
         }
         if (element_equal_flag == 1) {
-            for (uint8_t View = 0; View < AVC->SPS->ViewCount; View++) {
+            for (uint8_t View = 0; View < Dec->SPS->ViewCount; View++) {
                 OutSign[index, View] = OutSign[index, 0];
                 OutExp[index, View] = OutExp[index, 0];
                 OutMantissa[index, View] = OutMantissa[index, 0];
@@ -370,7 +370,7 @@ extern "C" {
         return 0;
     }
     
-    void vsp_param(AVCFile *AVC, BitBuffer *BitB, uint8_t numViews, uint8_t Direction, uint8_t DepthPS) { // vsp_param
+    void vsp_param(DecodeAVC *Dec, BitBuffer *BitB, uint8_t numViews, uint8_t Direction, uint8_t DepthPS) { // vsp_param
         for (uint8_t View = 0; View < numViews; View++) { // Param
             for (uint8_t J = 0; J < View; J++) { // Wat
                 int disparity_diff_wji[J][View] = ReadExpGolomb(BitB, false);
@@ -378,112 +378,112 @@ extern "C" {
                 int disparity_diff_wij[View][J] = ReadExpGolomb(BitB, false);
                 int disparity_diff_oij[View][J] = ReadExpGolomb(BitB, false);
                 if (Direction == 2) { /* Not 100% sure about the if loop part, but it makes more sense than for alone */
-                    AVC->DisparityScale[DepthPS][J][View] = disparity_diff_wji[J][View];
-                    AVC->DisparityOffset[DepthPS][J][View] = disparity_ diff_oji[J][View];
-                    AVC->DisparityScale[DepthPS][View][J] = disparity_diff_wij[View][J] – disparity_diff_wji[J][View];
-                    AVC->DisparityOffset[DepthPS][View][J] = disparity_diff_oij[View][J] – disparity_diff_oji[J][View];
+                    Dec->DisparityScale[DepthPS][J][View] = disparity_diff_wji[J][View];
+                    Dec->DisparityOffset[DepthPS][J][View] = disparity_ diff_oji[J][View];
+                    Dec->DisparityScale[DepthPS][View][J] = disparity_diff_wij[View][J] – disparity_diff_wji[J][View];
+                    Dec->DisparityOffset[DepthPS][View][J] = disparity_diff_oij[View][J] – disparity_diff_oji[J][View];
                 } else {
-                    AVC->DisparityScale[DepthPS][J][View] = disparity_diff_wji[J][View] + (AVC->DisparityScale[AVC->DPS->ReferenceDPSID[0]][J][View] * AVC->DPS->PredictedWeight0 + AVC->DisparityScale[AVC->DPS->ReferenceDPSID[1]][J][View] * (64 – AVC->DPS->PredictedWeight0) + 32) >> 6;
-                    AVC->DisparityOffset[DepthPS][J][View] = disparity_diff_oji[J][View] + (AVC->DisparityOffset[AVC->DPS->ReferenceDPSID[0]][J][View] * AVC->DPS->PredictedWeight0 + AVC->DisparityOffset[AVC->DPS->ReferenceDPSID[1]][J][View] * (64 – AVC->DPS->PredictedWeight0) + 32) >> 6;
-                    AVC->DisparityScale[DepthPS][View][J] = disparity_diff_wij[View][J] + (AVC->DisparityScale[AVC->DPS->ReferenceDPSID[0]][View][J] * AVC->DPS->PredictedWeight0 + AVC->DisparityScale[AVC->DPS->ReferenceDPSID[1]][View][J] * (64 – AVC->DPS->PredictedWeight0) + 32) >> 6;
-                    AVC->DisparityOffset[DepthPS][View][J] = disparity_diff_oij[View][J] + (AVC->DisparityOffset[AVC->DPS->ReferenceDPSID[0]][View][J] * AVC->DPS->PredictedWeight0 + AVC->DisparityOffset[AVC->DPS->ReferenceDPSID[1]][View][J] * (64 – AVC->DPS->PredictedWeight0) + 32) >> 6;
+                    Dec->DisparityScale[DepthPS][J][View] = disparity_diff_wji[J][View] + (Dec->DisparityScale[Dec->DPS->ReferenceDPSID[0]][J][View] * Dec->DPS->PredictedWeight0 + Dec->DisparityScale[Dec->DPS->ReferenceDPSID[1]][J][View] * (64 – Dec->DPS->PredictedWeight0) + 32) >> 6;
+                    Dec->DisparityOffset[DepthPS][J][View] = disparity_diff_oji[J][View] + (Dec->DisparityOffset[Dec->DPS->ReferenceDPSID[0]][J][View] * Dec->DPS->PredictedWeight0 + Dec->DisparityOffset[Dec->DPS->ReferenceDPSID[1]][J][View] * (64 – Dec->DPS->PredictedWeight0) + 32) >> 6;
+                    Dec->DisparityScale[DepthPS][View][J] = disparity_diff_wij[View][J] + (Dec->DisparityScale[Dec->DPS->ReferenceDPSID[0]][View][J] * Dec->DPS->PredictedWeight0 + Dec->DisparityScale[Dec->DPS->ReferenceDPSID[1]][View][J] * (64 – Dec->DPS->PredictedWeight0) + 32) >> 6;
+                    Dec->DisparityOffset[DepthPS][View][J] = disparity_diff_oij[View][J] + (Dec->DisparityOffset[Dec->DPS->ReferenceDPSID[0]][View][J] * Dec->DPS->PredictedWeight0 + Dec->DisparityOffset[Dec->DPS->ReferenceDPSID[1]][View][J] * (64 – Dec->DPS->PredictedWeight0) + 32) >> 6;
                 }
             }
         }
     }
     
-    void RefPicListMVCMod(AVCFile *AVC, BitBuffer *BitB) { // ref_pic_list_mvc_modification
-        if (((AVC->Slice->Type % 5) != 2) && ((AVC->Slice->Type % 5) != 4)) {
-            AVC->Slice->RefPicListModFlag[0] = ReadBits(BitB, 1, true);
-            if (AVC->Slice->RefPicListModFlag[0] == true) {
-                AVC->Slice->ModPicNumsIDC = ReadExpGolomb(BitB, false);
-                if ((AVC->Slice->ModPicNumsIDC == 0) || (AVC->Slice->ModPicNumsIDC == 1)) {
-                    AVC->Slice->AbsDiffPicNum = ReadExpGolomb(BitB, true) + 1;
-                } else if (AVC->Slice->ModPicNumsIDC == 2) {
-                    AVC->Slice->LongTermPicNum = ReadExpGolomb(BitB, false);
-                } else if ((AVC->Slice->ModPicNumsIDC == 4) || (AVC->Slice->ModPicNumsIDC == 5)) {
-                    AVC->Slice->AbsDiffViewIdx = ReadExpGolomb(BitB, false) + 1;
+    void RefPicListMVCMod(DecodeAVC *Dec, BitBuffer *BitB) { // ref_pic_list_mvc_modification
+        if (((Dec->Slice->Type % 5) != 2) && ((Dec->Slice->Type % 5) != 4)) {
+            Dec->Slice->RefPicListModFlag[0] = ReadBits(BitB, 1, true);
+            if (Dec->Slice->RefPicListModFlag[0] == true) {
+                Dec->Slice->ModPicNumsIDC = ReadExpGolomb(BitB, false);
+                if ((Dec->Slice->ModPicNumsIDC == 0) || (Dec->Slice->ModPicNumsIDC == 1)) {
+                    Dec->Slice->AbsDiffPicNum = ReadExpGolomb(BitB, true) + 1;
+                } else if (Dec->Slice->ModPicNumsIDC == 2) {
+                    Dec->Slice->LongTermPicNum = ReadExpGolomb(BitB, false);
+                } else if ((Dec->Slice->ModPicNumsIDC == 4) || (Dec->Slice->ModPicNumsIDC == 5)) {
+                    Dec->Slice->AbsDiffViewIdx = ReadExpGolomb(BitB, false) + 1;
                 }
             }
         }
-        if ((AVC->Slice->Type % 5) == 1) {
-            AVC->Slice->RefPicListModFlag[1] = ReadBits(BitB, 1, true);
-            if (AVC->Slice->RefPicListModFlag[1] == true) {
-                AVC->Slice->ModPicNumsIDC = ReadExpGolomb(BitB, false);
-                if ((AVC->Slice->ModPicNumsIDC == 0) || (AVC->Slice->ModPicNumsIDC == 1)) {
-                    AVC->Slice->AbsDiffPicNum = ReadExpGolomb(BitB, true) + 1;
-                } else if (AVC->Slice->ModPicNumsIDC == 2) {
-                    AVC->Slice->LongTermPicNum = ReadExpGolomb(BitB, false);
-                } else if ((AVC->Slice->ModPicNumsIDC == 4) || (AVC->Slice->ModPicNumsIDC == 5)) {
-                    AVC->Slice->AbsDiffViewIdx = ReadExpGolomb(BitB, false) + 1;
-                }
-            }
-        }
-    }
-    
-    void RefPicListMod(AVCFile *AVC, BitBuffer *BitB) { // ref_pic_list_modification
-        if (((AVC->Slice->Type % 5) != 2) && ((AVC->Slice->Type % 5) != 4)) {
-            AVC->Slice->RefPicListModFlag[0] = ReadBits(BitB, 1, true);
-            if (AVC->Slice->RefPicListModFlag[0] == true) {
-                AVC->Slice->ModPicNumsIDC = ReadExpGolomb(BitB, false);
-                if ((AVC->Slice->ModPicNumsIDC == 0) || (AVC->Slice->ModPicNumsIDC == 1)) {
-                    AVC->Slice->AbsDiffPicNum = ReadExpGolomb(BitB, true) + 1;
-                } else if (AVC->Slice->ModPicNumsIDC == 2) {
-                    AVC->Slice->LongTermPicNum = ReadExpGolomb(BitB, false);
-                } else if ((AVC->Slice->ModPicNumsIDC == 4) || (AVC->Slice->ModPicNumsIDC == 5)) {
-                    AVC->Slice->AbsDiffViewIdx = ReadExpGolomb(BitB, false) + 1;
-                }
-            }
-        }
-        if ((AVC->Slice->Type % 5) == 1) {
-            AVC->Slice->RefPicListModFlag[1] = ReadBits(BitB, 1, true);
-            if (AVC->Slice->RefPicListModFlag[1] == true) {
-                AVC->Slice->ModPicNumsIDC = ReadExpGolomb(BitB, false);
-                if ((AVC->Slice->ModPicNumsIDC == 0) || (AVC->Slice->ModPicNumsIDC == 1)) {
-                    AVC->Slice->AbsDiffPicNum = ReadExpGolomb(BitB, true) + 1;
-                } else if (AVC->Slice->ModPicNumsIDC == 2) {
-                    AVC->Slice->LongTermPicNum = ReadExpGolomb(BitB, false);
-                } else if ((AVC->Slice->ModPicNumsIDC == 4) || (AVC->Slice->ModPicNumsIDC == 5)) {
-                    AVC->Slice->AbsDiffViewIdx = ReadExpGolomb(BitB, false) + 1;
+        if ((Dec->Slice->Type % 5) == 1) {
+            Dec->Slice->RefPicListModFlag[1] = ReadBits(BitB, 1, true);
+            if (Dec->Slice->RefPicListModFlag[1] == true) {
+                Dec->Slice->ModPicNumsIDC = ReadExpGolomb(BitB, false);
+                if ((Dec->Slice->ModPicNumsIDC == 0) || (Dec->Slice->ModPicNumsIDC == 1)) {
+                    Dec->Slice->AbsDiffPicNum = ReadExpGolomb(BitB, true) + 1;
+                } else if (Dec->Slice->ModPicNumsIDC == 2) {
+                    Dec->Slice->LongTermPicNum = ReadExpGolomb(BitB, false);
+                } else if ((Dec->Slice->ModPicNumsIDC == 4) || (Dec->Slice->ModPicNumsIDC == 5)) {
+                    Dec->Slice->AbsDiffViewIdx = ReadExpGolomb(BitB, false) + 1;
                 }
             }
         }
     }
     
-    void pred_weight_table(AVCFile *AVC, BitBuffer *BitB) { // pred_weight_table
-        AVC->Slice->LumaWeightDenom = ReadExpGolomb(BitB, true);
-        if (AVC->SPS->ChromaArrayType != ChromaBW) {
-            AVC->Slice->ChromaWeightDenom = ReadExpGolomb(BitB, false);
-        }
-        for (uint8_t i = 0; i <= AVC->MacroBlock->NumRefIndexActive[0]; i++) {
-            AVC->Slice->LumaWeightFlag[0] = ReadBits(BitB, 1, true);
-            if (AVC->Slice->LumaWeightFlag[0] == true) {
-                AVC->Slice->LumaWeight[0][i]  = ReadExpGolomb(BitB, true);
-                AVC->Slice->LumaOffset[0][i]  = ReadExpGolomb(BitB, true);
+    void RefPicListMod(DecodeAVC *Dec, BitBuffer *BitB) { // ref_pic_list_modification
+        if (((Dec->Slice->Type % 5) != 2) && ((Dec->Slice->Type % 5) != 4)) {
+            Dec->Slice->RefPicListModFlag[0] = ReadBits(BitB, 1, true);
+            if (Dec->Slice->RefPicListModFlag[0] == true) {
+                Dec->Slice->ModPicNumsIDC = ReadExpGolomb(BitB, false);
+                if ((Dec->Slice->ModPicNumsIDC == 0) || (Dec->Slice->ModPicNumsIDC == 1)) {
+                    Dec->Slice->AbsDiffPicNum = ReadExpGolomb(BitB, true) + 1;
+                } else if (Dec->Slice->ModPicNumsIDC == 2) {
+                    Dec->Slice->LongTermPicNum = ReadExpGolomb(BitB, false);
+                } else if ((Dec->Slice->ModPicNumsIDC == 4) || (Dec->Slice->ModPicNumsIDC == 5)) {
+                    Dec->Slice->AbsDiffViewIdx = ReadExpGolomb(BitB, false) + 1;
+                }
             }
-            if (AVC->SPS->ChromaArrayType != ChromaBW) {
-                AVC->Slice->ChromaWeightFlag[0] = ReadBits(BitB, 1, true);
-                if (AVC->Slice->ChromaWeightFlag[0] == true) {
+        }
+        if ((Dec->Slice->Type % 5) == 1) {
+            Dec->Slice->RefPicListModFlag[1] = ReadBits(BitB, 1, true);
+            if (Dec->Slice->RefPicListModFlag[1] == true) {
+                Dec->Slice->ModPicNumsIDC = ReadExpGolomb(BitB, false);
+                if ((Dec->Slice->ModPicNumsIDC == 0) || (Dec->Slice->ModPicNumsIDC == 1)) {
+                    Dec->Slice->AbsDiffPicNum = ReadExpGolomb(BitB, true) + 1;
+                } else if (Dec->Slice->ModPicNumsIDC == 2) {
+                    Dec->Slice->LongTermPicNum = ReadExpGolomb(BitB, false);
+                } else if ((Dec->Slice->ModPicNumsIDC == 4) || (Dec->Slice->ModPicNumsIDC == 5)) {
+                    Dec->Slice->AbsDiffViewIdx = ReadExpGolomb(BitB, false) + 1;
+                }
+            }
+        }
+    }
+    
+    void pred_weight_table(DecodeAVC *Dec, BitBuffer *BitB) { // pred_weight_table
+        Dec->Slice->LumaWeightDenom = ReadExpGolomb(BitB, true);
+        if (Dec->SPS->ChromaArrayType != ChromaBW) {
+            Dec->Slice->ChromaWeightDenom = ReadExpGolomb(BitB, false);
+        }
+        for (uint8_t i = 0; i <= Dec->MacroBlock->NumRefIndexActive[0]; i++) {
+            Dec->Slice->LumaWeightFlag[0] = ReadBits(BitB, 1, true);
+            if (Dec->Slice->LumaWeightFlag[0] == true) {
+                Dec->Slice->LumaWeight[0][i]  = ReadExpGolomb(BitB, true);
+                Dec->Slice->LumaOffset[0][i]  = ReadExpGolomb(BitB, true);
+            }
+            if (Dec->SPS->ChromaArrayType != ChromaBW) {
+                Dec->Slice->ChromaWeightFlag[0] = ReadBits(BitB, 1, true);
+                if (Dec->Slice->ChromaWeightFlag[0] == true) {
                     for (int J = 0; J < 2; J++) {
-                        AVC->Slice->ChromaWeight[0][i][J] = ReadExpGolomb(BitB, true);
-                        AVC->Slice->ChromaOffset[0][i][J] = ReadExpGolomb(BitB, true);
+                        Dec->Slice->ChromaWeight[0][i][J] = ReadExpGolomb(BitB, true);
+                        Dec->Slice->ChromaOffset[0][i][J] = ReadExpGolomb(BitB, true);
                     }
                 }
             }
         }
-        if ((AVC->Slice->Type % 5) == 1) {
-            for (uint8_t i = 0; i <= AVC->MacroBlock->NumRefIndexActive[1]; i++) {
-                AVC->Slice->LumaWeightFlag[1] = ReadBits(BitB, 1, true);
-                if (AVC->Slice->LumaWeightFlag[1] == true) {
-                    AVC->Slice->LumaWeight[1][i]  = ReadExpGolomb(BitB, true);
-                    AVC->Slice->LumaOffset[1][i]  = ReadExpGolomb(BitB, true);
+        if ((Dec->Slice->Type % 5) == 1) {
+            for (uint8_t i = 0; i <= Dec->MacroBlock->NumRefIndexActive[1]; i++) {
+                Dec->Slice->LumaWeightFlag[1] = ReadBits(BitB, 1, true);
+                if (Dec->Slice->LumaWeightFlag[1] == true) {
+                    Dec->Slice->LumaWeight[1][i]  = ReadExpGolomb(BitB, true);
+                    Dec->Slice->LumaOffset[1][i]  = ReadExpGolomb(BitB, true);
                 }
-                if (AVC->SPS->ChromaArrayType != ChromaBW) {
-                    AVC->Slice->ChromaWeightFlag[1] = ReadBits(BitB, 1, true);
-                    if (AVC->Slice->ChromaWeightFlag[1] == true) {
+                if (Dec->SPS->ChromaArrayType != ChromaBW) {
+                    Dec->Slice->ChromaWeightFlag[1] = ReadBits(BitB, 1, true);
+                    if (Dec->Slice->ChromaWeightFlag[1] == true) {
                         for (uint8_t J = 0; J < 2; J++) {
-                            AVC->Slice->ChromaWeight[1][i][J] = ReadExpGolomb(BitB, true);
-                            AVC->Slice->ChromaOffset[1][i][J] = ReadExpGolomb(BitB, true);
+                            Dec->Slice->ChromaWeight[1][i][J] = ReadExpGolomb(BitB, true);
+                            Dec->Slice->ChromaOffset[1][i][J] = ReadExpGolomb(BitB, true);
                         }
                     }
                 }
@@ -491,32 +491,32 @@ extern "C" {
         }
     }
     
-    void DecodeRefPicMarking(AVCFile *AVC, BitBuffer *BitB) { // dec_ref_pic_marking
-        if (AVC->Slice->SliceIsIDR == true) {
-            AVC->NAL->EmptyPictureBufferBeforeDisplay = ReadBits(BitB, 1, true);
-            AVC->NAL->FrameIsLongTermReference        = ReadBits(BitB, 1, true);
+    void DecodeRefPicMarking(DecodeAVC *Dec, BitBuffer *BitB) { // dec_ref_pic_marking
+        if (Dec->Slice->SliceIsIDR == true) {
+            Dec->NAL->EmptyPictureBufferBeforeDisplay = ReadBits(BitB, 1, true);
+            Dec->NAL->FrameIsLongTermReference        = ReadBits(BitB, 1, true);
         } else {
-            AVC->NAL->AdaptiveRefPicMarkingModeFlag   = ReadBits(BitB, 1, true);
-            if (AVC->NAL->AdaptiveRefPicMarkingModeFlag == true) {
-                AVC->NAL->MemManControlOp = ReadExpGolomb(BitB, false);
-                if ((AVC->NAL->MemManControlOp == 1) || (AVC->NAL->MemManControlOp == 3)) {
-                    AVC->NAL->PicNumDiff = ReadExpGolomb(BitB, false) + 1;
+            Dec->NAL->AdaptiveRefPicMarkingModeFlag   = ReadBits(BitB, 1, true);
+            if (Dec->NAL->AdaptiveRefPicMarkingModeFlag == true) {
+                Dec->NAL->MemManControlOp = ReadExpGolomb(BitB, false);
+                if ((Dec->NAL->MemManControlOp == 1) || (Dec->NAL->MemManControlOp == 3)) {
+                    Dec->NAL->PicNumDiff = ReadExpGolomb(BitB, false) + 1;
                 }
-                if (AVC->NAL->MemManControlOp == 2) {
-                    AVC->Slice->LongTermPicNum  = ReadExpGolomb(BitB, false);
+                if (Dec->NAL->MemManControlOp == 2) {
+                    Dec->Slice->LongTermPicNum  = ReadExpGolomb(BitB, false);
                 }
-                if ((AVC->NAL->MemManControlOp == 3) || (AVC->NAL->MemManControlOp == 6)) {
-                    AVC->NAL->LongTermFrameIndex = ReadExpGolomb(BitB, false);
+                if ((Dec->NAL->MemManControlOp == 3) || (Dec->NAL->MemManControlOp == 6)) {
+                    Dec->NAL->LongTermFrameIndex = ReadExpGolomb(BitB, false);
                 }
-                if (AVC->NAL->MemManControlOp == 4) {
-                    AVC->NAL->MaxLongTermFrameIndex = ReadExpGolomb(BitB, false) - 1;
+                if (Dec->NAL->MemManControlOp == 4) {
+                    Dec->NAL->MaxLongTermFrameIndex = ReadExpGolomb(BitB, false) - 1;
                 }
             }
         }
     }
     
-    void Residual(AVCFile *AVC, BitBuffer *BitB, uint64_t StartIdx, uint64_t endIdx) {
-        if (AVC->PPS->EntropyCodingMode == false) {
+    void Residual(DecodeAVC *Dec, BitBuffer *BitB, uint64_t StartIdx, uint64_t endIdx) {
+        if (Dec->PPS->EntropyCodingMode == false) {
             residual_block = ExpGolomb; // residual_block_cavlc
         } else {
             residual_block = Arithmetic; // residual_block_cabac
@@ -526,10 +526,10 @@ extern "C" {
         Intra16x16ACLevel = i16x16AClevel;
         LumaLevel4x4 = level4x4;
         LumaLevel8x8 = level8x8;
-        if ((AVC->SPS->ChromaArrayType == Chroma420) || (AVC->SPS->ChromaArrayType == Chroma422)) {
+        if ((Dec->SPS->ChromaArrayType == Chroma420) || (Dec->SPS->ChromaArrayType == Chroma422)) {
             NumC8x8 = (4 / (SubWidthC * SubHeightC));
             for (uint8_t iCbCr = 0; iCbCr < 2; iCbCr++) {
-                if ((AVC->MacroBlock->BlockPatternChroma & 3) && (startIdx == 0)) { /* chroma DC residual present */
+                if ((Dec->MacroBlock->BlockPatternChroma & 3) && (startIdx == 0)) { /* chroma DC residual present */
                     residual_block(ChromaDCLevel[iCbCr], 0, 4 * NumC8x8 − 1, 4 * NumC8x8);
                 } else {
                     for (uint8_t i = 0; i < 4 * NumC8x8; i++) {
@@ -540,7 +540,7 @@ extern "C" {
             for (uint8_t iCbCr = 0; iCbCr < 2; iCbCr++) {
                 for (i8x8 = 0; i8x8 < NumC8x8; i8x8++) {
                     for (i4x4 = 0; i4x4 < 4; i4x4++) {
-                        if (AVC->MacroBlock->BlockPatternChroma & 2) { /* chroma AC residual present */
+                        if (Dec->MacroBlock->BlockPatternChroma & 2) { /* chroma AC residual present */
                             residual_block(ChromaACLevel[iCbCr][i8x8 * 4 + i4x4], Max(0, startIdx − 1), endIdx − 1, 15);
                         } else {
                             for (int i = 0; i < 15; i++) {
@@ -550,7 +550,7 @@ extern "C" {
                     }
                 }
             }
-        } else if (AVC->SPS->ChromaArrayType == Chroma444) {
+        } else if (Dec->SPS->ChromaArrayType == Chroma444) {
             ResidualLuma(i16x16DClevel, i16x16AClevel, level4x4, level8x8, startIdx, endIdx);
             CbIntra16x16DCLevel = i16x16DClevel;
             CbIntra16x16ACLevel = i16x16AClevel;
@@ -564,7 +564,7 @@ extern "C" {
         }
     }
     
-    void residual_block_cavlc(AVCFile *AVC, BitBuffer *BitB, int coeffLevel, int startIdx, int endIdx, int maxNumCoeff) { // residual_block_cavlc
+    void residual_block_cavlc(DecodeAVC *Dec, BitBuffer *BitB, int coeffLevel, int startIdx, int endIdx, int maxNumCoeff) { // residual_block_cavlc
         int coeffLevel[maxNumCoeff] = {0}, coeff_token, suffixLength, trailing_ones_sign_flag;
         
         coeff_token = ReadExpGolomb(BitB, false);
@@ -631,8 +631,8 @@ extern "C" {
         }
     }
     
-    void ScanNALUnits(AVCFile *AVC, BitBuffer *BitB) {
-        switch (AVC->NAL->NALUnitType) { // nal_unit_type
+    void ScanNALUnits(DecodeAVC *Dec, BitBuffer *BitB) {
+        switch (Dec->NAL->NALUnitType) { // nal_unit_type
             case NAL_NonIDRSlice: // 1
                 ParseNALSliceNonPartitioned(AVC, BitB); // slice_layer_without_partitioning_rbsp
                 break;
@@ -691,7 +691,7 @@ extern "C" {
                 break;
             default:
                 char Description[BitBOStringSize];
-                snprintf(Description, BitBOStringSize, "NAL ID 0x%X is not supported, seeking to next NAL\n", AVC->NAL->NALUnitType)
+                snprintf(Description, BitBOStringSize, "NAL ID 0x%X is not supported, seeking to next NAL\n", Dec->NAL->NALUnitType)
                 Log(LOG_ERR, "LibAVC", "ScanNALUnits", Description);
                 break;
         }
@@ -716,29 +716,29 @@ extern "C" {
         
     }
     
-    void rbsp_trailing_bits(AVCFile *AVC, BitBuffer *BitB) { // rbsp_trailing_bits
+    void rbsp_trailing_bits(DecodeAVC *Dec, BitBuffer *BitB) { // rbsp_trailing_bits
         bool rbsp_stop_one_bit:1 = 0;
         rbsp_stop_one_bit = ReadBits(BitB, 1, true);
         AlignInput(BitB, 1); // while( !byte_aligned( ) )
                              // rbsp_alignment_zero_bit
     }
     
-    uint8_t GetCodedBlockPattern(AVCFile *AVC, uint8_t CodeNum) { // FIXME: this has to be wrong
+    uint8_t GetCodedBlockPattern(DecodeAVC *Dec, uint8_t CodeNum) { // FIXME: this has to be wrong
         uint8_t Value = 0;
-        if (AVC->MacroBlock->BlockPattern == 1 || AVC->MacroBlock->BlockPattern == 2) {
-            if (AVC->SPS->ChromaArrayType == 1) {
+        if (Dec->MacroBlock->BlockPattern == 1 || Dec->MacroBlock->BlockPattern == 2) {
+            if (Dec->SPS->ChromaArrayType == 1) {
                 // Intra
                 Value = CBPCAT12Intra[CodeNum];
-            } else if (AVC->SPS->ChromaArrayType == 2) {
+            } else if (Dec->SPS->ChromaArrayType == 2) {
                 // Inter
                 Value = CBPCAT12Inter[CodeNum];
             }
         }
-        else if (AVC->MacroBlock->BlockPattern == 0 || AVC->MacroBlock->BlockPattern == 3) {
-            if (AVC->SPS->ChromaArrayType == 0) {
+        else if (Dec->MacroBlock->BlockPattern == 0 || Dec->MacroBlock->BlockPattern == 3) {
+            if (Dec->SPS->ChromaArrayType == 0) {
                 // Intra
                 Value = CBPCAT03Intra[CodeNum];
-            } else if (AVC->SPS->ChromaArrayType == 3) {
+            } else if (Dec->SPS->ChromaArrayType == 3) {
                 // Inter
                 Value = CBPCAT03Inter[CodeNum];
             }
@@ -746,7 +746,7 @@ extern "C" {
         return Value;
     }
     
-    void MacroBlockPartitionWidth(AVCFile *AVC, uint8_t MacroBlockType) { // MbPartWidth
+    void MacroBlockPartitionWidth(DecodeAVC *Dec, uint8_t MacroBlockType) { // MbPartWidth
         if (MacroBlockType == P_L0_16x16) {
             return 16;
         } else if (MacroBlockType == P_L0_L0_16x8) {
@@ -762,7 +762,7 @@ extern "C" {
         }
     }
     
-    void MacroBlockPartitionHeight(AVCFile *AVC, uint8_t MacroBlockType) { // MbPartHeight
+    void MacroBlockPartitionHeight(DecodeAVC *Dec, uint8_t MacroBlockType) { // MbPartHeight
         if (MacroBlockType == P_L0_16x16) {
             return 16;
         } else if (MacroBlockType == P_L0_L0_16x8) {
@@ -778,11 +778,11 @@ extern "C" {
         }
     }
     
-    void SubMacroBlockPartitionWidth(AVCFile *AVC) { // SubMbPartWidth
+    void SubMacroBlockPartitionWidth(DecodeAVC *Dec) { // SubMbPartWidth
         
     }
     
-    void SubMacroBlockPartitionHeight(AVCFile *AVC) { // SubMbPartHeight
+    void SubMacroBlockPartitionHeight(DecodeAVC *Dec) { // SubMbPartHeight
         
     }
     

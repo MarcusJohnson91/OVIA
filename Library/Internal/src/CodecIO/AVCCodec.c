@@ -351,34 +351,48 @@ extern "C" {
         return 0;
     }
     
-    AVCFile *InitDecodeAVC(void) {
-        AVCFile *AVC              = (AVCFile*)                      calloc(1, sizeof(AVCFile));
-        AVC->NAL                  = (NALHeader*)                    calloc(1, sizeof(NALHeader));
-        AVC->SPS                  = (SequenceParameterSet*)         calloc(1, sizeof(SequenceParameterSet));
-        AVC->PPS                  = (PictureParameterSet*)          calloc(1, sizeof(PictureParameterSet));
-        AVC->VUI                  = (VideoUsabilityInformation*)    calloc(1, sizeof(VideoUsabilityInformation));
-        AVC->HRD                  = (HypotheticalReferenceDecoder*) calloc(1, sizeof(HypotheticalReferenceDecoder));
-        AVC->SEI                  = (SupplementalEnhancementInfo*)  calloc(1, sizeof(SupplementalEnhancementInfo));
-        AVC->Slice                = (Slice*)                        calloc(1, sizeof(Slice));
-        AVC->SVC                  = (ScalableVideoCoding*)          calloc(1, sizeof(ScalableVideoCoding));
-        AVC->DPS                  = (DepthParameterSet*)            calloc(1, sizeof(DepthParameterSet));
-        AVC->MacroBlock           = (MacroBlock*)                   calloc(1, sizeof(MacroBlock));
-        return AVC;
+    EncodeAVC *InitAVCEncoder(void) {
+        errno = 0;
+        EncodeAVC *Enc                = (EncodeAVC*) calloc(1, sizeof(EncodeAVC));
+        if (errno != 0) {
+            const char ErrnoError[128];
+            strerror_r(errno, ErrnoError, 128);
+            Log(LOG_ERR, "libModernAVC", "InitAVCEncoder", "Errno error: %s", ErrnoError);
+        } else {
+            Enc->NAL                  = (NALHeader*)                    calloc(1, sizeof(NALHeader));
+            Enc->SPS                  = (SequenceParameterSet*)         calloc(1, sizeof(SequenceParameterSet));
+            Enc->PPS                  = (PictureParameterSet*)          calloc(1, sizeof(PictureParameterSet));
+            Enc->VUI                  = (VideoUsabilityInformation*)    calloc(1, sizeof(VideoUsabilityInformation));
+            Enc->HRD                  = (HypotheticalReferenceDecoder*) calloc(1, sizeof(HypotheticalReferenceDecoder));
+            Enc->SEI                  = (SupplementalEnhancementInfo*)  calloc(1, sizeof(SupplementalEnhancementInfo));
+            Enc->Slice                = (Slice*)                        calloc(1, sizeof(Slice));
+            Enc->SVC                  = (ScalableVideoCoding*)          calloc(1, sizeof(ScalableVideoCoding));
+            Enc->DPS                  = (DepthParameterSet*)            calloc(1, sizeof(DepthParameterSet));
+            Enc->MacroBlock           = (MacroBlock*)                   calloc(1, sizeof(MacroBlock));
+        }
+        return Enc;
     }
     
-    AVCFile *InitEncodeAVC(void) {
-        AVCFile *AVC              = (AVCFile*)                      calloc(1, sizeof(AVCFile));
-        AVC->NAL                  = (NALHeader*)                    calloc(1, sizeof(NALHeader));
-        AVC->SPS                  = (SequenceParameterSet*)         calloc(1, sizeof(SequenceParameterSet));
-        AVC->PPS                  = (PictureParameterSet*)          calloc(1, sizeof(PictureParameterSet));
-        AVC->VUI                  = (VideoUsabilityInformation*)    calloc(1, sizeof(VideoUsabilityInformation));
-        AVC->HRD                  = (HypotheticalReferenceDecoder*) calloc(1, sizeof(HypotheticalReferenceDecoder));
-        AVC->SEI                  = (SupplementalEnhancementInfo*)  calloc(1, sizeof(SupplementalEnhancementInfo));
-        AVC->Slice                = (Slice*)                        calloc(1, sizeof(Slice));
-        AVC->SVC                  = (ScalableVideoCoding*)          calloc(1, sizeof(ScalableVideoCoding));
-        AVC->DPS                  = (DepthParameterSet*)            calloc(1, sizeof(DepthParameterSet));
-        AVC->MacroBlock           = (MacroBlock*)                   calloc(1, sizeof(MacroBlock));
-        return AVC;
+    DecodeAVC *InitAVCDecoder(void) {
+        errno = 0;
+        DecodeAVC *Dec                = (DecodeAVC*) calloc(1, sizeof(DecodeAVC));
+        if (errno != 0) {
+            const char ErrnoError[128];
+            strerror_r(errno, ErrnoError, 128);
+            Log(LOG_ERR, "libModernAVC", "InitAVCDecoder", "Errno error: %s", ErrnoError);
+        } else {
+            Dec->NAL                  = (NALHeader*)                    calloc(1, sizeof(NALHeader));
+            Dec->SPS                  = (SequenceParameterSet*)         calloc(1, sizeof(SequenceParameterSet));
+            Dec->PPS                  = (PictureParameterSet*)          calloc(1, sizeof(PictureParameterSet));
+            Dec->VUI                  = (VideoUsabilityInformation*)    calloc(1, sizeof(VideoUsabilityInformation));
+            Dec->HRD                  = (HypotheticalReferenceDecoder*) calloc(1, sizeof(HypotheticalReferenceDecoder));
+            Dec->SEI                  = (SupplementalEnhancementInfo*)  calloc(1, sizeof(SupplementalEnhancementInfo));
+            Dec->Slice                = (Slice*)                        calloc(1, sizeof(Slice));
+            Dec->SVC                  = (ScalableVideoCoding*)          calloc(1, sizeof(ScalableVideoCoding));
+            Dec->DPS                  = (DepthParameterSet*)            calloc(1, sizeof(DepthParameterSet));
+            Dec->MacroBlock           = (MacroBlock*)                   calloc(1, sizeof(MacroBlock));
+        }
+        return Dec;
     }
     
 #ifdef __cplusplus

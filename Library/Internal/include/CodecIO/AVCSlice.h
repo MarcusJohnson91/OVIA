@@ -11,17 +11,17 @@
 extern "C" {
 #endif
     
-    void ParseSliceHeader(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSliceHeader(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSliceData(AVCFile *AVC, BitBuffer *BitB, uint8_t Category);
+    void ParseSliceData(DecodeAVC *Dec, BitBuffer *BitB, uint8_t Category);
     
-    void ParseAVC3DSlice(AVCFile *AVC, BitBuffer *BitB);
+    void ParseAVC3DSlice(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseScalableSlice(AVCFile *AVC, BitBuffer *BitB);
+    void ParseScalableSlice(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseNALAuxiliarySliceExtension(AVCFile *AVC, BitBuffer *BitB);
+    void ParseNALAuxiliarySliceExtension(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseScalableSliceData(AVCFile *AVC, BitBuffer *BitB);
+    void ParseScalableSliceData(DecodeAVC *Dec, BitBuffer *BitB);
     
 #ifdef __cplusplus
 }

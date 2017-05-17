@@ -14,7 +14,7 @@ extern "C" {
     // macroblock-adaptive frame/field decoding is in use, a sequence of macroblock pairs.
     // Slices contain only 1 color channel?
     
-    void ParseSliceHeader(AVCFile *AVC, BitBuffer *BitB) {
+    void ParseSliceHeader(DecodeAVC *Dec, BitBuffer *BitB) {
         
     }
     
@@ -22,20 +22,20 @@ extern "C" {
     // A slice group contains a whole frame?
     
     /* Parse NAL Slice */
-    void ParseAVC3DSliceDataExtension(AVCFile *AVC, BitBuffer *BitB) { // slice_data_in_3davc_extension
-        if (AVC->PPS->EntropyCodingMode == Arithmetic) {
+    void ParseAVC3DSliceDataExtension(DecodeAVC *Dec, BitBuffer *BitB) { // slice_data_in_3davc_extension
+        if (Dec->PPS->EntropyCodingMode == Arithmetic) {
             AlignBitBuffer(BitB, 1);
-            AVC->Slice->CurrentMacroBlockAddress = AVC->Slice->FirstMacroBlockInSlice * (AVC->Slice->MbaffFrameFlag + 1);
+            Dec->Slice->CurrentMacroBlockAddress = Dec->Slice->FirstMacroBlockInSlice * (Dec->Slice->MbaffFrameFlag + 1);
             bool     MoreDataFlag = true;
-            AVC->Slice->PreviousMacroBlockSkipped = false;
+            Dec->Slice->PreviousMacroBlockSkipped = false;
             bool     RunLength = 0;
             while (MoreDataFlag == true) {
-                if ((AVC->Slice->Type != SliceI1) || (AVC->Slice->Type != SliceI2) || (AVC->Slice->Type != SliceSI1) || (AVC->Slice->Type != SliceSI2)) {
-                    if (AVC->PPS->EntropyCodingMode == ExpGolomb) {
-                        AVC->Slice->MacroBlockSkipRun = ReadExpGolomb(BitB, false);
-                        AVC->Slice->PreviousMacroBlockSkipped = (AVC->Slice->MacroBlockSkipRun > 0);
-                        for (uint8_t SkippedMacroBlock = 0; SkippedMacroBlock < AVC->Slice->MacroBlockSkipRun; SkippedMacroBlock++) {
-                            AVC->Slice->CurrentMacroBlockAddress = NextMacroBlockAddress(AVC, AVC->Slice->CurrentMacroBlockAddress);
+                if ((Dec->Slice->Type != SliceI1) || (Dec->Slice->Type != SliceI2) || (Dec->Slice->Type != SliceSI1) || (Dec->Slice->Type != SliceSI2)) {
+                    if (Dec->PPS->EntropyCodingMode == ExpGolomb) {
+                        Dec->Slice->MacroBlockSkipRun = ReadExpGolomb(BitB, false);
+                        Dec->Slice->PreviousMacroBlockSkipped = (Dec->Slice->MacroBlockSkipRun > 0);
+                        for (uint8_t SkippedMacroBlock = 0; SkippedMacroBlock < Dec->Slice->MacroBlockSkipRun; SkippedMacroBlock++) {
+                            Dec->Slice->CurrentMacroBlockAddress = NextMacroBlockAddress(AVC, Dec->Slice->CurrentMacroBlockAddress);
                         }
                     }
                 }
@@ -43,130 +43,130 @@ extern "C" {
         }
     }
     
-    void ParseAVC3DSlice(AVCFile *AVC, BitBuffer *BitB) { // slice_header_in_3davc_extension
-        AVC->Slice->FirstMacroBlockInSlice     = ReadExpGolomb(BitB, false);
-        AVC->Slice->Type                       = ReadExpGolomb(BitB, false);
-        AVC->PPS->PicParamSetID                = ReadExpGolomb(BitB, false);
-        if ((AVC->NAL->AVC3DExtensionFlag == true) && (AVC->NAL->AVC3DExtensionFlag == true)) {
-            AVC->Slice->PreSliceHeaderSrc      = ReadBits(BitB, 2, true);
-            if ((AVC->Slice->Type == SliceP1) || (AVC->Slice->Type == SliceP2) || (AVC->Slice->Type == SliceSP1) || (AVC->Slice->Type == SliceSP2) || (AVC->Slice->Type == SliceB1) || (AVC->Slice->Type == SliceB2)) {
-                AVC->Slice->PreRefListSrc      = ReadBits(BitB, 2, true);
-                if (AVC->Slice->PreRefListSrc == 0) {
-                    AVC->Slice->NumRefIDXActiveOverrideFlag= ReadBits(BitB, 1, true);
-                    if (AVC->Slice->NumRefIDXActiveOverrideFlag == true) {
-                        AVC->MacroBlock->NumRefIndexActiveLevel0 = ReadExpGolomb(BitB, false) + 1;
+    void ParseAVC3DSlice(DecodeAVC *Dec, BitBuffer *BitB) { // slice_header_in_3davc_extension
+        Dec->Slice->FirstMacroBlockInSlice     = ReadExpGolomb(BitB, false);
+        Dec->Slice->Type                       = ReadExpGolomb(BitB, false);
+        Dec->PPS->PicParamSetID                = ReadExpGolomb(BitB, false);
+        if ((Dec->NAL->AVC3DExtensionFlag == true) && (Dec->NAL->AVC3DExtensionFlag == true)) {
+            Dec->Slice->PreSliceHeaderSrc      = ReadBits(BitB, 2, true);
+            if ((Dec->Slice->Type == SliceP1) || (Dec->Slice->Type == SliceP2) || (Dec->Slice->Type == SliceSP1) || (Dec->Slice->Type == SliceSP2) || (Dec->Slice->Type == SliceB1) || (Dec->Slice->Type == SliceB2)) {
+                Dec->Slice->PreRefListSrc      = ReadBits(BitB, 2, true);
+                if (Dec->Slice->PreRefListSrc == 0) {
+                    Dec->Slice->NumRefIDXActiveOverrideFlag= ReadBits(BitB, 1, true);
+                    if (Dec->Slice->NumRefIDXActiveOverrideFlag == true) {
+                        Dec->MacroBlock->NumRefIndexActiveLevel0 = ReadExpGolomb(BitB, false) + 1;
                     }
-                    if ((AVC->Slice->Type == SliceB1) || (AVC->Slice->Type == SliceB2)) {
-                        AVC->MacroBlock->NumRefIndexActiveLevel1 = ReadExpGolomb(BitB, false) + 1;
+                    if ((Dec->Slice->Type == SliceB1) || (Dec->Slice->Type == SliceB2)) {
+                        Dec->MacroBlock->NumRefIndexActiveLevel1 = ReadExpGolomb(BitB, false) + 1;
                     }
                     RefPicListMVCMod(AVC, BitB);
                 }
             }
-            if ((AVC->PPS->WeightedPrediction == true && ((AVC->Slice->Type == SliceP1) || (AVC->Slice->Type == SliceP2) || (AVC->Slice->Type == SliceSP1) || (AVC->Slice->Type == SliceSP2))) || ((AVC->PPS->WeightedBiPrediction == 1 && ((AVC->Slice->Type == SliceB1) || (AVC->Slice->Type == SliceB2))))) {
+            if ((Dec->PPS->WeightedPrediction == true && ((Dec->Slice->Type == SliceP1) || (Dec->Slice->Type == SliceP2) || (Dec->Slice->Type == SliceSP1) || (Dec->Slice->Type == SliceSP2))) || ((Dec->PPS->WeightedBiPrediction == 1 && ((Dec->Slice->Type == SliceB1) || (Dec->Slice->Type == SliceB2))))) {
                 
-                AVC->Slice->PrePredictionWeightTableSrc = ReadBits(BitB, 2, true);
-                if (AVC->Slice->PrePredictionWeightTableSrc == false) {
+                Dec->Slice->PrePredictionWeightTableSrc = ReadBits(BitB, 2, true);
+                if (Dec->Slice->PrePredictionWeightTableSrc == false) {
                     pred_weight_table(AVC, BitB);
                 }
             }
-            if (AVC->NAL->NALRefIDC != 0) {
-                AVC->Slice->PreDecReferencePictureMarkingSrc = ReadBits(BitB, 2, true);
-                if (AVC->Slice->PreDecReferencePictureMarkingSrc == 0) {
+            if (Dec->NAL->NALRefIDC != 0) {
+                Dec->Slice->PreDecReferencePictureMarkingSrc = ReadBits(BitB, 2, true);
+                if (Dec->Slice->PreDecReferencePictureMarkingSrc == 0) {
                     DecodeRefPicMarking(AVC, BitB);
                 }
             }
-            AVC->Slice->SliceQPDelta = ReadExpGolomb(BitB, true);
+            Dec->Slice->SliceQPDelta = ReadExpGolomb(BitB, true);
         } else {
-            if (AVC->SPS->SeperateColorPlane == true) {
-                AVC->Slice->ColorPlaneID   = ReadBits(BitB, 2, true);
+            if (Dec->SPS->SeperateColorPlane == true) {
+                Dec->Slice->ColorPlaneID   = ReadBits(BitB, 2, true);
             }
-            AVC->Slice->FrameNumber     = ReadBits(BitB, 0, true); // FIXME: READ VARIABLE BITS frame_num
-            if (AVC->SPS->OnlyMacroBlocksInFrame == false) {
-                AVC->Slice->SliceIsInterlaced = ReadBits(BitB, 1, true);
-                if (AVC->Slice->SliceIsInterlaced == true) {
-                    AVC->Slice->SliceIsBottomField  = ReadBits(BitB, 1, true);
+            Dec->Slice->FrameNumber     = ReadBits(BitB, 0, true); // FIXME: READ VARIABLE BITS frame_num
+            if (Dec->SPS->OnlyMacroBlocksInFrame == false) {
+                Dec->Slice->SliceIsInterlaced = ReadBits(BitB, 1, true);
+                if (Dec->Slice->SliceIsInterlaced == true) {
+                    Dec->Slice->SliceIsBottomField  = ReadBits(BitB, 1, true);
                 }
             }
-            if (AVC->Slice->IDRPicID == true) {
-                AVC->Slice->IDRPicID = ReadExpGolomb(BitB, false);
+            if (Dec->Slice->IDRPicID == true) {
+                Dec->Slice->IDRPicID = ReadExpGolomb(BitB, false);
             }
-            if (AVC->SPS->PicOrderCount == false) {
-                AVC->Slice->PictureOrderCountLSB = ReadBits(BitB, AVC->SPS->MaxPicOrder, true);
-                if ((AVC->PPS->BottomPicFieldOrderInSliceFlag == true) && (AVC->Slice->SliceIsInterlaced == false)) {
-                    AVC->Slice->DeltaPictureOrderCountBottom[1] = ReadExpGolomb(BitB, true);
+            if (Dec->SPS->PicOrderCount == false) {
+                Dec->Slice->PictureOrderCountLSB = ReadBits(BitB, Dec->SPS->MaxPicOrder, true);
+                if ((Dec->PPS->BottomPicFieldOrderInSliceFlag == true) && (Dec->Slice->SliceIsInterlaced == false)) {
+                    Dec->Slice->DeltaPictureOrderCountBottom[1] = ReadExpGolomb(BitB, true);
                 }
             }
-            if ((AVC->SPS->PicOrderCount == true) && (AVC->SPS->DeltaPicOrder == false)) {
-                AVC->Slice->DeltaPictureOrderCountBottom[0] = ReadExpGolomb(BitB, true);
-                if ((AVC->PPS->BottomPicFieldOrderInSliceFlag == true) && (AVC->Slice->SliceIsInterlaced == false)) {
-                    AVC->Slice->DeltaPictureOrderCountBottom[1] = ReadExpGolomb(BitB, true);
+            if ((Dec->SPS->PicOrderCount == true) && (Dec->SPS->DeltaPicOrder == false)) {
+                Dec->Slice->DeltaPictureOrderCountBottom[0] = ReadExpGolomb(BitB, true);
+                if ((Dec->PPS->BottomPicFieldOrderInSliceFlag == true) && (Dec->Slice->SliceIsInterlaced == false)) {
+                    Dec->Slice->DeltaPictureOrderCountBottom[1] = ReadExpGolomb(BitB, true);
                 }
             }
-            if (AVC->PPS->RedundantPictureFlag == true) {
-                AVC->PPS->RedundantPictureCount = ReadExpGolomb(BitB, true);
+            if (Dec->PPS->RedundantPictureFlag == true) {
+                Dec->PPS->RedundantPictureCount = ReadExpGolomb(BitB, true);
             }
-            if ((AVC->Slice->Type == SliceB1) || (AVC->Slice->Type == SliceB2)) {
-                AVC->Slice->DirectSpatialMVPredictionFlag = ReadBits(BitB, 1, true);
+            if ((Dec->Slice->Type == SliceB1) || (Dec->Slice->Type == SliceB2)) {
+                Dec->Slice->DirectSpatialMVPredictionFlag = ReadBits(BitB, 1, true);
             }
-            if ((AVC->Slice->Type == SliceP1) || (AVC->Slice->Type == SliceP2) || (AVC->Slice->Type == SliceSP1) || (AVC->Slice->Type == SliceSP2) || (AVC->Slice->Type == SliceB1) || (AVC->Slice->Type == SliceB2)) {
-                AVC->Slice->NumRefIDXActiveOverrideFlag = ReadBits(BitB, 1, true);
-                if (AVC->Slice->NumRefIDXActiveOverrideFlag == true) {
-                    AVC->MacroBlock->NumRefIndexActiveLevel0 = ReadExpGolomb(BitB, false) + 1;
-                    if ((AVC->Slice->Type == SliceB1) || (AVC->Slice->Type == SliceB2)) {
-                        AVC->MacroBlock->NumRefIndexActiveLevel1 = ReadExpGolomb(BitB, false) + 1;
+            if ((Dec->Slice->Type == SliceP1) || (Dec->Slice->Type == SliceP2) || (Dec->Slice->Type == SliceSP1) || (Dec->Slice->Type == SliceSP2) || (Dec->Slice->Type == SliceB1) || (Dec->Slice->Type == SliceB2)) {
+                Dec->Slice->NumRefIDXActiveOverrideFlag = ReadBits(BitB, 1, true);
+                if (Dec->Slice->NumRefIDXActiveOverrideFlag == true) {
+                    Dec->MacroBlock->NumRefIndexActiveLevel0 = ReadExpGolomb(BitB, false) + 1;
+                    if ((Dec->Slice->Type == SliceB1) || (Dec->Slice->Type == SliceB2)) {
+                        Dec->MacroBlock->NumRefIndexActiveLevel1 = ReadExpGolomb(BitB, false) + 1;
                     }
                 }
             }
-            if ((AVC->NAL->NALRefIDC == NAL_AuxiliarySliceExtension) || (AVC->NAL->NALRefIDC == NAL_MVCDepthView)) {
+            if ((Dec->NAL->NALRefIDC == NAL_AuxiliarySliceExtension) || (Dec->NAL->NALRefIDC == NAL_MVCDepthView)) {
                 RefPicListMVCMod(AVC, BitB); /* specified in Annex H */
             } else {
                 RefPicListMod(AVC, BitB);
             }
-            if (((AVC->Slice->DepthWeightedPredictionFlag == true) && ((AVC->Slice->Type == SliceP1) || (AVC->Slice->Type == SliceP2))) || ((AVC->PPS->WeightedBiPrediction == true && (AVC->Slice->Type == SliceB1)) || (AVC->Slice->Type == SliceB2))) {
+            if (((Dec->Slice->DepthWeightedPredictionFlag == true) && ((Dec->Slice->Type == SliceP1) || (Dec->Slice->Type == SliceP2))) || ((Dec->PPS->WeightedBiPrediction == true && (Dec->Slice->Type == SliceB1)) || (Dec->Slice->Type == SliceB2))) {
                 pred_weight_table(AVC, BitB);
             }
-            if (AVC->NAL->NALRefIDC != NAL_Unspecified0) {
+            if (Dec->NAL->NALRefIDC != NAL_Unspecified0) {
                 DecodeRefPicMarking(AVC, BitB);
             }
-            if ((AVC->PPS->EntropyCodingMode == ExpGolomb) && ((AVC->Slice->Type != SliceI1) || (AVC->Slice->Type != SliceI2))) {
-                AVC->Slice->CabacInitIDC = ReadExpGolomb(BitB, false);
-                AVC->Slice->SliceQPDelta = ReadExpGolomb(BitB, true);
+            if ((Dec->PPS->EntropyCodingMode == ExpGolomb) && ((Dec->Slice->Type != SliceI1) || (Dec->Slice->Type != SliceI2))) {
+                Dec->Slice->CabacInitIDC = ReadExpGolomb(BitB, false);
+                Dec->Slice->SliceQPDelta = ReadExpGolomb(BitB, true);
             }
             // FIXME: Should SliceQPDelta be here?
-            if ((AVC->Slice->Type == SliceSP1) || (AVC->Slice->Type == SliceSP2) || (AVC->Slice->Type == SliceSI1) || (AVC->Slice->Type == SliceSI2)) {
-                if ((AVC->Slice->Type == SliceSP1) || (AVC->Slice->Type == SliceSP2)) {
-                    AVC->Slice->DecodePMBAsSPSlice = ReadBits(BitB, 1, true);
-                    AVC->Slice->SliceQSDelta = ReadExpGolomb(BitB, true);
+            if ((Dec->Slice->Type == SliceSP1) || (Dec->Slice->Type == SliceSP2) || (Dec->Slice->Type == SliceSI1) || (Dec->Slice->Type == SliceSI2)) {
+                if ((Dec->Slice->Type == SliceSP1) || (Dec->Slice->Type == SliceSP2)) {
+                    Dec->Slice->DecodePMBAsSPSlice = ReadBits(BitB, 1, true);
+                    Dec->Slice->SliceQSDelta = ReadExpGolomb(BitB, true);
                 }
-                if (AVC->PPS->DeblockingFilterFlag == true) {
-                    AVC->Slice->DisableDeblockingFilterIDC = ReadExpGolomb(BitB, false);
-                    if (AVC->Slice->DisableDeblockingFilterIDC == false) {
-                        AVC->Slice->SliceAlphaOffsetC0 = ReadExpGolomb(BitB, true);
-                        AVC->Slice->SliceBetaOffset    = ReadExpGolomb(BitB, true);
+                if (Dec->PPS->DeblockingFilterFlag == true) {
+                    Dec->Slice->DisableDeblockingFilterIDC = ReadExpGolomb(BitB, false);
+                    if (Dec->Slice->DisableDeblockingFilterIDC == false) {
+                        Dec->Slice->SliceAlphaOffsetC0 = ReadExpGolomb(BitB, true);
+                        Dec->Slice->SliceBetaOffset    = ReadExpGolomb(BitB, true);
                     }
                 }
-                if ((AVC->PPS->SliceGroups > 0) && (AVC->PPS->SliceGroupMapType >= 3) && (AVC->PPS->SliceGroupMapType <= 5)) {
-                    AVC->Slice->SliceGroupChangeCycle = ReadBits(BitB, Ceili(log2(AVC->PPS->PicSizeInMapUnits /  AVC->Slice->SliceGroupChangeRate)), true);
+                if ((Dec->PPS->SliceGroups > 0) && (Dec->PPS->SliceGroupMapType >= 3) && (Dec->PPS->SliceGroupMapType <= 5)) {
+                    Dec->Slice->SliceGroupChangeCycle = ReadBits(BitB, Ceili(log2(Dec->PPS->PicSizeInMapUnits /  Dec->Slice->SliceGroupChangeRate)), true);
                 }
                 if (
-                    (AVC->NAL->NALUnitType == NAL_MVCDepthView) &&
+                    (Dec->NAL->NALUnitType == NAL_MVCDepthView) &&
                     (
-                     (AVC->Slice->Type == SliceI1)  ||
-                     (AVC->Slice->Type == SliceI2)  ||
-                     (AVC->Slice->Type == SliceSI1) ||
-                     (AVC->Slice->Type == SliceSI2)
+                     (Dec->Slice->Type == SliceI1)  ||
+                     (Dec->Slice->Type == SliceI2)  ||
+                     (Dec->Slice->Type == SliceSI1) ||
+                     (Dec->Slice->Type == SliceSI2)
                      )
                     ) {
-                    if (AVC->NAL->DepthFlag == true) {
-                        AVC->Slice->DepthWeightedPredictionFlag = ReadBits(BitB, 1, true);
-                    } else if (AVC->NAL->AVC3DExtensionFlag == true) {
-                        AVC->Slice->DMVPFlag = ReadBits(BitB, 1, true);
-                        if (AVC->Slice->SeqViewSynthesisFlag == true) {
-                            AVC->Slice->SliceVSPFlag = ReadBits(BitB, 1, true);
+                    if (Dec->NAL->DepthFlag == true) {
+                        Dec->Slice->DepthWeightedPredictionFlag = ReadBits(BitB, 1, true);
+                    } else if (Dec->NAL->AVC3DExtensionFlag == true) {
+                        Dec->Slice->DMVPFlag = ReadBits(BitB, 1, true);
+                        if (Dec->Slice->SeqViewSynthesisFlag == true) {
+                            Dec->Slice->SliceVSPFlag = ReadBits(BitB, 1, true);
                         }
                     }
-                    if (AVC->SPS->AVC3DAcquisitionIDC == false && ((AVC->Slice->DepthWeightedPredictionFlag == true) || (AVC->Slice->DMVPFlag == true))) {
-                        AVC->Slice->DepthParamSetID = ReadExpGolomb(BitB, false);
+                    if (Dec->SPS->AVC3DAcquisitionIDC == false && ((Dec->Slice->DepthWeightedPredictionFlag == true) || (Dec->Slice->DMVPFlag == true))) {
+                        Dec->Slice->DepthParamSetID = ReadExpGolomb(BitB, false);
                     }
                 }
             }
@@ -174,145 +174,145 @@ extern "C" {
     }
     
     /* Scalable Video Coding */
-    void ParseScalableSlice(AVCFile *AVC, BitBuffer *BitB) { // slice_header_in_scalable_extension
-        AVC->Slice->FirstMacroBlockInSlice = ReadExpGolomb(BitB, false);
-        AVC->Slice->Type                   = ReadExpGolomb(BitB, false);
-        AVC->PPS->PicParamSetID            = ReadExpGolomb(BitB, false);
-        if (AVC->Slice->SeperateColorPlaneFlag == true) {
-            AVC->Slice->ColorPlaneID       = ReadBits(BitB, 2, true);
+    void ParseScalableSlice(DecodeAVC *Dec, BitBuffer *BitB) { // slice_header_in_scalable_extension
+        Dec->Slice->FirstMacroBlockInSlice = ReadExpGolomb(BitB, false);
+        Dec->Slice->Type                   = ReadExpGolomb(BitB, false);
+        Dec->PPS->PicParamSetID            = ReadExpGolomb(BitB, false);
+        if (Dec->Slice->SeperateColorPlaneFlag == true) {
+            Dec->Slice->ColorPlaneID       = ReadBits(BitB, 2, true);
         }
-        AVC->Slice->FrameNumber            = ReadExpGolomb(BitB, false);
-        if (AVC->SPS->OnlyMacroBlocksInFrame == true) {
-            AVC->Slice->SliceIsInterlaced  = ReadBits(BitB, 1, true);
-            if (AVC->Slice->SliceIsInterlaced == true) {
-                AVC->Slice->SliceIsBottomField = ReadBits(BitB, 1, true);
+        Dec->Slice->FrameNumber            = ReadExpGolomb(BitB, false);
+        if (Dec->SPS->OnlyMacroBlocksInFrame == true) {
+            Dec->Slice->SliceIsInterlaced  = ReadBits(BitB, 1, true);
+            if (Dec->Slice->SliceIsInterlaced == true) {
+                Dec->Slice->SliceIsBottomField = ReadBits(BitB, 1, true);
             }
         }
-        if (AVC->NAL->IDRFlag == NAL_NonIDRSlice) {
-            AVC->Slice->IDRPicID = ReadExpGolomb(BitB, false);
+        if (Dec->NAL->IDRFlag == NAL_NonIDRSlice) {
+            Dec->Slice->IDRPicID = ReadExpGolomb(BitB, false);
         }
-        if (AVC->SPS->PicOrderCount == 0) {
-            AVC->Slice->PictureOrderCountLSB = ReadBits(BitB, AVC->SPS->MaxPicOrder, true);
-            if ((AVC->PPS->BottomPicFieldOrderInSliceFlag == true) && (AVC->Slice->SliceIsInterlaced == false)) {
-                AVC->Slice->DeltaPictureOrderCountBottom[0] = ReadExpGolomb(BitB, true);
+        if (Dec->SPS->PicOrderCount == 0) {
+            Dec->Slice->PictureOrderCountLSB = ReadBits(BitB, Dec->SPS->MaxPicOrder, true);
+            if ((Dec->PPS->BottomPicFieldOrderInSliceFlag == true) && (Dec->Slice->SliceIsInterlaced == false)) {
+                Dec->Slice->DeltaPictureOrderCountBottom[0] = ReadExpGolomb(BitB, true);
             }
-        } else if ((AVC->SPS->PicOrderCount == 1) && (AVC->SPS->DeltaPicOrder == 0)) {
-            AVC->Slice->DeltaPicOrderCount[0] = ReadExpGolomb(BitB, true);
-            if ((AVC->PPS->BottomPicFieldOrderInSliceFlag == true) && (AVC->Slice->SliceIsInterlaced == false)) {
-                AVC->Slice->DeltaPicOrderCount[1] = ReadExpGolomb(BitB, true);
+        } else if ((Dec->SPS->PicOrderCount == 1) && (Dec->SPS->DeltaPicOrder == 0)) {
+            Dec->Slice->DeltaPicOrderCount[0] = ReadExpGolomb(BitB, true);
+            if ((Dec->PPS->BottomPicFieldOrderInSliceFlag == true) && (Dec->Slice->SliceIsInterlaced == false)) {
+                Dec->Slice->DeltaPicOrderCount[1] = ReadExpGolomb(BitB, true);
             }
         }
-        if (AVC->PPS->RedundantPictureFlag == true) {
-            AVC->PPS->RedundantPictureCount = ReadExpGolomb(BitB, false);
+        if (Dec->PPS->RedundantPictureFlag == true) {
+            Dec->PPS->RedundantPictureCount = ReadExpGolomb(BitB, false);
         }
-        if (AVC->NAL->QualityID == 0) {
-            if ((AVC->NAL->NALUnitType == NAL_AuxiliarySliceExtension) && ((AVC->Slice->Type == SliceEB1) || (AVC->Slice->Type == SliceEB2))) {
-                AVC->Slice->DirectSpatialMVPredictionFlag = ReadBits(BitB, 1, true);
+        if (Dec->NAL->QualityID == 0) {
+            if ((Dec->NAL->NALUnitType == NAL_AuxiliarySliceExtension) && ((Dec->Slice->Type == SliceEB1) || (Dec->Slice->Type == SliceEB2))) {
+                Dec->Slice->DirectSpatialMVPredictionFlag = ReadBits(BitB, 1, true);
             }
-            if ((AVC->NAL->NALUnitType == NAL_AuxiliarySliceExtension) && ((AVC->Slice->Type == SliceEP1) || (AVC->Slice->Type == SliceEP2) || (AVC->Slice->Type == SliceEB1) || (AVC->Slice->Type == SliceEB2))) {
-                AVC->Slice->NumRefIDXActiveOverrideFlag = ReadBits(BitB, 1, true);
-                if (AVC->Slice->NumRefIDXActiveOverrideFlag == true) {
-                    AVC->MacroBlock->NumRefIndexActiveLevel0 = ReadExpGolomb(BitB, false) + 1;
-                    if (AVC->Slice->Type == SliceEB1 || AVC->Slice->Type == SliceEB2) {
-                        AVC->MacroBlock->NumRefIndexActiveLevel1 = ReadExpGolomb(BitB, false) + 1;
+            if ((Dec->NAL->NALUnitType == NAL_AuxiliarySliceExtension) && ((Dec->Slice->Type == SliceEP1) || (Dec->Slice->Type == SliceEP2) || (Dec->Slice->Type == SliceEB1) || (Dec->Slice->Type == SliceEB2))) {
+                Dec->Slice->NumRefIDXActiveOverrideFlag = ReadBits(BitB, 1, true);
+                if (Dec->Slice->NumRefIDXActiveOverrideFlag == true) {
+                    Dec->MacroBlock->NumRefIndexActiveLevel0 = ReadExpGolomb(BitB, false) + 1;
+                    if (Dec->Slice->Type == SliceEB1 || Dec->Slice->Type == SliceEB2) {
+                        Dec->MacroBlock->NumRefIndexActiveLevel1 = ReadExpGolomb(BitB, false) + 1;
                     }
                 }
             }
             RefPicListMod(AVC, BitB);
-            if ((AVC->NAL->NALUnitType == NAL_AuxiliarySliceExtension) && (((AVC->PPS->WeightedPrediction == true) &&((AVC->Slice->Type == SliceEP1)  || (AVC->Slice->Type == SliceEP2))) || ((AVC->PPS->WeightedBiPrediction == 1) && ((AVC->Slice->Type == SliceEB1) || (AVC->Slice->Type == SliceEB2))))) {
-                if (AVC->NAL->NoInterLayerPredictionFlag == true) {
-                    AVC->Slice->BasePredictionWeightTable = ReadBits(BitB, 1, true);
+            if ((Dec->NAL->NALUnitType == NAL_AuxiliarySliceExtension) && (((Dec->PPS->WeightedPrediction == true) &&((Dec->Slice->Type == SliceEP1)  || (Dec->Slice->Type == SliceEP2))) || ((Dec->PPS->WeightedBiPrediction == 1) && ((Dec->Slice->Type == SliceEB1) || (Dec->Slice->Type == SliceEB2))))) {
+                if (Dec->NAL->NoInterLayerPredictionFlag == true) {
+                    Dec->Slice->BasePredictionWeightTable = ReadBits(BitB, 1, true);
                 }
-                if ((AVC->NAL->NoInterLayerPredictionFlag == false) || (AVC->Slice->BasePredictionWeightTable == false)) {
+                if ((Dec->NAL->NoInterLayerPredictionFlag == false) || (Dec->Slice->BasePredictionWeightTable == false)) {
                     pred_weight_table(AVC, BitB);
                 }
             }
-            if (AVC->NAL->NALRefIDC != NAL_Unspecified0) {
+            if (Dec->NAL->NALRefIDC != NAL_Unspecified0) {
                 DecodeRefPicMarking(AVC, BitB);
-                if (AVC->SVC->SliceHeaderRestricted == false) {
-                    AVC->Slice->StoreRefBasePicFlag = ReadBits(BitB, 1, true);
-                    if ((AVC->NAL->UseReferenceBasePictureFlag == true) || ((AVC->Slice->StoreRefBasePicFlag == true) && (AVC->NAL->IDRFlag == false))) {
+                if (Dec->SVC->SliceHeaderRestricted == false) {
+                    Dec->Slice->StoreRefBasePicFlag = ReadBits(BitB, 1, true);
+                    if ((Dec->NAL->UseReferenceBasePictureFlag == true) || ((Dec->Slice->StoreRefBasePicFlag == true) && (Dec->NAL->IDRFlag == false))) {
                         ParseReferenceBasePictureSyntax(AVC, BitB);
                     }
                 }
             }
         }
-        if ((AVC->PPS->EntropyCodingMode == true) && ((AVC->Slice->Type != SliceEI1) || (AVC->Slice->Type != SliceEI2))) {
-            AVC->Slice->CabacInitIDC = ReadExpGolomb(BitB, false);
+        if ((Dec->PPS->EntropyCodingMode == true) && ((Dec->Slice->Type != SliceEI1) || (Dec->Slice->Type != SliceEI2))) {
+            Dec->Slice->CabacInitIDC = ReadExpGolomb(BitB, false);
         }
-        AVC->Slice->SliceQPDelta = ReadExpGolomb(BitB, true);
-        if (AVC->PPS->DeblockingFilterFlag == true) {
-            AVC->Slice->DisableDeblockingFilterIDC = ReadExpGolomb(BitB, false);
-            if (AVC->Slice->DisableDeblockingFilterIDC != 1) {
-                AVC->Slice->SliceAlphaOffsetC0 = ReadExpGolomb(BitB, true);
-                AVC->Slice->SliceBetaOffset    = ReadExpGolomb(BitB, true);
+        Dec->Slice->SliceQPDelta = ReadExpGolomb(BitB, true);
+        if (Dec->PPS->DeblockingFilterFlag == true) {
+            Dec->Slice->DisableDeblockingFilterIDC = ReadExpGolomb(BitB, false);
+            if (Dec->Slice->DisableDeblockingFilterIDC != 1) {
+                Dec->Slice->SliceAlphaOffsetC0 = ReadExpGolomb(BitB, true);
+                Dec->Slice->SliceBetaOffset    = ReadExpGolomb(BitB, true);
             }
         }
-        if ((AVC->PPS->SliceGroups > 0) && ((AVC->PPS->SliceGroupMapType >= 3) && (AVC->PPS->SliceGroupMapType <= 5))) {
-            AVC->Slice->SliceGroupChangeCycle = ReadBits(BitB, Ceili(log2(AVC->PPS->PicSizeInMapUnits /  AVC->Slice->SliceGroupChangeRate)), true);
+        if ((Dec->PPS->SliceGroups > 0) && ((Dec->PPS->SliceGroupMapType >= 3) && (Dec->PPS->SliceGroupMapType <= 5))) {
+            Dec->Slice->SliceGroupChangeCycle = ReadBits(BitB, Ceili(log2(Dec->PPS->PicSizeInMapUnits /  Dec->Slice->SliceGroupChangeRate)), true);
         }
-        if ((AVC->NAL->NoInterLayerPredictionFlag == true) && (AVC->NAL->QualityID == 0)) {
-            AVC->Slice->RefLayerDQID = ReadExpGolomb(BitB, false);
-            if (AVC->SVC->InterLayerDeblockingFilterPresent == true) {
-                AVC->Slice->DisableInterLayerDeblocking = ReadExpGolomb(BitB, false);
-                if (AVC->Slice->DisableInterLayerDeblocking != 1) {
-                    AVC->Slice->InterLayerSliceAplhaC0Offset = ReadExpGolomb(BitB, true);
-                    AVC->Slice->InterLayerSliceBetaOffset    = ReadExpGolomb(BitB, true);
+        if ((Dec->NAL->NoInterLayerPredictionFlag == true) && (Dec->NAL->QualityID == 0)) {
+            Dec->Slice->RefLayerDQID = ReadExpGolomb(BitB, false);
+            if (Dec->SVC->InterLayerDeblockingFilterPresent == true) {
+                Dec->Slice->DisableInterLayerDeblocking = ReadExpGolomb(BitB, false);
+                if (Dec->Slice->DisableInterLayerDeblocking != 1) {
+                    Dec->Slice->InterLayerSliceAplhaC0Offset = ReadExpGolomb(BitB, true);
+                    Dec->Slice->InterLayerSliceBetaOffset    = ReadExpGolomb(BitB, true);
                 }
             }
-            AVC->Slice->ConstrainedIntraResamplingFlag = ReadBits(BitB, 1, true);
-            if (AVC->SVC->ExtendedSpatialScalabilityIDC == 2) {
-                if (AVC->SPS->SeperateColorPlane == false) {
-                    AVC->SPS->ChromaArrayType = AVC->SPS->ChromaFormatIDC;
+            Dec->Slice->ConstrainedIntraResamplingFlag = ReadBits(BitB, 1, true);
+            if (Dec->SVC->ExtendedSpatialScalabilityIDC == 2) {
+                if (Dec->SPS->SeperateColorPlane == false) {
+                    Dec->SPS->ChromaArrayType = Dec->SPS->ChromaFormatIDC;
                 } else {
-                    AVC->SPS->ChromaArrayType = ChromaBW;
+                    Dec->SPS->ChromaArrayType = ChromaBW;
                 }
-                if (AVC->SPS->ChromaArrayType > ChromaBW) {
-                    AVC->Slice->RefLayerChromaPhaseXFlag = ReadBits(BitB, 1, true);
-                    AVC->Slice->RefLayerChromaPhaseY     = ReadBits(BitB, 2, true) - 1;
+                if (Dec->SPS->ChromaArrayType > ChromaBW) {
+                    Dec->Slice->RefLayerChromaPhaseXFlag = ReadBits(BitB, 1, true);
+                    Dec->Slice->RefLayerChromaPhaseY     = ReadBits(BitB, 2, true) - 1;
                 }
-                AVC->Slice->ScaledRefLayerLeftOffset     = ReadExpGolomb(BitB, true);
-                AVC->Slice->ScaledRefLayerTopOffset      = ReadExpGolomb(BitB, true);
-                AVC->Slice->ScaledRefLayerRightOffset    = ReadExpGolomb(BitB, true);
-                AVC->Slice->ScaledRefLayerBottomOffset   = ReadExpGolomb(BitB, true);
+                Dec->Slice->ScaledRefLayerLeftOffset     = ReadExpGolomb(BitB, true);
+                Dec->Slice->ScaledRefLayerTopOffset      = ReadExpGolomb(BitB, true);
+                Dec->Slice->ScaledRefLayerRightOffset    = ReadExpGolomb(BitB, true);
+                Dec->Slice->ScaledRefLayerBottomOffset   = ReadExpGolomb(BitB, true);
             }
         }
-        if (AVC->NAL->NoInterLayerPredictionFlag == true) {
-            AVC->Slice->SkipSliceFlag = ReadBits(BitB, 1, true);
-            if (AVC->Slice->SkipSliceFlag == true) {
-                AVC->Slice->MacroBlocksInSlice = ReadExpGolomb(BitB, false) + 1;
+        if (Dec->NAL->NoInterLayerPredictionFlag == true) {
+            Dec->Slice->SkipSliceFlag = ReadBits(BitB, 1, true);
+            if (Dec->Slice->SkipSliceFlag == true) {
+                Dec->Slice->MacroBlocksInSlice = ReadExpGolomb(BitB, false) + 1;
             } else {
-                AVC->Slice->AdaptiveBaseModeFlag = ReadBits(BitB, 1, true);
-                if (AVC->Slice->AdaptiveBaseModeFlag == false) {
-                    AVC->Slice->DefaultBaseModeFlag = ReadBits(BitB, 1, true);
+                Dec->Slice->AdaptiveBaseModeFlag = ReadBits(BitB, 1, true);
+                if (Dec->Slice->AdaptiveBaseModeFlag == false) {
+                    Dec->Slice->DefaultBaseModeFlag = ReadBits(BitB, 1, true);
                 }
-                if (AVC->Slice->DefaultBaseModeFlag == false) {
-                    AVC->Slice->AdaptiveMotionPredictionFlag = ReadBits(BitB, 1, true);
-                    if (AVC->Slice->AdaptiveMotionPredictionFlag == false) {
-                        AVC->Slice->DefaultMotionPredictionFlag = ReadBits(BitB, 1, true);
+                if (Dec->Slice->DefaultBaseModeFlag == false) {
+                    Dec->Slice->AdaptiveMotionPredictionFlag = ReadBits(BitB, 1, true);
+                    if (Dec->Slice->AdaptiveMotionPredictionFlag == false) {
+                        Dec->Slice->DefaultMotionPredictionFlag = ReadBits(BitB, 1, true);
                     }
                 }
-                if (AVC->Slice->AdaptiveResidualPredictionFlag == false) {
-                    AVC->Slice->DefaultResidualPredictionFlag = ReadBits(BitB, 1, true);
+                if (Dec->Slice->AdaptiveResidualPredictionFlag == false) {
+                    Dec->Slice->DefaultResidualPredictionFlag = ReadBits(BitB, 1, true);
                 }
             }
-            if (AVC->SVC->AdaptiveCoeffsPresent == true) {
-                AVC->Slice->TCoefficentPredictionFlag = ReadBits(BitB, 1, true);
+            if (Dec->SVC->AdaptiveCoeffsPresent == true) {
+                Dec->Slice->TCoefficentPredictionFlag = ReadBits(BitB, 1, true);
             }
         }
-        if ((AVC->SVC->SliceHeaderRestricted == false) && (AVC->Slice->SkipSliceFlag == false)) {
-            AVC->Slice->ScanIndexStart = ReadBits(BitB, 4, true);
-            AVC->Slice->ScanIndexEnd   = ReadBits(BitB, 4, true);
+        if ((Dec->SVC->SliceHeaderRestricted == false) && (Dec->Slice->SkipSliceFlag == false)) {
+            Dec->Slice->ScanIndexStart = ReadBits(BitB, 4, true);
+            Dec->Slice->ScanIndexEnd   = ReadBits(BitB, 4, true);
         }
     }
     
-    void ParseNALAuxiliarySliceExtension(AVCFile *AVC, BitBuffer *BitB) { // slice_layer_extension_rbsp
-        if (AVC->NAL->SVCExtensionFlag == true) {
+    void ParseNALAuxiliarySliceExtension(DecodeAVC *Dec, BitBuffer *BitB) { // slice_layer_extension_rbsp
+        if (Dec->NAL->SVCExtensionFlag == true) {
             ParseScalableSlice(AVC, BitB); // slice_header_in_scalable_extension()
-            if (AVC->Slice->SkipSliceFlag == true) {
+            if (Dec->Slice->SkipSliceFlag == true) {
                 ParseScalableSliceData(AVC, BitB); // slice_data_in_scalable_extension()
             }
-        } else if (AVC->NAL->AVC3DExtensionFlag == true) {
+        } else if (Dec->NAL->AVC3DExtensionFlag == true) {
             ParseAVC3DSlice(AVC, BitB); // specified in Annex J
         } else {
             ParseSliceHeader(AVC, BitB); // slice_header();
@@ -321,59 +321,59 @@ extern "C" {
         AlignInput(BitB, 1); // rbsp_slice_trailing_bits()
     }
     
-    void ParseScalableSliceData(AVCFile *AVC, BitBuffer *BitB) { // slice_data_in_scalable_extension
+    void ParseScalableSliceData(DecodeAVC *Dec, BitBuffer *BitB) { // slice_data_in_scalable_extension
         bool moreDataFlag;
-        if (AVC->PPS->EntropyCodingMode == Arithmetic) {
+        if (Dec->PPS->EntropyCodingMode == Arithmetic) {
             AlignInput(BitB, 1);
         }
-        AVC->Slice->MbaffFrameFlag = (AVC->SPS->AdaptiveFrameFlag && !AVC->Slice->SliceIsInterlaced);
-        AVC->Slice->CurrentMacroBlockAddress = AVC->Slice->FirstMacroBlockInSlice * (AVC->Slice->MbaffFrameFlag + 1);
+        Dec->Slice->MbaffFrameFlag = (Dec->SPS->AdaptiveFrameFlag && !Dec->Slice->SliceIsInterlaced);
+        Dec->Slice->CurrentMacroBlockAddress = Dec->Slice->FirstMacroBlockInSlice * (Dec->Slice->MbaffFrameFlag + 1);
         moreDataFlag = 1;
-        if ((AVC->Slice->Type != SliceEI1) || (AVC->Slice->Type != SliceEI2)) {
-            if (AVC->PPS->EntropyCodingMode == ExpGolomb) {
-                AVC->Slice->MacroBlockSkipRun = ReadExpGolomb(BitB, false);
-                AVC->Slice->PreviousMacroBlockSkipped = (AVC->Slice->MacroBlockSkipRun > 0);
-                for (uint8_t MB = 0; MB < AVC->Slice->MacroBlockSkipRun; MB++) {
-                    AVC->Slice->CurrentMacroBlockAddress = NextMacroBlockAddress(AVC, AVC->Slice->CurrentMacroBlockAddress);
+        if ((Dec->Slice->Type != SliceEI1) || (Dec->Slice->Type != SliceEI2)) {
+            if (Dec->PPS->EntropyCodingMode == ExpGolomb) {
+                Dec->Slice->MacroBlockSkipRun = ReadExpGolomb(BitB, false);
+                Dec->Slice->PreviousMacroBlockSkipped = (Dec->Slice->MacroBlockSkipRun > 0);
+                for (uint8_t MB = 0; MB < Dec->Slice->MacroBlockSkipRun; MB++) {
+                    Dec->Slice->CurrentMacroBlockAddress = NextMacroBlockAddress(AVC, Dec->Slice->CurrentMacroBlockAddress);
                 }
-                if (AVC->Slice->MacroBlockSkipRun > 0) {
+                if (Dec->Slice->MacroBlockSkipRun > 0) {
                     moreDataFlag = more_rbsp_data();
                 }
             } else {
-                AVC->Slice->SkipMacroBlock = ReadArithmetic(BitB, NULL, NULL, NULL, NULL); // FIXME: Arthmetic encoded variable
-                moreDataFlag = !AVC->Slice->SkipMacroBlock;
+                Dec->Slice->SkipMacroBlock = ReadArithmetic(BitB, NULL, NULL, NULL, NULL); // FIXME: Arthmetic encoded variable
+                moreDataFlag = !Dec->Slice->SkipMacroBlock;
             }
         }
         if (moreDataFlag == true) {
-            if (AVC->Slice->MbaffFrameFlag && ((AVC->Slice->CurrentMacroBlockAddress % 2) == 0 || (((AVC->Slice->CurrentMacroBlockAddress % 2) == 1) && (AVC->Slice->PreviousMacroBlockSkipped == true)))) {
-                AVC->Slice->MacroBlockFieldDecodingFlag  = ReadBits(BitB, 1, true);
+            if (Dec->Slice->MbaffFrameFlag && ((Dec->Slice->CurrentMacroBlockAddress % 2) == 0 || (((Dec->Slice->CurrentMacroBlockAddress % 2) == 1) && (Dec->Slice->PreviousMacroBlockSkipped == true)))) {
+                Dec->Slice->MacroBlockFieldDecodingFlag  = ReadBits(BitB, 1, true);
             }
             ParseMacroBlockLayerInSVC(AVC, BitB); // macroblock_layer_in_scalable_extension();
-            if (AVC->PPS->EntropyCodingMode == ExpGolomb) {
+            if (Dec->PPS->EntropyCodingMode == ExpGolomb) {
                 moreDataFlag = more_rbsp_data();
             } else {
-                if ((AVC->Slice->Type != SliceEI1) || (AVC->Slice->Type != SliceEI2)) {
-                    AVC->Slice->PreviousMacroBlockSkipped = AVC->Slice->SkipMacroBlock;
+                if ((Dec->Slice->Type != SliceEI1) || (Dec->Slice->Type != SliceEI2)) {
+                    Dec->Slice->PreviousMacroBlockSkipped = Dec->Slice->SkipMacroBlock;
                 }
-                if (AVC->Slice->MbaffFrameFlag && (AVC->Slice->CurrentMacroBlockAddress % 2) == 0) {
+                if (Dec->Slice->MbaffFrameFlag && (Dec->Slice->CurrentMacroBlockAddress % 2) == 0) {
                     moreDataFlag = 1;
                 } else {
-                    AVC->Slice->IsEndOfSlice = ReadArithmetic(BitB, NULL, NULL, NULL, NULL); // arthmetic coded variable
-                    moreDataFlag = !AVC->Slice->IsEndOfSlice;
-                    while (AVC->Slice->IsEndOfSlice == false) {
+                    Dec->Slice->IsEndOfSlice = ReadArithmetic(BitB, NULL, NULL, NULL, NULL); // arthmetic coded variable
+                    moreDataFlag = !Dec->Slice->IsEndOfSlice;
+                    while (Dec->Slice->IsEndOfSlice == false) {
                         SkipBits(BitB, 1); // FIXME: Not sure f it should be 1 bit or 8 or what?
                     }
                 }
             }
-            AVC->Slice->CurrentMacroBlockAddress = NextMacroBlockAddress(AVC, AVC->Slice->CurrentMacroBlockAddress);
+            Dec->Slice->CurrentMacroBlockAddress = NextMacroBlockAddress(AVC, Dec->Slice->CurrentMacroBlockAddress);
         }
     }
     
-    void ParseSliceHeader(AVCFile *AVC, BitBuffer *BitB) { // slice_header
+    void ParseSliceHeader(DecodeAVC *Dec, BitBuffer *BitB) { // slice_header
         
     }
     
-    void ParseUnpartitionedSliceLayer(AVCFile *AVC, BitBuffer *BitB) { // slice_layer_without_partitioning_rbsp
+    void ParseUnpartitionedSliceLayer(DecodeAVC *Dec, BitBuffer *BitB) { // slice_layer_without_partitioning_rbsp
         ParseSliceHeader(AVC, BitB);
         ParseSliceData(AVC, BitB, 0);
         rbsp_slice_trailing_bits();

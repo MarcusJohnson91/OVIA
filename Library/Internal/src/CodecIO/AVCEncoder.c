@@ -8,6 +8,7 @@ extern "C" {
     
     /*
      So, the frontend will handle decoding input PNGs, and all we need to do is take in the command line info as well as the raw PNG
+     So we need to create a struct to hod the extracted options from the command line?
      */
     
     

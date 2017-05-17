@@ -10,179 +10,179 @@
 extern "C" {
 #endif
     
-    void ParseSequenceParameterSetData(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSequenceParameterSetData(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseNALSequenceParameterSetExtended(AVCFile *AVC, BitBuffer *BitB);
+    void ParseNALSequenceParameterSetExtended(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseNALSubsetSPS(AVCFile *AVC, BitBuffer *BitB);
+    void ParseNALSubsetSPS(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseNALSequenceParameterSet(AVCFile *AVC, BitBuffer *BitB);
+    void ParseNALSequenceParameterSet(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseNALSequenceParameterSetSVC(AVCFile *AVC, BitBuffer *BitB);
+    void ParseNALSequenceParameterSetSVC(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseNALSliceHeader(AVCFile *AVC, BitBuffer *BitB);
+    void ParseNALSliceHeader(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseNALSliceData(AVCFile *AVC, BitBuffer *BitB, uint8_t Category);
+    void ParseNALSliceData(DecodeAVC *Dec, BitBuffer *BitB, uint8_t Category);
     
-    void ParseNALSlicePartitionA(AVCFile *AVC, BitBuffer *BitB);
+    void ParseNALSlicePartitionA(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseNALSlicePartitionB(AVCFile *AVC, BitBuffer *BitB);
+    void ParseNALSlicePartitionB(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseNALSlicePartitionC(AVCFile *AVC, BitBuffer *BitB);
+    void ParseNALSlicePartitionC(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseVideoUsabilityInformation(AVCFile *AVC, BitBuffer *BitB);
+    void ParseVideoUsabilityInformation(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSVCVUIExtension(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSVCVUIExtension(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSPSMVCDExtension(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSPSMVCDExtension(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSPS3DAVCExtension(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSPS3DAVCExtension(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseHypotheticalReferenceDecoder(AVCFile *AVC, BitBuffer *BitB);
+    void ParseHypotheticalReferenceDecoder(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseNALMVCExtension(AVCFile *AVC, BitBuffer *BitB);
+    void ParseNALMVCExtension(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseNALSVCExtension(AVCFile *AVC, BitBuffer *BitB);
+    void ParseNALSVCExtension(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseNAL3DAVCExtension(AVCFile *AVC, BitBuffer *BitB);
+    void ParseNAL3DAVCExtension(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseNALDepthParameterSet(AVCFile *AVC, BitBuffer *BitB);
+    void ParseNALDepthParameterSet(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseNALSliceNonPartitioned(AVCFile *AVC, BitBuffer *BitB);
+    void ParseNALSliceNonPartitioned(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseNALFillerData(AVCFile *AVC, BitBuffer *BitB);
+    void ParseNALFillerData(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseNALPrefixUnit(AVCFile *AVC, BitBuffer *BitB);
+    void ParseNALPrefixUnit(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseNALAccessUnitDelimiter(AVCFile *AVC, BitBuffer *BitB);
+    void ParseNALAccessUnitDelimiter(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseMVCDVUIParametersExtension(AVCFile *AVC, BitBuffer *BitB);
+    void ParseMVCDVUIParametersExtension(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseMVCVUIParametersExtension(AVCFile *AVC, BitBuffer *BitB);
+    void ParseMVCVUIParametersExtension(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseNALPictureParameterSet(AVCFile *AVC, BitBuffer *BitB);
+    void ParseNALPictureParameterSet(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseNALPrefixUnitSVC(AVCFile *AVC, BitBuffer *BitB);
+    void ParseNALPrefixUnitSVC(DecodeAVC *Dec, BitBuffer *BitB);
     
     /* Supplementary EnhancementInformation SEI */
-    void ParseSEIBufferingPeriod(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIBufferingPeriod(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIPictureTiming(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIPictureTiming(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIPanScan(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIPanScan(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIFiller(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIFiller(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIRegisteredUserData(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIRegisteredUserData(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIUnregisteredUserData(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIUnregisteredUserData(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIRecoveryPoint(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIRecoveryPoint(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIRepetitiveReferencePicture(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIRepetitiveReferencePicture(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEISparePicture(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEISparePicture(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEISceneInfo(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEISceneInfo(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEISubSequenceInfo(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEISubSequenceInfo(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEISubSequenceLayerProperties(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEISubSequenceLayerProperties(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEISubSequenceProperties(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEISubSequenceProperties(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIFullFrameFreeze(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIFullFrameFreeze(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIFullFrameFreezeRelease(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIFullFrameFreezeRelease(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIFullFrameSnapshot(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIFullFrameSnapshot(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIProgressiveRefinementSegmentStart(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIProgressiveRefinementSegmentStart(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIProgressiveRefinementSegmentEnd(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIProgressiveRefinementSegmentEnd(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIMotionConstrainedSliceGroupSet(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIMotionConstrainedSliceGroupSet(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIFilmGrainCharacteristics(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIFilmGrainCharacteristics(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIDeblockingFilterDisplayPreference(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIDeblockingFilterDisplayPreference(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIStereoVideoInfo(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIStereoVideoInfo(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIPostFilterHint(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIPostFilterHint(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIToneMappingInfo(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIToneMappingInfo(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIScalabilityInfo(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIScalabilityInfo(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEISubPictureScalableLayer(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEISubPictureScalableLayer(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEINonRequiredLayerRep(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEINonRequiredLayerRep(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIPriorityLayerInfo(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIPriorityLayerInfo(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEILayersNotPresent(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEILayersNotPresent(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEILayerDependencyChange(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEILayerDependencyChange(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIScalableNesting(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIScalableNesting(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIBaseLayerTemporalHRD(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIBaseLayerTemporalHRD(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIQualityLayerIntegrityCheck(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIQualityLayerIntegrityCheck(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIRedundantPicProperty(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIRedundantPicProperty(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEITemporalDependencyRepresentationIndex(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEITemporalDependencyRepresentationIndex(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEITemporalLevelSwitchingPoint(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEITemporalLevelSwitchingPoint(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIParallelDecodingInfo(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIParallelDecodingInfo(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIMVCScalableNesting(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIMVCScalableNesting(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIViewScalabilityInfo(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIViewScalabilityInfo(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIMVCSceneInfo(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIMVCSceneInfo(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIMVCAcquisitionInfo(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIMVCAcquisitionInfo(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEINonRequiredViewComponent(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEINonRequiredViewComponent(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIViewDependencyChange(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIViewDependencyChange(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIOperationPointNotPresent(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIOperationPointNotPresent(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIBaseViewTemporalHRD(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIBaseViewTemporalHRD(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIFramePackingArrangement(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIFramePackingArrangement(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIMVCViewPosition(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIMVCViewPosition(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIDisplayOrientation(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIDisplayOrientation(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIDepthRepresentationInformation(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIDepthRepresentationInformation(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEI3DReferenceDisplayInfo(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEI3DReferenceDisplayInfo(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIDepthTiming(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIDepthTiming(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIDepthSamplingInfo(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIDepthSamplingInfo(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIConstrainedDepthParameterSetID(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIConstrainedDepthParameterSetID(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIMeteringDisplayColorVolume(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIMeteringDisplayColorVolume(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void ParseSEIMVCDScalableNesting(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIMVCDScalableNesting(DecodeAVC *Dec, BitBuffer *BitB);
     
     /* Why are these here? */
-    void ParseSEIDepthGridPosition(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIDepthGridPosition(DecodeAVC *Dec, BitBuffer *BitB);
     
     void ParseSEIDepthRepresentationElement(BitBuffer *BitB, uint8_t OutSign, uint8_t OutExp, uint8_t OutMantissa, uint8_t OutManLen);
     
     void SkipSEIReservedMessage(BitBuffer *BitB, size_t SEISize);
     
-    void ParseSEIMessage(AVCFile *AVC, BitBuffer *BitB);
+    void ParseSEIMessage(DecodeAVC *Dec, BitBuffer *BitB);
     
 #ifdef __cplusplus
 }
