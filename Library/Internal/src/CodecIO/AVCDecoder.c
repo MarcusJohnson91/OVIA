@@ -40,7 +40,7 @@ extern "C" {
         bool     StreamIsByteAligned, NotEOF;
         uint32_t Marker;
         
-        StartBufferPosition = GetBitInputFilePosition(BitI) + Bits2Bytes(GetBitBufferPosition(BitI->BitB), false);
+        StartBufferPosition = GetBitBufferPosition(BitB); + Bits2Bytes(GetBitBufferPosition(BitI->BitB), false);
         StreamIsByteAligned = IsBitBufferAligned(BitI->BitB, 4);
         NotEOF              = (BitB->FilePosition + Bits2Bytes(BitB->BitsUnavailable, true)) < BitB->FileSize ? true : false;
         Marker              = PeekBits(BitB, 24, true);
@@ -63,9 +63,9 @@ extern "C" {
         // Found a start code.
         if (ReadBits(BitB, 32, true) == AVCMagic && BitB->FilePosition == 0) {
             while (BitB->FilePosition + Bits2Bytes(BitB->BitsUnavailable, true) < BitB->FileSize) {
-                ParseAVCHeader(AVC, BitB);
-                FindNALSize(AVC, BitB);
-                ScanNALUnits(AVC, BitB);
+                ParseAVCHeader(Dec, BitB);
+                FindNALSize(Dec, BitB);
+                ScanNALUnits(Dec, BitB);
             }
         } else {
             SkipBits(BitB, 8);
@@ -91,13 +91,13 @@ extern "C" {
                 }
                 
                 if (Dec->NAL->SVCExtensionFlag == true) {
-                    ParseNALSVCExtension(AVC, BitB);
+                    ParseNALSVCExtension(Dec, BitB);
                     BytesInNALUnit += 3;
                 } else if (Dec->NAL->AVC3DExtensionFlag == true) {
-                    ParseNAL3DAVCExtension(AVC, BitB);
+                    ParseNAL3DAVCExtension(Dec, BitB);
                     BytesInNALUnit += 2;
                 } else {
-                    ParseNALMVCExtension(AVC, BitB);
+                    ParseNALMVCExtension(Dec, BitB);
                     BytesInNALUnit += 3;
                 }
             }
@@ -634,59 +634,59 @@ extern "C" {
     void ScanNALUnits(DecodeAVC *Dec, BitBuffer *BitB) {
         switch (Dec->NAL->NALUnitType) { // nal_unit_type
             case NAL_NonIDRSlice: // 1
-                ParseNALSliceNonPartitioned(AVC, BitB); // slice_layer_without_partitioning_rbsp
+                ParseNALSliceNonPartitioned(Dec, BitB); // slice_layer_without_partitioning_rbsp
                 break;
             case NAL_SlicePartitionA: // 2
-                ParseNALSlicePartitionA(AVC, BitB); // slice_data_partition_a_layer_rbsp
+                ParseNALSlicePartitionA(Dec, BitB); // slice_data_partition_a_layer_rbsp
                 break;
             case NAL_SlicePartitionB: // 3
-                ParseNALSlicePartitionB(AVC, BitB); // slice_data_partition_b_layer_rbsp
+                ParseNALSlicePartitionB(Dec, BitB); // slice_data_partition_b_layer_rbsp
                 break;
             case NAL_SlicePartitionC: // 4
-                ParseNALSlicePartitionC(AVC, BitB); // slice_data_partition_c_layer_rbsp
+                ParseNALSlicePartitionC(Dec, BitB); // slice_data_partition_c_layer_rbsp
                 break;
             case NAL_IDRSliceNonPartitioned: // 5
-                ParseNALSliceNonPartitioned(AVC, BitB); // slice_layer_without_partitioning_rbsp
+                ParseNALSliceNonPartitioned(Dec, BitB); // slice_layer_without_partitioning_rbsp
                 break;
             case NAL_SupplementalEnhancementInfo: // 6
-                ParseSEIMessage(AVC, BitB); // sei_rbsp
+                ParseSEIMessage(Dec, BitB); // sei_rbsp
                 break;
             case NAL_SequenceParameterSet: // 7
-                ParseNALSequenceParameterSet(AVC, BitB); // seq_parameter_set_rbsp
+                ParseNALSequenceParameterSet(Dec, BitB); // seq_parameter_set_rbsp
                 break;
             case NAL_PictureParameterSet: // 8
-                ParseNALPictureParameterSet(AVC, BitB); // pic_parameter_set_rbsp
+                ParseNALPictureParameterSet(Dec, BitB); // pic_parameter_set_rbsp
                 break;
             case NAL_AccessUnitDelimiter: // 9
-                ParseNALAccessUnitDelimiter(AVC, BitB); // access_unit_delimiter_rbsp()
+                ParseNALAccessUnitDelimiter(Dec, BitB); // access_unit_delimiter_rbsp()
                 break;
             case NAL_EndOfSequence: // 10
-                                    //ParseNALEndOfSequence(AVC, BitB);       // End of Sequence aka Rescan end_of_seq_rbsp
+                                    //ParseNALEndOfSequence(Dec, BitB);       // End of Sequence aka Rescan end_of_seq_rbsp
             case NAL_EndOfStream: // 11
-                                  //ParseNALEndOfStream(AVC, BitB);        // End of Stream NAL.
+                                  //ParseNALEndOfStream(Dec, BitB);        // End of Stream NAL.
             case NAL_FillerData: // 12
-                ParseNALFillerData(AVC, BitB); // filler_data_rbsp
+                ParseNALFillerData(Dec, BitB); // filler_data_rbsp
             case NAL_SequenceParameterSetExtended: // 13
-                ParseNALSequenceParameterSetExtended(AVC, BitB);
+                ParseNALSequenceParameterSetExtended(Dec, BitB);
                 break;
             case NAL_PrefixUnit: // 14
-                ParseNALPrefixUnit(AVC, BitB); // prefix_nal_unit_rbsp
+                ParseNALPrefixUnit(Dec, BitB); // prefix_nal_unit_rbsp
                 break;
             case NAL_SubsetSequenceParameterSet: // 15
-                ParseNALSubsetSPS(AVC, BitB);
+                ParseNALSubsetSPS(Dec, BitB);
                 break;
             case NAL_DepthParameterSet: // 16
-                ParseNALDepthParameterSet(AVC, BitB);
+                ParseNALDepthParameterSet(Dec, BitB);
                 break;
             case NAL_AuxiliarySliceNonPartitioned: // 19
-                ParseNALIDRSliceNonPartitioned(AVC, BitB);
+                ParseNALIDRSliceNonPartitioned(Dec, BitB);
                 break;
             case NAL_AuxiliarySliceExtension: // 20
-                ParseNALAuxiliarySliceExtension(AVC, BitB);
+                ParseNALAuxiliarySliceExtension(Dec, BitB);
                 // slice_layer_extension_rbsp
                 break;
             case NAL_MVCDepthView: // 21
-                ParseNALAuxiliarySliceExtension(AVC, BitB);
+                ParseNALAuxiliarySliceExtension(Dec, BitB);
                 // slice_layer_extension_rbsp
                 break;
             default:

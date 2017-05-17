@@ -51,7 +51,7 @@ extern "C" {
                     Dec->SPS->ScalingListFlag[i]       = ReadBits(BitB, 1, true);
                     if (Dec->SPS->ScalingListFlag[i] == true) {
                         if (i < 6) {
-                            ScalingList(AVC, BitB, ScalingList4x4[i], 16, UseDefaultScalingMatrix4x4Flag[i]);
+                            ScalingList(Dec, BitB, ScalingList4x4[i], 16, UseDefaultScalingMatrix4x4Flag[i]);
                         } else {
                             ScalingList(BitB, ScalingList8x8[i - 6], 64, UseDefaultScalingMatrix8x8Flag[i - 6]);
                         }
@@ -91,7 +91,7 @@ extern "C" {
         }
         Dec->SPS->VUIPresent                           = ReadBits(BitB, 1, true);
         if (Dec->SPS->VUIPresent == true) {
-            ParseVideoUsabilityInformation(AVC, BitB);
+            ParseVideoUsabilityInformation(Dec, BitB);
         }
     }
     
@@ -109,29 +109,29 @@ extern "C" {
     }
     
     void ParseNALSubsetSPS(DecodeAVC *Dec, BitBuffer *BitB) { // subset_seq_parameter_set_rbsp
-        ReadSequenceParameterSetData(AVC, BitB);
+        ReadSequenceParameterSetData(Dec, BitB);
         if ((Dec->SPS->ProfileIDC == Scalable_Constrained_Baseline_Profile) || (Dec->SPS->ProfileIDC == Scalable_High_Intra_Profile)) { // Scalable Video mode
-            ParseNALSequenceParameterSetSVC(AVC, BitB);
+            ParseNALSequenceParameterSetSVC(Dec, BitB);
             if (Dec->SPS->VUIPresent == true) {
-                ParseSVCVUIExtension(AVC, BitB);
+                ParseSVCVUIExtension(Dec, BitB);
             }
         } else if ((Dec->SPS->ProfileIDC == MultiView_High_Profile) || (Dec->SPS->ProfileIDC == Stereo_High_Profile) || (Dec->SPS->ProfileIDC == 134)) {
             // Multi View Coding
             SkipBits(BitB, 1);
-            ParseSPSMultiViewCodingExtension(AVC, BitB); // seq_parameter_set_mvc_extension
+            ParseSPSMultiViewCodingExtension(Dec, BitB); // seq_parameter_set_mvc_extension
             Dec->SPS->MVCVUIParamsPresent              = ReadBits(BitB, 1, true);
             if (Dec->SPS->MVCVUIParamsPresent == true) {
-                ParseMVCVUI(AVC, BitB);
+                ParseMVCVUI(Dec, BitB);
             }
         } else if (Dec->SPS->ProfileIDC == MultiView_Depth_High_Profile) {
             // MVCD
             SkipBits(BitB, 1);
-            ParseSPSMVCDExtension(AVC, BitB);
+            ParseSPSMVCDExtension(Dec, BitB);
         } else if (Dec->SPS->ProfileIDC == 139) {
             // MVCD && 3DAVC
             SkipBits(BitB, 1);
-            ParseSPSMVCDExtension(AVC, BitB);
-            ParseSPS3DAVCExtension(AVC, BitB);
+            ParseSPSMVCDExtension(Dec, BitB);
+            ParseSPS3DAVCExtension(Dec, BitB);
         }
         Dec->SPS->AdditionalExtension2                 = ReadBits(BitB, 1, true);
         if (Dec->SPS->AdditionalExtension2 == true) {
@@ -143,7 +143,7 @@ extern "C" {
     }
     
     void ParseNALSequenceParameterSet(DecodeAVC *Dec, BitBuffer *BitB) { // seq_parameter_set_rbsp
-        ParseSequenceParameterSetData(AVC, BitB); // seq_parameter_set_data
+        ParseSequenceParameterSetData(Dec, BitB); // seq_parameter_set_data
         AlignInput(BitB, 1);            // rbsp_trailing_bits();
     }
     
@@ -185,11 +185,11 @@ extern "C" {
         }
         Dec->VUI->NALHrdParamsPresent[0]                           = ReadBits(BitB, 1, true);
         if (Dec->VUI->NALHrdParamsPresent[0] == true) {
-            ParseHypotheticalReferenceDecoder(AVC, BitB);
+            ParseHypotheticalReferenceDecoder(Dec, BitB);
         }
         Dec->VUI->VCLHrdParamsPresent[0]                           = ReadBits(BitB, 1, true);
         if (Dec->VUI->VCLHrdParamsPresent[0] == true) {
-            ParseHypotheticalReferenceDecoder(AVC, BitB); // wat
+            ParseHypotheticalReferenceDecoder(Dec, BitB); // wat
         }
         if ((Dec->VUI->NALHrdParamsPresent[0] || Dec->VUI->VCLHrdParamsPresent[0]) == true) {
             Dec->StreamIsLowDelay                                  = ReadBits(BitB, 1, true);
@@ -254,11 +254,11 @@ extern "C" {
             }
             Dec->VUI->MVCNALHRDParamsPresent[Operation]    = ReadBits(BitB, 1, true);
             if (Dec->VUI->MVCNALHRDParamsPresent[Operation] == true) {
-                ParseHypotheticalReferenceDecoder(AVC, BitB);
+                ParseHypotheticalReferenceDecoder(Dec, BitB);
             }
             Dec->VUI->MVCVCLHRDParamsPresent[Operation]    = ReadBits(BitB, 1, true);
             if (Dec->VUI->MVCVCLHRDParamsPresent[Operation] == true) {
-                ParseHypotheticalReferenceDecoder(AVC, BitB);
+                ParseHypotheticalReferenceDecoder(Dec, BitB);
             }
             if ((Dec->VUI->MVCNALHRDParamsPresent[Operation] || Dec->VUI->MVCVCLHRDParamsPresent[Operation]) == true) {
                 Dec->VUI->MVCLowDelayFlag[Operation]       = ReadBits(BitB, 1, true);
@@ -281,11 +281,11 @@ extern "C" {
             }
             Dec->VUI->VUIExtNALHRDPresentFlag[VUIExtEntry]      = ReadBits(BitB, 1, true);
             if (Dec->VUI->VUIExtNALHRDPresentFlag[VUIExtEntry] == true) {
-                ParseHypotheticalReferenceDecoder(AVC, BitB);
+                ParseHypotheticalReferenceDecoder(Dec, BitB);
             }
             Dec->VUI->VUIExtVCLHRDPresentFlag[VUIExtEntry]      = ReadBits(BitB, 1, true);
             if (Dec->VUI->VUIExtVCLHRDPresentFlag[VUIExtEntry] == true) {
-                ParseHypotheticalReferenceDecoder(AVC, BitB);
+                ParseHypotheticalReferenceDecoder(Dec, BitB);
             }
             if ((Dec->VUI->VUIExtNALHRDPresentFlag[VUIExtEntry] == true) || (Dec->VUI->VUIExtVCLHRDPresentFlag[VUIExtEntry] == true)) {
                 Dec->VUI->VUIExtLowDelayHRDFlag[VUIExtEntry]    = ReadBits(BitB, 1, true);
@@ -342,9 +342,9 @@ extern "C" {
                     Dec->PPS->PicScalingList[i]         = ReadBits(BitB, 1, true);
                     if (Dec->PPS->PicScalingList[i] == true) {
                         if (i < 6) {
-                            ScalingList(AVC, BitB, ScalingList4x4[i], 16, UseDefaultScalingMatrix4x4Flag[i]);
+                            ScalingList(Dec, BitB, ScalingList4x4[i], 16, UseDefaultScalingMatrix4x4Flag[i]);
                         } else {
-                            ScalingList(AVC, BitB, ScalingList8x8[i - 6], 64, UseDefaultScalingMatrix8x8Flag[i - 6]);
+                            ScalingList(Dec, BitB, ScalingList8x8[i - 6], 64, UseDefaultScalingMatrix8x8Flag[i - 6]);
                         }
                     }
                 }
@@ -398,7 +398,7 @@ extern "C" {
         if (Dec->NAL->NALRefIDC != 0) {
             Dec->Slice->StoreRefBasePicFlag                        = ReadBits(BitB, 1, true);
             if (((Dec->NAL->UseReferenceBasePictureFlag) || (Dec->Slice->StoreRefBasePicFlag)) && (!Dec->NAL->IDRFlag)) {
-                ParseReferenceBasePictureSyntax(AVC, BitB); // dec_ref_base_pic_marking();
+                ParseReferenceBasePictureSyntax(Dec, BitB); // dec_ref_base_pic_marking();
             }
             Dec->NAL->AdditionalPrefixNALExtensionFlag             = ReadBits(BitB, 1, true);
             if (Dec->NAL->AdditionalPrefixNALExtensionFlag == true) {
@@ -476,11 +476,11 @@ extern "C" {
         }
         Dec->SPS->MVCDVUIParametersPresent                                     = ReadBits(BitB, 1, true);
         if (Dec->SPS->MVCDVUIParametersPresent == true) {
-            ParseMVCDVUIParametersExtension(AVC, BitB); // mvcd_vui_parameters_extension();
+            ParseMVCDVUIParametersExtension(Dec, BitB); // mvcd_vui_parameters_extension();
         }
         Dec->SPS->MVCDTextureVUIParametersPresent                              = ReadBits(BitB, 1, true);
         if (Dec->SPS->MVCDTextureVUIParametersPresent == true) {
-            ParseMVCVUIParametersExtension(AVC, BitB); //mvc_vui_parameters_extension();
+            ParseMVCVUIParametersExtension(Dec, BitB); //mvc_vui_parameters_extension();
         }
     }
     
@@ -499,7 +499,7 @@ extern "C" {
         depth_ranges(BitB, Dec->DPS->NumDepthViews, Dec->DPS->PredictionDirection, Dec->DPS->DepthParameterSetID);
         Dec->DPS->VSPParamFlag                    = ReadBits(BitB, 1, true);
         if (Dec->DPS->VSPParamFlag == true) {
-            vsp_param(AVC, BitB, Dec->DPS->NumDepthViews, Dec->DPS->PredictionDirection, Dec->DPS->DepthParameterSetID);
+            vsp_param(Dec, BitB, Dec->DPS->NumDepthViews, Dec->DPS->PredictionDirection, Dec->DPS->DepthParameterSetID);
         }
         Dec->DPS->AdditionalExtensionFlag         = ReadBits(BitB, 1, true);
         Dec->DPS->DepthMappingValues              = ReadExpGolomb(BitB, false);
@@ -522,7 +522,7 @@ extern "C" {
             }
             if (Dec->SPS->AVC3DAcquisitionIDC > 0) {
                 DepthRanges(BitB, Dec->DPS->NumDepthViews, 2, 0);
-                vsp_param(AVC, BitB, Dec->DPS->NumDepthViews, 2, 0);
+                vsp_param(Dec, BitB, Dec->DPS->NumDepthViews, 2, 0);
             }
             Dec->SPS->ReducedResolutionFlag                             = ReadBits(BitB, 1, true);
             if (Dec->SPS->ReducedResolutionFlag == true) {
@@ -666,9 +666,9 @@ extern "C" {
             }
         }
         if ((Dec->NAL->NALUnitType == NAL_AuxiliarySliceExtension) || (Dec->NAL->NALUnitType == NAL_MVCDepthView)) {
-            RefPicListMVCMod(AVC, BitB);
+            RefPicListMVCMod(Dec, BitB);
         } else {
-            RefPicListMod(AVC, BitB);
+            RefPicListMod(Dec, BitB);
         }
         if ((Dec->PPS->WeightedPrediction == true)
             && (
@@ -679,10 +679,10 @@ extern "C" {
              (Dec->Slice->Type == SliceB1)  ||
              (Dec->Slice->Type == SliceB2)
              ) && (Dec->PPS->WeightedBiPrediction == true)) {
-            pred_weight_table(AVC, BitB);
+            pred_weight_table(Dec, BitB);
         }
         if (Dec->NAL->NALRefIDC != 0) {
-            DecodeRefPicMarking(AVC, BitB);
+            DecodeRefPicMarking(Dec, BitB);
         }
         if ((Dec->PPS->EntropyCodingMode  == true) && (((Dec->Slice->Type != SliceI1) || (Dec->Slice->Type != SliceI2) || (Dec->Slice->Type != SliceSI1) || (Dec->Slice->Type != SliceSI2)))) {
             Dec->Slice->CabacInitIDC                                       = ReadExpGolomb(BitB, true);
@@ -723,7 +723,7 @@ extern "C" {
                     Dec->Slice->MacroBlockSkipRun         = ReadExpGolomb(BitB, false);
                     Dec->Slice->PreviousMacroBlockSkipped = (Dec->Slice->MacroBlockSkipRun > 0);
                     for (uint8_t SkippedMacroBlock        = 0; SkippedMacroBlock < Dec->Slice->MacroBlockSkipRun; SkippedMacroBlock++) {
-                        CurrentMacroBlockAddress          = NextMacroBlockAddress(AVC, CurrentMacroBlockAddress);
+                        CurrentMacroBlockAddress          = NextMacroBlockAddress(Dec, CurrentMacroBlockAddress);
                     }
                 }
             }
@@ -731,10 +731,10 @@ extern "C" {
     }
     
     void ParseNALSlicePartitionA(DecodeAVC *Dec, BitBuffer *BitB) { // slice_data_partition_a_layer_rbsp
-        ParseSliceHeader(AVC, BitB);
+        ParseSliceHeader(Dec, BitB);
         uint64_t SliceID = ReadExpGolomb(BitB, false);
-        ParseSliceData(AVC, BitB, 2); /* only category 2 parts of slice_data() syntax */
-        rbsp_slice_trailing_bits(AVC, BitB); // AlignInput(BitB, 1);
+        ParseSliceData(Dec, BitB, 2); /* only category 2 parts of slice_data() syntax */
+        rbsp_slice_trailing_bits(Dec, BitB); // AlignInput(BitB, 1);
     }
     
     void ParseNALSlicePartitionB(DecodeAVC *Dec, BitBuffer *BitB) { // slice_data_partition_b_layer_rbsp
@@ -745,8 +745,8 @@ extern "C" {
         if (Dec->PPS->RedundantPictureFlag == true) {
             Dec->PPS->RedundantPictureCount = ReadExpGolomb(BitB, false);
         }
-        ParseSliceData(AVC, BitB, 3);
-        rbsp_slice_trailing_bits(AVC, BitB); // AlignInput(BitB, 1);
+        ParseSliceData(Dec, BitB, 3);
+        rbsp_slice_trailing_bits(Dec, BitB); // AlignInput(BitB, 1);
     }
     
     void ParseNALSlicePartitionC(DecodeAVC *Dec, BitBuffer *BitB) { // slice_data_partition_c_layer_rbsp
@@ -757,13 +757,13 @@ extern "C" {
         if (Dec->PPS->RedundantPictureFlag == true) {
             Dec->PPS->RedundantPictureCount = ReadExpGolomb(BitB, false);
         }
-        ParseSliceData(AVC, BitB, 4);
-        rbsp_slice_trailing_bits(AVC, BitB); // AlignInput(BitB, 1);
+        ParseSliceData(Dec, BitB, 4);
+        rbsp_slice_trailing_bits(Dec, BitB); // AlignInput(BitB, 1);
     }
     
     void ParseNALSliceNonPartitioned(DecodeAVC *Dec, BitBuffer *BitB) { // slice_layer_without_partitioning_rbsp
-        ParseNALSliceHeader(AVC, BitB);
-        ParseNALSliceData(AVC, BitB, 0); // TODO: Fix category
+        ParseNALSliceHeader(Dec, BitB);
+        ParseNALSliceData(Dec, BitB, 0); // TODO: Fix category
         AlignInput(BitB, 1); // rbsp_slice_trailing_bits();
     }
     
@@ -775,7 +775,7 @@ extern "C" {
     
     void ParseNALPrefixUnit(DecodeAVC *Dec, BitBuffer *BitB) { // prefix_nal_unit_rbsp
         if (Dec->NAL->SVCExtensionFlag == true) {
-            ParseNALPrefixUnitSVC(AVC, BitB);
+            ParseNALPrefixUnitSVC(Dec, BitB);
         }
     }
     
@@ -910,7 +910,7 @@ extern "C" {
                 Dec->SEI->OriginalBottomFieldFlag = ReadBits(BitB, 1, true);
             }
         }
-        DecodeRefPicMarking(AVC, BitB); // dec_ref_pic_marking();
+        DecodeRefPicMarking(Dec, BitB); // dec_ref_pic_marking();
     }
     
     void ParseSEISparePicture(DecodeAVC *Dec, BitBuffer *BitB) { // spare_pic
@@ -1342,7 +1342,7 @@ extern "C" {
             Dec->SEI->SEITemporalID[0] = ReadBits(BitB, 3, true);
         }
         AlignInput(BitB, 1);
-        ParseSEIMessage(AVC, BitB); // sei_message();
+        ParseSEIMessage(Dec, BitB); // sei_message();
     }
     
     void ParseSEIBaseLayerTemporalHRD(DecodeAVC *Dec, BitBuffer *BitB) { // base_layer_temporal_hrd
@@ -1357,11 +1357,11 @@ extern "C" {
             }
             Dec->SEI->SEINALHRDParamsPresentFlag[TemporalLayer] = ReadBits(BitB, 1, true);
             if (Dec->SEI->SEINALHRDParamsPresentFlag[TemporalLayer] == true) {
-                ParseHypotheticalReferenceDecoder(AVC, BitB);
+                ParseHypotheticalReferenceDecoder(Dec, BitB);
             }
             Dec->SEI->SEIVCLHRDParamsPresentFlag[TemporalLayer] = ReadBits(BitB, 1, true);
             if (Dec->SEI->SEIVCLHRDParamsPresentFlag[TemporalLayer] == true) {
-                ParseHypotheticalReferenceDecoder(AVC, BitB);
+                ParseHypotheticalReferenceDecoder(Dec, BitB);
             }
             if ((Dec->SEI->SEINALHRDParamsPresentFlag[TemporalLayer] == true) || (Dec->SEI->SEIVCLHRDParamsPresentFlag[TemporalLayer] == true)) {
                 Dec->SEI->SEILowDelayHRDFlag[TemporalLayer] = ReadBits(BitB, 1, true);
@@ -1448,7 +1448,7 @@ extern "C" {
             Dec->SEI->SEIOpTemporalID = ReadBits(BitB, 3, true);
         }
         AlignInput(BitB, 1);
-        ParseSEIMessage(AVC, BitB); // sei_message();
+        ParseSEIMessage(Dec, BitB); // sei_message();
     }
     
     void ParseSEIViewScalabilityInfo(DecodeAVC *Dec, BitBuffer *BitB) { // view_scalability_info FIXME: FINISH THIS FUNCTION!!!
@@ -1820,10 +1820,10 @@ extern "C" {
             Dec->SEI->NumDepthGridViews                               = ReadExpGolomb(BitB, false) + 1;
             for (uint8_t DepthGrid = 0; DepthGrid < Dec->SEI->NumDepthGridViews; DepthGrid++) {
                 Dec->SEI->DepthInfoViewID[DepthGrid]                  = ReadExpGolomb(BitB, false);
-                ParseSEIDepthGridPosition(AVC, BitB);
+                ParseSEIDepthGridPosition(Dec, BitB);
             }
         } else {
-            ParseSEIDepthGridPosition(AVC, BitB);
+            ParseSEIDepthGridPosition(Dec, BitB);
         }
     }
     
@@ -1867,7 +1867,7 @@ extern "C" {
             Dec->SEI->SEIOpTemporalID                                 = ReadBits(BitB, 1, true);
         }
         AlignInput(BitB, 1);
-        ParseSEIMessage(AVC, BitB); // sei_message();
+        ParseSEIMessage(Dec, BitB); // sei_message();
     }
     
     void ParseSEIDepthRepresentationElement(BitBuffer *BitB, uint8_t OutSign, uint8_t OutExp, uint8_t OutMantissa, uint8_t OutManLen) { // depth_representation_sei_element
@@ -1898,172 +1898,172 @@ extern "C" {
         
         switch (Dec->SEI->SEIType) { // sei_payload
             case SEI_BufferingPeriod:                         // 0
-                ParseSEIBufferingPeriod(AVC, BitB);
+                ParseSEIBufferingPeriod(Dec, BitB);
                 break;
             case SEI_PictureTiming:                           // 1
-                ParseSEIPictureTiming(AVC, BitB);
+                ParseSEIPictureTiming(Dec, BitB);
                 break;
             case SEI_PanScan:                                 // 2
-                ParseSEIPanScan(AVC, BitB);
+                ParseSEIPanScan(Dec, BitB);
                 break;
             case SEI_Filler:                                  // 3
-                ParseSEIFiller(AVC, BitB);
+                ParseSEIFiller(Dec, BitB);
                 break;
             case SEI_RegisteredUserData:                      // 4
-                ParseSEIRegisteredUserData(AVC, BitB);
+                ParseSEIRegisteredUserData(Dec, BitB);
                 break;
             case SEI_UnregisteredUserData:                    // 5
-                ParseSEIUnregisteredUserData(AVC, BitB);
+                ParseSEIUnregisteredUserData(Dec, BitB);
                 break;
             case SEI_RecoveryPoint:                           // 6
-                ParseSEIRecoveryPoint(AVC, BitB);
+                ParseSEIRecoveryPoint(Dec, BitB);
                 break;
             case SEI_RepetitiveReferencePicture:              // 7
-                ParseSEIRepetitiveReferencePicture(AVC, BitB);
+                ParseSEIRepetitiveReferencePicture(Dec, BitB);
                 break;
             case SEI_SparePicture:                            // 8
-                ParseSEISparePicture(AVC, BitB);
+                ParseSEISparePicture(Dec, BitB);
                 break;
             case SEI_SceneInformation:                        // 9
-                ParseSEISceneInfo(AVC, BitB);
+                ParseSEISceneInfo(Dec, BitB);
                 break;
             case SEI_SubSequenceInformation:                  // 10
-                ParseSEISubSequenceInfo(AVC, BitB);
+                ParseSEISubSequenceInfo(Dec, BitB);
                 break;
             case SEI_SubSequenceLayerProperties:              // 11
-                ParseSEISubSequenceLayerProperties(AVC, BitB);
+                ParseSEISubSequenceLayerProperties(Dec, BitB);
                 break;
             case SEI_SubSequenceProperties:                   // 12
-                ParseSEISubSequenceProperties(AVC, BitB);
+                ParseSEISubSequenceProperties(Dec, BitB);
                 break;
             case SEI_FullFrameFreeze:                         // 13
-                ParseSEIFullFrameFreeze(AVC, BitB);
+                ParseSEIFullFrameFreeze(Dec, BitB);
                 break;
             case SEI_FullFrameFreezeRelease:                  // 14
-                ParseSEIFullFrameFreezeRelease(AVC, BitB);
+                ParseSEIFullFrameFreezeRelease(Dec, BitB);
                 break;
             case SEI_FullFrameSnapshot:                       // 15
-                ParseSEIFullFrameSnapshot(AVC, BitB);
+                ParseSEIFullFrameSnapshot(Dec, BitB);
                 break;
             case SEI_ProgressiveRefinementSegmentStart:       // 16
-                ParseSEIProgressiveRefinementSegmentStart(AVC, BitB);
+                ParseSEIProgressiveRefinementSegmentStart(Dec, BitB);
                 break;
             case SEI_ProgressiveRefinementSegmentEnd:         // 17
-                ParseSEIProgressiveRefinementSegmentEnd(AVC, BitB);
+                ParseSEIProgressiveRefinementSegmentEnd(Dec, BitB);
                 break;
             case SEI_MotionConstrainedSliceGroup:             // 18
-                ParseSEIMotionConstrainedSliceGroupSet(AVC, BitB);
+                ParseSEIMotionConstrainedSliceGroupSet(Dec, BitB);
                 break;
             case SEI_FilmGrainCharacteristics:                // 19
-                ParseSEIFilmGrainCharacteristics(AVC, BitB);
+                ParseSEIFilmGrainCharacteristics(Dec, BitB);
                 break;
             case SEI_DeblockingFilterDisplayPreferences:      // 20
-                ParseSEIDeblockingFilterDisplayPreference(AVC, BitB);
+                ParseSEIDeblockingFilterDisplayPreference(Dec, BitB);
                 break;
             case SEI_StereoVideoInformation:                  // 21
-                ParseSEIStereoVideoInfo(AVC, BitB);
+                ParseSEIStereoVideoInfo(Dec, BitB);
                 break;
             case SEI_PostFilterHint:                          // 22
-                ParseSEIPostFilterHint(AVC, BitB);
+                ParseSEIPostFilterHint(Dec, BitB);
                 break;
             case SEI_ToneMappingInformation:                  // 23
-                ParseSEIToneMappingInfo(AVC, BitB);
+                ParseSEIToneMappingInfo(Dec, BitB);
                 break;
             case SEI_ScalabilityInformation:                  // 24
-                ParseSEIScalabilityInfo(AVC, BitB);
+                ParseSEIScalabilityInfo(Dec, BitB);
                 break;
             case SEI_SubPictureScalableLayer:                 // 25
-                ParseSEISubPictureScalableLayer(AVC, BitB);
+                ParseSEISubPictureScalableLayer(Dec, BitB);
                 break;
             case SEI_NonRequiredLayerRep:                     // 26
-                ParseSEINonRequiredLayerRep(AVC, BitB);
+                ParseSEINonRequiredLayerRep(Dec, BitB);
                 break;
             case SEI_PriorityLayerInformation:                // 27
-                ParseSEIPriorityLayerInfo(AVC, BitB);
+                ParseSEIPriorityLayerInfo(Dec, BitB);
                 break;
             case SEI_LayersNotPresent:                        // 28
-                ParseSEILayersNotPresent(AVC, BitB);
+                ParseSEILayersNotPresent(Dec, BitB);
                 break;
             case SEI_LayerDependencyChange:                   // 29
-                ParseSEILayerDependencyChange(AVC, BitB);
+                ParseSEILayerDependencyChange(Dec, BitB);
                 break;
             case SEI_ScalableNesting:                         // 30
-                ParseSEIScalableNesting(AVC, BitB);
+                ParseSEIScalableNesting(Dec, BitB);
                 break;
             case SEI_BaseLayerTemporalHRD:                    // 31
-                ParseSEIBaseLayerTemporalHRD(AVC, BitB);
+                ParseSEIBaseLayerTemporalHRD(Dec, BitB);
                 break;
             case SEI_QualityLayerIntegrityCheck:              // 32
-                ParseSEIQualityLayerIntegrityCheck(AVC, BitB);
+                ParseSEIQualityLayerIntegrityCheck(Dec, BitB);
                 break;
             case SEI_RedundantPictureProperty:                // 33
-                ParseSEIRedundantPicProperty(AVC, BitB);
+                ParseSEIRedundantPicProperty(Dec, BitB);
                 break;
             case SEI_TemporalL0DependencyRepresentationIndex: // 34
-                ParseSEITemporalDependencyRepresentationIndex(AVC, BitB);
+                ParseSEITemporalDependencyRepresentationIndex(Dec, BitB);
                 break;
             case SEI_TemporalLevelSwitchingPoint:             // 35
-                ParseSEITemporalLevelSwitchingPoint(AVC, BitB);
+                ParseSEITemporalLevelSwitchingPoint(Dec, BitB);
                 break;
             case SEI_ParallelDecodingInformation:             // 36
-                ParseSEIParallelDecodingInfo(AVC, BitB);
+                ParseSEIParallelDecodingInfo(Dec, BitB);
                 break;
             case SEI_MVCScalableNesting:                      // 37
-                ParseSEIMVCScalableNesting(AVC, BitB);
+                ParseSEIMVCScalableNesting(Dec, BitB);
                 break;
             case SEI_ViewScalabilityInformation:              // 38
-                ParseSEIViewScalabilityInfo(AVC, BitB);
+                ParseSEIViewScalabilityInfo(Dec, BitB);
                 break;
             case SEI_MVCSceneInformation:                     // 39
-                ParseSEIMVCSceneInfo(AVC, BitB);
+                ParseSEIMVCSceneInfo(Dec, BitB);
                 break;
             case SEI_MVCAquisitionInformation:                // 40
-                ParseSEIMVCAcquisitionInfo(AVC, BitB);
+                ParseSEIMVCAcquisitionInfo(Dec, BitB);
                 break;
             case SEI_NonRequiredViewComponent:                // 41
-                ParseSEINonRequiredViewComponent(AVC, BitB);
+                ParseSEINonRequiredViewComponent(Dec, BitB);
                 break;
             case SEI_ViewDependencyChange:                    // 42
-                ParseSEIViewDependencyChange(AVC, BitB);
+                ParseSEIViewDependencyChange(Dec, BitB);
                 break;
             case SEI_OperationPointsNotPresent:               // 43
-                ParseSEIOperationPointNotPresent(AVC, BitB);
+                ParseSEIOperationPointNotPresent(Dec, BitB);
                 break;
             case SEI_BaseViewTemporalHRD:                     // 44
-                ParseSEIBaseViewTemporalHRD(AVC, BitB);
+                ParseSEIBaseViewTemporalHRD(Dec, BitB);
                 break;
             case SEI_FramePackingArrangement:                 // 45
-                ParseSEIFramePackingArrangement(AVC, BitB);
+                ParseSEIFramePackingArrangement(Dec, BitB);
                 break;
             case SEI_MVCViewPosition:                         // 46
-                ParseSEIMVCViewPosition(AVC, BitB);
+                ParseSEIMVCViewPosition(Dec, BitB);
                 break;
             case SEI_DisplayOrientation:                      // 47
-                ParseSEIDisplayOrientation(AVC, BitB);
+                ParseSEIDisplayOrientation(Dec, BitB);
                 break;
             case SEI_MVCDScalableNesting:                     // 48
-                ParseSEIMVCDScalableNesting(AVC, BitB);
+                ParseSEIMVCDScalableNesting(Dec, BitB);
                 break;
             case SEI_MVCDViewScalabilityInformation:          // 49
-                ParseSEIViewScalabilityInfo(AVC, BitB);
+                ParseSEIViewScalabilityInfo(Dec, BitB);
                 break;
             case SEI_DepthRepresentationInformation:          // 50
-                ParseSEIDepthRepresentationInformation(AVC, BitB);
+                ParseSEIDepthRepresentationInformation(Dec, BitB);
                 break;
             case SEI_3DReferenceDisplaysInformation:          // 51
-                ParseSEI3DReferenceDisplayInfo(AVC, BitB);
+                ParseSEI3DReferenceDisplayInfo(Dec, BitB);
                 break;
             case SEI_DepthTiming:                             // 52
-                ParseSEIDepthTiming(AVC, BitB);
+                ParseSEIDepthTiming(Dec, BitB);
                 break;
             case SEI_DepthSamplingInformation:                // 53
-                ParseSEIDepthSamplingInfo(AVC, BitB);
+                ParseSEIDepthSamplingInfo(Dec, BitB);
                 break;
             case SEI_MVCConstrainedDPSIdentifier:             // 54
-                ParseSEIConstrainedDepthParameterSetID(AVC, BitB);
+                ParseSEIConstrainedDepthParameterSetID(Dec, BitB);
                 break;
             case SEI_MasteringDisplayColorVolume:             // 137
-                ParseSEIMeteringDisplayColorVolume(AVC, BitB);
+                ParseSEIMeteringDisplayColorVolume(Dec, BitB);
                 break;
             default:
                 snprintf(ErrorDescription, BitIOStringSize, "Unrecognized SEIType: %d", Dec->SEI->SEIType);

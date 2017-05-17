@@ -13,7 +13,7 @@ extern "C" {
     
     
     /*
-     void ConvertRGB2YCgCo(AVCFile *AVC, uint8_t NumChannels, uint8_t NumPixels, uint16_t *DecodedMB[3][256]) {
+     void ConvertRGB2YCgCo(EncodeAVC *Enc, uint8_t NumChannels, uint8_t NumPixels, uint16_t *DecodedMB[3][256]) {
      uint16_t Temp, Green[NumChannels][NumPixels], Red[NumChannels][NumPixels], Blue[NumChannels][NumPixels];
      
      // Y  = DecodedMB[0]

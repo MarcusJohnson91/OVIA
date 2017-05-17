@@ -22,7 +22,7 @@ extern "C" {
             }
             if (Dec->MacroBlock->Type == I_PCM) {
                 SkipBits(BitB, 1); // pcm_alignment_zero_bit
-                CalculateMacroBlockDimensions(AVC);
+                CalculateMacroBlockDimensions(Dec);
                 for (uint16_t Sample = 0; Sample < MacroBlockMaxPixels; Sample++) {
                     Dec->MacroBlock->PCMLumaSample[Sample]   = ReadBits(BitB, Dec->SPS->LumaBitDepthMinus8, true);
                 }
@@ -34,8 +34,8 @@ extern "C" {
             } else {
                 if (Dec->MacroBlock->BaseModeFlag == false) {
                     Dec->MacroBlock->NoMBSmallerThan8x8Flag = 1;
-                    if ((Dec->MacroBlock->Type != I_NxN) && (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Intra_16x16) && NumMacroBlockPartitions(Dec->MacroBlock->Type) == 4) {
-                        ParseSubMacroBlockPredictionInSVC(BitB, AVC);
+                    if ((Dec->MacroBlock->Type != I_NxN) && (MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) != Intra_16x16) && NumMacroBlockPartitions(Dec->MacroBlock->Type) == 4) {
+                        ParseSubMacroBlockPredictionInSVC(Dec, BitB);
                         for (uint8_t MBPartitionIndex = 0; MBPartitionIndex < 4; MBPartitionIndex++) {
                             if (Dec->MacroBlock->SubMacroBlockType[MBPartitionIndex] != B_Direct_8x8) {
                                 if (NumberOfSubMacroBlockPartitions(Dec->MacroBlock->SubMacroBlockType[MBPartitionIndex]) > 1) {
@@ -49,20 +49,20 @@ extern "C" {
                         if (Dec->PPS->TransformIs8x8 == true && Dec->MacroBlock->Type == I_NxN) {
                             Dec->MacroBlock->TransformSizeIs8x8 = ReadBits(BitB, 1, true);
                         }
-                        ParseMBPredictionInSVC(AVC, BitB);
+                        ParseMBPredictionInSVC(Dec, BitB);
                     }
                 }
-                if ((Dec->Slice->AdaptiveResidualPredictionFlag == true) && ((Dec->Slice->Type != SliceEI1) || (Dec->Slice->Type != SliceEI2)) && InCropWindow(Dec, Dec->Slice->CurrentMacroBlockAddress) && (Dec->MacroBlock->BaseModeFlag || (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Intra_16x16 && MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Intra_8x8 && MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Intra_4x4))) {
+                if ((Dec->Slice->AdaptiveResidualPredictionFlag == true) && ((Dec->Slice->Type != SliceEI1) || (Dec->Slice->Type != SliceEI2)) && InCropWindow(Dec, Dec->Slice->CurrentMacroBlockAddress) && (Dec->MacroBlock->BaseModeFlag || (MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) != Intra_16x16 && MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) != Intra_8x8 && MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) != Intra_4x4))) {
                     Dec->Slice->ResidualPredictionFlag = ReadBits(BitB, 1, true);
                 }
                 if (Dec->Slice->ScanIndexEnd >= Dec->Slice->ScanIndexStart) {
-                    if (Dec->MacroBlock->BaseModeFlag || MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Intra_16x16) {
+                    if (Dec->MacroBlock->BaseModeFlag || MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) != Intra_16x16) {
                         Dec->MacroBlock->BlockPattern = ReadExpGolomb(BitB, false); // MappedExp
                         if (Dec->MacroBlock->BlockPatternLuma > 0 && Dec->PPS->TransformIs8x8 && (Dec->MacroBlock->BaseModeFlag || (Dec->MacroBlock->Type != I_NxN && Dec->MacroBlock->NoMBSmallerThan8x8Flag && (Dec->MacroBlock->Type != B_Direct_16x16 || Dec->SPS->Inference8x8)))) {
                             Dec->MacroBlock->TransformSizeIs8x8 = ReadBits(BitB, 1, true);
                         }
                     }
-                    if (Dec->MacroBlock->BlockPatternLuma > 0 || Dec->MacroBlock->BlockPatternChroma > 0 || MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) == Intra_16x16) {
+                    if (Dec->MacroBlock->BlockPatternLuma > 0 || Dec->MacroBlock->BlockPatternChroma > 0 || MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) == Intra_16x16) {
                         Dec->MacroBlock->QPDelta = ReadExpGolomb(BitB, true);
                         residual(Dec->Slice->ScanIndexStart, Dec->Slice->ScanIndexEnd);
                     }
@@ -77,7 +77,7 @@ extern "C" {
             }
             if (Dec->MacroBlock->Type == I_PCM) {
                 SkipBits(BitB, 1);
-                CalculateMacroBlockDimensions(AVC);
+                CalculateMacroBlockDimensions(Dec);
                 for (uint16_t Sample = 0; Sample < MacroBlockMaxPixels; Sample++) {
                     Dec->MacroBlock->PCMLumaSample[Sample]   = ReadBits(BitB, Dec->SPS->LumaBitDepthMinus8, true);
                 }
@@ -89,8 +89,8 @@ extern "C" {
             } else {
                 if (Dec->MacroBlock->BaseModeFlag == false) {
                     Dec->MacroBlock->NoMBSmallerThan8x8Flag = 1;
-                    if ((Dec->MacroBlock->Type != I_NxN) && (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Intra_16x16) && NumMacroBlockPartitions(Dec->MacroBlock->Type) == 4) {
-                        ParseSubMacroBlockPredictionInSVC(BitB, AVC);
+                    if ((Dec->MacroBlock->Type != I_NxN) && (MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) != Intra_16x16) && NumMacroBlockPartitions(Dec->MacroBlock->Type) == 4) {
+                        ParseSubMacroBlockPredictionInSVC(Dec, BitB);
                         for (uint8_t MBPartitionIndex = 0; MBPartitionIndex < 4; MBPartitionIndex++) {
                             if (Dec->MacroBlock->SubMacroBlockType[MBPartitionIndex] != B_Direct_8x8) {
                                 if (NumberOfSubMacroBlockPartitions(Dec->MacroBlock->SubMacroBlockType[MBPartitionIndex]) > 1) {
@@ -104,20 +104,20 @@ extern "C" {
                         if (Dec->PPS->TransformIs8x8 == true && Dec->MacroBlock->Type == I_NxN) {
                             Dec->MacroBlock->TransformSizeIs8x8 = ReadArithmetic(BitB, NULL, NULL, NULL, NULL);
                         }
-                        ParseMBPredictionInSVC(AVC, BitB);
+                        ParseMBPredictionInSVC(Dec, BitB);
                     }
                 }
-                if ((Dec->Slice->AdaptiveResidualPredictionFlag == true) && ((Dec->Slice->Type != SliceEI1) || (Dec->Slice->Type != SliceEI2)) && InCropWindow(Dec, Dec->Slice->CurrentMacroBlockAddress) && (Dec->MacroBlock->BaseModeFlag || (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Intra_16x16 && MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Intra_8x8 && MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Intra_4x4))) {
+                if ((Dec->Slice->AdaptiveResidualPredictionFlag == true) && ((Dec->Slice->Type != SliceEI1) || (Dec->Slice->Type != SliceEI2)) && InCropWindow(Dec, Dec->Slice->CurrentMacroBlockAddress) && (Dec->MacroBlock->BaseModeFlag || (MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) != Intra_16x16 && MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) != Intra_8x8 && MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) != Intra_4x4))) {
                     Dec->Slice->ResidualPredictionFlag = Dec->PPS->EntropyCodingMode = ExpGolomb ? ReadBits(BitB, 1, true) : ReadArithmetic(BitB, NULL, NULL, NULL, NULL);
                 }
                 if (Dec->Slice->ScanIndexEnd >= Dec->Slice->ScanIndexStart) {
-                    if (Dec->MacroBlock->BaseModeFlag || MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Intra_16x16) {
+                    if (Dec->MacroBlock->BaseModeFlag || MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) != Intra_16x16) {
                         Dec->MacroBlock->BlockPattern = ReadArithmetic(BitB, NULL, NULL, NULL, NULL); // ME or Arithmetic
                         if (Dec->MacroBlock->BlockPatternLuma > 0 && Dec->PPS->TransformIs8x8 && (Dec->MacroBlock->BaseModeFlag || (Dec->MacroBlock->Type != I_NxN && Dec->MacroBlock->NoMBSmallerThan8x8Flag && (Dec->MacroBlock->Type != B_Direct_16x16 || Dec->SPS->Inference8x8)))) {
                             Dec->MacroBlock->TransformSizeIs8x8 = ReadBits(BitB, 1, true); // OR Arithmetic
                         }
                     }
-                    if (Dec->MacroBlock->BlockPatternLuma > 0 || Dec->MacroBlock->BlockPatternChroma > 0 || MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) == Intra_16x16) {
+                    if (Dec->MacroBlock->BlockPatternLuma > 0 || Dec->MacroBlock->BlockPatternChroma > 0 || MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) == Intra_16x16) {
                         Dec->MacroBlock->QPDelta = Dec->PPS->EntropyCodingMode = ExpGolomb ? ReadExpGolomb(BitB, true) : ReadArithmetic(BitB, NULL, NULL, NULL, NULL);
                         residual(Dec->Slice->ScanIndexStart, Dec->Slice->ScanIndexEnd);
                     }
@@ -146,8 +146,8 @@ extern "C" {
     
     void ParseMBPredictionInSVC(DecodeAVC *Dec, BitBuffer *BitB) { // mb_pred_in_scalable_extension
         if (Dec->PPS->EntropyCodingMode == ExpGolomb) {
-            if ((MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) == Intra_4x4) || (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) == Intra_8x8) || (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) == Intra_16x16)) {
-                if (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) == Intra_4x4) {
+            if ((MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) == Intra_4x4) || (MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) == Intra_8x8) || (MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) == Intra_16x16)) {
+                if (MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) == Intra_4x4) {
                     for (uint8_t luma4x4BlkIdx = 0; luma4x4BlkIdx < 16; luma4x4BlkIdx++) {
                         Dec->MacroBlock->PreviousIntra4x4PredictionFlag[luma4x4BlkIdx] = ReadBits(BitB, 1, true);
                         if (!Dec->MacroBlock->PreviousIntra4x4PredictionFlag[luma4x4BlkIdx]) {
@@ -155,7 +155,7 @@ extern "C" {
                         }
                     }
                 }
-                if (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) == Intra_8x8) {
+                if (MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) == Intra_8x8) {
                     for (uint8_t luma8x8BlkIdx = 0; luma8x8BlkIdx < 4; luma8x8BlkIdx++) {
                         Dec->MacroBlock->PreviousIntra8x8PredictionFlag[luma8x8BlkIdx] = ReadBits(BitB, 1, true);
                         if (!Dec->MacroBlock->PreviousIntra8x8PredictionFlag[luma8x8BlkIdx]) {
@@ -166,30 +166,30 @@ extern "C" {
                 if (Dec->SPS->ChromaArrayType != 0) {
                     Dec->MacroBlock->IntraChromaPredictionMode = ReadExpGolomb(BitB, false);
                 }
-            } else if (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Direct) {
+            } else if (MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) != Direct) {
                 if (InCropWindow(Dec, Dec->Slice->CurrentMacroBlockAddress) && Dec->Slice->AdaptiveMotionPredictionFlag) {
                     for (uint32_t MBPartitionIndex = 0; MBPartitionIndex < NumMacroBlockPartitions(Dec->MacroBlock->Type); MBPartitionIndex++) {
-                        if (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Pred_L1) {
+                        if (MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) != Pred_L1) {
                             Dec->MacroBlock->MotionPredictionFlagLevel0[MBPartitionIndex] = ReadBits(BitB, 1, true);
                         }
-                        if (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Pred_L0) {
+                        if (MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) != Pred_L0) {
                             Dec->MacroBlock->MotionPredictionFlagLevel1[MBPartitionIndex] = ReadBits(BitB, 1, true);
                         }
                     }
                 }
                 for (uint32_t MBPartitionIndex = 0; MBPartitionIndex < NumMacroBlockPartitions(Dec->MacroBlock->Type); MBPartitionIndex++) {
-                    if ((Dec->MacroBlock->NumRefIndexActiveLevel0 > 0 || Dec->Slice->MacroBlockFieldDecodingFlag != Dec->Slice->SliceIsInterlaced) && MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 1) != Pred_L1 && !Dec->MacroBlock->MotionPredictionFlagLevel0[MBPartitionIndex]) {
+                    if ((Dec->MacroBlock->NumRefIndexActiveLevel0 > 0 || Dec->Slice->MacroBlockFieldDecodingFlag != Dec->Slice->SliceIsInterlaced) && MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 1) != Pred_L1 && !Dec->MacroBlock->MotionPredictionFlagLevel0[MBPartitionIndex]) {
                         Dec->MacroBlock->RefIndexLevel0[MBPartitionIndex] = ReadExpGolomb(BitB, true);
                     }
-                    if ((Dec->MacroBlock->NumRefIndexActiveLevel1 > 0 || Dec->Slice->MacroBlockFieldDecodingFlag != Dec->Slice->SliceIsInterlaced) && MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 1) != Pred_L0 && !Dec->MacroBlock->MotionPredictionFlagLevel1[MBPartitionIndex]) {
+                    if ((Dec->MacroBlock->NumRefIndexActiveLevel1 > 0 || Dec->Slice->MacroBlockFieldDecodingFlag != Dec->Slice->SliceIsInterlaced) && MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 1) != Pred_L0 && !Dec->MacroBlock->MotionPredictionFlagLevel1[MBPartitionIndex]) {
                         Dec->MacroBlock->RefIndexLevel1[MBPartitionIndex] = ReadExpGolomb(BitB, true);
                     }
-                    if (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, MBPartitionIndex) != Pred_L1) {
+                    if (MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, MBPartitionIndex) != Pred_L1) {
                         for (uint8_t compIdx = 0; compIdx < 2; compIdx++) {
                             Dec->MacroBlock->MVDLevel0[MBPartitionIndex][0][compIdx] = ReadExpGolomb(BitB, true);
                         }
                     }
-                    if (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 1) != Pred_L0) {
+                    if (MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 1) != Pred_L0) {
                         for (uint8_t compIdx = 0; compIdx < 2; compIdx++) {
                             Dec->MacroBlock->MVDLevel1[MBPartitionIndex][0][compIdx] = ReadExpGolomb(BitB, true);
                         }
@@ -197,8 +197,8 @@ extern "C" {
                 }
             }
         } else if (Dec->PPS->EntropyCodingMode == Arithmetic) {
-            if ((MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) == Intra_4x4) || (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) == Intra_8x8) || (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) == Intra_16x16)) {
-                if (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) == Intra_4x4) {
+            if ((MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) == Intra_4x4) || (MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) == Intra_8x8) || (MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) == Intra_16x16)) {
+                if (MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) == Intra_4x4) {
                     for (uint8_t luma4x4BlkIdx = 0; luma4x4BlkIdx < 16; luma4x4BlkIdx++) {
                         Dec->MacroBlock->PreviousIntra4x4PredictionFlag[luma4x4BlkIdx] = ReadArithmetic(BitB, NULL, NULL, NULL, NULL);
                         if (!Dec->MacroBlock->PreviousIntra4x4PredictionFlag[luma4x4BlkIdx]) {
@@ -206,7 +206,7 @@ extern "C" {
                         }
                     }
                 }
-                if (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) == Intra_8x8) {
+                if (MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) == Intra_8x8) {
                     for (uint8_t luma8x8BlkIdx = 0; luma8x8BlkIdx < 4; luma8x8BlkIdx++) {
                         Dec->MacroBlock->PreviousIntra8x8PredictionFlag[luma8x8BlkIdx] = ReadArithmetic(BitB, NULL, NULL, NULL, NULL);
                         if (Dec->MacroBlock->PreviousIntra8x8PredictionFlag[luma8x8BlkIdx] == false) {
@@ -217,31 +217,31 @@ extern "C" {
                 if (Dec->SPS->ChromaArrayType != 0) {
                     Dec->MacroBlock->IntraChromaPredictionMode = ReadArithmetic(BitB, NULL, NULL, NULL, NULL);
                 }
-            } else if (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Direct) {
+            } else if (MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) != Direct) {
                 if (InCropWindow(Dec, Dec->Slice->CurrentMacroBlockAddress) && Dec->Slice->AdaptiveMotionPredictionFlag) {
                     for (uint32_t MBPartitionIndex = 0; MBPartitionIndex < NumMacroBlockPartitions(Dec->MacroBlock->Type); MBPartitionIndex++) {
-                        if (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 1) != Pred_L1) {
+                        if (MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 1) != Pred_L1) {
                             Dec->MacroBlock->MotionPredictionFlagLevel0[MBPartitionIndex] = ReadArithmetic(BitB, NULL, NULL, NULL, NULL);
                         }
-                        if (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 1) != Pred_L0) {
+                        if (MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 1) != Pred_L0) {
                             Dec->MacroBlock->MotionPredictionFlagLevel1[MBPartitionIndex] = ReadArithmetic(BitB, NULL, NULL, NULL, NULL);
                         }
                     }
                 }
                 for (uint32_t MBPartitionIndex = 0; MBPartitionIndex < NumMacroBlockPartitions(Dec->MacroBlock->Type); MBPartitionIndex++) {
-                    if ((Dec->MacroBlock->NumRefIndexActiveLevel0 > 0 || Dec->Slice->MacroBlockFieldDecodingFlag != Dec->Slice->SliceIsInterlaced) && MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 1) != Pred_L1 && !Dec->MacroBlock->MotionPredictionFlagLevel0[MBPartitionIndex]) {
+                    if ((Dec->MacroBlock->NumRefIndexActiveLevel0 > 0 || Dec->Slice->MacroBlockFieldDecodingFlag != Dec->Slice->SliceIsInterlaced) && MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 1) != Pred_L1 && !Dec->MacroBlock->MotionPredictionFlagLevel0[MBPartitionIndex]) {
                         Dec->MacroBlock->RefIndexLevel0[MBPartitionIndex] = ReadArithmetic(BitB, NULL, NULL, NULL, NULL);
                     }
                     if ((Dec->MacroBlock->NumRefIndexActiveLevel1 > 0 || Dec->Slice->MacroBlockFieldDecodingFlag != Dec->Slice->SliceIsInterlaced) &&
-                        MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 1) != Pred_L0 && !Dec->MacroBlock->MotionPredictionFlag[1][MBPartitionIndex]) {
+                        MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 1) != Pred_L0 && !Dec->MacroBlock->MotionPredictionFlagLevel0[MBPartitionIndex]) {
                         Dec->MacroBlock->RefIndexLevel1[MBPartitionIndex] = ReadArithmetic(BitB, NULL, NULL, NULL, NULL);
                     }
-                    if (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, MBPartitionIndex) != Pred_L1) {
+                    if (MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, MBPartitionIndex) != Pred_L1) {
                         for (uint8_t compIdx = 0; compIdx < 2; compIdx++) {
                             Dec->MacroBlock->MVDLevel0[MBPartitionIndex][0][compIdx] = ReadArithmetic(BitB, NULL, NULL, NULL, NULL);
                         }
                     }
-                    if (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Pred_L0) {
+                    if (MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) != Pred_L0) {
                         for (uint8_t compIdx = 0; compIdx < 2; compIdx++) {
                             Dec->MacroBlock->MVDLevel1[MBPartitionIndex][0][compIdx] = ReadArithmetic(BitB, NULL, NULL, NULL, NULL);
                         }
@@ -252,11 +252,11 @@ extern "C" {
     }
     
     void ParseAVC3DMacroBlockPredictionExtension(DecodeAVC *Dec, BitBuffer *BitB) {
-        if (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) == Intra_4x4) {
+        if (MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) == Intra_4x4) {
             
-        } else if (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) == Intra_8x8) {
+        } else if (MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) == Intra_8x8) {
             
-        } else if (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) == Intra_16x16) {
+        } else if (MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) == Intra_16x16) {
             
         }
     }
@@ -287,8 +287,8 @@ extern "C" {
             } else { // NOT I_PCM
                 Dec->MacroBlock->NoMBSmallerThan8x8Flag = true;
                 uint8_t NumMacroBlockPart = NumMacroBlockPartitions(Dec->MacroBlock->Type);
-                if ((Dec->MacroBlock->Type != I_NxN) && (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Intra_16x16) && (NumMacroBlockPart == 4)) {
-                    ParseSubMacroBlockPrediction(AVC, BitB, Dec->MacroBlock->Type);
+                if ((Dec->MacroBlock->Type != I_NxN) && (MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) != Intra_16x16) && (NumMacroBlockPart == 4)) {
+                    ParseSubMacroBlockPrediction(Dec, BitB, Dec->MacroBlock->Type);
                     for (uint8_t MBPartitionIndex = 0; MBPartitionIndex < 4; MBPartitionIndex++) {
                         if (Dec->MacroBlock->SubMacroBlockType[MBPartitionIndex] != B_Direct_8x8) {
                             if (NumberOfSubMacroBlockPartitions(Dec->MacroBlock->SubMacroBlockType[MBPartitionIndex]) > 1) {
@@ -302,14 +302,14 @@ extern "C" {
                     if (Dec->PPS->TransformIs8x8 && (Dec->MacroBlock->Type == I_NxN)) {
                         Dec->MacroBlock->TransformSizeIs8x8 = ReadBits(BitB, 1, true);
                     }
-                    mb_pred(AVC, BitB, Dec->MacroBlock->Type);
+                    mb_pred(Dec, BitB, Dec->MacroBlock->Type);
                 }
-                if (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Intra_16x16) {
+                if (MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) != Intra_16x16) {
                     Dec->MacroBlock->BlockPattern = ReadExpGolomb(BitB, false); // TODO: Add table lookup
                     if (Dec->MacroBlock->BlockPattern == true && Dec->PPS->TransformIs8x8 && (Dec->MacroBlock->Type != I_NxN) && Dec->MacroBlock->NoMBSmallerThan8x8Flag && (Dec->MacroBlock->Type != B_Direct_16x16 || Dec->SPS->Inference8x8)) {
                         Dec->MacroBlock->TransformSizeIs8x8 = ReadBits(BitB, 1, true);
                     }
-                    if (Dec->MacroBlock->BlockPatternLuma > 0 || Dec->MacroBlock->BlockPatternChroma > 0 || MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) == Intra_16x16) {
+                    if (Dec->MacroBlock->BlockPatternLuma > 0 || Dec->MacroBlock->BlockPatternChroma > 0 || MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) == Intra_16x16) {
                         Dec->MacroBlock->QPDelta = ReadExpGolomb(BitB, true);
                         residual(0, 15);
                     }
@@ -328,8 +328,8 @@ extern "C" {
             } else { // NOT I_PCM
                 Dec->MacroBlock->NoMBSmallerThan8x8Flag = true;
                 uint8_t NumMacroBlockPart = NumMacroBlockPartitions(Dec->MacroBlock->Type);
-                if ((Dec->MacroBlock->Type != I_NxN) && (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Intra_16x16) && (NumMacroBlockPart == 4)) {
-                    ParseSubMacroBlockPrediction(AVC, BitB, Dec->MacroBlock->Type);
+                if ((Dec->MacroBlock->Type != I_NxN) && (MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) != Intra_16x16) && (NumMacroBlockPart == 4)) {
+                    ParseSubMacroBlockPrediction(Dec, BitB, Dec->MacroBlock->Type);
                     for (uint8_t MBPartitionIndex = 0; MBPartitionIndex < 4; MBPartitionIndex++) {
                         if (Dec->MacroBlock->SubMacroBlockType[MBPartitionIndex] != B_Direct_8x8) {
                             if (NumberOfSubMacroBlockPartitions(Dec->MacroBlock->SubMacroBlockType[MBPartitionIndex]) > 1) {
@@ -343,14 +343,14 @@ extern "C" {
                     if (Dec->PPS->TransformIs8x8 && (Dec->MacroBlock->Type == I_NxN)) {
                         Dec->MacroBlock->TransformSizeIs8x8 = ReadArithmetic(BitB, NULL, NULL, NULL, NULL);
                     }
-                    mb_pred(AVC, BitB, Dec->MacroBlock->Type);
+                    mb_pred(Dec, BitB, Dec->MacroBlock->Type);
                 }
-                if (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Intra_16x16) {
+                if (MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) != Intra_16x16) {
                     Dec->MacroBlock->BlockPattern = ReadArithmetic(BitB, NULL, NULL, NULL, NULL);
                     if (Dec->MacroBlock->BlockPattern == true && Dec->PPS->TransformIs8x8 && (Dec->MacroBlock->Type != I_NxN) && Dec->MacroBlock->NoMBSmallerThan8x8Flag && (Dec->MacroBlock->Type != B_Direct_16x16 || Dec->SPS->Inference8x8)) {
                         Dec->MacroBlock->TransformSizeIs8x8 = ReadArithmetic(BitB, NULL, NULL, NULL, NULL);
                     }
-                    if (Dec->MacroBlock->BlockPatternLuma > 0 || Dec->MacroBlock->BlockPatternChroma > 0 || MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) == Intra_16x16) {
+                    if (Dec->MacroBlock->BlockPatternLuma > 0 || Dec->MacroBlock->BlockPatternChroma > 0 || MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) == Intra_16x16) {
                         Dec->MacroBlock->QPDelta = ReadArithmetic(BitB, NULL, NULL, NULL, NULL);
                         residual(0, 15);
                     }
@@ -361,7 +361,7 @@ extern "C" {
     
     void mb_pred(DecodeAVC *Dec, BitBuffer *BitB, uint8_t mb_type) { // mb_pred
         if (Dec->PPS->EntropyCodingMode == ExpGolomb) {
-            uint8_t MacroBlockPredictionMode = MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0);
+            uint8_t MacroBlockPredictionMode = MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0);
             if ((MacroBlockPredictionMode == Intra_4x4) || (MacroBlockPredictionMode == Intra_8x8) || (MacroBlockPredictionMode == Intra_16x16)) {
                 if (MacroBlockPredictionMode == Intra_4x4) {
                     for (uint8_t Luma4x4Block = 0; Luma4x4Block < 16; Luma4x4Block++) { // luma4x4BlkIdx
@@ -384,24 +384,24 @@ extern "C" {
                 }
             } else if (MacroBlockPredictionMode != Direct) {
                 for (uint8_t MBPartitionIndex = 0; MBPartitionIndex < NumMacroBlockPartitions(Dec->MacroBlock->Type); MBPartitionIndex++) {
-                    if ((Dec->MacroBlock->NumRefIndexActiveLevel0 > 0 || Dec->Slice->MacroBlockFieldDecodingFlag != Dec->Slice->SliceIsInterlaced) && MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Pred_L1) {
+                    if ((Dec->MacroBlock->NumRefIndexActiveLevel0 > 0 || Dec->Slice->MacroBlockFieldDecodingFlag != Dec->Slice->SliceIsInterlaced) && MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) != Pred_L1) {
                         Dec->MacroBlock->RefIndexLevel0[MBPartitionIndex] = ReadRICE(BitB, true, 0);
                     }
                 }
                 for (uint32_t MBPartitionIndex = 0; MBPartitionIndex < NumMacroBlockPartitions(Dec->MacroBlock->Type); MBPartitionIndex++) {
-                    if ((Dec->MacroBlock->NumRefIndexActiveLevel1 > 0 || Dec->Slice->MacroBlockFieldDecodingFlag != Dec->Slice->SliceIsInterlaced) && MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Pred_L0) {
+                    if ((Dec->MacroBlock->NumRefIndexActiveLevel1 > 0 || Dec->Slice->MacroBlockFieldDecodingFlag != Dec->Slice->SliceIsInterlaced) && MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) != Pred_L0) {
                         Dec->MacroBlock->RefIndexLevel1[MBPartitionIndex] = ReadRICE(BitB, true, 0);
                     }
                 }
                 for (uint32_t MBPartitionIndex = 0; MBPartitionIndex < NumMacroBlockPartitions(Dec->MacroBlock->Type); MBPartitionIndex++) {
-                    if (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Pred_L1) {
+                    if (MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) != Pred_L1) {
                         for (uint8_t compIdx = 0; compIdx < 2; compIdx++) {
                             Dec->MacroBlock->MVDLevel0[MBPartitionIndex][0][compIdx] = ReadExpGolomb(BitB, true);
                         }
                     }
                 }
                 for (uint32_t MBPartitionIndex = 0; MBPartitionIndex < NumMacroBlockPartitions(Dec->MacroBlock->Type); MBPartitionIndex++) {
-                    if (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Pred_L0) {
+                    if (MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) != Pred_L0) {
                         for (uint8_t compIdx = 0; compIdx < 2; compIdx++) {
                             Dec->MacroBlock->MVDLevel1[MBPartitionIndex][0][compIdx] = ReadExpGolomb(BitB, true);
                         }
@@ -409,7 +409,7 @@ extern "C" {
                 }
             }
         } else if (Dec->PPS->EntropyCodingMode == Arithmetic) {
-            uint8_t MacroBlockPredictionMode = MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0);
+            uint8_t MacroBlockPredictionMode = MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0);
             if ((MacroBlockPredictionMode == Intra_4x4) || (MacroBlockPredictionMode == Intra_8x8) || (MacroBlockPredictionMode == Intra_16x16)) {
                 if (MacroBlockPredictionMode == Intra_4x4) {
                     for (uint8_t Luma4x4Block = 0; Luma4x4Block < 16; Luma4x4Block++) { // luma4x4BlkIdx
@@ -432,24 +432,24 @@ extern "C" {
                 }
             } else if (MacroBlockPredictionMode != Direct) {
                 for (uint8_t MBPartitionIndex = 0; MBPartitionIndex < NumMacroBlockPartitions(Dec->MacroBlock->Type); MBPartitionIndex++) {
-                    if ((Dec->MacroBlock->NumRefIndexActiveLevel0 > 0 || Dec->Slice->MacroBlockFieldDecodingFlag != Dec->Slice->SliceIsInterlaced) && MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Pred_L1) {
+                    if ((Dec->MacroBlock->NumRefIndexActiveLevel0 > 0 || Dec->Slice->MacroBlockFieldDecodingFlag != Dec->Slice->SliceIsInterlaced) && MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) != Pred_L1) {
                         Dec->MacroBlock->RefIndexLevel0[MBPartitionIndex] = ReadArithmetic(BitB, NULL, NULL, NULL, NULL);
                     }
                 }
                 for (uint32_t MBPartitionIndex = 0; MBPartitionIndex < NumMacroBlockPartitions(Dec->MacroBlock->Type); MBPartitionIndex++) {
-                    if ((Dec->MacroBlock->NumRefIndexActiveLevel1 > 0 || Dec->Slice->MacroBlockFieldDecodingFlag != Dec->Slice->SliceIsInterlaced) && MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Pred_L0) {
+                    if ((Dec->MacroBlock->NumRefIndexActiveLevel1 > 0 || Dec->Slice->MacroBlockFieldDecodingFlag != Dec->Slice->SliceIsInterlaced) && MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) != Pred_L0) {
                         Dec->MacroBlock->RefIndexLevel1[MBPartitionIndex] = ReadArithmetic(BitB, NULL, NULL, NULL, NULL);
                     }
                 }
                 for (uint32_t MBPartitionIndex = 0; MBPartitionIndex < NumMacroBlockPartitions(Dec->MacroBlock->Type); MBPartitionIndex++) {
-                    if (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Pred_L1) {
+                    if (MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) != Pred_L1) {
                         for (uint8_t compIdx = 0; compIdx < 2; compIdx++) {
                             Dec->MacroBlock->MVDLevel0[MBPartitionIndex][0][compIdx] = ReadArithmetic(BitB, NULL, NULL, NULL, NULL);
                         }
                     }
                 }
                 for (uint32_t MBPartitionIndex = 0; MBPartitionIndex < NumMacroBlockPartitions(Dec->MacroBlock->Type); MBPartitionIndex++) {
-                    if (MacroBlockPartitionPredictionMode(AVC, Dec->MacroBlock->Type, 0) != Pred_L0) {
+                    if (MacroBlockPartitionPredictionMode(Dec, Dec->MacroBlock->Type, 0) != Pred_L0) {
                         for (uint8_t compIdx = 0; compIdx < 2; compIdx++) {
                             Dec->MacroBlock->MVDLevel1[MBPartitionIndex][0][compIdx] = ReadArithmetic(BitB, NULL, NULL, NULL, NULL);
                         }
