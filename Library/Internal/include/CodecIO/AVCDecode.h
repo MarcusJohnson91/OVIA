@@ -77,8 +77,6 @@ extern "C" {
     
     void     ParseSubMacroBlockPredictionInSVC(DecodeAVC *Dec, BitBuffer *BitB);
     
-    AVCFile *InitDecodeAVC(void);
-    
     void     rbsp_trailing_bits(DecodeAVC *Dec, BitBuffer *BitB);
     
     uint8_t  GetCodedBlockPattern(DecodeAVC *Dec, uint8_t CodeNum);

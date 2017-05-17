@@ -1,7 +1,7 @@
 #include "../../../Dependencies/BitIO/libBitIO/include/BitIO.h"
 
 #include "../../include/ModernAVCTypes.h"
-#include "../../include/Common.h"
+#include "../../include/Decode/DecodeAVCCommon.h"
 #include "../../include/Decode/DecodeAVC.h"
 #include "../../include/Decode/DecodeMacroBlock.h"
 #include "../../include/Decode/DecodeSlice.h"
@@ -35,7 +35,7 @@ extern "C" {
     // Basically I need to parse the NAL bytestream into the VCL (Video Coding Layer) aka Samples.
     
     // Find AVCMagic, then Find the NAL Size, then Parse the NAL, everything after step 1 needs to be on a loop.
-    size_t FindNALSize(DecodeAVC *Dec, BitInput *BitI) {
+    size_t FindNALSize(DecodeAVC *Dec, BitBuffer *BitB) {
         size_t   StartBufferPosition, EndOfBufferPosition, NALSize;
         bool     StreamIsByteAligned, NotEOF;
         uint32_t Marker;

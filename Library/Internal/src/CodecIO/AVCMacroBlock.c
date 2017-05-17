@@ -1,12 +1,12 @@
 #include "../../../Dependencies/BitIO/libBitIO/include/BitIO.h"
 
 #include "../../include/ModernAVCTypes.h"
-#include "../../include/Common.h"
+#include "../../include/Decode/DecodeAVCCommon.h"
 #include "../../include/Decode/DecodeAVC.h"
 #include "../../include/Decode/DecodeMacroBlock.h"
 #include "../../include/Decode/DecodeSlice.h"
 #include "../../include/Decode/ParseNAL.h"
-#include "../../include/Tables.h"
+#include "../../include/ModernAVCTables.h"
 
 #ifdef __cplusplus
 extern "C" {

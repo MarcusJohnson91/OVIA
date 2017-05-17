@@ -1,7 +1,7 @@
 #include "../../../Dependencies/BitIO/libBitIO/include/BitIO.h"
 
 #include "../../include/ModernAVCTypes.h"
-#include "../../include/Common.h"
+#include "../../include/Decode/DecodeAVCCommon.h"
 #include "../../include/Decode/DecodeAVC.h"
 #include "../../include/Decode/DecodeMacroBlock.h"
 #include "../../include/Decode/DecodeSlice.h"
