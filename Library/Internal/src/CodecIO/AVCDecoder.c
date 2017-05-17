@@ -65,6 +65,7 @@ extern "C" {
             while (GetBitBufferPosition(BitB) + Bits2Bytes(BitB->BitsUnavailable, true) < BitB->FileSize) {
                 ParseAVCHeader(Dec, BitB);
                 FindNALSize(Dec, BitB);
+                
                 ScanNALUnits(Dec, BitB);
             }
         } else {

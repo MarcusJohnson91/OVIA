@@ -14,16 +14,16 @@ extern "C" {
     
     /* Sequence Parameter Set */
     void ParseSequenceParameterSetData(DecodeAVC *Dec, BitBuffer *BitB) { // seq_parameter_set_data
-        Dec->SPS->ProfileIDC                           = ReadBits(BitB, 8, true); // 100
-        Dec->SPS->ConstraintFlag0                      = ReadBits(BitB, 1, true); // 0
-        Dec->SPS->ConstraintFlag1                      = ReadBits(BitB, 1, true); // 0
-        Dec->SPS->ConstraintFlag2                      = ReadBits(BitB, 1, true); // 0
-        Dec->SPS->ConstraintFlag3                      = ReadBits(BitB, 1, true); // 0
-        Dec->SPS->ConstraintFlag4                      = ReadBits(BitB, 1, true); // 0
-        Dec->SPS->ConstraintFlag5                      = ReadBits(BitB, 1, true); // 0
+        Dec->SPS->ProfileIDC                                                        = ReadBits(BitB, 8, true); // 100
+        Dec->SPS->ConstraintFlag0                                                   = ReadBits(BitB, 1, true); // 0
+        Dec->SPS->ConstraintFlag1                                                   = ReadBits(BitB, 1, true); // 0
+        Dec->SPS->ConstraintFlag2                                                   = ReadBits(BitB, 1, true); // 0
+        Dec->SPS->ConstraintFlag3                                                   = ReadBits(BitB, 1, true); // 0
+        Dec->SPS->ConstraintFlag4                                                   = ReadBits(BitB, 1, true); // 0
+        Dec->SPS->ConstraintFlag5                                                   = ReadBits(BitB, 1, true); // 0
         SkipBits(BitB, 2); // Zero bits.
-        Dec->SPS->LevelIDC[0]                          = ReadBits(BitB, 8, true); // 51
-        Dec->SPS->SeqParamSetID                        = ReadExpGolomb(BitB, false); // 1
+        Dec->SPS->LevelIDC[0]                                                       = ReadBits(BitB, 8, true); // 51
+        Dec->SPS->SeqParamSetID                                                     = ReadExpGolomb(BitB, false); // 1
         
         if ((Dec->SPS->ProfileIDC == 44)  ||
             (Dec->SPS->ProfileIDC == 83)  ||
@@ -37,18 +37,18 @@ extern "C" {
             (Dec->SPS->ProfileIDC == 138) ||
             (Dec->SPS->ProfileIDC == 139) ||
             (Dec->SPS->ProfileIDC == 244)) {
-            Dec->SPS->ChromaFormatIDC                  = ReadExpGolomb(BitB, false); // 1 aka 420
+            Dec->SPS->ChromaFormatIDC                                               = ReadExpGolomb(BitB, false); // 1 aka 420
             if (Dec->SPS->ChromaFormatIDC == Chroma444) {
-                Dec->SPS->SeperateColorPlane           = ReadBits(BitB, 1, true);
+                Dec->SPS->SeperateColorPlane                                        = ReadBits(BitB, 1, true);
             }
-            Dec->SPS->LumaBitDepthMinus8               = ReadExpGolomb(BitB, false); // 8
-            Dec->SPS->ChromaBitDepthMinus8             = ReadExpGolomb(BitB, false);
-            Dec->SPS->QPPrimeBypassFlag                = ReadBits(BitB, 1, true); // qpprime_y_zero_transform_bypass_flag
-            Dec->SPS->ScalingMatrixFlag                = ReadBits(BitB, 1, true);
+            Dec->SPS->LumaBitDepthMinus8                                            = ReadExpGolomb(BitB, false); // 8
+            Dec->SPS->ChromaBitDepthMinus8                                          = ReadExpGolomb(BitB, false);
+            Dec->SPS->QPPrimeBypassFlag                                             = ReadBits(BitB, 1, true); // qpprime_y_zero_transform_bypass_flag
+            Dec->SPS->ScalingMatrixFlag                                             = ReadBits(BitB, 1, true);
             
             if (Dec->SPS->ScalingMatrixFlag == true) {
                 for (uint8_t i = 0; i < ((Dec->SPS->ChromaFormatIDC != Chroma444) ? 8 : 12); i++) {
-                    Dec->SPS->ScalingListFlag[i]       = ReadBits(BitB, 1, true);
+                    Dec->SPS->ScalingListFlag[i]                                    = ReadBits(BitB, 1, true);
                     if (Dec->SPS->ScalingListFlag[i] == true) {
                         if (i < 6) {
                             ScalingList(Dec, BitB, ScalingList4x4[i], 16, UseDefaultScalingMatrix4x4Flag[i]);
@@ -59,52 +59,52 @@ extern "C" {
                 }
             }
         }
-        Dec->SPS->MaxFrameNumMinus4                    = ReadExpGolomb(BitB, false) + 4; // 3
-        Dec->SPS->PicOrderCount                        = ReadExpGolomb(BitB, false);
+        Dec->SPS->MaxFrameNumMinus4                                                 = ReadExpGolomb(BitB, false) + 4; // 3
+        Dec->SPS->PicOrderCount                                                     = ReadExpGolomb(BitB, false);
         if (Dec->SPS->PicOrderCount == 0) {
-            Dec->SPS->MaxPicOrder                      = ReadExpGolomb(BitB, false) + 4;
+            Dec->SPS->MaxPicOrder                                                   = ReadExpGolomb(BitB, false) + 4;
         } else {
-            Dec->SPS->DeltaPicOrder                    = ReadBits(BitB, 1, true);
-            Dec->SPS->OffsetNonRefPic                  = ReadExpGolomb(BitB, true);
-            Dec->SPS->OffsetTop2Bottom                 = ReadExpGolomb(BitB, true);
-            Dec->SPS->RefFramesInPicOrder              = ReadExpGolomb(BitB, false);
-            for (uint8_t i                             = 0; i < Dec->SPS->RefFramesInPicOrder; i++) {
-                Dec->SPS->RefFrameOffset[i]            = ReadExpGolomb(BitB, true);
+            Dec->SPS->DeltaPicOrder                                                 = ReadBits(BitB, 1, true);
+            Dec->SPS->OffsetNonRefPic                                               = ReadExpGolomb(BitB, true);
+            Dec->SPS->OffsetTop2Bottom                                              = ReadExpGolomb(BitB, true);
+            Dec->SPS->RefFramesInPicOrder                                           = ReadExpGolomb(BitB, false);
+            for (uint8_t i = 0; i < Dec->SPS->RefFramesInPicOrder; i++) {
+                Dec->SPS->RefFrameOffset[i]                                         = ReadExpGolomb(BitB, true);
             }
             
         }
-        Dec->SPS->MaxRefFrames                         = ReadExpGolomb(BitB, false);
-        Dec->SPS->GapsInFrameNumAllowed                = ReadBits(BitB, 1, true);
-        Dec->SPS->PicWidthInMacroBlocksMinus1          = ReadExpGolomb(BitB, false);
-        Dec->SPS->PicHeightInMapUnitsMinus1            = ReadExpGolomb(BitB, false);
-        Dec->SPS->OnlyMacroBlocksInFrame               = ReadBits(BitB, 1, true);
+        Dec->SPS->MaxRefFrames                                                      = ReadExpGolomb(BitB, false);
+        Dec->SPS->GapsInFrameNumAllowed                                             = ReadBits(BitB, 1, true);
+        Dec->SPS->PicWidthInMacroBlocksMinus1                                       = ReadExpGolomb(BitB, false);
+        Dec->SPS->PicHeightInMapUnitsMinus1                                         = ReadExpGolomb(BitB, false);
+        Dec->SPS->OnlyMacroBlocksInFrame                                            = ReadBits(BitB, 1, true);
         if (Dec->SPS->OnlyMacroBlocksInFrame == false) {
-            Dec->SPS->AdaptiveFrameFlag                = ReadBits(BitB, 1, true);
+            Dec->SPS->AdaptiveFrameFlag                                             = ReadBits(BitB, 1, true);
         }
-        Dec->SPS->Inference8x8                         = ReadBits(BitB, 1, true);
-        Dec->SPS->FrameCroppingFlag                    = ReadBits(BitB, 1, true);
+        Dec->SPS->Inference8x8                                                      = ReadBits(BitB, 1, true);
+        Dec->SPS->FrameCroppingFlag                                                 = ReadBits(BitB, 1, true);
         if (Dec->SPS->FrameCroppingFlag == true) {
-            Dec->SPS->FrameCropLeft                    = ReadExpGolomb(BitB, false);
-            Dec->SPS->FrameCropRight                   = ReadExpGolomb(BitB, false);
-            Dec->SPS->FrameCropTop                     = ReadExpGolomb(BitB, false);
-            Dec->SPS->FrameCropBottom                  = ReadExpGolomb(BitB, false);
+            Dec->SPS->FrameCropLeft                                                 = ReadExpGolomb(BitB, false);
+            Dec->SPS->FrameCropRight                                                = ReadExpGolomb(BitB, false);
+            Dec->SPS->FrameCropTop                                                  = ReadExpGolomb(BitB, false);
+            Dec->SPS->FrameCropBottom                                               = ReadExpGolomb(BitB, false);
         }
-        Dec->SPS->VUIPresent                           = ReadBits(BitB, 1, true);
+        Dec->SPS->VUIPresent                                                        = ReadBits(BitB, 1, true);
         if (Dec->SPS->VUIPresent == true) {
             ParseVideoUsabilityInformation(Dec, BitB);
         }
     }
     
     void ParseNALSequenceParameterSetExtended(DecodeAVC *Dec, BitBuffer *BitB) { // seq_parameter_set_extension_rbsp?
-        Dec->SPS->SeqParamSetID                        = ReadExpGolomb(BitB, false);
-        Dec->SPS->AuxiliaryFormatID                    = ReadExpGolomb(BitB, false);
+        Dec->SPS->SeqParamSetID                                                     = ReadExpGolomb(BitB, false);
+        Dec->SPS->AuxiliaryFormatID                                                 = ReadExpGolomb(BitB, false);
         if (Dec->SPS->AuxiliaryFormatID != 0) {
-            Dec->SPS->AuxiliaryBitDepth                = ReadExpGolomb(BitB, false) + 8;
-            Dec->SPS->AlphaIncrFlag                    = ReadBits(BitB, 1, true);
-            Dec->SPS->AlphaOpaqueValue                 = ReadBits(BitB, Dec->SPS->AuxiliaryBitDepth + 9, true);
-            Dec->SPS->AlphaTransparentValue            = ReadBits(BitB, Dec->SPS->AuxiliaryBitDepth + 9, true);
+            Dec->SPS->AuxiliaryBitDepth                                             = ReadExpGolomb(BitB, false) + 8;
+            Dec->SPS->AlphaIncrFlag                                                 = ReadBits(BitB, 1, true);
+            Dec->SPS->AlphaOpaqueValue                                              = ReadBits(BitB, Dec->SPS->AuxiliaryBitDepth + 9, true);
+            Dec->SPS->AlphaTransparentValue                                         = ReadBits(BitB, Dec->SPS->AuxiliaryBitDepth + 9, true);
         }
-        Dec->SPS->AdditionalExtensionFlag              = ReadBits(BitB, 1, true);
+        Dec->SPS->AdditionalExtensionFlag                                           = ReadBits(BitB, 1, true);
         AlignInput(BitB, 1); // rbsp_trailing_bits
     }
     
@@ -119,7 +119,7 @@ extern "C" {
             // Multi View Coding
             SkipBits(BitB, 1);
             ParseSPSMultiViewCodingExtension(Dec, BitB); // seq_parameter_set_mvc_extension
-            Dec->SPS->MVCVUIParamsPresent              = ReadBits(BitB, 1, true);
+            Dec->SPS->MVCVUIParamsPresent                                           = ReadBits(BitB, 1, true);
             if (Dec->SPS->MVCVUIParamsPresent == true) {
                 ParseMVCVUI(Dec, BitB);
             }
@@ -133,213 +133,213 @@ extern "C" {
             ParseSPSMVCDExtension(Dec, BitB);
             ParseSPS3DAVCExtension(Dec, BitB);
         }
-        Dec->SPS->AdditionalExtension2                 = ReadBits(BitB, 1, true);
+        Dec->SPS->AdditionalExtension2                                              = ReadBits(BitB, 1, true);
         if (Dec->SPS->AdditionalExtension2 == true) {
             while (more_rbsp_data()) {
-                Dec->SPS->AdditionalExtension2DataFlag = ReadBits(BitB, 1, true);
+                Dec->SPS->AdditionalExtension2DataFlag                              = ReadBits(BitB, 1, true);
             }
         }
         AlignInput(BitB, 1); // rbsp_trailing_bits
     }
     
     void ParseNALSequenceParameterSet(DecodeAVC *Dec, BitBuffer *BitB) { // seq_parameter_set_rbsp
-        ParseSequenceParameterSetData(Dec, BitB); // seq_parameter_set_data
-        AlignInput(BitB, 1);            // rbsp_trailing_bits();
+        ParseSequenceParameterSetData(Dec, BitB);                        // seq_parameter_set_data
+        AlignInput(BitB, 1);                                             // rbsp_trailing_bits();
     }
     
     /* Video Usability Information */
     void ParseVideoUsabilityInformation(DecodeAVC *Dec, BitBuffer *BitB) { // Video Usability Information; ParseVUIParameters
-        Dec->VUI->AspectRatioInfoPresent                           = ReadBits(BitB, 1, true);
+        Dec->VUI->AspectRatioInfoPresent                                            = ReadBits(BitB, 1, true);
         if (Dec->VUI->AspectRatioInfoPresent == true) {
-            Dec->VUI->AspectRatioIDC                               = ReadBits(BitB, 8, true);
+            Dec->VUI->AspectRatioIDC                                                = ReadBits(BitB, 8, true);
             if (Dec->VUI->AspectRatioIDC == 255) { // Extended_SAR = 255
-                Dec->VUI->SARWidth                                 = ReadBits(BitB, 16, true);
-                Dec->VUI->SAWHeight                                = ReadBits(BitB, 16, true);
+                Dec->VUI->SARWidth                                                  = ReadBits(BitB, 16, true);
+                Dec->VUI->SAWHeight                                                 = ReadBits(BitB, 16, true);
             }
         }
-        Dec->VUI->OverscanInfoPresent                              = ReadBits(BitB, 1, true);
+        Dec->VUI->OverscanInfoPresent                                               = ReadBits(BitB, 1, true);
         if (Dec->VUI->OverscanInfoPresent == true) {
-            Dec->VUI->DisplayInOverscan                            = ReadBits(BitB, 1, true);
+            Dec->VUI->DisplayInOverscan                                             = ReadBits(BitB, 1, true);
         }
-        Dec->VUI->VideoSignalTypePresent                           = ReadBits(BitB, 1, true);
+        Dec->VUI->VideoSignalTypePresent                                            = ReadBits(BitB, 1, true);
         if (Dec->VUI->VideoSignalTypePresent == true) {
-            Dec->VUI->VideoType                                    = ReadBits(BitB, 3, true);
-            Dec->VUI->FullRange                                    = ReadBits(BitB, 1, true);
-            Dec->VUI->ColorDescriptionPresent                      = ReadBits(BitB, 1, true);
+            Dec->VUI->VideoType                                                     = ReadBits(BitB, 3, true);
+            Dec->VUI->FullRange                                                     = ReadBits(BitB, 1, true);
+            Dec->VUI->ColorDescriptionPresent                                       = ReadBits(BitB, 1, true);
             if (Dec->VUI->ColorDescriptionPresent == true) {
-                Dec->VUI->ColorPrimaries                           = ReadBits(BitB, 8, true);
-                Dec->VUI->TransferProperties                       = ReadBits(BitB, 8, true);
-                Dec->VUI->MatrixCoefficients                       = ReadBits(BitB, 8, true);
+                Dec->VUI->ColorPrimaries                                            = ReadBits(BitB, 8, true);
+                Dec->VUI->TransferProperties                                        = ReadBits(BitB, 8, true);
+                Dec->VUI->MatrixCoefficients                                        = ReadBits(BitB, 8, true);
             }
         }
-        Dec->VUI->ChromaLocationPresent                            = ReadBits(BitB, 1, true);
+        Dec->VUI->ChromaLocationPresent                                             = ReadBits(BitB, 1, true);
         if (Dec->VUI->ChromaLocationPresent == true) {
-            Dec->VUI->ChromaSampleLocationTop                      = ReadExpGolomb(BitB, false);
-            Dec->VUI->ChromaSampleLocationBottom                   = ReadExpGolomb(BitB, false);
+            Dec->VUI->ChromaSampleLocationTop                                       = ReadExpGolomb(BitB, false);
+            Dec->VUI->ChromaSampleLocationBottom                                    = ReadExpGolomb(BitB, false);
         }
-        Dec->VUI->TimingInfoPresent[0]                             = ReadBits(BitB, 1, true);
+        Dec->VUI->TimingInfoPresent[0]                                              = ReadBits(BitB, 1, true);
         if (Dec->VUI->TimingInfoPresent[0] == true) {
-            Dec->VUI->UnitsPerTick[0]                              = ReadBits(BitB, 32, true);
-            Dec->VUI->TimeScale[0]                                 = ReadBits(BitB, 32, true);
-            Dec->VUI->FixedFrameRateFlag[0]                        = ReadBits(BitB, 1, true);
+            Dec->VUI->UnitsPerTick[0]                                               = ReadBits(BitB, 32, true);
+            Dec->VUI->TimeScale[0]                                                  = ReadBits(BitB, 32, true);
+            Dec->VUI->FixedFrameRateFlag[0]                                         = ReadBits(BitB, 1, true);
         }
-        Dec->VUI->NALHrdParamsPresent[0]                           = ReadBits(BitB, 1, true);
+        Dec->VUI->NALHrdParamsPresent[0]                                            = ReadBits(BitB, 1, true);
         if (Dec->VUI->NALHrdParamsPresent[0] == true) {
             ParseHypotheticalReferenceDecoder(Dec, BitB);
         }
-        Dec->VUI->VCLHrdParamsPresent[0]                           = ReadBits(BitB, 1, true);
+        Dec->VUI->VCLHrdParamsPresent[0]                                            = ReadBits(BitB, 1, true);
         if (Dec->VUI->VCLHrdParamsPresent[0] == true) {
             ParseHypotheticalReferenceDecoder(Dec, BitB); // wat
         }
         if ((Dec->VUI->NALHrdParamsPresent[0] || Dec->VUI->VCLHrdParamsPresent[0]) == true) {
-            Dec->StreamIsLowDelay                                  = ReadBits(BitB, 1, true);
+            Dec->StreamIsLowDelay                                                   = ReadBits(BitB, 1, true);
         }
-        Dec->VUI->PicStructPresent[0]                              = ReadBits(BitB, 1, true);
-        Dec->VUI->BitStreamRestricted                              = ReadBits(BitB, 1, true);
+        Dec->VUI->PicStructPresent[0]                                               = ReadBits(BitB, 1, true);
+        Dec->VUI->BitStreamRestricted                                               = ReadBits(BitB, 1, true);
         if (Dec->VUI->BitStreamRestricted == true) {
-            Dec->VUI->MotionVectorsOverPicBoundaries[0]            = ReadBits(BitB, 1, true);
-            Dec->VUI->MaxBytesPerPicDenom[0]                       = ReadExpGolomb(BitB, false);
-            Dec->VUI->MaxBitsPerMarcoBlockDenom[0]                 = ReadExpGolomb(BitB, false);
-            Dec->VUI->MaxMotionVectorLength[0]                     = ReadExpGolomb(BitB, false);
-            Dec->VUI->MaxMotionVectorHeight[0]                     = ReadExpGolomb(BitB, false);
-            Dec->VUI->MaxReorderFrames[0]                          = ReadExpGolomb(BitB, false);
-            Dec->VUI->MaxFrameBuffer[0]                            = ReadExpGolomb(BitB, false);
+            Dec->VUI->MotionVectorsOverPicBoundaries[0]                             = ReadBits(BitB, 1, true);
+            Dec->VUI->MaxBytesPerPicDenom[0]                                        = ReadExpGolomb(BitB, false);
+            Dec->VUI->MaxBitsPerMarcoBlockDenom[0]                                  = ReadExpGolomb(BitB, false);
+            Dec->VUI->MaxMotionVectorLength[0]                                      = ReadExpGolomb(BitB, false);
+            Dec->VUI->MaxMotionVectorHeight[0]                                      = ReadExpGolomb(BitB, false);
+            Dec->VUI->MaxReorderFrames[0]                                           = ReadExpGolomb(BitB, false);
+            Dec->VUI->MaxFrameBuffer[0]                                             = ReadExpGolomb(BitB, false);
         }
     }
     
     void ParseMVCDVUIParametersExtension(DecodeAVC *Dec, BitBuffer *BitB) { // mvcd_vui_parameters_extension
-        Dec->VUI->VUIMVCDNumOpPoints                                   = ReadExpGolomb(BitB, false) + 1;
+        Dec->VUI->VUIMVCDNumOpPoints                                                = ReadExpGolomb(BitB, false) + 1;
         for (uint8_t MVCDOpPoint = 0; MVCDOpPoint < Dec->VUI->VUIMVCDNumOpPoints; MVCDOpPoint++) {
-            Dec->VUI->VUIMVCDTemporalID[MVCDOpPoint]                   = ReadBits(BitB, 3, true);
-            Dec->VUI->VUIMVCDNumTargetOutputViews[MVCDOpPoint]         = ReadExpGolomb(BitB, false) + 1;
+            Dec->VUI->VUIMVCDTemporalID[MVCDOpPoint]                                = ReadBits(BitB, 3, true);
+            Dec->VUI->VUIMVCDNumTargetOutputViews[MVCDOpPoint]                      = ReadExpGolomb(BitB, false) + 1;
             for (uint16_t VUIMVCDView = 0; VUIMVCDView < Dec->VUI->VUIMVCDNumTargetOutputViews[MVCDOpPoint]; VUIMVCDView++) {
-                Dec->VUI->VUIMVCDViewID[MVCDOpPoint][VUIMVCDView]      = ReadExpGolomb(BitB, false);
-                Dec->VUI->VUIMVCDDepthFlag[MVCDOpPoint][VUIMVCDView]   = ReadExpGolomb(BitB, false);
-                Dec->VUI->VUIMVCDTextureFlag[MVCDOpPoint][VUIMVCDView] = ReadExpGolomb(BitB, false);
+                Dec->VUI->VUIMVCDViewID[MVCDOpPoint][VUIMVCDView]                   = ReadExpGolomb(BitB, false);
+                Dec->VUI->VUIMVCDDepthFlag[MVCDOpPoint][VUIMVCDView]                = ReadExpGolomb(BitB, false);
+                Dec->VUI->VUIMVCDTextureFlag[MVCDOpPoint][VUIMVCDView]              = ReadExpGolomb(BitB, false);
             }
-            Dec->VUI->VUIMVCDTimingInfoPresent[MVCDOpPoint]            = ReadBits(BitB, 1, true);
+            Dec->VUI->VUIMVCDTimingInfoPresent[MVCDOpPoint]                         = ReadBits(BitB, 1, true);
             if (Dec->VUI->VUIMVCDTimingInfoPresent[MVCDOpPoint] == true) {
-                Dec->VUI->VUIMVCDNumUnitsInTick[MVCDOpPoint]           = ReadBits(BitB, 32, true);
-                Dec->VUI->VUIMVCDTimeScale[MVCDOpPoint]                = ReadBits(BitB, 32, true);
-                Dec->VUI->VUIMVCDFixedFrameRateFlag[MVCDOpPoint]       = ReadBits(BitB, 1, true);
+                Dec->VUI->VUIMVCDNumUnitsInTick[MVCDOpPoint]                        = ReadBits(BitB, 32, true);
+                Dec->VUI->VUIMVCDTimeScale[MVCDOpPoint]                             = ReadBits(BitB, 32, true);
+                Dec->VUI->VUIMVCDFixedFrameRateFlag[MVCDOpPoint]                    = ReadBits(BitB, 1, true);
             }
-            Dec->VUI->VUIMVCDNalHRDParametersPresent[MVCDOpPoint]      = ReadBits(BitB, 1, true);
+            Dec->VUI->VUIMVCDNalHRDParametersPresent[MVCDOpPoint]                   = ReadBits(BitB, 1, true);
             if (Dec->VUI->VUIMVCDNalHRDParametersPresent[MVCDOpPoint] == true) {
                 hrd_parameters();
             }
-            Dec->VUI->VUIMVCDVclHRDParametersPresent[MVCDOpPoint]      = ReadBits(BitB, 1, true);
+            Dec->VUI->VUIMVCDVclHRDParametersPresent[MVCDOpPoint]                   = ReadBits(BitB, 1, true);
             if (Dec->VUI->VUIMVCDVclHRDParametersPresent[MVCDOpPoint] == true) {
                 hrd_parameters();
             }
             if ((Dec->VUI->VUIMVCDNalHRDParametersPresent[MVCDOpPoint] || Dec->VUI->VUIMVCDVclHRDParametersPresent[MVCDOpPoint]) == true) {
-                Dec->VUI->VUIMVCDHRDLowDelayPresent[MVCDOpPoint]       = ReadBits(BitB, 1, true);
+                Dec->VUI->VUIMVCDHRDLowDelayPresent[MVCDOpPoint]                    = ReadBits(BitB, 1, true);
             }
-            Dec->VUI->VUIMVCDPicStructPresent[MVCDOpPoint]             = ReadBits(BitB, 1, true);
+            Dec->VUI->VUIMVCDPicStructPresent[MVCDOpPoint]                          = ReadBits(BitB, 1, true);
         }
     }
     
     void ParseMVCVUIParametersExtension(DecodeAVC *Dec, BitBuffer *BitB) { // mvc_vui_parameters_extension
-        Dec->VUI->MVCNumOpertionPoints                     = ReadExpGolomb(BitB, false) + 1;
+        Dec->VUI->MVCNumOpertionPoints                                              = ReadExpGolomb(BitB, false) + 1;
         for (uint16_t Operation = 0; Operation < Dec->VUI->MVCNumOpertionPoints; Operation++) {
-            Dec->VUI->MVCTemporalID[0][Operation]          = ReadBits(BitB, 3, true);
-            Dec->VUI->MVCNumTargetViews[Operation]         = ReadExpGolomb(BitB, false) + 1;
+            Dec->VUI->MVCTemporalID[0][Operation]                                   = ReadBits(BitB, 3, true);
+            Dec->VUI->MVCNumTargetViews[Operation]                                  = ReadExpGolomb(BitB, false) + 1;
             for (uint16_t OutputView = 0; OutputView < Dec->VUI->MVCNumTargetViews[Operation]; OutputView++) {
-                Dec->VUI->MVCViewID[Operation][OutputView] = ReadExpGolomb(BitB, false);
+                Dec->VUI->MVCViewID[Operation][OutputView]                          = ReadExpGolomb(BitB, false);
             }
-            Dec->VUI->TimingInfoPresent[Operation]         = ReadBits(BitB, 1, true);
+            Dec->VUI->TimingInfoPresent[Operation]                                  = ReadBits(BitB, 1, true);
             if (Dec->VUI->TimingInfoPresent[Operation] == true) {
-                Dec->VUI->MVCUnitsInTick[Operation]        = ReadBits(BitB, 32, true);
-                Dec->VUI->MVCTimeScale[Operation]          = ReadBits(BitB, 32, true);
-                Dec->VUI->MVCFixedFrameRate[Operation]     = ReadBits(BitB, 1, true);
+                Dec->VUI->MVCUnitsInTick[Operation]                                 = ReadBits(BitB, 32, true);
+                Dec->VUI->MVCTimeScale[Operation]                                   = ReadBits(BitB, 32, true);
+                Dec->VUI->MVCFixedFrameRate[Operation]                              = ReadBits(BitB, 1, true);
             }
-            Dec->VUI->MVCNALHRDParamsPresent[Operation]    = ReadBits(BitB, 1, true);
+            Dec->VUI->MVCNALHRDParamsPresent[Operation]                             = ReadBits(BitB, 1, true);
             if (Dec->VUI->MVCNALHRDParamsPresent[Operation] == true) {
                 ParseHypotheticalReferenceDecoder(Dec, BitB);
             }
-            Dec->VUI->MVCVCLHRDParamsPresent[Operation]    = ReadBits(BitB, 1, true);
+            Dec->VUI->MVCVCLHRDParamsPresent[Operation]                             = ReadBits(BitB, 1, true);
             if (Dec->VUI->MVCVCLHRDParamsPresent[Operation] == true) {
                 ParseHypotheticalReferenceDecoder(Dec, BitB);
             }
             if ((Dec->VUI->MVCNALHRDParamsPresent[Operation] || Dec->VUI->MVCVCLHRDParamsPresent[Operation]) == true) {
-                Dec->VUI->MVCLowDelayFlag[Operation]       = ReadBits(BitB, 1, true);
+                Dec->VUI->MVCLowDelayFlag[Operation]                                = ReadBits(BitB, 1, true);
             }
-            Dec->VUI->PicStructPresent[Operation]          = ReadBits(BitB, 1, true);
+            Dec->VUI->PicStructPresent[Operation]                                   = ReadBits(BitB, 1, true);
         }
     }
     
     void ParseSVCVUIExtension(DecodeAVC *Dec, BitBuffer *BitB) { // svc_vui_parameters_extension
-        Dec->VUI->VUIExtNumEntries                              = ReadExpGolomb(BitB, false) + 1;
+        Dec->VUI->VUIExtNumEntries                                                  = ReadExpGolomb(BitB, false) + 1;
         for (uint8_t VUIExtEntry = 0; VUIExtEntry < Dec->VUI->VUIExtNumEntries; VUIExtEntry++) {
-            Dec->VUI->VUIExtDependencyID[VUIExtEntry]           = ReadBits(BitB, 3, true);
-            Dec->VUI->VUIExtQualityID[VUIExtEntry]              = ReadBits(BitB, 4, true);
-            Dec->VUI->VUIExtTemporalID[VUIExtEntry]             = ReadBits(BitB, 3, true);
-            Dec->VUI->VUIExtTimingInfoPresentFlag[VUIExtEntry]  = ReadBits(BitB, 1, true);
+            Dec->VUI->VUIExtDependencyID[VUIExtEntry]                               = ReadBits(BitB, 3, true);
+            Dec->VUI->VUIExtQualityID[VUIExtEntry]                                  = ReadBits(BitB, 4, true);
+            Dec->VUI->VUIExtTemporalID[VUIExtEntry]                                 = ReadBits(BitB, 3, true);
+            Dec->VUI->VUIExtTimingInfoPresentFlag[VUIExtEntry]                      = ReadBits(BitB, 1, true);
             if (Dec->VUI->VUIExtTimingInfoPresentFlag[VUIExtEntry] == true) {
-                Dec->VUI->VUIExtNumUnitsInTick[VUIExtEntry]     = ReadBits(BitB, 32, true);
-                Dec->VUI->VUIExtTimeScale[VUIExtEntry]          = ReadBits(BitB, 32, true);
-                Dec->VUI->VUIExtFixedFrameRateFlag[VUIExtEntry] = ReadBits(BitB, 1, true);
+                Dec->VUI->VUIExtNumUnitsInTick[VUIExtEntry]                         = ReadBits(BitB, 32, true);
+                Dec->VUI->VUIExtTimeScale[VUIExtEntry]                              = ReadBits(BitB, 32, true);
+                Dec->VUI->VUIExtFixedFrameRateFlag[VUIExtEntry]                     = ReadBits(BitB, 1, true);
             }
-            Dec->VUI->VUIExtNALHRDPresentFlag[VUIExtEntry]      = ReadBits(BitB, 1, true);
+            Dec->VUI->VUIExtNALHRDPresentFlag[VUIExtEntry]                          = ReadBits(BitB, 1, true);
             if (Dec->VUI->VUIExtNALHRDPresentFlag[VUIExtEntry] == true) {
                 ParseHypotheticalReferenceDecoder(Dec, BitB);
             }
-            Dec->VUI->VUIExtVCLHRDPresentFlag[VUIExtEntry]      = ReadBits(BitB, 1, true);
+            Dec->VUI->VUIExtVCLHRDPresentFlag[VUIExtEntry]                          = ReadBits(BitB, 1, true);
             if (Dec->VUI->VUIExtVCLHRDPresentFlag[VUIExtEntry] == true) {
                 ParseHypotheticalReferenceDecoder(Dec, BitB);
             }
             if ((Dec->VUI->VUIExtNALHRDPresentFlag[VUIExtEntry] == true) || (Dec->VUI->VUIExtVCLHRDPresentFlag[VUIExtEntry] == true)) {
-                Dec->VUI->VUIExtLowDelayHRDFlag[VUIExtEntry]    = ReadBits(BitB, 1, true);
+                Dec->VUI->VUIExtLowDelayHRDFlag[VUIExtEntry]                        = ReadBits(BitB, 1, true);
             }
-            Dec->VUI->VUIExtPicStructPresentFlag[VUIExtEntry]   = ReadBits(BitB, 1, true);
+            Dec->VUI->VUIExtPicStructPresentFlag[VUIExtEntry]                       = ReadBits(BitB, 1, true);
         }
     }
     
     /* Picture Parameter Set */
     void ParseNALPictureParameterSet(DecodeAVC *Dec, BitBuffer *BitB) { // pic_parameter_set_rbsp
-        Dec->PPS->PicParamSetID                         = ReadExpGolomb(BitB, false); // 3?
-        Dec->SPS->SeqParamSetID                         = ReadExpGolomb(BitB, false); // 2
-        Dec->PPS->EntropyCodingMode                     = ReadBits(BitB, 1, true); // bit 9, 0
-        Dec->PPS->BottomPicFieldOrderInSliceFlag        = ReadBits(BitB, 1, true); // bit 8, 0
-        Dec->PPS->SliceGroups                           = ReadExpGolomb(BitB, false) + 1; // 2
+        Dec->PPS->PicParamSetID                                                     = ReadExpGolomb(BitB, false); // 3?
+        Dec->SPS->SeqParamSetID                                                     = ReadExpGolomb(BitB, false); // 2
+        Dec->PPS->EntropyCodingMode                                                 = ReadBits(BitB, 1, true); // bit 9, 0
+        Dec->PPS->BottomPicFieldOrderInSliceFlag                                    = ReadBits(BitB, 1, true); // bit 8, 0
+        Dec->PPS->SliceGroups                                                       = ReadExpGolomb(BitB, false) + 1; // 2
         if (Dec->PPS->SliceGroups > 0) {
-            Dec->PPS->SliceGroupMapType                 = ReadExpGolomb(BitB, false); // 48?
+            Dec->PPS->SliceGroupMapType                                             = ReadExpGolomb(BitB, false); // 48?
             if (Dec->PPS->SliceGroupMapType == 0) {
                 for (uint8_t SliceGroup = 0; SliceGroup <= Dec->PPS->SliceGroups; SliceGroup++) {
-                    Dec->PPS->RunLength[SliceGroup]     = ReadExpGolomb(BitB, false) + 1;
+                    Dec->PPS->RunLength[SliceGroup]                                 = ReadExpGolomb(BitB, false) + 1;
                 }
             } else if (Dec->PPS->SliceGroupMapType == 2) {
                 for (uint8_t SliceGroup = 0; SliceGroup <= Dec->PPS->SliceGroups; SliceGroup++) {
-                    Dec->PPS->TopLeft[SliceGroup]       = ReadExpGolomb(BitB, false);
-                    Dec->PPS->BottomRight[SliceGroup]   = ReadExpGolomb(BitB, false);
+                    Dec->PPS->TopLeft[SliceGroup]                                   = ReadExpGolomb(BitB, false);
+                    Dec->PPS->BottomRight[SliceGroup]                               = ReadExpGolomb(BitB, false);
                 }
             } else if ((Dec->PPS->SliceGroupMapType == 3) || (Dec->PPS->SliceGroupMapType == 4) || (Dec->PPS->SliceGroupMapType == 5)) {
                 for (uint8_t SliceGroup = 0; SliceGroup <= Dec->PPS->SliceGroups; SliceGroup++) {
-                    Dec->PPS->SliceGroupChangeDirection = ReadBits(BitB, 1, true);
-                    Dec->PPS->SliceGroupChangeRate      = ReadExpGolomb(BitB, false) + 1;
+                    Dec->PPS->SliceGroupChangeDirection                             = ReadBits(BitB, 1, true);
+                    Dec->PPS->SliceGroupChangeRate                                  = ReadExpGolomb(BitB, false) + 1;
                 }
             } else if (Dec->PPS->SliceGroupMapType == 6) {
-                Dec->PPS->PicSizeInMapUnits             = ReadExpGolomb(BitB, false) + 1;
+                Dec->PPS->PicSizeInMapUnits                                         = ReadExpGolomb(BitB, false) + 1;
                 for (uint64_t MapUnit = 0; MapUnit <= Dec->PPS->PicSizeInMapUnits; MapUnit++) {
-                    Dec->PPS->SliceGroupID[MapUnit]     = ReadBits(BitB, Ceili(log2(Dec->PPS->SliceGroups)));
+                    Dec->PPS->SliceGroupID[MapUnit]                                 = ReadBits(BitB, Ceili(log2(Dec->PPS->SliceGroups)));
                 }
             }
         }
-        Dec->PPS->RefIndex[0]                           = ReadExpGolomb(BitB, false) + 1;
-        Dec->PPS->RefIndex[1]                           = ReadExpGolomb(BitB, false) + 1;
-        Dec->PPS->WeightedPrediction                    = ReadBits(BitB, 1, true);
-        Dec->PPS->WeightedBiPrediction                  = ReadBits(BitB, 1, true);
-        Dec->PPS->InitialSliceQP                        = ReadExpGolomb(BitB, true) + 26;
-        Dec->PPS->InitialSliceQS                        = ReadExpGolomb(BitB, true) + 26;
-        Dec->PPS->ChromaQPOffset                        = ReadExpGolomb(BitB, true);
-        Dec->PPS->DeblockingFilterFlag                  = ReadBits(BitB, 1, true);
-        Dec->PPS->ConstrainedIntraFlag                  = ReadBits(BitB, 1, true);
-        Dec->PPS->RedundantPictureFlag                  = ReadBits(BitB, 1, true);
+        Dec->PPS->RefIndex[0]                                                       = ReadExpGolomb(BitB, false) + 1;
+        Dec->PPS->RefIndex[1]                                                       = ReadExpGolomb(BitB, false) + 1;
+        Dec->PPS->WeightedPrediction                                                = ReadBits(BitB, 1, true);
+        Dec->PPS->WeightedBiPrediction                                              = ReadBits(BitB, 1, true);
+        Dec->PPS->InitialSliceQP                                                    = ReadExpGolomb(BitB, true) + 26;
+        Dec->PPS->InitialSliceQS                                                    = ReadExpGolomb(BitB, true) + 26;
+        Dec->PPS->ChromaQPOffset                                                    = ReadExpGolomb(BitB, true);
+        Dec->PPS->DeblockingFilterFlag                                              = ReadBits(BitB, 1, true);
+        Dec->PPS->ConstrainedIntraFlag                                              = ReadBits(BitB, 1, true);
+        Dec->PPS->RedundantPictureFlag                                              = ReadBits(BitB, 1, true);
         if (more_rbsp_data() == true) {
-            Dec->PPS->TransformIs8x8                    = ReadBits(BitB, 1, true);
-            Dec->PPS->SeperateScalingMatrix             = ReadBits(BitB, 1, true);
+            Dec->PPS->TransformIs8x8                                                = ReadBits(BitB, 1, true);
+            Dec->PPS->SeperateScalingMatrix                                         = ReadBits(BitB, 1, true);
             if (Dec->PPS->SeperateScalingMatrix == true) {
                 for (uint8_t i = 0; i < 6 + ((Dec->SPS->ChromaFormatIDC != Chroma444) ? 2 : 6) * Dec->PPS->TransformIs8x8; i++) {
-                    Dec->PPS->PicScalingList[i]         = ReadBits(BitB, 1, true);
+                    Dec->PPS->PicScalingList[i]                                     = ReadBits(BitB, 1, true);
                     if (Dec->PPS->PicScalingList[i] == true) {
                         if (i < 6) {
                             ScalingList(Dec, BitB, ScalingList4x4[i], 16, UseDefaultScalingMatrix4x4Flag[i]);
@@ -348,7 +348,7 @@ extern "C" {
                         }
                     }
                 }
-                Dec->PPS->ChromaQPOffset                = ReadExpGolomb(BitB, true);
+                Dec->PPS->ChromaQPOffset                                            = ReadExpGolomb(BitB, true);
             }
             AlignInput(BitB, 1);
         }
@@ -356,60 +356,60 @@ extern "C" {
     
     /* Scalable Video Coding */
     void ParseNALSVCExtension(DecodeAVC *Dec, BitBuffer *BitB) { // nal_unit_header_svc_extension
-        Dec->NAL->IDRFlag                     = ReadBits(BitB, 1, true);
-        Dec->NAL->PriorityID[0]               = ReadBits(BitB, 6, true);
-        Dec->NAL->NoInterLayerPredictionFlag  = ReadBits(BitB, 1, true);
-        Dec->NAL->DependencyID[0]             = ReadBits(BitB, 3, true);
-        Dec->NAL->QualityID[0][0]             = ReadBits(BitB, 4, true);
-        Dec->NAL->TemporalID[0]               = ReadBits(BitB, 3, true);
-        Dec->NAL->UseReferenceBasePictureFlag = ReadBits(BitB, 1, true);
-        Dec->NAL->IsDisposable[0]             = ReadBits(BitB, 1, true);
-        Dec->NAL->OutputFlag                  = ReadBits(BitB, 1, true);
+        Dec->NAL->IDRFlag                                                           = ReadBits(BitB, 1, true);
+        Dec->NAL->PriorityID[0]                                                     = ReadBits(BitB, 6, true);
+        Dec->NAL->NoInterLayerPredictionFlag                                        = ReadBits(BitB, 1, true);
+        Dec->NAL->DependencyID[0]                                                   = ReadBits(BitB, 3, true);
+        Dec->NAL->QualityID[0][0]                                                   = ReadBits(BitB, 4, true);
+        Dec->NAL->TemporalID[0]                                                     = ReadBits(BitB, 3, true);
+        Dec->NAL->UseReferenceBasePictureFlag                                       = ReadBits(BitB, 1, true);
+        Dec->NAL->IsDisposable[0]                                                   = ReadBits(BitB, 1, true);
+        Dec->NAL->OutputFlag                                                        = ReadBits(BitB, 1, true);
         SkipBits(BitB, 2); // reserved_three_2bits
     }
     
     void ParseNALSequenceParameterSetSVC(DecodeAVC *Dec, BitBuffer *BitB) { // seq_parameter_set_svc_extension
-        Dec->SVC->InterLayerDeblockingFilterPresent = ReadBits(BitB, 1, true);
-        Dec->SVC->ExtendedSpatialScalabilityIDC     = ReadBits(BitB, 2, true);
+        Dec->SVC->InterLayerDeblockingFilterPresent                                 = ReadBits(BitB, 1, true);
+        Dec->SVC->ExtendedSpatialScalabilityIDC                                     = ReadBits(BitB, 2, true);
         if ((Dec->SPS->ChromaFormatIDC == Chroma420) || (Dec->SPS->ChromaFormatIDC == Chroma422)) {
-            Dec->SVC->ChromaPhaseXFlag              = ReadBits(BitB, 1, true);
+            Dec->SVC->ChromaPhaseXFlag                                              = ReadBits(BitB, 1, true);
         }
         if (Dec->SPS->ChromaFormatIDC == Chroma420) {
-            Dec->SVC->ChromaPhaseY                  = ReadBits(BitB, 2, true);
+            Dec->SVC->ChromaPhaseY                                                  = ReadBits(BitB, 2, true);
         }
         if (Dec->SVC->ExtendedSpatialScalabilityIDC == 1) {
             if (Dec->SPS->ChromaFormatIDC != ChromaBW) {
-                Dec->SVC->SeqRefLayerChromaPhaseX   = ReadBits(BitB, 1, true);
-                Dec->SVC->SeqRefLayerChromaPhaseY   = ReadBits(BitB, 2, true);
+                Dec->SVC->SeqRefLayerChromaPhaseX                                   = ReadBits(BitB, 1, true);
+                Dec->SVC->SeqRefLayerChromaPhaseY                                   = ReadBits(BitB, 2, true);
             }
-            Dec->SVC->RefLayerLeftOffset            = ReadExpGolomb(BitB, true);
-            Dec->SVC->RefLayerTopOffset             = ReadExpGolomb(BitB, true);
-            Dec->SVC->RefLayerRightOffset           = ReadExpGolomb(BitB, true);
-            Dec->SVC->RefLayerBottomOffset          = ReadExpGolomb(BitB, true);
+            Dec->SVC->RefLayerLeftOffset                                            = ReadExpGolomb(BitB, true);
+            Dec->SVC->RefLayerTopOffset                                             = ReadExpGolomb(BitB, true);
+            Dec->SVC->RefLayerRightOffset                                           = ReadExpGolomb(BitB, true);
+            Dec->SVC->RefLayerBottomOffset                                          = ReadExpGolomb(BitB, true);
         }
-        Dec->SVC->SequenceCoeffLevelPresent         = ReadBits(BitB, 1, true);
+        Dec->SVC->SequenceCoeffLevelPresent                                         = ReadBits(BitB, 1, true);
         if (Dec->SVC->SequenceCoeffLevelPresent == true) {
-            Dec->SVC->AdaptiveCoeffsPresent         = ReadBits(BitB, 1, true);
+            Dec->SVC->AdaptiveCoeffsPresent                                         = ReadBits(BitB, 1, true);
         }
-        Dec->SVC->SliceHeaderRestricted             = ReadBits(BitB, 1, true);
+        Dec->SVC->SliceHeaderRestricted                                             = ReadBits(BitB, 1, true);
     }
     
     void ParseNALPrefixUnitSVC(DecodeAVC *Dec, BitBuffer *BitB) { // prefix_nal_unit_svc
         if (Dec->NAL->NALRefIDC != 0) {
-            Dec->Slice->StoreRefBasePicFlag                        = ReadBits(BitB, 1, true);
+            Dec->Slice->StoreRefBasePicFlag                                         = ReadBits(BitB, 1, true);
             if (((Dec->NAL->UseReferenceBasePictureFlag) || (Dec->Slice->StoreRefBasePicFlag)) && (!Dec->NAL->IDRFlag)) {
                 ParseReferenceBasePictureSyntax(Dec, BitB); // dec_ref_base_pic_marking();
             }
-            Dec->NAL->AdditionalPrefixNALExtensionFlag             = ReadBits(BitB, 1, true);
+            Dec->NAL->AdditionalPrefixNALExtensionFlag                              = ReadBits(BitB, 1, true);
             if (Dec->NAL->AdditionalPrefixNALExtensionFlag == true) {
                 while (more_rbsp_data()) {
-                    Dec->NAL->AdditionalPrefixNALExtensionDataFlag = ReadBits(BitB, 1, true);
+                    Dec->NAL->AdditionalPrefixNALExtensionDataFlag                  = ReadBits(BitB, 1, true);
                 }
             }
             AlignInput(BitB, 1); // rbsp_trailing_bits()
         } else if (more_rbsp_data()) {
             while (more_rbsp_data()) {
-                Dec->NAL->AdditionalPrefixNALExtensionDataFlag     = ReadBits(BitB, 1, true);
+                Dec->NAL->AdditionalPrefixNALExtensionDataFlag                      = ReadBits(BitB, 1, true);
             }
         }
         AlignInput(BitB, 1); // rbsp_trailing_bits()
@@ -417,98 +417,99 @@ extern "C" {
     
     /* Multi-View Coding */
     void ParseNALMVCExtension(DecodeAVC *Dec, BitBuffer *BitB) { // nal_unit_header_mvc_extension
-        Dec->NAL->NonIDRFlag                  = ReadBits(BitB, 1, true);
-        Dec->NAL->PriorityID[0]               = ReadBits(BitB, 6, true);
-        Dec->SPS->ViewID[0][0]                = ReadBits(BitB, 10, true);
-        Dec->NAL->TemporalID[0]               = ReadBits(BitB, 3, true);
-        Dec->NAL->IsAnchorPicture             = ReadBits(BitB, 1, true);
-        Dec->NAL->InterViewFlag               = ReadBits(BitB, 1, true);
+        Dec->NAL->NonIDRFlag                                                        = ReadBits(BitB, 1, true);
+        Dec->NAL->PriorityID[0]                                                     = ReadBits(BitB, 6, true);
+        Dec->SPS->ViewID[0][0]                                                      = ReadBits(BitB, 10, true);
+        Dec->NAL->TemporalID[0]                                                     = ReadBits(BitB, 3, true);
+        Dec->NAL->IsAnchorPicture                                                   = ReadBits(BitB, 1, true);
+        Dec->NAL->InterViewFlag                                                     = ReadBits(BitB, 1, true);
         SkipBits(BitB, 1);
     }
     
     void ParseSPSMVCDExtension(DecodeAVC *Dec, BitBuffer *BitB) { // seq_parameter_set_mvcd_extension
-        Dec->SPS->ViewCount                                                    = ReadExpGolomb(BitB, false) + 1;
+        Dec->SPS->ViewCount                                                         = ReadExpGolomb(BitB, false) + 1;
         for (uint16_t View = 0; View < Dec->SPS->ViewCount; View++) {
-            Dec->SPS->ViewID[View][0]                                          = ReadExpGolomb(BitB, false);
-            Dec->SPS->DepthViewPresent[View]                                   = ReadBits(BitB, 1, true);
-            Dec->SPS->DepthViewID[View]                                        = Dec->SPS->ViewID[View][0];
-            Dec->DPS->NumDepthViews                                           += Dec->SPS->DepthViewPresent[View];
-            Dec->SPS->TextureViewPresent[View]                                 = ReadBits(BitB, 1, true);
+            Dec->SPS->ViewID[View][0]                                               = ReadExpGolomb(BitB, false);
+            Dec->SPS->DepthViewPresent[View]                                        = ReadBits(BitB, 1, true);
+            Dec->SPS->DepthViewID[View]                                             = Dec->SPS->ViewID[View][0];
+            Dec->DPS->NumDepthViews                                                += Dec->SPS->DepthViewPresent[View];
+            Dec->SPS->TextureViewPresent[View]                                      = ReadBits(BitB, 1, true);
         }
         for (uint16_t View = 1; View < Dec->SPS->ViewCount; View++) {
             if (Dec->SPS->DepthViewPresent[View] == true) {
-                Dec->SPS->AnchorRefsCount[0][View]                             = ReadExpGolomb(BitB, false);
-                for (uint8_t AnchorRef                                         = 0; AnchorRef < Dec->SPS->AnchorRefsCount[0][View]; AnchorRef++) {
-                    Dec->SPS->AnchorRef[0][View][AnchorRef]                    = ReadExpGolomb(BitB, false);
+                Dec->SPS->AnchorRefsCount[0][View]                                  = ReadExpGolomb(BitB, false);
+                for (uint8_t AnchorRef = 0; AnchorRef < Dec->SPS->AnchorRefsCount[0][View]; AnchorRef++) {
+                    Dec->SPS->AnchorRef[0][View][AnchorRef]                         = ReadExpGolomb(BitB, false);
                 }
-                Dec->SPS->AnchorRefsCount[1][View]                             = ReadExpGolomb(BitB, false);
-                for (uint8_t AnchorRef                                         = 0; AnchorRef < Dec->SPS->AnchorRefsCount[1][View]; AnchorRef++) {
-                    Dec->SPS->AnchorRef[1][View][AnchorRef]                    = ReadExpGolomb(BitB, false);
-                }
-            }}
-        for (uint16_t View = 1; View < Dec->SPS->ViewCount; View++) {
-            if (Dec->SPS->DepthViewPresent[View] == true) {
-                Dec->SPS->NonAnchorRefCount[0][View]                           = ReadExpGolomb(BitB, false);
-                for (uint16_t NonAnchorRef                                     = 0; NonAnchorRef < Dec->SPS->NonAnchorRefCount[0][View]; NonAnchorRef++) {
-                    Dec->SPS->NonAnchorRef[0][View][NonAnchorRef]              = ReadExpGolomb(BitB, false);
-                }
-                Dec->SPS->NonAnchorRefCount[1][View]                           = ReadExpGolomb(BitB, false);
-                for (uint16_t NonAnchorRef                                     = 0; NonAnchorRef < Dec->SPS->NonAnchorRefCount[0][View]; NonAnchorRef++) {
-                    Dec->SPS->NonAnchorRef[1][View][NonAnchorRef]              = ReadExpGolomb(BitB, false);
+                Dec->SPS->AnchorRefsCount[1][View]                                  = ReadExpGolomb(BitB, false);
+                for (uint8_t AnchorRef = 0; AnchorRef < Dec->SPS->AnchorRefsCount[1][View]; AnchorRef++) {
+                    Dec->SPS->AnchorRef[1][View][AnchorRef]                         = ReadExpGolomb(BitB, false);
                 }
             }
         }
-        Dec->SPS->NumLevelValues                                               = ReadExpGolomb(BitB, false) + 1;
+        for (uint16_t View = 1; View < Dec->SPS->ViewCount; View++) {
+            if (Dec->SPS->DepthViewPresent[View] == true) {
+                Dec->SPS->NonAnchorRefCount[0][View]                                = ReadExpGolomb(BitB, false);
+                for (uint16_t NonAnchorRef = 0; NonAnchorRef < Dec->SPS->NonAnchorRefCount[0][View]; NonAnchorRef++) {
+                    Dec->SPS->NonAnchorRef[0][View][NonAnchorRef]                   = ReadExpGolomb(BitB, false);
+                }
+                Dec->SPS->NonAnchorRefCount[1][View]                                = ReadExpGolomb(BitB, false);
+                for (uint16_t NonAnchorRef = 0; NonAnchorRef < Dec->SPS->NonAnchorRefCount[0][View]; NonAnchorRef++) {
+                    Dec->SPS->NonAnchorRef[1][View][NonAnchorRef]                   = ReadExpGolomb(BitB, false);
+                }
+            }
+        }
+        Dec->SPS->NumLevelValues                                                    = ReadExpGolomb(BitB, false) + 1;
         for (uint8_t Level = 0; Level < Dec->SPS->NumLevelValues; Level++) {
-            Dec->SPS->LevelIDC[Level]                                          = ReadExpGolomb(BitB, false);
-            Dec->SPS->NumApplicableOps[Level]                                  = ReadExpGolomb(BitB, false) + 1;
+            Dec->SPS->LevelIDC[Level]                                               = ReadExpGolomb(BitB, false);
+            Dec->SPS->NumApplicableOps[Level]                                       = ReadExpGolomb(BitB, false) + 1;
             for (uint16_t AppOp = 0; AppOp < Dec->SPS->NumApplicableOps[Level]; AppOp++) {
-                Dec->SPS->AppOpTemporalID[Level][AppOp]                        = ReadExpGolomb(BitB, false);
-                Dec->SPS->AppOpNumTargetViews[Level][AppOp]                    = ReadExpGolomb(BitB, false) + 1;
+                Dec->SPS->AppOpTemporalID[Level][AppOp]                             = ReadExpGolomb(BitB, false);
+                Dec->SPS->AppOpNumTargetViews[Level][AppOp]                         = ReadExpGolomb(BitB, false) + 1;
                 for (uint16_t AppOpTargetView = 0; AppOpTargetView < Dec->SPS->AppOpNumTargetViews[Level][AppOp]; AppOpTargetView++) {
-                    Dec->SPS->AppOpTargetViewID[Level][AppOp][AppOpTargetView] = ReadExpGolomb(BitB, false);
-                    Dec->SPS->AppOpDepthFlag[Level][AppOp][AppOpTargetView]    = ReadExpGolomb(BitB, false);
-                    Dec->SPS->AppOpTextureFlag[Level][AppOp][AppOpTargetView]  = ReadExpGolomb(BitB, false);
+                    Dec->SPS->AppOpTargetViewID[Level][AppOp][AppOpTargetView]      = ReadExpGolomb(BitB, false);
+                    Dec->SPS->AppOpDepthFlag[Level][AppOp][AppOpTargetView]         = ReadExpGolomb(BitB, false);
+                    Dec->SPS->AppOpTextureFlag[Level][AppOp][AppOpTargetView]       = ReadExpGolomb(BitB, false);
                 }
-                Dec->SPS->AppOpTextureViews[Level][AppOp]                      = ReadExpGolomb(BitB, false) + 1;
-                Dec->SPS->AppOpNumDepthViews[Level][AppOp]                     = ReadExpGolomb(BitB, false);
+                Dec->SPS->AppOpTextureViews[Level][AppOp]                           = ReadExpGolomb(BitB, false) + 1;
+                Dec->SPS->AppOpNumDepthViews[Level][AppOp]                          = ReadExpGolomb(BitB, false);
             }
         }
-        Dec->SPS->MVCDVUIParametersPresent                                     = ReadBits(BitB, 1, true);
+        Dec->SPS->MVCDVUIParametersPresent                                          = ReadBits(BitB, 1, true);
         if (Dec->SPS->MVCDVUIParametersPresent == true) {
             ParseMVCDVUIParametersExtension(Dec, BitB); // mvcd_vui_parameters_extension();
         }
-        Dec->SPS->MVCDTextureVUIParametersPresent                              = ReadBits(BitB, 1, true);
+        Dec->SPS->MVCDTextureVUIParametersPresent                                   = ReadBits(BitB, 1, true);
         if (Dec->SPS->MVCDTextureVUIParametersPresent == true) {
             ParseMVCVUIParametersExtension(Dec, BitB); //mvc_vui_parameters_extension();
         }
     }
     
     void ParseNALDepthParameterSet(DecodeAVC *Dec, BitBuffer *BitB) { // depth_parameter_set_rbsp
-        Dec->DPS->DepthParameterSetID             = ReadExpGolomb(BitB, false);
-        Dec->DPS->PredictionDirection             = ReadExpGolomb(BitB, false);
+        Dec->DPS->DepthParameterSetID                                               = ReadExpGolomb(BitB, false);
+        Dec->DPS->PredictionDirection                                               = ReadExpGolomb(BitB, false);
         if ((Dec->DPS->PredictionDirection == 0) || (Dec->DPS->PredictionDirection == 1)) {
-            Dec->DPS->ReferenceDPSID[0]           = ReadExpGolomb(BitB, false);
-            Dec->DPS->PredictedWeight0            = 64;
+            Dec->DPS->ReferenceDPSID[0]                                             = ReadExpGolomb(BitB, false);
+            Dec->DPS->PredictedWeight0                                              = 64;
         }
         if (Dec->DPS->PredictionDirection == 0) {
-            Dec->DPS->ReferenceDPSID[1]           = ReadExpGolomb(BitB, false);
-            Dec->DPS->PredictedWeight0            = ReadBits(BitB, 6, true);
+            Dec->DPS->ReferenceDPSID[1]                                             = ReadExpGolomb(BitB, false);
+            Dec->DPS->PredictedWeight0                                              = ReadBits(BitB, 6, true);
         }
-        Dec->DPS->NumDepthViews                   = ReadExpGolomb(BitB, false) + 1;
+        Dec->DPS->NumDepthViews                                                     = ReadExpGolomb(BitB, false) + 1;
         depth_ranges(BitB, Dec->DPS->NumDepthViews, Dec->DPS->PredictionDirection, Dec->DPS->DepthParameterSetID);
-        Dec->DPS->VSPParamFlag                    = ReadBits(BitB, 1, true);
+        Dec->DPS->VSPParamFlag                                                      = ReadBits(BitB, 1, true);
         if (Dec->DPS->VSPParamFlag == true) {
             vsp_param(Dec, BitB, Dec->DPS->NumDepthViews, Dec->DPS->PredictionDirection, Dec->DPS->DepthParameterSetID);
         }
-        Dec->DPS->AdditionalExtensionFlag         = ReadBits(BitB, 1, true);
-        Dec->DPS->DepthMappingValues              = ReadExpGolomb(BitB, false);
+        Dec->DPS->AdditionalExtensionFlag                                           = ReadBits(BitB, 1, true);
+        Dec->DPS->DepthMappingValues                                                = ReadExpGolomb(BitB, false);
         for (uint8_t i = 1; i <= Dec->DPS->DepthMappingValues; i++) {
-            Dec->DPS->DepthRepresentationModel[i] = ReadExpGolomb(BitB, false);
+            Dec->DPS->DepthRepresentationModel[i]                                   = ReadExpGolomb(BitB, false);
         }
         if (Dec->DPS->AdditionalExtensionFlag == true) {
             while (more_rbsp_data() == true) {
-                Dec->DPS->AdditionalExtensionFlag = ReadBits(BitB, 1, true);
+                Dec->DPS->AdditionalExtensionFlag                                   = ReadBits(BitB, 1, true);
             }
         }
         AlignInput(BitB, 1); // rbsp_trailing_bits
@@ -516,69 +517,69 @@ extern "C" {
     
     void ParseSPS3DAVCExtension(DecodeAVC *Dec, BitBuffer *BitB) { // seq_parameter_set_3davc_extension
         if (Dec->DPS->NumDepthViews > 0) {
-            Dec->SPS->AVC3DAcquisitionIDC                               = ReadExpGolomb(BitB, false);
+            Dec->SPS->AVC3DAcquisitionIDC                                           = ReadExpGolomb(BitB, false);
             for (uint8_t View = 0; View < Dec->DPS->NumDepthViews; View++) {
-                Dec->SPS->AVC3DViewID[View]                             = ReadExpGolomb(BitB, false);
+                Dec->SPS->AVC3DViewID[View]                                         = ReadExpGolomb(BitB, false);
             }
             if (Dec->SPS->AVC3DAcquisitionIDC > 0) {
                 DepthRanges(BitB, Dec->DPS->NumDepthViews, 2, 0);
                 vsp_param(Dec, BitB, Dec->DPS->NumDepthViews, 2, 0);
             }
-            Dec->SPS->ReducedResolutionFlag                             = ReadBits(BitB, 1, true);
+            Dec->SPS->ReducedResolutionFlag                                         = ReadBits(BitB, 1, true);
             if (Dec->SPS->ReducedResolutionFlag == true) {
-                Dec->SPS->DepthPicWidthInMacroBlocks                    = ReadExpGolomb(BitB, false) + 1;
-                Dec->SPS->DepthPicHeightInMapUnits                      = ReadExpGolomb(BitB, false) + 1;
-                Dec->SPS->DepthHorizontalDisparity                      = ReadExpGolomb(BitB, false) + 1;
-                Dec->SPS->DepthVerticalDisparity                        = ReadExpGolomb(BitB, false) + 1;
-                Dec->SPS->DepthHorizontalRSH                            = ReadExpGolomb(BitB, false);
-                Dec->SPS->DepthVerticalRSH                              = ReadExpGolomb(BitB, false);
+                Dec->SPS->DepthPicWidthInMacroBlocks                                = ReadExpGolomb(BitB, false) + 1;
+                Dec->SPS->DepthPicHeightInMapUnits                                  = ReadExpGolomb(BitB, false) + 1;
+                Dec->SPS->DepthHorizontalDisparity                                  = ReadExpGolomb(BitB, false) + 1;
+                Dec->SPS->DepthVerticalDisparity                                    = ReadExpGolomb(BitB, false) + 1;
+                Dec->SPS->DepthHorizontalRSH                                        = ReadExpGolomb(BitB, false);
+                Dec->SPS->DepthVerticalRSH                                          = ReadExpGolomb(BitB, false);
             } else {
-                Dec->SPS->DepthHorizontalDisparity                      = 1;
-                Dec->SPS->DepthVerticalDisparity                        = 1;
-                Dec->SPS->DepthHorizontalRSH                            = 0;
-                Dec->SPS->DepthVerticalRSH                              = 0;
+                Dec->SPS->DepthHorizontalDisparity                                  = 1;
+                Dec->SPS->DepthVerticalDisparity                                    = 1;
+                Dec->SPS->DepthHorizontalRSH                                        = 0;
+                Dec->SPS->DepthVerticalRSH                                          = 0;
             }
-            Dec->SPS->DepthFrameCroppingFlag                            = ReadBits(BitB, 1, true);
+            Dec->SPS->DepthFrameCroppingFlag                                        = ReadBits(BitB, 1, true);
             if (Dec->SPS->DepthFrameCroppingFlag == true) {
-                Dec->SPS->DepthFrameLeftCropOffset                      = ReadExpGolomb(BitB, false);
-                Dec->SPS->DepthFrameRightCropOffset                     = ReadExpGolomb(BitB, false);
-                Dec->SPS->DepthFrameTopCropOffset                       = ReadExpGolomb(BitB, false);
-                Dec->SPS->DepthFrameBottomCropOffset                    = ReadExpGolomb(BitB, false);
+                Dec->SPS->DepthFrameLeftCropOffset                                  = ReadExpGolomb(BitB, false);
+                Dec->SPS->DepthFrameRightCropOffset                                 = ReadExpGolomb(BitB, false);
+                Dec->SPS->DepthFrameTopCropOffset                                   = ReadExpGolomb(BitB, false);
+                Dec->SPS->DepthFrameBottomCropOffset                                = ReadExpGolomb(BitB, false);
             }
-            Dec->SPS->GridPosViewCount                                  = ReadExpGolomb(BitB, false);
+            Dec->SPS->GridPosViewCount                                              = ReadExpGolomb(BitB, false);
             for (uint8_t TextureView = 0; TextureView < Dec->SPS->GridPosViewCount; TextureView++) {
-                Dec->SPS->GridPosViewID[TextureView]                    = ReadExpGolomb(BitB, false);
-                Dec->SPS->GridPosX[TextureView]                         = ReadExpGolomb(BitB, true);
-                Dec->SPS->GridPosY[TextureView]                         = ReadExpGolomb(BitB, true);
+                Dec->SPS->GridPosViewID[TextureView]                                = ReadExpGolomb(BitB, false);
+                Dec->SPS->GridPosX[TextureView]                                     = ReadExpGolomb(BitB, true);
+                Dec->SPS->GridPosY[TextureView]                                     = ReadExpGolomb(BitB, true);
             }
-            Dec->SPS->SlicePrediction                                   = ReadBits(BitB, 1, true);
-            Dec->Slice->SeqViewSynthesisFlag                            = ReadBits(BitB, 1, true);
+            Dec->SPS->SlicePrediction                                               = ReadBits(BitB, 1, true);
+            Dec->Slice->SeqViewSynthesisFlag                                        = ReadBits(BitB, 1, true);
         }
-        Dec->SPS->ALCSpsEnableFlag                                      = ReadBits(BitB, 1, true);
-        Dec->SPS->EnableRLESkipFlag                                     = ReadBits(BitB, 1, true);
-        bool AllViewsPairedFlag                                         = AreAllViewsPaired(AVC);
+        Dec->SPS->ALCSpsEnableFlag                                                  = ReadBits(BitB, 1, true);
+        Dec->SPS->EnableRLESkipFlag                                                 = ReadBits(BitB, 1, true);
+        bool AllViewsPairedFlag                                                     = AreAllViewsPaired(AVC);
         if (AllViewsPairedFlag == false) {
             for (uint8_t View = 0; View < Dec->SPS->ViewCount; View++) {
                 if (Dec->SPS->TextureViewPresent[View] == true) {
-                    Dec->SPS->AnchorRefsCount[0][View]                  = ReadExpGolomb(BitB, false);
-                    for (uint16_t AnchorViewL0                          = 0; AnchorViewL0 < Dec->SPS->AnchorRefsCount[0][View]; AnchorViewL0++) {
-                        Dec->SPS->AnchorRef[0][View][AnchorViewL0]      = ReadExpGolomb(BitB, false);
+                    Dec->SPS->AnchorRefsCount[0][View]                              = ReadExpGolomb(BitB, false);
+                    for (uint16_t AnchorViewL0 = 0; AnchorViewL0 < Dec->SPS->AnchorRefsCount[0][View]; AnchorViewL0++) {
+                        Dec->SPS->AnchorRef[0][View][AnchorViewL0]                  = ReadExpGolomb(BitB, false);
                     }
-                    Dec->SPS->AnchorRefsCount[1][View]                  = ReadExpGolomb(BitB, false);
-                    for (uint16_t AnchorViewL1                          = 0; AnchorViewL1 < Dec->SPS->AnchorRefsCount[1][View]; AnchorViewL1++) {
-                        Dec->SPS->AnchorRef[1][View][AnchorViewL1]      = ReadExpGolomb(BitB, false);
+                    Dec->SPS->AnchorRefsCount[1][View]                              = ReadExpGolomb(BitB, false);
+                    for (uint16_t AnchorViewL1 = 0; AnchorViewL1 < Dec->SPS->AnchorRefsCount[1][View]; AnchorViewL1++) {
+                        Dec->SPS->AnchorRef[1][View][AnchorViewL1]                  = ReadExpGolomb(BitB, false);
                     }
                 }
             }
             for (uint16_t View = 0; View <= Dec->SPS->ViewCount; View++) {
                 if (Dec->SPS->TextureViewPresent[View] == true) {
-                    Dec->SPS->NonAnchorRefCount[0][View]                = ReadExpGolomb(BitB, false);
+                    Dec->SPS->NonAnchorRefCount[0][View]                            = ReadExpGolomb(BitB, false);
                     for (uint16_t NonAnchorRefL0 = 0; NonAnchorRefL0 < Dec->SPS->NonAnchorRefCount[0][View]; NonAnchorRefL0++) {
-                        Dec->SPS->NonAnchorRef[0][View][NonAnchorRefL0] = ReadExpGolomb(BitB, false);
+                        Dec->SPS->NonAnchorRef[0][View][NonAnchorRefL0]             = ReadExpGolomb(BitB, false);
                     }
-                    Dec->SPS->NonAnchorRefCount[1][View]                = ReadExpGolomb(BitB, false);
+                    Dec->SPS->NonAnchorRefCount[1][View]                            = ReadExpGolomb(BitB, false);
                     for (uint16_t NonAnchorRefL1 = 0; NonAnchorRefL1 < Dec->SPS->NonAnchorRefCount[1][View]; NonAnchorRefL1++) {
-                        Dec->SPS->NonAnchorRef[1][View][NonAnchorRefL1] = ReadExpGolomb(BitB, false);
+                        Dec->SPS->NonAnchorRef[1][View][NonAnchorRefL1]             = ReadExpGolomb(BitB, false);
                     }
                 }
             }
@@ -586,12 +587,12 @@ extern "C" {
     }
     
     void ParseNAL3DAVCExtension(DecodeAVC *Dec, BitBuffer *BitB) { // nal_unit_header_3davc_extension
-        Dec->NAL->ViewIndex                   = ReadBits(BitB, 8, true);
-        Dec->NAL->DepthFlag                   = ReadBits(BitB, 1, true);
-        Dec->NAL->NonIDRFlag                  = ReadBits(BitB, 1, true);
-        Dec->NAL->TemporalID[0]               = ReadBits(BitB, 3, true);
-        Dec->NAL->IsAnchorPicture             = ReadBits(BitB, 1, true);
-        Dec->NAL->InterViewFlag               = ReadBits(BitB, 1, true);
+        Dec->NAL->ViewIndex                                                         = ReadBits(BitB, 8, true);
+        Dec->NAL->DepthFlag                                                         = ReadBits(BitB, 1, true);
+        Dec->NAL->NonIDRFlag                                                        = ReadBits(BitB, 1, true);
+        Dec->NAL->TemporalID[0]                                                     = ReadBits(BitB, 3, true);
+        Dec->NAL->IsAnchorPicture                                                   = ReadBits(BitB, 1, true);
+        Dec->NAL->InterViewFlag                                                     = ReadBits(BitB, 1, true);
     }
     
     void ParseNALMVCDepthView(DecodeAVC *Dec, BitBuffer *BitB) {
@@ -600,68 +601,68 @@ extern "C" {
     
     /* Hypothetical Reference Decoder */
     void ParseHypotheticalReferenceDecoder(DecodeAVC *Dec, BitBuffer *BitB) { // hrd_parameters( )
-        Dec->HRD->NumCodedPictureBuffers             = ReadExpGolomb(BitB, false) + 1;
-        Dec->HRD->BitRateScale                       = ReadBits(BitB, 4, true);
-        Dec->HRD->CodedPictureBufferScale            = ReadBits(BitB, 4, true);
+        Dec->HRD->NumCodedPictureBuffers                                            = ReadExpGolomb(BitB, false) + 1;
+        Dec->HRD->BitRateScale                                                      = ReadBits(BitB, 4, true);
+        Dec->HRD->CodedPictureBufferScale                                           = ReadBits(BitB, 4, true);
         for (uint8_t SchedSelIdx = 0; SchedSelIdx < Dec->HRD->NumCodedPictureBuffers; SchedSelIdx++) {
-            Dec->HRD->BitRate[SchedSelIdx]           = ReadExpGolomb(BitB, false) + 1;
-            Dec->HRD->CodedPictureSize[SchedSelIdx]  = ReadExpGolomb(BitB, false) + 1;
-            Dec->HRD->IsConstantBitRate[SchedSelIdx] = ReadBits(BitB, 1, true) + 1; // FIXME: is +1 correct
+            Dec->HRD->BitRate[SchedSelIdx]                                          = ReadExpGolomb(BitB, false) + 1;
+            Dec->HRD->CodedPictureSize[SchedSelIdx]                                 = ReadExpGolomb(BitB, false) + 1;
+            Dec->HRD->IsConstantBitRate[SchedSelIdx]                                = ReadBits(BitB, 1, true) + 1; // FIXME: is +1 correct
         }
-        Dec->HRD->InitialCPBDelayLength              = ReadBits(BitB, 5, true) + 1;
-        Dec->HRD->CBPDelay                           = ReadBits(BitB, 5, true) + 1;
-        Dec->HRD->DBPDelay                           = ReadBits(BitB, 5, true) + 1;
-        Dec->HRD->TimeOffsetSize                     = ReadBits(BitB, 5, true);
+        Dec->HRD->InitialCPBDelayLength                                             = ReadBits(BitB, 5, true) + 1;
+        Dec->HRD->CBPDelay                                                          = ReadBits(BitB, 5, true) + 1;
+        Dec->HRD->DBPDelay                                                          = ReadBits(BitB, 5, true) + 1;
+        Dec->HRD->TimeOffsetSize                                                    = ReadBits(BitB, 5, true);
     }
     
     /* Generic */
     void ParseNALSliceHeader(DecodeAVC *Dec, BitBuffer *BitB) { // slice_header
-        Dec->Slice->FirstMacroBlockInSlice                                 = ReadExpGolomb(BitB, false); // 0
-        Dec->Slice->Type                                                   = ReadExpGolomb(BitB, false); // 0, 34 0s remaining
-        Dec->PPS->PicParamSetID                                            = ReadExpGolomb(BitB, false); // 0, 26 0s remaining
+        Dec->Slice->FirstMacroBlockInSlice                                          = ReadExpGolomb(BitB, false); // 0
+        Dec->Slice->Type                                                            = ReadExpGolomb(BitB, false); // 0, 34 0s remaining
+        Dec->PPS->PicParamSetID                                                     = ReadExpGolomb(BitB, false); // 0, 26 0s remaining
         
         if (Dec->SPS->SeperateColorPlane == true) {
-            Dec->Slice->ColorPlaneID                                       = ReadBits(BitB, 2, true);
+            Dec->Slice->ColorPlaneID                                                = ReadBits(BitB, 2, true);
         }
         
-        Dec->Slice->FrameNumber                                            = ReadExpGolomb(BitB, false); // FIXME: Should I use ReadBits?
-        if (Dec->SPS->OnlyMacroBlocksInFrame == false) { //
-            Dec->Slice->SliceIsInterlaced                                  = ReadBits(BitB, 1, true);
+        Dec->Slice->FrameNumber                                                     = ReadExpGolomb(BitB, false); // FIXME: Should I use ReadBits?
+        if (Dec->SPS->OnlyMacroBlocksInFrame == false) {
+            Dec->Slice->SliceIsInterlaced                                           = ReadBits(BitB, 1, true);
             if (Dec->Slice->SliceIsInterlaced == true) {
-                Dec->Slice->SliceIsBottomField                             = ReadBits(BitB, 1, true);
+                Dec->Slice->SliceIsBottomField                                      = ReadBits(BitB, 1, true);
             }
         }
-        Dec->Slice->SliceIsIDR                                             = ((Dec->NAL->NALUnitType == NAL_IDRSliceNonPartitioned) ? true : false);
+        Dec->Slice->SliceIsIDR                                                      = ((Dec->NAL->NALUnitType == NAL_IDRSliceNonPartitioned) ? true : false);
         if (Dec->Slice->SliceIsIDR == true) {
-            Dec->Slice->IDRPicID                                           = ReadExpGolomb(BitB, false);
+            Dec->Slice->IDRPicID                                                    = ReadExpGolomb(BitB, false);
         }
         if (Dec->SPS->PicOrderCount == 0) {
-            Dec->Slice->PictureOrderCountLSB                               = ReadExpGolomb(BitB, false);
+            Dec->Slice->PictureOrderCountLSB                                        = ReadExpGolomb(BitB, false);
             if ((Dec->PPS->BottomPicFieldOrderInSliceFlag == true) && (Dec->Slice->SliceIsInterlaced == false)) {
-                Dec->Slice->DeltaPicOrderCount[0]                          = ReadExpGolomb(BitB, true);
+                Dec->Slice->DeltaPicOrderCount[0]                                   = ReadExpGolomb(BitB, true);
             }
         }
         if (Dec->SPS->PicOrderCount == true && Dec->SPS->DeltaPicOrder == false) {
-            Dec->Slice->DeltaPicOrderCount[0]                              = ReadExpGolomb(BitB, true);
+            Dec->Slice->DeltaPicOrderCount[0]                                       = ReadExpGolomb(BitB, true);
             if ((Dec->PPS->BottomPicFieldOrderInSliceFlag == true) && (Dec->Slice->SliceIsInterlaced == false)) {
-                Dec->Slice->DeltaPicOrderCount[1]                          = ReadExpGolomb(BitB, true);
+                Dec->Slice->DeltaPicOrderCount[1]                                   = ReadExpGolomb(BitB, true);
             }
         }
         if (Dec->PPS->RedundantPictureFlag == true) {
-            Dec->PPS->RedundantPictureCount                                = ReadExpGolomb(BitB, false);
+            Dec->PPS->RedundantPictureCount                                         = ReadExpGolomb(BitB, false);
         }
         if ((Dec->Slice->Type == SliceB1) || (Dec->Slice->Type == SliceB2)) {
-            Dec->Slice->DirectSpatialMVPredictionFlag                      = ReadBits(BitB, 1, true);
+            Dec->Slice->DirectSpatialMVPredictionFlag                               = ReadBits(BitB, 1, true);
             
         }
         if ((Dec->Slice->Type == SliceP1)  || (Dec->Slice->Type == SliceP2)  ||
             (Dec->Slice->Type == SliceSP1) || (Dec->Slice->Type == SliceSP2) ||
             (Dec->Slice->Type == SliceB1)  || (Dec->Slice->Type == SliceB2)) {
-            Dec->Slice->NumRefIDXActiveOverrideFlag                        = ReadBits(BitB, 1, true);
+            Dec->Slice->NumRefIDXActiveOverrideFlag                                 = ReadBits(BitB, 1, true);
             if (Dec->Slice->NumRefIDXActiveOverrideFlag == true) {
-                Dec->MacroBlock->NumRefIndexActive[0]                      = ReadExpGolomb(BitB, false) + 1; // num_ref_idx_l0_active_minus1
+                Dec->MacroBlock->NumRefIndexActiveLevel0                            = ReadExpGolomb(BitB, false) + 1; // num_ref_idx_l0_active_minus1
                 if ((Dec->Slice->Type == SliceB1) || (Dec->Slice->Type == SliceB2)) {
-                    Dec->MacroBlock->NumRefIndexActive[1]                  = ReadExpGolomb(BitB, false) + 1; // num_ref_idx_l1_active_minus1
+                    Dec->MacroBlock->NumRefIndexActiveLevel1                        = ReadExpGolomb(BitB, false) + 1; // num_ref_idx_l1_active_minus1
                 }
             }
         }
@@ -672,58 +673,58 @@ extern "C" {
         }
         if ((Dec->PPS->WeightedPrediction == true)
             && (
-             (Dec->Slice->Type == SliceP1)  ||
-             (Dec->Slice->Type == SliceP2)  ||
-             (Dec->Slice->Type == SliceSP1) ||
-             (Dec->Slice->Type == SliceSP2) ||
-             (Dec->Slice->Type == SliceB1)  ||
-             (Dec->Slice->Type == SliceB2)
-             ) && (Dec->PPS->WeightedBiPrediction == true)) {
-            pred_weight_table(Dec, BitB);
-        }
+                (Dec->Slice->Type == SliceP1)  ||
+                (Dec->Slice->Type == SliceP2)  ||
+                (Dec->Slice->Type == SliceSP1) ||
+                (Dec->Slice->Type == SliceSP2) ||
+                (Dec->Slice->Type == SliceB1)  ||
+                (Dec->Slice->Type == SliceB2)
+                ) && (Dec->PPS->WeightedBiPrediction == true)) {
+                pred_weight_table(Dec, BitB);
+            }
         if (Dec->NAL->NALRefIDC != 0) {
             DecodeRefPicMarking(Dec, BitB);
         }
         if ((Dec->PPS->EntropyCodingMode  == true) && (((Dec->Slice->Type != SliceI1) || (Dec->Slice->Type != SliceI2) || (Dec->Slice->Type != SliceSI1) || (Dec->Slice->Type != SliceSI2)))) {
-            Dec->Slice->CabacInitIDC                                       = ReadExpGolomb(BitB, true);
+            Dec->Slice->CabacInitIDC                                                = ReadExpGolomb(BitB, true);
         }
-        Dec->Slice->SliceQPDelta                                           = ReadExpGolomb(BitB, true);
+        Dec->Slice->SliceQPDelta                                                    = ReadExpGolomb(BitB, true);
         if (
             (Dec->Slice->Type == SliceSP1) || (Dec->Slice->Type == SliceSP2) ||
             (Dec->Slice->Type == SliceSI1) || (Dec->Slice->Type == SliceSI2)) {
             
             if ((Dec->Slice->Type == SliceSP1) || (Dec->Slice->Type == SliceSP2)) {
-                Dec->Slice->DecodePMBAsSPSlice                             = ReadBits(BitB, 1, true);
+                Dec->Slice->DecodePMBAsSPSlice                                      = ReadBits(BitB, 1, true);
             }
-            Dec->Slice->SliceQSDelta                                       = ReadExpGolomb(BitB, true);
+            Dec->Slice->SliceQSDelta                                                = ReadExpGolomb(BitB, true);
         }
         if (Dec->PPS->DeblockingFilterFlag == true) {
-            Dec->Slice->DisableDeblockingFilterIDC                         = ReadExpGolomb(BitB, false);
+            Dec->Slice->DisableDeblockingFilterIDC                                  = ReadExpGolomb(BitB, false);
             if (Dec->Slice->DisableDeblockingFilterIDC  != true) {
-                Dec->Slice->SliceAlphaOffsetC0                             = ReadExpGolomb(BitB, true);
-                Dec->Slice->SliceBetaOffset                                = ReadExpGolomb(BitB, true);
+                Dec->Slice->SliceAlphaOffsetC0                                      = ReadExpGolomb(BitB, true);
+                Dec->Slice->SliceBetaOffset                                         = ReadExpGolomb(BitB, true);
             }
         }
         if (Dec->PPS->SliceGroups > 0 && (Dec->PPS->SliceGroupMapType >= 3 && Dec->PPS->SliceGroupMapType <= 5)) {
-            uint64_t Bits                                                  = Ceili(log2(Dec->PPS->PicSizeInMapUnits / Dec->PPS->SliceGroupChangeRate));
-            Dec->Slice->SliceGroupChangeCycle                              = ReadBits(BitB, Ceili(log2(Dec->PPS->PicSizeInMapUnits /  Dec->Slice->SliceGroupChangeRate)), true);
+            uint64_t Bits                                                           = Ceili(log2(Dec->PPS->PicSizeInMapUnits / Dec->PPS->SliceGroupChangeRate));
+            Dec->Slice->SliceGroupChangeCycle                                       = ReadBits(BitB, Ceili(log2(Dec->PPS->PicSizeInMapUnits /  Dec->Slice->SliceGroupChangeRate)), true);
         }
     }
     
     void ParseNALSliceData(DecodeAVC *Dec, BitBuffer *BitB, uint8_t Category) { // slice_data
         if (Dec->PPS->EntropyCodingMode == Arithmetic) {
-            while (IsStreamByteAligned(BitB->BitsUnavailable, 1) == false) {
+            while (IsBitBufferAligned(BitB, 1) == false) {
                 SkipBits(BitB, 1); // cabac_alignment_one_bit
             }
-            uint64_t CurrentMacroBlockAddress             = Dec->Slice->FirstMacroBlockInSlice * (Dec->Slice->MbaffFrameFlag + 1);
-            bool     MoreDataFlag                         = true;
-            Dec->Slice->PreviousMacroBlockSkipped         = false;
+            uint64_t CurrentMacroBlockAddress                                       = Dec->Slice->FirstMacroBlockInSlice * (Dec->Slice->MbaffFrameFlag + 1);
+            bool     MoreDataFlag                                                   = true;
+            Dec->Slice->PreviousMacroBlockSkipped                                   = false;
             if ((Dec->Slice->Type != SliceI1) || (Dec->Slice->Type != SliceI2) || (Dec->Slice->Type != SliceSI1) || (Dec->Slice->Type != SliceSI2)) {
                 if (Dec->PPS->EntropyCodingMode == ExpGolomb) {
-                    Dec->Slice->MacroBlockSkipRun         = ReadExpGolomb(BitB, false);
-                    Dec->Slice->PreviousMacroBlockSkipped = (Dec->Slice->MacroBlockSkipRun > 0);
-                    for (uint8_t SkippedMacroBlock        = 0; SkippedMacroBlock < Dec->Slice->MacroBlockSkipRun; SkippedMacroBlock++) {
-                        CurrentMacroBlockAddress          = NextMacroBlockAddress(Dec, CurrentMacroBlockAddress);
+                    Dec->Slice->MacroBlockSkipRun                                   = ReadExpGolomb(BitB, false);
+                    Dec->Slice->PreviousMacroBlockSkipped                           = (Dec->Slice->MacroBlockSkipRun > 0);
+                    for (uint8_t SkippedMacroBlock = 0; SkippedMacroBlock < Dec->Slice->MacroBlockSkipRun; SkippedMacroBlock++) {
+                        CurrentMacroBlockAddress                                    = NextMacroBlockAddress(Dec, CurrentMacroBlockAddress);
                     }
                 }
             }
@@ -732,30 +733,30 @@ extern "C" {
     
     void ParseNALSlicePartitionA(DecodeAVC *Dec, BitBuffer *BitB) { // slice_data_partition_a_layer_rbsp
         ParseSliceHeader(Dec, BitB);
-        uint64_t SliceID = ReadExpGolomb(BitB, false);
+        uint64_t SliceID                                                            = ReadExpGolomb(BitB, false);
         ParseSliceData(Dec, BitB, 2); /* only category 2 parts of slice_data() syntax */
         rbsp_slice_trailing_bits(Dec, BitB); // AlignInput(BitB, 1);
     }
     
     void ParseNALSlicePartitionB(DecodeAVC *Dec, BitBuffer *BitB) { // slice_data_partition_b_layer_rbsp
-        uint8_t SliceID = ReadExpGolomb(BitB, false);
+        uint8_t SliceID                                                             = ReadExpGolomb(BitB, false);
         if (Dec->SPS->SeperateColorPlane == true) {
-            uint8_t ColorPlaneID = ReadExpGolomb(BitB, false);
+            uint8_t ColorPlaneID                                                    = ReadExpGolomb(BitB, false);
         }
         if (Dec->PPS->RedundantPictureFlag == true) {
-            Dec->PPS->RedundantPictureCount = ReadExpGolomb(BitB, false);
+            Dec->PPS->RedundantPictureCount                                         = ReadExpGolomb(BitB, false);
         }
         ParseSliceData(Dec, BitB, 3);
         rbsp_slice_trailing_bits(Dec, BitB); // AlignInput(BitB, 1);
     }
     
     void ParseNALSlicePartitionC(DecodeAVC *Dec, BitBuffer *BitB) { // slice_data_partition_c_layer_rbsp
-        uint8_t SliceID = ReadExpGolomb(BitB, false);
+        uint8_t SliceID                                                             = ReadExpGolomb(BitB, false);
         if (Dec->SPS->SeperateColorPlane == true) {
-            uint8_t ColorPlaneID = ReadExpGolomb(BitB, false);
+            uint8_t ColorPlaneID                                                    = ReadExpGolomb(BitB, false);
         }
         if (Dec->PPS->RedundantPictureFlag == true) {
-            Dec->PPS->RedundantPictureCount = ReadExpGolomb(BitB, false);
+            Dec->PPS->RedundantPictureCount                                         = ReadExpGolomb(BitB, false);
         }
         ParseSliceData(Dec, BitB, 4);
         rbsp_slice_trailing_bits(Dec, BitB); // AlignInput(BitB, 1);
@@ -780,76 +781,76 @@ extern "C" {
     }
     
     void ParseNALAccessUnitDelimiter(DecodeAVC *Dec, BitBuffer *BitB) { // access_unit_delimiter_rbsp
-        Dec->Slice->PictureType = ReadBits(BitB, 3, true);
+        Dec->Slice->PictureType                                                     = ReadBits(BitB, 3, true);
         AlignInput(BitB, 1);
     }
     
     /* Supplemental Enhancement Information */
     void ParseSEIBufferingPeriod(DecodeAVC *Dec, BitBuffer *BitB) { // buffering_period
-        Dec->SPS->SeqParamSetID = ReadExpGolomb(BitB, false);
+        Dec->SPS->SeqParamSetID                                                     = ReadExpGolomb(BitB, false);
         if (Dec->SEI->NalHrdBpPresentFlag == true) {
             for (uint8_t SchedSelIdx = 0; SchedSelIdx <= Dec->HRD->NumCodedPictureBuffers; SchedSelIdx++) {
-                Dec->SEI->InitialCPBRemovalDelay[SchedSelIdx] = ReadBits(BitB, Dec->HRD->InitialCPBDelayLength, true);
-                Dec->SEI->InitialCPBRemovalDelayOffset[SchedSelIdx] = ReadBits(BitB, Dec->HRD->InitialCPBDelayLength, true);
+                Dec->SEI->InitialCPBRemovalDelay[SchedSelIdx]                       = ReadBits(BitB, Dec->HRD->InitialCPBDelayLength, true);
+                Dec->SEI->InitialCPBRemovalDelayOffset[SchedSelIdx]                 = ReadBits(BitB, Dec->HRD->InitialCPBDelayLength, true);
             }
         }
-        Dec->HRD->VclHrdBpPresentFlag = Dec->VUI->VCLHrdParamsPresent > 0 ? 1 : 0;
+        Dec->HRD->VclHrdBpPresentFlag                                               = Dec->VUI->VCLHrdParamsPresent > 0 ? 1 : 0;
         if (Dec->HRD->VclHrdBpPresentFlag == true) {
             for (uint8_t SchedSelIdx = 0; SchedSelIdx <= Dec->HRD->NumCodedPictureBuffers; SchedSelIdx++) {
-                Dec->SEI->InitialCPBRemovalDelay[SchedSelIdx] = ReadBits(BitB, Dec->HRD->InitialCPBDelayLength, true);
-                Dec->SEI->InitialCPBRemovalDelayOffset[SchedSelIdx] = ReadBits(BitB, Dec->HRD->InitialCPBDelayLength, true);
+                Dec->SEI->InitialCPBRemovalDelay[SchedSelIdx]                       = ReadBits(BitB, Dec->HRD->InitialCPBDelayLength, true);
+                Dec->SEI->InitialCPBRemovalDelayOffset[SchedSelIdx]                 = ReadBits(BitB, Dec->HRD->InitialCPBDelayLength, true);
             }
         }
     }
     
     uint8_t GetClockTS(uint8_t PicStruct) {
-        uint8_t ClockTS = 0;
+        uint8_t ClockTS                                                             = 0;
         if ((PicStruct == 0) || (PicStruct == 1) || (PicStruct == 2)) {
-            ClockTS     = 1;
+            ClockTS                                                                 = 1;
         } else if ((PicStruct == 3) || (PicStruct == 4) || (PicStruct == 7)) {
-            ClockTS     = 2;
+            ClockTS                                                                 = 2;
         } else {
-            ClockTS     = 3;
+            ClockTS                                                                 = 3;
         }
         return ClockTS;
     }
     
     void ParseSEIPictureTiming(DecodeAVC *Dec, BitBuffer *BitB) { // pic_timing
         if (Dec->SEI->CpbDpbDelaysPresentFlag == true) {
-            Dec->SEI->CPBRemovalDelay                   = ReadBits(BitB, Dec->HRD->CBPDelay, true);
-            Dec->SEI->DPBOutputDelay                    = ReadBits(BitB, Dec->HRD->DBPDelay, true);
+            Dec->SEI->CPBRemovalDelay                                               = ReadBits(BitB, Dec->HRD->CBPDelay, true);
+            Dec->SEI->DPBOutputDelay                                                = ReadBits(BitB, Dec->HRD->DBPDelay, true);
         }
         if (Dec->VUI->PicStructPresent[0] == true) {
-            Dec->SEI->PicStruct                         = ReadBits(BitB, 4, true);
+            Dec->SEI->PicStruct                                                     = ReadBits(BitB, 4, true);
             uint8_t NumClockTS = GetClockTS(Dec->SEI->PicStruct);
             for (uint8_t Time = 0; Time < NumClockTS; Time++) {
-                Dec->SEI->ClockTimestampFlag[Time]  = ReadBits(BitB, 1, true);
+                Dec->SEI->ClockTimestampFlag[Time]                                  = ReadBits(BitB, 1, true);
                 if (Dec->SEI->ClockTimestampFlag[Time] == true) {
-                    Dec->SEI->CTType                = ReadBits(BitB, 2, true);
-                    Dec->SEI->NuitFieldBasedFlag    = ReadBits(BitB, 1, true);
-                    Dec->SEI->CountingType          = ReadBits(BitB, 5, true);
-                    Dec->SEI->FullTimestampFlag     = ReadBits(BitB, 1, true);
-                    Dec->SEI->CountDroppedFlag      = ReadBits(BitB, 1, true);
-                    Dec->SEI->NFrames               = ReadBits(BitB, 8, true);
+                    Dec->SEI->CTType                                                = ReadBits(BitB, 2, true);
+                    Dec->SEI->NuitFieldBasedFlag                                    = ReadBits(BitB, 1, true);
+                    Dec->SEI->CountingType                                          = ReadBits(BitB, 5, true);
+                    Dec->SEI->FullTimestampFlag                                     = ReadBits(BitB, 1, true);
+                    Dec->SEI->CountDroppedFlag                                      = ReadBits(BitB, 1, true);
+                    Dec->SEI->NFrames                                               = ReadBits(BitB, 8, true);
                     if (Dec->SEI->FullTimestampFlag == true) {
-                        Dec->SEI->Seconds           = ReadBits(BitB, 6, true);
-                        Dec->SEI->Minutes           = ReadBits(BitB, 6, true);
-                        Dec->SEI->Hours             = ReadBits(BitB, 5, true);
+                        Dec->SEI->Seconds                                           = ReadBits(BitB, 6, true);
+                        Dec->SEI->Minutes                                           = ReadBits(BitB, 6, true);
+                        Dec->SEI->Hours                                             = ReadBits(BitB, 5, true);
                     } else {
-                        Dec->SEI->SecondsFlag       = ReadBits(BitB, 1, true);
+                        Dec->SEI->SecondsFlag                                       = ReadBits(BitB, 1, true);
                         if (Dec->SEI->SecondsFlag == true) {
-                            Dec->SEI->Seconds       = ReadBits(BitB, 6, true);
-                            Dec->SEI->MinutesFlag   = ReadBits(BitB, 1, true);
+                            Dec->SEI->Seconds                                       = ReadBits(BitB, 6, true);
+                            Dec->SEI->MinutesFlag                                   = ReadBits(BitB, 1, true);
                             if (Dec->SEI->MinutesFlag == true) {
-                                Dec->SEI->Minutes   = ReadBits(BitB, 6, true);
-                                Dec->SEI->HoursFlag = ReadBits(BitB, 1, true);
+                                Dec->SEI->Minutes                                   = ReadBits(BitB, 6, true);
+                                Dec->SEI->HoursFlag                                 = ReadBits(BitB, 1, true);
                                 if (Dec->SEI->HoursFlag == true) {
-                                    Dec->SEI->Hours = ReadBits(BitB, 5, true);
+                                    Dec->SEI->Hours                                 = ReadBits(BitB, 5, true);
                                 }
                             }
                         }
                         if (Dec->HRD->TimeOffsetSize > 0) {
-                            Dec->SEI->TimeOffset = ReadBits(BitB, Dec->HRD->TimeOffsetSize, true);
+                            Dec->SEI->TimeOffset                                    = ReadBits(BitB, Dec->HRD->TimeOffsetSize, true);
                         }
                     }
                 }
@@ -858,17 +859,17 @@ extern "C" {
     }
     
     void ParseSEIPanScan(DecodeAVC *Dec, BitBuffer *BitB) { // pan_scan_rect
-        Dec->SEI->PanScanID = ReadExpGolomb(BitB, false);
-        Dec->SEI->DisablePanScanFlag = ReadBits(BitB, 1, true);
+        Dec->SEI->PanScanID                                                         = ReadExpGolomb(BitB, false);
+        Dec->SEI->DisablePanScanFlag                                                = ReadBits(BitB, 1, true);
         if (Dec->SEI->DisablePanScanFlag == false) {
-            Dec->SEI->PanScanCount   = ReadExpGolomb(BitB, false) + 1;
+            Dec->SEI->PanScanCount                                                  = ReadExpGolomb(BitB, false) + 1;
             for (uint8_t PanScan = 0; PanScan < Dec->SEI->PanScanCount; PanScan++) {
-                Dec->SEI->PanScanOffsetLeft[PanScan]   = ReadExpGolomb(BitB, true);
-                Dec->SEI->PanScanOffsetRight[PanScan]  = ReadExpGolomb(BitB, true);
-                Dec->SEI->PanScanOffsetTop[PanScan]    = ReadExpGolomb(BitB, true);
-                Dec->SEI->PanScanOffsetBottom[PanScan] = ReadExpGolomb(BitB, true);
+                Dec->SEI->PanScanOffsetLeft[PanScan]                                = ReadExpGolomb(BitB, true);
+                Dec->SEI->PanScanOffsetRight[PanScan]                               = ReadExpGolomb(BitB, true);
+                Dec->SEI->PanScanOffsetTop[PanScan]                                 = ReadExpGolomb(BitB, true);
+                Dec->SEI->PanScanOffsetBottom[PanScan]                              = ReadExpGolomb(BitB, true);
             }
-            Dec->SEI->PanScanRepitionPeriod            = ReadExpGolomb(BitB, false);
+            Dec->SEI->PanScanRepitionPeriod                                         = ReadExpGolomb(BitB, false);
         }
     }
     
@@ -878,13 +879,13 @@ extern "C" {
     
     void ParseSEIRegisteredUserData(DecodeAVC *Dec, BitBuffer *BitB) { // user_data_registered_itu_t_t35
         uint8_t CountryCodeSize = 0;
-        Dec->SEI->CountryCode = ReadBits(BitB, 8, true);
+        Dec->SEI->CountryCode                                                       = ReadBits(BitB, 8, true);
         if (Dec->SEI->CountryCode != 0xFF) {
-            CountryCodeSize += 1;
+            CountryCodeSize                                                        += 1;
         } else {
-            CountryCodeSize += 2;
-            Dec->SEI->CountryCode <<= 8;
-            Dec->SEI->CountryCode += ReadBits(BitB, 8, true);
+            CountryCodeSize                                                        += 2;
+            Dec->SEI->CountryCode                                                 <<= 8;
+            Dec->SEI->CountryCode                                                  += ReadBits(BitB, 8, true);
         }
         
     }
@@ -895,19 +896,19 @@ extern "C" {
     }
     
     void ParseSEIRecoveryPoint(DecodeAVC *Dec, BitBuffer *BitB) { // recovery_point
-        Dec->SEI->RecoveryFrameCount    = ReadExpGolomb(BitB, false);
-        Dec->SEI->ExactMatchFlag        = ReadBits(BitB, 1, true);
-        Dec->SEI->BrokenLinkFlag        = ReadBits(BitB, 1, true);
-        Dec->SEI->ChangingSliceGroupIDC = ReadBits(BitB, 2, true);
+        Dec->SEI->RecoveryFrameCount                                                = ReadExpGolomb(BitB, false);
+        Dec->SEI->ExactMatchFlag                                                    = ReadBits(BitB, 1, true);
+        Dec->SEI->BrokenLinkFlag                                                    = ReadBits(BitB, 1, true);
+        Dec->SEI->ChangingSliceGroupIDC                                             = ReadBits(BitB, 2, true);
     }
     
     void ParseSEIRepetitiveReferencePicture(DecodeAVC *Dec, BitBuffer *BitB) { // dec_ref_pic_marking_repetition
-        Dec->SEI->OriginalIDRFlag                 = ReadBits(BitB, 1, true);
-        Dec->SEI->OriginalFrameNum                = ReadExpGolomb(BitB, false);
+        Dec->SEI->OriginalIDRFlag                                                   = ReadBits(BitB, 1, true);
+        Dec->SEI->OriginalFrameNum                                                  = ReadExpGolomb(BitB, false);
         if (Dec->SPS->OnlyMacroBlocksInFrame == false) {
-            Dec->SEI->OriginalFieldPicFlag        = ReadBits(BitB, 1, true);
+            Dec->SEI->OriginalFieldPicFlag                                          = ReadBits(BitB, 1, true);
             if (Dec->SEI->OriginalFieldPicFlag == true) {
-                Dec->SEI->OriginalBottomFieldFlag = ReadBits(BitB, 1, true);
+                Dec->SEI->OriginalBottomFieldFlag                                   = ReadBits(BitB, 1, true);
             }
         }
         DecodeRefPicMarking(Dec, BitB); // dec_ref_pic_marking();
@@ -916,25 +917,25 @@ extern "C" {
     void ParseSEISparePicture(DecodeAVC *Dec, BitBuffer *BitB) { // spare_pic
         uint8_t MapUnitCount = 0;
         
-        Dec->SEI->TargetFrameNum = ReadExpGolomb(BitB, false);
-        Dec->SEI->SpareFieldFlag = ReadBits(BitB, 1, true);
+        Dec->SEI->TargetFrameNum                                                    = ReadExpGolomb(BitB, false);
+        Dec->SEI->SpareFieldFlag                                                    = ReadBits(BitB, 1, true);
         if (Dec->SEI->SpareFieldFlag == true) {
-            Dec->SEI->TargetBottomFieldFlag = ReadBits(BitB, 1, true);
+            Dec->SEI->TargetBottomFieldFlag                                         = ReadBits(BitB, 1, true);
         }
-        Dec->SEI->NumSparePics                           = ReadExpGolomb(BitB, false) + 1;
+        Dec->SEI->NumSparePics                                                      = ReadExpGolomb(BitB, false) + 1;
         for (uint8_t SparePic = 0; SparePic < Dec->SEI->NumSparePics; SparePic++) {
-            Dec->SEI->DeltaSpareFrameNum[SparePic]       = ReadExpGolomb(BitB, false);
+            Dec->SEI->DeltaSpareFrameNum[SparePic]                                  = ReadExpGolomb(BitB, false);
             if (Dec->SEI->SpareFieldFlag == true) {
-                Dec->SEI->SpareBottomFieldFlag[SparePic] = ReadExpGolomb(BitB, false);
+                Dec->SEI->SpareBottomFieldFlag[SparePic]                            = ReadExpGolomb(BitB, false);
             }
-            Dec->SEI->SpareAreaIDC[SparePic]             = ReadExpGolomb(BitB, false);
+            Dec->SEI->SpareAreaIDC[SparePic]                                        = ReadExpGolomb(BitB, false);
             if (Dec->SEI->SpareAreaIDC[SparePic] == 1) {
                 for (uint8_t MapUnit = 0; MapUnit < Dec->PPS->PicSizeInMapUnits; MapUnit++) {
-                    Dec->SEI->SpareUnitFlag[SparePic][MapUnit] = ReadBits(BitB, 1, true);
+                    Dec->SEI->SpareUnitFlag[SparePic][MapUnit]                      = ReadBits(BitB, 1, true);
                 }
             } else if (Dec->SEI->SpareAreaIDC[SparePic] == 2) {
                 while (MapUnitCount < Dec->PPS->PicSizeInMapUnits) {
-                    Dec->SEI->ZeroRunLength[SparePic][MapUnitCount] = ReadExpGolomb(BitB, false);
+                    Dec->SEI->ZeroRunLength[SparePic][MapUnitCount]                 = ReadExpGolomb(BitB, false);
                     MapUnitCount += Dec->SEI->ZeroRunLength[SparePic][MapUnitCount] + 1;
                 }
             }
@@ -942,60 +943,60 @@ extern "C" {
     }
     
     void ParseSEISceneInfo(DecodeAVC *Dec, BitBuffer *BitB) { // scene_info
-        Dec->SEI->SceneInfoPresentFlag    = ReadBits(BitB, 1, true);
+        Dec->SEI->SceneInfoPresentFlag                                              = ReadBits(BitB, 1, true);
         if (Dec->SEI->SceneInfoPresentFlag == true) {
-            Dec->SEI->SceneID             = ReadExpGolomb(BitB, false);
-            Dec->SEI->SceneTransitionType = ReadExpGolomb(BitB, false);
+            Dec->SEI->SceneID                                                       = ReadExpGolomb(BitB, false);
+            Dec->SEI->SceneTransitionType                                           = ReadExpGolomb(BitB, false);
             if (Dec->SEI->SceneTransitionType > 3) {
-                Dec->SEI->SecondSceneID   = ReadExpGolomb(BitB, false);
+                Dec->SEI->SecondSceneID                                             = ReadExpGolomb(BitB, false);
             }
         }
     }
     
     void ParseSEISubSequenceInfo(DecodeAVC *Dec, BitBuffer *BitB) { // sub_seq_info
-        Dec->SEI->SubSequenceLayerNum      = ReadExpGolomb(BitB, false);
-        Dec->SEI->SubSequenceID            = ReadExpGolomb(BitB, false);
-        Dec->SEI->FirstRefPicFlag          = ReadBits(BitB, 1, true);
-        Dec->SEI->LeadingNonRefPicFlag     = ReadBits(BitB, 1, true);
-        Dec->SEI->LastPicFlag              = ReadBits(BitB, 1, true);
-        Dec->SEI->SubSeqFrameNumFlag       = ReadBits(BitB, 1, true);
+        Dec->SEI->SubSequenceLayerNum                                                = ReadExpGolomb(BitB, false);
+        Dec->SEI->SubSequenceID                                                      = ReadExpGolomb(BitB, false);
+        Dec->SEI->FirstRefPicFlag                                                    = ReadBits(BitB, 1, true);
+        Dec->SEI->LeadingNonRefPicFlag                                               = ReadBits(BitB, 1, true);
+        Dec->SEI->LastPicFlag                                                        = ReadBits(BitB, 1, true);
+        Dec->SEI->SubSeqFrameNumFlag                                                 = ReadBits(BitB, 1, true);
         if (Dec->SEI->SubSeqFrameNumFlag  == true) {
-            Dec->SEI->SubSeqFrameNum       = ReadExpGolomb(BitB, false);
+            Dec->SEI->SubSeqFrameNum                                                 = ReadExpGolomb(BitB, false);
         }
     }
     
     void ParseSEISubSequenceLayerProperties(DecodeAVC *Dec, BitBuffer *BitB) { // sub_seq_layer_characteristics
-        Dec->SEI->NumSubSeqLayers            = ReadExpGolomb(BitB, false) + 1;
+        Dec->SEI->NumSubSeqLayers                                                    = ReadExpGolomb(BitB, false) + 1;
         for (uint8_t Layer = 0; Layer < Dec->SEI->NumSubSeqLayers; Layer++) {
-            Dec->SEI->AccurateStatisticsFlag = ReadBits(BitB, 1, true);
-            Dec->SEI->AverageBitRate         = ReadBits(BitB, 16, true);
-            Dec->SEI->AverageFrameRate       = ReadBits(BitB, 16, true);
+            Dec->SEI->AccurateStatisticsFlag                                         = ReadBits(BitB, 1, true);
+            Dec->SEI->AverageBitRate                                                 = ReadBits(BitB, 16, true);
+            Dec->SEI->AverageFrameRate                                               = ReadBits(BitB, 16, true);
         }
     }
     
     void ParseSEISubSequenceProperties(DecodeAVC *Dec, BitBuffer *BitB) { // sub_seq_characteristics
-        Dec->SEI->SubSequenceLayerNum        = ReadExpGolomb(BitB, false);
-        Dec->SEI->SubSequenceID              = ReadExpGolomb(BitB, false);
-        Dec->SEI->DurationFlag               = ReadBits(BitB, 1, true);
+        Dec->SEI->SubSequenceLayerNum                                                = ReadExpGolomb(BitB, false);
+        Dec->SEI->SubSequenceID                                                      = ReadExpGolomb(BitB, false);
+        Dec->SEI->DurationFlag                                                       = ReadBits(BitB, 1, true);
         if (Dec->SEI->DurationFlag == true) {
-            Dec->SEI->SubSeqDuration         = ReadBits(BitB, 32, true);
+            Dec->SEI->SubSeqDuration                                                 = ReadBits(BitB, 32, true);
         }
-        Dec->SEI->AverageRateFlag            = ReadBits(BitB, 1, true);
+        Dec->SEI->AverageRateFlag                                                    = ReadBits(BitB, 1, true);
         if (Dec->SEI->AverageRateFlag == true) {
-            Dec->SEI->AccurateStatisticsFlag = ReadBits(BitB, 1, true);
-            Dec->SEI->AverageBitRate         = ReadBits(BitB, 16, true);
-            Dec->SEI->AverageFrameRate       = ReadBits(BitB, 16, true);
+            Dec->SEI->AccurateStatisticsFlag                                         = ReadBits(BitB, 1, true);
+            Dec->SEI->AverageBitRate                                                 = ReadBits(BitB, 16, true);
+            Dec->SEI->AverageFrameRate                                               = ReadBits(BitB, 16, true);
         }
-        Dec->SEI->NumReferencedSubSeqs       = ReadExpGolomb(BitB, false);
+        Dec->SEI->NumReferencedSubSeqs                                               = ReadExpGolomb(BitB, false);
         for (uint16_t SubSequence = 0; SubSequence < Dec->SEI->NumReferencedSubSeqs; SubSequence++) {
-            Dec->SEI->RefSubSeqLayerNum      = ReadExpGolomb(BitB, false);
-            Dec->SEI->RefSubSeqID            = ReadExpGolomb(BitB, false);
-            Dec->SEI->RefSubSeqDirection     = ReadBits(BitB, 1, true);
+            Dec->SEI->RefSubSeqLayerNum                                              = ReadExpGolomb(BitB, false);
+            Dec->SEI->RefSubSeqID                                                    = ReadExpGolomb(BitB, false);
+            Dec->SEI->RefSubSeqDirection                                             = ReadBits(BitB, 1, true);
         }
     }
     
     void ParseSEIFullFrameFreeze(DecodeAVC *Dec, BitBuffer *BitB) { // full_frame_freeze
-        Dec->SEI->FullFrameFreezeRepitionPeriod = ReadExpGolomb(BitB, false);
+        Dec->SEI->FullFrameFreezeRepitionPeriod                                      = ReadExpGolomb(BitB, false);
     }
     
     void ParseSEIFullFrameFreezeRelease(DecodeAVC *Dec, BitBuffer *BitB) { // full_frame_freeze_release
@@ -1003,64 +1004,64 @@ extern "C" {
     }
     
     void ParseSEIFullFrameSnapshot(DecodeAVC *Dec, BitBuffer *BitB) { // full_frame_snapshot
-        Dec->SEI->SnapshotID                    = ReadExpGolomb(BitB, false);
+        Dec->SEI->SnapshotID                                                         = ReadExpGolomb(BitB, false);
     }
     
     void ParseSEIProgressiveRefinementSegmentStart(DecodeAVC *Dec, BitBuffer *BitB) { // progressive_refinement_segment_start
-        Dec->SEI->ProgressiveRefinementID       = ReadExpGolomb(BitB, false);
-        Dec->SEI->NumRefinementSteps            = ReadExpGolomb(BitB, false) + 1;
+        Dec->SEI->ProgressiveRefinementID                                            = ReadExpGolomb(BitB, false);
+        Dec->SEI->NumRefinementSteps                                                 = ReadExpGolomb(BitB, false) + 1;
     }
     
     void ParseSEIProgressiveRefinementSegmentEnd(DecodeAVC *Dec, BitBuffer *BitB) { // progressive_refinement_segment_end
-        Dec->SEI->ProgressiveRefinementID       = ReadExpGolomb(BitB, false);
+        Dec->SEI->ProgressiveRefinementID                                            = ReadExpGolomb(BitB, false);
     }
     
     void ParseSEIMotionConstrainedSliceGroupSet(DecodeAVC *Dec, BitBuffer *BitB) { // motion_constrained_slice_group_set
-        Dec->SEI->NumSliceGroupsInSet              = ReadExpGolomb(BitB, false) + 1;
+        Dec->SEI->NumSliceGroupsInSet                                                = ReadExpGolomb(BitB, false) + 1;
         if (Dec->SEI->NumSliceGroupsInSet > 1) {
             for (uint16_t SliceGroup = 0; SliceGroup < Dec->SEI->NumSliceGroupsInSet; SliceGroup++) {
-                Dec->PPS->SliceGroupID[SliceGroup] = ReadBits(BitB, Ceili(log2(Dec->PPS->SliceGroups)), true);
+                Dec->PPS->SliceGroupID[SliceGroup]                                   = ReadBits(BitB, Ceili(log2(Dec->PPS->SliceGroups)), true);
             }
         }
-        Dec->SEI->ExactSampleValueMatchFlag[0]     = ReadBits(BitB, 1, true);
-        Dec->SEI->PanScanRectFlag                  = ReadBits(BitB, 1, true);
+        Dec->SEI->ExactSampleValueMatchFlag[0]                                       = ReadBits(BitB, 1, true);
+        Dec->SEI->PanScanRectFlag                                                    = ReadBits(BitB, 1, true);
         if (Dec->SEI->PanScanRectFlag == true) {
-            Dec->SEI->PanScanID                    = ReadExpGolomb(BitB, false);
+            Dec->SEI->PanScanID                                                      = ReadExpGolomb(BitB, false);
         }
     }
     
     void ParseSEIFilmGrainCharacteristics(DecodeAVC *Dec, BitBuffer *BitB) { // film_grain_characteristics
-        Dec->SEI->FilmGrainCharactisticsCancelFlag = ReadBits(BitB, 1, true);
+        Dec->SEI->FilmGrainCharactisticsCancelFlag                                   = ReadBits(BitB, 1, true);
         if (Dec->SEI->FilmGrainCharactisticsCancelFlag == false) {
-            Dec->SEI->FilmGrainModelID                     = ReadBits(BitB, 2, true);
-            Dec->SEI->SeperateColorDescriptionFlag         = ReadBits(BitB, 1, true);
+            Dec->SEI->FilmGrainModelID                                               = ReadBits(BitB, 2, true);
+            Dec->SEI->SeperateColorDescriptionFlag                                   = ReadBits(BitB, 1, true);
             if (Dec->SEI->SeperateColorDescriptionFlag == true) {
-                Dec->SEI->FilmGrainBitDepthLuma            = ReadBits(BitB, 3, true) + 8;
-                Dec->SEI->FilmGrainBitDepthChroma          = ReadBits(BitB, 3, true) + 8;
-                Dec->SEI->FilmGrainFullRangeFlag           = ReadBits(BitB, 1, true);
-                Dec->SEI->FilmGrainColorPrimaries          = ReadBits(BitB, 8, true);
-                Dec->SEI->FilmGrainTransferCharacteristics = ReadBits(BitB, 8, true);
-                Dec->SEI->FilmGrainMatrixCoefficents       = ReadBits(BitB, 8, true);
+                Dec->SEI->FilmGrainBitDepthLuma                                      = ReadBits(BitB, 3, true) + 8;
+                Dec->SEI->FilmGrainBitDepthChroma                                    = ReadBits(BitB, 3, true) + 8;
+                Dec->SEI->FilmGrainFullRangeFlag                                     = ReadBits(BitB, 1, true);
+                Dec->SEI->FilmGrainColorPrimaries                                    = ReadBits(BitB, 8, true);
+                Dec->SEI->FilmGrainTransferCharacteristics                           = ReadBits(BitB, 8, true);
+                Dec->SEI->FilmGrainMatrixCoefficents                                 = ReadBits(BitB, 8, true);
             }
-            Dec->SEI->BlendingModeID                       = ReadBits(BitB, 2, true);
-            Dec->SEI->Scalefactor                          = ReadBits(BitB, 4, true);
+            Dec->SEI->BlendingModeID                                                 = ReadBits(BitB, 2, true);
+            Dec->SEI->Scalefactor                                                    = ReadBits(BitB, 4, true);
             for (uint8_t Channel = 0; Channel < 3; Channel++) {
-                Dec->SEI->CompModelPresent[Channel]   = ReadBits(BitB, 1, true);
+                Dec->SEI->CompModelPresent[Channel]                                  = ReadBits(BitB, 1, true);
             }
             for (uint8_t Channel = 0; Channel < 3; Channel++) {
                 if (Dec->SEI->CompModelPresent[Channel] == true) {
-                    Dec->SEI->NumIntensityIntervals[Channel]       = ReadBits(BitB, 8, true) + 1;
-                    Dec->SEI->NumModelValues[Channel]              = ReadBits(BitB, 3, true) + 1;
+                    Dec->SEI->NumIntensityIntervals[Channel]                         = ReadBits(BitB, 8, true) + 1;
+                    Dec->SEI->NumModelValues[Channel]                                = ReadBits(BitB, 3, true) + 1;
                     for (uint16_t Intensity = 0; Intensity < Dec->SEI->NumIntensityIntervals[Channel]; Intensity++) {
-                        Dec->SEI->IntensityIntervalLowerBound[Channel][Intensity] = ReadBits(BitB, 8, true);
-                        Dec->SEI->IntensityIntervalUpperBound[Channel][Intensity] = ReadBits(BitB, 8, true);
+                        Dec->SEI->IntensityIntervalLowerBound[Channel][Intensity]    = ReadBits(BitB, 8, true);
+                        Dec->SEI->IntensityIntervalUpperBound[Channel][Intensity]    = ReadBits(BitB, 8, true);
                         for (uint8_t ModelValue = 0; ModelValue < Dec->SEI->NumModelValues[Channel]; ModelValue++) {
                             Dec->SEI->CompModelValue[Channel][Intensity][ModelValue] = ReadExpGolomb(BitB, true);
                         }
                     }
                 }
             }
-            Dec->SEI->FilmGrainCharacteristicsRepetitionPeriod = ReadExpGolomb(BitB, false);
+            Dec->SEI->FilmGrainCharacteristicsRepetitionPeriod                       = ReadExpGolomb(BitB, false);
         }
     }
     
@@ -1733,7 +1734,7 @@ extern "C" {
         Dec->SEI->DMinFlag                                          = ReadBits(BitB, 1, true);
         Dec->SEI->DMaxFlag                                          = ReadBits(BitB, 1, true);
         Dec->SEI->DepthRepresentationType                           = ReadExpGolomb(BitB, false);
-        for (uint8_t View                                           = 0; View < Dec->SPS->ViewCount; View++) {
+        for (uint8_t View = 0; View < Dec->SPS->ViewCount; View++) {
             Dec->SEI->DepthInfoViewID[View]                         = ReadExpGolomb(BitB, false);
             if ((Dec->SEI->ZNearFlag == true || Dec->SEI->ZFarFlag == true) && (Dec->SEI->ZAxisEqualFlag == false)) {
                 Dec->SEI->ZAxisReferenceView[View]                  = ReadExpGolomb(BitB, false);
@@ -1757,7 +1758,7 @@ extern "C" {
         }
         if (Dec->SEI->DepthRepresentationType == 3) {
             Dec->SEI->DepthNonlinearRepresentation                  = ReadExpGolomb(BitB, false) + 1;
-            for (uint8_t Index                                      = 0; Index < Dec->SEI->DepthNonlinearRepresentation; Index++) {
+            for (uint8_t Index= 0; Index < Dec->SEI->DepthNonlinearRepresentation; Index++) {
                 Dec->SEI->DepthNonlinearRepresentationModel[Index]  = ReadExpGolomb(BitB, false);
             }
         }
@@ -1772,7 +1773,7 @@ extern "C" {
             Dec->SEI->TruncatedReferenveViewingDistanceExponent     = ReadExpGolomb(BitB, false);
         }
         Dec->SEI->NumReferenceDisplays                              = ReadExpGolomb(BitB, false) + 1;
-        for (uint8_t Display                                        = 0; Display < Dec->SEI->NumReferenceDisplays; Display++) {
+        for (uint8_t Display= 0; Display < Dec->SEI->NumReferenceDisplays; Display++) {
             Dec->SEI->ReferenceBaselineExponent[Display]            = ReadExpGolomb(BitB, false);
             Dec->SEI->ReferenceBaselineMantissa[Display]            = ReadExpGolomb(BitB, false);
             Dec->SEI->ReferenceDisplayWidthExponent[Display]        = ReadExpGolomb(BitB, false);
@@ -1833,7 +1834,7 @@ extern "C" {
     }
     
     void ParseSEIMeteringDisplayColorVolume(DecodeAVC *Dec, BitBuffer *BitB) { // mastering_display_color_volume
-        for (uint8_t Color                                            = 0; Color < 3; Color++) {
+        for (uint8_t Color = 0; Color < 3; Color++) {
             Dec->SEI->DisplayPrimariesX[Color]                        = ReadBits(BitB, 16, true);
             Dec->SEI->DisplayPrimariesY[Color]                        = ReadBits(BitB, 16, true);
         }
@@ -1849,7 +1850,7 @@ extern "C" {
             Dec->SEI->AllViewComponentsInAUFlag                       = ReadBits(BitB, 1, true);
             if (Dec->SEI->AllViewComponentsInAUFlag == false) {
                 Dec->SEI->NumViewComponents                           = ReadExpGolomb(BitB, false) + 1;
-                for (uint8_t ViewComponent                            = 0; ViewComponent < Dec->SEI->NumViewComponents; ViewComponent++) {
+                for (uint8_t ViewComponent = 0; ViewComponent < Dec->SEI->NumViewComponents; ViewComponent++) {
                     Dec->SEI->SEIViewID[ViewComponent]                = ReadBits(BitB, 10, true);
                     Dec->SEI->SEIViewApplicabilityFlag[ViewComponent] = ReadBits(BitB, 1, true);
                 }
@@ -1857,7 +1858,7 @@ extern "C" {
         } else {
             Dec->SEI->SEIOpTextureOnlyFlag                            = ReadBits(BitB, 1, true);
             Dec->SEI->NumViewComponents                               = ReadExpGolomb(BitB, false) + 1;
-            for (uint8_t ViewComponent                                = 0; ViewComponent < Dec->SEI->NumViewComponents; ViewComponent++) {
+            for (uint8_t ViewComponent = 0; ViewComponent < Dec->SEI->NumViewComponents; ViewComponent++) {
                 Dec->SEI->SEIOpViewID[ViewComponent]                  = ReadBits(BitB, 10, true);
                 if (Dec->SEI->SEIOpTextureOnlyFlag == false) {
                     Dec->SEI->SEIOpDepthFlag[ViewComponent]           = ReadBits(BitB, 1, true);
