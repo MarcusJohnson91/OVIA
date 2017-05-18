@@ -127,7 +127,7 @@ extern "C" {
         bool         AdditionalExtension2DataFlag:1;               // additional_extension2_data_flag
     } SequenceParameterSet;
     
-    typedef struct PictureParameterSet {     // Per slice
+    typedef struct PictureParameterSet {
         uint8_t      PicParamSetID:8;                              // pic_parameter_set_id
         bool         EntropyCodingMode:1;                          // entropy_coding_mode_flag
         bool         BottomPicFieldOrderInSliceFlag:1;             // bottom_field_pic_order_in_frame_present_flag
@@ -171,7 +171,7 @@ extern "C" {
         int32_t     *DeltaPicOrderCount;                           // delta_pic_order_cnt
         uint8_t     *DeltaPictureOrderCountBottom;                 // delta_pic_order_cnt_bottom
         int8_t       SliceQPDelta;                                 // slice_qp_delta
-        uint64_t     SliceGroupChangeCycle;                        // slice_group_change_cycle, 0 to Ceil( PicSizeInMapUnits SliceGroupChangeRate ), inclusive.
+        uint64_t     SliceGroupChangeCycle;                        // slice_group_change_cycle
         uint64_t     SliceGroupChangeRate;                         // slice_group_change_rate
         uint8_t      DisableDeblockingFilterIDC:2;                 // disable_deblocking_filter_idc
         uint8_t      SliceAlphaOffsetC0:4;                         // slice_alpha_c0_offset_div2
@@ -181,8 +181,8 @@ extern "C" {
         uint8_t      CabacInitIDC:2;                               // cabac_init_idc
         bool         NumRefIDXActiveOverrideFlag:1;                // num_ref_idx_active_override_flag
         bool         DirectSpatialMVPredictionFlag:1;              // direct_spatial_mv_pred_flag
-        uint8_t      TopFieldOrderCount;                           // TopFieldOrderCnt, PicOrderCntMsb + pic_order_cnt_lsb
-        uint8_t      BottomFieldOrderCount;                        // BottomFieldOrderCnt, TopFieldOrderCnt + delta_pic_order_cnt_bottom
+        uint8_t      TopFieldOrderCount;                           // TopFieldOrderCnt
+        uint8_t      BottomFieldOrderCount;                        // BottomFieldOrderCnt
         
         /* SliceData */
         uint64_t     PicWidthInSamplesChroma;                      // PicWidthInSamplesC
@@ -190,10 +190,10 @@ extern "C" {
         uint64_t     FrameHeightInMacroBlocks;                     // FrameHeightInMbs
         uint64_t     PicHeightInMapUnits;                          // PicHeightInMapUnits
         uint64_t     PicWidthInMacroBlocks;                        // PicWidthInMbs
-        uint64_t     PicHeightInMacroBlocks;                       // PicHeightInMbs FrameHeightInMbs / ( 1 + field_pic_flag )
-        int64_t      PicSizeInMacroBlocks;                         // PicSizeInMbs = PicWidthInMbs * PicHeightInMbs
+        uint64_t     PicHeightInMacroBlocks;                       // PicHeightInMbs
+        int64_t      PicSizeInMacroBlocks;                         // PicSizeInMbs
         uint64_t     RawMacroBlockSizeInBits;                      // RawMbBits
-        uint8_t      MacroBlockSkipRun;                            // mb_skip_run, PicSizeInMbs − CurrMbAddr
+        uint8_t      MacroBlockSkipRun;                            // mb_skip_run
         uint8_t      PreviousMacroBlockSkipped;                    // prevMbSkipped
         uint64_t     ScaledRefLayerPicHeightInSamplesL;            // ScaledRefLayerPicHeightInSamplesL
         
