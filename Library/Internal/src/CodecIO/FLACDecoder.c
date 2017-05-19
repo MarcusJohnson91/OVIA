@@ -1,9 +1,3 @@
-#include <stdbool.h>
-#include <stdint.h>
-#include <math.h>
-#include <string.h>
-#include <stdio.h>
-
 #include "../../../Dependencies/libPCM/Dependencies/BitIO/libBitIO/include/BitIO.h"
 #include "../../../Dependencies/libPCM/libPCM/include/libPCM.h"
 #include "../../include/libModernFLAC.h"

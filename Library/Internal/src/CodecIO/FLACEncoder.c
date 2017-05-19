@@ -35,7 +35,7 @@ extern "C" {
 
         }
         
-        return 0;
+        return EXIT_SUCCESS;
     }
     
 #ifdef __cplusplus
