@@ -35,6 +35,7 @@ extern "C" {
     // Basically I need to parse the NAL bytestream into the VCL (Video Coding Layer) aka Samples.
     
     // Find AVCMagic, then Find the NAL Size, then Parse the NAL, everything after step 1 needs to be on a loop.
+    /*
     size_t FindNALSize(DecodeAVC *Dec, BitBuffer *BitB) {
         size_t   StartBufferPosition, EndOfBufferPosition, NALSize;
         bool     StreamIsByteAligned, NotEOF;
@@ -111,12 +112,7 @@ extern "C" {
                             // these guys are ok
                         } else {
                             // the official way
-                            /*
-                             rbsp_byte[NumBytesInRBSP++]
-                             rbsp_byte[NumBytesInRBSP++]
-                             i += 2;
-                             emulation_prevention_three_byte // equal to 0x03
-                             */
+     
                             
                             // My way
                             SkipBits(BitB, 16);
@@ -127,13 +123,14 @@ extern "C" {
             } // We've cleared the main header, time to start decoding the NAL Units
         }
     }
+    */
     
     /*
      I want to be able to open a file and de/en code H.264, but I ALSO want to use it as a library, but handing in each NAL.
      
      In order to facilitate both of those, I need a DecodeAVCFile function, and a DecodeNAL function, that's fed data by the calling program.
      */
-    
+    /*
     void ExtractNALFromByteStream(DecodeAVC *Dec, BitBuffer *BitB, size_t NALSize) {
         // Make sure the stream is byte algined by verifying there are 4 the data = 0x0000001
         // Once you've got that, you've got byte alignment.
@@ -151,24 +148,9 @@ extern "C" {
                 
                 
             }
-            /*
-             Other conditions:
-             
-             0x00 should never be the last byte of a NAL.
-             
-             The following bitstrings shall NEVER occur at a byte aligned position with a NAL:
-             0x000000
-             0x000001
-             0x000002
-             
-             Within the NAL, the following bitstrings shall never occur on byte alignment:
-             0x00000300
-             0x00000301
-             0x00000302
-             0x00000303
-             */
         }
     }
+     */
     
     uint64_t ScalingList(DecodeAVC *Dec, BitBuffer *BitB, uint8_t *scalingList, size_t ScalingListSize, bool UseDefaultScalingMatrixFlag) { // scaling_list
         uint8_t LastScale  = 8;
@@ -322,7 +304,7 @@ extern "C" {
                         OutManLen[index, Value] = manLen = Max(0, exponent0 + prec - 31);
                     }
                 }
-                mantissa0 = ReadBits(BitB, manLen);
+                mantissa0 = ReadBits(BitB, manLen, true);
                 OutMantissa[index, Value] = mantissa0;
             } else {
                 skip_flag = ReadBits(BitB, 1, true);
@@ -331,7 +313,7 @@ extern "C" {
                     OutSign[index, Value] = sign1;
                     exponent_skip_flag = ReadBits(BitB, 1, true);
                     if (exponent_skip_flag == 0) {
-                        exponent1 = ReadBits(BitB, expLen);
+                        exponent1 = ReadBits(BitB, expLen, true);
                         OutExp[index, Value] = exponent1;
                     } else {
                         OutExp[index, Value] = OutExp[Dec->DPS->ReferenceDPSID[1], Value];
@@ -718,7 +700,7 @@ extern "C" {
     void rbsp_trailing_bits(DecodeAVC *Dec, BitBuffer *BitB) { // rbsp_trailing_bits
         bool rbsp_stop_one_bit:1 = 0;
         rbsp_stop_one_bit = ReadBits(BitB, 1, true);
-        AlignInput(BitB, 1); // while( !byte_aligned( ) )
+        AlignBitBuffer(BitB, 1); // while( !byte_aligned( ) )
                              // rbsp_alignment_zero_bit
     }
     

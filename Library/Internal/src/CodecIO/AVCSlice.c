@@ -1,3 +1,4 @@
+#include <math.h>
 #include "../../../Dependencies/BitIO/libBitIO/include/BitIO.h"
 
 #include "../../include/ModernAVCTypes.h"
@@ -318,13 +319,13 @@ extern "C" {
             ParseSliceHeader(Dec, BitB); // slice_header();
             ParseSliceData(Dec, BitB, (2|3|4)); // slice_data(); FIXME: Unknown Category
         }
-        AlignInput(BitB, 1); // rbsp_slice_trailing_bits()
+        AlignBitBuffer(BitB, 1); // rbsp_slice_trailing_bits()
     }
     
     void ParseScalableSliceData(DecodeAVC *Dec, BitBuffer *BitB) { // slice_data_in_scalable_extension
         bool moreDataFlag;
         if (Dec->PPS->EntropyCodingMode == Arithmetic) {
-            AlignInput(BitB, 1);
+            AlignBitBuffer(BitB, 1);
         }
         Dec->Slice->MbaffFrameFlag = (Dec->SPS->AdaptiveFrameFlag && !Dec->Slice->SliceIsInterlaced);
         Dec->Slice->CurrentMacroBlockAddress = Dec->Slice->FirstMacroBlockInSlice * (Dec->Slice->MbaffFrameFlag + 1);
@@ -369,14 +370,10 @@ extern "C" {
         }
     }
     
-    void ParseSliceHeader(DecodeAVC *Dec, BitBuffer *BitB) { // slice_header
-        
-    }
-    
     void ParseUnpartitionedSliceLayer(DecodeAVC *Dec, BitBuffer *BitB) { // slice_layer_without_partitioning_rbsp
-        ParseSliceHeader(Dec, BitB);
+        //ParseSliceHeader(Dec, BitB);
         ParseSliceData(Dec, BitB, 0);
-        rbsp_slice_trailing_bits();
+        rbsp_slice_trailing_bits(Dec, BitB);
     }
     
     // Parse input file to find the start of the AVC stream, parse AVC stream to find NALs, Parse NALs to find metadata and data, then extract SliceGroups into Slices, Slices into MacroBlocks, then decode each MacroBlock.

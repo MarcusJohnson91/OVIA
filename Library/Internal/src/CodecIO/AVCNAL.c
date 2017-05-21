@@ -1,3 +1,4 @@
+#include <math.h>
 #include "../../../Dependencies/BitIO/libBitIO/include/BitIO.h"
 
 #include "../../include/ModernAVCTypes.h"
@@ -11,6 +12,19 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+    
+    BitBuffer *ExtractNAL2Packet(DecodeAVC *Dec, BitBuffer *AVCStream) { // NAL here means any NAL, packet here means NAL with any substituting required performed.
+        /*
+         Within a NAL, we need to check the size of the NAL, then scan through the input stream to make sure there are no bytes set to 0x000003, 0x000004, or 0x000005?
+         */
+        
+        /*
+         NAL rules:
+         
+         Can not end with a zero byte
+         */
+        return NULL;
+    }
     
     /* Sequence Parameter Set */
     void ParseSequenceParameterSetData(DecodeAVC *Dec, BitBuffer *BitB) { // seq_parameter_set_data
@@ -105,7 +119,7 @@ extern "C" {
             Dec->SPS->AlphaTransparentValue                                         = ReadBits(BitB, Dec->SPS->AuxiliaryBitDepth + 9, true);
         }
         Dec->SPS->AdditionalExtensionFlag                                           = ReadBits(BitB, 1, true);
-        AlignInput(BitB, 1); // rbsp_trailing_bits
+        AlignBitBuffer(BitB, 1); // rbsp_trailing_bits
     }
     
     void ParseNALSubsetSPS(DecodeAVC *Dec, BitBuffer *BitB) { // subset_seq_parameter_set_rbsp
@@ -139,12 +153,12 @@ extern "C" {
                 Dec->SPS->AdditionalExtension2DataFlag                              = ReadBits(BitB, 1, true);
             }
         }
-        AlignInput(BitB, 1); // rbsp_trailing_bits
+        AlignBitBuffer(BitB, 1); // rbsp_trailing_bits
     }
     
     void ParseNALSequenceParameterSet(DecodeAVC *Dec, BitBuffer *BitB) { // seq_parameter_set_rbsp
         ParseSequenceParameterSetData(Dec, BitB);                        // seq_parameter_set_data
-        AlignInput(BitB, 1);                                             // rbsp_trailing_bits();
+        AlignBitBuffer(BitB, 1);                                             // rbsp_trailing_bits();
     }
     
     /* Video Usability Information */
@@ -192,7 +206,7 @@ extern "C" {
             ParseHypotheticalReferenceDecoder(Dec, BitB); // wat
         }
         if ((Dec->VUI->NALHrdParamsPresent[0] || Dec->VUI->VCLHrdParamsPresent[0]) == true) {
-            Dec->StreamIsLowDelay                                                   = ReadBits(BitB, 1, true);
+            //Dec->StreamIsLowDelay                                                   = ReadBits(BitB, 1, true);
         }
         Dec->VUI->PicStructPresent[0]                                               = ReadBits(BitB, 1, true);
         Dec->VUI->BitStreamRestricted                                               = ReadBits(BitB, 1, true);
@@ -320,7 +334,7 @@ extern "C" {
             } else if (Dec->PPS->SliceGroupMapType == 6) {
                 Dec->PPS->PicSizeInMapUnits                                         = ReadExpGolomb(BitB, false) + 1;
                 for (uint64_t MapUnit = 0; MapUnit <= Dec->PPS->PicSizeInMapUnits; MapUnit++) {
-                    Dec->PPS->SliceGroupID[MapUnit]                                 = ReadBits(BitB, Ceili(log2(Dec->PPS->SliceGroups)));
+                    Dec->PPS->SliceGroupID[MapUnit]                                 = ReadBits(BitB, Ceili(log2(Dec->PPS->SliceGroups)), true);
                 }
             }
         }
@@ -350,7 +364,7 @@ extern "C" {
                 }
                 Dec->PPS->ChromaQPOffset                                            = ReadExpGolomb(BitB, true);
             }
-            AlignInput(BitB, 1);
+            AlignBitBuffer(BitB, 1);
         }
     }
     
@@ -406,13 +420,13 @@ extern "C" {
                     Dec->NAL->AdditionalPrefixNALExtensionDataFlag                  = ReadBits(BitB, 1, true);
                 }
             }
-            AlignInput(BitB, 1); // rbsp_trailing_bits()
+            AlignBitBuffer(BitB, 1); // rbsp_trailing_bits()
         } else if (more_rbsp_data()) {
             while (more_rbsp_data()) {
                 Dec->NAL->AdditionalPrefixNALExtensionDataFlag                      = ReadBits(BitB, 1, true);
             }
         }
-        AlignInput(BitB, 1); // rbsp_trailing_bits()
+        AlignBitBuffer(BitB, 1); // rbsp_trailing_bits()
     }
     
     /* Multi-View Coding */
@@ -512,7 +526,7 @@ extern "C" {
                 Dec->DPS->AdditionalExtensionFlag                                   = ReadBits(BitB, 1, true);
             }
         }
-        AlignInput(BitB, 1); // rbsp_trailing_bits
+        AlignBitBuffer(BitB, 1); // rbsp_trailing_bits
     }
     
     void ParseSPS3DAVCExtension(DecodeAVC *Dec, BitBuffer *BitB) { // seq_parameter_set_3davc_extension
@@ -735,7 +749,7 @@ extern "C" {
         ParseSliceHeader(Dec, BitB);
         uint64_t SliceID                                                            = ReadExpGolomb(BitB, false);
         ParseSliceData(Dec, BitB, 2); /* only category 2 parts of slice_data() syntax */
-        rbsp_slice_trailing_bits(Dec, BitB); // AlignInput(BitB, 1);
+        rbsp_slice_trailing_bits(Dec, BitB); // AlignBitBuffer(BitB, 1);
     }
     
     void ParseNALSlicePartitionB(DecodeAVC *Dec, BitBuffer *BitB) { // slice_data_partition_b_layer_rbsp
@@ -747,7 +761,7 @@ extern "C" {
             Dec->PPS->RedundantPictureCount                                         = ReadExpGolomb(BitB, false);
         }
         ParseSliceData(Dec, BitB, 3);
-        rbsp_slice_trailing_bits(Dec, BitB); // AlignInput(BitB, 1);
+        rbsp_slice_trailing_bits(Dec, BitB); // AlignBitBuffer(BitB, 1);
     }
     
     void ParseNALSlicePartitionC(DecodeAVC *Dec, BitBuffer *BitB) { // slice_data_partition_c_layer_rbsp
@@ -759,13 +773,13 @@ extern "C" {
             Dec->PPS->RedundantPictureCount                                         = ReadExpGolomb(BitB, false);
         }
         ParseSliceData(Dec, BitB, 4);
-        rbsp_slice_trailing_bits(Dec, BitB); // AlignInput(BitB, 1);
+        rbsp_slice_trailing_bits(Dec, BitB); // AlignBitBuffer(BitB, 1);
     }
     
     void ParseNALSliceNonPartitioned(DecodeAVC *Dec, BitBuffer *BitB) { // slice_layer_without_partitioning_rbsp
         ParseNALSliceHeader(Dec, BitB);
         ParseNALSliceData(Dec, BitB, 0); // TODO: Fix category
-        AlignInput(BitB, 1); // rbsp_slice_trailing_bits();
+        AlignBitBuffer(BitB, 1); // rbsp_slice_trailing_bits();
     }
     
     void ParseNALFillerData(DecodeAVC *Dec, BitBuffer *BitB) { // filler_data_rbsp
@@ -782,7 +796,7 @@ extern "C" {
     
     void ParseNALAccessUnitDelimiter(DecodeAVC *Dec, BitBuffer *BitB) { // access_unit_delimiter_rbsp
         Dec->Slice->PictureType                                                     = ReadBits(BitB, 3, true);
-        AlignInput(BitB, 1);
+        AlignBitBuffer(BitB, 1);
     }
     
     /* Supplemental Enhancement Information */
@@ -891,7 +905,7 @@ extern "C" {
     }
     
     void ParseSEIUnregisteredUserData(DecodeAVC *Dec, BitBuffer *BitB) { // user_data_unregistered
-        ReadUUID(BitB, Dec->SEI->UnregisteredUserDataUUID); // DC45E9BD-E6D9-48B7-962C-D820D923EEEF, x264 UserID.
+        Dec->SEI->UnregisteredUserDataUUID = ReadUUID(BitB); // DC45E9BD-E6D9-48B7-962C-D820D923EEEF, x264 UserID.
         SkipBits(BitB, Bytes2Bits(Dec->SEI->SEISize - BitIOBinaryUUIDSize));
     }
     
@@ -1342,7 +1356,7 @@ extern "C" {
             }
             Dec->SEI->SEITemporalID[0] = ReadBits(BitB, 3, true);
         }
-        AlignInput(BitB, 1);
+        AlignBitBuffer(BitB, 1);
         ParseSEIMessage(Dec, BitB); // sei_message();
     }
     
@@ -1448,7 +1462,7 @@ extern "C" {
             }
             Dec->SEI->SEIOpTemporalID = ReadBits(BitB, 3, true);
         }
-        AlignInput(BitB, 1);
+        AlignBitBuffer(BitB, 1);
         ParseSEIMessage(Dec, BitB); // sei_message();
     }
     
@@ -1867,7 +1881,7 @@ extern "C" {
             }
             Dec->SEI->SEIOpTemporalID                                 = ReadBits(BitB, 1, true);
         }
-        AlignInput(BitB, 1);
+        AlignBitBuffer(BitB, 1);
         ParseSEIMessage(Dec, BitB); // sei_message();
     }
     
