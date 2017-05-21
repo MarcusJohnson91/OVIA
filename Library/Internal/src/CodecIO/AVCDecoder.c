@@ -363,13 +363,13 @@ extern "C" {
                 if (Direction == 2) { /* Not 100% sure about the if loop part, but it makes more sense than for alone */
                     Dec->DisparityScale[DepthPS][J][View] = disparity_diff_wji[J][View];
                     Dec->DisparityOffset[DepthPS][J][View] = disparity_ diff_oji[J][View];
-                    Dec->DisparityScale[DepthPS][View][J] = disparity_diff_wij[View][J] – disparity_diff_wji[J][View];
-                    Dec->DisparityOffset[DepthPS][View][J] = disparity_diff_oij[View][J] – disparity_diff_oji[J][View];
+                    Dec->DisparityScale[DepthPS][View][J] = disparity_diff_wij[View][J] - disparity_diff_wji[J][View];
+                    Dec->DisparityOffset[DepthPS][View][J] = disparity_diff_oij[View][J] - disparity_diff_oji[J][View];
                 } else {
-                    Dec->DisparityScale[DepthPS][J][View] = disparity_diff_wji[J][View] + (Dec->DisparityScale[Dec->DPS->ReferenceDPSID[0]][J][View] * Dec->DPS->PredictedWeight0 + Dec->DisparityScale[Dec->DPS->ReferenceDPSID[1]][J][View] * (64 – Dec->DPS->PredictedWeight0) + 32) >> 6;
-                    Dec->DisparityOffset[DepthPS][J][View] = disparity_diff_oji[J][View] + (Dec->DisparityOffset[Dec->DPS->ReferenceDPSID[0]][J][View] * Dec->DPS->PredictedWeight0 + Dec->DisparityOffset[Dec->DPS->ReferenceDPSID[1]][J][View] * (64 – Dec->DPS->PredictedWeight0) + 32) >> 6;
-                    Dec->DisparityScale[DepthPS][View][J] = disparity_diff_wij[View][J] + (Dec->DisparityScale[Dec->DPS->ReferenceDPSID[0]][View][J] * Dec->DPS->PredictedWeight0 + Dec->DisparityScale[Dec->DPS->ReferenceDPSID[1]][View][J] * (64 – Dec->DPS->PredictedWeight0) + 32) >> 6;
-                    Dec->DisparityOffset[DepthPS][View][J] = disparity_diff_oij[View][J] + (Dec->DisparityOffset[Dec->DPS->ReferenceDPSID[0]][View][J] * Dec->DPS->PredictedWeight0 + Dec->DisparityOffset[Dec->DPS->ReferenceDPSID[1]][View][J] * (64 – Dec->DPS->PredictedWeight0) + 32) >> 6;
+                    Dec->DisparityScale[DepthPS][J][View] = disparity_diff_wji[J][View] + (Dec->DisparityScale[Dec->DPS->ReferenceDPSID[0]][J][View] * Dec->DPS->PredictedWeight0 + Dec->DisparityScale[Dec->DPS->ReferenceDPSID[1]][J][View] * (64 - Dec->DPS->PredictedWeight0) + 32) >> 6;
+                    Dec->DisparityOffset[DepthPS][J][View] = disparity_diff_oji[J][View] + (Dec->DisparityOffset[Dec->DPS->ReferenceDPSID[0]][J][View] * Dec->DPS->PredictedWeight0 + Dec->DisparityOffset[Dec->DPS->ReferenceDPSID[1]][J][View] * (64 - Dec->DPS->PredictedWeight0) + 32) >> 6;
+                    Dec->DisparityScale[DepthPS][View][J] = disparity_diff_wij[View][J] + (Dec->DisparityScale[Dec->DPS->ReferenceDPSID[0]][View][J] * Dec->DPS->PredictedWeight0 + Dec->DisparityScale[Dec->DPS->ReferenceDPSID[1]][View][J] * (64 - Dec->DPS->PredictedWeight0) + 32) >> 6;
+                    Dec->DisparityOffset[DepthPS][View][J] = disparity_diff_oij[View][J] + (Dec->DisparityOffset[Dec->DPS->ReferenceDPSID[0]][View][J] * Dec->DPS->PredictedWeight0 + Dec->DisparityOffset[Dec->DPS->ReferenceDPSID[1]][View][J] * (64 - Dec->DPS->PredictedWeight0) + 32) >> 6;
                 }
             }
         }
@@ -513,7 +513,7 @@ extern "C" {
             NumC8x8 = (4 / (SubWidthC * SubHeightC));
             for (uint8_t iCbCr = 0; iCbCr < 2; iCbCr++) {
                 if ((Dec->MacroBlock->BlockPatternChroma & 3) && (startIdx == 0)) { /* chroma DC residual present */
-                    residual_block(ChromaDCLevel[iCbCr], 0, 4 * NumC8x8 − 1, 4 * NumC8x8);
+                    residual_block(ChromaDCLevel[iCbCr], 0, 4 * NumC8x8 - 1, 4 * NumC8x8);
                 } else {
                     for (uint8_t i = 0; i < 4 * NumC8x8; i++) {
                         ChromaDCLevel[iCbCr][i] = 0;
@@ -524,7 +524,7 @@ extern "C" {
                 for (i8x8 = 0; i8x8 < NumC8x8; i8x8++) {
                     for (i4x4 = 0; i4x4 < 4; i4x4++) {
                         if (Dec->MacroBlock->BlockPatternChroma & 2) { /* chroma AC residual present */
-                            residual_block(ChromaACLevel[iCbCr][i8x8 * 4 + i4x4], Max(0, startIdx − 1), endIdx − 1, 15);
+                            residual_block(ChromaACLevel[iCbCr][i8x8 * 4 + i4x4], Max(0, startIdx - 1), endIdx - 1, 15);
                         } else {
                             for (int i = 0; i < 15; i++) {
                                 ChromaACLevel[iCbCr][i8x8 * 4 + i4x4][i] = 0;
@@ -560,7 +560,7 @@ extern "C" {
             for (int Coeff = 0; Coeff < TotalCoeff(coeff_token); Coeff++) {
                 if (Coeff < TrailingOnes(coeff_token)) {
                     trailing_ones_sign_flag = ReadBits(BitB, 1, true);
-                    levelVal[i] = 1 − 2 * trailing_ones_sign_flag;
+                    levelVal[i] = 1 - 2 * trailing_ones_sign_flag;
                 } else {
                     level_prefix = ReadExpGolomb(BitB, false);
                     levelCode = (Min(15, level_prefix) << suffixLength);
@@ -572,7 +572,7 @@ extern "C" {
                         levelCode += 15;
                     }
                     if (level_prefix > = 16) {
-                        levelCode += (1 << (level_prefix − 3)) − 4096;
+                        levelCode += (1 << (level_prefix - 3)) - 4096;
                     }
                     if (i == TrailingOnes(coeff_token) && TrailingOnes(coeff_token) < 3) {
                         levelCode += 2;
@@ -580,33 +580,33 @@ extern "C" {
                     if (levelCode % 2 == 0) {
                         levelVal[i] = (levelCode + 2) >> 1;
                     } else {
-                        levelVal[i] = (−levelCode − 1) >> 1;
+                        levelVal[i] = (-levelCode - 1) >> 1;
                     }
                     if(suffixLength == 0) {
                         suffixLength = 1;
                     }
-                    if (abs(levelVal[i]) > (3 << (suffixLength − 1)) && suffixLength < 6) {
+                    if (abs(levelVal[i]) > (3 << (suffixLength - 1)) && suffixLength < 6) {
                         suffixLength++;
                     }
                 }
-                if (TotalCoeff(coeff_token) < endIdx − startIdx + 1) { // FIXME: this may need to be moved
+                if (TotalCoeff(coeff_token) < endIdx - startIdx + 1) { // FIXME: this may need to be moved
                     total_zeros = ReadExpGolomb(BitB, false);
                     zerosLeft = total_zeros;
                 } else {
                     zerosLeft = 0;
                 }
-                for (i = 0; i < TotalCoeff(coeff_token) − 1; i++) {
+                for (i = 0; i < TotalCoeff(coeff_token) - 1; i++) {
                     if(zerosLeft > 0) {
                         run_before = ReadExpGolomb(BitB, false);
                         runVal[i] = run_before;
                     } else {
                         runVal[i] = 0;
                     }
-                    zerosLeft = zerosLeft − runVal[i];
+                    zerosLeft = zerosLeft - runVal[i];
                 }
-                runVal[TotalCoeff(coeff_token) − 1] = zerosLeft;
-                coeffNum = −1;
-                for (i = TotalCoeff(coeff_token) − 1; i >= 0; i− −) {
+                runVal[TotalCoeff(coeff_token) - 1] = zerosLeft;
+                coeffNum = -1;
+                for (i = TotalCoeff(coeff_token) - 1; i >= 0; i- -) {
                     coeffNum += runVal[i] + 1;
                     coeffLevel[startIdx + coeffNum] = levelVal[i];
                 }
@@ -698,7 +698,7 @@ extern "C" {
     }
     
     void rbsp_trailing_bits(DecodeAVC *Dec, BitBuffer *BitB) { // rbsp_trailing_bits
-        bool rbsp_stop_one_bit:1 = 0;
+        bool rbsp_stop_one_bit = 0;
         rbsp_stop_one_bit = ReadBits(BitB, 1, true);
         AlignBitBuffer(BitB, 1); // while( !byte_aligned( ) )
                              // rbsp_alignment_zero_bit

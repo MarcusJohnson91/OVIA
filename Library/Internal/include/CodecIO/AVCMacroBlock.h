@@ -29,6 +29,8 @@ extern "C" {
     
     void     DecodeMacroBlock(DecodeAVC *Dec, uint8_t *MacroBlock, size_t MacroBlockSize);
     
+    void     ParseSubMacroBlockPrediction(DecodeAVC *Dec, BitBuffer *BitB, uint8_t mb_type);
+    
 #ifdef __cplusplus
 }
 #endif

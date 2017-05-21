@@ -10,11 +10,15 @@
 extern "C" {
 #endif
     
-    
+    /*
     static const int8_t ScalingList4x4[16] = {
         
     };
+     
+    static const uint8_t CABACSliceInit[] = {
     
+    };
+    */
     static const int8_t xDZL[20] = { // Table 8-11
         0, 1, 0, 1, -2, -1, 0, 1, 2, 3, -2, -1, 0, 1, 2, 3, 0, 1, 0, 1
     };
@@ -172,10 +176,6 @@ extern "C" {
     static const uint8_t CBPCAT03Inter[16] = { // Table 9-4, coded_block_pattern, ChromaArrayType = 0 or 3
         0,  1,  2,  4,  8,  3, 5, 10,
         12, 15, 7, 11, 13, 14, 6,  9
-    };
-    
-    static const uint8_t CABACSliceInit[] = {
-        
     };
     
     /*
