@@ -81,8 +81,6 @@ extern "C" {
     
     uint8_t  GetCodedBlockPattern(DecodeAVC *Dec, uint8_t CodeNum);
     
-    void     ScalingList8x8(uint8_t X, uint8_t Out_I[1][1]);
-    
     void     ConvertRGB2YCgCo(DecodeAVC *Dec, uint8_t NumChannels, uint8_t NumPixels, uint16_t **DecodedMB);
     
     uint8_t  SubMacroBlockType(uint8_t SubMacroBlockType, uint8_t MacroBlockPartitionIndex);

@@ -65,9 +65,9 @@ extern "C" {
                     Dec->SPS->ScalingListFlag[i]                                    = ReadBits(BitB, 1, true);
                     if (Dec->SPS->ScalingListFlag[i] == true) {
                         if (i < 6) {
-                            ScalingList(Dec, BitB, ScalingList4x4[i], 16, UseDefaultScalingMatrix4x4Flag[i]);
+                            ScalingList(Dec, BitB, ScalingList4x4[i], 16, Dec->PPS->DefaultScalingMatrix4x4[i]);
                         } else {
-                            ScalingList(BitB, ScalingList8x8[i - 6], 64, UseDefaultScalingMatrix8x8Flag[i - 6]);
+                            ScalingList(Dec, BitB, ScalingList8x8[i - 6], 64, Dec->PPS->DefaultScalingMatrix8x8[i - 6]);
                         }
                     }
                 }
@@ -356,9 +356,9 @@ extern "C" {
                     Dec->PPS->PicScalingList[i]                                     = ReadBits(BitB, 1, true);
                     if (Dec->PPS->PicScalingList[i] == true) {
                         if (i < 6) {
-                            ScalingList(Dec, BitB, ScalingList4x4[i], 16, UseDefaultScalingMatrix4x4Flag[i]);
+                            ScalingList(Dec, BitB, ScalingList4x4[i], 16, Dec->PPS->DefaultScalingMatrix4x4[i]);
                         } else {
-                            ScalingList(Dec, BitB, ScalingList8x8[i - 6], 64, UseDefaultScalingMatrix8x8Flag[i - 6]);
+                            ScalingList(Dec, BitB, ScalingList8x8[i - 6], 64, Dec->PPS->DefaultScalingMatrix8x8[i - 6]);
                         }
                     }
                 }
@@ -571,7 +571,7 @@ extern "C" {
         }
         Dec->SPS->ALCSpsEnableFlag                                                  = ReadBits(BitB, 1, true);
         Dec->SPS->EnableRLESkipFlag                                                 = ReadBits(BitB, 1, true);
-        bool AllViewsPairedFlag                                                     = AreAllViewsPaired(AVC);
+        bool AllViewsPairedFlag                                                     = AreAllViewsPaired(Dec);
         if (AllViewsPairedFlag == false) {
             for (uint8_t View = 0; View < Dec->SPS->ViewCount; View++) {
                 if (Dec->SPS->TextureViewPresent[View] == true) {

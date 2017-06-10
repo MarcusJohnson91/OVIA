@@ -156,6 +156,8 @@ extern "C" {
         bool         SeperateScalingMatrix:1;                      // pic_scaling_matrix_present_flag
         bool        *PicScalingList;                               // pic_scaling_list_present_flag
         uint8_t      ChromaQPOffset2:5;                            // second_chroma_qp_index_offset
+        bool        *DefaultScalingMatrix4x4;                      // UseDefaultScalingMatrix4x4Flag
+        bool        *DefaultScalingMatrix8x8;                      // UseDefaultScalingMatrix8x8Flag
     } PictureParameterSet;
     
     typedef struct Slice {

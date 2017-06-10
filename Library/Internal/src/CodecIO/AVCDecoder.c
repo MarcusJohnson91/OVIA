@@ -193,17 +193,11 @@ extern "C" {
         return weightScale4x4(i, j) * normAdjust4x4(m, i, j);
     }
     
-    void ScalingList8x8(uint8_t X, uint8_t Out_I[1][1]) {
-        // 2 * iYCbCr + mbIsInterFlag = Input
-        // weightScale8x8             = Output
-        Out_I[0][0] = weightScale8x8(X, X);
-    }
-    
     uint8_t weightScale8x8(int i, int j) {
         return V8x8[i][j];
     }
     
-    uint8_t normAdjust8x8(int m, int i, int j) {
+    uint8_t normAdjust8x8(int m, int i, int j) { // normAdjust8x8
         uint8_t Data = 0;
         if ((i % 4 == 0) && (j % 4 == 0)) {
             Data = V8x8[m][0];
@@ -743,7 +737,7 @@ extern "C" {
         }
     }
     
-    void MacroBlockPartitionHeight(DecodeAVC *Dec, uint8_t MacroBlockType) { // MbPartHeight
+    uint8_t MacroBlockPartitionHeight(DecodeAVC *Dec, uint8_t MacroBlockType) { // MbPartHeight
         if (MacroBlockType == P_L0_16x16) {
             return 16;
         } else if (MacroBlockType == P_L0_L0_16x8) {
