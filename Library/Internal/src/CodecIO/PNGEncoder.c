@@ -2,7 +2,7 @@
 
 #include "../../include/libModernPNG.h"
 #include "../../include/Encode/EncodePNG.h"
-#include "../../include/PNGTypes.h"
+#include "../../include/ModernPNGTypes.h"
 
 #ifdef __cplusplus
 extern "C" {

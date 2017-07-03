@@ -1,6 +1,6 @@
 #include "../include/libModernPNG.h"
-#include "../include/PNGTypes.h"
-#include "../include/PNGShared.h"
+#include "../include/ModernPNGTypes.h"
+#include "../include/ModernPNGShared.h"
 
 #ifdef __cplusplus
 extern "C" {

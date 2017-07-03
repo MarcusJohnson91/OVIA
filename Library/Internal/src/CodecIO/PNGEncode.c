@@ -2,13 +2,13 @@
 
 #include "../../include/libModernPNG.h"
 #include "../../include/Encode/EncodePNG.h"
-#include "../../include/PNGTypes.h"
+#include "../../include/ModernPNGTypes.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
     
-    void PNGEncodeFilterNon(DecodePNG *Dec, uint8_t *DeEntropyedData, uint8_t *DeFilteredData, size_t Line) {
+    void PNGEncodeFilterNone(DecodePNG *Dec, uint8_t *DeEntropyedData, uint8_t *DeFilteredData, size_t Line) {
         
     }
     
