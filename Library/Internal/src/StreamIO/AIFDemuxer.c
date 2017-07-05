@@ -8,25 +8,25 @@
 extern "C" {
 #endif
     
-    void ParseAIFNAME(BitInput *BitI, AIFHeader *AIF, uint32_t ChunkSize) {
+    void ParseAIFNAME(AIFHeader *AIF, BitBuffer *BitB, uint32_t ChunkSize) {
         char *Name = calloc(1, ChunkSize);
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
-            Name[Byte] = ReadBits(BitI, 8, true);
+            Name[Byte] = ReadBits(BitB, 8, true);
         }
         AIF->Meta->SongTitleTag = Name;
         AIF->Meta->NumTags += 1;
     }
     
-    void ParseAIFCOMM(BitInput *BitI, AIFHeader *AIF, uint32_t ChunkSize) {
-        AIF->Channels  = ReadBits(BitI, 16, true);
-        AIF->NumFrames = ReadBits(BitI, 32, true);
-        AIF->BitDepth  = ReadBits(BitI, 16, true);
+    void ParseAIFCOMM(AIFHeader *AIF, BitBuffer *BitB, uint32_t ChunkSize) {
+        AIF->Channels  = ReadBits(BitB, 16, true);
+        AIF->NumFrames = ReadBits(BitB, 32, true);
+        AIF->BitDepth  = ReadBits(BitB, 16, true);
     }
     
-    void ParseAIFSNSD(BitInput *BitI, AIFHeader *AIF, uint32_t ChunkSize) {
-        AIF->Offset    = ReadBits(BitI, 32, true);
-        AIF->BlockSize = ReadBits(BitI, 32, true);
-        SkipBits(BitI, Bytes2Bits(AIF->BlockSize)); // Skip Offset bytes for alignment
+    void ParseAIFSNSD(AIFHeader *AIF, BitBuffer *BitB, uint32_t ChunkSize) {
+        AIF->Offset    = ReadBits(BitB, 32, true);
+        AIF->BlockSize = ReadBits(BitB, 32, true);
+        SkipBits(BitB, Bytes2Bits(AIF->BlockSize)); // Skip Offset bytes for alignment
     }
     
 #ifdef __cplusplus
