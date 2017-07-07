@@ -1,5 +1,7 @@
 #include "libPCM.h"
 
+// PGM, PBM, PPM, along with PAM.
+
 #pragma once
 
 #ifndef LIBPCM_PORTABLEBITMAPCOMMON_H
@@ -10,13 +12,23 @@ extern "C" {
 #endif
     
     enum PortableBitmapMagic {
-        PortableBitMap  = 0x5031, // P1
-        PortableGrayMap = 0x5032, // P2
-        PortablePixMap  = 0x5033, // P3
-        
+        PortableBitMap1  = 0x5031, // P1 or P4
+        PortableBitMap2  = 0x5034,
+        PortableGrayMap1 = 0x5032, // P2 or P5
+        PortableGrayMap2 = 0x5035,
+        PortablePixMap1  = 0x5033, // P3 or P6
+        PortablePixMap2  = 0x5036,
+        PortableAnyMap   = 0x5037, // P7
     };
     
-    // Supports both Portable Bitmats, and Portable Arbitrary Map formats.
+    struct PXMHeader {
+        uint64_t Width;
+        uint64_t Height;
+        uint64_t NumChannels;
+        uint64_t MaxVal;
+    };
+    
+    // The secton ender for all variants is 0x0A
     
 #ifdef __cplusplus
 }

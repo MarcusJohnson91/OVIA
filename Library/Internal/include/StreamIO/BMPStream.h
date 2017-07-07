@@ -20,10 +20,6 @@ extern "C" {
         uint16_t Reserved2;
         uint32_t DataStart;
     };
-    
-    struct Blah {
-        
-    };
 
 #ifdef __cplusplus
 }
