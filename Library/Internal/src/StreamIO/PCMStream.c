@@ -9,6 +9,8 @@
 extern "C" {
 #endif
     
+    // Well, we need to identify the file type, set the approperiate values (is it audio or video?), then extract the correct amount of data depending on the type.
+    
     PCMFile *InitPCMFile(void) {
         PCMFile *PCM = calloc(1, sizeof(PCMFile));
         PCM->Meta    = calloc(1, sizeof(PCMMetadata));

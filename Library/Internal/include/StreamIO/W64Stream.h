@@ -53,9 +53,9 @@ extern "C" {
         0x92,0x5F,0x94,0xBC,0x45,0x52,0x5A,0x45,0x11,0xD2,0x45,0x86,0xDC,0x45,0x00,0xC0,0x4F,0x8E,0xDB,0x8A,0x00
     };
     
-    void ParseW64FMTChunk(BitBuffer *BitB, W64Header *W64);
+    void ParseW64FMTChunk(W64Header *W64, BitBuffer *BitB);
     
-    void ParseW64BEXTChunk(BitBuffer *BitB, W64Header *W64);
+    void ParseW64BEXTChunk(W64Header *W64, BitBuffer *BitB);
     
 #ifdef __cplusplus
 }

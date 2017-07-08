@@ -24,74 +24,74 @@ extern "C" {
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
             Artist[Byte] = ReadBits(BitB, 8, true);
         }
-        WAV->Meta->ArtistTag = Artist;
+        Wav->Meta->ArtistTag = Artist;
         if (IsOdd(ChunkSize) == true) {
             SkipBits(BitB, 8);
         }
-        WAV->Meta->NumTags += 1;
+        Wav->Meta->NumTags += 1;
     }
     
-    void ReadINFO_ICRD(BitBuffer *BitB, PCMFile *PCM, uint32_t ChunkSize) {
+    void ReadINFO_ICRD(WAVHeader *Wav, BitBuffer *BitB, uint32_t ChunkSize) {
         char *ReleaseDate = calloc(1, ChunkSize);
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
             ReleaseDate[Byte] = ReadBits(BitB, 8, true);
         }
-        PCM->WAV->Meta->ReleaseDateTag = ReleaseDate;
+        Wav->Meta->ReleaseDateTag = ReleaseDate;
         if (IsOdd(ChunkSize) == true) {
             SkipBits(BitB, 8);
         }
-        PCM->WAV->Meta->NumTags += 1;
+        Wav->Meta->NumTags += 1;
     }
     
-    void ReadINFO_IGNR(BitBuffer *BitB, PCMFile *PCM, uint32_t ChunkSize) {
+    void ReadINFO_IGNR(WAVHeader *Wav, BitBuffer *BitB, uint32_t ChunkSize) {
         char *Genre = calloc(1, ChunkSize);
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
             Genre[Byte] = ReadBits(BitB, 8, true);
         }
-        PCM->WAV->Meta->GenreTag = Genre;
+        Wav->Meta->GenreTag = Genre;
         if (IsOdd(ChunkSize) == true) {
             SkipBits(BitB, 8);
         }
-        PCM->WAV->Meta->NumTags += 1;
+        Wav->Meta->NumTags += 1;
     }
     
-    void ReadINFO_INAM(BitBuffer *BitB, PCMFile *PCM, uint32_t ChunkSize) {
+    void ReadINFO_INAM(WAVHeader *Wav, BitBuffer *BitB, uint32_t ChunkSize) {
         char *Title = calloc(1, ChunkSize);
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
             Title[Byte] = ReadBits(BitB, 8, true);
         }
-        PCM->WAV->Meta->SongTitleTag = Title;
+        Wav->Meta->SongTitleTag = Title;
         if (IsOdd(ChunkSize) == true) {
             SkipBits(BitB, 8);
         }
-        PCM->WAV->Meta->NumTags += 1;
+        Wav->Meta->NumTags += 1;
     }
     
-    void ReadINFO_IPRD(BitBuffer *BitB, PCMFile *PCM, uint32_t ChunkSize) {
+    void ReadINFO_IPRD(WAVHeader *Wav, BitBuffer *BitB, uint32_t ChunkSize) {
         char *Album              = calloc(1, ChunkSize);
         for (uint8_t Byte        = 0; Byte < ChunkSize; Byte++) {
             Album[Byte]          = ReadBits(BitB, 8, true);
         }
-        PCM->WAV->Meta->AlbumTag = Album;
+        Wav->Meta->AlbumTag = Album;
         if (IsOdd(ChunkSize) == true) {
             SkipBits(BitB, 8);
         }
-        PCM->WAV->Meta->NumTags += 1;
+        Wav->Meta->NumTags += 1;
     }
     
-    void ReadINFO_ISFT(BitBuffer *BitB, PCMFile *PCM, uint32_t ChunkSize) { // Encoder
+    void ReadINFO_ISFT(WAVHeader *Wav, BitBuffer *BitB, uint32_t ChunkSize) { // Encoder
         char *Encoder     = calloc(1, ChunkSize);
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
             Encoder[Byte] = ReadBits(BitB, 8, true);
         }
-        PCM->WAV->Meta->EncoderTag = Encoder;
+        Wav->Meta->EncoderTag = Encoder;
         if (IsOdd(ChunkSize) == true) {
             SkipBits(BitB, 8);
         }
-        PCM->WAV->Meta->NumTags += 1;
+        Wav->Meta->NumTags += 1;
     }
     
-    void ParseWavLISTChunk(BitBuffer *BitB, PCMFile *PCM, uint32_t ChunkSize) {
+    void ParseWavLISTChunk(WAVHeader *Wav, BitBuffer *BitB, uint32_t ChunkSize) {
         uint32_t ShouldBeINFO  = ReadBits(BitB, 32, true);
         if (ShouldBeINFO == WAV_INFO) {
             uint32_t ChunkID   = ReadBits(BitB, 32, true);
@@ -99,22 +99,22 @@ extern "C" {
             
             switch (ChunkID) {
                 case WAV_IART: // Artist
-                    ReadINFO_IART(BitB, PCM, ChunkSize);
+                    ReadINFO_IART(Wav, BitB, ChunkSize);
                     break;
                 case WAV_ICRD: // Release date
-                    ReadINFO_ICRD(BitB, PCM, ChunkSize);
+                    ReadINFO_ICRD(Wav, BitB, ChunkSize);
                     break;
                 case WAV_IGNR: // Genre
-                    ReadINFO_IGNR(BitB, PCM, ChunkSize);
+                    ReadINFO_IGNR(Wav, BitB, ChunkSize);
                     break;
                 case WAV_INAM: // Title
-                    ReadINFO_INAM(BitB, PCM, ChunkSize);
+                    ReadINFO_INAM(Wav, BitB, ChunkSize);
                     break;
                 case WAV_IPRD: // Album
-                    ReadINFO_IPRD(BitB, PCM, ChunkSize);
+                    ReadINFO_IPRD(Wav, BitB, ChunkSize);
                     break;
                 case WAV_ISFT: // Encoder
-                    ReadINFO_ISFT(BitB, PCM, ChunkSize);
+                    ReadINFO_ISFT(Wav, BitB, ChunkSize);
                     break;
                 default:
                     break;
@@ -124,39 +124,39 @@ extern "C" {
         }
     }
     
-    void ParseWavDATAChunk(BitBuffer *BitB, PCMFile *PCM, uint32_t ChunkSize) { //
-        PCM->WAV->SampleCount            = ((ChunkSize / PCM->WAV->Channels) / Bits2Bytes(PCM->WAV->BitDepth, true));
+    void ParseWavDATAChunk(WAVHeader *Wav, BitBuffer *BitB, uint32_t ChunkSize) { //
+        Wav->SampleCount            = ((ChunkSize / Wav->Channels) / Bits2Bytes(Wav->BitDepth, true));
     }
     
-    void ParseWavFMTChunk(BitBuffer *BitB, PCMFile *PCM, uint32_t ChunkSize) {
-        PCM->WAV->FMT                    = ReadBits(BitB, 32, true);
-        PCM->WAV->FMTSize                = SwapEndian32(ReadBits(BitB, 32, true));
-        if (PCM->WAV->FMTSize > 16) {
-            PCM->WAV->FMTType            = SwapEndian16(ReadBits(BitB, 16, true));
+    void ParseWavFMTChunk(WAVHeader *Wav, BitBuffer *BitB, uint32_t ChunkSize) {
+        Wav->FMT                    = ReadBits(BitB, 32, true);
+        Wav->FMTSize                = SwapEndian32(ReadBits(BitB, 32, true));
+        if (Wav->FMTSize > 16) {
+            Wav->FMTType            = SwapEndian16(ReadBits(BitB, 16, true));
         }
-        PCM->WAV->CompressionAlgorithm   = SwapEndian16(ReadBits(BitB, 16, true));
-        if (PCM->WAV->FMTSize == 16) {
-            PCM->WAV->Channels           = SwapEndian16(ReadBits(BitB, 16, true));
+        Wav->CompressionAlgorithm   = SwapEndian16(ReadBits(BitB, 16, true));
+        if (Wav->FMTSize == 16) {
+            Wav->Channels           = SwapEndian16(ReadBits(BitB, 16, true));
         }
-        PCM->WAV->SampleRate             = SwapEndian32(ReadBits(BitB, 32, true));
-        PCM->WAV->ByteRate               = SwapEndian32(ReadBits(BitB, 32, true));
-        PCM->WAV->BlockSize              = SwapEndian16(ReadBits(BitB, 16, true));
-        PCM->WAV->BitDepth               = SwapEndian16(ReadBits(BitB, 16, true));
-        if (PCM->WAV->FMTType == WAVFormatExtensible) {
-            PCM->WAV->ExtensionSize      = SwapEndian16(ReadBits(BitB, 16, true));
-            PCM->WAV->ValidBitsPerSample = SwapEndian16(ReadBits(BitB, 16, true));
-            PCM->WAV->SpeakerMask        = SwapEndian32(ReadBits(BitB, 32, true));
-            SkipBits(BitB, PCM->WAV->ExtensionSize - 8); // 8 bytes from ^
+        Wav->SampleRate             = SwapEndian32(ReadBits(BitB, 32, true));
+        Wav->ByteRate               = SwapEndian32(ReadBits(BitB, 32, true));
+        Wav->BlockSize              = SwapEndian16(ReadBits(BitB, 16, true));
+        Wav->BitDepth               = SwapEndian16(ReadBits(BitB, 16, true));
+        if (Wav->FMTType == WAVFormatExtensible) {
+            Wav->ExtensionSize      = SwapEndian16(ReadBits(BitB, 16, true));
+            Wav->ValidBitsPerSample = SwapEndian16(ReadBits(BitB, 16, true));
+            Wav->SpeakerMask        = SwapEndian32(ReadBits(BitB, 32, true));
+            SkipBits(BitB, Wav->ExtensionSize - 8); // 8 bytes from ^
         }
     }
     
-    void WAVExtractSamples(BitBuffer *BitB, PCMFile *PCM, uint64_t NumSamples2Extract) {
-        for (uint8_t Channel = 0; Channel < PCM->NumChannels; Channel++) {
+    void WAVExtractSamples(WAVHeader *Wav, BitBuffer *BitB, uint64_t NumSamples2Extract) {
+        for (uint8_t Channel = 0; Channel < Wav->Channels; Channel++) {
             for (uint64_t Sample = 0; Sample < NumSamples2Extract; Sample++) {
-                PCM->Samples[Channel][Sample] = ReadBits(BitB, BitDepth2SampleSizeInBytes[PCM->BitDepth], false);
+                Samples[Channel][Sample] = ReadBits(BitB, BitDepth2SampleSizeInBytes[BitDepth], false);
             }
         }
-        PCM->NumSamples = NumSamples2Extract;
+        NumSamples = NumSamples2Extract;
     }
     
 #ifdef __cplusplus
