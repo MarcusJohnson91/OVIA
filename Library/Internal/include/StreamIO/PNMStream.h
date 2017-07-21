@@ -11,7 +11,7 @@
 extern "C" {
 #endif
     
-    enum PortableBitmapMagic {
+    enum PXMMagic {
         PortableBitMap1  = 0x5031, // P1 or P4
         PortableBitMap2  = 0x5034,
         PortableGrayMap1 = 0x5032, // P2 or P5

@@ -21,6 +21,7 @@ extern "C" {
     // So, We need to accept a BitInput pointer, and start reading the input file to discover it's file type, then call the dedicated format metadata parser to get the info we need and verify it's raw PCM, and then line us up with the PCM samples, and wait for calls to ExtractSamples
     
     void ClosePCMFile(PCMFile *PCM) {
+        free(PCM->SamplesOrLines);
         free(PCM->Meta);
         free(PCM);
     }
@@ -134,8 +135,6 @@ extern "C" {
     }
     
     void IdentifyPCMFile(BitInput *BitI, PCMFile *PCM) {
-        uint8_t  FileType = 0;
-        
         uint32_t InputMagic = ReadBits(BitI, 32, true);
         if (InputMagic == WAV_RIFF) {
             PCM->FileType = WAV_File;
@@ -152,7 +151,19 @@ extern "C" {
             PCM->FileType = AIFF_File;
             AIFHeader *AIF = calloc(1, sizeof(AIFHeader));
             ParseAIFFile(BitI, AIF);
+        } else if (InputMagic & 0xFFFF0000 == BMP_BM) {
+            // BMP file
+            PCM->FileType = BMP_File;
+            
         }
+    }
+    
+    void ExtractAudioSamples(PCMFile *PCM, BitBuffer *ExtractedSamples, uint64_t Samples2Extract) {
+        
+    }
+    
+    void ExtractImageLines(PCMFile *PCM, BitBuffer *ExtractedLines, uint64_t Lines2Extract) {
+        
     }
     
 #ifdef __cplusplus

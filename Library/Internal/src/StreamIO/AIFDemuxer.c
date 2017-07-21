@@ -8,6 +8,10 @@
 extern "C" {
 #endif
     
+    void ParseAIFFile(PCMFile *PCM, BitBuffer *InputBuffer) {
+        
+    }
+    
     void ParseAIFNAME(AIFHeader *AIF, BitBuffer *BitB, uint32_t ChunkSize) {
         char *Name = calloc(1, ChunkSize);
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
