@@ -11,9 +11,9 @@
 extern "C" {
 #endif
     
-    void   FLACWriteStreaminfo(BitOutput *BitO, EncodeFLAC *Enc);
+    void   FLACWriteStreaminfo(BitBuffer *OutputFLAC, EncodeFLAC *Enc);
     
-    void   FLACWriteVorbisComment(BitOutput *BitO, EncodeFLAC *Enc);
+    void   FLACWriteVorbisComment(BitBuffer *OutputFLAC, EncodeFLAC *Enc);
 
 #ifdef __cplusplus
 }

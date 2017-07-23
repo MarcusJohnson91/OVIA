@@ -12,23 +12,23 @@
 extern "C" {
 #endif
     
-    void FLACParseMetadata(BitInput *BitI, DecodeFLAC *Dec);
+    void FLACParseMetadata(BitBuffer *InputFLAC, DecodeFLAC *Dec);
     
-    void FLACParseStreamInfo(BitInput *BitI, DecodeFLAC *Dec);
+    void FLACParseStreamInfo(BitBuffer *InputFLAC, DecodeFLAC *Dec);
     
-    void FLACSkipPadding(BitInput *BitI, DecodeFLAC *Dec);
+    void FLACSkipPadding(BitBuffer *InputFLAC, DecodeFLAC *Dec);
     
-    void FLACSkipCustom(BitInput *BitI, DecodeFLAC *Dec);
+    void FLACSkipCustom(BitBuffer *InputFLAC, DecodeFLAC *Dec);
     
-    void FLACParseSeekTable(BitInput *BitI, DecodeFLAC *Dec);
+    void FLACParseSeekTable(BitBuffer *InputFLAC, DecodeFLAC *Dec);
     
-    void FLACParseVorbisComment(BitInput *BitI, DecodeFLAC *Dec);
+    void FLACParseVorbisComment(BitBuffer *InputFLAC, DecodeFLAC *Dec);
     
-    void FLACParseCuesheet(BitInput *BitI, DecodeFLAC *Dec);
+    void FLACParseCuesheet(BitBuffer *InputFLAC, DecodeFLAC *Dec);
     
-    void FLACParsePicture(BitInput *BitI, DecodeFLAC *Dec);
+    void FLACParsePicture(BitBuffer *InputFLAC, DecodeFLAC *Dec);
     
-    void FLACParsePicture(BitInput *BitI, DecodeFLAC *Dec);
+    void FLACParsePicture(BitBuffer *InputFLAC, DecodeFLAC *Dec);
     
 #ifdef __cplusplus
 }
