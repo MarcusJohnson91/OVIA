@@ -79,7 +79,7 @@ extern "C" {
     }
     
     void WriteBKGDChunk(BitBuffer *BitB, EncodePNG *Enc) {
-        uint8_t  NumChannels   = ChannelsPerColorType[Enc->iHDR->ColorType];
+        uint8_t  NumChannels   = PNGChannelsPerColorType[Enc->iHDR->ColorType];
         uint32_t Size          = 0;
         uint8_t  BKGDEntrySize = 0; // in bits
         
@@ -170,7 +170,7 @@ extern "C" {
     */
     void WriteSBITChunk(BitBuffer *BitB, EncodePNG *Enc) {
         uint8_t ChunkSize = 0;
-        uint8_t NumChannels = ChannelsPerColorType[Enc->iHDR->ColorType];
+        uint8_t NumChannels = PNGChannelsPerColorType[Enc->iHDR->ColorType];
         if (Enc->iHDR->ColorType == PNG_Grayscale) {
             ChunkSize = 1;
         } else if (Enc->iHDR->ColorType == PNG_RGB || Enc->iHDR->ColorType == PNG_PalettedRGB) {

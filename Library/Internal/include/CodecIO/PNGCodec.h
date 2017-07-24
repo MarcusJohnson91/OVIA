@@ -36,12 +36,12 @@ extern "C" {
         PNG_RGBA        = 6,
     };
     
-    static const char Number2Month[12][3] = {
+    static const char PNGNumber2Month[12][3] = {
         "Jan", "Feb", "Mar", "Apr", "May", "Jun",
         "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
     };
     
-    static const uint8_t ChannelsPerColorType[7] = {
+    static const uint8_t PNGChannelsPerColorType[7] = {
         1, 0, 3, 3, 4, 0, 4
     };
     
@@ -53,7 +53,7 @@ extern "C" {
     
     EncodePNG     *InitEncodePNG(void);
     
-    void           PNGDecodeImage(BitBuffer *BitB, DecodePNG *PNG, uint16_t *DecodedImage);
+    void           PNGDecodeImage(DecodePNG *PNG, BitBuffer *BitB, uint16_t *DecodedImage);
     
     void           PNGEncodeImage(EncodePNG *Enc, BitBuffer *BitB);
 

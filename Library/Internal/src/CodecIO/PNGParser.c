@@ -42,7 +42,7 @@ extern "C" {
             }
             
             
-            for (uint8_t Channel = 0; Channel < ChannelsPerColorType[Dec->iHDR->ColorType]; Channel++) {
+            for (uint8_t Channel = 0; Channel < PNGChannelsPerColorType[Dec->iHDR->ColorType]; Channel++) {
                 for (uint16_t PaletteEntry = 0; PaletteEntry < ChunkSize / 3; PaletteEntry++) {
                     Dec->PLTE->Palette[Channel][PaletteEntry] = ReadBits(BitB, Dec->iHDR->BitDepth, true);
                 }
@@ -54,7 +54,7 @@ extern "C" {
     void ParseTRNS(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize) { // Transparency
         Dec->tRNS->NumEntries = ReadBits(BitB, 32, true);
         uint16_t **Entries = calloc(1, Dec->tRNS->NumEntries);
-        for (uint8_t Color = 0; Color < ChannelsPerColorType[Dec->iHDR->ColorType]; Color++) {
+        for (uint8_t Color = 0; Color < PNGChannelsPerColorType[Dec->iHDR->ColorType]; Color++) {
             Entries[Color] = ReadBits(BitB, Bits2Bytes(Dec->iHDR->BitDepth, true), true);
         }
         Dec->tRNS->Palette = Entries;

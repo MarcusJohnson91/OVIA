@@ -48,7 +48,7 @@ extern "C" {
         // If the padding amount is odd, start at (Padding / 2)
         
         for (uint8_t StereoChannel = 0; StereoChannel < Enc->Is3D; StereoChannel++) {
-            for (uint8_t Color = 0; Color < ChannelsPerColorType[Enc->iHDR->ColorType]; Color++) {
+            for (uint8_t Color = 0; Color < PNGChannelsPerColorType[Enc->iHDR->ColorType]; Color++) {
                 for (uint64_t Height = HeightPadding / 2; Height < Enc->iHDR->Height; Height++) {
                     for (uint64_t Width = WidthPadding / 2; Width < Enc->iHDR->Width; Width++) {
                         Image[StereoChannel][Color][Height][Width] = RawFrame[StereoChannel][Color][Height][Width];
