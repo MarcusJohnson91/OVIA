@@ -9,31 +9,36 @@
 extern "C" {
 #endif
     
-#define PNGMagic 0x89504E470D0A1A0A
+#define PNGMagic             0x89504E470D0A1A0A
     
     enum PNGChunkMarkers {
-        iHDRMarker = 0x49484452,
-        acTLMarker = 0x6163544C,
-        fcTLMarker = 0x6663544C,
-        fDATMarker = 0x66444154,
-        sTERMarker = 0x73544552,
-        bKGDMarker = 0x626b4744,
-        cHRMMarker = 0x6348524d,
-        gAMAMarker = 0x67414d41,
-        oFFsMarker = 0x6f464673,
-        iCCPMarker = 0x69434350,
-        sBITMarker = 0x73424954,
-        sRGBMarker = 0x73524742,
-        pHYsMarker = 0x70485973,
-        pCALMarker = 0x7043414C,
+        iHDRMarker         = 0x49484452,
+        acTLMarker         = 0x6163544C,
+        fcTLMarker         = 0x6663544C,
+        fDATMarker         = 0x66444154,
+        sTERMarker         = 0x73544552,
+        bKGDMarker         = 0x626b4744,
+        cHRMMarker         = 0x6348524d,
+        gAMAMarker         = 0x67414d41,
+        oFFsMarker         = 0x6f464673,
+        iCCPMarker         = 0x69434350,
+        sBITMarker         = 0x73424954,
+        sRGBMarker         = 0x73524742,
+        pHYsMarker         = 0x70485973,
+        pCALMarker         = 0x7043414C,
     };
     
     enum PNGColorTypes {
-        PNG_Grayscale   = 0,
-        PNG_RGB         = 2,
-        PNG_PalettedRGB = 3,
-        PNG_GrayAlpha   = 4,
-        PNG_RGBA        = 6,
+        PNG_Grayscale      = 0,
+        PNG_RGB            = 2,
+        PNG_PalettedRGB    = 3,
+        PNG_GrayAlpha      = 4,
+        PNG_RGBA           = 6,
+    };
+    
+    enum PNGInterlaceType {
+        PNGNotInterlaced   = 0,
+        PNGInterlacedAdam7 = 1,
     };
     
     static const char PNGNumber2Month[12][3] = {
@@ -49,13 +54,43 @@ extern "C" {
     
     typedef struct PNGEncoder EncodePNG;
     
+    /*!
+     @abstract                     "Initializes the DecodePNG structure to start decoding this specific PNG file"
+     @return                       "It takes no parameters, and returns a pointer to the PNGDecoder (typedef'd as DecodePNG) structure"
+     */
     DecodePNG     *InitDecodePNG(void);
     
+    /*!
+     @abstract                     "Initializes the EncodePNG structure to start encoding this specific PNG file"
+     @return                       "It takes no parameters, and returns a pointer to the PNGEncoder (typedef'd as EncodePNG) structure"
+     */
     EncodePNG     *InitEncodePNG(void);
     
-    void           PNGDecodeImage(DecodePNG *PNG, BitBuffer *BitB, uint16_t *DecodedImage);
+    /*!
+     @abstract                     "Uninitializes the PNGDecoder (typedef'd as DecodePNG) structure after you're done decoding this specific PNG file"
+     */
+    void           DeinitDecodePNG(DecodePNG *Dec);
     
-    void           PNGEncodeImage(EncodePNG *Enc, BitBuffer *BitB);
+    /*!
+     @abstract                     "Uninitializes the PNGEncoder (typedef'd as EncodePNG) structure after you're done decoding this specific PNG file"
+     */
+    void           DeinitEncodePNG(EncodePNG *Enc);
+    
+    /*!
+     @abstract                     "Encodes a PNG from RawImage2Encode to a BitBuffer"
+     @param        Enc             "Pointer to EncodePNG struct containing all the metadata about the image to be encoded"
+     @param        RawImage2Encode "Pointer to raw array containing the image, supports 2D array containing stereoscopic frames"
+     @param        InterlacePNG    "Should this PNG file be interlaced using the Adam7 algorithm for progressive download?"
+     @param        OptimizePNG     "Should this PNG file be optimized by trying all filters? (Huffman optimization is enabled by default)"
+     */
+    BitBuffer     *EncodePNGImage(EncodePNG *Enc, void ****RawImage2Encode, bool InterlacePNG, bool OptimizePNG);
+    
+    /*!
+     @abstract                     "Decodes a PNG from PNGImage2Decode to a BitBuffer"
+     @param        Dec             "Pointer to DecodePNG struct containing all the metadata about the image to be decoded"
+     @param        PNGImage2Decode "Pointer to raw array containing the image, supports 2D array containing stereoscopic frames"
+     */
+    BitBuffer     *DecodePNGImage(DecodePNG *Dec, void ****PNGImage2Decode);
 
 #ifdef __cplusplus
 }

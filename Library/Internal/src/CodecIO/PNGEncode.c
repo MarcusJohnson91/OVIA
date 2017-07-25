@@ -8,67 +8,97 @@
 extern "C" {
 #endif
     
-    void PNGEncodeFilterNone(DecodePNG *Dec, uint8_t *DeEntropyedData, uint8_t *DeFilteredData, size_t Line) {
-        
+    EncodePNG *InitEncodePNG(void) {
+        EncodePNG *Enc  = calloc(1, sizeof(EncodePNG));
+        Enc->acTL       = calloc(1, sizeof(acTL));
+        Enc->bkGD       = calloc(1, sizeof(bkGD));
+        Enc->cHRM       = calloc(1, sizeof(cHRM));
+        Enc->fcTL       = calloc(1, sizeof(fcTL));
+        Enc->fdAT       = calloc(1, sizeof(fdAT));
+        Enc->gAMA       = calloc(1, sizeof(gAMA));
+        Enc->hIST       = calloc(1, sizeof(hIST));
+        Enc->iCCP       = calloc(1, sizeof(iCCP));
+        Enc->iHDR       = calloc(1, sizeof(iHDR));
+        Enc->oFFs       = calloc(1, sizeof(oFFs));
+        Enc->pCAL       = calloc(1, sizeof(pCAL));
+        Enc->PLTE       = calloc(1, sizeof(PLTE));
+        Enc->sBIT       = calloc(1, sizeof(sBIT));
+        Enc->sRGB       = calloc(1, sizeof(sRGB));
+        Enc->sTER       = calloc(1, sizeof(sTER));
+        Enc->Text       = calloc(1, sizeof(Text));
+        Enc->tIMe       = calloc(1, sizeof(tIMe));
+        Enc->tRNS       = calloc(1, sizeof(tRNS));
+        return Enc;
     }
     
-    void PNGEncodeFilterPaeth(EncodePNG *Enc, uint8_t *Line, size_t LineSize) {
-        // RawData is after decoding the I/f DATs, and after INFLAT'ing and De-LZ77'ing it.
-        // Each line is preceded by a filter type byte, so decode it by a line by line basis.
-        // Good candidate for multi-threading.
-    }
-    
-    void PNGEncodeFilterSub(EncodePNG *Enc, uint8_t *Line, size_t NumPixels) {
-        // NumPixel means whole pixel not sub pixel.
-        uint8_t *EncodedLine = (uint8_t*)calloc(1, Enc->iHDR->Width);
-        for (size_t Pixel = 1; Pixel < NumPixels; Pixel++) {
-            if (Pixel == 1) {
-                EncodedLine[Pixel] = Line[Pixel];
-            } else {
-                EncodedLine[Pixel] = Line[Pixel] - Line[Pixel - 1];
-            }
+    void DeinitEncodePNG(EncodePNG *Enc) {
+        if (Enc->acTLExists) {
+            free(Enc->acTL);
         }
+        if (Enc->bkGDExists) {
+            free(Enc->bkGD->BackgroundPaletteEntry);
+            free(Enc->bkGD);
+        }
+        if (Enc->cHRMExists) {
+            free(Enc->cHRM);
+        }
+        if (Enc->fcTLExists) {
+            free(Enc->fcTL);
+            free(Enc->fdAT);
+        }
+        if (Enc->gAMAExists) {
+            free(Enc->gAMA);
+        }
+        if (Enc->hISTExists) {
+            free(Enc->hIST);
+        }
+        if (Enc->iCCPExists) {
+            free(Enc->iCCP->CompressedICCPProfile);
+            free(Enc->iCCP->ProfileName);
+            free(Enc->iCCP);
+        }
+        if (Enc->oFFsExists) {
+            free(Enc->oFFs);
+        }
+        if (Enc->pCALExists) {
+            free(Enc->pCAL->CalibrationName);
+            free(Enc->pCAL->UnitName);
+            free(Enc->pCAL);
+        }
+        if (Enc->PLTEExists) {
+            free(Enc->PLTE->Palette);
+            free(Enc->PLTE);
+        }
+        if (Enc->sBITExists) {
+            free(Enc->sBIT);
+        }
+        if (Enc->sRGBExists) {
+            free(Enc->sRGB);
+        }
+        if (Enc->sTERExists) {
+            free(Enc->sTER);
+        }
+        if (Enc->TextExists) {
+            free(Enc->Text->Keyword);
+            free(Enc->Text->TextString);
+            free(Enc->Text);
+        }
+        if (Enc->tIMEExists) {
+            free(Enc->tIMe);
+        }
+        if (Enc->tRNSExists) {
+            free(Enc->tRNS->Palette);
+            free(Enc->tRNS);
+        }
+        free(Enc->iHDR);
+        free(Enc);
     }
     
-    void PNGEncodeAdam7(EncodePNG *Enc, uint8_t ****RawFrame) {
-        uint8_t WidthPadding = 0, HeightPadding = 0, WidthStart = 0, HeightStart = 0;
-        // Break image into 8x8 blocks, then break each chunk into 7 layers.
-        if (Enc->iHDR->Width % 8 != 0) {
-            WidthPadding = 8 - (Enc->iHDR->Width % 8);
-        }
-        if (Enc->iHDR->Height % 8 != 0) {
-            HeightPadding = 8 - (Enc->iHDR->Height % 8);
-        }
-        // Pad the RawFrame by WidthPadding and HeightPadding
-        // Then Split the image into 8x8 chunks, or maybe I should just have a few loops?
+    BitBuffer *EncodePNGImage(EncodePNG *Enc, void ****RawImage2Encode, bool InterlacePNG, bool OptimizePNG) {
+        // RawImage2Encode is a void pointer, the contents of Enc->iHDR->BitDepth will define the data type, uint8_t or uint16_t
         
-        // Create an array with size (Enc->iHDR->Width + WidthPadding) * (Enc->iHDR->Height + HeightPadding)
-        uint16_t ****Image = calloc(((Enc->iHDR->Width + WidthPadding) * (Enc->iHDR->Height + HeightPadding)) * (Enc->Is3D * 2), 1);
-        // Now copy the image into the new array, in the middle so the amount of padding is even on both sized
-        // If the padding amount is odd, start at (Padding / 2)
-        
-        for (uint8_t StereoChannel = 0; StereoChannel < Enc->Is3D; StereoChannel++) {
-            for (uint8_t Color = 0; Color < PNGChannelsPerColorType[Enc->iHDR->ColorType]; Color++) {
-                for (uint64_t Height = HeightPadding / 2; Height < Enc->iHDR->Height; Height++) {
-                    for (uint64_t Width = WidthPadding / 2; Width < Enc->iHDR->Width; Width++) {
-                        Image[StereoChannel][Color][Height][Width] = RawFrame[StereoChannel][Color][Height][Width];
-                    }
-                }
-            }
-        }
-        
-        // Now I need to break up the image into 8x8 blocks
-    }
-    
-    void OptimizePNG(EncodePNG *Enc, uint8_t ****Image) {
-        // call PNGEncodeAdam7, then take the resulting image and try all the filters on an 8x8 block.
-        // Actually, no. we should have a PNGFilterAdam7 function...
-        // } else {
-        // Just take the lines and try all the filters on each one, comparing them by comparing the difference between the bytes.
-    }
-    
-    void PNGEncodeImage(EncodePNG *Enc, BitBuffer *BitB) {
-        
+        // This is THE main function for encoding a buffer into a PNG file.
+        return NULL;
     }
     
 #ifdef __cplusplus

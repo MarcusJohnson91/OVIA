@@ -13,6 +13,96 @@ extern "C" {
 #define strcasecmp _stricmp
 #endif
     
+    uint32_t CalculateSTERPadding(const uint32_t Width) {
+        return 7 - ((Width - 1) % 8);
+    }
+    
+    DecodePNG *InitDecodePNG(void) {
+        DecodePNG *Dec  = calloc(1, sizeof(DecodePNG));
+        Dec->acTL       = calloc(1, sizeof(acTL));
+        Dec->bkGD       = calloc(1, sizeof(bkGD));
+        Dec->cHRM       = calloc(1, sizeof(cHRM));
+        Dec->fcTL       = calloc(1, sizeof(fcTL));
+        Dec->fdAT       = calloc(1, sizeof(fdAT));
+        Dec->gAMA       = calloc(1, sizeof(gAMA));
+        Dec->hIST       = calloc(1, sizeof(hIST));
+        Dec->iCCP       = calloc(1, sizeof(iCCP));
+        Dec->iHDR       = calloc(1, sizeof(iHDR));
+        Dec->oFFs       = calloc(1, sizeof(oFFs));
+        Dec->pCAL       = calloc(1, sizeof(pCAL));
+        Dec->PLTE       = calloc(1, sizeof(PLTE));
+        Dec->sBIT       = calloc(1, sizeof(sBIT));
+        Dec->sRGB       = calloc(1, sizeof(sRGB));
+        Dec->sTER       = calloc(1, sizeof(sTER));
+        Dec->Text       = calloc(1, sizeof(Text));
+        Dec->tIMe       = calloc(1, sizeof(tIMe));
+        Dec->tRNS       = calloc(1, sizeof(tRNS));
+        return Dec;
+    }
+    
+    void DeinitDecodePNG(DecodePNG *Dec) {
+        if (Dec->acTLExists) {
+            free(Dec->acTL);
+        }
+        if (Dec->bkGDExists) {
+            free(Dec->bkGD->BackgroundPaletteEntry);
+            free(Dec->bkGD);
+        }
+        if (Dec->cHRMExists) {
+            free(Dec->cHRM);
+        }
+        if (Dec->fcTLExists) {
+            free(Dec->fcTL);
+            free(Dec->fdAT);
+        }
+        if (Dec->gAMAExists) {
+            free(Dec->gAMA);
+        }
+        if (Dec->hISTExists) {
+            free(Dec->hIST);
+        }
+        if (Dec->iCCPExists) {
+            free(Dec->iCCP->CompressedICCPProfile);
+            free(Dec->iCCP->ProfileName);
+            free(Dec->iCCP);
+        }
+        if (Dec->oFFsExists) {
+            free(Dec->oFFs);
+        }
+        if (Dec->pCALExists) {
+            free(Dec->pCAL->CalibrationName);
+            free(Dec->pCAL->UnitName);
+            free(Dec->pCAL);
+        }
+        if (Dec->PLTEExists) {
+            free(Dec->PLTE->Palette);
+            free(Dec->PLTE);
+        }
+        if (Dec->sBITExists) {
+            free(Dec->sBIT);
+        }
+        if (Dec->sRGBExists) {
+            free(Dec->sRGB);
+        }
+        if (Dec->sTERExists) {
+            free(Dec->sTER);
+        }
+        if (Dec->TextExists) {
+            free(Dec->Text->Keyword);
+            free(Dec->Text->TextString);
+            free(Dec->Text);
+        }
+        if (Dec->tIMEExists) {
+            free(Dec->tIMe);
+        }
+        if (Dec->tRNSExists) {
+            free(Dec->tRNS->Palette);
+            free(Dec->tRNS);
+        }
+        free(Dec->iHDR);
+        free(Dec);
+    }
+    
     /*
      bool VerifyChunkCRC(BitBuffer *BitB, uint32_t ChunkSize) {
      // So basically we need to read ChunkSize bytes into an array, then read the following 4 bytes as the CRC
@@ -21,6 +111,7 @@ extern "C" {
      uint8_t *Buffer2CRC = calloc(1, ChunkSize);
      for (uint32_t Byte = 0; Byte < ChunkSize; Byte++) {
      Buffer2CRC[Byte] = BitB->Buffer[Bits2Bytes(, false)];
+     free(Buffer2CRC);
      
      }
      uint32_t ChunkCRC = ReadBits(BitB, 32, true);
@@ -104,19 +195,19 @@ extern "C" {
                     break;
                 case 1:
                     // SubFilter
-                    PNGDecodeSubFilter(Dec, *InflatedBuffer, DeFilteredData, Line);
+                    PNGDecodeSubFilter(Dec, *InflatedBuffer, &DeFilteredData, Line);
                     break;
                 case 2:
                     // UpFilter
-                    PNGDecodeUpFilter(Dec, *InflatedBuffer, DeFilteredData, Line);
+                    PNGDecodeUpFilter(Dec, *InflatedBuffer, &DeFilteredData, Line);
                     break;
                 case 3:
                     // AverageFilter
-                    PNGDecodeAverageFilter(Dec, *InflatedBuffer, DeFilteredData, Line);
+                    PNGDecodeAverageFilter(Dec, *InflatedBuffer, &DeFilteredData, Line);
                     break;
                 case 4:
                     // PaethFilter
-                    PNGDecodePaethFilter(Dec, *InflatedBuffer, DeFilteredData, Line);
+                    PNGDecodePaethFilter(Dec, *InflatedBuffer, &DeFilteredData, Line);
                     break;
                 default:
                     snprintf(Error, BitIOStringSize, "Filter type: %d is invalid\n", FilterType);
@@ -124,6 +215,7 @@ extern "C" {
                     break;
             }
         }
+        free(DeFilteredData);
     }
     
     void DecodePNGData(BitBuffer *BitB, DecodePNG *Dec) {
@@ -142,28 +234,10 @@ extern "C" {
         }
     }
     
-    void PNGDecodeImage(BitBuffer *BitB, DecodePNG *Dec, uint16_t *DecodedImage) {
-        // Parse all chunks except iDAT, fDAT, and iEND first.
-        // When you come across an iDAT or fDAT. you need to store the start address, then return to parsing the meta chunks, then at the end  decode the i/f DATs.
-        ParsePNGMetadata(BitB, Dec);
-        
-        if (Dec->Is3D == true) {
-            
-        }
-        while (GetBitBufferSize(BitB) > 0) {
-            
-        }
-    }
-    
     // Let's do this library right, by adding attach and delete functions for the various chunks, and let's also have a fancy function that applies color profiles to the pixels.
     // that's kinda a lot of work tho...
-    
-    void SeperateStereoImage(DecodePNG *Dec, uint16_t **DecodedImage) {
-        
-    }
-    
-    void PNGReadMetadata(BitBuffer *BitB, DecodePNG *Dec) {
-        ParsePNGMetadata(BitB, Dec);
+    BitBuffer     *DecodePNGImage(DecodePNG *Dec, void ****PNGImage2Decode) {
+        return NULL;
     }
     
 #ifdef __cplusplus

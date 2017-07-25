@@ -10,53 +10,53 @@
 extern "C" {
 #endif
     
-    void       ParseIHDR(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize);
+    void       ParseIHDR(DecodePNG *Dec, BitBuffer *BitB, uint32_t ChunkSize);
     
-    void       ParsePLTE(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize);
+    void       ParsePLTE(DecodePNG *Dec, BitBuffer *BitB, uint32_t ChunkSize);
     
-    void       ParseTRNS(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize);
+    void       ParseTRNS(DecodePNG *Dec, BitBuffer *BitB, uint32_t ChunkSize);
     
-    void       ParseBKGD(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize);
+    void       ParseBKGD(DecodePNG *Dec, BitBuffer *BitB, uint32_t ChunkSize);
     
-    void       ParseCHRM(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize);
+    void       ParseCHRM(DecodePNG *Dec, BitBuffer *BitB, uint32_t ChunkSize);
     
-    void       ParseGAMA(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize);
+    void       ParseGAMA(DecodePNG *Dec, BitBuffer *BitB, uint32_t ChunkSize);
     
-    void       ParseOFFS(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize);
+    void       ParseOFFS(DecodePNG *Dec, BitBuffer *BitB, uint32_t ChunkSize);
     
-    void       ParsePHYS(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize);
+    void       ParsePHYS(DecodePNG *Dec, BitBuffer *BitB, uint32_t ChunkSize);
     
-    void       ParseSCAL(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize);
+    void       ParseSCAL(DecodePNG *Dec, BitBuffer *BitB, uint32_t ChunkSize);
     
-    void       ParseSBIT(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize);
+    void       ParseSBIT(DecodePNG *Dec, BitBuffer *BitB, uint32_t ChunkSize);
     
-    void       ParseSRGB(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize);
+    void       ParseSRGB(DecodePNG *Dec, BitBuffer *BitB, uint32_t ChunkSize);
     
-    void       ParseSTER(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize);
+    void       ParseSTER(DecodePNG *Dec, BitBuffer *BitB, uint32_t ChunkSize);
     
-    void       ParseTEXt(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize);
+    void       ParseTEXt(DecodePNG *Dec, BitBuffer *BitB, uint32_t ChunkSize);
     
-    void       ParseZTXt(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize);
+    void       ParseZTXt(DecodePNG *Dec, BitBuffer *BitB, uint32_t ChunkSize);
     
-    void       ParseITXt(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize);
+    void       ParseITXt(DecodePNG *Dec, BitBuffer *BitB, uint32_t ChunkSize);
     
-    void       ParseTIME(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize);
+    void       ParseTIME(DecodePNG *Dec, BitBuffer *BitB, uint32_t ChunkSize);
     
-    void       ParseACTL(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize);
+    void       ParseACTL(DecodePNG *Dec, BitBuffer *BitB, uint32_t ChunkSize);
     
-    void       ParseFCTL(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize);
+    void       ParseFCTL(DecodePNG *Dec, BitBuffer *BitB, uint32_t ChunkSize);
     
-    void       ParseIDAT(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize);
+    void       ParseIDAT(DecodePNG *Dec, BitBuffer *BitB, uint32_t ChunkSize);
     
-    void       ParseHIST(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize);
+    void       ParseHIST(DecodePNG *Dec, BitBuffer *BitB, uint32_t ChunkSize);
     
-    void       ParseICCP(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize);
+    void       ParseICCP(DecodePNG *Dec, BitBuffer *BitB, uint32_t ChunkSize);
     
-    void       ParsePCAL(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize);
+    void       ParsePCAL(DecodePNG *Dec, BitBuffer *BitB, uint32_t ChunkSize);
     
-    void       ParseSPLT(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize);
+    void       ParseSPLT(DecodePNG *Dec, BitBuffer *BitB, uint32_t ChunkSize);
     
-    void       ParseFDAT(BitBuffer *BitB, DecodePNG *Dec, uint32_t ChunkSize);
+    void       ParseFDAT(DecodePNG *Dec, BitBuffer *BitB, uint32_t ChunkSize);
     
 #ifdef __cplusplus
 }

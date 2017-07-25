@@ -9,7 +9,7 @@
 extern "C" {
 #endif
     
-    uint8_t    ParsePNGMetadata(BitBuffer *BitB, DecodePNG *Dec);
+    uint8_t    ParsePNGMetadata(DecodePNG *Dec, BitBuffer *BitB);
     
     void       PNGDecodeSubFilter(DecodePNG *Dec, uint8_t **DeEntropyedData, uint8_t **DeFilteredData, size_t Line);
     

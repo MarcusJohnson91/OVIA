@@ -89,7 +89,7 @@ extern "C" {
     } oFFs;
 
     typedef struct iCCP {
-        const char *ProfileName;
+        char       *ProfileName;
         uint8_t     CompressionType;
         uint8_t    *CompressedICCPProfile;
         uint32_t    CRC;
@@ -216,7 +216,7 @@ extern "C" {
         uint32_t      CurrentFrame;
         uint32_t      LineWidth;
         uint32_t      LinePadding;
-        bool          IsVideo:1;
+        bool          IsAnimatedPNG:1;
         bool          Is3D:1;
         bool          acTLExists:1;
         bool          bkGDExists:1;
