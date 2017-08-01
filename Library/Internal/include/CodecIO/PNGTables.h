@@ -6,6 +6,21 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+    static const uint8_t Adam7Level1[1] = {
+        0
+    };
+    
+    static const uint8_t Adam7Level2[1] = {
+        5
+    };
+    
+    static const uint8_t Adam7Level3[2] = {
+        32, 36
+    };
+    
+    static const uint8_t Adam7Level4[4] = {
+        3, 7, 35, 39
+    };
     
     static const uint8_t Adam7Level5[8] = {
         17, 19, 21, 23, 49, 51, 53, 55
@@ -23,6 +38,7 @@ extern "C" {
         57, 58, 59, 60, 61, 62, 63, 64
     };
     
+    /*
     enum Adam7Positions {
         Adam7Level1    =  0,
         Adam7Level2    =  5,
@@ -89,6 +105,7 @@ extern "C" {
         Adam7Level7_31 = 63,
         Adam7Level7_32 = 64,
     };
+     */
     
 #ifdef __cplusplus
 }

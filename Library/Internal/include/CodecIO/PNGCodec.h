@@ -11,7 +11,7 @@ extern "C" {
     
 #define PNGMagic             0x89504E470D0A1A0A
     
-    enum PNGChunkMarkers {
+    enum ModernPNGChunkMarkers {
         iHDRMarker         = 0x49484452,
         acTLMarker         = 0x6163544C,
         fcTLMarker         = 0x6663544C,
@@ -28,7 +28,7 @@ extern "C" {
         pCALMarker         = 0x7043414C,
     };
     
-    enum PNGColorTypes {
+    enum ModernPNGColorTypes {
         PNG_Grayscale      = 0,
         PNG_RGB            = 2,
         PNG_PalettedRGB    = 3,
@@ -36,17 +36,17 @@ extern "C" {
         PNG_RGBA           = 6,
     };
     
-    enum PNGInterlaceType {
+    enum ModernPNGInterlaceType {
         PNGNotInterlaced   = 0,
         PNGInterlacedAdam7 = 1,
     };
     
-    static const char PNGNumber2Month[12][3] = {
+    static const char ModernPNGNumber2Month[12][3] = {
         "Jan", "Feb", "Mar", "Apr", "May", "Jun",
         "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
     };
     
-    static const uint8_t PNGChannelsPerColorType[7] = {
+    static const uint8_t ModernPNGChannelsPerColorType[7] = {
         1, 0, 3, 3, 4, 0, 4
     };
     

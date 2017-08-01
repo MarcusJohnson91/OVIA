@@ -3,7 +3,6 @@
 #include "../../include/libModernPNG.h"
 #include "../../include/Decode/DecodePNG.h"
 #include "../../include/ModernPNGTypes.h"
-#include "../../include/ModernPNGTables.h"
 
 #ifdef __cplusplus
 extern "C" {

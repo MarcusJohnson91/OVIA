@@ -1,10 +1,60 @@
 #include "../../include/libModernPNG.h"
 #include "../../include/ModernPNGTypes.h"
+#include "../../include/ModernPNGTables.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
     
+    void EncodeAdam7(EncodePNG *Enc, BitBuffer *RawImage) {
+        
+    }
+    
+    void EncodeAdam7Level1(EncodePNG *Enc, BitBuffer *RawImage, BitBuffer *Adam7Image) {
+        uint16_t *CurrentPixel = calloc(ModernPNGChannelsPerColorType[Enc->iHDR->ColorType], Enc->iHDR->BitDepth);
+        for (uint32_t Width = 0; Width < Enc->iHDR->Width; Width += 8) { // Loop over the scanlineX width wise, extract every 0x0 pixel every 8 rows
+            for (uint32_t Height = 0; Height < Enc->iHDR->Height; Height += 8) {
+                for (uint8_t Channel = 0; Channel < ModernPNGChannelsPerColorType[Enc->iHDR->ColorType]; Channel++) {
+                    // How do we extract the pixels tho?
+                    CurrentPixel[Channel] = ReadBits(RawImage, Enc->iHDR->BitDepth, true);
+                    WriteBits(Adam7Image, (uint16_t*)CurrentPixel, Enc->iHDR->BitDepth, true);
+                }
+            }
+        }
+        free(CurrentPixel);
+    }
+    
+    void EncodeAdam7Level2(EncodePNG *Enc, BitBuffer *RawImage, BitBuffer *Adam7Image) {
+        uint16_t *CurrentPixel = calloc(ModernPNGChannelsPerColorType[Enc->iHDR->ColorType], Enc->iHDR->BitDepth);
+        for (uint32_t Width = 0; Width < Enc->iHDR->Width; Width += 6) { // Loop over the scanlineX width wise, extract every 0x0 pixel every 8 rows
+            for (uint32_t Height = 0; Height < Enc->iHDR->Height; Height += 6) {
+                for (uint8_t Channel = 0; Channel < ModernPNGChannelsPerColorType[Enc->iHDR->ColorType]; Channel++) {
+                    // How do we extract the pixels tho?
+                    CurrentPixel[Channel] = ReadBits(RawImage, Enc->iHDR->BitDepth, true);
+                    WriteBits(Adam7Image, (uint16_t*)CurrentPixel, Enc->iHDR->BitDepth, true);
+                }
+            }
+        }
+        free(CurrentPixel);
+    }
+    
+    void EncodeAdam7Level3(EncodePNG *Enc, BitBuffer *RawImage, BitBuffer *Adam7Image) {
+        uint16_t *CurrentPixel = calloc(ModernPNGChannelsPerColorType[Enc->iHDR->ColorType], Enc->iHDR->BitDepth);
+        for (uint32_t Width = 0; Width < Enc->iHDR->Width; Width += 8) { // Loop over the scanlineX width wise, extract every 0x0 pixel every 8 rows
+            for (uint32_t Height = 4; Height < Enc->iHDR->Height; Height += 4) {
+                for (uint8_t Channel = 0; Channel < ModernPNGChannelsPerColorType[Enc->iHDR->ColorType]; Channel++) {
+                    // How do we extract the pixels tho?
+                    CurrentPixel[Channel] = ReadBits(RawImage, Enc->iHDR->BitDepth, true);
+                    WriteBits(Adam7Image, (uint16_t*)CurrentPixel, Enc->iHDR->BitDepth, true);
+                }
+            }
+        }
+        free(CurrentPixel);
+    }
+    
+    /* OLD SHIT THAT ISN'T CORRECT BELOW */
+    
+    /*
     void       PadImageForAdam7(EncodePNG *Enc, uint16_t ***Image) {
         uint8_t WidthRows     = 8 - (Enc->iHDR->Width % 8); // if it's odd add the padding to the bottom, or right
         uint8_t HeightColumns = 8 - (Enc->iHDR->Height % 8);
@@ -54,7 +104,7 @@ extern "C" {
         // If the padding amount is odd, start at (Padding / 2)
         
         for (uint8_t StereoChannel = 0; StereoChannel < Enc->Is3D; StereoChannel++) {
-            for (uint8_t Color = 0; Color < PNGChannelsPerColorType[Enc->iHDR->ColorType]; Color++) {
+            for (uint8_t Color = 0; Color < ModernPNGChannelsPerColorType[Enc->iHDR->ColorType]; Color++) {
                 for (uint64_t Height = HeightPadding / 2; Height < Enc->iHDR->Height; Height++) {
                     for (uint64_t Width = WidthPadding / 2; Width < Enc->iHDR->Width; Width++) {
                         Image[StereoChannel][Color][Height][Width] = RawFrame[StereoChannel][Color][Height][Width];
@@ -65,6 +115,7 @@ extern "C" {
         
         // Now I need to break up the image into 8x8 blocks
     }
+     */
 
 #ifdef __cplusplus
 }
