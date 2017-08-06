@@ -1,6 +1,6 @@
 #include "../../../Dependencies/BitIO/libBitIO/include/BitIO.h"
 
-#include "../../include/Encode/EncodeAVC.h"
+#include "../../include/Private/Encode/EncodeAVC.h"
 
 #ifdef __cplusplus
 extern "C" {

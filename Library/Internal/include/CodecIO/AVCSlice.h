@@ -1,6 +1,6 @@
-#include "../../../Dependencies/BitIO/libBitIO/include/BitIO.h"
+#include "../../../../Dependencies/BitIO/libBitIO/include/BitIO.h"
 
-#include "../libModernAVC.h"
+#include "../../libModernAVC.h"
 
 #pragma once
 
