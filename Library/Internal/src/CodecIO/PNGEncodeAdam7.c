@@ -1,6 +1,6 @@
 #include "../../include/libModernPNG.h"
-#include "../../include/ModernPNGTypes.h"
-#include "../../include/ModernPNGTables.h"
+#include "../../include/Private/ModernPNGTypes.h"
+#include "../../include/Private/ModernPNGTables.h"
 
 #ifdef __cplusplus
 extern "C" {

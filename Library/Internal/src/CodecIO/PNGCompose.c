@@ -1,5 +1,5 @@
 #include "../../include/libModernPNG.h"
-#include "../../include/ModernPNGTypes.h"
+#include "../../include/Private/ModernPNGTypes.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -58,6 +58,18 @@ extern "C" {
                 Enc->fcTL->Height  = ImageHeight;
             }
         }
+    }
+    
+    void ComposePNG3DType(EncodePNG *Enc, const bool StereoType) {
+        if (Enc == NULL) {
+            Log(LOG_ERR, "libModernPNG", "ComposePNG3DType", "Pointer to EncodePNG is NULL\n");
+        } else {
+            Enc->sTER->StereoType = StereoType;
+        }
+    }
+    
+    void ComposePNGCHRMWhitePoint() {
+        
     }
     
 #ifdef __cplusplus

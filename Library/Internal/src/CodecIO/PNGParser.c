@@ -1,6 +1,6 @@
 #include "../../include/libModernPNG.h"
 #include "../../include/Encode/EncodePNG.h"
-#include "../../include/ModernPNGTypes.h"
+#include "../../include/Private/ModernPNGTypes.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -100,19 +100,24 @@ extern "C" {
     }
     
     void ParseSCAL(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) { // Physical Scale
-        char Width[80];
-        Dec->sCAL->UnitSpecifier = ReadBits(InputPNG, 8, true);
-        while (PeekBits(InputPNG, 8, true) != 0x00) {
-            for (uint8_t Byte = 0; Byte < 80; Byte++) {
-                Width[Byte] = ReadBits(InputPNG, 8, true);
+        // Ok, so we need to take the size of the chunk into account.
+        Dec->sCAL->UnitSpecifier = ReadBits(InputPNG, 8, true); // 1 = Meter, 2 = Radian
+        
+        char Width[ChunkSize - 1]; // minus 1 for the UnitSpecifier
+        char Height[ChunkSize - 1];
+        
+        for (uint32_t Byte = 0; Byte < ChunkSize - 1; Byte++) {
+            if (PeekBits(InputPNG, 8, true) != 0x00) {
+                Width[Byte]  = ReadBits(InputPNG, 8, true);
+            } else {
+                Height[Byte] = ReadBits(InputPNG, 8, true);
             }
         }
-        Dec->sCAL->PixelWidth = &*Width;
         
-        bool Type    = ReadBits(InputPNG, 8, true);
-        uint32_t X   = ReadBits(InputPNG, 32, true);
-        uint32_t Y   = ReadBits(InputPNG, 32, true);
-        uint32_t CRC = ReadBits(InputPNG, 32, true);
+        Dec->sCAL->PixelWidth  = (float) atof(Width);
+        Dec->sCAL->PixelHeight = (float) atof(Height);
+        Dec->sCAL->CRC         = ReadBits(InputPNG, 32, true);
+        
     }
     
     void ParsePCAL(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) {
@@ -122,8 +127,12 @@ extern "C" {
                 CalibrationName[Byte] = ReadBits(InputPNG, 8, true);
             }
         }
-        Dec->pCAL->CalibrationName = CalibrationName;
+        Dec->pCAL->CalibrationName     = CalibrationName;
+        Dec->pCAL->CalibrationNameSize = strlen(Dec->pCAL->CalibrationName);
+        Dec->pCAL->
         
+        
+        Dec->pCAL->CRC                 = ReadBits(InputPNG, 32, true);
     }
     
     void ParseSBIT(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) { // Significant bits per sample

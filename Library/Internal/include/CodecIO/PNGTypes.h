@@ -130,8 +130,8 @@ extern "C" {
 
     typedef struct sCAL {
         uint8_t    UnitSpecifier;
-        char      *PixelWidth; // ASCII float
-        char      *PixelHeight; // ASCII float
+        float      PixelWidth; // ASCII float
+        float      PixelHeight; // ASCII float
         uint32_t   CRC;
     } sCAL;
 
