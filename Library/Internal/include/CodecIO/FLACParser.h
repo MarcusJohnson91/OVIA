@@ -1,7 +1,7 @@
-#include "../../../Dependencies/libPCM/Dependencies/BitIO/libBitIO/include/BitIO.h"
+#include "../../../../Dependencies/libPCM/Dependencies/BitIO/libBitIO/include/BitIO.h"
 
-#include "../libModernFLAC.h"
-#include "../FLACTypes.h"
+#include "../../libModernFLAC.h"
+#include "../../Private/ModernFLACTypes.h"
 
 #pragma once
 

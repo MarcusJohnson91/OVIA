@@ -2,7 +2,7 @@
 #include <math.h>
 
 #include "../../include/libModernFLAC.h"
-#include "../../include/FLACTypes.h"
+#include "../../include/Private/ModernFLACTypes.h"
 
 #ifdef __cplusplus
 extern "C" {

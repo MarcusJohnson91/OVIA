@@ -1,5 +1,5 @@
-#include "../../include/Encoder/ComposeFLAC.h"
-#include "../../include/FLACTypes.h"
+#include "../../include/Private/Encode/ComposeFLAC.h"
+#include "../../include/Private/ModernFLACTypes.h"
 
 #ifdef __cplusplus
 extern "C" {
