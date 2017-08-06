@@ -1,9 +1,9 @@
-#include "../libModernPNG.h"
+#include "../../libModernPNG.h"
 
 #pragma once
 
-#ifndef LIBMODERNPNG_DECODEPNG_H
-#define LIBMODERNPNG_DECODEPNG_H
+#ifndef LIBMODERNPNG_DecodePNG_H
+#define LIBMODERNPNG_DecodePNG_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,4 +29,4 @@ extern "C" {
 }
 #endif
 
-#endif /* LIBMODERNPNG_DECODEPNG_H */
+#endif /* LIBMODERNPNG_DecodePNG_H */

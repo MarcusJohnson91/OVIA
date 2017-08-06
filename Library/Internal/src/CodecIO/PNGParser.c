@@ -1,6 +1,6 @@
 #include "../../include/libModernPNG.h"
-#include "../../include/Encode/EncodePNG.h"
-#include "../../include/Private/ModernPNGTypes.h"
+
+#include "../../include/Private/Decode/ReadModernPNGChunks.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -129,8 +129,6 @@ extern "C" {
         }
         Dec->pCAL->CalibrationName     = CalibrationName;
         Dec->pCAL->CalibrationNameSize = strlen(Dec->pCAL->CalibrationName);
-        Dec->pCAL->
-        
         
         Dec->pCAL->CRC                 = ReadBits(InputPNG, 32, true);
     }

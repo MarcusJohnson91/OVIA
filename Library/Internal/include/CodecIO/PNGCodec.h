@@ -1,9 +1,13 @@
+#include <stdbool.h>
+#include <stdint.h>
+#include <math.h>
+
 #include "../../Dependencies/libPCM/Dependencies/BitIO/libBitIO/include/BitIO.h"
 
 #pragma once
 
-#ifndef LIBMODERNPNG_LIBMODERNPNG_H
-#define LIBMODERNPNG_LIBMODERNPNG_H
+#ifndef LIBMODERNPNG_LibModernPNG_H
+#define LIBMODERNPNG_LibModernPNG_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -96,4 +100,4 @@ extern "C" {
 }
 #endif
 
-#endif /* LIBMODERNPNG_LIBMODERNPNG_H */
+#endif /* LIBMODERNPNG_LibModernPNG_H */

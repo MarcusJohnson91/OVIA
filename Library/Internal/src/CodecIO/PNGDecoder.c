@@ -1,8 +1,7 @@
-#include <math.h>
-
 #include "../../include/libModernPNG.h"
-#include "../../include/Decode/DecodePNG.h"
 #include "../../include/Private/ModernPNGTypes.h"
+
+#include "../../include/Private/Decode/DecodeModernPNG.h"
 
 #ifdef __cplusplus
 extern "C" {

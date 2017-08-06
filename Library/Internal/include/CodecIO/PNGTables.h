@@ -1,11 +1,15 @@
+#include <stdbool.h>
+#include <stdint.h>
+
 #pragma once
 
-#ifndef LIBMODERNPNG_TABLES_H
-#define LIBMODERNPNG_TABLES_H
+#ifndef LIBMODERNPNG_ModernPNGTables_H
+#define LIBMODERNPNG_ModernPNGTables_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+    
     static const uint8_t Adam7Level1[1] = {
         0
     };
@@ -111,4 +115,4 @@ extern "C" {
 }
 #endif
 
-#endif /* LIBMODERNPNG_TABLES_H */
+#endif /* LIBMODERNPNG_ModernPNGTables_H */

@@ -1,7 +1,10 @@
+#include <stdbool.h>
+#include <stdint.h>
+
 #pragma once
 
-#ifndef LIBMODERNPNG_PNGTYPES_H
-#define LIBMODERNPNG_PNGTYPES_H
+#ifndef LIBMODERNPNG_ModernPNGTypes_H
+#define LIBMODERNPNG_ModernPNGTypes_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -263,4 +266,4 @@ extern "C" {
 }
 #endif
 
-#endif /* LIBMODERNPNG_PNGTYPES_H */
+#endif /* LIBMODERNPNG_ModernPNGTypes_H */
