@@ -1,9 +1,9 @@
-#include "libPCM.h"
+#include "../../libPCM.h"
 
 #pragma once
 
-#ifndef LIBPCM_BMPCOMMON_H
-#define LIBPCM_BMPCOMMON_H
+#ifndef LIBPCM_BMPCommon_H
+#define LIBPCM_BMPCommon_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,4 +25,4 @@ extern "C" {
 }
 #endif
 
-#endif  LIBPCM_BMPCOMMON_H
+#endif /* LIBPCM_BMPCommon_H */

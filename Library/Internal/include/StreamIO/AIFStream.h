@@ -1,9 +1,9 @@
-#include "libPCM.h"
+#include "../../libPCM.h"
 
 #pragma once
 
-#ifndef LIBPCM_AIFCOMMON_H
-#define LIBPCM_AIFCOMMON_H
+#ifndef LIBPCM_AIFCommon_H
+#define LIBPCM_AIFCommon_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -13,4 +13,4 @@ extern "C" {
 }
 #endif
 
-#endif /* LIBPCM_AIFCOMMON_H */
+#endif /* LIBPCM_AIFCommon_H */

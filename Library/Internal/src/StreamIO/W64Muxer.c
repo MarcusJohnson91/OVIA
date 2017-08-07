@@ -1,4 +1,6 @@
-#include "../../Dependencies/BitIO/libBitIO/include/BitIO.h"
+#include "../../include/libPCM.h"
+#include "../../include/Private/libPCMTypes.h"
+#include "../../include/Private/Audio/W64Common.h"
 
 #include "../include/libPCM.h"
 #include "../include/PCMTypes.h"

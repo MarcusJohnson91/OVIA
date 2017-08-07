@@ -1,11 +1,11 @@
-#include "libPCM.h"
+#include "../../libPCM.h"
 
 // PGM, PBM, PPM, along with PAM.
 
 #pragma once
 
-#ifndef LIBPCM_PORTABLEBITMAPCOMMON_H
-#define LIBPCM_PORTABLEBITMAPCOMMON_H
+#ifndef LIBPCM_PXMCommon_H
+#define LIBPCM_PXMCommon_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,4 +34,4 @@ extern "C" {
 }
 #endif
 
-#endif  LIBPCM_PORTABLEBITMAPCOMMON_H
+#endif /* LIBPCM_PXMCommon_H */
