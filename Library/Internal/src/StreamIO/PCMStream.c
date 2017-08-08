@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include "../include/libPCM.h"
-#include "../include/PCMTypes.h"
-#include "../include/WAVCommon.h"
-#include "../include/W64Common.h"
-#include "../include/AIFCommon.h"
+#include "../include/Private/libPCMTypes.h"
+#include "../include/Private/Audio/WAVCommon.h"
+#include "../include/Private/Audio/W64Common.h"
+#include "../include/Private/Audio/AIFCommon.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -20,7 +20,7 @@ extern "C" {
     
     // So, We need to accept a BitInput pointer, and start reading the input file to discover it's file type, then call the dedicated format metadata parser to get the info we need and verify it's raw PCM, and then line us up with the PCM samples, and wait for calls to ExtractSamples
     
-    void ClosePCMFile(PCMFile *PCM) {
+    void DeinitPCMFile(PCMFile *PCM) {
         free(PCM->SamplesOrLines);
         free(PCM->Meta);
         free(PCM);
