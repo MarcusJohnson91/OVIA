@@ -1,4 +1,4 @@
-#include "../../../Dependencies/BitIO/libBitIO/include/BitIO.h"
+#include "../../include/libModernAVC.h"
 
 #include "../../include/Private/Encode/EncodeAVC.h"
 

@@ -1,5 +1,4 @@
-#include "../../../Dependencies/BitIO/libBitIO/include/BitIO.h"
-
+#include "../../include/libModernAVC.h"
 #include "../../include/Private/ModernAVCTypes.h"
 #include "../../include/Private/ModernAVCTables.h"
 #include "../../include/Private/Decode/DecodeAVCCommon.h"

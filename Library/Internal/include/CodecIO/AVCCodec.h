@@ -5,6 +5,12 @@
  @version   0.2.3
  */
 
+#include "../../Dependencies/ModernPNG/Dependencies/libPCM/Dependencies/BitIO/libBitIO/include/BitIO.h"
+
+#include <stdbool.h>
+#include <stdint.h>
+#include <math.h>
+
 #pragma once
 
 #ifndef LIBMODERNAVC_LIBMODERNAVC_H

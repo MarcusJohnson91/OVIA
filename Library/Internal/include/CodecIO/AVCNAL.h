@@ -1,4 +1,3 @@
-#include "../../../../Dependencies/BitIO/libBitIO/include/BitIO.h"
 #include "../../libModernAVC.h"
 
 #pragma once
