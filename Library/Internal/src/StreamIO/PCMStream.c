@@ -9,22 +9,62 @@
 extern "C" {
 #endif
     
-    // Well, we need to identify the file type, set the approperiate values (is it audio or video?), then extract the correct amount of data depending on the type.
-    
     PCMFile *InitPCMFile(void) {
         PCMFile *PCM = calloc(1, sizeof(PCMFile));
         PCM->Meta    = calloc(1, sizeof(PCMMetadata));
         return PCM;
     }
     
+    void IdentifyPCMFile(BitBuffer *BitB, PCMFile *PCM) {
+        uint64_t FileMagic64 = PeekBits(BitB, 64, true);
+        uint16_t FileMagic16 = FileMagic64 & 0xFFFF;
+        uint32_t FileMagic32 = FileMagic64 & 0xFFFFFFFF;
+        
+        if (FileMagic16 == BMP_BM) {
+            PCM->FileFormat = BMPFormat;
+        } else if (FileMagic16 == PXM_P1 || FileMagic16 == PXM_P2 || FileMagic16 == PXM_P3 || FileMagic16 == PXM_P4 || FileMagic16 == PXM_P5 || FileMagic16 == PXM_P6 || FileMagic16 == PXM_P7) {
+            PCM->FileFormat = PXMFormat;
+        } else if (FileMagic32 == AIF_FORM) {
+            PCM->FileFormat = AIFFormat;
+        } else if (FileMagic32 == WAV_RIFF) {
+            PCM->FileFormat = WAVFormat;
+        } else if (FileMagic32 == 0x72696666) {
+            PCM->FileFormat = W64Format;
+        } else {
+            Log(LOG_ERR, "libPCM", "IdentifyPCMFile", "Unrecognized file magic 0x%X", FileMagic64);
+        }
+    }
+    
+    void ParsePCMMetadata(BitBuffer *BitB, PCMFile *PCM) {
+        if (PCM->FileFormat == AIFFormat) {
+            
+        } else if (PCM->FileFormat == BMPFormat) {
+            
+        } else if (PCM->FileFormat == PXMFormat) {
+            
+        } else if (PCM->FileFormat == WAVFormat) {
+            
+        } else if (PCM->FileFormat == W64Format) {
+            
+        }
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    // Well, we need to identify the file type, set the approperiate values (is it audio or video?), then extract the correct amount of data depending on the type.
+    
+    
+    
     
     // So, We need to accept a BitInput pointer, and start reading the input file to discover it's file type, then call the dedicated format metadata parser to get the info we need and verify it's raw PCM, and then line us up with the PCM samples, and wait for calls to ExtractSamples
-    
-    void DeinitPCMFile(PCMFile *PCM) {
-        free(PCM->SamplesOrLines);
-        free(PCM->Meta);
-        free(PCM);
-    }
     
     // I want to just hand a file pointer here, and tell it to extract X samples (regardless of channel count)
     // So we need to parse the various chunks in the file, extract info of value into a format specific struct
@@ -36,24 +76,24 @@ extern "C" {
     /*!
      @param NumSamples2Extract is the number of channel agnostic samples to read from the input file
      */
-    void ExtractSamples(BitInput *BitI, PCMFile *PCM, uint64_t NumSamples2Extract) {
+    void ExtractSamples(BitBuffer *BitB, PCMFile *PCM, uint64_t NumSamples2Extract) {
         WAVHeader *WAV = calloc(1, sizeof(WAVHeader));
         W64Header *W64 = calloc(1, sizeof(W64Header));
         AIFHeader *AIF = calloc(1, sizeof(AIFHeader));
         if (PCM->MetadataHasBeenParsed == false) {
-            uint32_t Magic = ReadBits(BitI, 32, true);
+            uint32_t Magic = ReadBits(BitB, 32, true);
             switch (Magic) {
                 case WAVMagic:
                     PCM->FileType = WAV_File;
-                    IdentifyPCMFile(BitI, PCM);
+                    IdentifyPCMFile(BitB, PCM);
                     break;
                 case W64Magic:
                     PCM->FileType = W64_File;
-                    IdentifyPCMFile(BitI, PCM);
+                    IdentifyPCMFile(BitB, PCM);
                     break;
                 case AIFMagic:
                     PCM->FileType = AIFF_File;
-                    IdentifyPCMFile(BitI, PCM);
+                    IdentifyPCMFile(BitB, PCM);
                     break;
                     
                 default:
@@ -62,29 +102,29 @@ extern "C" {
         } else {
             // just read the requested samples
             if (PCM->FileType == WAV_File) {
-                WAVExtractSamples(BitI, PCM, NumSamples2Extract);
+                WAVExtractSamples(BitB, PCM, NumSamples2Extract);
             }
         }
     }
     
-    void ParseWAVFile(BitInput *BitI, PCMFile *PCM) {
+    void ParseWAVFile(BitBuffer *BitB, PCMFile *PCM) {
         char ErrorDescription[BitIOStringSize];
         
-        uint32_t ChunkID   = ReadBits(BitI, 32, true);
-        uint32_t ChunkSize = ReadBits(BitI, 32, true);
+        uint32_t ChunkID   = ReadBits(BitB, 32, true);
+        uint32_t ChunkSize = ReadBits(BitB, 32, true);
         
         switch (ChunkID) {
             case WAV_LIST:
-                ParseWavLISTChunk(BitI, PCM, ChunkSize);
+                ParseWavLISTChunk(BitB, PCM, ChunkSize);
                 break;
             case WAV_FMT:
-                ParseWavFMTChunk(BitI, PCM, ChunkSize);
+                ParseWavFMTChunk(BitB, PCM, ChunkSize);
                 break;
             case WAV_WAVE:
-                SkipBits(BitI, 32);
+                SkipBits(BitB, 32);
                 break;
             case WAV_DATA:
-                ParseWavDATAChunk(BitI, PCM, ChunkSize);
+                ParseWavDATAChunk(BitB, PCM, ChunkSize);
                 break;
                 
             default:
@@ -94,16 +134,16 @@ extern "C" {
         }
     }
     
-    void ParseW64File(BitInput *BitI, W64Header *W64) {
-        uint32_t ChunkID   = ReadBits(BitI, 32, true);
-        SkipBits(BitI, 96); // The rest of the GUID.
-        uint64_t ChunkSize = ReadBits(BitI, 64, true);
+    void ParseW64File(BitBuffer *BitB, W64Header *W64) {
+        uint32_t ChunkID   = ReadBits(BitB, 32, true);
+        SkipBits(BitB, 96); // The rest of the GUID.
+        uint64_t ChunkSize = ReadBits(BitB, 64, true);
         switch (ChunkID) {
             case W64_FMT:
-                ParseW64FMTChunk(BitI, W64);
+                ParseW64FMTChunk(BitB, W64);
                 break;
             case W64_BEXT:
-                ParseW64BEXTChunk(BitI, W64);
+                ParseW64BEXTChunk(BitB, W64);
                 break;
                 
             default:
@@ -111,50 +151,26 @@ extern "C" {
         }
     }
     
-    void ParseAIFFChunk(BitInput *BitI, AIFHeader *AIF) {
+    void ParseAIFFChunk(BitBuffer *BitB, AIFHeader *AIF) {
         
     }
     
-    void ParseAIFCChunk(BitInput *BitI, AIFHeader *AIF) {
+    void ParseAIFCChunk(BitBuffer *BitB, AIFHeader *AIF) {
         
     }
     
-    void ParseAIFFile(BitInput *BitI, AIFHeader *AIF) {
+    void ParseAIFFile(BitBuffer *BitB, AIFHeader *AIF) {
         // if NumFrames = 0, SNSD may not exist.
-        uint32_t AIFSize = ReadBits(BitI, 32, true);
-        uint32_t ChunkID = ReadBits(BitI, 32, true);
+        uint32_t AIFSize = ReadBits(BitB, 32, true);
+        uint32_t ChunkID = ReadBits(BitB, 32, true);
         switch (ChunkID) { // If the number of sound data bytes is odd, appened a padding sample.
             case AIF_AIFF:
                 
                 break;
             case AIF_AIFC:
-            
+                
             default:
                 break;
-        }
-    }
-    
-    void IdentifyPCMFile(BitInput *BitI, PCMFile *PCM) {
-        uint32_t InputMagic = ReadBits(BitI, 32, true);
-        if (InputMagic == WAV_RIFF) {
-            PCM->FileType = WAV_File;
-            WAVHeader *WAV = calloc(1, sizeof(WAVHeader));
-            PCM->WAV = WAV;
-            ParseWAVFile(BitI, PCM);
-        } else if (InputMagic == W64_RIFF) {
-            PCM->FileType = W64_File;
-            SkipBits(BitI, 96); // Rest of the W64 RIFF GUID
-            SkipBits(BitI, 64); // RIFF ChunkSize
-            W64Header *W64 = calloc(1, sizeof(W64Header));
-            ParseW64File(BitI, W64);
-        } else if (InputMagic == AIF_FORM) {
-            PCM->FileType = AIFF_File;
-            AIFHeader *AIF = calloc(1, sizeof(AIFHeader));
-            ParseAIFFile(BitI, AIF);
-        } else if (InputMagic & 0xFFFF0000 == BMP_BM) {
-            // BMP file
-            PCM->FileType = BMP_File;
-            
         }
     }
     
@@ -164,6 +180,14 @@ extern "C" {
     
     void ExtractImageLines(PCMFile *PCM, BitBuffer *ExtractedLines, uint64_t Lines2Extract) {
         
+    }
+    
+    void DeinitPCMFile(PCMFile *PCM) {
+        if (PCM->Samples != NULL) {
+            free(PCM->Samples);
+        }
+        free(PCM->Meta);
+        free(PCM);
     }
     
 #ifdef __cplusplus
