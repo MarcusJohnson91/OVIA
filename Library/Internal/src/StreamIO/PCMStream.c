@@ -15,7 +15,7 @@ extern "C" {
         return PCM;
     }
     
-    void IdentifyPCMFile(BitBuffer *BitB, PCMFile *PCM) {
+    void IdentifyPCMFile(PCMFile *PCM, BitBuffer *BitB) {
         uint64_t FileMagic64 = PeekBits(BitB, 64, true);
         uint16_t FileMagic16 = FileMagic64 & 0xFFFF;
         uint32_t FileMagic32 = FileMagic64 & 0xFFFFFFFF;
@@ -35,9 +35,9 @@ extern "C" {
         }
     }
     
-    void ParsePCMMetadata(BitBuffer *BitB, PCMFile *PCM) {
+    void ParsePCMMetadata(PCMFile *PCM, BitBuffer *BitB) {
         if (PCM->FileFormat == AIFFormat) {
-            
+            ParseAIFMetadata(BitB, PCM);
         } else if (PCM->FileFormat == BMPFormat) {
             
         } else if (PCM->FileFormat == PXMFormat) {
@@ -47,6 +47,10 @@ extern "C" {
         } else if (PCM->FileFormat == W64Format) {
             
         }
+    }
+    
+    void ExtractPCMSamples(PCMFile *PCM, BitBuffer *BitB, uint64_t Samples2Extract) {
+        
     }
     
     
@@ -76,7 +80,7 @@ extern "C" {
     /*!
      @param NumSamples2Extract is the number of channel agnostic samples to read from the input file
      */
-    void ExtractSamples(BitBuffer *BitB, PCMFile *PCM, uint64_t NumSamples2Extract) {
+    void ExtractSamples(PCMFile *PCM, BitBuffer *BitB, uint64_t NumSamples2Extract) {
         WAVHeader *WAV = calloc(1, sizeof(WAVHeader));
         W64Header *W64 = calloc(1, sizeof(W64Header));
         AIFHeader *AIF = calloc(1, sizeof(AIFHeader));
@@ -107,7 +111,7 @@ extern "C" {
         }
     }
     
-    void ParseWAVFile(BitBuffer *BitB, PCMFile *PCM) {
+    void ParseWAVFile(PCMFile *PCM, BitBuffer *BitB) {
         char ErrorDescription[BitIOStringSize];
         
         uint32_t ChunkID   = ReadBits(BitB, 32, true);
