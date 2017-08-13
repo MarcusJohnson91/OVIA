@@ -1,243 +1,104 @@
 #include "../../include/libModernPNG.h"
-#include "../../include/Private/ModernPNGTypes.h"
+#include "../../include/Private/libModernPNGTypes.h"
 
-#include "../../include/Private/Encode/EncodeModernPNG.h"
+#include "../../include/Private/Encode/libModernPNGEncode.h"
+
 
 #ifdef __cplusplus
 extern "C" {
 #endif
     
-    void WriteIHDRChunk(EncodePNG *Enc, BitBuffer *OutputPNG) {
-        WriteBits(OutputPNG, 13, 32, true);
-        WriteBits(OutputPNG, iHDRMarker, 32, true);
-        WriteBits(OutputPNG, Enc->iHDR->Width, 32, true);
-        WriteBits(OutputPNG, Enc->iHDR->Height, 32, true);
-        WriteBits(OutputPNG, Enc->iHDR->BitDepth, 8, true);
-        WriteBits(OutputPNG, Enc->iHDR->ColorType, 8, true);
-        WriteBits(OutputPNG, Enc->iHDR->Compression, 8, true);
-        WriteBits(OutputPNG, Enc->iHDR->FilterMethod, 8, true);
-        WriteBits(OutputPNG, Enc->iHDR->IsInterlaced, 8, true);
-        //WriteBits(OutputPNG, GeneratedCRC, 32, true);
+    EncodePNG *InitEncodePNG(void) {
+        EncodePNG *Enc  = calloc(1, sizeof(EncodePNG));
+        Enc->acTL       = calloc(1, sizeof(acTL));
+        Enc->bkGD       = calloc(1, sizeof(bkGD));
+        Enc->cHRM       = calloc(1, sizeof(cHRM));
+        Enc->fcTL       = calloc(1, sizeof(fcTL));
+        Enc->fdAT       = calloc(1, sizeof(fdAT));
+        Enc->gAMA       = calloc(1, sizeof(gAMA));
+        Enc->hIST       = calloc(1, sizeof(hIST));
+        Enc->iCCP       = calloc(1, sizeof(iCCP));
+        Enc->iHDR       = calloc(1, sizeof(iHDR));
+        Enc->oFFs       = calloc(1, sizeof(oFFs));
+        Enc->pCAL       = calloc(1, sizeof(pCAL));
+        Enc->PLTE       = calloc(1, sizeof(PLTE));
+        Enc->sBIT       = calloc(1, sizeof(sBIT));
+        Enc->sRGB       = calloc(1, sizeof(sRGB));
+        Enc->sTER       = calloc(1, sizeof(sTER));
+        Enc->Text       = calloc(1, sizeof(Text));
+        Enc->tIMe       = calloc(1, sizeof(tIMe));
+        Enc->tRNS       = calloc(1, sizeof(tRNS));
+        return Enc;
     }
     
-    void WriteACTLChunk(EncodePNG *Enc, BitBuffer *OutputPNG) {
-        WriteBits(OutputPNG, 8, 32, true);
-        WriteBits(OutputPNG, acTLMarker, 32, true);
-        WriteBits(OutputPNG, Enc->acTL->NumFrames, 32, true);
-        WriteBits(OutputPNG, Enc->acTL->TimesToLoop, 32, true);
-        /*
-         uint32_t GeneratedCRC = 0;
-         GenerateCRC(Enc->acTL, 8, GeneratedCRC);
-         WriteBits(OutputPNG, GeneratedCRC, 32, true);
-         */
-    }
-    
-    void WriteFCTLChunk(EncodePNG *Enc, BitBuffer *OutputPNG) {
-        WriteBits(OutputPNG, 29, 32, true);
-        WriteBits(OutputPNG, fcTLMarker, 32, true);
-        WriteBits(OutputPNG, Enc->fcTL->FrameNum, 32, true);
-        WriteBits(OutputPNG, Enc->fcTL->Width, 32, true);
-        WriteBits(OutputPNG, Enc->fcTL->Height, 32, true);
-        WriteBits(OutputPNG, Enc->fcTL->XOffset, 32, true);
-        WriteBits(OutputPNG, Enc->fcTL->YOffset, 32, true);
-        WriteBits(OutputPNG, Enc->fcTL->FrameDelayNumerator, 16, true);
-        WriteBits(OutputPNG, Enc->fcTL->FrameDelayDenominator, 16, true);
-        WriteBits(OutputPNG, Enc->fcTL->DisposeMethod, 8, true);
-        WriteBits(OutputPNG, Enc->fcTL->BlendMethod, 8, true);
-        /*
-         uint32_t GeneratedCRC = 0;
-         GenerateCRC(Enc->fcTL, 29, GeneratedCRC);
-         WriteBits(OutputPNG, GeneratedCRC, 32, true);
-         */
-    }
-    
-    void WriteFDATChunk(EncodePNG *Enc, BitBuffer *OutputPNG, uint8_t *DeflatedFrameData, uint32_t DeflatedFrameDataSize) {
-        WriteBits(OutputPNG, DeflatedFrameData + 8, 32, true);
-        WriteBits(OutputPNG, fDATMarker, 32, true);
-        WriteBits(OutputPNG, Enc->fdAT->FrameNum, 32, true);
-        /*
-         uint32_t GeneratedCRC = 0;
-         GenerateCRC(Enc->fdAT, 8, GeneratedCRC);
-         for (uint32_t Byte = 0; Byte < DeflatedFrameDataSize; Byte++) {
-         GenerateCRC(&DeflatedFrameData[Byte], 8, GeneratedCRC); // Generate payload CRC as it's written
-         WriteBits(OutputPNG, DeflatedFrameData[Byte], 8, true);
-         }
-         WriteBits(OutputPNG, GeneratedCRC, 32, true);
-         */
-    }
-    
-    void WriteSTERChunk(EncodePNG *Enc, BitBuffer *OutputPNG) {
-        WriteBits(OutputPNG, 1, 32, true);
-        WriteBits(OutputPNG, sTERMarker, 32, true);
-        WriteBits(OutputPNG, Enc->sTER->StereoType, 8, true);
-        /*
-         uint32_t GeneratedCRC = 0;
-         GenerateCRC(Enc->sTER->StereoType, 1, GeneratedCRC);
-         WriteBits(OutputPNG, GeneratedCRC, 32, true);
-         */
-    }
-    
-    void WriteBKGDChunk(EncodePNG *Enc, BitBuffer *OutputPNG) {
-        uint8_t  NumChannels   = ModernPNGChannelsPerColorType[Enc->iHDR->ColorType];
-        uint32_t Size          = 0;
-        uint8_t  BKGDEntrySize = 0; // in bits
-        
-        if (Enc->iHDR->ColorType == PNG_PalettedRGB) {
-            Size          = 1;
-            BKGDEntrySize = Bytes2Bits(1);
-        } else if (Enc->iHDR->ColorType == PNG_Grayscale || Enc->iHDR->ColorType == PNG_GrayAlpha) {
-            Size          = 2;
-            BKGDEntrySize = Bytes2Bits(2);
-        } else if (Enc->iHDR->ColorType == PNG_RGB || Enc->iHDR->ColorType == PNG_RGBA) {
-            Size          = NumChannels * 2;
-            BKGDEntrySize = Bytes2Bits(NumChannels * 2);
+    void DeinitEncodePNG(EncodePNG *Enc) {
+        if (Enc->acTLExists) {
+            free(Enc->acTL);
         }
-        
-        WriteBits(OutputPNG, Size, 32, true);
-        WriteBits(OutputPNG, bKGDMarker, 32, true);
-        
-        if (Enc->iHDR->ColorType == PNG_PalettedRGB || Enc->iHDR->ColorType == PNG_Grayscale || Enc->iHDR->ColorType == PNG_GrayAlpha) {
-            for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
-                WriteBits(OutputPNG, Enc->bkGD->BackgroundPaletteEntry[Channel], BKGDEntrySize, true);
-            }
-        } else if (Enc->iHDR->ColorType == PNG_RGB || Enc->iHDR->ColorType == PNG_RGBA) {
-            for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
-                WriteBits(OutputPNG, Enc->bkGD->BackgroundPaletteEntry[Channel], NumChannels * 16, true);
-            }
+        if (Enc->bkGDExists) {
+            free(Enc->bkGD->BackgroundPaletteEntry);
+            free(Enc->bkGD);
         }
-        /*
-         uint32_t GeneratedCRC = 0;
-         GenerateCRC(Enc->bkGD->BackgroundPaletteEntry, BKGDEntrySize, GeneratedCRC);
-         WriteBits(OutputPNG, GeneratedCRC, 32, true);
-         */
-    }
-    
-    void WriteCHRMChunk(EncodePNG *Enc, BitBuffer *OutputPNG) {
-        WriteBits(OutputPNG, 32, 32, true);
-        WriteBits(OutputPNG, cHRMMarker, 32, true);
-        WriteBits(OutputPNG, Enc->cHRM->WhitePointX, 32, true);
-        WriteBits(OutputPNG, Enc->cHRM->WhitePointY, 32, true);
-        WriteBits(OutputPNG, Enc->cHRM->RedX, 32, true);
-        WriteBits(OutputPNG, Enc->cHRM->RedY, 32, true);
-        WriteBits(OutputPNG, Enc->cHRM->GreenX, 32, true);
-        WriteBits(OutputPNG, Enc->cHRM->GreenY, 32, true);
-        WriteBits(OutputPNG, Enc->cHRM->BlueX, 32, true);
-        WriteBits(OutputPNG, Enc->cHRM->BlueY, 32, true);
-        /*
-         uint32_t GeneratedCRC = 0;
-         GenerateCRC(Enc->cHRM, 32, GeneratedCRC);
-         WriteBits(OutputPNG, GeneratedCRC, 32, true);
-         */
-    }
-    
-    void WriteGAMAChunk(EncodePNG *Enc, BitBuffer *OutputPNG) {
-        WriteBits(OutputPNG, 4, 32, true);
-        WriteBits(OutputPNG, gAMAMarker, 32, true);
-        WriteBits(OutputPNG, Enc->gAMA->Gamma, 32, true);
-        /*
-         uint32_t GeneratedCRC = 0;
-         GenerateCRC(Enc->gAMA->Gamma, 32, GeneratedCRC);
-         WriteBits(OutputPNG, GeneratedCRC, 32, true);
-         */
-    }
-    
-    void WriteOFFSChunk(EncodePNG *Enc, BitBuffer *OutputPNG) {
-        WriteBits(OutputPNG, 9, 32, true);
-        WriteBits(OutputPNG, oFFsMarker, 32, true);
-        WriteBits(OutputPNG, Enc->oFFs->XOffset, 32, true);
-        WriteBits(OutputPNG, Enc->oFFs->YOffset, 32, true);
-        WriteBits(OutputPNG, Enc->oFFs->UnitSpecifier, 8, true);
-        /*
-         uint32_t GeneratedCRC = 0;
-         GenerateCRC(Enc->oFFs, 32, GeneratedCRC);
-         WriteBits(OutputPNG, GeneratedCRC, 32, true);
-         */
-    }
-    /*
-    void WriteICCPChunk(EncodePNG *Enc, BitBuffer *OutputPNG) {
-        WriteBits(OutputPNG, Enc->iCCP->CompressedICCPProfileSize + Enc->iCCP->ProfileNameSize + 8, 32, true);
-        WriteBits(OutputPNG, iCCPMarker, 32, true);
-        WriteBits(OutputPNG, Enc->iCCP->ProfileName, Bytes2Bits(Enc->iCCP->ProfileName), true);
-        WriteBits(OutputPNG, Enc->iCCP->CompressionType, 8, true);
-        WriteBits(OutputPNG, Enc->iCCP->CompressedICCPProfile, Bytes2Bits(Enc->iCCP->CompressedICCPProfileSize), true);
-        /
-         uint32_t GeneratedCRC = 0;
-         GenerateCRC(Enc->iCCP, 32, GeneratedCRC);
-         WriteBits(OutputPNG, GeneratedCRC, 32, true);
-         /
-    }
-    */
-    void WriteSBITChunk(EncodePNG *Enc, BitBuffer *OutputPNG) {
-        uint8_t ChunkSize = 0;
-        uint8_t NumChannels = ModernPNGChannelsPerColorType[Enc->iHDR->ColorType];
-        if (Enc->iHDR->ColorType == PNG_Grayscale) {
-            ChunkSize = 1;
-        } else if (Enc->iHDR->ColorType == PNG_RGB || Enc->iHDR->ColorType == PNG_PalettedRGB) {
-            ChunkSize = 3;
-        } else if (Enc->iHDR->ColorType == PNG_GrayAlpha) {
-            ChunkSize = 2;
-        } else if (Enc->iHDR->ColorType == PNG_RGBA) {
-            ChunkSize = 4;
+        if (Enc->cHRMExists) {
+            free(Enc->cHRM);
         }
-        
-        WriteBits(OutputPNG, ChunkSize, 32, true);
-        WriteBits(OutputPNG, sBITMarker, 32, true);
-        
-        if (Enc->iHDR->ColorType == PNG_RGB || Enc->iHDR->ColorType == PNG_PalettedRGB) {
-            WriteBits(OutputPNG, Enc->sBIT->Red, 8, true);
-            WriteBits(OutputPNG, Enc->sBIT->Green, 8, true);
-            WriteBits(OutputPNG, Enc->sBIT->Blue, 8, true);
-        } else if (Enc->iHDR->ColorType == PNG_RGBA) {
-            WriteBits(OutputPNG, Enc->sBIT->Red, 8, true);
-            WriteBits(OutputPNG, Enc->sBIT->Green, 8, true);
-            WriteBits(OutputPNG, Enc->sBIT->Blue, 8, true);
-            WriteBits(OutputPNG, Enc->sBIT->Alpha, 8, true);
-        } else if (Enc->iHDR->ColorType == PNG_Grayscale) {
-            WriteBits(OutputPNG, Enc->sBIT->Grayscale, 8, true);
-        } else if (Enc->iHDR->ColorType == PNG_GrayAlpha) {
-            WriteBits(OutputPNG, Enc->sBIT->Grayscale, 8, true);
-            WriteBits(OutputPNG, Enc->sBIT->Alpha, 8, true);
+        if (Enc->fcTLExists) {
+            free(Enc->fcTL);
+            free(Enc->fdAT);
         }
-        /*
-         uint32_t GeneratedCRC = 0;
-         GenerateCRC(Enc->sBIT, 32, GeneratedCRC); // Make sure it skips 0s
-         WriteBits(OutputPNG, GeneratedCRC, 32, true);
-         */
+        if (Enc->gAMAExists) {
+            free(Enc->gAMA);
+        }
+        if (Enc->hISTExists) {
+            free(Enc->hIST);
+        }
+        if (Enc->iCCPExists) {
+            free(Enc->iCCP->CompressedICCPProfile);
+            free(Enc->iCCP->ProfileName);
+            free(Enc->iCCP);
+        }
+        if (Enc->oFFsExists) {
+            free(Enc->oFFs);
+        }
+        if (Enc->pCALExists) {
+            free(Enc->pCAL->CalibrationName);
+            free(Enc->pCAL->UnitName);
+            free(Enc->pCAL);
+        }
+        if (Enc->PLTEExists) {
+            free(Enc->PLTE->Palette);
+            free(Enc->PLTE);
+        }
+        if (Enc->sBITExists) {
+            free(Enc->sBIT);
+        }
+        if (Enc->sRGBExists) {
+            free(Enc->sRGB);
+        }
+        if (Enc->sTERExists) {
+            free(Enc->sTER);
+        }
+        if (Enc->TextExists) {
+            free(Enc->Text->Keyword);
+            free(Enc->Text->TextString);
+            free(Enc->Text);
+        }
+        if (Enc->tIMEExists) {
+            free(Enc->tIMe);
+        }
+        if (Enc->tRNSExists) {
+            free(Enc->tRNS->Palette);
+            free(Enc->tRNS);
+        }
+        free(Enc->iHDR);
+        free(Enc);
     }
     
-    void WriteSRGBChunk(EncodePNG *Enc, BitBuffer *OutputPNG) {
-        WriteBits(OutputPNG, 1, 8, true);
-        WriteBits(OutputPNG, sRGBMarker, 32, true);
-        WriteBits(OutputPNG, Enc->sRGB->RenderingIntent, 8, true);
-        /*
-         uint32_t GeneratedCRC = 0;
-         GenerateCRC(Enc->sRGB, 32, GeneratedCRC);
-         WriteBits(OutputPNG, GeneratedCRC, 32, true);
-         */
-    }
-    
-    void WritePHYSChunk(EncodePNG *Enc, BitBuffer *OutputPNG) {
-        WriteBits(OutputPNG, 9, 8, true);
-        WriteBits(OutputPNG, pHYsMarker, 32, true);
-        WriteBits(OutputPNG, Enc->pHYs->PixelsPerUnitXAxis, 32, true);
-        WriteBits(OutputPNG, Enc->pHYs->PixelsPerUnitYAxis, 32, true);
-        WriteBits(OutputPNG, Enc->pHYs->UnitSpecifier, 8, true);
-        /*
-         uint32_t GeneratedCRC = 0;
-         GenerateCRC(Enc->pHYs, 32, GeneratedCRC);
-         WriteBits(OutputPNG, GeneratedCRC, 32, true);
-         */
-    }
-    
-    void WritePCALChunk(EncodePNG *Enc, BitBuffer *OutputPNG) {
-        uint32_t ChunkSize = 0;
-        WriteBits(OutputPNG, ChunkSize, 32, true);
-        WriteBits(OutputPNG, pCALMarker, 32, true);
+    BitBuffer *EncodePNGImage(EncodePNG *Enc, void ****RawImage2Encode, bool InterlacePNG, bool OptimizePNG) {
+        // RawImage2Encode is a void pointer, the contents of Enc->iHDR->BitDepth will define the data type, uint8_t or uint16_t
         
-    }
-    
-    void WriteSCALChunk(EncodePNG *Enc, BitBuffer *OutputPNG) {
-        uint32_t ChunkSize = 0;
+        // This is THE main function for encoding a buffer into a PNG file.
+        return NULL;
     }
     
 #ifdef __cplusplus

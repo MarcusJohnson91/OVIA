@@ -2,8 +2,8 @@
 
 #pragma once
 
-#ifndef LIBMODERNPNG_DecodePNG_H
-#define LIBMODERNPNG_DecodePNG_H
+#ifndef LIBMODERNPNG_libModernPNGDecode_H
+#define LIBMODERNPNG_libModernPNGDecode_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,4 +29,4 @@ extern "C" {
 }
 #endif
 
-#endif /* LIBMODERNPNG_DecodePNG_H */
+#endif /* LIBMODERNPNG_libModernPNGDecode_H */

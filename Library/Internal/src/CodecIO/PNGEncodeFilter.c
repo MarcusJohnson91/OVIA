@@ -1,5 +1,5 @@
 #include "../../include/libModernPNG.h"
-#include "../../include/Private/ModernPNGTypes.h"
+#include "../../include/Private/libModernPNGTypes.h"
 
 #ifdef __cplusplus
 extern "C" {

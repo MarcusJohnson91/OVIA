@@ -1,10 +1,10 @@
 #include "../../libModernPNG.h"
-#include "../ModernPNGTypes.h"
+#include "../libModernPNGTypes.h"
 
 #pragma once
 
-#ifndef LIBMODERNPNG_ReadModernPNGChunks_H
-#define LIBMODERNPNG_ReadModernPNGChunks_H
+#ifndef LIBMODERNPNG_LibModernPNGReadChunks_H
+#define LIBMODERNPNG_LibModernPNGReadChunks_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -62,4 +62,4 @@ extern "C" {
 }
 #endif
 
-#endif /* LIBMODERNPNG_ReadModernPNGChunks_H */
+#endif /* LIBMODERNPNG_LibModernPNGReadChunks_H */
