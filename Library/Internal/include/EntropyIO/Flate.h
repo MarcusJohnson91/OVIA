@@ -10,6 +10,10 @@
 extern "C" {
 #endif
     
+    typedef HuffmanNode HuffmanNode;
+    
+    typedef HuffmanTree HuffmanTree;
+    
 #ifdef __cplusplus
 }
 #endif
