@@ -11,7 +11,6 @@ extern "C" {
     
     PCMFile *InitPCMFile(void) {
         PCMFile *PCM = calloc(1, sizeof(PCMFile));
-        PCM->Meta    = calloc(1, sizeof(PCMMetadata));
         return PCM;
     }
     
@@ -81,28 +80,12 @@ extern "C" {
      @param NumSamples2Extract is the number of channel agnostic samples to read from the input file
      */
     void ExtractSamples(PCMFile *PCM, BitBuffer *BitB, uint64_t NumSamples2Extract) {
-        WAVHeader *WAV = calloc(1, sizeof(WAVHeader));
-        W64Header *W64 = calloc(1, sizeof(W64Header));
-        AIFHeader *AIF = calloc(1, sizeof(AIFHeader));
-        if (PCM->MetadataHasBeenParsed == false) {
-            uint32_t Magic = ReadBits(BitB, 32, true);
-            switch (Magic) {
-                case WAVMagic:
-                    PCM->FileType = WAV_File;
-                    IdentifyPCMFile(BitB, PCM);
-                    break;
-                case W64Magic:
-                    PCM->FileType = W64_File;
-                    IdentifyPCMFile(BitB, PCM);
-                    break;
-                case AIFMagic:
-                    PCM->FileType = AIFF_File;
-                    IdentifyPCMFile(BitB, PCM);
-                    break;
-                    
-                default:
-                    break;
-            }
+        if (PCM == NULL) {
+            Log(LOG_ERR, "libPCM", "ExtractSamples", "Pointer to PCMFile is NULL");
+        } else if (BitB == NULL) {
+            Log(LOG_ERR, "libPCM", "ExtractSamples", "Pointer to BitBuffer is NULL");
+        } else if (NumSamples2Extract == 0) {
+            Log(LOG_ERR, "libPCM", "ExtractSamples", "Requested too few samples %d", NumSamples2Extract);
         } else {
             // just read the requested samples
             if (PCM->FileType == WAV_File) {
@@ -138,7 +121,7 @@ extern "C" {
         }
     }
     
-    void ParseW64File(BitBuffer *BitB, W64Header *W64) {
+    void ParseW64File(PCMFile *PCM, BitBuffer *BitB) {
         uint32_t ChunkID   = ReadBits(BitB, 32, true);
         SkipBits(BitB, 96); // The rest of the GUID.
         uint64_t ChunkSize = ReadBits(BitB, 64, true);

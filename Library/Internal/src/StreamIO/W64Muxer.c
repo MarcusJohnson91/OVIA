@@ -30,7 +30,7 @@ extern "C" {
     void WriteW64Header(PCMFile *PCM, BitBuffer *BitB) {
         WriteUUID(BitB, RIFF_UUID);
         // Write the size of the file including all header fields
-        uint64_t W64Size = (W64->NumSamples * W64->Channels * W64->BitDepth) + W64HeaderSize;
+        uint64_t W64Size = (PCM->NumSamples * PCM->Channels * PCM->BitDepth) + W64HeaderSize;
         WriteBits(BitB, SwapEndian64(W64Size), 64, false); // little endian field
         WriteUUID(BitB, WAVE_UUID);
         WriteUUID(BitB, FMT_UUID);
@@ -38,7 +38,7 @@ extern "C" {
         WriteBits(BitB, SwapEndian64(FMTSize), 64, false); // little endian
         WriteW64FMT(W64, BitB);
         WriteUUID(BitB, DATA_UUID);
-        WriteBits(BitB, SwapEndian64(W64->NumSamples), 64, false); // little endian
+        WriteBits(BitB, SwapEndian64(PCM->NumSamples), 64, false); // little endian
     }
     
 #ifdef __cplusplus
