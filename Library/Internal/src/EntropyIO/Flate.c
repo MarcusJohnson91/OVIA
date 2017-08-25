@@ -1,22 +1,23 @@
-#include "../../include/Private/Common/libModernPNGFlate.h"
+#include "../../include/libModernPNG.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
     
     struct HuffmanNode {
-        int64_t            LeftHuffmanCode;
-        int64_t            RightHuffmanCode;
-        int64_t           *LeftNode;
-        int64_t           *RightNode;
+        uint64_t            Symbol;
+        struct HuffmanNode *LeftNode;
+        struct HuffmanNode *RightNode;
     };
     
+    typedef struct HuffmanNode HuffmanNode;
+    
     struct HuffmanTree {
-        uint64_t           NumNodes;
-        HuffmanNode       *Node;
-        uint64_t          *SymbolFrequency;
-        bool               TableIsUsable;
-        const uint8_t     *Table;
+        uint64_t       NumNodes;
+        HuffmanNode   *Node;
+        uint64_t      *SymbolFrequency;
+        bool           TableIsUsable;
+        const uint8_t *Table;
     };
     
     /* Deflate (encode deflate) */
@@ -228,14 +229,72 @@ extern "C" {
              // Now, we just need to read the RawBuffer (which must contain ALL the data to be encoded) with ReadBits(SymbolSize)
              // then start writing LZ77Buffer with our discoveries.
              // So, loop over RawBuffer, if RawByte == 0, just code the longest string you can, or the first 3 bytes (if they're all different)
-             for (uint64_t RawByte = 0; RawByte < RawBuffer->BitsUnavailable; RawByte++) {
-             if (RawByte == 0) {
-             if (RawBuffer->Buffer[RawByte] == RawBuffer->Buffer[RawByte + 1] || RawBuffer->Buffer[RawByte + 1] == RawBuffer->Buffer[RawByte + 2]) {
-             
-             }
-             }
-             }
+            for (uint64_t RawByte = 0; RawByte < RawBuffer->BitsUnavailable; RawByte++) {
+                if (RawByte == 0) {
+                    if (RawBuffer->Buffer[RawByte] == RawBuffer->Buffer[RawByte + 1] || RawBuffer->Buffer[RawByte + 1] == RawBuffer->Buffer[RawByte + 2]) {
+                        
+                    }
+                }
+            }
              */
+        }
+    }
+    
+    uint64_t GenerateCRC(BitBuffer *Data2CRC, const uint64_t BitOffset, const uint64_t BitLength, const uint64_t Polynomial, const uint8_t PolySize, const uint64_t PolyInit) {
+        /*
+        if (PolySize % 8 != 0) {
+            // Ok, so we also need to add the ability to do incremental CRC generation for the iDAT/fDAT chunks in PNG
+            
+            
+            // You have to do it bitwise
+        } else if (DataSize % PolySize || DataSize > PolySize) {
+            // do it word wise aka grab PolySize bits from Data2CRC at once
+        } else {
+            // Do it byte-wise
+        }
+        
+        uint16_t CRCResult = 0;
+        for (uint64_t Byte = 0; Byte < DataSize; Byte++) {
+            CRCResult = ReciprocalPoly ^ Data2CRC[Byte] << 8;
+            for (uint8_t Bit = 0; Bit < 8; Bit++) {
+                if ((CRCResult & 0x8000) == true) {
+                } else {
+                    CRCResult <<= 1;
+                }
+            }
+        }
+         */
+        return 0ULL;
+    }
+    
+    bool VerifyCRC(BitBuffer *Data2CRC, const uint64_t BitOffeset, const uint64_t BitLength, const uint64_t Polynomial, const uint8_t PolySize, const uint64_t PolyInit, const uint64_t PrecomputedCRC) {
+        /*
+         So, the CRC generator need to stream input, which means it needs to be aligned to the CRC size, so 16 bit alignment for CRC16, 32 for CRC32, etc.
+         The real probelem is in the CRC function being called multiple times, or it handling it's own input and output itself...
+         Out of those 2 choices, it being called multiple times is a simplier option.
+         So, if that's the case, we should have a Previous CRC argument, and a bool saying if this has been repeated before?
+         */
+        return false;
+    }
+    
+    uint32_t GenerateAdler32(const uint8_t *Data, const uint64_t DataSize) {
+        uint32_t Adler  = 1;
+        uint32_t Sum1   = Adler & 0xFFFF;
+        uint32_t Sum2   = (Adler >> 16) & 0xFFFF;
+        
+        for (uint64_t Byte = 0; Byte < DataSize; Byte++) {
+            Sum1 += Data[Byte] % 65521;
+            Sum2 += Sum1 % 65521;
+        }
+        return (Sum2 << 16) + Sum1;
+    }
+    
+    bool     VerifyAdler32(const uint8_t *Data, const uint64_t DataSize, const uint32_t EmbeddedAdler32) {
+        uint32_t GeneratedAdler32 = GenerateAdler32(Data, DataSize);
+        if (GeneratedAdler32 != EmbeddedAdler32) {
+            return false;
+        } else {
+            return true;
         }
     }
     
