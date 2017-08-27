@@ -20,6 +20,8 @@ extern "C" {
         const uint8_t *Table;
     };
     
+    typedef struct HuffmanTree HuffmanTree;
+    
     /* Deflate (encode deflate) */
     void ParseDeflateHeader(const BitBuffer *DeflatedData) {
         if (DeflatedData == NULL) {
