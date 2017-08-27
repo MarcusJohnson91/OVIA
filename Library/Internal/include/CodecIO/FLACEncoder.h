@@ -2,8 +2,8 @@
 
 #pragma once
 
-#ifndef LIBMODERNFLAC_ApodizeModernFLAC_H
-#define LIBMODERNFLAC_ApodizeModernFLAC_H
+#ifndef LIBMODERNFLAC_EncodeModernFLAC_H
+#define LIBMODERNFLAC_EncodeModernFLAC_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -14,4 +14,4 @@ extern "C" {
 }
 #endif
 
-#endif /* LIBMODERNFLAC_ApodizeModernFLAC_H */
+#endif /* LIBMODERNFLAC_EncodeModernFLAC_H */

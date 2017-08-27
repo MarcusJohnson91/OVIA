@@ -1,9 +1,23 @@
-#include "../../include/libModernFLAC.h"
-#include "../../include/Private/ModernFLACTypes.h"
+#include "../../include/Private/Encode/EncodeModernFLAC.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+    
+    void DeinitFLACEncoder(EncodeFLAC *Enc) {
+        free(Enc->Meta->StreamInfo);
+        free(Enc->Meta->Seek);
+        free(Enc->Meta->Vorbis);
+        free(Enc->Meta->Cue);
+        free(Enc->Meta->Pic);
+        free(Enc->Meta);
+        free(Enc->Data->Frame);
+        free(Enc->Data->SubFrame);
+        free(Enc->Data->LPC);
+        free(Enc->Data->Rice);
+        free(Enc->Data);
+        free(Enc);
+    }
     
     void WriteBase64(BitBuffer *OutputFLAC, uint8_t *Buffer, uint64_t BufferSize) {
         

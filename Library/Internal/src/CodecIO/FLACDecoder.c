@@ -1,12 +1,23 @@
-#include <stdio.h>
-#include <math.h>
-
-#include "../../include/libModernFLAC.h"
-#include "../../include/Private/ModernFLACTypes.h"
+#include "../../include/Private/Decode/DecodeModernFLAC.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+    
+    void DeinitFLACDecoder(DecodeFLAC *Dec) {
+        free(Dec->Meta->StreamInfo);
+        free(Dec->Meta->Seek);
+        free(Dec->Meta->Vorbis);
+        free(Dec->Meta->Cue);
+        free(Dec->Meta->Pic);
+        free(Dec->Meta);
+        free(Dec->Data->Frame);
+        free(Dec->Data->SubFrame);
+        free(Dec->Data->LPC);
+        free(Dec->Data->Rice);
+        free(Dec->Data);
+        free(Dec);
+    }
     
     /*!
      @abstract Reads and decodes MIME Base64

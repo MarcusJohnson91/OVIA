@@ -1,5 +1,4 @@
-#include <stdio.h>
-#include "../../include/Private/Decode/ParseFLAC.h"
+#include "../../include/Private/Decode/ParseModernFLAC.h"
 
 #ifdef __cplusplus
 extern "C" {

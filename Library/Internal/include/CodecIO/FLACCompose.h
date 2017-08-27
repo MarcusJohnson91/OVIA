@@ -1,11 +1,9 @@
-#include "../../../../Dependencies/libPCM/Dependencies/BitIO/libBitIO/include/BitIO.h"
-
-#include "../../libModernFLAC.h"
+#include "../Common/ModernFLACTypes.h"
 
 #pragma once
 
-#ifndef LIBMODERNFLAC_COMPOSEFLAC_H
-#define LIBMODERNFLAC_COMPOSEFLAC_H
+#ifndef LIBMODERNFLAC_ComposeModernFLAC_H
+#define LIBMODERNFLAC_ComposeModernFLAC_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,4 +17,4 @@ extern "C" {
 }
 #endif
 
-#endif /* LIBMODERNFLAC_COMPOSEFLAC_H */
+#endif /* LIBMODERNFLAC_ComposeModernFLAC_H */

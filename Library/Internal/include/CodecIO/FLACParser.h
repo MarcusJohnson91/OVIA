@@ -1,12 +1,9 @@
-#include "../../../../Dependencies/libPCM/Dependencies/BitIO/libBitIO/include/BitIO.h"
-
-#include "../../libModernFLAC.h"
-#include "../../Private/ModernFLACTypes.h"
+#include "../Common/ModernFLACTypes.h"
 
 #pragma once
 
-#ifndef LIBMODERNFLAC_PARSEFLAC_H
-#define LIBMODERNFLAC_PARSEFLAC_H
+#ifndef LIBMODERNFLAC_ParseModernFLAC_H
+#define LIBMODERNFLAC_ParseModernFLAC_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,4 +31,4 @@ extern "C" {
 }
 #endif
 
-#endif /* LIBMODERNFLAC_PARSEFLAC_H */
+#endif /* LIBMODERNFLAC_ParseModernFLAC_H */
