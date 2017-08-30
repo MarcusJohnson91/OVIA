@@ -73,9 +73,9 @@ extern "C" {
     
     void FLACReadStream(BitBuffer *InputFLAC, DecodeFLAC *Dec) {
         if (InputFLAC == NULL) {
-            Log(LOG_ERR, "libModernFLAC", "FLACParseStreamInfo", "Pointer to BitBuffer is NULL");
+            Log(LOG_ERR, "libModernFLAC", "FLACReadStream", "Pointer to BitBuffer is NULL");
         } else if (Dec == NULL) {
-            Log(LOG_ERR, "libModernFLAC", "FLACParseStreamInfo", "Pointer to DecodeFLAC is NULL");
+            Log(LOG_ERR, "libModernFLAC", "FLACReadStream", "Pointer to DecodeFLAC is NULL");
         } else {
             uint16_t Marker = PeekBits(InputFLAC, 14, true);
             if (Marker == FLACFrameMagic) {
@@ -89,9 +89,9 @@ extern "C" {
     
     void FLACReadFrame(BitBuffer *InputFLAC, DecodeFLAC *Dec) {
         if (InputFLAC == NULL) {
-            Log(LOG_ERR, "libModernFLAC", "FLACParseStreamInfo", "Pointer to BitBuffer is NULL");
+            Log(LOG_ERR, "libModernFLAC", "FLACReadFrame", "Pointer to BitBuffer is NULL");
         } else if (Dec == NULL) {
-            Log(LOG_ERR, "libModernFLAC", "FLACParseStreamInfo", "Pointer to DecodeFLAC is NULL");
+            Log(LOG_ERR, "libModernFLAC", "FLACReadFrame", "Pointer to DecodeFLAC is NULL");
         } else {
             SkipBits(InputFLAC, 1); // 0
             Dec->Data->Frame->BlockType            = ReadBits(InputFLAC, 1, true); // 0 aka Fixed
@@ -141,9 +141,9 @@ extern "C" {
     
     void FLACReadSubFrame(BitBuffer *InputFLAC, DecodeFLAC *Dec, uint8_t Channel) { // 2 channels
         if (InputFLAC == NULL) {
-            Log(LOG_ERR, "libModernFLAC", "FLACParseStreamInfo", "Pointer to BitBuffer is NULL");
+            Log(LOG_ERR, "libModernFLAC", "FLACReadSubFrame", "Pointer to BitBuffer is NULL");
         } else if (Dec == NULL) {
-            Log(LOG_ERR, "libModernFLAC", "FLACParseStreamInfo", "Pointer to DecodeFLAC is NULL");
+            Log(LOG_ERR, "libModernFLAC", "FLACReadSubFrame", "Pointer to DecodeFLAC is NULL");
         } else {
             SkipBits(InputFLAC, 1); // Reserved
             Dec->Data->SubFrame->SubFrameType      = ReadBits(InputFLAC, 6, true); // 6 or 0
@@ -164,16 +164,16 @@ extern "C" {
             } else if (Dec->Data->SubFrame->SubFrameType >= Subframe_LPC) { // LPC
                 FLACDecodeSubFrameLPC(InputFLAC, Dec, Channel);
             } else {
-                Log(LOG_ERR, "libModernFLAC", "FLACReadSubframe", "Invalid Subframe type: %d", Dec->Data->SubFrame->SubFrameType);
+                Log(LOG_ERR, "libModernFLAC", "FLACReadSubFrame", "Invalid Subframe type: %d", Dec->Data->SubFrame->SubFrameType);
             }
         }
     }
     
     void FLACDecodeSubFrameVerbatim(BitBuffer *InputFLAC, DecodeFLAC *Dec) {
         if (InputFLAC == NULL) {
-            Log(LOG_ERR, "libModernFLAC", "FLACParseStreamInfo", "Pointer to BitBuffer is NULL");
+            Log(LOG_ERR, "libModernFLAC", "FLACDecodeSubFrameVerbatim", "Pointer to BitBuffer is NULL");
         } else if (Dec == NULL) {
-            Log(LOG_ERR, "libModernFLAC", "FLACParseStreamInfo", "Pointer to DecodeFLAC is NULL");
+            Log(LOG_ERR, "libModernFLAC", "FLACDecodeSubFrameVerbatim", "Pointer to DecodeFLAC is NULL");
         } else {
             for (uint16_t Sample = 0; Sample < Dec->Data->Frame->BlockSize; Sample++) {
                 Dec->DecodedSamples[Sample] = ReadBits(InputFLAC, Dec->Data->Frame->BitDepth, true);
@@ -183,9 +183,9 @@ extern "C" {
     
     void FLACDecodeSubFrameConstant(BitBuffer *InputFLAC, DecodeFLAC *Dec) {
         if (InputFLAC == NULL) {
-            Log(LOG_ERR, "libModernFLAC", "FLACParseStreamInfo", "Pointer to BitBuffer is NULL");
+            Log(LOG_ERR, "libModernFLAC", "FLACDecodeSubFrameConstant", "Pointer to BitBuffer is NULL");
         } else if (Dec == NULL) {
-            Log(LOG_ERR, "libModernFLAC", "FLACParseStreamInfo", "Pointer to DecodeFLAC is NULL");
+            Log(LOG_ERR, "libModernFLAC", "FLACDecodeSubFrameConstant", "Pointer to DecodeFLAC is NULL");
         } else {
             int64_t Constant = ReadBits(InputFLAC, Dec->Data->Frame->BitDepth, true);
             memset(Dec->DecodedSamples, Constant, Dec->Data->Frame->BlockSize);
@@ -194,9 +194,9 @@ extern "C" {
     
     void FLACDecodeSubFrameFixed(BitBuffer *InputFLAC, DecodeFLAC *Dec) {
         if (InputFLAC == NULL) {
-            Log(LOG_ERR, "libModernFLAC", "FLACParseStreamInfo", "Pointer to BitBuffer is NULL");
+            Log(LOG_ERR, "libModernFLAC", "FLACDecodeSubFrameFixed", "Pointer to BitBuffer is NULL");
         } else if (Dec == NULL) {
-            Log(LOG_ERR, "libModernFLAC", "FLACParseStreamInfo", "Pointer to DecodeFLAC is NULL");
+            Log(LOG_ERR, "libModernFLAC", "FLACDecodeSubFrameFixed", "Pointer to DecodeFLAC is NULL");
         } else {
             for (uint16_t WarmupSample = 0; WarmupSample < Dec->Data->Frame->BitDepth * Dec->Data->LPC->LPCOrder; WarmupSample++) {
                 Dec->DecodedSamples[WarmupSample]  = ReadBits(InputFLAC, Dec->Data->Frame->BitDepth, true);
@@ -207,19 +207,16 @@ extern "C" {
     
     void FLACDecodeSubFrameLPC(BitBuffer *InputFLAC, DecodeFLAC *Dec, uint8_t Channel) { // 4 0's
         if (InputFLAC == NULL) {
-            Log(LOG_ERR, "libModernFLAC", "FLACParseStreamInfo", "Pointer to BitBuffer is NULL");
+            Log(LOG_ERR, "libModernFLAC", "FLACDecodeSubFrameLPC", "Pointer to BitBuffer is NULL");
         } else if (Dec == NULL) {
-            Log(LOG_ERR, "libModernFLAC", "FLACParseStreamInfo", "Pointer to DecodeFLAC is NULL");
+            Log(LOG_ERR, "libModernFLAC", "FLACDecodeSubFrameLPC", "Pointer to DecodeFLAC is NULL");
         } else {
-            for (uint16_t WarmupSample = 0; WarmupSample < Dec->Data->Frame->BitDepth * Dec->Data->LPC->LPCOrder; WarmupSample++) { // 16 * 30= 480 aka 960 bytes
-                                                                                                                                    // 004F, FFB0, 004F,
+            for (uint16_t WarmupSample = 0; WarmupSample < Dec->Data->Frame->BitDepth * Dec->Data->LPC->LPCOrder; WarmupSample++) {
                 Dec->DecodedSamples[WarmupSample]  = ReadBits(InputFLAC, Dec->Data->Frame->BitDepth, true);
             }
-            
             Dec->Data->LPC->LPCPrecision           = ReadBits(InputFLAC, 4, true) + 1; // 0x1F aka 31
             Dec->Data->LPC->LPCShift               = ReadBits(InputFLAC, 5, true); // 0b01110 aka 14
             Dec->Data->LPC->NumLPCCoeffs           = Dec->Data->LPC->LPCPrecision * Dec->Data->LPC->LPCOrder;
-            
             
             for (uint16_t LPCCoefficent = 0; LPCCoefficent < Dec->Data->LPC->NumLPCCoeffs; LPCCoefficent++) {
                 Dec->Data->LPC->LPCCoeff[LPCCoefficent] = ReadBits(InputFLAC, Dec->Data->LPC->NumLPCCoeffs, true) + 1;
@@ -230,9 +227,9 @@ extern "C" {
     
     void DecodeFLACResidual(BitBuffer *InputFLAC, DecodeFLAC *Dec) {
         if (InputFLAC == NULL) {
-            Log(LOG_ERR, "libModernFLAC", "FLACParseStreamInfo", "Pointer to BitBuffer is NULL");
+            Log(LOG_ERR, "libModernFLAC", "DecodeFLACResidual", "Pointer to BitBuffer is NULL");
         } else if (Dec == NULL) {
-            Log(LOG_ERR, "libModernFLAC", "FLACParseStreamInfo", "Pointer to DecodeFLAC is NULL");
+            Log(LOG_ERR, "libModernFLAC", "DecodeFLACResidual", "Pointer to DecodeFLAC is NULL");
         } else {
             Dec->Data->LPC->RicePartitionType      = ReadBits(InputFLAC, 2, true);
             if (Dec->Data->LPC->RicePartitionType == RICE1) {
@@ -245,9 +242,9 @@ extern "C" {
     
     void DecodeFLACRice1Partition(BitBuffer *InputFLAC, DecodeFLAC *Dec) {
         if (InputFLAC == NULL) {
-            Log(LOG_ERR, "libModernFLAC", "FLACParseStreamInfo", "Pointer to BitBuffer is NULL");
+            Log(LOG_ERR, "libModernFLAC", "DecodeFLACRice1Partition", "Pointer to BitBuffer is NULL");
         } else if (Dec == NULL) {
-            Log(LOG_ERR, "libModernFLAC", "FLACParseStreamInfo", "Pointer to DecodeFLAC is NULL");
+            Log(LOG_ERR, "libModernFLAC", "DecodeFLACRice1Partition", "Pointer to DecodeFLAC is NULL");
         } else {
             Dec->Data->LPC->PartitionOrder = ReadBits(InputFLAC, 4, true);
             for (uint8_t Partition = 0; Partition < Dec->Data->LPC->PartitionOrder; Partition++) {
@@ -269,9 +266,9 @@ extern "C" {
     
     void DecodeFLACRice2Partition(BitBuffer *InputFLAC, DecodeFLAC *Dec) {
         if (InputFLAC == NULL) {
-            Log(LOG_ERR, "libModernFLAC", "FLACParseStreamInfo", "Pointer to BitBuffer is NULL");
+            Log(LOG_ERR, "libModernFLAC", "DecodeFLACRice2Partition", "Pointer to BitBuffer is NULL");
         } else if (Dec == NULL) {
-            Log(LOG_ERR, "libModernFLAC", "FLACParseStreamInfo", "Pointer to DecodeFLAC is NULL");
+            Log(LOG_ERR, "libModernFLAC", "DecodeFLACRice2Partition", "Pointer to DecodeFLAC is NULL");
         } else {
             for (uint8_t Partition = 0; Partition < Dec->Data->LPC->PartitionOrder; Partition++) {
                 Dec->Data->Rice->RICEParameter[Partition] = ReadBits(InputFLAC, 5, true) + 5;
@@ -341,9 +338,9 @@ extern "C" {
     
     void FLACSampleRate(BitBuffer *InputFLAC, DecodeFLAC *Dec) {
         if (InputFLAC == NULL) {
-            Log(LOG_ERR, "libModernFLAC", "FLACParseStreamInfo", "Pointer to BitBuffer is NULL");
+            Log(LOG_ERR, "libModernFLAC", "FLACSampleRate", "Pointer to BitBuffer is NULL");
         } else if (Dec == NULL) {
-            Log(LOG_ERR, "libModernFLAC", "FLACParseStreamInfo", "Pointer to DecodeFLAC is NULL");
+            Log(LOG_ERR, "libModernFLAC", "FLACSampleRate", "Pointer to DecodeFLAC is NULL");
         } else {
             switch (Dec->Meta->StreamInfo->CodedSampleRate) {
                 case 0:
