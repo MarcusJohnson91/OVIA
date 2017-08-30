@@ -1,10 +1,270 @@
-#include "../../include/libModernAVC.h"
-
+#include "../../include/Private/Common/libModernAVCTypes.h"
 #include "../../include/Private/Encode/EncodeAVC.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+    
+    EncodeAVC *InitAVCEncoder(void) {
+        EncodeAVC *Enc                = (EncodeAVC*) calloc(1, sizeof(EncodeAVC));
+        if (Enc == NULL) {
+            Log(LOG_ERR, "libModernAVC", "InitAVCEncoder", "Not enough memory to allocate EncodeAVC");
+        } else {
+            Enc->NAL                  = (NALHeader*)                    calloc(1, sizeof(NALHeader));
+            Enc->SPS                  = (SequenceParameterSet*)         calloc(1, sizeof(SequenceParameterSet));
+            Enc->PPS                  = (PictureParameterSet*)          calloc(1, sizeof(PictureParameterSet));
+            Enc->VUI                  = (VideoUsabilityInformation*)    calloc(1, sizeof(VideoUsabilityInformation));
+            Enc->HRD                  = (HypotheticalReferenceDecoder*) calloc(1, sizeof(HypotheticalReferenceDecoder));
+            Enc->SEI                  = (SupplementalEnhancementInfo*)  calloc(1, sizeof(SupplementalEnhancementInfo));
+            Enc->Slice                = (Slice*)                        calloc(1, sizeof(Slice));
+            Enc->SVC                  = (ScalableVideoCoding*)          calloc(1, sizeof(ScalableVideoCoding));
+            Enc->DPS                  = (DepthParameterSet*)            calloc(1, sizeof(DepthParameterSet));
+            Enc->MacroBlock           = (MacroBlock*)                   calloc(1, sizeof(MacroBlock));
+        }
+        return Enc;
+    }
+    
+    bool     AreAllViewsPaired(EncodeAVC *Enc) {
+        if (Enc == NULL) {
+            Log(LOG_ERR, "libModernAVC", "ResidualLuma", "Pointer to EncodeAVC is NULL");
+        } else if (BitB == NULL) {
+            Log(LOG_ERR, "libModernAVC", "ResidualLuma", "Pointer to BitBuffer is NULL");
+        } else {
+            bool AllViewsPairedFlag = false;
+            for (uint8_t View = 0; View < Enc->SPS->ViewCount; View++) {
+                AllViewsPairedFlag = (1 && Enc->SPS->DepthViewPresent[View] && Enc->SPS->TextureViewPresent[View]);
+            }
+        }
+        return AllViewsPairedFlag;
+    }
+    
+    void ParseTransformCoeffs(EncodeAVC *Enc, uint8_t i16x16DC, uint8_t i16x16AC, uint8_t Level4x4, uint8_t Level8x8, uint8_t StartIndex, uint8_t EndIndex) { // ParseTransformCoeffs
+        if (Enc == NULL) {
+            Log(LOG_ERR, "libModernAVC", "ResidualLuma", "Pointer to EncodeAVC is NULL");
+        } else if (BitB == NULL) {
+            Log(LOG_ERR, "libModernAVC", "ResidualLuma", "Pointer to BitBuffer is NULL");
+        } else {
+            uint8_t Intra16x16DCLevel = i16x16DC, Intra16x16ACLevel = i16x16AC, LumaLevel4x4 = Level4x4, LumaLevel8x8 = Level8x8;
+            // Return the first 4 variables
+            if (Enc->PPS->EntropyCodingMode == ExpGolomb) {
+                // Read ExpGolomb
+            } else {
+                // Read Arithmetic
+            }
+            
+            if (Enc->SPS->ChromaArrayType == Chroma420 || Enc->SPS->ChromaArrayType == Chroma422) {
+                for (uint8_t iCbCr = 0; iCbCr < 1; iCbCr++) {
+                    ChromaDCLevel[iCbCr] = 4 * NumC8x8;
+                    for (uint8_t ChromaBlock = 0; ChromaBlock < i4x4; ChromaBlock++) {
+                        ChromaACLevel[iCbCr][(i8x8 * 4) + i4x4] = 0;
+                    }
+                }
+            } else if (Enc->SPS->ChromaArrayType == Chroma444) {
+                
+            }
+        }
+    }
+    
+    void ResidualLuma(EncodeAVC *Enc, BitBuffer *BitB, int i16x16DClevel, int i16x16AClevel, int level4x4,
+                      int level8x8, int startIdx, int endIdx) { // residual_luma
+        if (Enc == NULL) {
+            Log(LOG_ERR, "libModernAVC", "ResidualLuma", "Pointer to EncodeAVC is NULL");
+        } else if (BitB == NULL) {
+            Log(LOG_ERR, "libModernAVC", "ResidualLuma", "Pointer to BitBuffer is NULL");
+        } else {
+            if (startIdx == 0 && MacroBlockPartitionPredictionMode(Enc, Enc->MacroBlock->Type, 0) == Intra_16x16) {
+                ParseTransformCoeffs(Enc, i16x16DClevel, 0, 15, 16);
+            }
+            for (uint8_t i8x8 = 0; i8x8 < 4; i8x8++) {
+                if (Enc->MacroBlock->TransformSizeIs8x8 == false || Enc->PPS->EntropyCodingMode == ExpGolomb) {
+                    for (uint8_t i4x4 = 0; i4x4 < 4; i4x4++) {
+                        if (Enc->MacroBlock->BlockPatternLuma & (1 << i8x8)) {
+                            if (MacroBlockPartitionPredictionMode(Enc, Enc->MacroBlock->Type, 0) == Intra_16x16) {
+                                ParseTransformCoeffs(i16x16AClevel[i8x8 * 4 + i4x4], Max(0, startIdx - 1), endIdx - 1, 15);
+                            } else {
+                                ParseTransformCoeffs(level4x4[i8x8 * 4 + i4x4], startIdx, endIdx, 16);
+                            }
+                        } else if (MacroBlockPartitionPredictionMode(Enc, Enc->MacroBlock->Type, 0) == Intra_16x16) {
+                            for (uint8_t i = 0; i < 15; i++) {
+                                i16x16AClevel[i8x8 * 4 + i4x4][i] = 0;
+                            }
+                        } else {
+                            for (uint8_t i = 0; i < 16; i++) {
+                                level4x4[i8x8 * 4 + i4x4][i] = 0;
+                            }
+                        }
+                    }
+                }
+                if (Enc->PPS->EntropyCodingMode == ExpGolomb && Enc->MacroBlock->TransformSizeIs8x8) {
+                    for (uint8_t i = 0; i < 16; i++) {
+                        level8x8[i8x8][4 * i + i4x4] = level4x4[i8x8 * 4 + i4x4][i];
+                    }
+                }
+                else if (Enc->MacroBlock->BlockPatternLuma & (1 << i8x8)) {
+                    ParseTransformCoeffs(level8x8[i8x8], 4 * startIdx, 4 * endIdx + 3, 64);
+                } else {
+                    for (uint8_t i = 0; i < 64; i++) {
+                        level8x8[i8x8][i] = 0;
+                    }
+                }
+            }
+        }
+    }
+    
+    int8_t MacroBlock2SliceGroupMap(EncodeAVC *Enc, uint8_t CurrentMacroBlock) { // MbToSliceGroupMap
+        if (Enc == NULL) {
+            Log(LOG_ERR, "libModernAVC", "MacroBlock2SliceGroupMap", "Pointer to EncodeAVC is NULL");
+        } else {
+            if (Enc->PPS->SliceGroups == 1 && (Enc->PPS->SliceGroupMapType == 3 || Enc->PPS->SliceGroupMapType == 4 || Enc->PPS->SliceGroupMapType == 5)) {
+                if (Enc->PPS->SliceGroupMapType == 3) {
+                    if (Enc->PPS->SliceGroupChangeDirection == false) {
+                        return BoxOutClockwise;
+                    } else if (Enc->PPS->SliceGroupChangeDirection == true) {
+                        return BoxOutCounterClockwise;
+                    }
+                } else if (Enc->PPS->SliceGroupMapType == 4) {
+                    if (Enc->PPS->SliceGroupChangeDirection == false) {
+                        return RasterScan;
+                    } else if (Enc->PPS->SliceGroupChangeDirection == true) {
+                        return ReverseRasterScan;
+                    }
+                } else if (Enc->PPS->SliceGroupMapType == 5) {
+                    if (Enc->PPS->SliceGroupChangeDirection == false) {
+                        return WipeRight;
+                    } else if (Enc->PPS->SliceGroupChangeDirection == true) {
+                        return WipeLeft;
+                    }
+                }
+            }
+        }
+        return -1; // failure
+    }
+    
+    void rbsp_slice_trailing_bits(EncodeAVC *Enc, BitBuffer *BitB) {
+        if (Enc == NULL) {
+            Log(LOG_ERR, "libModernAVC", "GetSizeOfNALUnit", "Pointer to EncodeAVC is NULL");
+        } else {
+            AlignBitBuffer(BitB, 1); // rbsp_trailing_bits();
+            if (Enc->PPS->EntropyCodingMode == Arithmetic) {
+                while (more_rbsp_trailing_data()) {
+                    uint16_t CABACZeroWord = ReadBits(BitB, 16, true); /* equal to 0x0000 */
+                }
+            }
+        }
+    }
+    
+    uint8_t MacroBlockPartitionPredictionMode(EncodeAVC *Enc, uint8_t MacroBlockType, uint8_t PartitionNumber) {  // MbPartPredMode
+        if (Enc == NULL) {
+            Log(LOG_ERR, "libModernAVC", "GetSizeOfNALUnit", "Pointer to EncodeAVC is NULL");
+        } else {
+            uint8_t ReturnValue = 0;
+            if (MacroBlockType == 0) {
+                if (Enc->MacroBlock->TransformSizeIs8x8 == true) {
+                    ReturnValue = Intra_8x8;
+                } else {
+                    ReturnValue = Intra_4x4;
+                }
+            } else if (MacroBlockType == 1) {
+                ReturnValue = I_16x16_0_0_0;
+            } else if (MacroBlockType == 2) {
+                ReturnValue  = I_16x16_1_0_0;
+            } else if (MacroBlockType == 3) {
+                ReturnValue  = I_16x16_2_0_0;
+            } else if (MacroBlockType == 4) {
+                ReturnValue  = I_16x16_3_0_0;
+            } else if (MacroBlockType == 5) {
+                ReturnValue  = I_16x16_0_1_0;
+            } else if (MacroBlockType == 6) {
+                ReturnValue  = I_16x16_1_1_0;
+            } else if (MacroBlockType == 7) {
+                ReturnValue  = I_16x16_2_1_0;
+            } else if (MacroBlockType == 8) {
+                ReturnValue  = I_16x16_3_1_0;
+            } else if (MacroBlockType == 9) {
+                ReturnValue  = I_16x16_0_2_0;
+            } else if (MacroBlockType == 10) {
+                ReturnValue  = I_16x16_1_2_0;
+            } else if (MacroBlockType == 11) {
+                ReturnValue  = I_16x16_2_2_0;
+            } else if (MacroBlockType == 12) {
+                ReturnValue  = I_16x16_3_2_0;
+            } else if (MacroBlockType == 13) {
+                ReturnValue  = I_16x16_0_0_1;
+            } else if (MacroBlockType == 14) {
+                ReturnValue  = I_16x16_1_0_1;
+            } else if (MacroBlockType == 15) {
+                ReturnValue  = I_16x16_2_0_1;
+            } else if (MacroBlockType == 16) {
+                ReturnValue  = I_16x16_3_0_1;
+            } else if (MacroBlockType == 17) {
+                ReturnValue  = I_16x16_0_1_1;
+            } else if (MacroBlockType == 18) {
+                ReturnValue  = I_16x16_1_1_1;
+            } else if (MacroBlockType == 19) {
+                ReturnValue  = I_16x16_2_1_1;
+            } else if (MacroBlockType == 20) {
+                ReturnValue  = I_16x16_3_1_1;
+            } else if (MacroBlockType == 21) {
+                ReturnValue  = I_16x16_0_2_1;
+            } else if (MacroBlockType == 22) {
+                ReturnValue  = I_16x16_1_2_1;
+            } else if (MacroBlockType == 23) {
+                ReturnValue  = I_16x16_2_2_1;
+            } else if (MacroBlockType == 24) {
+                ReturnValue  = I_16x16_3_2_1;
+            } else if (MacroBlockType == 25) {
+                ReturnValue  = I_PCM;
+            }
+        }
+        /*
+         if (NotPartitioned == true) {
+         return BlockPredictionMode;
+         } else if (PartitionNumber >= 0) {
+         PartitionMode;
+         }
+         }
+         */
+        return ReturnValue;
+    }
+    
+    uint64_t NextMacroBlockAddress(EncodeAVC *Enc, uint64_t CurrentMacroBlockAddress) { // NextMbAddress
+        if (Enc == NULL) {
+            Log(LOG_ERR, "libModernAVC", "GetSizeOfNALUnit", "Pointer to EncodeAVC is NULL");
+        } else {
+            while (CurrentMacroBlockAddress + 1 < Enc->Slice->PicSizeInMacroBlocks && MacroBlock2SliceGroupMap(Enc, CurrentMacroBlockAddress + 1) != MacroBlock2SliceGroupMap(Enc, CurrentMacroBlockAddress)) {
+                i++; nextMbAddress = I
+            }
+            // aka
+            for (uint64_t I = CurrentMacroBlockAddress + 1; I < Enc->Slice->PicSizeInMacroBlocks && MbToSliceGroups[I]) {
+                MacroBlock2SliceGroupMap(Enc, CurrentMacroBlockAddress);
+            }
+        }
+    }
+    
+    size_t GetSizeOfNALUnit(EncodeAVC *Enc, BitBuffer *BitB) {
+        if (Enc == NULL) {
+            Log(LOG_ERR, "libModernAVC", "GetSizeOfNALUnit", "Pointer to EncodeAVC is NULL");
+        } else if (BitB == NULL) {
+            Log(LOG_ERR, "libModernAVC", "GetSizeOfNALUnit", "Pointer to BitBuffer is NULL");
+        } else {
+            
+        }
+        return 0;
+    }
+    
+    uint8_t CalculateNumberOfTimeStamps(EncodeAVC *Enc) { // PicOrderCount
+        if (Enc == NULL) {
+            Log(LOG_ERR, "libModernAVC", "CalculateNumberOfTimeStamps", "Pointer to EncodeAVC is NULL");
+        } else {
+            uint8_t NumTimeStamps = 0;
+            if ((Enc->Slice->SliceIsInterlaced == false) && (Enc->Slice->TopFieldOrderCount == Enc->Slice->BottomFieldOrderCount)) {
+                NumTimeStamps = 1;
+            } else if (0 == 1) {
+                
+            }
+        }
+        return 0;
+    }
     
     /*
      So, the frontend will handle decoding input PNGs, and all we need to do is take in the command line info as well as the raw PNG

@@ -1,6 +1,5 @@
-#include "../../include/libModernAVC.h"
-#include "../../include/Private/ModernAVCTypes.h"
-#include "../../include/Private/Decode/DecodeAVCCommon.h"
+#include "../../include/Private/Common/libModernAVCTypes.h"
+#include "../../include/Private/Common/libModernAVCCommon.h"
 #include "../../include/Private/Decode/DecodeAVC.h"
 #include "../../include/Private/Decode/DecodeMacroBlock.h"
 #include "../../include/Private/Decode/DecodeSlice.h"

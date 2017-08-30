@@ -2,8 +2,8 @@
 
 #pragma once
 
-#ifndef LIBMODERNAVC_DECODEAVC_H
-#define LIBMODERNAVC_DECODEAVC_H
+#ifndef LIBMODERNAVC_DecodeAVC_H
+#define LIBMODERNAVC_DecodeAVC_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -88,4 +88,4 @@ extern "C" {
 }
 #endif
 
-#endif /* LIBMODERNAVC_DECODEAVC_H */
+#endif /* LIBMODERNAVC_DecodeAVC_H */

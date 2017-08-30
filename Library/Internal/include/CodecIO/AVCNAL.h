@@ -2,8 +2,8 @@
 
 #pragma once
 
-#ifndef LIBMODERNAVC_PARSENAL_H
-#define LIBMODERNAVC_PARSENAL_H
+#ifndef LIBMODERNAVC_ParseNAL_H
+#define LIBMODERNAVC_ParseNAL_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -187,4 +187,4 @@ extern "C" {
 }
 #endif
 
-#endif /* LIBMODERNAVC_PARSENAL_H */
+#endif /* LIBMODERNAVC_ParseNAL_H */

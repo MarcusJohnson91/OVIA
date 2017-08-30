@@ -3,8 +3,8 @@
 
 #pragma once
 
-#ifndef LIBMODERNAVC_TABLES_H
-#define LIBMODERNAVC_TABLES_H
+#ifndef LIBMODERNAVC_ModernAVCTables_H
+#define LIBMODERNAVC_ModernAVCTables_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -219,4 +219,4 @@ extern "C" {
 }
 #endif
 
-#endif /* LIBMODERNAVC_TABLES_H */
+#endif /* LIBMODERNAVC_ModernAVCTables_H */

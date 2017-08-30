@@ -1,9 +1,9 @@
-#include "../libModernAVC.h"
+#include "../../libModernAVC.h"
 
 #pragma once
 
-#ifndef LIBMODERNAVC_AVCTYPES_H
-#define LIBMODERNAVC_AVCTYPES_H
+#ifndef LIBMODERNAVC_ModernAVCTypes_H
+#define LIBMODERNAVC_ModernAVCTypes_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -985,4 +985,4 @@ extern "C" {
 }
 #endif
 
-#endif /* LIBMODERNAVC_AVCTYPES_H */
+#endif /* LIBMODERNAVC_ModernAVCTypes_H */

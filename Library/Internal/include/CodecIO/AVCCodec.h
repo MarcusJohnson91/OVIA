@@ -13,8 +13,8 @@
 
 #pragma once
 
-#ifndef LIBMODERNAVC_LIBMODERNAVC_H
-#define LIBMODERNAVC_LIBMODERNAVC_H
+#ifndef LIBMODERNAVC_libModernAVC_H
+#define LIBMODERNAVC_libModernAVC_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -375,4 +375,4 @@ extern "C" {
 }
 #endif
 
-#endif /* LIBMODERNAVC_LIBMODERNAVC_H */
+#endif /* LIBMODERNAVC_libModernAVC_H */
