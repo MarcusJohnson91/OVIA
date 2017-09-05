@@ -180,7 +180,6 @@ extern "C" {
     // ALSO keep in mind concurrency.
     
     void PNGDecodeFilteredImage(DecodePNG *Dec, uint8_t ***InflatedBuffer) {
-        char Error[BitIOStringSize];
         
 		uint8_t *DeFilteredData = calloc(1, Dec->iHDR->Height * Dec->iHDR->Width);
         
@@ -208,8 +207,7 @@ extern "C" {
                     PNGDecodePaethFilter(Dec, *InflatedBuffer, &DeFilteredData, Line);
                     break;
                 default:
-                    snprintf(Error, BitIOStringSize, "Filter type: %d is invalid\n", FilterType);
-                    Log(LOG_ERR, "ModernPNG", "PNGDecodeFilteredLine", Error);
+                    Log(LOG_ERR, "ModernPNG", "PNGDecodeFilteredLine", "Filter type: %d is invalid\n", FilterType);
                     break;
             }
         }
