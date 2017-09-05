@@ -4,6 +4,190 @@
 extern "C" {
 #endif 
     
+    // MY functions to create Golomb codes
+    inline static uint8_t NumBits4Symbol(const int64_t Integer2Store) {
+        return (uint8_t) ceill(log2(llabs(Integer2Store)+1));
+    }
+    
+    inline static void WriteExpGolomb(BitBuffer *BitB, const bool IsSigned, const uint64_t Value2Write) {
+        uint8_t Bits2Write = NumBits4Symbol(Value2Write);
+        WriteBits(BitB, Power2Mask(LSBit, Bits2Write-1), Bits2Write-1, true); // Write the Unary part in Truncated format
+        WriteBits(BitB, 0, 1, true); // Write the stop bit
+        WriteBits(BitB, Value2Write, Bits2Write, true); // Write the binary section
+    }
+    
+    // libFLAC functions to create Golomb codes
+    
+    static inline uint32_t FLAC__clz_soft_uint32(uint32_t Word) {
+        static const uint8_t byte_to_unary_table[256] = {
+            8, 7, 6, 6, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4, // 1, 1, 2, 4, 8
+            3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 16
+            2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, // 32
+            2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 64
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 128
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        };
+        
+        if (Word > Power2Mask(24)) {
+            return byte_to_unary_table[Word >> 24];
+        } else if (Word > Power2Mask(16)) {
+            return byte_to_unary_table[Word >> 16] + 8;
+        } else if (Word > Power2Mask(8)) {
+            return byte_to_unary_table[Word >> 8] + 16;
+        } else {
+            return byte_to_unary_table[Word] + 24;
+        }
+        
+    }
+    
+    static inline uint32_t FLAC__clz_uint32(uint32_t v) {
+        /* Never used with input 0 */
+        FLAC__ASSERT(v > 0);
+        return FLAC__clz_soft_uint32(v);
+    }
+    
+    static inline uint32_t FLAC__bitmath_ilog2(uint32_t v) {
+        FLAC__ASSERT(v > 0);
+        return FLAC__clz_uint32(v) ^ 31U;
+    }
+    
+    bool ModernFLACWriteUnsignedGolomb(BitBuffer *BitB, uint32_t Uval, uint32_t Parameter) {
+    	assert(BitB != NULL);
+        assert(BitB->Buffer != NULL);
+        assert(Parameter > 0);
+        
+        uint32_t K = FLAC__bitmath_ilog2(Parameter); // Parameter ^ 31
+        if (Parameter == 1u << K) {
+            uint32_t pattern;
+            
+            assert(K <= 30);
+            
+            uint32_t Msbs = Uval >> K;
+            uint32_t Total_bits = 1 + K + Msbs;
+            pattern = 1 << K; /* the unary end bit */
+            pattern |= (Uval & ((1u << K)-1)); /* the binary LSBs */
+            
+            if (Total_bits <= 32) {
+                if(!FLAC__bitwriter_write_raw_uint32(BitB, pattern, Total_bits)) {
+                    return false;
+                }
+            } else {
+                /* write the unary MSBs */
+                if (!FLAC__bitwriter_write_zeroes(BitB, Msbs)) {
+                    return false;
+                }
+                /* write the unary end bit and binary LSBs */
+                if (!FLAC__bitwriter_write_raw_uint32(BitB, pattern, K + 1)) {
+                    return false;
+                }
+            }
+        } else {
+            uint32_t q, r, d;
+            
+            d = (1 << (K + 1)) - Parameter;
+            q = Uval / Parameter;
+            r = Uval - (q * Parameter);
+            /* write the unary MSBs */
+            if (!FLAC__bitwriter_write_zeroes(BitB, q)) {
+                return false;
+            }
+            /* write the unary end bit */
+            if (!FLAC__bitwriter_write_raw_uint32(BitB, 1, 1)) {
+                return false;
+            }
+            /* write the binary LSBs */
+            if (r >= d) {
+                if (!FLAC__bitwriter_write_raw_uint32(BitB, r + d, K + 1)) {
+                    return false;
+                }
+            }
+            else {
+                if (!FLAC__bitwriter_write_raw_uint32(BitB, r, K)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    
+    bool ModernFLACWriteSignedGolomb(BitBuffer *BitB, int Val, uint32_t Parameter) { // FLAC__bitwriter_golomb_bits_signed
+        uint32_t total_bits, msbs, Uval;
+        uint32_t k;
+        
+        assert(BitB != NULL);
+        assert(BitB->Buffer != NULL);
+        assert(Parameter > 0);
+        
+        /* fold signed to uint32_t */
+        if (Val < 0) {
+            Uval = (uint32_t)( ( (- (++Val) ) << 1) + 1); // Uval = (((-(Val)+1)<< 1)+1)
+        } else {
+            Uval = (uint32_t)(Val << 1);
+        }
+        
+        k = FLAC__bitmath_ilog2(Parameter);
+        if(Parameter == 1u << k) {
+            uint32_t pattern;
+            
+            assert(k <= 30);
+            
+            msbs = Uval >> k;
+            total_bits = 1 + k + msbs;
+            pattern = 1 << k; /* the unary end bit */
+            pattern |= (Uval & ((1u << k) -1)); /* the binary LSBs */
+            
+            if (total_bits <= 32) {
+                if(!FLAC__bitwriter_write_raw_uint32(bw, pattern, total_bits)) {
+                    return false;
+                }
+            } else {
+                /* write the unary MSBs */
+                if (!FLAC__bitwriter_write_zeroes(BW, msbs)) {
+                    return false;
+                }
+                /* write the unary end bit and binary LSBs */
+                if (!FLAC__bitwriter_write_raw_uint32(BW, pattern, k+1)) {
+                    return false;
+                }
+            }
+        } else {
+            uint32_t q, r, d;
+            
+            d = (1 << (k+1)) - Parameter;
+            q = Uval / Parameter;
+            r = Uval - (q * Parameter);
+            /* write the unary MSBs */
+            if(!FLAC__bitwriter_write_zeroes(BitB, q)) {
+                return false;
+            }
+            /* write the unary end bit */
+            if(!FLAC__bitwriter_write_raw_uint32(BitB, 1, 1)) {
+                return false;
+            }
+            /* write the binary LSBs */
+            if (r >= d) {
+                if (!FLAC__bitwriter_write_raw_uint32(BitB, r+d, k+1)) {
+                    return false;
+                }
+            } else {
+                if (!FLAC__bitwriter_write_raw_uint32(BitB, r, k)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    
     static const uint8_t MD5_STable[4][16] = {
         {7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22},
         {5,  9, 14, 20, 5,  9, 14, 20, 5,  9, 14, 20, 5,  9, 14, 20},
