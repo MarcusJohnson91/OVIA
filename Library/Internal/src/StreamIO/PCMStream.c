@@ -95,8 +95,6 @@ extern "C" {
     }
     
     void ParseWAVFile(PCMFile *PCM, BitBuffer *BitB) {
-        char ErrorDescription[BitIOStringSize];
-        
         uint32_t ChunkID   = ReadBits(BitB, 32, true);
         uint32_t ChunkSize = ReadBits(BitB, 32, true);
         
@@ -115,8 +113,7 @@ extern "C" {
                 break;
                 
             default:
-                snprintf(ErrorDescription, BitIOStringSize, "Invalid ChunkID: 0x%X", ChunkID);
-                Log(LOG_ERR, "libPCM", "ParseWAVFile", ErrorDescription);
+                Log(LOG_ERR, "libPCM", "ParseWAVFile", "Invalid ChunkID: 0x%X", ChunkID);
                 break;
         }
     }
