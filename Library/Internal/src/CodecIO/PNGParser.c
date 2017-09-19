@@ -1,6 +1,6 @@
 #include "../../include/libModernPNG.h"
 
-#include "../../include/Private/Decode/libModernPNGReadChunks.h"
+#include "../../include/Private/Decode/libModernPNG_ReadChunks.h"
 
 #ifdef __cplusplus
 extern "C" {

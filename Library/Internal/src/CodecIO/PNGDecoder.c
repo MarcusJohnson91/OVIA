@@ -1,7 +1,7 @@
 #include "../../include/libModernPNG.h"
-#include "../../include/Private/libModernPNGTypes.h"
+#include "../../include/Private/libModernPNG_Types.h"
 
-#include "../../include/Private/Decode/libModernPNGDecode.h"
+#include "../../include/Private/Decode/libModernPNG_Decode.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -2,8 +2,8 @@
 
 #pragma once
 
-#ifndef LIBMODERNPNG_LibModernPNGEntropyCoders_H
-#define LIBMODERNPNG_LibModernPNGEntropyCoders_H
+#ifndef libModernPNG_EntropyCoders_H
+#define libModernPNG_EntropyCoders_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -57,4 +57,4 @@ extern "C" {
 }
 #endif
 
-#endif /* LIBMODERNPNG_LibModernPNGEntropyCoders_H */
+#endif /* libModernPNG_EntropyCoders_H */

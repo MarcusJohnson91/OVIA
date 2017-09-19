@@ -3,8 +3,8 @@
 
 #pragma once
 
-#ifndef LIBMODERNPNG_libModernPNGTypes_H
-#define LIBMODERNPNG_libModernPNGTypes_H
+#ifndef libModernPNG_Types_H
+#define libModernPNG_Types_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -266,4 +266,4 @@ extern "C" {
 }
 #endif
 
-#endif /* LIBMODERNPNG_libModernPNGTypes_H */
+#endif /* libModernPNG_Types_H */
