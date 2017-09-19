@@ -2,8 +2,8 @@
 
 #pragma once
 
-#ifndef LIBMODERNFLAC_ModernFLACTypes_H
-#define LIBMODERNFLAC_ModernFLACTypes_H
+#ifndef libModernFLAC_Types_H
+#define libModernFLAC_Types_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,7 +21,7 @@ extern "C" {
         uint8_t      CodedBitDepth:6; // 5 bits, 4-32 bits per sample
         uint32_t            BitDepth;
         uint64_t  SamplesInStream:36; // 36 bits, all the samples in the stream; channel agnostic
-        uint8_t     MD5[BitIOMD5Size]; // MD5
+        uint8_t              MD5[16]; // MD5
     } FLACStreamInfo;
     
     typedef struct CueSheetTrack {
@@ -219,4 +219,4 @@ extern "C" {
 }
 #endif
 
-#endif /* LIBMODERNFLAC_ModernFLACTypes_H */
+#endif /* libModernFLAC_Types_H */

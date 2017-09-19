@@ -1,4 +1,4 @@
-#include "../../include/Private/Common/ModernFLACEntropyCoders.h"
+#include "../../include/Private/Common/libModernFLAC_EntropyCoders.h"
 
 #ifdef __cplusplus
 extern "C" {

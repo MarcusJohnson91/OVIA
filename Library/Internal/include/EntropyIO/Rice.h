@@ -2,8 +2,8 @@
 
 #pragma once
 
-#ifndef LIBMODERNFLAC_ModernFLACEntropyCoders_H
-#define LIBMODERNFLAC_ModernFLACEntropyCoders_H
+#ifndef libModernFLAC_EntropyCoders_H
+#define libModernFLAC_EntropyCoders_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,4 +21,4 @@ extern "C" {
 }
 #endif
 
-#endif /* LIBMODERNFLAC_ModernFLACEntropyCoders_H */
+#endif /* libModernFLAC_EntropyCoders_H */

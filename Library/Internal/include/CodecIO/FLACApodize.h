@@ -1,9 +1,9 @@
-#include "../Common/ModernFLACTypes.h"
+#include "../Common/libModernFLAC_Types.h"
 
 #pragma once
 
-#ifndef LIBMODERNFLAC_ApodizeModernFLAC_H
-#define LIBMODERNFLAC_ApodizeModernFLAC_H
+#ifndef libModernFLAC_Apodize_H
+#define libModernFLAC_Apodize_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -14,4 +14,4 @@ extern "C" {
 }
 #endif
 
-#endif /* LIBMODERNFLAC_ApodizeModernFLAC_H */
+#endif /* libModernFLAC_Apodize_H */
