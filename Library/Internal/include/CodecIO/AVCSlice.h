@@ -2,8 +2,8 @@
 
 #pragma once
 
-#ifndef LIBMODERNAVC_DECODESLICE_H
-#define LIBMODERNAVC_DECODESLICE_H
+#ifndef LIBMODERNAVC_DecodeSlice_H
+#define LIBMODERNAVC_DecodeSlice_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,4 +25,4 @@ extern "C" {
 }
 #endif
 
-#endif /* LIBMODERNAVC_DECODESLICE_H */
+#endif /* LIBMODERNAVC_DecodeSlice_H */

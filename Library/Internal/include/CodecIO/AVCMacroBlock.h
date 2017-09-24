@@ -2,8 +2,8 @@
 
 #pragma once
 
-#ifndef LIBMODERNAVC_DECODEMACROBLOCK_H
-#define LIBMODERNAVC_DECODEMACROBLOCK_H
+#ifndef LIBMODERNAVC_DecodeMacroBlock_H
+#define LIBMODERNAVC_DecodeMacroBlock_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -33,4 +33,4 @@ extern "C" {
 }
 #endif
 
-#endif /* LIBMODERNAVC_DECODEMACROBLOCK_H */
+#endif /* LIBMODERNAVC_DecodeMacroBlock_H */

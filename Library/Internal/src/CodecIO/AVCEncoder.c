@@ -1,5 +1,5 @@
-#include "../../include/Private/Common/libModernAVCTypes.h"
-#include "../../include/Private/Encode/EncodeAVC.h"
+#include "../../include/Private/Common/libModernAVC_Types.h"
+#include "../../include/Private/Encode/libModernAVC_Encode.h"
 
 #ifdef __cplusplus
 extern "C" {
