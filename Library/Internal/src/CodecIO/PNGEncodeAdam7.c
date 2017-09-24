@@ -16,8 +16,8 @@ extern "C" {
             for (uint32_t Height = 0; Height < Enc->iHDR->Height; Height += 8) {
                 for (uint8_t Channel = 0; Channel < ModernPNGChannelsPerColorType[Enc->iHDR->ColorType]; Channel++) {
                     // How do we extract the pixels tho?
-                    CurrentPixel[Channel] = ReadBits(RawImage, Enc->iHDR->BitDepth, true);
-                    WriteBits(Adam7Image, (uint16_t*)CurrentPixel, Enc->iHDR->BitDepth, true);
+                    CurrentPixel[Channel] = ReadBits(BitIOMSByte, BitIOLSBit, RawImage, Enc->iHDR->BitDepth);
+                    WriteBits(BitIOMSByte, BitIOLSBit, Adam7Image, Enc->iHDR->BitDepth, (uint16_t*)CurrentPixel);
                 }
             }
         }
@@ -30,8 +30,8 @@ extern "C" {
             for (uint32_t Height = 0; Height < Enc->iHDR->Height; Height += 6) {
                 for (uint8_t Channel = 0; Channel < ModernPNGChannelsPerColorType[Enc->iHDR->ColorType]; Channel++) {
                     // How do we extract the pixels tho?
-                    CurrentPixel[Channel] = ReadBits(RawImage, Enc->iHDR->BitDepth, true);
-                    WriteBits(Adam7Image, (uint16_t*)CurrentPixel, Enc->iHDR->BitDepth, true);
+                    CurrentPixel[Channel] = ReadBits(BitIOMSByte, BitIOLSBit, RawImage, Enc->iHDR->BitDepth);
+                    WriteBits(BitIOMSByte, BitIOLSBit, Adam7Image, Enc->iHDR->BitDepth, (uint16_t*)CurrentPixel);
                 }
             }
         }
@@ -44,8 +44,8 @@ extern "C" {
             for (uint32_t Height = 4; Height < Enc->iHDR->Height; Height += 4) {
                 for (uint8_t Channel = 0; Channel < ModernPNGChannelsPerColorType[Enc->iHDR->ColorType]; Channel++) {
                     // How do we extract the pixels tho?
-                    CurrentPixel[Channel] = ReadBits(RawImage, Enc->iHDR->BitDepth, true);
-                    WriteBits(Adam7Image, (uint16_t*)CurrentPixel, Enc->iHDR->BitDepth, true);
+                    CurrentPixel[Channel] = ReadBits(BitIOMSByte, BitIOLSBit, RawImage, Enc->iHDR->BitDepth);
+                    WriteBits(BitIOMSByte, BitIOLSBit, Adam7Image, Enc->iHDR->BitDepth, (uint16_t*)CurrentPixel);
                 }
             }
         }

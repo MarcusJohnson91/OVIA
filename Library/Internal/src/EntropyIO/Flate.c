@@ -28,13 +28,13 @@ extern "C" {
             Log(LOG_ERR, "libBitIO", "ParseDeflateHeader", "BitBuffer pointer is NULL");
         } else {
             // stored in big endian byte order, bits are stored LSB first
-            uint8_t CompressionMethod  = ReadBits(DeflatedData, 4, true); // 8 = DEFLATE
-            uint8_t CompressionInfo    = ReadBits(DeflatedData, 4, true); // 7 = LZ77 window size 32k
-            uint8_t CheckCode          = ReadBits(DeflatedData, 5, true); // 1, for the previous 2 fields, MUST be multiple of 31
-            bool    DictionaryPresent  = ReadBits(DeflatedData, 1, true); //
-            uint8_t CompressionLevel   = ReadBits(DeflatedData, 2, true); // 0
+            uint8_t CompressionMethod  = ReadBits(BitIOMSByte, BitIOLSBit, DeflatedData, 4);
+            uint8_t CompressionInfo    = ReadBits(BitIOMSByte, BitIOLSBit, DeflatedData, 4); // 7 = LZ77 window size 32k
+            uint8_t CheckCode          = ReadBits(BitIOMSByte, BitIOLSBit, DeflatedData, 5); // 1, for the previous 2 fields, MUST be multiple of 31
+            bool    DictionaryPresent  = ReadBits(BitIOMSByte, BitIOLSBit, DeflatedData, 1);
+            uint8_t CompressionLevel   = ReadBits(BitIOMSByte, BitIOLSBit, DeflatedData, 2);
             if (DictionaryPresent == true) {
-                uint32_t DictionaryID  = ReadBits(DeflatedData, 32, true); // 0xEDC1
+                uint32_t DictionaryID  = ReadBits(BitIOMSByte, BitIOLSBit, DeflatedData, 32); // 0xEDC1
             }
             if (CompressionMethod == 8) {
                 //ParseDeflateBlock(DeflatedData, BlockSize[CompressionInfo]);
@@ -52,8 +52,8 @@ extern "C" {
             Log(LOG_ERR, "libBitIO", "DecodeHuffman", "BitBuffer pointer is NULL");
         } else {
             uint8_t  DecodedData[32768]     = {0};
-            bool     IsLastHuffmanBlock     = ReadBits(BitB, 1, true);
-            uint8_t  HuffmanCompressionType = ReadBits(BitB, 2, true); // 0 = none, 1 = fixed, 2 = dynamic, 3 = invalid.
+            bool     IsLastHuffmanBlock     = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
+            uint8_t  HuffmanCompressionType = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 2); // 0 = none, 1 = fixed, 2 = dynamic, 3 = invalid.
             uint32_t DataLength             = 0;
             uint32_t OnesComplimentOfLength = 0; // Ones Compliment of DataLength
             
@@ -67,17 +67,17 @@ extern "C" {
             
             if (HuffmanCompressionType == 0) { // No compression.
                 AlignBitBuffer(BitB, 1); // Skip the rest of the current byte
-                DataLength             = ReadBits(BitB, 32, true);
-                OnesComplimentOfLength = ReadBits(BitB, 32, true);
+                DataLength             = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
+                OnesComplimentOfLength = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
                 if (OnesCompliment2TwosCompliment(OnesComplimentOfLength) != DataLength) {
                     // Exit because there's an issue.
                 }
                 for (uint32_t Byte = 0; Byte < DataLength; Byte++) {
-                    DecodedData[Byte] = ReadBits(BitB, 8, true);
+                    DecodedData[Byte] = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
                 }
             } else if (HuffmanCompressionType == 1) { // Static Huffman.
-                uint8_t  Length   = ReadBits(BitB, 8, true) - 254;
-                uint16_t Distance = ReadBits(BitB, 5, true);
+                uint8_t  Length   = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8) - 254;
+                uint16_t Distance = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 5);
                 
             } else if (HuffmanCompressionType == 2) { // Dynamic Huffman.
                 /*
@@ -173,8 +173,8 @@ extern "C" {
         if (BitB == NULL) {
             Log(LOG_ERR, "libBitIO", "ParseDeflateBlock", "Pointer to BitBuffer is NULL");
         } else {
-            bool    IsLastBlock    = ReadBits(BitB, 1, true); // no
-            uint8_t EncodingMethod = ReadBits(BitB, 2, true); // 3
+            bool    IsLastBlock    = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1); // no
+            uint8_t EncodingMethod = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 2); // 3
             
             switch (EncodingMethod) {
                 case 0:
@@ -218,7 +218,7 @@ extern "C" {
             uint64_t PreviousSymbol = 0;
             
             while (GetBitBufferPosition(RawBuffer) != GetBitBufferSize(RawBuffer)) {
-                CurrentSymbol = ReadBits(RawBuffer, SymbolSize, true);
+                CurrentSymbol = ReadBits(BitIOMSByte, BitIOLSBit, RawBuffer, SymbolSize);
                 if (CurrentSymbol == PreviousSymbol) {
                     // find the largest string of symbols that matches the current one
                 }

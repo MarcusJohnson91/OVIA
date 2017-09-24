@@ -102,22 +102,22 @@ extern "C" {
     }
     
     /*
-     bool VerifyChunkCRC(BitBuffer *BitB, uint32_t ChunkSize) {
-     // So basically we need to read ChunkSize bytes into an array, then read the following 4 bytes as the CRC
-     // then run VerifyCRC over the buffer, and finally compare the generated CRC with the extracted one, and return whether they match.
-     // Then call SkipBits(BitB, Bytes2Bits(ChunkSize)); to reset to the beginning of the chunk
-     uint8_t *Buffer2CRC = calloc(1, ChunkSize);
-     for (uint32_t Byte = 0; Byte < ChunkSize; Byte++) {
-     Buffer2CRC[Byte] = BitB->Buffer[Bits2Bytes(, false)];
-     free(Buffer2CRC);
-     
-     }
-     uint32_t ChunkCRC = ReadBits(BitB, 32, true);
-     bool CRCsMatch = VerifyCRC(Buffer2CRC, ChunkSize, 0x82608EDB, 32, 0xFFFFFFFF, ChunkCRC);
-     SkipBits(BitB, -Bytes2Bits(ChunkSize));
-     return CRCsMatch;
-     }
-     */
+    bool VerifyChunkCRC(BitBuffer *BitB, uint32_t ChunkSize) {
+        // So basically we need to read ChunkSize bytes into an array, then read the following 4 bytes as the CRC
+        // then run VerifyCRC over the buffer, and finally compare the generated CRC with the extracted one, and return whether they match.
+        // Then call SkipBits(BitB, Bytes2Bits(ChunkSize)); to reset to the beginning of the chunk
+        uint8_t *Buffer2CRC = calloc(1, ChunkSize);
+        for (uint32_t Byte = 0; Byte < ChunkSize; Byte++) {
+            Buffer2CRC[Byte] = BitB->Buffer[Bits2Bytes(, false)];
+            free(Buffer2CRC);
+            
+        }
+        uint32_t ChunkCRC = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
+        bool CRCsMatch = VerifyCRC(Buffer2CRC, ChunkSize, 0x82608EDB, 32, 0xFFFFFFFF, ChunkCRC);
+        SkipBits(BitB, -Bytes2Bits(ChunkSize));
+        return CRCsMatch;
+    }
+    */
     
     void PNGDecodeNonFilter(DecodePNG *Dec, uint8_t *DeEntropyedData, uint8_t *DeFilteredData, size_t Line) {
         for (size_t Byte = 1; Byte < Bits2Bytes(Dec->iHDR->BitDepth, true); Byte++) {
@@ -217,8 +217,8 @@ extern "C" {
     void DecodePNGData(BitBuffer *BitB, DecodePNG *Dec) {
         // read the iDAT/fDAT chunk header, then do the other stuff.
         while (GetBitBufferSize(BitB) > 0) { // 12 is the start of IEND
-            uint32_t ChunkSize = ReadBits(BitB, 32, true);
-            uint32_t ChunkID   = ReadBits(BitB, 32, true);
+            uint32_t ChunkSize = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
+            uint32_t ChunkID   = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
             
             if (strcasecmp(ChunkID, "iDAT") == 0) {
                 ParseIDAT(BitB, Dec, ChunkSize);
