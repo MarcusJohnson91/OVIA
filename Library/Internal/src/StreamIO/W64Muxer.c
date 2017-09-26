@@ -19,26 +19,26 @@ extern "C" {
     void WriteW64FMT(PCMFile *PCM, BitBuffer *BitB) {
         uint64_t ByteRate   = CalculateW64ByteRate(PCM->NumChannels, PCM->SampleRate, PCM->BitDepth);
         uint64_t BlockAlign = CalculateW64BlockAlign(PCM->NumChannels, PCM->BitDepth);
-        WriteBits(BitB, 0,                16, false); // PCM
-        WriteBits(BitB, PCM->NumChannels, 16, false);
-        WriteBits(BitB, PCM->SampleRate,  32, false);
-        WriteBits(BitB, ByteRate,         32, false);
-        WriteBits(BitB, BlockAlign,       16, false);
-        WriteBits(BitB, PCM->BitDepth,    16, false);
+        WriteBits(BitIOLSByte, BitIOLSBit, BitB, 16, 0);
+        WriteBits(BitIOLSByte, BitIOLSBit, BitB, 16, PCM->NumChannels);
+        WriteBits(BitIOLSByte, BitIOLSBit, BitB, 32, PCM->SampleRate);
+        WriteBits(BitIOLSByte, BitIOLSBit, BitB, 32, ByteRate);
+        WriteBits(BitIOLSByte, BitIOLSBit, BitB, 32, BlockAlign);
+        WriteBits(BitIOLSByte, BitIOLSBit, BitB, 16, PCM->BitDepth);
     }
     
     void WriteW64Header(PCMFile *PCM, BitBuffer *BitB) {
-        WriteUUID(BitB, RIFF_UUID);
+        WriteGUUID(BitIOUUIDString, BitB, RIFF_UUID);
         // Write the size of the file including all header fields
-        uint64_t W64Size = (PCM->NumSamples * PCM->Channels * PCM->BitDepth) + W64HeaderSize;
-        WriteBits(BitB, SwapEndian64(W64Size), 64, false); // little endian field
-        WriteUUID(BitB, WAVE_UUID);
-        WriteUUID(BitB, FMT_UUID);
+        uint64_t W64Size = (PCM->NumSamples * PCM->NumChannels * PCM->BitDepth) + W64HeaderSize;
+        WriteBits(BitIOLSByte, BitIOLSBit, BitB, 64, W64Size);
+        WriteGUUID(BitIOUUIDString, BitB, WAVE_UUID);
+        WriteGUUID(BitIOUUIDString, BitB, FMT_UUID);
         uint64_t FMTSize = 40;
-        WriteBits(BitB, SwapEndian64(FMTSize), 64, false); // little endian
+        WriteBits(BitIOLSByte, BitIOLSBit, BitB, 64, FMTSize);
         WriteW64FMT(W64, BitB);
-        WriteUUID(BitB, DATA_UUID);
-        WriteBits(BitB, SwapEndian64(PCM->NumSamples), 64, false); // little endian
+        WriteGUUID(BitIOUUIDString, BitB, DATA_UUID);
+        WriteBits(BitIOLSByte, BitIOLSBit, BitB, 64, PCM->NumSamples);
     }
     
 #ifdef __cplusplus

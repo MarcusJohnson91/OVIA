@@ -15,7 +15,7 @@ extern "C" {
     }
     
     void IdentifyPCMFile(PCMFile *PCM, BitBuffer *BitB) {
-        uint64_t FileMagic64 = PeekBits(BitB, 64, true);
+        uint64_t FileMagic64 = PeekBits(BitIOMSByte, BitIOLSBit, BitB, 64);
         uint16_t FileMagic16 = FileMagic64 & 0xFFFF;
         uint32_t FileMagic32 = FileMagic64 & 0xFFFFFFFF;
         
@@ -36,7 +36,7 @@ extern "C" {
     
     void ParsePCMMetadata(PCMFile *PCM, BitBuffer *BitB) {
         if (PCM->FileFormat == AIFFormat) {
-            ParseAIFMetadata(BitB, PCM);
+            ParseAIFMetadata(PCM, BitB);
         } else if (PCM->FileFormat == BMPFormat) {
             
         } else if (PCM->FileFormat == PXMFormat) {
@@ -89,29 +89,28 @@ extern "C" {
         } else {
             // just read the requested samples
             if (PCM->FileType == WAV_File) {
-                WAVExtractSamples(BitB, PCM, NumSamples2Extract);
+                WAVExtractSamples(PCM, BitB, NumSamples2Extract);
             }
         }
     }
     
     void ParseWAVFile(PCMFile *PCM, BitBuffer *BitB) {
-        uint32_t ChunkID   = ReadBits(BitB, 32, true);
-        uint32_t ChunkSize = ReadBits(BitB, 32, true);
+        uint32_t ChunkID   = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
+        uint32_t ChunkSize = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
         
         switch (ChunkID) {
             case WAV_LIST:
-                ParseWavLISTChunk(BitB, PCM, ChunkSize);
+                ParseWavLISTChunk(PCM, BitB, ChunkSize);
                 break;
             case WAV_FMT:
-                ParseWavFMTChunk(BitB, PCM, ChunkSize);
+                ParseWavFMTChunk(PCM, BitB, ChunkSize);
                 break;
             case WAV_WAVE:
                 SkipBits(BitB, 32);
                 break;
             case WAV_DATA:
-                ParseWavDATAChunk(BitB, PCM, ChunkSize);
+                ParseWavDATAChunk(PCM, BitB, ChunkSize);
                 break;
-                
             default:
                 Log(LOG_ERR, "libPCM", "ParseWAVFile", "Invalid ChunkID: 0x%X", ChunkID);
                 break;
@@ -119,19 +118,12 @@ extern "C" {
     }
     
     void ParseW64File(PCMFile *PCM, BitBuffer *BitB) {
-        uint32_t ChunkID   = ReadBits(BitB, 32, true);
-        SkipBits(BitB, 96); // The rest of the GUID.
-        uint64_t ChunkSize = ReadBits(BitB, 64, true);
-        switch (ChunkID) {
-            case W64_FMT:
-                ParseW64FMTChunk(BitB, W64);
-                break;
-            case W64_BEXT:
-                ParseW64BEXTChunk(BitB, W64);
-                break;
-                
-            default:
-                break;
+        uint8_t *ChunkUUID = ReadGUUID(BitIOUUIDString, BitB);
+        uint64_t ChunkSize = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 64);
+        if (CompareGUUIDs(ChunkUUID, W64_FMT, BitIOBinaryUUID) == true) {
+            ParseW64FMTChunk(PCM, BitB);
+        } else if (CompareGUUIDs(ChunkUUID, W64_BEXT, BitIOBinaryUUID) == true) {
+            ParseW64BEXTChunk(PCM, BitB);
         }
     }
     
@@ -145,8 +137,8 @@ extern "C" {
     
     void ParseAIFFile(BitBuffer *BitB, AIFHeader *AIF) {
         // if NumFrames = 0, SNSD may not exist.
-        uint32_t AIFSize = ReadBits(BitB, 32, true);
-        uint32_t ChunkID = ReadBits(BitB, 32, true);
+        uint32_t AIFSize = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
+        uint32_t ChunkID = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
         switch (ChunkID) { // If the number of sound data bytes is odd, appened a padding sample.
             case AIF_AIFF:
                 
