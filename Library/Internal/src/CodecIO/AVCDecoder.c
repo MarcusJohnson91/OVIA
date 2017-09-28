@@ -60,7 +60,7 @@ extern "C" {
         Log(LOG_INFO, "libModernAVC", "ParseAVCFile", "Parsing AVC File...\n");
         
         // Found a start code.
-        if (ReadBits(BitB, 32, true) == AVCMagic && GetBitBufferPosition(BitB) == 0) {
+        if (ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32, true) == AVCMagic && GetBitBufferPosition(BitB) == 0) {
             while (GetBitBufferPosition(BitB) + Bits2Bytes(BitB->BitsUnavailable, true) < BitB->FileSize) {
                 ParseAVCHeader(Dec, BitB);
                 FindNALSize(Dec, BitB);
@@ -77,17 +77,17 @@ extern "C" {
         size_t BytesInNALUnit                 = 1; // nalUnitHeaderBytes
         if (PeekBits(BitB, 1, true) == 0) {
             SkipBits(BitB, 1);
-            Dec->NAL->NALRefIDC               = ReadBits(BitB, 2, true); // 0
-            Dec->NAL->NALUnitType             = ReadBits(BitB, 5, true); // 6
+            Dec->NAL->NALRefIDC               = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 2, true); // 0
+            Dec->NAL->NALUnitType             = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 5, true); // 6
             
             int     NumBytesInRBSP = 0;
             int nalUnitHeaderBytes = 1;
             
             if ((Dec->NAL->NALUnitType == NAL_PrefixUnit) || (Dec->NAL->NALUnitType == NAL_AuxiliarySliceExtension) ||(Dec->NAL->NALUnitType == NAL_MVCDepthView) ) {
                 if (Dec->NAL->NALUnitType == NAL_MVCDepthView) {
-                    Dec->NAL->AVC3DExtensionFlag = ReadBits(BitB, 1, true);
+                    Dec->NAL->AVC3DExtensionFlag = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1, true);
                 } else {
-                    Dec->NAL->SVCExtensionFlag   = ReadBits(BitB, 1, true);
+                    Dec->NAL->SVCExtensionFlag   = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1, true);
                 }
                 
                 if (Dec->NAL->SVCExtensionFlag == true) {
@@ -103,9 +103,9 @@ extern "C" {
             }
             for (uint64_t NALByte = BytesInNALUnit; NALByte < Dec->NAL->NALUnitSize; NALByte++) {
                 if (NALByte + 2 < Dec->NAL->NALUnitSize) {
-                    uint32_t NALID = ReadBits(BitB, 24, true);
+                    uint32_t NALID = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 24, true);
                     if (NALID == 0x000003) {
-                        uint8_t NALID2 = ReadBits(BitB, 8, true);
+                        uint8_t NALID2 = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8, true);
                         if ((NALID2 == 0x00) || (NALID2 == 0x01) || (NALID2 == 0x02) || (NALID2 == 0x03)) {
                             // these guys are ok
                         } else {
@@ -133,16 +133,16 @@ extern "C" {
         // Make sure the stream is byte algined by verifying there are 4 the data = 0x0000001
         // Once you've got that, you've got byte alignment.
         
-        uint32_t ByteAlignment = ReadBits(BitB, 32, true);
+        uint32_t ByteAlignment = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32, true);
         if (ByteAlignment == 0x00000001) { // Bytestream is aligned
-            uint32_t StreamType = ReadBits(BitB, 24, true);
+            uint32_t StreamType = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 24, true);
             if (StreamType == 0x000001) { // Start code prefix
                 
             } else if (StreamType == 0x000003) { // emulation_prevention_three_byte
                 
             }
             
-            if ((ReadBits(BitB, 24, true) == 0x000000) && (IsStreamByteAligned(BitB->BitsUnavailable, 1) == true)) {
+            if ((ReadBits(BitIOMSByte, BitIOLSBit, BitB, 24, true) == 0x000000) && (IsStreamByteAligned(BitB->BitsUnavailable, 1) == true)) {
                 
                 
             }
@@ -270,7 +270,7 @@ extern "C" {
         AlignBitBuffer(BitB, 1); // rbsp_trailing_bits();
         if (Dec->PPS->EntropyCodingMode == Arithmetic) {
             while (more_rbsp_trailing_data()) {
-                Dec->PPS->CABACZeroWord = ReadBits(BitB, 16, true); /* equal to 0x0000 */
+                Dec->PPS->CABACZeroWord = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 16); /* equal to 0x0000 */
             }
         }
     }
@@ -402,7 +402,7 @@ extern "C" {
         
         for (uint64_t J = 0; J < ScalingListSize; J++) {
             if (NextScale != 0) {
-                DeltaScale = ReadExpGolomb(BitB, true);
+                DeltaScale = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true);
                 NextScale  = (LastScale + DeltaScale + 256) % 256;
                 UseDefaultScalingMatrixFlag = (J == 0 && NextScale == 0);
             }
@@ -510,7 +510,7 @@ extern "C" {
         uint8_t mantissaPred, mantissa_diff, exponent1;
         
         if (numViews - DeltaFlag > 1) {
-            element_equal_flag = ReadBits(BitB, 1, true);
+            element_equal_flag = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
         }
         if (element_equal_flag == false) {
             numValues = numViews - DeltaFlag;
@@ -520,16 +520,16 @@ extern "C" {
         for (uint8_t Value = 0; Value < numValues; Value++) {
             if ((PredDirection == 2) && (Value = 0)) {
                 if (precMode == 0) {
-                    matissa_len_minus1 = ReadBits(BitB, 5, true) + 1;
+                    matissa_len_minus1 = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 5) + 1;
                     OutManLen[index, Value] = manLen = matissa_len_minus1;
                 } else {
-                    prec = ReadBits(BitB, 5, true);
+                    prec = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 5);
                 }
             }
             if (PredDirection == 2) {
-                sign0 = ReadBits(BitB, 1, true);
+                sign0 = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
                 OutSign[index, Value] = sign0;
-                exponent0 = ReadExpGolomb(BitB, false);
+                exponent0 = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
                 
                 OutExp[index, Value] = exponent0;
                 if (precMode == 1) {
@@ -539,21 +539,21 @@ extern "C" {
                         OutManLen[index, Value] = manLen = Max(0, exponent0 + prec - 31);
                     }
                 }
-                mantissa0 = ReadBits(BitB, manLen, true);
+                mantissa0 = ReadBits(BitIOMSByte, BitIOLSBit, BitB, manLen);
                 OutMantissa[index, Value] = mantissa0;
             } else {
-                skip_flag = ReadBits(BitB, 1, true);
+                skip_flag = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
                 if (skip_flag == 0) {
-                    sign1 = ReadBits(BitB, 1, true);
+                    sign1 = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
                     OutSign[index, Value] = sign1;
-                    exponent_skip_flag = ReadBits(BitB, 1, true);
+                    exponent_skip_flag = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
                     if (exponent_skip_flag == 0) {
-                        exponent1 = ReadBits(BitB, expLen, true);
+                        exponent1 = ReadBits(BitIOMSByte, BitIOLSBit, BitB, expLen);
                         OutExp[index, Value] = exponent1;
                     } else {
                         OutExp[index, Value] = OutExp[Dec->DPS->ReferenceDPSID[1], Value];
                     }
-                    mantissa_diff = ReadExpGolomb(BitB, true);
+                    mantissa_diff = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true);
                     mantissaPred = ((OutMantissa[Dec->DPS->ReferenceDPSID[1], Value] * Dec->DPS->PredictedWeight0 + OutMantissa[Dec->DPS->ReferenceDPSID[1], Value] * (64 - Dec->DPS->PredictedWeight0) + 32) >> 6);
                     OutMantissa[index, Value] = mantissaPred + mantissa_diff;
                     OutManLen[index, Value] = OutManLen[Dec->DPS->ReferenceDPSID[1], Value];
@@ -576,8 +576,8 @@ extern "C" {
     }
     
     uint64_t DepthRanges(BitBuffer *BitB, uint64_t NumberOfViews, bool PredDirection, uint64_t Index) { // depth_ranges
-        bool NearFlag = ReadBits(BitB, 1, true);
-        bool FarFlag  = ReadBits(BitB, 1, true);
+        bool NearFlag = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
+        bool FarFlag  = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
         
         if (NearFlag == true) {
             AcquisitionElement3DV(NumberOfViews, 0, PredDirection, 7, 0, ZNearSign, ZNearExp, ZNearMantissa, ZNearManLen)
@@ -591,10 +591,10 @@ extern "C" {
     void vsp_param(DecodeAVC *Dec, BitBuffer *BitB, uint8_t numViews, uint8_t Direction, uint8_t DepthPS) { // vsp_param
         for (uint8_t View = 0; View < numViews; View++) { // Param
             for (uint8_t J = 0; J < View; J++) { // Wat
-                int disparity_diff_wji[J][View] = ReadExpGolomb(BitB, false);
-                int disparity_diff_oji[J][View] = ReadExpGolomb(BitB, false);
-                int disparity_diff_wij[View][J] = ReadExpGolomb(BitB, false);
-                int disparity_diff_oij[View][J] = ReadExpGolomb(BitB, false);
+                int disparity_diff_wji[J][View] = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
+                int disparity_diff_oji[J][View] = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
+                int disparity_diff_wij[View][J] = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
+                int disparity_diff_oij[View][J] = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
                 if (Direction == 2) { /* Not 100% sure about the if loop part, but it makes more sense than for alone */
                     Dec->DisparityScale[DepthPS][J][View] = disparity_diff_wji[J][View];
                     Dec->DisparityOffset[DepthPS][J][View] = disparity_ diff_oji[J][View];
@@ -612,28 +612,28 @@ extern "C" {
     
     void RefPicListMVCMod(DecodeAVC *Dec, BitBuffer *BitB) { // ref_pic_list_mvc_modification
         if (((Dec->Slice->Type % 5) != 2) && ((Dec->Slice->Type % 5) != 4)) {
-            Dec->Slice->RefPicListModFlag[0] = ReadBits(BitB, 1, true);
+            Dec->Slice->RefPicListModFlag[0] = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
             if (Dec->Slice->RefPicListModFlag[0] == true) {
-                Dec->Slice->ModPicNumsIDC = ReadExpGolomb(BitB, false);
+                Dec->Slice->ModPicNumsIDC = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
                 if ((Dec->Slice->ModPicNumsIDC == 0) || (Dec->Slice->ModPicNumsIDC == 1)) {
-                    Dec->Slice->AbsDiffPicNum = ReadExpGolomb(BitB, true) + 1;
+                    Dec->Slice->AbsDiffPicNum = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true) + 1;
                 } else if (Dec->Slice->ModPicNumsIDC == 2) {
-                    Dec->Slice->LongTermPicNum = ReadExpGolomb(BitB, false);
+                    Dec->Slice->LongTermPicNum = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
                 } else if ((Dec->Slice->ModPicNumsIDC == 4) || (Dec->Slice->ModPicNumsIDC == 5)) {
-                    Dec->Slice->AbsDiffViewIdx = ReadExpGolomb(BitB, false) + 1;
+                    Dec->Slice->AbsDiffViewIdx = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false) + 1;
                 }
             }
         }
         if ((Dec->Slice->Type % 5) == 1) {
-            Dec->Slice->RefPicListModFlag[1] = ReadBits(BitB, 1, true);
+            Dec->Slice->RefPicListModFlag[1] = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
             if (Dec->Slice->RefPicListModFlag[1] == true) {
-                Dec->Slice->ModPicNumsIDC = ReadExpGolomb(BitB, false);
+                Dec->Slice->ModPicNumsIDC = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
                 if ((Dec->Slice->ModPicNumsIDC == 0) || (Dec->Slice->ModPicNumsIDC == 1)) {
-                    Dec->Slice->AbsDiffPicNum = ReadExpGolomb(BitB, true) + 1;
+                    Dec->Slice->AbsDiffPicNum = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true) + 1;
                 } else if (Dec->Slice->ModPicNumsIDC == 2) {
-                    Dec->Slice->LongTermPicNum = ReadExpGolomb(BitB, false);
+                    Dec->Slice->LongTermPicNum = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
                 } else if ((Dec->Slice->ModPicNumsIDC == 4) || (Dec->Slice->ModPicNumsIDC == 5)) {
-                    Dec->Slice->AbsDiffViewIdx = ReadExpGolomb(BitB, false) + 1;
+                    Dec->Slice->AbsDiffViewIdx = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false) + 1;
                 }
             }
         }
@@ -641,67 +641,67 @@ extern "C" {
     
     void RefPicListMod(DecodeAVC *Dec, BitBuffer *BitB) { // ref_pic_list_modification
         if (((Dec->Slice->Type % 5) != 2) && ((Dec->Slice->Type % 5) != 4)) {
-            Dec->Slice->RefPicListModFlag[0] = ReadBits(BitB, 1, true);
+            Dec->Slice->RefPicListModFlag[0] = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
             if (Dec->Slice->RefPicListModFlag[0] == true) {
-                Dec->Slice->ModPicNumsIDC = ReadExpGolomb(BitB, false);
+                Dec->Slice->ModPicNumsIDC = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
                 if ((Dec->Slice->ModPicNumsIDC == 0) || (Dec->Slice->ModPicNumsIDC == 1)) {
-                    Dec->Slice->AbsDiffPicNum = ReadExpGolomb(BitB, true) + 1;
+                    Dec->Slice->AbsDiffPicNum = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true) + 1;
                 } else if (Dec->Slice->ModPicNumsIDC == 2) {
-                    Dec->Slice->LongTermPicNum = ReadExpGolomb(BitB, false);
+                    Dec->Slice->LongTermPicNum = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
                 } else if ((Dec->Slice->ModPicNumsIDC == 4) || (Dec->Slice->ModPicNumsIDC == 5)) {
-                    Dec->Slice->AbsDiffViewIdx = ReadExpGolomb(BitB, false) + 1;
+                    Dec->Slice->AbsDiffViewIdx = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false) + 1;
                 }
             }
         }
         if ((Dec->Slice->Type % 5) == 1) {
-            Dec->Slice->RefPicListModFlag[1] = ReadBits(BitB, 1, true);
+            Dec->Slice->RefPicListModFlag[1] = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
             if (Dec->Slice->RefPicListModFlag[1] == true) {
-                Dec->Slice->ModPicNumsIDC = ReadExpGolomb(BitB, false);
+                Dec->Slice->ModPicNumsIDC = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
                 if ((Dec->Slice->ModPicNumsIDC == 0) || (Dec->Slice->ModPicNumsIDC == 1)) {
-                    Dec->Slice->AbsDiffPicNum = ReadExpGolomb(BitB, true) + 1;
+                    Dec->Slice->AbsDiffPicNum = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true) + 1;
                 } else if (Dec->Slice->ModPicNumsIDC == 2) {
-                    Dec->Slice->LongTermPicNum = ReadExpGolomb(BitB, false);
+                    Dec->Slice->LongTermPicNum = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
                 } else if ((Dec->Slice->ModPicNumsIDC == 4) || (Dec->Slice->ModPicNumsIDC == 5)) {
-                    Dec->Slice->AbsDiffViewIdx = ReadExpGolomb(BitB, false) + 1;
+                    Dec->Slice->AbsDiffViewIdx = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false) + 1;
                 }
             }
         }
     }
     
     void pred_weight_table(DecodeAVC *Dec, BitBuffer *BitB) { // pred_weight_table
-        Dec->Slice->LumaWeightDenom = ReadExpGolomb(BitB, true);
+        Dec->Slice->LumaWeightDenom = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true);
         if (Dec->SPS->ChromaArrayType != ChromaBW) {
-            Dec->Slice->ChromaWeightDenom = ReadExpGolomb(BitB, false);
+            Dec->Slice->ChromaWeightDenom = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
         }
         for (uint8_t i = 0; i <= Dec->MacroBlock->NumRefIndexActive[0]; i++) {
-            Dec->Slice->LumaWeightFlag[0] = ReadBits(BitB, 1, true);
+            Dec->Slice->LumaWeightFlag[0] = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
             if (Dec->Slice->LumaWeightFlag[0] == true) {
-                Dec->Slice->LumaWeight[0][i]  = ReadExpGolomb(BitB, true);
-                Dec->Slice->LumaOffset[0][i]  = ReadExpGolomb(BitB, true);
+                Dec->Slice->LumaWeight[0][i]  = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true);
+                Dec->Slice->LumaOffset[0][i]  = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true);
             }
             if (Dec->SPS->ChromaArrayType != ChromaBW) {
-                Dec->Slice->ChromaWeightFlag[0] = ReadBits(BitB, 1, true);
+                Dec->Slice->ChromaWeightFlag[0] = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
                 if (Dec->Slice->ChromaWeightFlag[0] == true) {
                     for (int J = 0; J < 2; J++) {
-                        Dec->Slice->ChromaWeight[0][i][J] = ReadExpGolomb(BitB, true);
-                        Dec->Slice->ChromaOffset[0][i][J] = ReadExpGolomb(BitB, true);
+                        Dec->Slice->ChromaWeight[0][i][J] = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true);
+                        Dec->Slice->ChromaOffset[0][i][J] = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true);
                     }
                 }
             }
         }
         if ((Dec->Slice->Type % 5) == 1) {
             for (uint8_t i = 0; i <= Dec->MacroBlock->NumRefIndexActive[1]; i++) {
-                Dec->Slice->LumaWeightFlag[1] = ReadBits(BitB, 1, true);
+                Dec->Slice->LumaWeightFlag[1] = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
                 if (Dec->Slice->LumaWeightFlag[1] == true) {
-                    Dec->Slice->LumaWeight[1][i]  = ReadExpGolomb(BitB, true);
-                    Dec->Slice->LumaOffset[1][i]  = ReadExpGolomb(BitB, true);
+                    Dec->Slice->LumaWeight[1][i]  = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true);
+                    Dec->Slice->LumaOffset[1][i]  = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true);
                 }
                 if (Dec->SPS->ChromaArrayType != ChromaBW) {
-                    Dec->Slice->ChromaWeightFlag[1] = ReadBits(BitB, 1, true);
+                    Dec->Slice->ChromaWeightFlag[1] = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
                     if (Dec->Slice->ChromaWeightFlag[1] == true) {
                         for (uint8_t J = 0; J < 2; J++) {
-                            Dec->Slice->ChromaWeight[1][i][J] = ReadExpGolomb(BitB, true);
-                            Dec->Slice->ChromaOffset[1][i][J] = ReadExpGolomb(BitB, true);
+                            Dec->Slice->ChromaWeight[1][i][J] = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true);
+                            Dec->Slice->ChromaOffset[1][i][J] = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true);
                         }
                     }
                 }
@@ -711,23 +711,23 @@ extern "C" {
     
     void DecodeRefPicMarking(DecodeAVC *Dec, BitBuffer *BitB) { // dec_ref_pic_marking
         if (Dec->Slice->SliceIsIDR == true) {
-            Dec->NAL->EmptyPictureBufferBeforeDisplay = ReadBits(BitB, 1, true);
-            Dec->NAL->FrameIsLongTermReference        = ReadBits(BitB, 1, true);
+            Dec->NAL->EmptyPictureBufferBeforeDisplay = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
+            Dec->NAL->FrameIsLongTermReference        = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
         } else {
-            Dec->NAL->AdaptiveRefPicMarkingModeFlag   = ReadBits(BitB, 1, true);
+            Dec->NAL->AdaptiveRefPicMarkingModeFlag   = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
             if (Dec->NAL->AdaptiveRefPicMarkingModeFlag == true) {
-                Dec->NAL->MemManControlOp = ReadExpGolomb(BitB, false);
+                Dec->NAL->MemManControlOp = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
                 if ((Dec->NAL->MemManControlOp == 1) || (Dec->NAL->MemManControlOp == 3)) {
-                    Dec->NAL->PicNumDiff = ReadExpGolomb(BitB, false) + 1;
+                    Dec->NAL->PicNumDiff = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false) + 1;
                 }
                 if (Dec->NAL->MemManControlOp == 2) {
-                    Dec->Slice->LongTermPicNum  = ReadExpGolomb(BitB, false);
+                    Dec->Slice->LongTermPicNum  = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
                 }
                 if ((Dec->NAL->MemManControlOp == 3) || (Dec->NAL->MemManControlOp == 6)) {
-                    Dec->NAL->LongTermFrameIndex = ReadExpGolomb(BitB, false);
+                    Dec->NAL->LongTermFrameIndex = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
                 }
                 if (Dec->NAL->MemManControlOp == 4) {
-                    Dec->NAL->MaxLongTermFrameIndex = ReadExpGolomb(BitB, false) - 1;
+                    Dec->NAL->MaxLongTermFrameIndex = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false) - 1;
                 }
             }
         }
@@ -785,7 +785,7 @@ extern "C" {
     void residual_block_cavlc(DecodeAVC *Dec, BitBuffer *BitB, int coeffLevel, int startIdx, int endIdx, int maxNumCoeff) { // residual_block_cavlc
         int coeffLevel[maxNumCoeff] = {0}, coeff_token, suffixLength, trailing_ones_sign_flag;
         
-        coeff_token = ReadExpGolomb(BitB, false);
+        coeff_token = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
         if (TotalCoeff(coeff_token) > 0) {
             if ((TotalCoeff(coeff_token) > 10) && (TrailingOnes(coeff_token) < 3)) {
                 suffixLength = 1;
@@ -794,13 +794,13 @@ extern "C" {
             }
             for (int Coeff = 0; Coeff < TotalCoeff(coeff_token); Coeff++) {
                 if (Coeff < TrailingOnes(coeff_token)) {
-                    trailing_ones_sign_flag = ReadBits(BitB, 1, true);
+                    trailing_ones_sign_flag = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
                     levelVal[i] = 1 - 2 * trailing_ones_sign_flag;
                 } else {
-                    level_prefix = ReadExpGolomb(BitB, false);
+                    level_prefix = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
                     levelCode = (Min(15, level_prefix) << suffixLength);
                     if ((suffixLength > 0) || (level_prefix >= 14)) {
-                        level_suffix = ReadBits(BitB, 0, true);
+                        level_suffix = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 0);
                         levelCode += level_suffix;
                     }
                     if (level_prefix > = 15 && suffixLength == 0) {
@@ -825,14 +825,14 @@ extern "C" {
                     }
                 }
                 if (TotalCoeff(coeff_token) < endIdx - startIdx + 1) { // FIXME: this may need to be moved
-                    total_zeros = ReadExpGolomb(BitB, false);
+                    total_zeros = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
                     zerosLeft = total_zeros;
                 } else {
                     zerosLeft = 0;
                 }
                 for (i = 0; i < TotalCoeff(coeff_token) - 1; i++) {
                     if(zerosLeft > 0) {
-                        run_before = ReadExpGolomb(BitB, false);
+                        run_before = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
                         runVal[i] = run_before;
                     } else {
                         runVal[i] = 0;
@@ -918,7 +918,7 @@ extern "C" {
         int next_scale = 8;
         for (int Scale = 0; Scale < sizeOfScalingList; Scale++) {
             if (next_scale != 0) {
-                delta_scale                 = ReadExpGolomb(BitB, true);
+                delta_scale                 = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true);
                 nextScale                   = (last_scale + delta_scale + 256) % 256;
                 useDefaultScalingMatrixFlag = (Scale == 0 && next_scale == 0);
             }
@@ -934,7 +934,7 @@ extern "C" {
     
     void rbsp_trailing_bits(DecodeAVC *Dec, BitBuffer *BitB) { // rbsp_trailing_bits
         bool rbsp_stop_one_bit = 0;
-        rbsp_stop_one_bit = ReadBits(BitB, 1, true);
+        rbsp_stop_one_bit = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1, true);
         AlignBitBuffer(BitB, 1); // while( !byte_aligned( ) )
                              // rbsp_alignment_zero_bit
     }

@@ -151,28 +151,6 @@ extern "C" {
         return 0;
     }
     
-    uint8_t NumberOfMacroBlockPartitions(uint8_t MacroBlockType) { // NumMbPart
-        
-    }
-    
-    uint8_t NumberOfSubMacroBlockPartitions() { // NumSubMbPart
-        bool IsDirectFlag = 0;
-        
-        if (mbType[CurrMbAddr] == B_Skip || mbType[CurrMbAddr] == B_Direct_16x16) {
-            IsDirectFlag = true;
-        } else if (mbType[CurrMbAddr] == B_8x8 && subMbType[CurrMbAddr][mbPartIdx] == B_Direct_8x8) {
-            IsDirectFlag = true;
-        }
-        
-        if (IsDirectFlag == true && DQID == 0 && nal_unit_type != NAL_AuxiliarySliceExtension) {
-            return 4;
-        } else if (IsDirectFlag == true && DQID > 0 && nal_unit_type == NAL_AuxiliarySliceExtension) {
-            return 1;
-        } else if (IsDirectFlag == 0) {
-            return NumSubMbPart(subMbType[CurrMbAddr][mbPartIdx]);
-        }
-    }
-    
     size_t GetSizeOfNALUnit(DecodeAVC *Dec, BitBuffer *BitB) {
         
     }

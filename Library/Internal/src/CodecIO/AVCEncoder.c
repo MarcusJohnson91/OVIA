@@ -147,7 +147,7 @@ extern "C" {
             AlignBitBuffer(BitB, 1); // rbsp_trailing_bits();
             if (Enc->PPS->EntropyCodingMode == Arithmetic) {
                 while (more_rbsp_trailing_data()) {
-                    uint16_t CABACZeroWord = ReadBits(BitB, 16, true); /* equal to 0x0000 */
+                    uint16_t CABACZeroWord = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 16); /* equal to 0x0000 */
                 }
             }
         }

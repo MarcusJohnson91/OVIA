@@ -91,17 +91,17 @@ extern "C" {
             if (Dec->SPS->PicOrderCount == false) {
                 Dec->Slice->PictureOrderCountLSB = ReadBits(BitIOMSByte, BitIOLSBit, BitB, Dec->SPS->MaxPicOrder);
                 if ((Dec->PPS->BottomPicFieldOrderInSliceFlag == true) && (Dec->Slice->SliceIsInterlaced == false)) {
-                    Dec->Slice->DeltaPictureOrderCountBottom[1] = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB);
+                    Dec->Slice->DeltaPictureOrderCountBottom[1] = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true);
                 }
             }
             if ((Dec->SPS->PicOrderCount == true) && (Dec->SPS->DeltaPicOrder == false)) {
-                Dec->Slice->DeltaPictureOrderCountBottom[0] = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB);
+                Dec->Slice->DeltaPictureOrderCountBottom[0] = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true);
                 if ((Dec->PPS->BottomPicFieldOrderInSliceFlag == true) && (Dec->Slice->SliceIsInterlaced == false)) {
-                    Dec->Slice->DeltaPictureOrderCountBottom[1] = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB);
+                    Dec->Slice->DeltaPictureOrderCountBottom[1] = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true);
                 }
             }
             if (Dec->PPS->RedundantPictureFlag == true) {
-                Dec->PPS->RedundantPictureCount = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB);
+                Dec->PPS->RedundantPictureCount = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true);
             }
             if ((Dec->Slice->Type == SliceB1) || (Dec->Slice->Type == SliceB2)) {
                 Dec->Slice->DirectSpatialMVPredictionFlag = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
@@ -128,19 +128,19 @@ extern "C" {
             }
             if ((Dec->PPS->EntropyCodingMode == ExpGolomb) && ((Dec->Slice->Type != SliceI1) || (Dec->Slice->Type != SliceI2))) {
                 Dec->Slice->CabacInitIDC = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
-                Dec->Slice->SliceQPDelta = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB);
+                Dec->Slice->SliceQPDelta = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true);
             }
             // FIXME: Should SliceQPDelta be here?
             if ((Dec->Slice->Type == SliceSP1) || (Dec->Slice->Type == SliceSP2) || (Dec->Slice->Type == SliceSI1) || (Dec->Slice->Type == SliceSI2)) {
                 if ((Dec->Slice->Type == SliceSP1) || (Dec->Slice->Type == SliceSP2)) {
                     Dec->Slice->DecodePMBAsSPSlice = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
-                    Dec->Slice->SliceQSDelta = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB);
+                    Dec->Slice->SliceQSDelta = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true);
                 }
                 if (Dec->PPS->DeblockingFilterFlag == true) {
                     Dec->Slice->DisableDeblockingFilterIDC = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
                     if (Dec->Slice->DisableDeblockingFilterIDC == false) {
-                        Dec->Slice->SliceAlphaOffsetC0 = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB);
-                        Dec->Slice->SliceBetaOffset    = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB);
+                        Dec->Slice->SliceAlphaOffsetC0 = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true);
+                        Dec->Slice->SliceBetaOffset    = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true);
                     }
                 }
                 if ((Dec->PPS->SliceGroups > 0) && (Dec->PPS->SliceGroupMapType >= 3) && (Dec->PPS->SliceGroupMapType <= 5)) {
@@ -192,12 +192,12 @@ extern "C" {
         if (Dec->SPS->PicOrderCount == 0) {
             Dec->Slice->PictureOrderCountLSB = ReadBits(BitIOMSByte, BitIOLSBit, BitB, Dec->SPS->MaxPicOrder);
             if ((Dec->PPS->BottomPicFieldOrderInSliceFlag == true) && (Dec->Slice->SliceIsInterlaced == false)) {
-                Dec->Slice->DeltaPictureOrderCountBottom[0] = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB);
+                Dec->Slice->DeltaPictureOrderCountBottom[0] = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true);
             }
         } else if ((Dec->SPS->PicOrderCount == 1) && (Dec->SPS->DeltaPicOrder == 0)) {
-            Dec->Slice->DeltaPicOrderCount[0] = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB);
+            Dec->Slice->DeltaPicOrderCount[0] = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true);
             if ((Dec->PPS->BottomPicFieldOrderInSliceFlag == true) && (Dec->Slice->SliceIsInterlaced == false)) {
-                Dec->Slice->DeltaPicOrderCount[1] = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB);
+                Dec->Slice->DeltaPicOrderCount[1] = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true);
             }
         }
         if (Dec->PPS->RedundantPictureFlag == true) {
@@ -238,12 +238,12 @@ extern "C" {
         if ((Dec->PPS->EntropyCodingMode == true) && ((Dec->Slice->Type != SliceEI1) || (Dec->Slice->Type != SliceEI2))) {
             Dec->Slice->CabacInitIDC = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
         }
-        Dec->Slice->SliceQPDelta = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB);
+        Dec->Slice->SliceQPDelta = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true);
         if (Dec->PPS->DeblockingFilterFlag == true) {
             Dec->Slice->DisableDeblockingFilterIDC = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
             if (Dec->Slice->DisableDeblockingFilterIDC != 1) {
-                Dec->Slice->SliceAlphaOffsetC0 = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB);
-                Dec->Slice->SliceBetaOffset    = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB);
+                Dec->Slice->SliceAlphaOffsetC0 = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true);
+                Dec->Slice->SliceBetaOffset    = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true);
             }
         }
         if ((Dec->PPS->SliceGroups > 0) && ((Dec->PPS->SliceGroupMapType >= 3) && (Dec->PPS->SliceGroupMapType <= 5))) {
@@ -254,8 +254,8 @@ extern "C" {
             if (Dec->SVC->InterLayerDeblockingFilterPresent == true) {
                 Dec->Slice->DisableInterLayerDeblocking = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
                 if (Dec->Slice->DisableInterLayerDeblocking != 1) {
-                    Dec->Slice->InterLayerSliceAplhaC0Offset = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB);
-                    Dec->Slice->InterLayerSliceBetaOffset    = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB);
+                    Dec->Slice->InterLayerSliceAplhaC0Offset = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true);
+                    Dec->Slice->InterLayerSliceBetaOffset    = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true);
                 }
             }
             Dec->Slice->ConstrainedIntraResamplingFlag = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
@@ -268,12 +268,12 @@ extern "C" {
                 if (Dec->SPS->ChromaArrayType > ChromaBW) {
                     ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
                     Dec->Slice->RefLayerChromaPhaseXFlag = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
-                    Dec->Slice->RefLayerChromaPhaseY     = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 2, true) - 1;
+                    Dec->Slice->RefLayerChromaPhaseY     = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 2) - 1;
                 }
-                Dec->Slice->ScaledRefLayerLeftOffset     = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB);
-                Dec->Slice->ScaledRefLayerTopOffset      = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB);
-                Dec->Slice->ScaledRefLayerRightOffset    = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB);
-                Dec->Slice->ScaledRefLayerBottomOffset   = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB);
+                Dec->Slice->ScaledRefLayerLeftOffset     = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true);
+                Dec->Slice->ScaledRefLayerTopOffset      = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true);
+                Dec->Slice->ScaledRefLayerRightOffset    = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true);
+                Dec->Slice->ScaledRefLayerBottomOffset   = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true);
             }
         }
         if (Dec->NAL->NoInterLayerPredictionFlag == true) {
