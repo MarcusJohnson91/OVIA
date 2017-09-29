@@ -175,40 +175,40 @@ extern "C" {
             } else if (ChunkSize == 40) {
                 // WORD = uint16_t
                 // DWORD = uint32_t
-                uint16_t wFormatTag      = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
-                uint16_t nChannels       = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
-                uint32_t nSamplesPerSec  = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-                uint32_t nAvgBytesPerSec = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-                uint16_t nBlockAlign     = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
-                uint16_t wBitsPerSample  = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
-                uint16_t cbSize          = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
+                uint16_t wFormatTag         = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
+                uint16_t nChannels          = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
+                uint32_t nSamplesPerSec     = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
+                uint32_t nAvgBytesPerSec    = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
+                uint16_t nBlockAlign        = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
+                uint16_t wBitsPerSample     = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
+                uint16_t cbSize             = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
             }
             
             if (ChunkSize > 16) {
-                PCM->FMTType            = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
+                PCM->FileFormat             = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
             }
-            PCM->WAVW64FormatType       = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
-            PCM->NumChannels            = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
-            PCM->SampleRate             = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-            PCM->ByteRate               = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-            PCM->BlockSize              = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
-            PCM->BitDepth               = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
-            if (PCM->FMTType == WAVFormatExtensible) {
-                PCM->ExtensionSize      = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
-                PCM->ValidBitsPerSample = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
-                PCM->SpeakerMask        = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-                SkipBits(BitB, PCM->ExtensionSize - 8); // 8 bytes from ^
+            PCM->WAVW64FormatType           = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
+            PCM->NumChannels                = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
+            PCM->SampleRate                 = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
+            uint32_t ByteRate               = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
+            uint16_t BlockSize              = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
+            PCM->BitDepth                   = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
+            if (PCM->FileFormat == WAVFormatExtensible) {
+                uint16_t ExtensionSize      = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
+                uint16_t ValidBitsPerSample = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
+                uint32_t SpeakerMask        = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
+                SkipBits(BitB, ExtensionSize - 8); // 8 bytes from ^
             }
         }
     }
     
     void WAVExtractSamples(PCMFile *PCM, BitBuffer *BitB, uint64_t NumSamples2Extract) {
-        for (uint8_t Channel = 0; Channel < PCM->Channels; Channel++) {
+        PCM->Samples = calloc(1, NumSamples2Extract * BitDepth2SampleSizeInBytes[PCM->BitDepth] * PCM->NumChannels);
+        for (uint64_t Channel = 0; Channel < PCM->NumChannels; Channel++) {
             for (uint64_t Sample = 0; Sample < NumSamples2Extract; Sample++) {
-                Samples[Channel][Sample] = ReadBits(BitIOLSByte, BitIOLSBit, BitB, BitDepth2SampleSizeInBytes[BitDepth]);
+                PCM->Samples[Channel][Sample] = ReadBits(BitIOLSByte, BitIOLSBit, BitB, BitDepth2SampleSizeInBytes[PCM->BitDepth]);
             }
         }
-        NumSamples = NumSamples2Extract;
     }
     
 #ifdef __cplusplus

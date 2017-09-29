@@ -11,16 +11,6 @@
 extern "C" {
 #endif
     
-    enum PXMMagic {
-        PortableBitMap1  = 0x5031, // P1 or P4
-        PortableBitMap2  = 0x5034,
-        PortableGrayMap1 = 0x5032, // P2 or P5
-        PortableGrayMap2 = 0x5035,
-        PortablePixMap1  = 0x5033, // P3 or P6
-        PortablePixMap2  = 0x5036,
-        PortableAnyMap   = 0x5037, // P7
-    };
-    
     struct PXMHeader {
         uint64_t Width;
         uint64_t Height;

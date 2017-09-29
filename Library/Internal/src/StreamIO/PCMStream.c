@@ -21,7 +21,7 @@ extern "C" {
         
         if (FileMagic16 == BMP_BM) {
             PCM->FileFormat = BMPFormat;
-        } else if (FileMagic16 == PXM_P1 || FileMagic16 == PXM_P2 || FileMagic16 == PXM_P3 || FileMagic16 == PXM_P4 || FileMagic16 == PXM_P5 || FileMagic16 == PXM_P6 || FileMagic16 == PXM_P7) {
+        } else if (FileMagic16 == PortableBitMap1 || FileMagic16 == PortableBitMap2 || FileMagic16 == PortablePixMap1 || FileMagic16 == PortablePixMap2 || FileMagic16 == PortableGrayMap1 || FileMagic16 == PortableGrayMap2 || FileMagic16 == PortableAnyMap) {
             PCM->FileFormat = PXMFormat;
         } else if (FileMagic32 == AIF_FORM) {
             PCM->FileFormat = AIFFormat;
@@ -88,8 +88,18 @@ extern "C" {
             Log(LOG_ERR, "libPCM", "ExtractSamples", "Requested too few samples %d", NumSamples2Extract);
         } else {
             // just read the requested samples
-            if (PCM->FileType == WAV_File) {
+            if (PCM->FileFormat == WAVFormat) {
                 WAVExtractSamples(PCM, BitB, NumSamples2Extract);
+            } else if (PCM->FileFormat == W64Format) {
+                
+            } else if (PCM->FileFormat == AIFFormat) {
+                
+            } else if (PCM->FileFormat == PXMFormat) {
+                
+            } else if (PCM->FileFormat == BMPFormat) {
+                
+            } else {
+                Log(LOG_ERR, "libPCM", "ExtractSamples", "Unknown file format, Magic: 0x%X", PCM->FileFormat);
             }
         }
     }
@@ -127,15 +137,15 @@ extern "C" {
         }
     }
     
-    void ParseAIFFChunk(BitBuffer *BitB, AIFHeader *AIF) {
+    void ParseAIFFChunk(PCMFile *PCM, BitBuffer *BitB) {
         
     }
     
-    void ParseAIFCChunk(BitBuffer *BitB, AIFHeader *AIF) {
+    void ParseAIFCChunk(PCMFile *PCM, BitBuffer *BitB) {
         
     }
     
-    void ParseAIFFile(BitBuffer *BitB, AIFHeader *AIF) {
+    void ParseAIFFile(PCMFile *PCM, BitBuffer *BitB) {
         // if NumFrames = 0, SNSD may not exist.
         uint32_t AIFSize = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
         uint32_t ChunkID = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);

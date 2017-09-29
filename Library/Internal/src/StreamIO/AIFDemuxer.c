@@ -14,7 +14,7 @@ extern "C" {
         while (SSNDFound == false) {
             for (uint64_t FileByte = 0; FileByte < PCM->FileSize; FileByte++) {
                 // Loop over all chunks until the SSND one is found
-                uint32_t AIFFChunkID           = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32, true);
+                uint32_t AIFFChunkID           = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
                 if (AIFFChunkID == AIF_NAME) {
                     ParseAIFNameChunk(PCM, BitB);
                 } else if (AIFFChunkID == AIF_COMM) {

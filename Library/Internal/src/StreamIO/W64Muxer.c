@@ -30,13 +30,13 @@ extern "C" {
     void WriteW64Header(PCMFile *PCM, BitBuffer *BitB) {
         WriteGUUID(BitIOUUIDString, BitB, W64_RIFF_GUIDString);
         // Write the size of the file including all header fields
-        uint64_t W64Size = (PCM->NumSamples * PCM->NumChannels * PCM->BitDepth) + W64HeaderSize;
+        uint64_t W64Size = (PCM->NumSamples * PCM->NumChannels * PCM->BitDepth);
         WriteBits(BitIOLSByte, BitIOLSBit, BitB, 64, W64Size);
         WriteGUUID(BitIOUUIDString, BitB, W64_WAVE_GUIDString);
         WriteGUUID(BitIOUUIDString, BitB, W64_FMT_GUIDString);
         uint64_t FMTSize = 40;
         WriteBits(BitIOLSByte, BitIOLSBit, BitB, 64, FMTSize);
-        WriteW64FMT(W64, BitB);
+        WriteW64FMT(PCM, BitB);
         WriteGUUID(BitIOUUIDString, BitB, W64_DATA_GUIDString);
         WriteBits(BitIOLSByte, BitIOLSBit, BitB, 64, PCM->NumSamples);
     }

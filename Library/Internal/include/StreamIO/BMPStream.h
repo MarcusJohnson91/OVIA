@@ -9,10 +9,6 @@
 extern "C" {
 #endif
     
-    enum BMPMagic {
-        BM = 0x424D,
-    };
-    
     struct BMPHeader {
         uint16_t Magic;
         uint32_t FileSize;
