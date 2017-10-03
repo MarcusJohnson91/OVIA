@@ -160,7 +160,7 @@ extern "C" {
             // find the rightmost 1 bit, Given the position of this bit, which is the first bit (rbsp_stop_one_bit) of the rbsp_trailing_bits( ) syntax structure
         }
     }
-
+    
 #ifdef __cplusplus
 }
 #endif

@@ -1,8 +1,8 @@
 #include "../../include/Private/Common/libModernAVC_Types.h"
 #include "../../include/Private/Common/libModernAVC_Common.h"
 #include "../../include/Private/Decode/libModernAVC_Decode.h"
-#include "../../include/Private/Decode/libModernAVC_DecodeMacroBlock.h"
-#include "../../include/Private/Decode/libModernAVC_DecodeSlice.h"
+#include "../../include/Private/Decode/libModernAVC_ParseMacroBlock.h"
+#include "../../include/Private/Decode/libModernAVC_ParseSlice.h"
 #include "../../include/Private/Decode/libModernAVC_ParseNAL.h"
 
 #ifdef __cplusplus
@@ -29,99 +29,99 @@ extern "C" {
     
     // MVCD  = Multi-View Coding with Depth, aka 3D.
     // AVC3D =
-
+    
     // Basically I need to parse the NAL bytestream into the VCL (Video Coding Layer) aka Samples.
     
     // Find AVCMagic, then Find the NAL Size, then Parse the NAL, everything after step 1 needs to be on a loop.
     /*
-    size_t FindNALSize(DecodeAVC *Dec, BitBuffer *BitB) {
-        size_t   StartBufferPosition, EndOfBufferPosition, NALSize;
-        bool     StreamIsByteAligned, NotEOF;
-        uint32_t Marker;
-        
-        StartBufferPosition = GetBitBufferPosition(BitB) + Bits2Bytes(GetBitBufferPosition(BitB), false);
-        StreamIsByteAligned = IsBitBufferAligned(BitB, 4);
-        NotEOF              = GetBitBufferPosition(BitB) < GetBitBufferSize(BitB) ? false : true;
-        Marker              = PeekBits(BitB, 24, true);
-        
-        if ((NotEOF == true && StreamIsByteAligned == true && ((Marker == 0x000000) || (Marker == 0x000001)))) {
-            // Found the end of the NAL, record the size
-            // This is gonna thrash the shit outta the buffer tho...
-            EndOfBufferPosition = ftell(BitB->File) + Bits2Bytes(BitB->BitsUnavailable, true);
-            NALSize = EndOfBufferPosition - StartBufferPosition;
-            //UpdateInputBuffer(BitB, -NALSize); // Go back to the start of the NAL in order to read it.
-        } else {
-            SkipBits(BitB, 24);
-        }
-        return NALSize;
-    }
-    
-    void ParseAVCFile(DecodeAVC *Dec, BitBuffer *BitB) { // byte_stream_nal_unit
-        Log(LOG_INFO, "libModernAVC", "ParseAVCFile", "Parsing AVC File...\n");
-        
-        // Found a start code.
-        if (ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32) == AVCMagic && GetBitBufferPosition(BitB) == 0) {
-            while (GetBitBufferPosition(BitB) + Bits2Bytes(BitB->BitsUnavailable, true) < BitB->FileSize) {
-                ParseAVCHeader(Dec, BitB);
-                FindNALSize(Dec, BitB);
-                
-                ScanNALUnits(Dec, BitB);
-            }
-        } else {
-            SkipBits(BitB, 8);
-        }
-        Dec->CurrentFilePosition = GetBitBufferPosition(BitB) + Bits2Bytes(BitB->BitsUnavailable, false);
-    }
-    
-    void ParseAVCHeader(DecodeAVC *Dec, BitBuffer *BitB) { // nal_unit
-        size_t BytesInNALUnit                 = 1; // nalUnitHeaderBytes
-        if (PeekBits(BitB, 1, true) == 0) {
-            SkipBits(BitB, 1);
-            Dec->NAL->NALRefIDC               = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 2); // 0
-            Dec->NAL->NALUnitType             = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 5); // 6
-            
-            int     NumBytesInRBSP = 0;
-            int nalUnitHeaderBytes = 1;
-            
-            if ((Dec->NAL->NALUnitType == NAL_PrefixUnit) || (Dec->NAL->NALUnitType == NAL_AuxiliarySliceExtension) ||(Dec->NAL->NALUnitType == NAL_MVCDepthView) ) {
-                if (Dec->NAL->NALUnitType == NAL_MVCDepthView) {
-                    Dec->NAL->AVC3DExtensionFlag = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
-                } else {
-                    Dec->NAL->SVCExtensionFlag   = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
-                }
-                
-                if (Dec->NAL->SVCExtensionFlag == true) {
-                    ParseNALSVCExtension(Dec, BitB);
-                    BytesInNALUnit += 3;
-                } else if (Dec->NAL->AVC3DExtensionFlag == true) {
-                    ParseNAL3DAVCExtension(Dec, BitB);
-                    BytesInNALUnit += 2;
-                } else {
-                    ParseNALMVCExtension(Dec, BitB);
-                    BytesInNALUnit += 3;
-                }
-            }
-            for (uint64_t NALByte = BytesInNALUnit; NALByte < Dec->NAL->NALUnitSize; NALByte++) {
-                if (NALByte + 2 < Dec->NAL->NALUnitSize) {
-                    uint32_t NALID = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 24);
-                    if (NALID == 0x000003) {
-                        uint8_t NALID2 = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
-                        if ((NALID2 == 0x00) || (NALID2 == 0x01) || (NALID2 == 0x02) || (NALID2 == 0x03)) {
-                            // these guys are ok
-                        } else {
-                            // the official way
+     size_t FindNALSize(DecodeAVC *Dec, BitBuffer *BitB) {
+     size_t   StartBufferPosition, EndOfBufferPosition, NALSize;
+     bool     StreamIsByteAligned, NotEOF;
+     uint32_t Marker;
      
-                            
-                            // My way
-                            SkipBits(BitB, 16);
-                            BytesInNALUnit -=2;
-                        }
-                    }
-                }
-            } // We've cleared the main header, time to start decoding the NAL Units
-        }
-    }
-    */
+     StartBufferPosition = GetBitBufferPosition(BitB) + Bits2Bytes(GetBitBufferPosition(BitB), false);
+     StreamIsByteAligned = IsBitBufferAligned(BitB, 4);
+     NotEOF              = GetBitBufferPosition(BitB) < GetBitBufferSize(BitB) ? false : true;
+     Marker              = PeekBits(BitB, 24, true);
+     
+     if ((NotEOF == true && StreamIsByteAligned == true && ((Marker == 0x000000) || (Marker == 0x000001)))) {
+     // Found the end of the NAL, record the size
+     // This is gonna thrash the shit outta the buffer tho...
+     EndOfBufferPosition = ftell(BitB->File) + Bits2Bytes(BitB->BitsUnavailable, true);
+     NALSize = EndOfBufferPosition - StartBufferPosition;
+     //UpdateInputBuffer(BitB, -NALSize); // Go back to the start of the NAL in order to read it.
+     } else {
+     SkipBits(BitB, 24);
+     }
+     return NALSize;
+     }
+     
+     void ParseAVCFile(DecodeAVC *Dec, BitBuffer *BitB) { // byte_stream_nal_unit
+     Log(LOG_INFO, "libModernAVC", "ParseAVCFile", "Parsing AVC File...\n");
+     
+     // Found a start code.
+     if (ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32) == AVCMagic && GetBitBufferPosition(BitB) == 0) {
+     while (GetBitBufferPosition(BitB) + Bits2Bytes(BitB->BitsUnavailable, true) < BitB->FileSize) {
+     ParseAVCHeader(Dec, BitB);
+     FindNALSize(Dec, BitB);
+     
+     ScanNALUnits(Dec, BitB);
+     }
+     } else {
+     SkipBits(BitB, 8);
+     }
+     Dec->CurrentFilePosition = GetBitBufferPosition(BitB) + Bits2Bytes(BitB->BitsUnavailable, false);
+     }
+     
+     void ParseAVCHeader(DecodeAVC *Dec, BitBuffer *BitB) { // nal_unit
+     size_t BytesInNALUnit                 = 1; // nalUnitHeaderBytes
+     if (PeekBits(BitB, 1, true) == 0) {
+     SkipBits(BitB, 1);
+     Dec->NAL->NALRefIDC               = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 2); // 0
+     Dec->NAL->NALUnitType             = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 5); // 6
+     
+     int     NumBytesInRBSP = 0;
+     int nalUnitHeaderBytes = 1;
+     
+     if ((Dec->NAL->NALUnitType == NAL_PrefixUnit) || (Dec->NAL->NALUnitType == NAL_AuxiliarySliceExtension) ||(Dec->NAL->NALUnitType == NAL_MVCDepthView) ) {
+     if (Dec->NAL->NALUnitType == NAL_MVCDepthView) {
+     Dec->NAL->AVC3DExtensionFlag = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
+     } else {
+     Dec->NAL->SVCExtensionFlag   = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
+     }
+     
+     if (Dec->NAL->SVCExtensionFlag == true) {
+     ParseNALSVCExtension(Dec, BitB);
+     BytesInNALUnit += 3;
+     } else if (Dec->NAL->AVC3DExtensionFlag == true) {
+     ParseNAL3DAVCExtension(Dec, BitB);
+     BytesInNALUnit += 2;
+     } else {
+     ParseNALMVCExtension(Dec, BitB);
+     BytesInNALUnit += 3;
+     }
+     }
+     for (uint64_t NALByte = BytesInNALUnit; NALByte < Dec->NAL->NALUnitSize; NALByte++) {
+     if (NALByte + 2 < Dec->NAL->NALUnitSize) {
+     uint32_t NALID = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 24);
+     if (NALID == 0x000003) {
+     uint8_t NALID2 = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
+     if ((NALID2 == 0x00) || (NALID2 == 0x01) || (NALID2 == 0x02) || (NALID2 == 0x03)) {
+     // these guys are ok
+     } else {
+     // the official way
+     
+     
+     // My way
+     SkipBits(BitB, 16);
+     BytesInNALUnit -=2;
+     }
+     }
+     }
+     } // We've cleared the main header, time to start decoding the NAL Units
+     }
+     }
+     */
     
     /*
      I want to be able to open a file and de/en code H.264, but I ALSO want to use it as a library, but handing in each NAL.
@@ -129,25 +129,25 @@ extern "C" {
      In order to facilitate both of those, I need a DecodeAVCFile function, and a DecodeNAL function, that's fed data by the calling program.
      */
     /*
-    void ExtractNALFromByteStream(DecodeAVC *Dec, BitBuffer *BitB, size_t NALSize) {
-        // Make sure the stream is byte algined by verifying there are 4 the data = 0x0000001
-        // Once you've got that, you've got byte alignment.
-        
-        uint32_t ByteAlignment = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
-        if (ByteAlignment == 0x00000001) { // Bytestream is aligned
-            uint32_t StreamType = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 24);
-            if (StreamType == 0x000001) { // Start code prefix
-                
-            } else if (StreamType == 0x000003) { // emulation_prevention_three_byte
-                
-            }
-            
-            if ((ReadBits(BitIOMSByte, BitIOLSBit, BitB, 24) == 0x000000) && (IsStreamByteAligned(BitB->BitsUnavailable, 1) == true)) {
-                
-                
-            }
-        }
-    }
+     void ExtractNALFromByteStream(DecodeAVC *Dec, BitBuffer *BitB, size_t NALSize) {
+     // Make sure the stream is byte algined by verifying there are 4 the data = 0x0000001
+     // Once you've got that, you've got byte alignment.
+     
+     uint32_t ByteAlignment = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
+     if (ByteAlignment == 0x00000001) { // Bytestream is aligned
+     uint32_t StreamType = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 24);
+     if (StreamType == 0x000001) { // Start code prefix
+     
+     } else if (StreamType == 0x000003) { // emulation_prevention_three_byte
+     
+     }
+     
+     if ((ReadBits(BitIOMSByte, BitIOLSBit, BitB, 24) == 0x000000) && (IsStreamByteAligned(BitB->BitsUnavailable, 1) == true)) {
+     
+     
+     }
+     }
+     }
      */
     
     DecodeAVC *InitAVCDecoder(void) {
@@ -597,7 +597,7 @@ extern "C" {
         for (uint8_t View = 0; View < numViews; View++) { // Param
             for (uint8_t J = 0; J < View; J++) { // Wat
                 disparity_diff_wji[J][View] = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
-            	disparity_diff_oji[J][View] = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
+                disparity_diff_oji[J][View] = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
                 disparity_diff_wij[View][J] = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
                 disparity_diff_oij[View][J] = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
                 if (Direction == 2) { /* Not 100% sure about the if loop part, but it makes more sense than for alone */
@@ -788,7 +788,7 @@ extern "C" {
     }
     
     void ParseResidualTransformCoefficentExpGolomb(DecodeAVC *Dec, BitBuffer *BitB, uint64_t CoefficentLevel, uint64_t StartIndex, uint64_t EndIndex, uint64_t MaxCoefficents) { // residual_block_cavlc
-        // int coeffLevel, int startIdx, int endIdx, int maxNumCoeff
+                                                                                                                                                                                 // int coeffLevel, int startIdx, int endIdx, int maxNumCoeff
         
         uint64_t coeff_token = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
         uint8_t  suffixLength;
@@ -940,7 +940,7 @@ extern "C" {
         bool rbsp_stop_one_bit = 0;
         rbsp_stop_one_bit = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
         AlignBitBuffer(BitB, 1); // while( !byte_aligned( ) )
-                             // rbsp_alignment_zero_bit
+                                 // rbsp_alignment_zero_bit
     }
     
     uint8_t GetCodedBlockPattern(DecodeAVC *Dec, uint8_t CodeNum) {

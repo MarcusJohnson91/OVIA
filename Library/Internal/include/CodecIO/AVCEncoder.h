@@ -8,9 +8,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-	// Prefix: Compose in place of Parse, Encode in place of Decode
-
+    
+    // Prefix: Compose in place of Parse, Encode in place of Decode
+    
 #ifdef __cplusplus
 }
 #endif

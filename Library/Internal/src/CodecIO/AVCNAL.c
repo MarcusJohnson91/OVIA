@@ -2,8 +2,8 @@
 #include "../../include/Private/Common/libModernAVC_Types.h"
 #include "../../include/Private/Common/libModernAVC_Common.h"
 #include "../../include/Private/Decode/libModernAVC_Decode.h"
-#include "../../include/Private/Decode/libModernAVC_DecodeMacroBlock.h"
-#include "../../include/Private/Decode/libModernAVC_DecodeSlice.h"
+#include "../../include/Private/Decode/libModernAVC_ParseMacroBlock.h"
+#include "../../include/Private/Decode/libModernAVC_ParseSlice.h"
 #include "../../include/Private/Decode/libModernAVC_ParseNAL.h"
 
 #ifdef __cplusplus
@@ -2233,31 +2233,31 @@ extern "C" {
             Log(LOG_ERR, "libModernAVC", "ParseSEI3DReferenceDisplayInfo", "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
             Log(LOG_ERR, "libModernAVC", "ParseSEI3DReferenceDisplayInfo", "Pointer to BitBuffer is NULL");
-                } else {
-                    Dec->SEI->TruncationErrorExponent                           = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
-                    Dec->SEI->TruncatedWidthExponent                            = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
-                    Dec->SEI->ReferenceViewingDistanceFlag                      = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
-                    
-                    if (Dec->SEI->ReferenceViewingDistanceFlag == true) {
-                        Dec->SEI->TruncatedReferenveViewingDistanceExponent     = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
-                    }
-                    Dec->SEI->NumReferenceDisplays                              = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false) + 1;
-                    for (uint8_t Display= 0; Display < Dec->SEI->NumReferenceDisplays; Display++) {
-                        Dec->SEI->ReferenceBaselineExponent[Display]            = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
-                        Dec->SEI->ReferenceBaselineMantissa[Display]            = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
-                        Dec->SEI->ReferenceDisplayWidthExponent[Display]        = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
-                        Dec->SEI->ReferenceDisplayWidthMantissa[Display]        = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
-                        if (Dec->SEI->ReferenceViewingDistanceFlag == true) {
-                            Dec->SEI->ReferenceViewingDistanceExponent[Display] = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
-                            Dec->SEI->ReferenceViewingDistanceMantissa[Display] = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
-                        }
-                        Dec->SEI->ShiftPresentFlag[Display]                     = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
-                        if (Dec->SEI->ShiftPresentFlag[Display] == true) {
-                            Dec->SEI->SampleShift[Display]                      = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false) - 512;
-                        }
-                    }
-                    Dec->SEI->ReferenceDisplays3DFlag                           = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
+        } else {
+            Dec->SEI->TruncationErrorExponent                           = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
+            Dec->SEI->TruncatedWidthExponent                            = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
+            Dec->SEI->ReferenceViewingDistanceFlag                      = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
+            
+            if (Dec->SEI->ReferenceViewingDistanceFlag == true) {
+                Dec->SEI->TruncatedReferenveViewingDistanceExponent     = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
+            }
+            Dec->SEI->NumReferenceDisplays                              = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false) + 1;
+            for (uint8_t Display= 0; Display < Dec->SEI->NumReferenceDisplays; Display++) {
+                Dec->SEI->ReferenceBaselineExponent[Display]            = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
+                Dec->SEI->ReferenceBaselineMantissa[Display]            = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
+                Dec->SEI->ReferenceDisplayWidthExponent[Display]        = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
+                Dec->SEI->ReferenceDisplayWidthMantissa[Display]        = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
+                if (Dec->SEI->ReferenceViewingDistanceFlag == true) {
+                    Dec->SEI->ReferenceViewingDistanceExponent[Display] = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
+                    Dec->SEI->ReferenceViewingDistanceMantissa[Display] = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
                 }
+                Dec->SEI->ShiftPresentFlag[Display]                     = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
+                if (Dec->SEI->ShiftPresentFlag[Display] == true) {
+                    Dec->SEI->SampleShift[Display]                      = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false) - 512;
+                }
+            }
+            Dec->SEI->ReferenceDisplays3DFlag                           = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
+        }
     }
     
     void ParseSEIDepthTiming(DecodeAVC *Dec, BitBuffer *BitB) { // depth_timing

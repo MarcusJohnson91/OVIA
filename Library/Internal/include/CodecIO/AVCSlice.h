@@ -1,4 +1,4 @@
-#include "../../libModernAVC.h"
+#include "../Common/libModernAVC_Types.h"
 
 #pragma once
 
