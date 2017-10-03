@@ -66,11 +66,11 @@ extern "C" {
     
     void     Residual(DecodeAVC *Dec, BitBuffer *BitB, uint64_t StartIdx, uint64_t endIdx);
     
-    void     residual_block_cavlc(DecodeAVC *Dec, BitBuffer *BitB, int coeffLevel, int startIdx, int endIdx, int maxNumCoeff);
+    void     ParseResidualTransformCoefficentExpGolomb(DecodeAVC *Dec, BitBuffer *BitB, int coeffLevel, int startIdx, int endIdx, int maxNumCoeff);
     
     void     ScanNALUnits(DecodeAVC *Dec, BitBuffer *BitB);
     
-    void     scaling_list(BitBuffer *BitB, int scalingList, size_t sizeOfScalingList, bool useDefaultScalingMatrixFlag);
+    void     scaling_list(BitBuffer *BitB, int *scalingList, size_t sizeOfScalingList, bool useDefaultScalingMatrixFlag);
     
     void     ParseReferenceBasePictureSyntax(DecodeAVC *Dec, BitBuffer *BitB);
     

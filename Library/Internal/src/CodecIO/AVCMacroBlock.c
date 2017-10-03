@@ -36,7 +36,7 @@ extern "C" {
                         ParseSubMacroBlockPredictionInSVC(Dec, BitB);
                         for (uint8_t MacroBlockPiece = 0; MacroBlockPiece < 4; MacroBlockPiece++) {
                             if (Dec->MacroBlock->SubMacroBlockType[MacroBlockPiece] != B_Direct_8x8) {
-                                if (NumberOfSubMacroBlockPartitions(Dec->MacroBlock->SubMacroBlockType[MacroBlockPiece]) > 1) {
+                                if (GetNumSubMacroBlockPartitions(Dec->MacroBlock->SubMacroBlockType[MacroBlockPiece]) > 1) {
                                     Dec->MacroBlock->NoMBSmallerThan8x8Flag = 0;
                                 }
                             } else if (Dec->SPS->Inference8x8 == false) {
@@ -91,7 +91,7 @@ extern "C" {
                         ParseSubMacroBlockPredictionInSVC(Dec, BitB);
                         for (uint8_t MacroBlockPiece = 0; MacroBlockPiece < 4; MacroBlockPiece++) {
                             if (Dec->MacroBlock->SubMacroBlockType[MacroBlockPiece] != B_Direct_8x8) {
-                                if (NumberOfSubMacroBlockPartitions(Dec->MacroBlock->SubMacroBlockType[MacroBlockPiece]) > 1) {
+                                if (GetNumSubMacroBlockPartitions(Dec->MacroBlock->SubMacroBlockType[MacroBlockPiece]) > 1) {
                                     Dec->MacroBlock->NoMBSmallerThan8x8Flag = 0;
                                 }
                             } else if (Dec->SPS->Inference8x8 == false) {
@@ -289,7 +289,7 @@ extern "C" {
                     ParseSubMacroBlockPrediction(Dec, BitB, Dec->MacroBlock->Type);
                     for (uint8_t MacroBlockPiece = 0; MacroBlockPiece < 4; MacroBlockPiece++) {
                         if (Dec->MacroBlock->SubMacroBlockType[MacroBlockPiece] != B_Direct_8x8) {
-                            if (NumberOfSubMacroBlockPartitions(Dec->MacroBlock->SubMacroBlockType[MacroBlockPiece]) > 1) {
+                            if (GetNumSubMacroBlockPartitions(Dec->MacroBlock->SubMacroBlockType[MacroBlockPiece]) > 1) {
                                 Dec->MacroBlock->NoMBSmallerThan8x8Flag = 0;
                             }
                         } else if (Dec->SPS->Inference8x8 == false) {
@@ -330,7 +330,7 @@ extern "C" {
                     ParseSubMacroBlockPrediction(Dec, BitB, Dec->MacroBlock->Type);
                     for (uint8_t MacroBlockPiece = 0; MacroBlockPiece < 4; MacroBlockPiece++) {
                         if (Dec->MacroBlock->SubMacroBlockType[MacroBlockPiece] != B_Direct_8x8) {
-                            if (NumberOfSubMacroBlockPartitions(Dec->MacroBlock->SubMacroBlockType[MacroBlockPiece]) > 1) {
+                            if (GetNumSubMacroBlockPartitions(Dec->MacroBlock->SubMacroBlockType[MacroBlockPiece]) > 1) {
                                 Dec->MacroBlock->NoMBSmallerThan8x8Flag = 0;
                             }
                         } else if (Dec->SPS->Inference8x8 == false) {
@@ -585,12 +585,12 @@ extern "C" {
             }
             for (uint8_t MacroBlockPiece = 0; MacroBlockPiece < 4; MacroBlockPiece++) {
                 if ((Dec->MacroBlock->NumRefIndexActiveLevel0 > 0 || Dec->Slice->MacroBlockFieldDecodingFlag != Dec->Slice->SliceIsInterlaced) && Dec->MacroBlock->Type != P_8x8ref0 && SubMacroBlockType[MacroBlockPiece] != B_Direct_8x8 && SubMbPredMode(SubMacroBlockType[MacroBlockPiece]) != Pred_L1) {
-                    Dec->MacroBlock->RefIndexLevel0[MacroBlockPiece] = ReadRICE(BitB, true, 0) + 1;
+                    Dec->MacroBlock->RefIndexLevel0[MacroBlockPiece] = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true) + 1;
                 }
             }
             for (uint8_t MacroBlockPiece = 0; MacroBlockPiece < 4; MacroBlockPiece++) {
                 if ((Dec->MacroBlock->NumRefIndexActiveLevel1 > 0 || Dec->Slice->MacroBlockFieldDecodingFlag != Dec->Slice->SliceIsInterlaced) && SubMacroBlockType[MacroBlockPiece] != B_Direct_8x8 && SubMbPredMode(SubMacroBlockType[MacroBlockPiece]) != Pred_L0) {
-                    Dec->MacroBlock->RefIndexLevel1[MacroBlockPiece] = ReadRICE(BitB, true, 0) + 1;
+                    Dec->MacroBlock->RefIndexLevel1[MacroBlockPiece] = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true) + 1;
                 }
             }
             for (uint8_t MacroBlockPiece = 0; MacroBlockPiece < 4; MacroBlockPiece++) {

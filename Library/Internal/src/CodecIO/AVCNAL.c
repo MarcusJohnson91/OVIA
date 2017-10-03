@@ -1982,7 +1982,7 @@ extern "C" {
                 } else {
                     Dec->SEI->NumParamSets     = Dec->SPS->ViewCount;
                 }
-                for (uint8_t ParamSet = 0; ParamSet < Dec->SEI->NumParamSets; ParamSet++) { // FIXME: ReadBits(BitIOMSByte, BitIOLSBit, BitB, 0, true)
+                for (uint8_t ParamSet = 0; ParamSet < Dec->SEI->NumParamSets; ParamSet++) { // FIXME: ReadBits(BitIOMSByte, BitIOLSBit, BitB, 0)
                     Dec->SEI->SignFocalLength[0][ParamSet]        = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
                     Dec->SEI->ExponentFocalLength[0][ParamSet]    = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 6);
                     if (Dec->SEI->ExponentFocalLength[0][ParamSet] == 0) {
@@ -2075,10 +2075,10 @@ extern "C" {
             }
             if (Dec->SEI->NonAnchorUpdateFlag == true) {
                 for (uint8_t View = 0; View < Dec->SPS->ViewCount; View++) {
-                    for (uint8_t NonAnchorRef = 0; NonAnchorRef < Dec->SPS->NonAnchorRefCount[0][View]; NonAnchorRef++) {
+                    for (uint8_t NonAnchorRef = 0; NonAnchorRef < Dec->SPS->NonAnchorRefCount[0][View][NonAnchorRef]; NonAnchorRef++) {
                         Dec->SEI->NonAnchorRefFlag[0][View][NonAnchorRef] = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
                     }
-                    for (uint8_t NonAnchorRef = 0; NonAnchorRef < Dec->SPS->NonAnchorRefCount[1][View]; NonAnchorRef++) {
+                    for (uint8_t NonAnchorRef = 0; NonAnchorRef < Dec->SPS->NonAnchorRefCount[1][View][NonAnchorRef]; NonAnchorRef++) {
                         Dec->SEI->NonAnchorRefFlag[1][View][NonAnchorRef] = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
                     }
                 }

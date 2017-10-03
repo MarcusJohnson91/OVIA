@@ -60,7 +60,7 @@ extern "C" {
         Log(LOG_INFO, "libModernAVC", "ParseAVCFile", "Parsing AVC File...\n");
         
         // Found a start code.
-        if (ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32, true) == AVCMagic && GetBitBufferPosition(BitB) == 0) {
+        if (ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32) == AVCMagic && GetBitBufferPosition(BitB) == 0) {
             while (GetBitBufferPosition(BitB) + Bits2Bytes(BitB->BitsUnavailable, true) < BitB->FileSize) {
                 ParseAVCHeader(Dec, BitB);
                 FindNALSize(Dec, BitB);
@@ -77,17 +77,17 @@ extern "C" {
         size_t BytesInNALUnit                 = 1; // nalUnitHeaderBytes
         if (PeekBits(BitB, 1, true) == 0) {
             SkipBits(BitB, 1);
-            Dec->NAL->NALRefIDC               = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 2, true); // 0
-            Dec->NAL->NALUnitType             = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 5, true); // 6
+            Dec->NAL->NALRefIDC               = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 2); // 0
+            Dec->NAL->NALUnitType             = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 5); // 6
             
             int     NumBytesInRBSP = 0;
             int nalUnitHeaderBytes = 1;
             
             if ((Dec->NAL->NALUnitType == NAL_PrefixUnit) || (Dec->NAL->NALUnitType == NAL_AuxiliarySliceExtension) ||(Dec->NAL->NALUnitType == NAL_MVCDepthView) ) {
                 if (Dec->NAL->NALUnitType == NAL_MVCDepthView) {
-                    Dec->NAL->AVC3DExtensionFlag = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1, true);
+                    Dec->NAL->AVC3DExtensionFlag = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
                 } else {
-                    Dec->NAL->SVCExtensionFlag   = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1, true);
+                    Dec->NAL->SVCExtensionFlag   = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
                 }
                 
                 if (Dec->NAL->SVCExtensionFlag == true) {
@@ -103,9 +103,9 @@ extern "C" {
             }
             for (uint64_t NALByte = BytesInNALUnit; NALByte < Dec->NAL->NALUnitSize; NALByte++) {
                 if (NALByte + 2 < Dec->NAL->NALUnitSize) {
-                    uint32_t NALID = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 24, true);
+                    uint32_t NALID = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 24);
                     if (NALID == 0x000003) {
-                        uint8_t NALID2 = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8, true);
+                        uint8_t NALID2 = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
                         if ((NALID2 == 0x00) || (NALID2 == 0x01) || (NALID2 == 0x02) || (NALID2 == 0x03)) {
                             // these guys are ok
                         } else {
@@ -133,16 +133,16 @@ extern "C" {
         // Make sure the stream is byte algined by verifying there are 4 the data = 0x0000001
         // Once you've got that, you've got byte alignment.
         
-        uint32_t ByteAlignment = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32, true);
+        uint32_t ByteAlignment = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
         if (ByteAlignment == 0x00000001) { // Bytestream is aligned
-            uint32_t StreamType = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 24, true);
+            uint32_t StreamType = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 24);
             if (StreamType == 0x000001) { // Start code prefix
                 
             } else if (StreamType == 0x000003) { // emulation_prevention_three_byte
                 
             }
             
-            if ((ReadBits(BitIOMSByte, BitIOLSBit, BitB, 24, true) == 0x000000) && (IsStreamByteAligned(BitB->BitsUnavailable, 1) == true)) {
+            if ((ReadBits(BitIOMSByte, BitIOLSBit, BitB, 24) == 0x000000) && (IsStreamByteAligned(BitB->BitsUnavailable, 1) == true)) {
                 
                 
             }
@@ -270,7 +270,7 @@ extern "C" {
         AlignBitBuffer(BitB, 1); // rbsp_trailing_bits();
         if (Dec->PPS->EntropyCodingMode == Arithmetic) {
             while (more_rbsp_trailing_data()) {
-                Dec->PPS->CABACZeroWord = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 16); /* equal to 0x0000 */
+                uint64_t CABACZeroWord = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 16); /* equal to 0x0000 */
             }
         }
     }
@@ -589,15 +589,20 @@ extern "C" {
     }
     
     void vsp_param(DecodeAVC *Dec, BitBuffer *BitB, uint8_t numViews, uint8_t Direction, uint8_t DepthPS) { // vsp_param
+        uint64_t disparity_diff_wji[numViews][numViews];
+        uint64_t disparity_diff_oji[numViews][numViews];
+        uint64_t disparity_diff_wij[numViews][numViews];
+        uint64_t disparity_diff_oij[numViews][numViews];
+        
         for (uint8_t View = 0; View < numViews; View++) { // Param
             for (uint8_t J = 0; J < View; J++) { // Wat
-                int disparity_diff_wji[J][View] = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
-                int disparity_diff_oji[J][View] = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
-                int disparity_diff_wij[View][J] = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
-                int disparity_diff_oij[View][J] = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
+                disparity_diff_wji[J][View] = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
+            	disparity_diff_oji[J][View] = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
+                disparity_diff_wij[View][J] = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
+                disparity_diff_oij[View][J] = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
                 if (Direction == 2) { /* Not 100% sure about the if loop part, but it makes more sense than for alone */
                     Dec->DisparityScale[DepthPS][J][View] = disparity_diff_wji[J][View];
-                    Dec->DisparityOffset[DepthPS][J][View] = disparity_ diff_oji[J][View];
+                    Dec->DisparityOffset[DepthPS][J][View] = disparity_diff_oji[J][View];
                     Dec->DisparityScale[DepthPS][View][J] = disparity_diff_wij[View][J] - disparity_diff_wji[J][View];
                     Dec->DisparityOffset[DepthPS][View][J] = disparity_diff_oij[View][J] - disparity_diff_oji[J][View];
                 } else {
@@ -673,7 +678,7 @@ extern "C" {
         if (Dec->SPS->ChromaArrayType != ChromaBW) {
             Dec->Slice->ChromaWeightDenom = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
         }
-        for (uint8_t i = 0; i <= Dec->MacroBlock->NumRefIndexActive[0]; i++) {
+        for (uint8_t i = 0; i <= Dec->MacroBlock->NumRefIndexActiveLevel0; i++) {
             Dec->Slice->LumaWeightFlag[0] = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
             if (Dec->Slice->LumaWeightFlag[0] == true) {
                 Dec->Slice->LumaWeight[0][i]  = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true);
@@ -690,7 +695,7 @@ extern "C" {
             }
         }
         if ((Dec->Slice->Type % 5) == 1) {
-            for (uint8_t i = 0; i <= Dec->MacroBlock->NumRefIndexActive[1]; i++) {
+            for (uint8_t i = 0; i <= Dec->MacroBlock->NumRefIndexActiveLevel1; i++) {
                 Dec->Slice->LumaWeightFlag[1] = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
                 if (Dec->Slice->LumaWeightFlag[1] == true) {
                     Dec->Slice->LumaWeight[1][i]  = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true);
@@ -735,7 +740,7 @@ extern "C" {
     
     void Residual(DecodeAVC *Dec, BitBuffer *BitB, uint64_t StartIdx, uint64_t endIdx) {
         if (Dec->PPS->EntropyCodingMode == false) {
-            residual_block = ExpGolomb; // residual_block_cavlc
+            residual_block = ExpGolomb; // ParseResidualTransformCoefficentExpGolomb
         } else {
             residual_block = Arithmetic; // residual_block_cabac
         }
@@ -782,20 +787,33 @@ extern "C" {
         }
     }
     
-    void residual_block_cavlc(DecodeAVC *Dec, BitBuffer *BitB, int coeffLevel, int startIdx, int endIdx, int maxNumCoeff) { // residual_block_cavlc
-        int coeffLevel[maxNumCoeff] = {0}, coeff_token, suffixLength, trailing_ones_sign_flag;
+    void ParseResidualTransformCoefficentExpGolomb(DecodeAVC *Dec, BitBuffer *BitB, uint64_t CoefficentLevel, uint64_t StartIndex, uint64_t EndIndex, uint64_t MaxCoefficents) { // residual_block_cavlc
+        // int coeffLevel, int startIdx, int endIdx, int maxNumCoeff
         
-        coeff_token = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
+        uint64_t coeff_token = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
+        uint8_t  suffixLength;
+        uint8_t  trailing_ones_sign_flag;
+        uint64_t levelVal[MaxCoefficents];
+        uint64_t level_prefix;
+        uint64_t level_suffix;
+        uint64_t levelCode;
+        uint64_t zerosLeft;
+        uint64_t total_zeros;
+        uint64_t run_before;
+        uint64_t runVal[MaxCoefficents];
+        uint64_t coeffNum;
+        uint64_t coeffLevel[MaxCoefficents];
+        
         if (TotalCoeff(coeff_token) > 0) {
             if ((TotalCoeff(coeff_token) > 10) && (TrailingOnes(coeff_token) < 3)) {
                 suffixLength = 1;
             } else {
                 suffixLength = 0;
             }
-            for (int Coeff = 0; Coeff < TotalCoeff(coeff_token); Coeff++) {
-                if (Coeff < TrailingOnes(coeff_token)) {
+            for (uint64_t Coefficent = 0; Coefficent < TotalCoeff(coeff_token); Coefficent++) {
+                if (Coefficent < TrailingOnes(coeff_token)) {
                     trailing_ones_sign_flag = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
-                    levelVal[i] = 1 - 2 * trailing_ones_sign_flag;
+                    levelVal[Coefficent] = 1 - 2 * trailing_ones_sign_flag;
                 } else {
                     level_prefix = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
                     levelCode = (Min(15, level_prefix) << suffixLength);
@@ -803,35 +821,35 @@ extern "C" {
                         level_suffix = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 0);
                         levelCode += level_suffix;
                     }
-                    if (level_prefix > = 15 && suffixLength == 0) {
+                    if (level_prefix >= 15 && suffixLength == 0) {
                         levelCode += 15;
                     }
-                    if (level_prefix > = 16) {
+                    if (level_prefix >= 16) {
                         levelCode += (1 << (level_prefix - 3)) - 4096;
                     }
-                    if (i == TrailingOnes(coeff_token) && TrailingOnes(coeff_token) < 3) {
+                    if (Coefficent == TrailingOnes(coeff_token) && TrailingOnes(coeff_token) < 3) {
                         levelCode += 2;
                     }
                     if (levelCode % 2 == 0) {
-                        levelVal[i] = (levelCode + 2) >> 1;
+                        levelVal[Coefficent] = (levelCode + 2) >> 1;
                     } else {
-                        levelVal[i] = (-levelCode - 1) >> 1;
+                        levelVal[Coefficent] = (-levelCode - 1) >> 1;
                     }
                     if(suffixLength == 0) {
                         suffixLength = 1;
                     }
-                    if (abs(levelVal[i]) > (3 << (suffixLength - 1)) && suffixLength < 6) {
+                    if (abs(levelVal[Coefficent]) > (3 << (suffixLength - 1)) && suffixLength < 6) {
                         suffixLength++;
                     }
                 }
-                if (TotalCoeff(coeff_token) < endIdx - startIdx + 1) { // FIXME: this may need to be moved
+                if (TotalCoeff(coeff_token) < EndIndex - StartIndex + 1) { // FIXME: this may need to be moved
                     total_zeros = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
                     zerosLeft = total_zeros;
                 } else {
                     zerosLeft = 0;
                 }
-                for (i = 0; i < TotalCoeff(coeff_token) - 1; i++) {
-                    if(zerosLeft > 0) {
+                for (uint64_t i = 0; i < TotalCoeff(coeff_token) - 1; i++) {
+                    if (zerosLeft > 0) {
                         run_before = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
                         runVal[i] = run_before;
                     } else {
@@ -841,9 +859,9 @@ extern "C" {
                 }
                 runVal[TotalCoeff(coeff_token) - 1] = zerosLeft;
                 coeffNum = -1;
-                for (i = TotalCoeff(coeff_token) - 1; i >= 0; i- -) {
+                for (uint64_t i = TotalCoeff(coeff_token) - 1; i >= 0; i--) {
                     coeffNum += runVal[i] + 1;
-                    coeffLevel[startIdx + coeffNum] = levelVal[i];
+                    coeffLevel[StartIndex + coeffNum] = levelVal[i];
                 }
             }
         }
@@ -913,20 +931,6 @@ extern "C" {
         }
     }
     
-    void scaling_list(BitBuffer *BitB, int scalingList, size_t sizeOfScalingList, bool useDefaultScalingMatrixFlag) { // scaling_list
-        int last_scale = 8;
-        int next_scale = 8;
-        for (int Scale = 0; Scale < sizeOfScalingList; Scale++) {
-            if (next_scale != 0) {
-                delta_scale                 = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true);
-                nextScale                   = (last_scale + delta_scale + 256) % 256;
-                useDefaultScalingMatrixFlag = (Scale == 0 && next_scale == 0);
-            }
-            scalingList[Scale] = (next_scale == 0) ? last_scale : next_scale;
-            lastScale = scalingList[Scale];
-        }
-    }
-    
     void RescanSync(BitBuffer *BitB) {
         // search for 0x000001, or 0x000003 for the next NAL.
         
@@ -934,12 +938,12 @@ extern "C" {
     
     void rbsp_trailing_bits(DecodeAVC *Dec, BitBuffer *BitB) { // rbsp_trailing_bits
         bool rbsp_stop_one_bit = 0;
-        rbsp_stop_one_bit = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1, true);
+        rbsp_stop_one_bit = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
         AlignBitBuffer(BitB, 1); // while( !byte_aligned( ) )
                              // rbsp_alignment_zero_bit
     }
     
-    uint8_t GetCodedBlockPattern(DecodeAVC *Dec, uint8_t CodeNum) { // FIXME: this has to be wrong
+    uint8_t GetCodedBlockPattern(DecodeAVC *Dec, uint8_t CodeNum) {
         uint8_t Value = 0;
         if (Dec->MacroBlock->BlockPattern == 1 || Dec->MacroBlock->BlockPattern == 2) {
             if (Dec->SPS->ChromaArrayType == 1) {
@@ -962,40 +966,44 @@ extern "C" {
         return Value;
     }
     
-    void MacroBlockPartitionWidth(DecodeAVC *Dec, uint8_t MacroBlockType) { // MbPartWidth
+    uint8_t MacroBlockPartitionWidth(DecodeAVC *Dec, uint8_t MacroBlockType) { // MbPartWidth
+        uint8_t MacroBlockPartitionWidth = 0;
         if (MacroBlockType == P_L0_16x16) {
-            return 16;
+            MacroBlockPartitionWidth = 16;
         } else if (MacroBlockType == P_L0_L0_16x8) {
-            return 16;
+            MacroBlockPartitionWidth = 16;
         } else if (MacroBlockType == P_L0_L0_8x16) {
-            return 8;
+            MacroBlockPartitionWidth = 8;
         } else if (MacroBlockType == P_8x8) {
-            return 8;
+            MacroBlockPartitionWidth = 8;
         } else if (MacroBlockType == P_8x8ref0) {
-            return 8;
+            MacroBlockPartitionWidth = 8;
         } else if (MacroBlockType == P_Skip) {
-            return 16;
+            MacroBlockPartitionWidth = 16;
         }
+        return MacroBlockPartitionWidth;
+    }
+    
+    uint8_t SubMacroBlockPartitionWidth(DecodeAVC *Dec) { // SubMbPartWidth
+        
     }
     
     uint8_t MacroBlockPartitionHeight(DecodeAVC *Dec, uint8_t MacroBlockType) { // MbPartHeight
+        uint8_t MacroBlockPartitionHeight = 0;
         if (MacroBlockType == P_L0_16x16) {
-            return 16;
+            MacroBlockPartitionHeight = 16;
         } else if (MacroBlockType == P_L0_L0_16x8) {
-            return 8;
+            MacroBlockPartitionHeight = 8;
         } else if (MacroBlockType == P_L0_L0_8x16) {
-            return 16;
+            MacroBlockPartitionHeight = 16;
         } else if (MacroBlockType == P_8x8) {
-            return 8;
+            MacroBlockPartitionHeight = 8;
         } else if (MacroBlockType == P_8x8ref0) {
-            return 8;
+            MacroBlockPartitionHeight = 8;
         } else if (MacroBlockType == P_Skip) {
-            return 16;
+            MacroBlockPartitionHeight = 16;
         }
-    }
-    
-    void SubMacroBlockPartitionWidth(DecodeAVC *Dec) { // SubMbPartWidth
-        
+        return MacroBlockPartitionHeight;
     }
     
     void SubMacroBlockPartitionHeight(DecodeAVC *Dec) { // SubMbPartHeight

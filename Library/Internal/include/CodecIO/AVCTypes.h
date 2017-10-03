@@ -969,6 +969,9 @@ extern "C" {
         uint64_t                      FrameRateNumerator;
         uint64_t                      FrameRateDenominator;
         
+        uint64_t                      DisparityScale[10000][10000][10000];
+        uint64_t                      DisparityOffset[10000][10000][10000];
+        
         NALHeader                    *NAL;
         SequenceParameterSet         *SPS;
         PictureParameterSet          *PPS;

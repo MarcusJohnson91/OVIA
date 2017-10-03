@@ -154,10 +154,10 @@ extern "C" {
     }
     
     uint8_t MacroBlockPartitionPredictionMode(EncodeAVC *Enc, uint8_t MacroBlockType, uint8_t PartitionNumber) {  // MbPartPredMode
+        uint8_t ReturnValue = 0;
         if (Enc == NULL) {
             Log(LOG_ERR, "libModernAVC", "GetSizeOfNALUnit", "Pointer to EncodeAVC is NULL");
         } else {
-            uint8_t ReturnValue = 0;
             if (MacroBlockType == 0) {
                 if (Enc->MacroBlock->TransformSizeIs8x8 == true) {
                     ReturnValue = Intra_8x8;

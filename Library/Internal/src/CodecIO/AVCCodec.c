@@ -102,24 +102,22 @@ extern "C" {
      */
     
     uint8_t NumberOfMacroBlockPartitions(uint8_t MacroBlockType) { // NumMbPart
-        
+        return 0;
     }
     
-    uint8_t NumberOfSubMacroBlockPartitions() { // NumSubMbPart
-        bool IsDirectFlag = 0;
-        
-        if (mbType[CurrMbAddr] == B_Skip || mbType[CurrMbAddr] == B_Direct_16x16) {
+    uint8_t GetNumSubMacroBlockPartitions(bool IsDirectFlag, uint8_t *MacroBlockType, uint8_t **SubMacroBlockType, uintptr_t CurrentMacroBlockAddress, uint8_t MacroBlockPartitionIndex) { // NumSubMbPart
+        if (MacroBlockType[CurrentMacroBlockAddress] == B_Skip || MacroBlockType[CurrentMacroBlockAddress] == B_Direct_16x16) {
             IsDirectFlag = true;
-        } else if (mbType[CurrMbAddr] == B_8x8 && subMbType[CurrMbAddr][mbPartIdx] == B_Direct_8x8) {
+        } else if (MacroBlockType[CurrentMacroBlockAddress] == B_8x8 && SubMacroBlockType[CurrentMacroBlockAddress][MacroBlockPartitionIndex] == B_Direct_8x8) {
             IsDirectFlag = true;
         }
         
-        if (isDirectFlag == true && DQID == 0 && nal_unit_type != NAL_AuxiliarySliceExtension) {
+        if (IsDirectFlag == true && DQID == 0 && nal_unit_type != NAL_AuxiliarySliceExtension) {
             return 4;
-        } else if (isDirectFlag == true && DQID > 0 && nal_unit_type == NAL_AuxiliarySliceExtension) {
+        } else if (IsDirectFlag == true && DQID > 0 && nal_unit_type == NAL_AuxiliarySliceExtension) {
             return 1;
-        } else if (isDirectFlag == 0) {
-            return NumSubMbPart(subMbType[CurrMbAddr][mbPartIdx]);
+        } else if (IsDirectFlag == false) {
+            return NumSubMbPart(subMbType[CurrentMacroBlockAddress][MacroBlockPartitionIndex]);
         }
     }
     
