@@ -9,9 +9,11 @@
 extern "C" {
 #endif
     
-    typedef HuffmanNode HuffmanNode;
+    typedef struct LZ77Triple LZ77Triple;
     
-    typedef HuffmanTree HuffmanTree;
+    typedef struct HuffmanNode HuffmanNode;
+    
+    typedef struct HuffmanTree HuffmanTree;
     
     /*!
      @abstract                                    "Generates CRC from data".

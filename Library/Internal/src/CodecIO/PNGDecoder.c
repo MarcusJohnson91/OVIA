@@ -232,8 +232,16 @@ extern "C" {
     
     // Let's do this library right, by adding attach and delete functions for the various chunks, and let's also have a fancy function that applies color profiles to the pixels.
     // that's kinda a lot of work tho...
-    BitBuffer     *DecodePNGImage(DecodePNG *Dec, void ****PNGImage2Decode) {
+    BitBuffer *DecodePNGImage(DecodePNG *Dec, void ****PNGImage2Decode) {
         return NULL;
+    }
+    
+    BitBuffer *DecodeAdam7(DecodePNG *Dec, BitBuffer *InterlacedImage) { // Returns the interlaced image
+        /*
+         Ok, so to interlace an image, we need to loop over every pixel in an 8x8 block?
+         */
+        BitBuffer *ProgressiveImage = NULL;
+        return ProgressiveImage;
     }
     
 #ifdef __cplusplus

@@ -43,7 +43,7 @@ extern "C" {
     
     void PNGEncodeFilterSub(EncodePNG *Enc, uint8_t *Line, size_t NumPixels);
     
-    void PNGEncodeAdam7(EncodePNG *Enc, uint8_t ****RawFrame);
+    void PNGEncodeAdam7(EncodePNG *Enc, BitBuffer *ProgressiveImage, BitBuffer *InterlacedImage);
     
     void OptimizeAdam7(EncodePNG *Enc, uint8_t ****Image);
     

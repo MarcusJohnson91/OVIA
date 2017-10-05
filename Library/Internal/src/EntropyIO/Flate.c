@@ -1,16 +1,23 @@
-#include "../../include/libModernPNG.h"
+#include "../../include/Private/Common/libModernPNG_EntropyCoders.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+    
+    // LZ77, Lazy parsing is most efficent.
+    
+    // A Huffman tree has 288 nodes. 0-287
+    
+    struct LZ77Tuple {
+        uint64_t Distance;
+        uint64_t Length;
+    };
     
     struct HuffmanNode {
         uint64_t            Symbol;
         struct HuffmanNode *LeftNode;
         struct HuffmanNode *RightNode;
     };
-    
-    typedef struct HuffmanNode HuffmanNode;
     
     struct HuffmanTree {
         uint64_t       NumNodes;
