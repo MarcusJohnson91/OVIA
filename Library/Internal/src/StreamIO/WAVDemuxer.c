@@ -170,34 +170,25 @@ extern "C" {
         } else if (BitB == NULL) {
             Log(LOG_ERR, "libPCM", "ParseWAV", "Pointer to BitBuffer is NULL");
         } else {
-            if (ChunkSize == 16) {
-                
-            } else if (ChunkSize == 40) {
-                // WORD = uint16_t
-                // DWORD = uint32_t
-                uint16_t wFormatTag         = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
-                uint16_t nChannels          = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
-                uint32_t nSamplesPerSec     = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-                uint32_t nAvgBytesPerSec    = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-                uint16_t nBlockAlign        = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
-                uint16_t wBitsPerSample     = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
-                uint16_t cbSize             = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
-            }
-            
-            if (ChunkSize > 16) {
-                PCM->FileFormat             = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
-            }
-            PCM->WAVW64FormatType           = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
+            uint16_t wFormatTag             = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
             PCM->NumChannels                = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
             PCM->SampleRate                 = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-            uint32_t ByteRate               = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-            uint16_t BlockSize              = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
+            uint32_t AvgBytesPerSec         = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
+            PCM->BlockAlignment             = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
             PCM->BitDepth                   = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
-            if (PCM->FileFormat == WAVFormatExtensible) {
-                uint16_t ExtensionSize      = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
+            
+            if (ChunkSize == 18) {
+                uint16_t CBSize             = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
+                SkipBits(BitB, Bytes2Bits(CBSize - 16));
+            } else if (ChunkSize == 40) {
+                uint16_t CBSize             = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
                 uint16_t ValidBitsPerSample = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
-                uint32_t SpeakerMask        = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-                SkipBits(BitB, ExtensionSize - 8); // 8 bytes from ^
+                if (ValidBitsPerSample != 0) {
+                    PCM->BitDepth = ValidBitsPerSample;
+                }
+                uint32_t  SpeakerMask       = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
+                uint8_t  *BinaryGUIDFormat  = ReadGUUID(BitIOBinaryGUID, BitB);
+                SkipBits(BitB, Bytes2Bits(CBSize - 22));
             }
         }
     }
