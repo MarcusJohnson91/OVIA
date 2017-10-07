@@ -9,7 +9,7 @@
 extern "C" {
 #endif
     
-    typedef struct LZ77Triple LZ77Triple;
+    typedef struct LZ77Tuple LZ77Tuple;
     
     typedef struct HuffmanNode HuffmanNode;
     

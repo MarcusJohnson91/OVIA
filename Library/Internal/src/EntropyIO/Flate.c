@@ -8,9 +8,31 @@ extern "C" {
     
     // A Huffman tree has 288 nodes. 0-287
     
+    /*
+     DEFLATE details:
+     Uncompressed blocks are limited to 65535 bytes max.
+     The Huffman tree for each block is independent.
+     LZ77's window size is up to 32768 bytes previously, regardless of huffman block.
+     There are 2 huffman trees per block; The first describes the representation of the data, and the second is for the data.
+     The Huffman compressed data is composed of 2 types, literal byte strings, and LZ77 <length,backward distance> tuples, called pointers in RFC1951.
+     DEFLATE limits the distance to 32,768 bytes back, and lengths to 258 bytes; but DOES NOT limit the size of a compressed block.
+     There are 2 huffman trees, the first tree stores just literal values and lengths, and another for the distance.
+     LZ77 uses LSBit first, Huffman codes use MSBit first.
+     
+     Huffman Tree:
+     0 is always on the left, 1 is always on the right.
+     Non-Leaf nodes are always 0, leaf nodes are always 1. so the code ends with a 1.
+     */
+    
+    enum DEFLATEConstants {
+        HuffmanMaxLiteral   = 65535,
+        LZ77MaxDistance     = 32768,
+        LZ77MaxLenth        = 258,
+    };
+    
     struct LZ77Tuple {
-        uint64_t Distance;
-        uint64_t Length;
+        uint16_t            Distance;
+        uint16_t            Length;
     };
     
     struct HuffmanNode {
@@ -20,14 +42,52 @@ extern "C" {
     };
     
     struct HuffmanTree {
-        uint64_t       NumNodes;
-        HuffmanNode   *Node;
-        uint64_t      *SymbolFrequency;
-        bool           TableIsUsable;
-        const uint8_t *Table;
+        uint64_t           NumNodes;
+        HuffmanNode       *Node;
+        uint64_t          *SymbolFrequency;
+        bool               TableIsUsable;
+        const uint8_t     *Table;
     };
     
+    
+    typedef struct LZ77Tuple   LZ77Tuple;
+    typedef struct HuffmanNode HuffmanNode;
     typedef struct HuffmanTree HuffmanTree;
+    
+    void DecodeLZ77Tuple(BitBuffer *LZ77EncodedData, BitBuffer *DecodedData) {
+        
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     /* Deflate (encode deflate) */
     void ParseDeflateHeader(const BitBuffer *DeflatedData) {
