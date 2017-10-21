@@ -11,12 +11,7 @@
 extern "C" {
 #endif
     
-    struct PXMHeader {
-        uint64_t Width;
-        uint64_t Height;
-        uint64_t NumChannels;
-        uint64_t MaxVal;
-    };
+    
     
     // The secton ender for all variants is 0x0A
     

@@ -13,7 +13,7 @@ extern "C" {
     
     void ParseAIFMetadata(PCMFile *PCM, BitBuffer *BitB);
     
-    void ExtractAIFSamples(PCMFile *PCM, BitBuffer *BitB, uint64_t Samples2Extract);
+    uint32_t **AIFExtractSamples(PCMFile *PCM, BitBuffer *BitB, uint64_t Samples2Extract);
     
 #ifdef __cplusplus
 }

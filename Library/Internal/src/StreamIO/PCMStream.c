@@ -20,30 +20,30 @@ extern "C" {
         uint32_t FileMagic32 = FileMagic64 & 0xFFFFFFFF;
         
         if (FileMagic16 == BMP_BM) {
-            PCM->FileFormat = BMPFormat;
+            PCM->PCMFileType = BMPFormat;
         } else if (FileMagic16 == PortableBitMap1 || FileMagic16 == PortableBitMap2 || FileMagic16 == PortablePixMap1 || FileMagic16 == PortablePixMap2 || FileMagic16 == PortableGrayMap1 || FileMagic16 == PortableGrayMap2 || FileMagic16 == PortableAnyMap) {
-            PCM->FileFormat = PXMFormat;
+            PCM->PCMFileType = PXMFormat;
         } else if (FileMagic32 == AIF_FORM) {
-            PCM->FileFormat = AIFFormat;
+            PCM->PCMFileType = AIFFormat;
         } else if (FileMagic32 == WAV_RIFF) {
-            PCM->FileFormat = WAVFormat;
+            PCM->PCMFileType = WAVFormat;
         } else if (FileMagic32 == 0x72696666) {
-            PCM->FileFormat = W64Format;
+            PCM->PCMFileType = W64Format;
         } else {
             Log(LOG_ERR, "libPCM", "IdentifyPCMFile", "Unrecognized file magic 0x%X", FileMagic64);
         }
     }
     
     void ParsePCMMetadata(PCMFile *PCM, BitBuffer *BitB) {
-        if (PCM->FileFormat == AIFFormat) {
+        if (PCM->PCMFileType == AIFFormat) {
             ParseAIFMetadata(PCM, BitB);
-        } else if (PCM->FileFormat == BMPFormat) {
+        } else if (PCM->PCMFileType == BMPFormat) {
             
-        } else if (PCM->FileFormat == PXMFormat) {
+        } else if (PCM->PCMFileType == PXMFormat) {
             
-        } else if (PCM->FileFormat == WAVFormat) {
+        } else if (PCM->PCMFileType == WAVFormat) {
             
-        } else if (PCM->FileFormat == W64Format) {
+        } else if (PCM->PCMFileType == W64Format) {
             
         }
     }
@@ -79,7 +79,8 @@ extern "C" {
     /*!
      @param NumSamples2Extract is the number of channel agnostic samples to read from the input file
      */
-    void ExtractSamples(PCMFile *PCM, BitBuffer *BitB, uint64_t NumSamples2Extract) {
+    uint32_t **ExtractSamples(PCMFile *PCM, BitBuffer *BitB, uint64_t NumSamples2Extract) {
+        uint32_t **ExtractedSamples = NULL;
         if (PCM == NULL) {
             Log(LOG_ERR, "libPCM", "ExtractSamples", "Pointer to PCMFile is NULL");
         } else if (BitB == NULL) {
@@ -88,20 +89,21 @@ extern "C" {
             Log(LOG_ERR, "libPCM", "ExtractSamples", "Requested too few samples %d", NumSamples2Extract);
         } else {
             // just read the requested samples
-            if (PCM->FileFormat == WAVFormat) {
-                WAVExtractSamples(PCM, BitB, NumSamples2Extract);
-            } else if (PCM->FileFormat == W64Format) {
+            if (PCM->PCMFileType == WAVFormat) {
+                ExtractedSamples = WAVExtractSamples(PCM, BitB, NumSamples2Extract);
+            } else if (PCM->PCMFileType == W64Format) {
                 
-            } else if (PCM->FileFormat == AIFFormat) {
+            } else if (PCM->PCMFileType == AIFFormat) {
                 
-            } else if (PCM->FileFormat == PXMFormat) {
+            } else if (PCM->PCMFileType == PXMFormat) {
                 
-            } else if (PCM->FileFormat == BMPFormat) {
+            } else if (PCM->PCMFileType == BMPFormat) {
                 
             } else {
-                Log(LOG_ERR, "libPCM", "ExtractSamples", "Unknown file format, Magic: 0x%X", PCM->FileFormat);
+                Log(LOG_ERR, "libPCM", "ExtractSamples", "Unknown file format, Magic: 0x%X", PCM->PCMFileType);
             }
         }
+        return ExtractedSamples;
     }
     
     void ParseWAVFile(PCMFile *PCM, BitBuffer *BitB) {
@@ -116,7 +118,7 @@ extern "C" {
                 ParseWavFMTChunk(PCM, BitB, ChunkSize);
                 break;
             case WAV_WAVE:
-                SkipBits(BitB, 32);
+                BitBufferSkip(BitB, 32);
                 break;
             case WAV_DATA:
                 ParseWavDATAChunk(PCM, BitB, ChunkSize);
@@ -169,10 +171,10 @@ extern "C" {
     }
     
     void DeinitPCMFile(PCMFile *PCM) {
-        if (PCM->Samples != NULL) {
-            free(PCM->Samples);
-        }
-        free(PCM->Meta);
+        free(PCM->AUD->Meta);
+        free(PCM->AUD);
+        free(PCM->BMP);
+        free(PCM->PXM);
         free(PCM);
     }
     

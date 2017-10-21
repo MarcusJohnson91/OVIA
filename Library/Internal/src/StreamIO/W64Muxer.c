@@ -17,20 +17,20 @@ extern "C" {
     }
     
     void WriteW64FMT(PCMFile *PCM, BitBuffer *BitB) {
-        uint64_t ByteRate   = CalculateW64ByteRate(PCM->NumChannels, PCM->SampleRate, PCM->BitDepth);
-        uint64_t BlockAlign = CalculateW64BlockAlign(PCM->NumChannels, PCM->BitDepth);
+        uint64_t ByteRate   = CalculateW64ByteRate(PCM->AUD->NumChannels, PCM->AUD->SampleRate, PCM->AUD->BitDepth);
+        uint64_t BlockAlign = CalculateW64BlockAlign(PCM->AUD->NumChannels, PCM->AUD->BitDepth);
         WriteBits(BitIOLSByte, BitIOLSBit, BitB, 16, 0);
-        WriteBits(BitIOLSByte, BitIOLSBit, BitB, 16, PCM->NumChannels);
-        WriteBits(BitIOLSByte, BitIOLSBit, BitB, 32, PCM->SampleRate);
+        WriteBits(BitIOLSByte, BitIOLSBit, BitB, 16, PCM->AUD->NumChannels);
+        WriteBits(BitIOLSByte, BitIOLSBit, BitB, 32, PCM->AUD->SampleRate);
         WriteBits(BitIOLSByte, BitIOLSBit, BitB, 32, ByteRate);
         WriteBits(BitIOLSByte, BitIOLSBit, BitB, 32, BlockAlign);
-        WriteBits(BitIOLSByte, BitIOLSBit, BitB, 16, PCM->BitDepth);
+        WriteBits(BitIOLSByte, BitIOLSBit, BitB, 16, PCM->AUD->BitDepth);
     }
     
     void WriteW64Header(PCMFile *PCM, BitBuffer *BitB) {
         WriteGUUID(BitIOUUIDString, BitB, W64_RIFF_GUIDString);
         // Write the size of the file including all header fields
-        uint64_t W64Size = (PCM->NumSamples * PCM->NumChannels * PCM->BitDepth);
+        uint64_t W64Size = (PCM->AUD->NumSamples * PCM->AUD->NumChannels * PCM->AUD->BitDepth);
         WriteBits(BitIOLSByte, BitIOLSBit, BitB, 64, W64Size);
         WriteGUUID(BitIOUUIDString, BitB, W64_WAVE_GUIDString);
         WriteGUUID(BitIOUUIDString, BitB, W64_FMT_GUIDString);
@@ -38,7 +38,7 @@ extern "C" {
         WriteBits(BitIOLSByte, BitIOLSBit, BitB, 64, FMTSize);
         WriteW64FMT(PCM, BitB);
         WriteGUUID(BitIOUUIDString, BitB, W64_DATA_GUIDString);
-        WriteBits(BitIOLSByte, BitIOLSBit, BitB, 64, PCM->NumSamples);
+        WriteBits(BitIOLSByte, BitIOLSBit, BitB, 64, PCM->AUD->NumSamples);
     }
     
 #ifdef __cplusplus

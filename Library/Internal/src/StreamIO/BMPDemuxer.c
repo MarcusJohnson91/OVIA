@@ -6,6 +6,9 @@
 extern "C" {
 #endif
     
+    void ParseBMPHeader(PCMFile *PCM, BitBuffer *BitB) {
+    }
+    
 #ifdef __cplusplus
 }
 #endif
