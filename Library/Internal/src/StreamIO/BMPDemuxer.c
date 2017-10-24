@@ -1,3 +1,5 @@
+#include <math.h>
+
 #include "../../include/libPCM.h"
 #include "../../include/Private/libPCMTypes.h"
 #include "../../include/Private/Image/BMPCommon.h"
@@ -66,20 +68,33 @@ extern "C" {
         }
     }
     
-    uint8_t **BMPExtractSamples(PCMFile *PCM, BitBuffer *BitB, uint64_t Pixels2Extract) {
+    uint64_t GetBMPRowSize(const uint16_t BitsPerPixel, const uint32_t ImageWidth) {
+        return floor((BitsPerPixel * ImageWidth + 31) / 32) * 4; // floor((8 * 5568 + 31) / 32) * 4
+    }
+    
+    uint64_t GetBMPPixelArraySize(const uint64_t RowSize, const int32_t ImageHeight) { // 5568, 3712, there's 54 extra bytes in the PixelArray...
+        return RowSize * abs(ImageHeight);
+    }
+    
+    uint8_t **BMPExtractPixels(PCMFile *PCM, BitBuffer *BitB, uint64_t Pixels2Extract) { // We need to convert the pixels to the Runtime Byte and Bit order.
         uint8_t **ExtractedPixels = NULL;
         uint64_t PixelArraySize = Pixels2Extract * PCM->BMP->NumChannels * sizeof(uint8_t);
         ExtractedPixels = calloc(1, PixelArraySize);
         if (ExtractedPixels == NULL) {
             Log(LOG_ERR, "libPCM", "BMPExtractPixels", "Couldn't allocate memory for the Sample Array, %d", PixelArraySize);
         } else {
-            for (uint64_t Channel = 0; Channel < PCM->BMP->NumChannels; Channel++) {
+            for (uint16_t Channel = 0; Channel < PCM->BMP->NumChannels; Channel++) { // Ok, this works when the bit depth is 8 bits per pixel, but what about 1 bit images, or palettized ones?
                 for (uint64_t Pixel = 0; Pixel < Pixels2Extract; Pixel++) {
-                    ExtractedPixels[Channel][Pixel] = ReadBits(BitIOLSByte, BitIOLSBit, BitB, PCM->BMP->BitDepth);
+                    if (PCM->BMP->BitDepth == 1) {
+                        ExtractedPixels[Channel][Pixel] = ReadBits(BitIOLSByte, BitIOMSBit, BitB, 1);
+                    } else if (PCM->BMP->NumColorsInIndexUsed > 0 || PCM->BMP->NumImportantColorsInIndex > 0) {
+                        // Indexxed colors, we'll need to convert the bits to the original color by looking it up in the table.
+                    } else {
+                        ExtractedPixels[Channel][Pixel] = ReadBits(BitIOLSByte, BitIOLSBit, BitB, PCM->BMP->BitDepth);
+                    }
                 }
             }
         }
-        
         return ExtractedPixels;
     }
     
