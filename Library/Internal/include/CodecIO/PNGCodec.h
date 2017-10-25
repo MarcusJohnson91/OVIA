@@ -62,23 +62,23 @@ extern "C" {
      @abstract                     "Initializes the DecodePNG structure to start decoding this specific PNG file"
      @return                       "It takes no parameters, and returns a pointer to the PNGDecoder (typedef'd as DecodePNG) structure"
      */
-    DecodePNG     *InitDecodePNG(void);
+    DecodePNG     *DecodePNGInit(void);
     
     /*!
      @abstract                     "Initializes the EncodePNG structure to start encoding this specific PNG file"
      @return                       "It takes no parameters, and returns a pointer to the PNGEncoder (typedef'd as EncodePNG) structure"
      */
-    EncodePNG     *InitEncodePNG(void);
+    EncodePNG     *EncodePNGInit(void);
     
     /*!
      @abstract                     "Uninitializes the PNGDecoder (typedef'd as DecodePNG) structure after you're done decoding this specific PNG file"
      */
-    void           DeinitDecodePNG(DecodePNG *Dec);
+    void           DecodePNGDeinit(DecodePNG *Dec);
     
     /*!
      @abstract                     "Uninitializes the PNGEncoder (typedef'd as EncodePNG) structure after you're done decoding this specific PNG file"
      */
-    void           DeinitEncodePNG(EncodePNG *Enc);
+    void           EncodePNGDeinit(EncodePNG *Enc);
     
     /*!
      @abstract                     "Encodes a PNG from RawImage2Encode to a BitBuffer"

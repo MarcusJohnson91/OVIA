@@ -24,7 +24,7 @@ extern "C" {
         Dec->iHDR->Compression    = ReadBits(BitIOMSByte, BitIOLSBit, InputPNG, 8);
         Dec->iHDR->FilterMethod   = ReadBits(BitIOMSByte, BitIOLSBit, InputPNG, 8);
         Dec->iHDR->IsInterlaced   = ReadBits(BitIOMSByte, BitIOLSBit, InputPNG, 8);
-        SkipBits(InputPNG, Bytes2Bits(ChunkSize - 13)); // incase the header is longer.
+        
         uint32_t CRC              = ReadBits(BitIOMSByte, BitIOLSBit, InputPNG, 32);
         //VerifyCRC(Dec->iHDR, ChunkSize, 1, 1, CRC);
     }
@@ -32,7 +32,7 @@ extern "C" {
     void ParsePLTE(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) { // Palette
         if (Dec->iHDR->BitDepth > 8) { // INVALID
             Log(LOG_ALERT, "ModernPNG", "ParsePLTE", "Invalid bit depth %d and palette combination\n", Dec->iHDR->BitDepth);
-            SkipBits(InputPNG, Bytes2Bits(ChunkSize));
+            BitBufferSkip(InputPNG, Bytes2Bits(ChunkSize));
         } else {
             
             if (Dec->iHDR->ColorType == PNG_PalettedRGB || Dec->iHDR->ColorType == PNG_RGB) {

@@ -309,6 +309,25 @@ extern "C" {
         }
     }
     
+    uint32_t GenerateCRC32(BitBuffer *BitB, const uint64_t BitOffset, const uint64_t BitLength) {
+        uint64_t CRC32Polynomial = 0x104C11DB7;
+        uint32_t CRC32PolyInit   =  0xFFFFFFFF;
+        uint8_t  CurrentBit      = 0;
+        for (uint64_t Bit = BitOffset; Bit < BitOffset + BitLength; Bit++) {
+            // Now we need to select a bit from the buffer
+            CurrentBit = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
+            
+        }
+        /*
+         Ok, so we already know the layout of the data hasn't been changed, and it's faster to iterate over the BitBuffer than copy variables back and forth.
+         We also know the polynomial, size of the polynomial, and the init for the Poly, these are all constants.
+         So, all we really have to do is Init the poly, and feed bits through the algorithm.
+         Thanks to the PNG algorithm, all of our offsets should be at byte boundaries, so we should be able to loop over bytes.
+         */
+        
+        return 0ULL;
+    }
+    
     uint64_t GenerateCRC(BitBuffer *Data2CRC, const uint64_t BitOffset, const uint64_t BitLength, const uint64_t Polynomial, const uint8_t PolySize, const uint64_t PolyInit) {
         /*
         if (PolySize % 8 != 0) {

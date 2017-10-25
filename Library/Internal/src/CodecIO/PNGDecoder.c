@@ -15,7 +15,7 @@ extern "C" {
         return 7 - ((Width - 1) % 8);
     }
     
-    DecodePNG *InitDecodePNG(void) {
+    DecodePNG *DecodePNGInit(void) {
         DecodePNG *Dec  = calloc(1, sizeof(DecodePNG));
         Dec->acTL       = calloc(1, sizeof(acTL));
         Dec->bkGD       = calloc(1, sizeof(bkGD));
@@ -38,7 +38,7 @@ extern "C" {
         return Dec;
     }
     
-    void DeinitDecodePNG(DecodePNG *Dec) {
+    void DecodePNGDeinit(DecodePNG *Dec) {
         if (Dec->acTLExists) {
             free(Dec->acTL);
         }

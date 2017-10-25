@@ -8,7 +8,7 @@
 extern "C" {
 #endif
     
-    EncodePNG *InitEncodePNG(void) {
+    EncodePNG *EncodePNGInit(void) {
         EncodePNG *Enc  = calloc(1, sizeof(EncodePNG));
         Enc->acTL       = calloc(1, sizeof(acTL));
         Enc->bkGD       = calloc(1, sizeof(bkGD));
@@ -31,7 +31,7 @@ extern "C" {
         return Enc;
     }
     
-    void DeinitEncodePNG(EncodePNG *Enc) {
+    void EncodePNGDeinit(EncodePNG *Enc) {
         if (Enc->acTLExists) {
             free(Enc->acTL);
         }
