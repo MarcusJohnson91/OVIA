@@ -17,7 +17,6 @@ extern "C" {
         WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 8,  Enc->iHDR->Compression);
         WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 8,  Enc->iHDR->FilterMethod);
         WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 8,  Enc->iHDR->IsInterlaced);
-        WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 32, Enc->iHDR->CRC);
     }
     
     void WriteACTLChunk(EncodePNG *Enc, BitBuffer *OutputPNG) {
@@ -25,7 +24,6 @@ extern "C" {
         WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 32, acTLMarker);
         WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 32, Enc->acTL->NumFrames);
         WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 32, Enc->acTL->TimesToLoop);
-        WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 32, Enc->acTL->CRC);
     }
     
     void WriteFCTLChunk(EncodePNG *Enc, BitBuffer *OutputPNG) {
@@ -40,21 +38,18 @@ extern "C" {
         WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 16, Enc->fcTL->FrameDelayDenominator);
         WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 8,  Enc->fcTL->DisposeMethod);
         WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 8,  Enc->fcTL->BlendMethod);
-        WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 32, Enc->fcTL->CRC);
     }
     
     void WriteFDATChunk(EncodePNG *Enc, BitBuffer *OutputPNG, uint8_t *DeflatedFrameData, uint32_t DeflatedFrameDataSize) {
         WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 32, DeflatedFrameData + 8);
         WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 32, fDATMarker);
         WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 32, Enc->fdAT->FrameNum);
-        WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 32, Enc->fdAT->CRC);
     }
     
     void WriteSTERChunk(EncodePNG *Enc, BitBuffer *OutputPNG) {
         WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 32, 1);
         WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 32, sTERMarker);
         WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 8,  Enc->sTER->StereoType);
-        WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 32, Enc->sTER->CRC);
     }
     
     void WriteBKGDChunk(EncodePNG *Enc, BitBuffer *OutputPNG) {
@@ -85,7 +80,6 @@ extern "C" {
                 WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, NumChannels * 16, Enc->bkGD->BackgroundPaletteEntry[Channel]);
             }
         }
-        WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 32, Enc->bkGD->CRC);
     }
     
     void WriteCHRMChunk(EncodePNG *Enc, BitBuffer *OutputPNG) {
@@ -99,14 +93,12 @@ extern "C" {
         WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 32, Enc->cHRM->GreenY);
         WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 32, Enc->cHRM->BlueX);
         WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 32, Enc->cHRM->BlueY);
-        WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 32, Enc->cHRM->CRC);
     }
     
     void WriteGAMAChunk(EncodePNG *Enc, BitBuffer *OutputPNG) {
         WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 32, 4);
         WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 32, gAMAMarker);
         WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 32, Enc->gAMA->Gamma);
-        WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 32, Enc->gAMA->CRC);
     }
     
     void WriteOFFSChunk(EncodePNG *Enc, BitBuffer *OutputPNG) {
@@ -115,7 +107,6 @@ extern "C" {
         WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 32, Enc->oFFs->XOffset);
         WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 32, Enc->oFFs->YOffset);
         WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 8,  Enc->oFFs->UnitSpecifier);
-        WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 32, Enc->oFFs->CRC);
     }
     
     void WriteICCPChunk(EncodePNG *Enc, BitBuffer *OutputPNG) {
@@ -127,7 +118,6 @@ extern "C" {
         WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, Bytes2Bits(ProfileNameSize), Enc->iCCP->ProfileName);
         WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 8, Enc->iCCP->CompressionType);
         WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, Bytes2Bits(CompressedProfileSize), Enc->iCCP->CompressedICCPProfile);
-        WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 32, Enc->iCCP->CRC);
     }
     
     void WriteSBITChunk(EncodePNG *Enc, BitBuffer *OutputPNG) {
@@ -161,14 +151,12 @@ extern "C" {
             WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 8, Enc->sBIT->Grayscale);
             WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 8, Enc->sBIT->Alpha);
         }
-        WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 32, Enc->sBIT->CRC);
     }
     
     void WriteSRGBChunk(EncodePNG *Enc, BitBuffer *OutputPNG) {
         WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 8, 1);
         WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 32, sRGBMarker);
         WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 8,  Enc->sRGB->RenderingIntent);
-        WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 32, Enc->sRGB->CRC);
     }
     
     void WritePHYSChunk(EncodePNG *Enc, BitBuffer *OutputPNG) {
@@ -177,7 +165,6 @@ extern "C" {
         WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 32, Enc->pHYs->PixelsPerUnitXAxis);
         WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 32, Enc->pHYs->PixelsPerUnitYAxis);
         WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 8,  Enc->pHYs->UnitSpecifier);
-        WriteBits(BitIOMSByte, BitIOLSBit, OutputPNG, 32, Enc->pHYs->CRC);
     }
     
     void WritePCALChunk(EncodePNG *Enc, BitBuffer *OutputPNG) {

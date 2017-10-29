@@ -15,6 +15,9 @@ extern "C" {
     
     typedef struct HuffmanTree HuffmanTree;
     
+    uint32_t GenerateCRC32(BitBuffer *BitB, const uint64_t ChunkSize);
+    bool     VerifyCRC32(BitBuffer *BitB, uint64_t ChunkSize);
+    
     /*!
      @abstract                                    "Generates CRC from data".
      @param             Data2CRC                  "Pointer to a BitBuffer containing data to CRC".

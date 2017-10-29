@@ -18,13 +18,13 @@ extern "C" {
         uint8_t    Compression;
         uint8_t    FilterMethod;
         bool       IsInterlaced;
-        uint32_t   CRC;
+        bool       CRCIsValid;
     } iHDR;
     
     typedef struct acTL {
         uint32_t   NumFrames;
         uint32_t   TimesToLoop;
-        uint32_t   CRC;
+        bool       CRCIsValid;
     } acTL;
     
     typedef struct fcTL {
@@ -37,34 +37,34 @@ extern "C" {
         uint16_t   FrameDelayDenominator;
         uint8_t    DisposeMethod;
         bool       BlendMethod;
-        uint32_t   CRC;
+        bool       CRCIsValid;
     } fcTL;
     
     typedef struct PLTE {
         uint8_t    NumEntries;
         uint8_t  **Palette;
-        uint32_t   CRC;
+        bool       CRCIsValid;
     } PLTE;
 
     typedef struct tRNS {
         uint8_t    NumEntries;
         uint8_t  **Palette;
-        uint32_t   CRC;
+        bool       CRCIsValid;
     } tRNS;
 
     typedef struct bkGD {
         uint8_t   *BackgroundPaletteEntry;
-        uint32_t   CRC;
+        bool       CRCIsValid;
     } bkGD;
 
     typedef struct sTER {
         bool       StereoType:1;
-        uint32_t   CRC;
+        bool       CRCIsValid;
     } sTER;
 
     typedef struct fdAT {
         uint32_t   FrameNum;
-        uint32_t   CRC;
+        bool       CRCIsValid;
     } fdAT;
 
     typedef struct cHRM { // sRGB or iCCP overrides cHRM
@@ -76,26 +76,26 @@ extern "C" {
         uint32_t   GreenY;
         uint32_t   BlueX;
         uint32_t   BlueY;
-        uint32_t   CRC;
+        bool       CRCIsValid;
     } cHRM;
 
     typedef struct gAMA { // sRGB or iCCP overrides gAMA
         uint32_t   Gamma;
-        uint32_t   CRC;
+        bool       CRCIsValid;
     } gAMA;
 
     typedef struct oFFs {
         int32_t    XOffset;
         int32_t    YOffset;
         bool       UnitSpecifier;
-        uint32_t   CRC;
+        bool       CRCIsValid;
     } oFFs;
 
     typedef struct iCCP {
-        char       *ProfileName;
-        uint8_t     CompressionType;
-        uint8_t    *CompressedICCPProfile;
-        uint32_t    CRC;
+        char      *ProfileName;
+        uint8_t    CompressionType;
+        uint8_t   *CompressedICCPProfile;
+        bool       CRCIsValid;
     } iCCP;
 
     typedef struct sBIT {
@@ -104,19 +104,19 @@ extern "C" {
         uint8_t    Green;
         uint8_t    Blue;
         uint8_t    Alpha;
-        uint32_t   CRC;
+        bool       CRCIsValid;
     } sBIT;
 
     typedef struct sRGB {
         uint8_t    RenderingIntent;
-        uint32_t   CRC;
+        bool       CRCIsValid;
     } sRGB;
 
     typedef struct pHYs {
         uint32_t   PixelsPerUnitXAxis;
         uint32_t   PixelsPerUnitYAxis;
         uint8_t    UnitSpecifier;
-        uint32_t   CRC;
+        bool       CRCIsValid;
     } pHYs;
 
     typedef struct pCAL {
@@ -128,33 +128,26 @@ extern "C" {
         uint8_t    EquationType;
         uint8_t    NumParams;
         uint8_t   *UnitName;
-        uint32_t   CRC;
+        bool       CRCIsValid;
     } pCAL;
 
     typedef struct sCAL {
         uint8_t    UnitSpecifier;
         float      PixelWidth; // ASCII float
         float      PixelHeight; // ASCII float
-        uint32_t   CRC;
+        bool       CRCIsValid;
     } sCAL;
 
-    typedef struct gIFg {
-        uint32_t   CRC;
-    } gIFg;
-
-    typedef struct gIFs {
-        uint32_t   CRC;
-    } gIFs;
-
     typedef struct hIST {
-        uint32_t   CRC;
+        
+        bool       CRCIsValid;
     } hIST;
 
     typedef struct Text { // Replaces:  tEXt, iTXt, zTXt
         uint8_t    TextType;
         uint8_t   *Keyword;
         uint8_t   *TextString;
-        uint32_t   CRC;
+        bool       CRCIsValid;
     } Text;
 
     typedef struct tIMe {
@@ -164,7 +157,7 @@ extern "C" {
         uint8_t    Hour;
         uint8_t    Minute;
         uint8_t    Second;
-        uint32_t   CRC;
+        bool       CRCIsValid;
     } tIMe;
     
     struct PNGDecoder {
