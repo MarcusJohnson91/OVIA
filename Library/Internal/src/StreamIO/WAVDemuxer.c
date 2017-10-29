@@ -59,7 +59,7 @@ extern "C" {
             Artist[Byte] = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 8);
         }
         PCM->AUD->Meta->ArtistTag = Artist;
-        if (IsOdd(ChunkSize) == true) {
+        if (IsOdd(ChunkSize) == Yes) {
             BitBufferSkip(BitB, 8);
         }
         PCM->AUD->Meta->NumTags += 1;
@@ -71,7 +71,7 @@ extern "C" {
             ReleaseDate[Byte] = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 8);
         }
         PCM->AUD->Meta->ReleaseDateTag = ReleaseDate;
-        if (IsOdd(ChunkSize) == true) {
+        if (IsOdd(ChunkSize) == Yes) {
             BitBufferSkip(BitB, 8);
         }
         PCM->AUD->Meta->NumTags += 1;
@@ -83,7 +83,7 @@ extern "C" {
             Genre[Byte] = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 8);
         }
         PCM->AUD->Meta->GenreTag = Genre;
-        if (IsOdd(ChunkSize) == true) {
+        if (IsOdd(ChunkSize) == Yes) {
             BitBufferSkip(BitB, 8);
         }
         PCM->AUD->Meta->NumTags += 1;
@@ -95,7 +95,7 @@ extern "C" {
             Title[Byte] = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 8);
         }
         PCM->AUD->Meta->SongTitleTag = Title;
-        if (IsOdd(ChunkSize) == true) {
+        if (IsOdd(ChunkSize) == Yes) {
             BitBufferSkip(BitB, 8);
         }
         PCM->AUD->Meta->NumTags += 1;
@@ -107,7 +107,7 @@ extern "C" {
             Album[Byte]          = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 8);
         }
         PCM->AUD->Meta->AlbumTag = Album;
-        if (IsOdd(ChunkSize) == true) {
+        if (IsOdd(ChunkSize) == Yes) {
             BitBufferSkip(BitB, 8);
         }
         PCM->AUD->Meta->NumTags += 1;
@@ -119,7 +119,7 @@ extern "C" {
             Encoder[Byte] = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 8);
         }
         PCM->AUD->Meta->EncoderTag = Encoder;
-        if (IsOdd(ChunkSize) == true) {
+        if (IsOdd(ChunkSize) == Yes) {
             BitBufferSkip(BitB, 8);
         }
         PCM->AUD->Meta->NumTags += 1;

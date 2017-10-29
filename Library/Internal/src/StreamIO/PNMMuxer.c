@@ -6,6 +6,12 @@
 extern "C" {
 #endif
     
+    void WritePXMHeader(PCMFile *PCM, BitBuffer *BitB, bool WritePAM) {
+        if (WritePAM == Yes) {
+            
+        }
+    }
+    
 #ifdef __cplusplus
 }
 #endif

@@ -11,7 +11,7 @@ extern "C" {
         
         PCM->AUD->FileSize                          = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
         BitBufferSkip(BitB, 32);
-        while (SSNDFound == false) {
+        while (SSNDFound == No) {
             for (uint64_t FileByte = 0; FileByte < PCM->AUD->FileSize; FileByte++) {
                 // Loop over all chunks until the SSND one is found
                 uint32_t AIFFChunkID                = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);

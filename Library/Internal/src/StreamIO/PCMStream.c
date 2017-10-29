@@ -109,9 +109,9 @@ extern "C" {
     void ParseW64File(PCMFile *PCM, BitBuffer *BitB) {
         uint8_t *ChunkUUID = ReadGUUID(BitIOUUIDString, BitB);
         uint64_t ChunkSize = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 64);
-        if (CompareGUUIDs(ChunkUUID, W64_FMT_GUIDString, BitIOBinaryUUID) == true) {
+        if (CompareGUUIDs(ChunkUUID, W64_FMT_GUIDString, BitIOBinaryUUID) == Yes) {
             ParseW64FMTChunk(PCM, BitB);
-        } else if (CompareGUUIDs(ChunkUUID, W64_BEXT_GUIDString, BitIOBinaryUUID) == true) {
+        } else if (CompareGUUIDs(ChunkUUID, W64_BEXT_GUIDString, BitIOBinaryUUID) == Yes) {
             ParseW64BEXTChunk(PCM, BitB);
         }
     }
