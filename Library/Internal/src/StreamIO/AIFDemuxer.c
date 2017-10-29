@@ -9,25 +9,25 @@ extern "C" {
     void ParseAIFMetadata(PCMFile *PCM, BitBuffer *BitB) {
         bool SSNDFound = false;
         
-        PCM->AUD->FileSize                  = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
+        PCM->AUD->FileSize                          = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
         BitBufferSkip(BitB, 32);
         while (SSNDFound == false) {
             for (uint64_t FileByte = 0; FileByte < PCM->AUD->FileSize; FileByte++) {
                 // Loop over all chunks until the SSND one is found
-                uint32_t AIFFChunkID           = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
+                uint32_t AIFFChunkID                = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
                 if (AIFFChunkID == AIF_NAME) {
                     ParseAIFNameChunk(PCM, BitB);
                 } else if (AIFFChunkID == AIF_COMM) {
-                    uint32_t AIFFCommSize      = Bytes2Bits(ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32));
+                    uint32_t AIFFCommSize           = Bytes2Bits(ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32));
                     PCM->AUD->NumChannels           = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
                     PCM->AUD->NumSamples            = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
                     PCM->AUD->BitDepth              = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
                     PCM->AUD->SampleRate            = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
                 } else if (AIFFChunkID == AIF_SSND) { // samples
-                    SSNDFound                  = true;
-                    uint32_t AIFFSSNDSize      = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-                    uint32_t AIFFSSNDOffset    = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-                    uint32_t AIFFSSNDBlockSize = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
+                    SSNDFound                       = true;
+                    uint32_t AIFFSSNDSize           = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
+                    uint32_t AIFFSSNDOffset         = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
+                    uint32_t AIFFSSNDBlockSize      = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
                     BitBufferSkip(BitB, Bytes2Bits(AIFFSSNDOffset));
                 }
             }
