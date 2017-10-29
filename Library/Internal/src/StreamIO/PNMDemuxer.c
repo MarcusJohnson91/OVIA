@@ -8,8 +8,6 @@ extern "C" {
     
     void ParsePXMHeader(PCMFile *PCM, BitBuffer *BitB, bool IsPAM) {
         BitBufferSkip(BitB, 8); // Skip the LineFeed
-        /* Read Height and Width is for PPM, PBM, AND PGM */
-        /* For PAM, We need to skip the WIDTH and HEIGHT strings first */
         if (IsPAM == Yes) {
             // Skip the WIDTH and HEIGHT strings
             BitBufferSkip(BitB, 48); // Skip "WIDTH " string
@@ -39,7 +37,6 @@ extern "C" {
         PCM->PXM->Height = atoll(HeightString); // Ok, so we read the Height.
         free(HeightString);
         /* Read Height */
-        
         /* Read NumChannels */
         if (IsPAM == Yes) {
             BitBufferSkip(BitB, 48); // Skip "DEPTH " string
@@ -55,7 +52,6 @@ extern "C" {
             free(DepthString);
         }
         /* Read NumChannels */
-        
         /* Read MaxVal */
         if (IsPAM == Yes) {
             BitBufferSkip(BitB, 56); // Skip "MAXVAL " string
@@ -71,7 +67,6 @@ extern "C" {
         PCM->PXM->MaxVal = atoll(MaxValString);
         free(MaxValString);
         /* Read MaxVal */
-        
         /* Read TupleType */
         if (IsPAM == Yes) {
             BitBufferSkip(BitB, 72); // Skip "TUPLETYPE " string
@@ -91,7 +86,6 @@ extern "C" {
             free(TupleTypeString);
         }
         /* Read TupleType */
-        
         /* Skip ENDHDR */
         BitBufferSkip(BitB, 56); // ENDHDR
         /* Skip ENDHDR */
