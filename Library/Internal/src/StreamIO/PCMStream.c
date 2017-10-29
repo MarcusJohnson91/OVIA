@@ -106,29 +106,6 @@ extern "C" {
         return ExtractedSamples;
     }
     
-    void ParseWAVFile(PCMFile *PCM, BitBuffer *BitB) {
-        uint32_t ChunkID   = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
-        uint32_t ChunkSize = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-        
-        switch (ChunkID) {
-            case WAV_LIST:
-                ParseWavLISTChunk(PCM, BitB, ChunkSize);
-                break;
-            case WAV_FMT:
-                ParseWavFMTChunk(PCM, BitB, ChunkSize);
-                break;
-            case WAV_WAVE:
-                BitBufferSkip(BitB, 32);
-                break;
-            case WAV_DATA:
-                ParseWavDATAChunk(PCM, BitB, ChunkSize);
-                break;
-            default:
-                Log(LOG_ERR, "libPCM", "ParseWAVFile", "Invalid ChunkID: 0x%X", ChunkID);
-                break;
-        }
-    }
-    
     void ParseW64File(PCMFile *PCM, BitBuffer *BitB) {
         uint8_t *ChunkUUID = ReadGUUID(BitIOUUIDString, BitB);
         uint64_t ChunkSize = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 64);

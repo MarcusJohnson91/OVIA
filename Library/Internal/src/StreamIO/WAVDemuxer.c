@@ -126,35 +126,31 @@ extern "C" {
     }
     
     void ParseWAVLISTChunk(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) {
-        uint32_t ShouldBeINFO  = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-        if (ShouldBeINFO == WAV_INFO) {
-            uint32_t ChunkID   = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-            uint32_t ChunkSize = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-            
-            switch (ChunkID) {
-                case WAV_IART: // Artist
-                    ReadINFO_IART(PCM, BitB, ChunkSize);
-                    break;
-                case WAV_ICRD: // Release date
-                    ReadINFO_ICRD(PCM, BitB, ChunkSize);
-                    break;
-                case WAV_IGNR: // Genre
-                    ReadINFO_IGNR(PCM, BitB, ChunkSize);
-                    break;
-                case WAV_INAM: // Title
-                    ReadINFO_INAM(PCM, BitB, ChunkSize);
-                    break;
-                case WAV_IPRD: // Album
-                    ReadINFO_IPRD(PCM, BitB, ChunkSize);
-                    break;
-                case WAV_ISFT: // Encoder
-                    ReadINFO_ISFT(PCM, BitB, ChunkSize);
-                    break;
-                default:
-                    break;
-            }
-        } else {
-            Log(LOG_ERR, "libPCM", "ParseWAVListChunk", "Unknown WAV List Chunk ID: %d", ShouldBeINFO);
+        uint32_t SubChunkID   = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
+        uint32_t SubChunkSize = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
+        
+        switch (SubChunkID) {
+            case WAV_IART: // Artist
+                ReadINFO_IART(PCM, BitB, SubChunkSize);
+                break;
+            case WAV_ICRD: // Release date
+                ReadINFO_ICRD(PCM, BitB, SubChunkSize);
+                break;
+            case WAV_IGNR: // Genre
+                ReadINFO_IGNR(PCM, BitB, SubChunkSize);
+                break;
+            case WAV_INAM: // Title
+                ReadINFO_INAM(PCM, BitB, SubChunkSize);
+                break;
+            case WAV_IPRD: // Album
+                ReadINFO_IPRD(PCM, BitB, SubChunkSize);
+                break;
+            case WAV_ISFT: // Encoder
+                ReadINFO_ISFT(PCM, BitB, SubChunkSize);
+                break;
+            default:
+                Log(LOG_ERR, "libPCM", "ParseWAVLISTChunk", "Unknown LIST Chunk: 0x%X", SubChunkID);
+                break;
         }
     }
     
@@ -204,6 +200,29 @@ extern "C" {
             }
         }
         return ExtractedSamples;
+    }
+    
+    void ParseWAVFile(PCMFile *PCM, BitBuffer *BitB) {
+        uint32_t ChunkID   = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
+        uint32_t ChunkSize = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
+        
+        switch (ChunkID) {
+            case WAV_LIST:
+                ParseWavLISTChunk(PCM, BitB, ChunkSize);
+                break;
+            case WAV_FMT:
+                ParseWavFMTChunk(PCM, BitB, ChunkSize);
+                break;
+            case WAV_WAVE:
+                BitBufferSkip(BitB, 32);
+                break;
+            case WAV_DATA:
+                ParseWavDATAChunk(PCM, BitB, ChunkSize);
+                break;
+            default:
+                Log(LOG_ERR, "libPCM", "ParseWAVFile", "Invalid ChunkID: 0x%X", ChunkID);
+                break;
+        }
     }
     
 #ifdef __cplusplus
