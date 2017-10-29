@@ -31,36 +31,30 @@ extern "C" {
                 PCM->BMP->HeightPixelsPerMeter                      = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32); // 0
                 PCM->BMP->NumColorsInIndexUsed                      = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32); // 0
                 PCM->BMP->NumImportantColorsInIndex                 = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32); // 0
-                if (PCM->BMP->DIBSize >= 52) {
-                    PCM->BMP->RedMask                               = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32); //
-                    PCM->BMP->GreenMask                             = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-                    PCM->BMP->BlueMask                              = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-                    PCM->BMP->AlphaMask                             = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-                    if (PCM->BMP->DIBSize >= 56) {
-                        PCM->BMP->ColorSpaceType                    = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-                        if (PCM->BMP->DIBSize >= 108) {
-                            PCM->BMP->XYZCoordinates[0]             = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-                            PCM->BMP->XYZCoordinates[1]             = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-                            PCM->BMP->XYZCoordinates[2]             = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-                            PCM->BMP->GammaRed                      = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-                            PCM->BMP->GammaGreen                    = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-                            PCM->BMP->GammaBlue                     = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-                            if (PCM->BMP->DIBSize >= 124) {
-                                PCM->BMP->ICCIntent                 = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-                                PCM->BMP->ICCProfilePayload         = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-                                PCM->BMP->ICCProfilePayloadSize     = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-                                PCM->BMP->Reserved                  = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-                            }
+                if (PCM->BMP->DIBSize >= 56) {
+                    PCM->BMP->ColorSpaceType                    = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
+                    if (PCM->BMP->DIBSize >= 108) {
+                        PCM->BMP->XYZCoordinates[0]             = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
+                        PCM->BMP->XYZCoordinates[1]             = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
+                        PCM->BMP->XYZCoordinates[2]             = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
+                        PCM->BMP->GammaRed                      = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
+                        PCM->BMP->GammaGreen                    = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
+                        PCM->BMP->GammaBlue                     = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
+                        if (PCM->BMP->DIBSize >= 124) {
+                            PCM->BMP->ICCIntent                 = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
+                            PCM->BMP->ICCProfilePayload         = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
+                            PCM->BMP->ICCProfilePayloadSize     = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
+                            PCM->BMP->Reserved                  = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
                         }
                     }
                 }
-            } else if (PCM->BMP->DIBSize == 40 && (PCM->BMP->CompressionType == BMP_BitFields || PCM->BMP->CompressionType == BMP_RGBABitFields)) {
-                PCM->BMP->RedMask                                   = ReadBits(BitIOLSByte, BitIOMSBit, BitB, PCM->BMP->BitDepth);
-                PCM->BMP->GreenMask                                 = ReadBits(BitIOLSByte, BitIOLSBit, BitB, PCM->BMP->BitDepth);
-                PCM->BMP->BlueMask                                  = ReadBits(BitIOMSByte, BitIOLSBit, BitB, PCM->BMP->BitDepth);
-                if (PCM->BMP->CompressionType == BMP_RGBABitFields) {
-                    PCM->BMP->AlphaMask                             = ReadBits(BitIOMSByte, BitIOLSBit, BitB, PCM->BMP->BitDepth);
-                }
+            }
+        } else if (PCM->BMP->DIBSize == 40 && (PCM->BMP->CompressionType == BMP_BitFields || PCM->BMP->CompressionType == BMP_RGBABitFields)) {
+            PCM->BMP->RedMask                                   = ReadBits(BitIOLSByte, BitIOMSBit, BitB, PCM->BMP->BitDepth);
+            PCM->BMP->GreenMask                                 = ReadBits(BitIOLSByte, BitIOLSBit, BitB, PCM->BMP->BitDepth);
+            PCM->BMP->BlueMask                                  = ReadBits(BitIOMSByte, BitIOLSBit, BitB, PCM->BMP->BitDepth);
+            if (PCM->BMP->CompressionType == BMP_RGBABitFields) {
+                PCM->BMP->AlphaMask                             = ReadBits(BitIOMSByte, BitIOLSBit, BitB, PCM->BMP->BitDepth);
             }
         }
     }
