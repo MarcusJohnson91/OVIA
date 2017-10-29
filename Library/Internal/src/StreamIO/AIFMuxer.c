@@ -6,7 +6,9 @@
 extern "C" {
 #endif
     
-    
+    void WriteAIFHeader(PCMFile *PCM, BitBuffer *BitB) {
+        
+    }
     
 #ifdef __cplusplus
 }
