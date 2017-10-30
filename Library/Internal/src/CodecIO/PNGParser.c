@@ -22,7 +22,7 @@ extern "C" {
         Dec->iHDR->BitDepth       = ReadBits(BitIOMSByte, BitIOLSBit, InputPNG, 8);
         Dec->iHDR->ColorType      = ReadBits(BitIOMSByte, BitIOLSBit, InputPNG, 8);
         if (Dec->iHDR->ColorType == 1 || Dec->iHDR->ColorType == 5 || Dec->iHDR->ColorType >= 7) {
-            Log(LOG_ALERT, "ModernPNG", "ParseiHDR", "Invalid color type: %d", Dec->iHDR->ColorType);
+            BitIOLog(LOG_ERROR, "ModernPNG", "ParseiHDR", "Invalid color type: %d", Dec->iHDR->ColorType);
         }
         Dec->iHDR->Compression    = ReadBits(BitIOMSByte, BitIOLSBit, InputPNG, 8);
         Dec->iHDR->FilterMethod   = ReadBits(BitIOMSByte, BitIOLSBit, InputPNG, 8);
@@ -30,7 +30,7 @@ extern "C" {
     	
         uint32_t CRC              = ReadBits(BitIOMSByte, BitIOLSBit, InputPNG, 32);
         if (GeneratedCRC != CRC) {
-            Log(LOG_ERR, "libModernPNG", "ParseIHDR", "CRC Mismatch");
+            BitIOLog(LOG_ERROR, "libModernPNG", "ParseIHDR", "CRC Mismatch");
         }
         
         //VerifyCRC(Dec->iHDR, ChunkSize, 1, 1, CRC);
@@ -38,7 +38,7 @@ extern "C" {
     
     void ParsePLTE(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) { // Palette
         if (Dec->iHDR->BitDepth > 8) { // INVALID
-            Log(LOG_ALERT, "ModernPNG", "ParsePLTE", "Invalid bit depth %d and palette combination\n", Dec->iHDR->BitDepth);
+            BitIOLog(LOG_ERROR, "ModernPNG", "ParsePLTE", "Invalid bit depth %d and palette combination\n", Dec->iHDR->BitDepth);
             BitBufferSkip(InputPNG, Bytes2Bits(ChunkSize));
         } else {
             
@@ -294,7 +294,7 @@ extern "C" {
             }
             free(ChunkID);
         } else {
-            Log(LOG_CRIT, "ModernPNG", "ParsePNGMetadata", "File Magic 0x%X is not PNG, exiting\n", FileMagic);
+            BitIOLog(LOG_ERROR, "ModernPNG", "ParsePNGMetadata", "File Magic 0x%X is not PNG, exiting\n", FileMagic);
             exit(EXIT_FAILURE);
         }
         

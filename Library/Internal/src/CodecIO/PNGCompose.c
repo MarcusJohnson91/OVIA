@@ -7,7 +7,7 @@ extern "C" {
     
     void IsAnimatedPNG(EncodePNG *Enc, const bool IsAnimatedPNG) {
         if (Enc == NULL) {
-            Log(LOG_ERR, "libModernPNG", "ComposePNGHeight", "Pointer to EncodePNG is NULL\n");
+            BitIOLog(LOG_ERROR, "libModernPNG", "ComposePNGHeight", "Pointer to EncodePNG is NULL\n");
         } else {
             Enc->IsAnimatedPNG = IsAnimatedPNG;
         }
@@ -15,7 +15,7 @@ extern "C" {
     
     void ComposeAPNGNumFrames(EncodePNG *Enc, const uint32_t NumFrames) {
         if (Enc == NULL) {
-            Log(LOG_ERR, "libModernPNG", "ComposeAPNGNumFrames", "Pointer to EncodePNG is NULL\n");
+            BitIOLog(LOG_ERROR, "libModernPNG", "ComposeAPNGNumFrames", "Pointer to EncodePNG is NULL\n");
         } else {
             Enc->acTL->NumFrames = NumFrames;
         }
@@ -23,7 +23,7 @@ extern "C" {
     
     void ComposeAPNGTimes2Loop(EncodePNG *Enc, const uint32_t NumTimes2Loop) {
         if (Enc == NULL) {
-            Log(LOG_ERR, "libModernPNG", "ComposeAPNGTimes2Loop", "Pointer to EncodePNG is NULL\n");
+            BitIOLog(LOG_ERROR, "libModernPNG", "ComposeAPNGTimes2Loop", "Pointer to EncodePNG is NULL\n");
         } else {
             Enc->acTL->TimesToLoop = NumTimes2Loop;
         }
@@ -31,7 +31,7 @@ extern "C" {
     
     void ComposeAPNGFrameDelay(EncodePNG *Enc, const uint32_t FrameDelayNumerator, const uint32_t FrameDelayDenominator) {
         if (Enc == NULL) {
-            Log(LOG_ERR, "libModernPNG", "ComposeAPNGFrameDelay", "Pointer to EncodePNG is NULL\n");
+            BitIOLog(LOG_ERROR, "libModernPNG", "ComposeAPNGFrameDelay", "Pointer to EncodePNG is NULL\n");
         } else {
             Enc->fcTL->FrameDelayNumerator   = FrameDelayNumerator;
             Enc->fcTL->FrameDelayDenominator = FrameDelayDenominator;
@@ -40,7 +40,7 @@ extern "C" {
     
     void ComposePNGWidth(EncodePNG *Enc, const uint32_t ImageWidth) {
         if (Enc == NULL) {
-            Log(LOG_ERR, "libModernPNG", "ComposePNGWidth", "Pointer to EncodePNG is NULL\n");
+            BitIOLog(LOG_ERROR, "libModernPNG", "ComposePNGWidth", "Pointer to EncodePNG is NULL\n");
         } else {
             Enc->iHDR->Width       = ImageWidth;
             if (Enc->IsAnimatedPNG) {
@@ -51,7 +51,7 @@ extern "C" {
     
     void ComposePNGHeight(EncodePNG *Enc, const uint32_t ImageHeight) {
         if (Enc == NULL) {
-            Log(LOG_ERR, "libModernPNG", "ComposePNGHeight", "Pointer to EncodePNG is NULL\n");
+            BitIOLog(LOG_ERROR, "libModernPNG", "ComposePNGHeight", "Pointer to EncodePNG is NULL\n");
         } else {
             Enc->iHDR->Height      = ImageHeight;
             if (Enc->IsAnimatedPNG) {
@@ -62,7 +62,7 @@ extern "C" {
     
     void ComposePNG3DType(EncodePNG *Enc, const bool StereoType) {
         if (Enc == NULL) {
-            Log(LOG_ERR, "libModernPNG", "ComposePNG3DType", "Pointer to EncodePNG is NULL\n");
+            BitIOLog(LOG_ERROR, "libModernPNG", "ComposePNG3DType", "Pointer to EncodePNG is NULL\n");
         } else {
             Enc->sTER->StereoType = StereoType;
         }
