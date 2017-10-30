@@ -30,7 +30,7 @@ extern "C" {
         } else if (FileMagic32 == 0x72696666) {
             PCM->PCMFileType = W64Format;
         } else {
-            Log(LOG_ERROR, "libPCM", "IdentifyPCMFile", "Unrecognized file magic 0x%X", FileMagic64);
+            BitIOLog(LOG_ERROR, "libPCM", "IdentifyPCMFile", "Unrecognized file magic 0x%X", FileMagic64);
         }
     }
     
@@ -82,11 +82,11 @@ extern "C" {
     uint32_t **ExtractSamples(PCMFile *PCM, BitBuffer *BitB, uint64_t NumSamples2Extract) {
         uint32_t **ExtractedSamples = NULL;
         if (PCM == NULL) {
-            Log(LOG_ERROR, "libPCM", "ExtractSamples", "Pointer to PCMFile is NULL");
+            BitIOLog(LOG_ERROR, "libPCM", "ExtractSamples", "Pointer to PCMFile is NULL");
         } else if (BitB == NULL) {
-            Log(LOG_ERROR, "libPCM", "ExtractSamples", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, "libPCM", "ExtractSamples", "Pointer to BitBuffer is NULL");
         } else if (NumSamples2Extract == 0) {
-            Log(LOG_ERROR, "libPCM", "ExtractSamples", "Requested too few samples %d", NumSamples2Extract);
+            BitIOLog(LOG_ERROR, "libPCM", "ExtractSamples", "Requested too few samples %d", NumSamples2Extract);
         } else {
             // just read the requested samples
             if (PCM->PCMFileType == WAVFormat) {
@@ -100,7 +100,7 @@ extern "C" {
             } else if (PCM->PCMFileType == BMPFormat) {
                 
             } else {
-                Log(LOG_ERROR, "libPCM", "ExtractSamples", "Unknown file format, Magic: 0x%X", PCM->PCMFileType);
+                BitIOLog(LOG_ERROR, "libPCM", "ExtractSamples", "Unknown file format, Magic: 0x%X", PCM->PCMFileType);
             }
         }
         return ExtractedSamples;

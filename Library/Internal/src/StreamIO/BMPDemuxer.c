@@ -75,7 +75,7 @@ extern "C" {
         uint64_t PixelArraySize    = NumPixels2Extract * PCM->BMP->NumChannels * sizeof(uint8_t);
         ExtractedPixels            = calloc(PCM->BMP->NumChannels, PixelArraySize * sizeof(uint64_t));
         if (ExtractedPixels == NULL) {
-            Log(LOG_ERROR, "libPCM", "BMPExtractPixels", "Couldn't allocate memory for the Sample Array, %d", PixelArraySize);
+            BitIOLog(LOG_ERROR, "libPCM", "BMPExtractPixels", "Couldn't allocate memory for the Sample Array, %d", PixelArraySize);
         } else {
             for (uint16_t Channel = 0; Channel < PCM->BMP->NumChannels; Channel++) { // Ok, this works when the bit depth is 8 bits per pixel, but what about 1 bit images, or palettized ones?
                 for (uint64_t Pixel = 0; Pixel < NumPixels2Extract; Pixel++) {

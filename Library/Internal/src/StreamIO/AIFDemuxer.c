@@ -43,7 +43,7 @@ extern "C" {
         uint64_t ExtractedSampleSize = Samples2Extract * PCM->AUD->NumChannels * PCM->AUD->BitDepth;
         uint32_t **ExtractedSamples = calloc(1, ExtractedSampleSize);
         if (ExtractedSamples == NULL) {
-            Log(LOG_ERROR, "libPCM", "AIFExtractSamples", "Not enough memory to allocate a buffer for the extracted samples, %d", ExtractedSampleSize);
+            BitIOLog(LOG_ERROR, "libPCM", "AIFExtractSamples", "Not enough memory to allocate a buffer for the extracted samples, %d", ExtractedSampleSize);
         } else {
             
         }

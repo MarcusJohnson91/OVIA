@@ -15,18 +15,18 @@ extern "C" {
     
     void ParseWAVINFO(PCMFile *PCM, BitBuffer *BitB) {
         if (PCM == NULL) {
-            Log(LOG_ERROR, "libPCM", "ParseWAV", "Pointer to PCMFile is NULL");
+            BitIOLog(LOG_ERROR, "libPCM", "ParseWAV", "Pointer to PCMFile is NULL");
         } else if (BitB == NULL) {
-            Log(LOG_ERROR, "libPCM", "ParseWAV", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, "libPCM", "ParseWAV", "Pointer to BitBuffer is NULL");
         } else {
         }
     }
     
     void ParseWAV(PCMFile *PCM, BitBuffer *BitB) {
         if (PCM == NULL) {
-            Log(LOG_ERROR, "libPCM", "ParseWAV", "Pointer to PCMFile is NULL");
+            BitIOLog(LOG_ERROR, "libPCM", "ParseWAV", "Pointer to PCMFile is NULL");
         } else if (BitB == NULL) {
-            Log(LOG_ERROR, "libPCM", "ParseWAV", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, "libPCM", "ParseWAV", "Pointer to BitBuffer is NULL");
         } else {
             /*
              So, this is where we've already read the RIFF and RIFFSize fields, so now we need to check if it's WAVE of INFO
@@ -41,7 +41,7 @@ extern "C" {
             } else if (strcasecmp(ChunkID, "INFO") == 0) {
                 
             } else {
-                Log(LOG_ERROR, "libPCM", "ParseWAV", "Unrecognized Chunk ID: %s", ChunkID);
+                BitIOLog(LOG_ERROR, "libPCM", "ParseWAV", "Unrecognized Chunk ID: %s", ChunkID);
             }
         }
     }
@@ -149,7 +149,7 @@ extern "C" {
                 ReadINFO_ISFT(PCM, BitB, SubChunkSize);
                 break;
             default:
-                Log(LOG_ERROR, "libPCM", "ParseWAVLISTChunk", "Unknown LIST Chunk: 0x%X", SubChunkID);
+                BitIOLog(LOG_ERROR, "libPCM", "ParseWAVLISTChunk", "Unknown LIST Chunk: 0x%X", SubChunkID);
                 break;
         }
     }
@@ -160,9 +160,9 @@ extern "C" {
     
     void ParseWavFMTChunk(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) {
         if (PCM == NULL) {
-            Log(LOG_ERROR, "libPCM", "ParseWAV", "Pointer to PCMFile is NULL");
+            BitIOLog(LOG_ERROR, "libPCM", "ParseWAV", "Pointer to PCMFile is NULL");
         } else if (BitB == NULL) {
-            Log(LOG_ERROR, "libPCM", "ParseWAV", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, "libPCM", "ParseWAV", "Pointer to BitBuffer is NULL");
         } else {
             uint16_t wFormatTag                  = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
             PCM->AUD->NumChannels                = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
@@ -191,7 +191,7 @@ extern "C" {
         uint64_t ExtractedSamplesSize = NumSamples2Extract * BitDepth2SampleSizeInBytes[PCM->AUD->BitDepth] * PCM->AUD->NumChannels;
         uint32_t **ExtractedSamples   = calloc(1, ExtractedSamplesSize);
         if (ExtractedSamples == NULL) {
-            Log(LOG_ERROR, "libPCM", "WAVExtractSamples", "Couldn't allocate enough memory for the Extracted samples, %d", ExtractedSamplesSize);
+            BitIOLog(LOG_ERROR, "libPCM", "WAVExtractSamples", "Couldn't allocate enough memory for the Extracted samples, %d", ExtractedSamplesSize);
         } else {
             for (uint64_t Channel = 0; Channel < PCM->AUD->NumChannels; Channel++) {
                 for (uint64_t Sample = 0; Sample < NumSamples2Extract; Sample++) {
@@ -201,7 +201,7 @@ extern "C" {
         }
         return ExtractedSamples;
     }
-    LOG_ALERT
+    
     void ParseWAVFile(PCMFile *PCM, BitBuffer *BitB) {
         uint32_t ChunkID   = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
         uint32_t ChunkSize = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
@@ -220,7 +220,7 @@ extern "C" {
                 ParseWavDATAChunk(PCM, BitB, ChunkSize);
                 break;
             default:
-                Log(LOG_ERROR, "libPCM", "ParseWAVFile", "Invalid ChunkID: 0x%X", ChunkID);
+                BitIOLog(LOG_ERROR, "libPCM", "ParseWAVFile", "Invalid ChunkID: 0x%X", ChunkID);
                 break;
         }
     }
