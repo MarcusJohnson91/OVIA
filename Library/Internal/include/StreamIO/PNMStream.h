@@ -11,10 +11,6 @@
 extern "C" {
 #endif
     
-    
-    
-    // The secton ender for all variants is 0x0A
-    
 #ifdef __cplusplus
 }
 #endif
