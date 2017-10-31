@@ -199,16 +199,25 @@ extern "C" {
                 for (uint8_t TupleByte = 0; TupleByte < TupleTypeSize; TupleByte++) {
                     TupleTypeString[TupleByte] = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
                 }
-                if (strcasecmp(TupleTypeString, "RGB") == 0) {
-                    PCM->PXM->TupleType = PXM_TUPLE_RGB;
-                } else if (strcasecmp(TupleTypeString, "RGB_ALPHA") == 0) {
-                    PCM->PXM->TupleType = PXM_TUPLE_RGBAlpha;
+             	if (strcasecmp(TupleTypeString, "BLACKANDWHITE") == 0) {
+                    PCM->PXM->NumChannels = 1;
+                    PCM->PXM->TupleType   = PXM_TUPLE_BnW;
+                } else if (strcasecmp(TupleTypeString, "GRAYSCALE") == 0) {
+                    PCM->PXM->NumChannels = 1;
+                    PCM->PXM->TupleType   = PXM_TUPLE_Gray;
                 } else if (strcasecmp(TupleTypeString, "GRAYSCALE_ALPHA") == 0) {
-                    PCM->PXM->TupleType = PXM_TUPLE_GrayAlpha;
-                }
-                
-                else {
-                    PCM->PXM->TupleType = PXM_TUPLE_Unknown;
+                    PCM->PXM->NumChannels = 2;
+                    PCM->PXM->TupleType   = PXM_TUPLE_GrayAlpha;
+                } else if (strcasecmp(TupleTypeString, "RGB") == 0) {
+                    PCM->PXM->NumChannels = 3;
+                    PCM->PXM->TupleType   = PXM_TUPLE_RGB;
+                } else if (strcasecmp(TupleTypeString, "RGB_ALPHA") == 0) {
+                    PCM->PXM->NumChannels = 4;
+                    PCM->PXM->TupleType   = PXM_TUPLE_RGBAlpha;
+                } else {
+                    PCM->PXM->NumChannels = 0;
+                    PCM->PXM->TupleType   = PXM_TUPLE_Unknown;
+                    BitIOLog(LOG_ERROR, "libPXM", "ParsePXMHeader", "Unknown PXM Tuple: %s", TupleTypeString);
                 }
                 free(TupleTypeString);
                 NumFieldsRead += 1;
