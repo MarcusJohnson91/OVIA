@@ -122,7 +122,8 @@ extern "C" {
                 for (uint8_t MaxValByte = 0; MaxValByte < MaxValStringSize; MaxValByte++) {
                     MaxValString[MaxValByte] = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
                 }
-                PCM->PXM->MaxVal = atoll(MaxValString);
+                uint64_t MaxVal    = atoll(MaxValString);
+                PCM->PXM->BitDepth = log2(MaxVal + 1);
                 free(MaxValString);
                 NumFieldsRead += 1;
                 /* Read MaxVal */
@@ -182,7 +183,8 @@ extern "C" {
                 for (uint8_t MaxValByte = 0; MaxValByte < MaxValStringSize; MaxValByte++) {
                     MaxValString[MaxValByte] = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
                 }
-                PCM->PXM->MaxVal = atoll(MaxValString);
+                uint64_t MaxVal    = atoll(MaxValString);
+                PCM->PXM->BitDepth = log2(MaxVal + 1);
                 free(MaxValString);
                 NumFieldsRead += 1;
                 /* Read MaxVal */
