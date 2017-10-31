@@ -21,12 +21,12 @@ extern "C" {
         for (uint8_t PXMMagicByte = 0; PXMMagicByte < PXMMagicSize; PXMMagicByte++) {
             PXMMagicID[PXMMagicByte] = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
         }
-        if (strncasecmp(PXMMagicID, "P7", PXMMagicSize) == 0) {
-            PCM->PXM->PXMType = PAMPXM;
-        } else if (strncasecmp(PXMMagicID, "P1", PXMMagicSize) == 0 || strncasecmp(PXMMagicID, "P2", PXMMagicSize) == 0 || strncasecmp(PXMMagicID, "P3", PXMMagicSize) == 0) {
+      	if (strncasecmp(PXMMagicID, "P1", PXMMagicSize) == 0 || strncasecmp(PXMMagicID, "P2", PXMMagicSize) == 0 || strncasecmp(PXMMagicID, "P3", PXMMagicSize) == 0) {
             PCM->PXM->PXMType = ASCIIPXM;
         } else if (strncasecmp(PXMMagicID, "P4", PXMMagicSize) == 0 || strncasecmp(PXMMagicID, "P5", PXMMagicSize) == 0 || strncasecmp(PXMMagicID, "P6", PXMMagicSize) == 0) {
             PCM->PXM->PXMType = BinaryPXM;
+        } else if (strncasecmp(PXMMagicID, "P7", PXMMagicSize) == 0) {
+            PCM->PXM->PXMType = PAMPXM;
         }
     }
     
