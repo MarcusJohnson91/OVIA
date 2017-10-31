@@ -16,6 +16,20 @@ extern "C" {
         return CommentSize;
     }
     
+    void IdentifyPXMFile(PCMFile *PCM, BitBuffer *BitB) {
+        char PXMMagicID[PXMMagicSize];
+        for (uint8_t PXMMagicByte = 0; PXMMagicByte < PXMMagicSize; PXMMagicByte++) {
+            PXMMagicID[PXMMagicByte] = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
+        }
+        if (strncasecmp(PXMMagicID, "P7", PXMMagicSize) == 0) {
+            PCM->PXM->PXMType = PAMPXM;
+        } else if (strncasecmp(PXMMagicID, "P1", PXMMagicSize) == 0 || strncasecmp(PXMMagicID, "P2", PXMMagicSize) == 0 || strncasecmp(PXMMagicID, "P3", PXMMagicSize) == 0) {
+            PCM->PXM->PXMType = ASCIIPXM;
+        } else if (strncasecmp(PXMMagicID, "P4", PXMMagicSize) == 0 || strncasecmp(PXMMagicID, "P5", PXMMagicSize) == 0 || strncasecmp(PXMMagicID, "P6", PXMMagicSize) == 0) {
+            PCM->PXM->PXMType = BinaryPXM;
+        }
+    }
+    
     void ParsePXMHeader(PCMFile *PCM, BitBuffer *BitB, uint64_t FileSize, bool IsASCII, bool IsPAM) {
         uint8_t NumFieldsRead = 0;
         uint8_t Fields2Read = 0;
@@ -34,7 +48,7 @@ extern "C" {
         
         while (NumFieldsRead < Fields2Read) {
             // Before each field we need to check for Comments if the file is ASCII.
-            if (IsASCII == Yes && IsPAM == No) {
+            if (PCM->PXM->PXMType == ASCIIPXM) {
                 uint64_t CommentSizeWidth = CheckPXMForComment(BitB);
                 BitBufferSkip(BitB, Bytes2Bits(CommentSizeWidth));
                 /* Read Width */
@@ -67,7 +81,7 @@ extern "C" {
                 free(HeightString);
                 NumFieldsRead += 1;
                 /* Read Height */
-            } else if (IsASCII == No && IsPAM == No) {
+            } else if (PCM->PXM->PXMType == BinaryPXM) {
                 /* Read Width */
                 uint64_t WidthStringSize = 0ULL;
                 while (ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8) != 0x20) {
@@ -112,7 +126,7 @@ extern "C" {
                 free(MaxValString);
                 NumFieldsRead += 1;
                 /* Read MaxVal */
-            } else if (IsASCII == No && IsPAM == Yes) {
+            } else if (PCM->PXM->PXMType == PAMPXM) {
                 /* Read Width */
                 BitBufferSkip(BitB, 48); // Skip "WIDTH " string
                 uint64_t WidthStringSize = 0ULL;
