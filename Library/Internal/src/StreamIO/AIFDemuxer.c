@@ -17,10 +17,7 @@ extern "C" {
         PCM->AUD->NumSamples  = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32); // A SampleFrame is simply a single sample from all channels.
         PCM->AUD->BitDepth    = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 16);
         BitBufferSkip(BitB, 16); // Skip the Exponent
-        uint16_t SampleRate1  = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 16);
-        uint16_t SampleRate2  = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 16);
-        PCM->AUD->SampleRate  = SampleRate1 + SampleRate2;
-        BitBufferSkip(BitB, 32); // Skip the rest of the Mantissa.
+        PCM->AUD->SampleRate  = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 64);
     }
     
     void AIFParseNameChunk(PCMFile *PCM, BitBuffer *BitB) {
