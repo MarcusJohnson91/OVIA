@@ -8,7 +8,7 @@ extern "C" {
     
     static uint64_t CheckPXMForComment(BitBuffer *BitB) { // returns 0 if no comment was found, returns the number of bytes that make up the comment if it was.
         uint64_t CommentSize = 0;
-        if (ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8) == 0x23) {
+        if (ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8) == PXMCommentStart) {
             while (ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8) != PXMEndField) {
                 CommentSize += 1;
             }
@@ -40,9 +40,6 @@ extern "C" {
         } else if (IsPAM == No && IsASCII == No) {
             Fields2Read = 3;
         }
-        
-        /* What if we were to find out the size of the file, and loop over each byte of the file until we found the last element and while we did tht, we skipped over each comment? */
-        /* You do not need to worry about comments being in the middle of fields, just between them. */
         
         BitBufferSkip(BitB, 8); // Skip the LineFeed after the FileType marker
         
@@ -254,7 +251,6 @@ extern "C" {
                     }
                 }
             } else if (PCM->PXM->PXMType == BinaryPXM || PCM->PXM->PXMType == PAMPXM) {
-                // Read PCM->PXM->BitDepth bits into an array NumPixels2Read * PCM->PXM->NumChannels
                 if (PCM->PXM->TupleType == PXM_TUPLE_BnW && PCM->PXM->PXMType == PAMPXM) {
                     // 1 = black, 0 = white
                 } else if (PCM->PXM->TupleType == PXM_TUPLE_BnW && PCM->PXM->PXMType != PAMPXM) {
