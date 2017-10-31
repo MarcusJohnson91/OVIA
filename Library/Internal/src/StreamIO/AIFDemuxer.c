@@ -127,14 +127,10 @@ extern "C" {
                 }
                 PCM->DataLeft -= AIFFSubChunkIDSize;
             } else if (AIFFSubChunkID == AIF_SSND) {
-                /*
-                 How are we gonna skip the audio data in order to make sure we read all the metadata, then skip back?
-                 */
-                if (IsOdd(AIFFSubChunkIDSize) == Yes) { // Skip the IFF container padding byte
-                    BitBufferSkip(BitB, 8);
-                    PCM->DataLeft -= 1;
-                }
-                PCM->DataLeft -= AIFFSubChunkIDSize;
+                uint32_t Offset    = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
+                uint32_t BlockSize = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
+                
+                BitBufferSkip(BitB, Bytes2Bits(Offset));
             }
         }
     }
@@ -148,11 +144,14 @@ extern "C" {
             for (uint16_t Channel = 0; Channel < PCM->AUD->NumChannels; Channel++) {
                 for (uint32_t Sample = 0UL; Sample < NumSamples2Extract; Sample++) {
                     ExtractedSamples[Channel][Sample] = ReadBits(BitIOMSByte, BitIOMSBit, BitB, PCM->AUD->BitDepth);
+                    BitBufferSkip(BitB, 8 - (PCM->AUD->BitDepth % 8)); // Skip the Zero'd bits
                 }
+            }
+            if (PCM->AUD->NumSamples == 0 && PCM->AUD->FileSize > 0) {
+                BitBufferSkip(BitB, 8); // Skip the IFF container padding byte
             }
         }
         return ExtractedSamples;
-        // Now skip padding when you extract samples, and block alignment too.
     }
     
 #ifdef __cplusplus

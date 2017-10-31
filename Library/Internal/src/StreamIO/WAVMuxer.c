@@ -9,14 +9,7 @@ extern "C" {
     
     static const uint8_t WAVNULLBinaryGUID[BitIOBinaryGUUIDSize] = {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
     
-    enum WAVFormatCode {
-        PCM = 1,
-        
-    };
-    
     void WriteWAVFMTChunk(PCMFile *PCM, BitBuffer *BitB) {
-        uint8_t CBSize = 46;
-        
         WriteBits(BitIOLSByte, BitIOLSBit, BitB, 32, 40); // ChunkSize
         WriteBits(BitIOLSByte, BitIOLSBit, BitB, 16, 0xFFFE); // WaveFormatExtensible
         WriteBits(BitIOLSByte, BitIOLSBit, BitB, 16, PCM->AUD->NumChannels);
@@ -24,6 +17,7 @@ extern "C" {
         WriteBits(BitIOLSByte, BitIOLSBit, BitB, 32, (PCM->AUD->SampleRate * PCM->AUD->NumChannels * PCM->AUD->BitDepth) / 8);
         WriteBits(BitIOLSByte, BitIOLSBit, BitB, 32, PCM->AUD->BlockAlignment);
         WriteBits(BitIOLSByte, BitIOLSBit, BitB, 16, PCM->AUD->BitDepth);
+        uint8_t CBSize = 46;
         WriteBits(BitIOLSByte, BitIOLSBit, BitB, 16, CBSize);
         WriteBits(BitIOLSByte, BitIOLSBit, BitB, 16, PCM->AUD->BitDepth); // ValidBitsPerSample
         WriteBits(BitIOLSByte, BitIOLSBit, BitB, 32, PCM->AUD->ChannelMask);
