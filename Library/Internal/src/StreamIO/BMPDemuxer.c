@@ -8,7 +8,7 @@
 extern "C" {
 #endif
     
-    void ParseBMPHeader(PCMFile *PCM, BitBuffer *BitB) {
+    void BMPParseMetadata(PCMFile *PCM, BitBuffer *BitB) {
         PCM->BMP->FileSize                                      = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32); // 524406
         PCM->BMP->Reserved1                                     = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16); // 0
         PCM->BMP->Reserved2                                     = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16); // 0

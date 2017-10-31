@@ -9,9 +9,7 @@
 extern "C" {
 #endif
     
-    void ParseAIFNameChunk(PCMFile *PCM, BitBuffer *BitB);
-    
-    void ParseAIFMetadata(PCMFile *PCM, BitBuffer *BitB);
+    void AIFParseMetadata(PCMFile *PCM, BitBuffer *BitB);
     
     uint32_t **AIFExtractSamples(PCMFile *PCM, BitBuffer *BitB, uint64_t Samples2Extract);
     

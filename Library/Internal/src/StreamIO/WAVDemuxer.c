@@ -13,47 +13,14 @@ extern "C" {
      INFO
      */
     
-    void ParseWAVINFO(PCMFile *PCM, BitBuffer *BitB) {
-        if (PCM == NULL) {
-            BitIOLog(LOG_ERROR, "libPCM", "ParseWAV", "Pointer to PCMFile is NULL");
-        } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libPCM", "ParseWAV", "Pointer to BitBuffer is NULL");
-        } else {
-        }
-    }
-    
-    void ParseWAV(PCMFile *PCM, BitBuffer *BitB) {
-        if (PCM == NULL) {
-            BitIOLog(LOG_ERROR, "libPCM", "ParseWAV", "Pointer to PCMFile is NULL");
-        } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libPCM", "ParseWAV", "Pointer to BitBuffer is NULL");
-        } else {
-            /*
-             So, this is where we've already read the RIFF and RIFFSize fields, so now we need to check if it's WAVE of INFO
-             */
-            uint8_t ChunkID[4];
-            for (uint8_t ChunkIDByte = 0; ChunkIDByte < 4; ChunkIDByte++) {
-                ChunkID[ChunkIDByte] = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
-            }
-            uint32_t ChunkSize = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-            if (strcasecmp(ChunkID, "WAVE") == 0) {
-                
-            } else if (strcasecmp(ChunkID, "INFO") == 0) {
-                
-            } else {
-                BitIOLog(LOG_ERROR, "libPCM", "ParseWAV", "Unrecognized Chunk ID: %s", ChunkID);
-            }
-        }
-    }
-    
-    const static uint8_t BitDepth2SampleSizeInBytes[32] = {
+    static const uint8_t BitDepth2SampleSizeInBytes[32] = {
          0,  8,  8,  8,  8,  8,  8,  8,
          8, 16, 16, 16, 16, 16, 16, 16,
         16, 24, 24, 24, 24, 24, 24, 24,
         24, 32, 32, 32, 32, 32, 32, 32
     };
     
-    void ReadINFO_IART(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) {
+    static void ReadINFO_IART(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) {
         char *Artist = calloc(1, ChunkSize);
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
             Artist[Byte] = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 8);
@@ -65,7 +32,7 @@ extern "C" {
         PCM->AUD->Meta->NumTags += 1;
     }
     
-    void ReadINFO_ICRD(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) {
+    static void ReadINFO_ICRD(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) {
         char *ReleaseDate = calloc(1, ChunkSize);
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
             ReleaseDate[Byte] = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 8);
@@ -77,7 +44,7 @@ extern "C" {
         PCM->AUD->Meta->NumTags += 1;
     }
     
-    void ReadINFO_IGNR(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) {
+    static void ReadINFO_IGNR(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) {
         char *Genre = calloc(1, ChunkSize);
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
             Genre[Byte] = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 8);
@@ -89,7 +56,7 @@ extern "C" {
         PCM->AUD->Meta->NumTags += 1;
     }
     
-    void ReadINFO_INAM(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) {
+    static void ReadINFO_INAM(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) {
         char *Title = calloc(1, ChunkSize);
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
             Title[Byte] = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 8);
@@ -101,7 +68,7 @@ extern "C" {
         PCM->AUD->Meta->NumTags += 1;
     }
     
-    void ReadINFO_IPRD(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) {
+    static void ReadINFO_IPRD(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) {
         char *Album              = calloc(1, ChunkSize);
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
             Album[Byte]          = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 8);
@@ -113,7 +80,7 @@ extern "C" {
         PCM->AUD->Meta->NumTags += 1;
     }
     
-    void ReadINFO_ISFT(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) { // Encoder
+    static void ReadINFO_ISFT(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) { // Encoder
         char *Encoder     = calloc(1, ChunkSize);
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
             Encoder[Byte] = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 8);
@@ -125,7 +92,7 @@ extern "C" {
         PCM->AUD->Meta->NumTags += 1;
     }
     
-    void ParseWAVLISTChunk(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) {
+    static void ParseWAVLISTChunk(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) {
         uint32_t SubChunkID   = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
         uint32_t SubChunkSize = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
         
@@ -154,11 +121,11 @@ extern "C" {
         }
     }
     
-    void ParseWavDATAChunk(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) {
+    static void ParseWavDATAChunk(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) {
         PCM->AUD->NumSamples            = ((ChunkSize / PCM->AUD->NumChannels) / Bits2Bytes(PCM->AUD->BitDepth, true));
     }
     
-    void ParseWavFMTChunk(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) {
+    static void ParseWavFMTChunk(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) {
         if (PCM == NULL) {
             BitIOLog(LOG_ERROR, "libPCM", "ParseWAV", "Pointer to PCMFile is NULL");
         } else if (BitB == NULL) {
@@ -187,6 +154,37 @@ extern "C" {
         }
     }
     
+    void WAVParseMetadata(PCMFile *PCM, BitBuffer *BitB) {
+        uint32_t ChunkID   = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
+        uint32_t ChunkSize = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
+        
+        switch (ChunkID) {
+            case WAV_LIST:
+                break;
+            case WAV_FMT:
+                ParseWavFMTChunk(PCM, BitB, ChunkSize);
+                if (IsOdd(ChunkSize) == Yes) { // Skip the IFF container padding byte
+                    BitBufferSkip(BitB, 8);
+                }
+                break;
+            case WAV_WAVE:
+                BitBufferSkip(BitB, 32);
+                if (IsOdd(ChunkSize) == Yes) { // Skip the IFF container padding byte
+                    BitBufferSkip(BitB, 8);
+                }
+                break;
+            case WAV_DATA:
+                ParseWavDATAChunk(PCM, BitB, ChunkSize);
+                if (IsOdd(ChunkSize) == Yes) { // Skip the IFF container padding byte
+                    BitBufferSkip(BitB, 8);
+                }
+                break;
+            default:
+                BitIOLog(LOG_ERROR, "libPCM", "WAVParseMetadata", "Invalid ChunkID: 0x%X", ChunkID);
+                break;
+        }
+    }
+    
     uint32_t **WAVExtractSamples(PCMFile *PCM, BitBuffer *BitB, uint64_t NumSamples2Extract) {
         uint64_t ExtractedSamplesSize = NumSamples2Extract * BitDepth2SampleSizeInBytes[PCM->AUD->BitDepth] * PCM->AUD->NumChannels;
         uint32_t **ExtractedSamples   = calloc(1, ExtractedSamplesSize);
@@ -200,29 +198,6 @@ extern "C" {
             }
         }
         return ExtractedSamples;
-    }
-    
-    void ParseWAVFile(PCMFile *PCM, BitBuffer *BitB) {
-        uint32_t ChunkID   = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
-        uint32_t ChunkSize = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-        
-        switch (ChunkID) {
-            case WAV_LIST:
-                ParseWavLISTChunk(PCM, BitB, ChunkSize);
-                break;
-            case WAV_FMT:
-                ParseWavFMTChunk(PCM, BitB, ChunkSize);
-                break;
-            case WAV_WAVE:
-                BitBufferSkip(BitB, 32);
-                break;
-            case WAV_DATA:
-                ParseWavDATAChunk(PCM, BitB, ChunkSize);
-                break;
-            default:
-                BitIOLog(LOG_ERROR, "libPCM", "ParseWAVFile", "Invalid ChunkID: 0x%X", ChunkID);
-                break;
-        }
     }
     
 #ifdef __cplusplus

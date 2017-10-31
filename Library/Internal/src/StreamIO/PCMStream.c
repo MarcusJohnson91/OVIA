@@ -23,7 +23,7 @@ extern "C" {
         
         if (FileMagic16 == BMP_BM) {
             PCM->PCMFileType = BMPFormat;
-        } else if (FileMagic16 == PortableBitMap1 || FileMagic16 == PortableBitMap2 || FileMagic16 == PortablePixMap1 || FileMagic16 == PortablePixMap2 || FileMagic16 == PortableGrayMap1 || FileMagic16 == PortableGrayMap2 || FileMagic16 == PortableAnyMap) {
+        } else if (FileMagic16 == PortableBitMapASCII || FileMagic16 == PortableBitMapBinary || FileMagic16 == PortablePixMapASCII || FileMagic16 == PortablePixMapBinary || FileMagic16 == PortableGrayMapASCII || FileMagic16 == PortableGrayMapBinary || FileMagic16 == PortableAnyMap) {
             PCM->PCMFileType = PXMFormat;
         } else if (FileMagic32 == AIF_FORM) {
             PCM->PCMFileType = AIFFormat;
@@ -38,121 +38,38 @@ extern "C" {
     
     void ParsePCMMetadata(PCMFile *PCM, BitBuffer *BitB) {
         if (PCM->PCMFileType == AIFFormat) {
-            ParseAIFMetadata(PCM, BitB);
-        } else if (PCM->PCMFileType == BMPFormat) {
-            
-        } else if (PCM->PCMFileType == PXMFormat) {
-            
+            AIFParseMetadata(PCM, BitB);
         } else if (PCM->PCMFileType == WAVFormat) {
-            
+            WAVParseMetadata(PCM, BitB);
         } else if (PCM->PCMFileType == W64Format) {
-            
+            W64ParseMetadata(PCM, BitB);
+        } else if (PCM->PCMFileType == BMPFormat) {
+            BMPParseMetadata(PCM, BitB);
+        } else if (PCM->PCMFileType == PXMFormat) {
+            PXMParseMetadata(PCM, BitB);
         }
     }
     
-    void ExtractPCMSamples(PCMFile *PCM, BitBuffer *BitB, uint64_t Samples2Extract) {
-        
-    }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    // Well, we need to identify the file type, set the approperiate values (is it audio or video?), then extract the correct amount of data depending on the type.
-    
-    
-    
-    
-    // So, We need to accept a BitInput pointer, and start reading the input file to discover it's file type, then call the dedicated format metadata parser to get the info we need and verify it's raw PCM, and then line us up with the PCM samples, and wait for calls to ExtractSamples
-    
-    // I want to just hand a file pointer here, and tell it to extract X samples (regardless of channel count)
-    // So we need to parse the various chunks in the file, extract info of value into a format specific struct
-    // then the ExtractSamples function needs to extract the samples and pass back the channel count, sample rate, and bit depth.
-    // and the ExtractSamples function needs to handle all of that for all formats
-    // So we need a struct to contain a bool that says if the metadata has been parsed and what sample we're on.
-    // Actually which sample we're on is already being tracked by BitIO
-    
-    /*!
-     @param NumSamples2Extract is the number of channel agnostic samples to read from the input file
-     */
-    uint32_t **ExtractSamples(PCMFile *PCM, BitBuffer *BitB, uint64_t NumSamples2Extract) {
+    uint32_t **ExtractAudioSamples(PCMFile *PCM, BitBuffer *SampleArray, uint64_t NumSamples2Extract) {
         uint32_t **ExtractedSamples = NULL;
-        if (PCM == NULL) {
-            BitIOLog(LOG_ERROR, "libPCM", "ExtractSamples", "Pointer to PCMFile is NULL");
-        } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libPCM", "ExtractSamples", "Pointer to BitBuffer is NULL");
-        } else if (NumSamples2Extract == 0) {
-            BitIOLog(LOG_ERROR, "libPCM", "ExtractSamples", "Requested too few samples %d", NumSamples2Extract);
-        } else {
-            // just read the requested samples
-            if (PCM->PCMFileType == WAVFormat) {
-                ExtractedSamples = WAVExtractSamples(PCM, BitB, NumSamples2Extract);
-            } else if (PCM->PCMFileType == W64Format) {
-                
-            } else if (PCM->PCMFileType == AIFFormat) {
-                
-            } else if (PCM->PCMFileType == PXMFormat) {
-                
-            } else if (PCM->PCMFileType == BMPFormat) {
-                
-            } else {
-                BitIOLog(LOG_ERROR, "libPCM", "ExtractSamples", "Unknown file format, Magic: 0x%X", PCM->PCMFileType);
-            }
+        if (PCM->PCMFileType == AIFFormat) {
+            ExtractedSamples        = AIFExtractSamples(PCM, SampleArray, NumSamples2Extract);
+        } else if (PCM->PCMFileType == WAVFormat) {
+            ExtractedSamples        = WAVExtractSamples(PCM, SampleArray, NumSamples2Extract);
+        } else if (PCM->PCMFileType == W64Format) {
+            ExtractedSamples        = W64ExtractSamples(PCM, SampleArray, NumSamples2Extract);
         }
         return ExtractedSamples;
     }
     
-    void ParseW64File(PCMFile *PCM, BitBuffer *BitB) {
-        uint8_t *ChunkUUID = ReadGUUID(BitIOUUIDString, BitB);
-        uint64_t ChunkSize = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 64);
-        if (CompareGUUIDs(ChunkUUID, W64_FMT_GUIDString, BitIOBinaryUUID) == Yes) {
-            ParseW64FMTChunk(PCM, BitB);
-        } else if (CompareGUUIDs(ChunkUUID, W64_BEXT_GUIDString, BitIOBinaryUUID) == Yes) {
-            ParseW64BEXTChunk(PCM, BitB);
-        }
-    }
-    
-    void ParseAIFFChunk(PCMFile *PCM, BitBuffer *BitB) {
-        
-    }
-    
-    void ParseAIFCChunk(PCMFile *PCM, BitBuffer *BitB) {
-        
-    }
-    
-    void ParseAIFFile(PCMFile *PCM, BitBuffer *BitB) {
-        // if NumFrames = 0, SNSD may not exist.
-        uint32_t AIFSize = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-        uint32_t ChunkID = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-        switch (ChunkID) { // If the number of sound data bytes is odd, appened a padding sample.
-            case AIF_AIFF:
-                
-                break;
-            case AIF_AIFC:
-                
-            default:
-                break;
-        }
-    }
-    
-    void ExtractAudioSamples(PCMFile *PCM, BitBuffer *ExtractedSamples, uint64_t NumSamples2Extract) {
-        
-    }
-    
-    uint16_t **ExtractPixels(PCMFile *PCM, BitBuffer *ExtractedPixels, uint64_t NumPixels2Extract) {
-        uint16_t **ExtractedArray = NULL;
+    uint16_t **ExtractPixels(PCMFile *PCM, BitBuffer *PixelArray, uint64_t NumPixels2Extract) {
+        uint16_t **ExtractedPixels = NULL;
         if (PCM->PCMFileType == PXMFormat) {
-            ExtractedArray        = PXMExtractPixels(PCM, ExtractedPixels, NumPixels2Extract);
+            ExtractedPixels        = PXMExtractPixels(PCM, PixelArray, NumPixels2Extract);
         } else if (PCM->PCMFileType == BMPFormat) {
-            
+            ExtractedPixels        = BMPExtractPixels(PCM, PixelArray, NumPixels2Extract);
         }
-        return ExtractedArray;
+        return ExtractedPixels;
     }
     
     void PCMFileDeinit(PCMFile *PCM) {

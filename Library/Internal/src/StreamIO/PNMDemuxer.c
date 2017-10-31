@@ -30,7 +30,7 @@ extern "C" {
         }
     }
     
-    void ParsePXMHeader(PCMFile *PCM, BitBuffer *BitB) {
+    void PXMParseMetadata(PCMFile *PCM, BitBuffer *BitB) {
         uint8_t NumFieldsRead = 0;
         uint8_t Fields2Read = 0;
         if (PCM->PXM->PXMType == PAMPXM) {
@@ -211,7 +211,7 @@ extern "C" {
                 } else {
                     PCM->PXM->NumChannels = 0;
                     PCM->PXM->TupleType   = PXM_TUPLE_Unknown;
-                    BitIOLog(LOG_ERROR, "libPXM", "ParsePXMHeader", "Unknown PXM Tuple: %s", TupleTypeString);
+                    BitIOLog(LOG_ERROR, "libPXM", "PXMParseMetadata", "Unknown PXM Tuple: %s", TupleTypeString);
                 }
                 free(TupleTypeString);
                 NumFieldsRead += 1;

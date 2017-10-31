@@ -1,51 +1,143 @@
 #include "../../include/libPCM.h"
 #include "../../include/Private/libPCMTypes.h"
 #include "../../include/Private/Audio/AIFCommon.h"
+#include <stdlib.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
     
-    void ParseAIFMetadata(PCMFile *PCM, BitBuffer *BitB) {
-        bool SSNDFound = false;
-        
-        PCM->AUD->FileSize                          = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-        BitBufferSkip(BitB, 32);
-        while (SSNDFound == No) {
-            for (uint64_t FileByte = 0; FileByte < PCM->AUD->FileSize; FileByte++) {
-                // Loop over all chunks until the SSND one is found
-                uint32_t AIFFChunkID                = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-                if (AIFFChunkID == AIF_NAME) {
-                    ParseAIFNameChunk(PCM, BitB);
-                } else if (AIFFChunkID == AIF_COMM) {
-                    uint32_t AIFFCommSize           = Bytes2Bits(ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32));
-                    PCM->AUD->NumChannels           = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
-                    PCM->AUD->NumSamples            = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-                    PCM->AUD->BitDepth              = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
-                    PCM->AUD->SampleRate            = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
-                } else if (AIFFChunkID == AIF_SSND) { // samples
-                    SSNDFound                       = true;
-                    uint32_t AIFFSSNDSize           = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-                    uint32_t AIFFSSNDOffset         = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-                    uint32_t AIFFSSNDBlockSize      = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-                    BitBufferSkip(BitB, Bytes2Bits(AIFFSSNDOffset));
+    /*
+     Like WAV, Chunks are padded if their size is not even, and the ChunkSize field contains the real size without the padding
+     the ChunkSize field does NOT include the ChunkID or ChunkSize fields.
+     */
+    
+    void AIFParseCOMMChunk(PCMFile *PCM, BitBuffer *BitB) {
+        PCM->AUD->NumChannels = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 16);
+        PCM->AUD->NumSamples  = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32); // A SampleFrame is simply a single sample from all channels.
+        PCM->AUD->BitDepth    = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 16);
+        BitBufferSkip(BitB, 16); // Skip the Exponent
+        uint16_t SampleRate1  = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 16);
+        uint16_t SampleRate2  = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 16);
+        PCM->AUD->SampleRate  = SampleRate1 + SampleRate2;
+        BitBufferSkip(BitB, 32); // Skip the rest of the Mantissa.
+    }
+    
+    void AIFParseNameChunk(PCMFile *PCM, BitBuffer *BitB) {
+        uint32_t AIFFNameSize           = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
+        char *SongTitleTagString        = calloc(1, AIFFNameSize);
+        for (uint32_t TagByte = 0UL; TagByte < AIFFNameSize; TagByte++) {
+            SongTitleTagString[TagByte] = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
+        }
+        PCM->AUD->Meta->SongTitleTag    = SongTitleTagString;
+    }
+    
+    void AIFParseAuthorChunk(PCMFile *PCM, BitBuffer *BitB) {
+        uint32_t AIFFAuthSize           = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
+        char *AuthorString              = calloc(1, AIFFAuthSize);
+        for (uint32_t TagByte = 0UL; TagByte < AIFFAuthSize; TagByte++) {
+            AuthorString[TagByte] = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
+        }
+        PCM->AUD->Meta->ArtistTag       = AuthorString;
+    }
+    
+    void AIFParseAnnotationChunk(PCMFile *PCM, BitBuffer *BitB) {
+        uint32_t AIFFAnnoSize           = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
+        char *AnnotationString          = calloc(1, AIFFAnnoSize);
+        for (uint32_t TagByte = 0UL; TagByte < AIFFAnnoSize; TagByte++) {
+            AnnotationString[TagByte]   = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
+        }
+        PCM->AUD->Meta->NumANNOChunks  += 1;
+        PCM->AUD->Meta->AnnoChunks[PCM->AUD->Meta->NumANNOChunks - 1] = AnnotationString;
+    }
+    
+    void AIFParseMetadata(PCMFile *PCM, BitBuffer *BitB) {
+        PCM->AUD->FileSize                              = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
+        uint32_t AIFFChunkID                            = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
+        if (AIFFChunkID != AIF_AIFF || AIFFChunkID != AIF_AIFC) {
+            BitIOLog(LOG_ERROR, "libPCM", "AIFParseMetadata", "Invalid ChunkID %s, It should be AIFF or AIFC", AIFFChunkID);
+        } else {
+            uint32_t AIFFSubChunkID                     = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
+            uint32_t AIFFSubChunkIDSize                 = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
+            if (AIFFSubChunkID == AIF_COMM) {
+                AIFParseCOMMChunk(PCM, BitB);
+                if (IsOdd(AIFFSubChunkIDSize) == Yes) { // Skip the IFF container padding byte
+                    BitBufferSkip(BitB, 8);
+                }
+            } else if (AIFFSubChunkID == AIF_ID3) {
+                BitBufferSkip(BitB, Bytes2Bits(AIFFSubChunkIDSize));
+                if (IsOdd(AIFFSubChunkIDSize) == Yes) { // Skip the IFF container padding byte
+                    BitBufferSkip(BitB, 8);
+                }
+            } else if (AIFFSubChunkID == AIF_NAME) {
+                AIFParseNameChunk(PCM, BitB);
+                if (IsOdd(AIFFSubChunkIDSize) == Yes) { // Skip the IFF container padding byte
+                    BitBufferSkip(BitB, 8);
+                }
+            } else if (AIFFSubChunkID == AIF_AUTH) {
+                AIFParseAuthorChunk(PCM, BitB);
+                if (IsOdd(AIFFSubChunkIDSize) == Yes) { // Skip the IFF container padding byte
+                    BitBufferSkip(BitB, 8);
+                }
+            } else if (AIFFSubChunkID == AIF_MARK) {
+                BitBufferSkip(BitB, Bytes2Bits(AIFFSubChunkIDSize));
+                if (IsOdd(AIFFSubChunkIDSize) == Yes) { // Skip the IFF container padding byte
+                    BitBufferSkip(BitB, 8);
+                }
+            } else if (AIFFSubChunkID == AIF_INST) {
+                BitBufferSkip(BitB, Bytes2Bits(AIFFSubChunkIDSize));
+                if (IsOdd(AIFFSubChunkIDSize) == Yes) { // Skip the IFF container padding byte
+                    BitBufferSkip(BitB, 8);
+                }
+            } else if (AIFFSubChunkID == AIF_MIDI) {
+                BitBufferSkip(BitB, Bytes2Bits(AIFFSubChunkIDSize));
+                if (IsOdd(AIFFSubChunkIDSize) == Yes) { // Skip the IFF container padding byte
+                    BitBufferSkip(BitB, 8);
+                }
+            } else if (AIFFSubChunkID == AIF_AESD) {
+                BitBufferSkip(BitB, Bytes2Bits(AIFFSubChunkIDSize));
+                if (IsOdd(AIFFSubChunkIDSize) == Yes) { // Skip the IFF container padding byte
+                    BitBufferSkip(BitB, 8);
+                }
+            } else if (AIFFSubChunkID == AIF_AAPL) {
+                BitBufferSkip(BitB, Bytes2Bits(AIFFSubChunkIDSize));
+                if (IsOdd(AIFFSubChunkIDSize) == Yes) { // Skip the IFF container padding byte
+                    BitBufferSkip(BitB, 8);
+                }
+            } else if (AIFFSubChunkID == AIF_COMT) {
+                BitBufferSkip(BitB, Bytes2Bits(AIFFSubChunkIDSize));
+                if (IsOdd(AIFFSubChunkIDSize) == Yes) { // Skip the IFF container padding byte
+                    BitBufferSkip(BitB, 8);
+                }
+            }
+            
+            
+            
+            
+            else if (AIFFSubChunkID == AIF_SSND) {
+                /*
+                 How are we gonna skip the audio data in order to make sure we read all the metadata, then skip back?
+                 */
+                if (IsOdd(AIFFSubChunkIDSize) == Yes) { // Skip the IFF container padding byte
+                    BitBufferSkip(BitB, 8);
                 }
             }
         }
     }
     
-    void ParseAIFNameChunk(PCMFile *PCM, BitBuffer *BitB) {
-        uint32_t AIFFNameSize           = Bytes2Bits(ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32));
-        PCM->AUD->Meta->SongTitleTag    = ReadBits(BitIOLSByte, BitIOLSBit, BitB, AIFFNameSize);
-    }
     
-    uint32_t **AIFExtractSamples(PCMFile *PCM, BitBuffer *BitB, uint64_t Samples2Extract) {
-        uint64_t ExtractedSampleSize = Samples2Extract * PCM->AUD->NumChannels * PCM->AUD->BitDepth;
-        uint32_t **ExtractedSamples = calloc(1, ExtractedSampleSize);
+    
+    uint32_t **AIFExtractSamples(PCMFile *PCM, BitBuffer *BitB, uint64_t NumSamples2Extract) {
+        uint64_t   ExtractedSampleSize = NumSamples2Extract * PCM->AUD->NumChannels * PCM->AUD->BitDepth;
+        uint32_t **ExtractedSamples    = calloc(1, NumSamples2Extract);
         if (ExtractedSamples == NULL) {
             BitIOLog(LOG_ERROR, "libPCM", "AIFExtractSamples", "Not enough memory to allocate a buffer for the extracted samples, %d", ExtractedSampleSize);
         } else {
-            
+            for (uint16_t Channel = 0; Channel < PCM->AUD->NumChannels; Channel++) {
+                for (uint32_t Sample = 0UL; Sample < NumSamples2Extract; Sample++) {
+                    ExtractedSamples[Channel][Sample] = ReadBits(BitIOMSByte, BitIOMSBit, BitB, PCM->AUD->BitDepth);
+                }
+            }
         }
         return ExtractedSamples;
         // Now skip padding when you extract samples, and block alignment too.

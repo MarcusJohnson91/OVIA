@@ -13,7 +13,7 @@ extern "C" {
     
     void       IdentifyPXMFileType(PCMFile *PCM, BitBuffer *BitB);
     
-    void       ParsePXMHeader(PCMFile *PCM, BitBuffer *BitB);
+    void       PXMParseMetadata(PCMFile *PCM, BitBuffer *BitB);
     
     uint16_t **PXMExtractPixels(PCMFile *PCM, BitBuffer *BitB, uint64_t NumPixels2Read);
     

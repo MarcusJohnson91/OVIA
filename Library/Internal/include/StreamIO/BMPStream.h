@@ -9,7 +9,7 @@
 extern "C" {
 #endif
     
-    void       ParseBMPHeader(PCMFile *PCM, BitBuffer *BitB);
+    void       BMPParseMetadata(PCMFile *PCM, BitBuffer *BitB);
     
     uint16_t **BMPExtractPixels(PCMFile *PCM, BitBuffer *BitB, uint64_t NumPixels2Extract);
 
