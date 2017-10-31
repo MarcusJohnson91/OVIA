@@ -4,6 +4,8 @@
 #include "../include/Private/Audio/WAVCommon.h"
 #include "../include/Private/Audio/W64Common.h"
 #include "../include/Private/Audio/AIFCommon.h"
+#include "../include/Private/Image/BMPCommon.h"
+#include "../include/Private/Image/PXMCommon.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -139,12 +141,18 @@ extern "C" {
         }
     }
     
-    void ExtractAudioSamples(PCMFile *PCM, BitBuffer *ExtractedSamples, uint64_t Samples2Extract) {
+    void ExtractAudioSamples(PCMFile *PCM, BitBuffer *ExtractedSamples, uint64_t NumSamples2Extract) {
         
     }
     
-    void ExtractImageLines(PCMFile *PCM, BitBuffer *ExtractedLines, uint64_t Lines2Extract) {
-        
+    uint16_t **ExtractPixels(PCMFile *PCM, BitBuffer *ExtractedPixels, uint64_t NumPixels2Extract) {
+        uint16_t **ExtractedArray = NULL;
+        if (PCM->PCMFileType == PXMFormat) {
+            ExtractedArray        = PXMExtractPixels(PCM, ExtractedPixels, NumPixels2Extract);
+        } else if (PCM->PCMFileType == BMPFormat) {
+            
+        }
+        return ExtractedArray;
     }
     
     void PCMFileDeinit(PCMFile *PCM) {

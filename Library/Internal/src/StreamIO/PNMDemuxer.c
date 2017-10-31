@@ -16,7 +16,7 @@ extern "C" {
         return CommentSize;
     }
     
-    void IdentifyPXMFile(PCMFile *PCM, BitBuffer *BitB) {
+    void IdentifyPXMFileType(PCMFile *PCM, BitBuffer *BitB) {
         char PXMMagicID[PXMMagicSize];
         for (uint8_t PXMMagicByte = 0; PXMMagicByte < PXMMagicSize; PXMMagicByte++) {
             PXMMagicID[PXMMagicByte] = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
@@ -30,14 +30,14 @@ extern "C" {
         }
     }
     
-    void ParsePXMHeader(PCMFile *PCM, BitBuffer *BitB, uint64_t FileSize, bool IsASCII, bool IsPAM) {
+    void ParsePXMHeader(PCMFile *PCM, BitBuffer *BitB) {
         uint8_t NumFieldsRead = 0;
         uint8_t Fields2Read = 0;
-        if (IsPAM == Yes) {
+        if (PCM->PXM->PXMType == PAMPXM) {
             Fields2Read = 5;
-        } else if (IsPAM == No && IsASCII == Yes) {
+        } else if (PCM->PXM->PXMType == ASCIIPXM) {
             Fields2Read = 2; // there is no MaxVal field
-        } else if (IsPAM == No && IsASCII == No) {
+        } else if (PCM->PXM->PXMType == BinaryPXM) {
             Fields2Read = 3;
         }
         
@@ -108,9 +108,6 @@ extern "C" {
                 /* Read Height */
                 
                 /* Read MaxVal */
-                if (IsPAM == Yes) {
-                    BitBufferSkip(BitB, 56); // Skip "MAXVAL " string
-                }
                 uint8_t MaxValStringSize = 0;
                 while (ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8) != PXMEndField) {
                     MaxValStringSize += 1;
@@ -227,11 +224,11 @@ extern "C" {
         }
     }
     
-    uint16_t **ExtractSamplesFromPXM(PCMFile *PCM, BitBuffer *BitB, uint64_t NumPixels2Read) {
+    uint16_t **PXMExtractPixels(PCMFile *PCM, BitBuffer *BitB, uint64_t NumPixels2Read) {
         uint64_t PixelArraySize = NumPixels2Read * PCM->PXM->NumChannels * Bits2Bytes(PCM->PXM->BitDepth, Yes);
         uint16_t **PixelArray = calloc(1, PixelArraySize);
         if (PixelArray == NULL) {
-            BitIOLog(LOG_ERROR, "libPCM", "ExtractSamplesFromPXM", "Couldn't allocate %d bytes for the PixelArray", PixelArraySize);
+            BitIOLog(LOG_ERROR, "libPCM", "PXMExtractPixels", "Couldn't allocate %d bytes for the PixelArray", PixelArraySize);
         } else {
             if (PCM->PXM->PXMType == ASCIIPXM) {
                 if (PCM->PXM->TupleType == PXM_TUPLE_BnW) {

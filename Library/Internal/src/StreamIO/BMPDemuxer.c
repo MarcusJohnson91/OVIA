@@ -62,16 +62,16 @@ extern "C" {
         }
     }
     
-    uint64_t GetBMPRowSize(const uint16_t BitsPerPixel, const uint32_t ImageWidth) {
+    static uint64_t GetBMPRowSize(const uint16_t BitsPerPixel, const uint32_t ImageWidth) {
         return floor((BitsPerPixel * ImageWidth + 31) / 32) * 4; // floor((4 * 1024 + 31) / 32) * 4
     }
     
-    uint64_t GetBMPPixelArraySize(const uint64_t RowSize, const int32_t ImageHeight) { // 5568, 3712, there's 54 extra bytes in the PixelArray...
+    static uint64_t GetBMPPixelArraySize(const uint64_t RowSize, const int32_t ImageHeight) { // 5568, 3712, there's 54 extra bytes in the PixelArray...
         return RowSize * abs(ImageHeight);
     }
     
-    uint64_t **BMPExtractPixels(PCMFile *PCM, BitBuffer *BitB, uint64_t NumPixels2Extract) { // We need to convert the pixels to the Runtime Byte and Bit order.
-        uint64_t **ExtractedPixels = NULL;
+    uint16_t **BMPExtractPixels(PCMFile *PCM, BitBuffer *BitB, uint64_t NumPixels2Extract) { // We need to convert the pixels to the Runtime Byte and Bit order.
+        uint16_t **ExtractedPixels = NULL;
         uint64_t PixelArraySize    = NumPixels2Extract * PCM->BMP->NumChannels * sizeof(uint8_t);
         ExtractedPixels            = calloc(PCM->BMP->NumChannels, PixelArraySize * sizeof(uint64_t));
         if (ExtractedPixels == NULL) {

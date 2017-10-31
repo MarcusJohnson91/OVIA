@@ -8,6 +8,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+    
+    void       ParseBMPHeader(PCMFile *PCM, BitBuffer *BitB);
+    
+    uint16_t **BMPExtractPixels(PCMFile *PCM, BitBuffer *BitB, uint64_t NumPixels2Extract);
 
 #ifdef __cplusplus
 }
