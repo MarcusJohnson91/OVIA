@@ -50,7 +50,7 @@ extern "C" {
         }
     }
     
-    uint32_t **ExtractAudioSamples(PCMFile *PCM, BitBuffer *SampleArray, uint64_t NumSamples2Extract) {
+    uint32_t **ExtractSamples(PCMFile *PCM, BitBuffer *SampleArray, uint64_t NumSamples2Extract) {
         uint32_t **ExtractedSamples = NULL;
         if (PCM->PCMFileType == AIFFormat) {
             ExtractedSamples        = AIFExtractSamples(PCM, SampleArray, NumSamples2Extract);
@@ -70,6 +70,14 @@ extern "C" {
             ExtractedPixels        = BMPExtractPixels(PCM, PixelArray, NumPixels2Extract);
         }
         return ExtractedPixels;
+    }
+    
+    bool IsThereMoreMetadata(PCMFile *PCM) {
+        bool Truth = No;
+        if (PCM->DataLeft > 1) {
+            Truth = Yes;
+        }
+        return Truth;
     }
     
     void PCMFileDeinit(PCMFile *PCM) {
