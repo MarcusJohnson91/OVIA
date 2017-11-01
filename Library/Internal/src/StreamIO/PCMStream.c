@@ -106,6 +106,14 @@ extern "C" {
         }
     }
     
+    void PCMSetNumOutputSamples(PCMFile *PCM, uint64_t NumChannelIndependentSamples) {
+        if (PCM == NULL) {
+            BitIOLog(LOG_ERROR, "libPCM", "PCMSetNumOutputSamples", "PCM Pointer is NULL");
+        } else {
+            PCM->AUD->NumSamples = NumChannelIndependentSamples;
+        }
+    }
+    
     void PCMFileDeinit(PCMFile *PCM) {
         free(PCM->AUD->Meta);
         free(PCM->AUD);

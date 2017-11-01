@@ -13,11 +13,16 @@ extern "C" {
      */
     
     void AIFParseCOMMChunk(PCMFile *PCM, BitBuffer *BitB) {
-        PCM->AUD->NumChannels = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 16);
-        PCM->AUD->NumSamples  = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32); // A SampleFrame is simply a single sample from all channels.
-        PCM->AUD->BitDepth    = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 16);
-        BitBufferSkip(BitB, 16); // Skip the Exponent
-        PCM->AUD->SampleRate  = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 64);
+        PCM->AUD->NumChannels           = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 16);
+        PCM->AUD->NumSamples            = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32); // A SampleFrame is simply a single sample from all channels.
+        PCM->AUD->BitDepth              = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 16);
+        uint16_t SampleRateExponent     = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 16) - 16446;
+        uint64_t SampleRateMantissa     = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 64);
+        if (SampleRateExponent >= 0) {
+            PCM->AUD->SampleRate        = SampleRateMantissa << SampleRateExponent;
+        } else {
+            PCM->AUD->SampleRate        = (SampleRateMantissa + ((1ULL << (-SampleRateExponent - 1)) >> (-SampleRateExponent)));
+        }
     }
     
     void AIFParseNameChunk(PCMFile *PCM, BitBuffer *BitB) {
@@ -127,10 +132,9 @@ extern "C" {
                 }
                 PCM->DataLeft -= AIFFSubChunkIDSize;
             } else if (AIFFSubChunkID == AIF_SSND) {
-                uint32_t Offset    = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
-                uint32_t BlockSize = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
-                
-                BitBufferSkip(BitB, Bytes2Bits(Offset));
+                PCM->AUD->AIFOffset    = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
+                PCM->AUD->AIFBlockSize = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
+                BitBufferSkip(BitB, Bytes2Bits(PCM->AUD->AIFOffset));
             }
         }
     }
