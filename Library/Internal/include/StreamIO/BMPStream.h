@@ -12,6 +12,8 @@ extern "C" {
     void       BMPParseMetadata(PCMFile *PCM, BitBuffer *BitB);
     
     uint16_t **BMPExtractPixels(PCMFile *PCM, BitBuffer *BitB, uint64_t NumPixels2Extract);
+    
+    void       BMPInsertPixels(PCMFile *PCM, BitBuffer *OutputPixels, uint32_t NumPixels2Write, uint16_t **Pixels2Write);
 
 #ifdef __cplusplus
 }

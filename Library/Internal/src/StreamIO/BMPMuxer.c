@@ -38,8 +38,19 @@ extern "C" {
         WriteBits(BitIOLSByte, BitIOLSBit, BitB, 32, PCM->BMP->NumImportantColorsInIndex);
     }
     
-    void WriteBMPPixels(PCMFile *PCM, uint32_t NumChannels, uint32_t NumPixels, uint8_t **Pixels2Write, BitBuffer *BitB) {
-        
+    void BMPInsertPixels(PCMFile *PCM, BitBuffer *OutputPixels, uint32_t NumPixels2Write, uint16_t **Pixels2Write) {
+        if (PCM == NULL) {
+            BitIOLog(LOG_ERROR, "libPCM", "BMPInsertPixels", "PCM Pointer is NULL");
+        } else if (OutputPixels == NULL) {
+            BitIOLog(LOG_ERROR, "libPCM", "BMPInsertPixels", "BitBuffer Pointer is NULL");
+        } else {
+            uint64_t ChannelCount = PCM->BMP->NumChannels;
+            for (uint16_t Channel = 0; Channel < ChannelCount; Channel++) {
+                for (uint32_t Pixel = 0; Pixel < NumPixels2Write; Pixel++) {
+                    WriteBits(BitIOMSByte, BitIOMSBit, OutputPixels, ChannelCount, Pixels2Write[Channel][Pixel]);
+                }
+            }
+        }
     }
     
 #ifdef __cplusplus

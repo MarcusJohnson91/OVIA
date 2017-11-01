@@ -57,6 +57,8 @@ extern "C" {
     
     uint32_t **W64ExtractSamples(PCMFile *PCM, BitBuffer *BitB, uint64_t NumSamples2Extract);
     
+    void       W64InsertSamples(PCMFile *PCM, BitBuffer *OutputSamples, uint32_t NumSamples2Write, uint32_t **Samples2Write);
+    
 #ifdef __cplusplus
 }
 #endif

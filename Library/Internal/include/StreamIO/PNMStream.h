@@ -17,6 +17,8 @@ extern "C" {
     
     uint16_t **PXMExtractPixels(PCMFile *PCM, BitBuffer *BitB, uint64_t NumPixels2Read);
     
+    void       PXMInsertPixels(PCMFile *PCM, BitBuffer *OutputPixels, uint32_t NumPixels2Write, uint16_t **Pixels2Write);
+    
 #ifdef __cplusplus
 }
 #endif

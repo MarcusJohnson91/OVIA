@@ -9,9 +9,11 @@
 extern "C" {
 #endif
     
-    void AIFParseMetadata(PCMFile *PCM, BitBuffer *BitB);
+    void       AIFParseMetadata(PCMFile *PCM, BitBuffer *BitB);
     
     uint32_t **AIFExtractSamples(PCMFile *PCM, BitBuffer *BitB, uint64_t Samples2Extract);
+    
+    void       AIFInsertSamples(PCMFile *PCM, BitBuffer *OutputSamples, uint32_t NumSamples2Write, uint32_t **Samples2Write);
     
 #ifdef __cplusplus
 }
