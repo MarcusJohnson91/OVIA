@@ -15,7 +15,7 @@ extern "C" {
     
 #define PNGMagic             0x89504E470D0A1A0A
     
-    enum ModernPNGChunkMarkers {
+    enum libModernPNGChunkMarkers {
         iHDRMarker         = 0x49484452,
         acTLMarker         = 0x6163544C,
         fcTLMarker         = 0x6663544C,
@@ -32,15 +32,15 @@ extern "C" {
         pCALMarker         = 0x7043414C,
     };
     
-    enum ModernPNGColorTypes {
+    typedef enum PNGColorTypes {
         PNG_Grayscale      = 0,
         PNG_RGB            = 2,
         PNG_PalettedRGB    = 3,
         PNG_GrayAlpha      = 4,
         PNG_RGBA           = 6,
-    };
+    } PNGColorTypes;
     
-    enum ModernPNGInterlaceType {
+    enum libModernPNGInterlaceType {
         PNGNotInterlaced   = 0,
         PNGInterlacedAdam7 = 1,
     };

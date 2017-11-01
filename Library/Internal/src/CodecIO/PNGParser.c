@@ -43,9 +43,9 @@ extern "C" {
         } else {
             
             if (Dec->iHDR->ColorType == PNG_PalettedRGB || Dec->iHDR->ColorType == PNG_RGB) {
-                Dec->PLTE->Palette = calloc(3 * Dec->PLTE->NumEntries, 1);
+                Dec->PLTE->Palette = calloc(1, (3 * Dec->PLTE->NumEntries) * Bits2Bytes(Dec->iHDR->BitDepth, Yes));
             } else if (Dec->iHDR->ColorType == PNG_RGBA) {
-                Dec->PLTE->Palette = calloc(4 * Dec->PLTE->NumEntries, 1);
+                Dec->PLTE->Palette = calloc(1, (4 * Dec->PLTE->NumEntries) * Bits2Bytes(Dec->iHDR->BitDepth, Yes));
             }
             
             
@@ -59,11 +59,24 @@ extern "C" {
     
     void ParseTRNS(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) { // Transparency
         Dec->tRNS->NumEntries = ReadBits(BitIOMSByte, BitIOLSBit, InputPNG, 32);
-        uint16_t **Entries = calloc(1, Dec->tRNS->NumEntries);
-        for (uint8_t Color = 0; Color < ModernPNGChannelsPerColorType[Dec->iHDR->ColorType]; Color++) {
-            Entries[Color] = ReadBits(BitIOMSByte, BitIOLSBit, InputPNG, Bits2Bytes(Dec->iHDR->BitDepth, true));
+        uint16_t **Entries    = NULL;
+        if (Dec->iHDR->ColorType == PNG_RGB) {
+            Entries = calloc(3, Bits2Bytes(Dec->iHDR->BitDepth, true) * sizeof(uint16_t));
+        } else if (Dec->iHDR->ColorType == PNG_RGBA) {
+            Entries = calloc(4, Bits2Bytes(Dec->iHDR->BitDepth, true) * sizeof(uint16_t));
+        } else if (Dec->iHDR->ColorType == PNG_Grayscale) {
+            Entries = calloc(1, Bits2Bytes(Dec->iHDR->BitDepth, true) * sizeof(uint16_t));
+        } else if (Dec->iHDR->ColorType == PNG_GrayAlpha) {
+            Entries = calloc(2, Bits2Bytes(Dec->iHDR->BitDepth, true) * sizeof(uint16_t));
         }
-        Dec->tRNS->Palette = Entries;
+        if (Entries == NULL) {
+            BitIOLog(LOG_ERROR, "libModernPNG", "ParseTRNS", "Failed to allocate enough memory for the TRNS Palette");
+        } else {
+            for (uint8_t Color = 0; Color < ModernPNGChannelsPerColorType[Dec->iHDR->ColorType]; Color++) {
+                Entries[Color]    = ReadBits(BitIOMSByte, BitIOLSBit, InputPNG, Bits2Bytes(Dec->iHDR->BitDepth, true));
+            }
+            Dec->tRNS->Palette = Entries;
+        }
     }
     
     void ParseBKGD(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) { // Background
@@ -216,7 +229,7 @@ extern "C" {
         uint64_t FileMagic    = ReadBits(BitIOMSByte, BitIOLSBit, InputPNG, 64);
         
         if (FileMagic == PNGMagic) {
-            char     *ChunkID        = calloc(1, 4);
+            char     *ChunkID        = calloc(1, 4 * sizeof(uint8_t));
             uint32_t ChunkSize       = ReadBits(BitIOMSByte, BitIOLSBit, InputPNG, 32);
             
             for (uint8_t ChunkIDSize = 0; ChunkIDSize < 4; ChunkIDSize++) {

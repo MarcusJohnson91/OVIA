@@ -10,24 +10,28 @@ extern "C" {
     
     EncodePNG *EncodePNGInit(void) {
         EncodePNG *Enc  = calloc(1, sizeof(EncodePNG));
-        Enc->acTL       = calloc(1, sizeof(acTL));
-        Enc->bkGD       = calloc(1, sizeof(bkGD));
-        Enc->cHRM       = calloc(1, sizeof(cHRM));
-        Enc->fcTL       = calloc(1, sizeof(fcTL));
-        Enc->fdAT       = calloc(1, sizeof(fdAT));
-        Enc->gAMA       = calloc(1, sizeof(gAMA));
-        Enc->hIST       = calloc(1, sizeof(hIST));
-        Enc->iCCP       = calloc(1, sizeof(iCCP));
-        Enc->iHDR       = calloc(1, sizeof(iHDR));
-        Enc->oFFs       = calloc(1, sizeof(oFFs));
-        Enc->pCAL       = calloc(1, sizeof(pCAL));
-        Enc->PLTE       = calloc(1, sizeof(PLTE));
-        Enc->sBIT       = calloc(1, sizeof(sBIT));
-        Enc->sRGB       = calloc(1, sizeof(sRGB));
-        Enc->sTER       = calloc(1, sizeof(sTER));
-        Enc->Text       = calloc(1, sizeof(Text));
-        Enc->tIMe       = calloc(1, sizeof(tIMe));
-        Enc->tRNS       = calloc(1, sizeof(tRNS));
+        if (Enc == NULL) {
+            BitIOLog(LOG_ERROR, "libModernPNG", "EncodePNGInit", "Failed to allocate enough memory for EncodePNG");
+        } else {
+            Enc->acTL       = calloc(1, sizeof(acTL));
+            Enc->bkGD       = calloc(1, sizeof(bkGD));
+            Enc->cHRM       = calloc(1, sizeof(cHRM));
+            Enc->fcTL       = calloc(1, sizeof(fcTL));
+            Enc->fdAT       = calloc(1, sizeof(fdAT));
+            Enc->gAMA       = calloc(1, sizeof(gAMA));
+            Enc->hIST       = calloc(1, sizeof(hIST));
+            Enc->iCCP       = calloc(1, sizeof(iCCP));
+            Enc->iHDR       = calloc(1, sizeof(iHDR));
+            Enc->oFFs       = calloc(1, sizeof(oFFs));
+            Enc->pCAL       = calloc(1, sizeof(pCAL));
+            Enc->PLTE       = calloc(1, sizeof(PLTE));
+            Enc->sBIT       = calloc(1, sizeof(sBIT));
+            Enc->sRGB       = calloc(1, sizeof(sRGB));
+            Enc->sTER       = calloc(1, sizeof(sTER));
+            Enc->Text       = calloc(1, sizeof(Text));
+            Enc->tIMe       = calloc(1, sizeof(tIMe));
+            Enc->tRNS       = calloc(1, sizeof(tRNS));
+        }
         return Enc;
     }
     
@@ -121,7 +125,7 @@ extern "C" {
     
     void PNGEncodeFilterSub(EncodePNG *Enc, uint8_t *Line, size_t NumPixels) {
         // NumPixel means whole pixel not sub pixel.
-        uint8_t *EncodedLine = (uint8_t*)calloc(1, Enc->iHDR->Width);
+        uint16_t *EncodedLine = calloc(1, Enc->iHDR->Width * Bits2Bytes(Enc->iHDR->BitDepth, Yes) * sizeof(uint16_t));
         for (size_t Pixel = 1; Pixel < NumPixels; Pixel++) {
             if (Pixel == 1) {
                 EncodedLine[Pixel] = Line[Pixel];

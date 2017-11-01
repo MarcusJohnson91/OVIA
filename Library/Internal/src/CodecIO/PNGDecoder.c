@@ -106,7 +106,7 @@ extern "C" {
         // So basically we need to read ChunkSize bytes into an array, then read the following 4 bytes as the CRC
         // then run VerifyCRC over the buffer, and finally compare the generated CRC with the extracted one, and return whether they match.
         // Then call SkipBits(BitB, Bytes2Bits(ChunkSize)); to reset to the beginning of the chunk
-        uint8_t *Buffer2CRC = calloc(1, ChunkSize);
+        uint8_t *Buffer2CRC = calloc(1, ChunkSize * sizeof(uint8_t));
         for (uint32_t Byte = 0; Byte < ChunkSize; Byte++) {
             Buffer2CRC[Byte] = BitB->Buffer[Bits2Bytes(, false)];
             free(Buffer2CRC);
@@ -181,7 +181,7 @@ extern "C" {
     
     void PNGDecodeFilteredImage(DecodePNG *Dec, uint8_t ***InflatedBuffer) {
         
-		uint8_t *DeFilteredData = calloc(1, Dec->iHDR->Height * Dec->iHDR->Width);
+		uint8_t *DeFilteredData = calloc(1, (Dec->iHDR->Height * Dec->iHDR->Width) * Bits2Bytes(Dec->iHDR->BitDepth, Yes));
         
         for (size_t Line = 0; Line < Dec->iHDR->Height; Line++) {
             uint8_t FilterType = *InflatedBuffer[Line][0];

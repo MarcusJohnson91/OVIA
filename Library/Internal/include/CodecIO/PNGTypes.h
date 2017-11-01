@@ -11,14 +11,14 @@ extern "C" {
 #endif
     
     typedef struct iHDR {
-        uint32_t   Width;
-        uint32_t   Height;
-        uint8_t    BitDepth;
-        uint8_t    ColorType;
-        uint8_t    Compression;
-        uint8_t    FilterMethod;
-        bool       IsInterlaced;
-        bool       CRCIsValid;
+        uint32_t      Width;
+        uint32_t      Height;
+        uint8_t       BitDepth;
+        PNGColorTypes ColorType;
+        uint8_t       Compression;
+        uint8_t       FilterMethod;
+        bool          IsInterlaced;
+        bool          CRCIsValid;
     } iHDR;
     
     typedef struct acTL {
