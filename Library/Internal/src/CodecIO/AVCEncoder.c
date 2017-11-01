@@ -8,7 +8,7 @@ extern "C" {
     EncodeAVC *InitAVCEncoder(void) {
         EncodeAVC *Enc                = (EncodeAVC*) calloc(1, sizeof(EncodeAVC));
         if (Enc == NULL) {
-            Log(LOG_ERR, "libModernAVC", "InitAVCEncoder", "Not enough memory to allocate EncodeAVC");
+            BitIOLog(LOG_ERROR, "libModernAVC", "InitAVCEncoder", "Not enough memory to allocate EncodeAVC");
         } else {
             Enc->NAL                  = (NALHeader*)                    calloc(1, sizeof(NALHeader));
             Enc->SPS                  = (SequenceParameterSet*)         calloc(1, sizeof(SequenceParameterSet));
@@ -24,11 +24,9 @@ extern "C" {
         return Enc;
     }
     
-    bool     AreAllViewsPaired(EncodeAVC *Enc) {
+    bool AreAllViewsPaired(EncodeAVC *Enc) {
         if (Enc == NULL) {
-            Log(LOG_ERR, "libModernAVC", "ResidualLuma", "Pointer to EncodeAVC is NULL");
-        } else if (BitB == NULL) {
-            Log(LOG_ERR, "libModernAVC", "ResidualLuma", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, "libModernAVC", "ResidualLuma", "Pointer to EncodeAVC is NULL");
         } else {
             bool AllViewsPairedFlag = false;
             for (uint8_t View = 0; View < Enc->SPS->ViewCount; View++) {
@@ -40,9 +38,9 @@ extern "C" {
     
     void ParseTransformCoeffs(EncodeAVC *Enc, uint8_t i16x16DC, uint8_t i16x16AC, uint8_t Level4x4, uint8_t Level8x8, uint8_t StartIndex, uint8_t EndIndex) { // ParseTransformCoeffs
         if (Enc == NULL) {
-            Log(LOG_ERR, "libModernAVC", "ResidualLuma", "Pointer to EncodeAVC is NULL");
+            BitIOLog(LOG_ERROR, "libModernAVC", "ResidualLuma", "Pointer to EncodeAVC is NULL");
         } else if (BitB == NULL) {
-            Log(LOG_ERR, "libModernAVC", "ResidualLuma", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, "libModernAVC", "ResidualLuma", "Pointer to BitBuffer is NULL");
         } else {
             uint8_t Intra16x16DCLevel = i16x16DC, Intra16x16ACLevel = i16x16AC, LumaLevel4x4 = Level4x4, LumaLevel8x8 = Level8x8;
             // Return the first 4 variables
@@ -68,9 +66,9 @@ extern "C" {
     void ResidualLuma(EncodeAVC *Enc, BitBuffer *BitB, int i16x16DClevel, int i16x16AClevel, int level4x4,
                       int level8x8, int startIdx, int endIdx) { // residual_luma
         if (Enc == NULL) {
-            Log(LOG_ERR, "libModernAVC", "ResidualLuma", "Pointer to EncodeAVC is NULL");
+            BitIOLog(LOG_ERROR, "libModernAVC", "ResidualLuma", "Pointer to EncodeAVC is NULL");
         } else if (BitB == NULL) {
-            Log(LOG_ERR, "libModernAVC", "ResidualLuma", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, "libModernAVC", "ResidualLuma", "Pointer to BitBuffer is NULL");
         } else {
             if (startIdx == 0 && MacroBlockPartitionPredictionMode(Enc, Enc->MacroBlock->Type, 0) == Intra_16x16) {
                 ParseTransformCoeffs(Enc, i16x16DClevel, 0, 15, 16);
@@ -113,7 +111,7 @@ extern "C" {
     
     int8_t MacroBlock2SliceGroupMap(EncodeAVC *Enc, uint8_t CurrentMacroBlock) { // MbToSliceGroupMap
         if (Enc == NULL) {
-            Log(LOG_ERR, "libModernAVC", "MacroBlock2SliceGroupMap", "Pointer to EncodeAVC is NULL");
+            BitIOLog(LOG_ERROR, "libModernAVC", "MacroBlock2SliceGroupMap", "Pointer to EncodeAVC is NULL");
         } else {
             if (Enc->PPS->SliceGroups == 1 && (Enc->PPS->SliceGroupMapType == 3 || Enc->PPS->SliceGroupMapType == 4 || Enc->PPS->SliceGroupMapType == 5)) {
                 if (Enc->PPS->SliceGroupMapType == 3) {
@@ -142,7 +140,7 @@ extern "C" {
     
     void rbsp_slice_trailing_bits(EncodeAVC *Enc, BitBuffer *BitB) {
         if (Enc == NULL) {
-            Log(LOG_ERR, "libModernAVC", "GetSizeOfNALUnit", "Pointer to EncodeAVC is NULL");
+            BitIOLog(LOG_ERROR, "libModernAVC", "GetSizeOfNALUnit", "Pointer to EncodeAVC is NULL");
         } else {
             AlignBitBuffer(BitB, 1); // rbsp_trailing_bits();
             if (Enc->PPS->EntropyCodingMode == Arithmetic) {
@@ -156,7 +154,7 @@ extern "C" {
     uint8_t MacroBlockPartitionPredictionMode(EncodeAVC *Enc, uint8_t MacroBlockType, uint8_t PartitionNumber) {  // MbPartPredMode
         uint8_t ReturnValue = 0;
         if (Enc == NULL) {
-            Log(LOG_ERR, "libModernAVC", "GetSizeOfNALUnit", "Pointer to EncodeAVC is NULL");
+            BitIOLog(LOG_ERROR, "libModernAVC", "GetSizeOfNALUnit", "Pointer to EncodeAVC is NULL");
         } else {
             if (MacroBlockType == 0) {
                 if (Enc->MacroBlock->TransformSizeIs8x8 == true) {
@@ -229,7 +227,7 @@ extern "C" {
     
     uint64_t NextMacroBlockAddress(EncodeAVC *Enc, uint64_t CurrentMacroBlockAddress) { // NextMbAddress
         if (Enc == NULL) {
-            Log(LOG_ERR, "libModernAVC", "GetSizeOfNALUnit", "Pointer to EncodeAVC is NULL");
+            BitIOLog(LOG_ERROR, "libModernAVC", "GetSizeOfNALUnit", "Pointer to EncodeAVC is NULL");
         } else {
             while (CurrentMacroBlockAddress + 1 < Enc->Slice->PicSizeInMacroBlocks && MacroBlock2SliceGroupMap(Enc, CurrentMacroBlockAddress + 1) != MacroBlock2SliceGroupMap(Enc, CurrentMacroBlockAddress)) {
                 i++; nextMbAddress = I
@@ -243,9 +241,9 @@ extern "C" {
     
     size_t GetSizeOfNALUnit(EncodeAVC *Enc, BitBuffer *BitB) {
         if (Enc == NULL) {
-            Log(LOG_ERR, "libModernAVC", "GetSizeOfNALUnit", "Pointer to EncodeAVC is NULL");
+            BitIOLog(LOG_ERROR, "libModernAVC", "GetSizeOfNALUnit", "Pointer to EncodeAVC is NULL");
         } else if (BitB == NULL) {
-            Log(LOG_ERR, "libModernAVC", "GetSizeOfNALUnit", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, "libModernAVC", "GetSizeOfNALUnit", "Pointer to BitBuffer is NULL");
         } else {
             
         }
@@ -254,7 +252,7 @@ extern "C" {
     
     uint8_t CalculateNumberOfTimeStamps(EncodeAVC *Enc) { // PicOrderCount
         if (Enc == NULL) {
-            Log(LOG_ERR, "libModernAVC", "CalculateNumberOfTimeStamps", "Pointer to EncodeAVC is NULL");
+            BitIOLog(LOG_ERROR, "libModernAVC", "CalculateNumberOfTimeStamps", "Pointer to EncodeAVC is NULL");
         } else {
             uint8_t NumTimeStamps = 0;
             if ((Enc->Slice->SliceIsInterlaced == false) && (Enc->Slice->TopFieldOrderCount == Enc->Slice->BottomFieldOrderCount)) {

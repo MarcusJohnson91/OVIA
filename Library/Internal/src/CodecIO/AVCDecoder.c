@@ -57,7 +57,7 @@ extern "C" {
      }
      
      void ParseAVCFile(DecodeAVC *Dec, BitBuffer *BitB) { // byte_stream_nal_unit
-     Log(LOG_INFO, "libModernAVC", "ParseAVCFile", "Parsing AVC File...\n");
+     BitIOLog(LOG_INFO, "libModernAVC", "ParseAVCFile", "Parsing AVC File...\n");
      
      // Found a start code.
      if (ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32) == AVCMagic && GetBitBufferPosition(BitB) == 0) {
@@ -154,7 +154,7 @@ extern "C" {
         DecodeAVC *Dec                = (DecodeAVC*) calloc(1, sizeof(DecodeAVC));
         
         if (Dec == NULL) {
-            Log(LOG_ERR, "libModernAVC", "InitAVCDecoder", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, "libModernAVC", "InitAVCDecoder", "Pointer to DecodeAVC is NULL");
         } else {
             Dec->NAL                  = (NALHeader*)                    calloc(1, sizeof(NALHeader));
             Dec->SPS                  = (SequenceParameterSet*)         calloc(1, sizeof(SequenceParameterSet));
@@ -262,7 +262,7 @@ extern "C" {
                 }
             }
         }
-        Log(LOG_ERR, "libModernAVC", "MacroBlock2SliceGroupMap", "SliceGroups: %hhu, SliceGroupMapType: %d", Dec->PPS->SliceGroups, Dec->PPS->SliceGroupMapType);
+        BitIOLog(LOG_ERROR, "libModernAVC", "MacroBlock2SliceGroupMap", "SliceGroups: %hhu, SliceGroupMapType: %d", Dec->PPS->SliceGroups, Dec->PPS->SliceGroupMapType);
         return -1; // failure
     }
     
@@ -926,7 +926,7 @@ extern "C" {
                 // slice_layer_extension_rbsp
                 break;
             default:
-                Log(LOG_ERR, "libModernAVC", "ScanNALUnits", "NAL ID 0x%X is not supported, seeking to next NAL\n", Dec->NAL->NALUnitType);
+                BitIOLog(LOG_ERROR, "libModernAVC", "ScanNALUnits", "NAL ID 0x%X is not supported, seeking to next NAL\n", Dec->NAL->NALUnitType);
                 break;
         }
     }
