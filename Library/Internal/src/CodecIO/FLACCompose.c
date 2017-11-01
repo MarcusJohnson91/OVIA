@@ -5,27 +5,27 @@ extern "C" {
 #endif
     
     void   FLACWriteStreaminfo(BitBuffer *OutputFLAC, EncodeFLAC *Enc) {
-        WriteBits(OutputFLAC, 34, 24, true); // StreamInfoSize
-        WriteBits(OutputFLAC, Enc->Meta->StreamInfo->MinimumBlockSize, 16, false);
-        WriteBits(OutputFLAC, Enc->Meta->StreamInfo->MaximumBlockSize, 16, false);
-        WriteBits(OutputFLAC, Enc->Meta->StreamInfo->MinimumFrameSize, 24, false);
-        WriteBits(OutputFLAC, Enc->Meta->StreamInfo->MaximumFrameSize, 24, false);
-        WriteBits(OutputFLAC, Enc->Meta->StreamInfo->SampleRate, 20, false);
-        WriteBits(OutputFLAC, Enc->Meta->StreamInfo->MinimumFrameSize, 24, false);
-        WriteBits(OutputFLAC, Enc->Meta->StreamInfo->Channels - 1, 3, false);
-        WriteBits(OutputFLAC, Enc->Meta->StreamInfo->BitDepth - 1, 5, false);
-        WriteBits(OutputFLAC, Enc->Meta->StreamInfo->SamplesInStream, 36, false);
-        WriteBits(OutputFLAC, 0, 128, true); // ROOM for the MD5.
+        WriteBits(BitIOMSByte, BitIOLSBit, OutputFLAC, 24, 34); // StreamInfoSize
+        WriteBits(BitIOMSByte, BitIOLSBit, OutputFLAC, 16, Enc->Meta->StreamInfo->MinimumBlockSize);
+       	WriteBits(BitIOMSByte, BitIOLSBit, OutputFLAC, 16, Enc->Meta->StreamInfo->MaximumBlockSize);
+        WriteBits(BitIOMSByte, BitIOLSBit, OutputFLAC, 24, Enc->Meta->StreamInfo->MinimumFrameSize);
+       	WriteBits(BitIOMSByte, BitIOLSBit, OutputFLAC, 24, Enc->Meta->StreamInfo->MaximumFrameSize);
+        WriteBits(BitIOMSByte, BitIOLSBit, OutputFLAC, 20, Enc->Meta->StreamInfo->SampleRate);
+        WriteBits(BitIOMSByte, BitIOLSBit, OutputFLAC, 24, Enc->Meta->StreamInfo->MinimumFrameSize);
+        WriteBits(BitIOMSByte, BitIOLSBit, OutputFLAC,  3, Enc->Meta->StreamInfo->Channels - 1);
+        WriteBits(BitIOMSByte, BitIOLSBit, OutputFLAC,  5, Enc->Meta->StreamInfo->BitDepth - 1);
+        WriteBits(BitIOMSByte, BitIOLSBit, OutputFLAC, 36, Enc->Meta->StreamInfo->SamplesInStream);
+        WriteGUUID(BitIOBinaryGUID, OutputFLAC, 0x00000000000000000000000000000000); // ROOM for the MD5.
     }
     
     void   FLACWriteVorbisComment(BitBuffer *OutputFLAC, EncodeFLAC *Enc) {
-        WriteBits(OutputFLAC, Enc->Meta->Vorbis->VendorTagSize, 32, false);
+        WriteBits(BitIOMSByte, BitIOLSBit, OutputFLAC, 32, Enc->Meta->Vorbis->VendorTagSize);
         for (uint32_t TagByte = 0; TagByte < Enc->Meta->Vorbis->VendorTagSize; TagByte++) {
-            WriteBits(OutputFLAC, Enc->Meta->Vorbis->VendorTag[TagByte], 8, true); // C strings are big endian
+            WriteBits(BitIOMSByte, BitIOLSBit, OutputFLAC, 8, Enc->Meta->Vorbis->VendorTag[TagByte]);
         }
-        WriteBits(OutputFLAC, Enc->Meta->Vorbis->NumUserTags, 32, false);
+        WriteBits(BitIOMSByte, BitIOLSBit, OutputFLAC, 32, Enc->Meta->Vorbis->NumUserTags);
         for (uint32_t UserTag = 0; UserTag < Enc->Meta->Vorbis->NumUserTags; UserTag++) {
-            WriteBits(OutputFLAC, Enc->Meta->Vorbis->UserTagSize, 8, false);
+            WriteBits(BitIOMSByte, BitIOLSBit, OutputFLAC, 8, Enc->Meta->Vorbis->UserTagSize);
         }
     }
     

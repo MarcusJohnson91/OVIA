@@ -183,35 +183,43 @@ extern "C" {
     
     DecodeFLAC *InitDecodeFLAC(void) {
         DecodeFLAC *Dec       = calloc(1, sizeof(DecodeFLAC));
-        Dec->Meta             = calloc(1, sizeof(FLACMeta));
-        Dec->Meta->StreamInfo = calloc(1, sizeof(FLACStreamInfo));
-        Dec->Meta->Seek       = calloc(1, sizeof(FLACSeekTable));
-        Dec->Meta->Vorbis     = calloc(1, sizeof(FLACVorbisComment));
-        Dec->Meta->Cue        = calloc(1, sizeof(FLACCueSheet));
-        Dec->Meta->Pic        = calloc(1, sizeof(FLACPicture));
-        
-        Dec->Data             = calloc(1, sizeof(FLACData));
-        Dec->Data->Frame      = calloc(1, sizeof(FLACFrame));
-        Dec->Data->SubFrame   = calloc(1, sizeof(FLACSubFrame));
-        Dec->Data->LPC        = calloc(1, sizeof(FLACLPC));
-        Dec->Data->Rice       = calloc(1, sizeof(RICEPartition));
+        if (Dec == NULL) {
+            BitIOLog(LOG_ERROR, "libModernFLAC", "InitDecodeFLAC", "DecodeFLAC Pointer is NULL");
+        } else {
+            Dec->Meta             = calloc(1, sizeof(FLACMeta));
+            Dec->Meta->StreamInfo = calloc(1, sizeof(FLACStreamInfo));
+            Dec->Meta->Seek       = calloc(1, sizeof(FLACSeekTable));
+            Dec->Meta->Vorbis     = calloc(1, sizeof(FLACVorbisComment));
+            Dec->Meta->Cue        = calloc(1, sizeof(FLACCueSheet));
+            Dec->Meta->Pic        = calloc(1, sizeof(FLACPicture));
+            
+            Dec->Data             = calloc(1, sizeof(FLACData));
+            Dec->Data->Frame      = calloc(1, sizeof(FLACFrame));
+            Dec->Data->SubFrame   = calloc(1, sizeof(FLACSubFrame));
+            Dec->Data->LPC        = calloc(1, sizeof(FLACLPC));
+            Dec->Data->Rice       = calloc(1, sizeof(RICEPartition));
+        }
         return Dec;
     }
     
     EncodeFLAC *InitEncodeFLAC(void) {
         EncodeFLAC *Enc        = calloc(1, sizeof(EncodeFLAC));
-        Enc->Meta              = calloc(1, sizeof(FLACMeta));
-        Enc->Meta->StreamInfo  = calloc(1, sizeof(FLACStreamInfo));
-        Enc->Meta->Seek        = calloc(1, sizeof(FLACSeekTable));
-        Enc->Meta->Vorbis      = calloc(1, sizeof(FLACVorbisComment));
-        Enc->Meta->Cue         = calloc(1, sizeof(FLACCueSheet));
-        Enc->Meta->Pic         = calloc(1, sizeof(FLACPicture));
-        
-        Enc->Data              = calloc(1, sizeof(FLACData));
-        Enc->Data->Frame       = calloc(1, sizeof(FLACFrame));
-        Enc->Data->SubFrame    = calloc(1, sizeof(FLACSubFrame));
-        Enc->Data->LPC         = calloc(1, sizeof(FLACLPC));
-        Enc->Data->Rice        = calloc(1, sizeof(RICEPartition));
+        if (Enc == NULL) {
+            BitIOLog(LOG_ERROR, "libModernFLAC", "InitEncodeFLAC", "EncodeFLAC Pointer is NULL");
+        } else {
+            Enc->Meta              = calloc(1, sizeof(FLACMeta));
+            Enc->Meta->StreamInfo  = calloc(1, sizeof(FLACStreamInfo));
+            Enc->Meta->Seek        = calloc(1, sizeof(FLACSeekTable));
+            Enc->Meta->Vorbis      = calloc(1, sizeof(FLACVorbisComment));
+            Enc->Meta->Cue         = calloc(1, sizeof(FLACCueSheet));
+            Enc->Meta->Pic         = calloc(1, sizeof(FLACPicture));
+            
+            Enc->Data              = calloc(1, sizeof(FLACData));
+            Enc->Data->Frame       = calloc(1, sizeof(FLACFrame));
+            Enc->Data->SubFrame    = calloc(1, sizeof(FLACSubFrame));
+            Enc->Data->LPC         = calloc(1, sizeof(FLACLPC));
+            Enc->Data->Rice        = calloc(1, sizeof(RICEPartition));
+        }
         return Enc;
     }
     

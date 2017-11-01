@@ -24,10 +24,11 @@ extern "C" {
     }
     
     void   FLACWriteMetadata(BitBuffer *OutputFLAC, EncodeFLAC *Enc) {
-        WriteBits(OutputFLAC, FLACMagic, 32, true);
-        WriteBits(OutputFLAC, false, 1, true); // IsLastMetadataBlock
-        //WriteBits(OutputFLAC, FLACMetadataTypes, 7); // MetadataBlockType
-        
+        WriteBits(BitIOMSByte, BitIOLSBit, OutputFLAC, 32, FLACMagic);
+        bool IsLastMetadataBlock = No;
+        WriteBits(BitIOMSByte, BitIOLSBit, OutputFLAC, 1, IsLastMetadataBlock);
+        uint8_t MetadataBlockType = 1;
+        WriteBits(BitIOMSByte, BitIOLSBit, OutputFLAC, 7, MetadataBlockType);
     }
     
     int8_t EncodeFLACFile(PCMFile *PCM, BitBuffer *OutputFLAC, EncodeFLAC *Enc) {

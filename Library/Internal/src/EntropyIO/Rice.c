@@ -9,15 +9,7 @@ extern "C" {
         return (uint8_t) ceill(log2(llabs(Integer2Store)+1));
     }
     
-    inline static void WriteExpGolomb(BitBuffer *BitB, const bool IsSigned, const uint64_t Value2Write) {
-        uint8_t Bits2Write = NumBits4Symbol(Value2Write);
-        WriteBits(BitB, Power2Mask(LSBit, Bits2Write-1), Bits2Write-1, true); // Write the Unary part in Truncated format
-        WriteBits(BitB, 0, 1, true); // Write the stop bit
-        WriteBits(BitB, Value2Write, Bits2Write, true); // Write the binary section
-    }
-    
     // libFLAC functions to create Golomb codes
-    
     static inline uint32_t FLAC__clz_soft_uint32(uint32_t Word) {
         static const uint8_t byte_to_unary_table[256] = {
             8, 7, 6, 6, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4, // 1, 1, 2, 4, 8
@@ -62,10 +54,6 @@ extern "C" {
     }
     
     bool ModernFLACWriteUnsignedGolomb(BitBuffer *BitB, uint32_t Uval, uint32_t Parameter) {
-    	assert(BitB != NULL);
-        assert(BitB->Buffer != NULL);
-        assert(Parameter > 0);
-        
         uint32_t K = FLAC__bitmath_ilog2(Parameter); // Parameter ^ 31
         if (Parameter == 1u << K) {
             uint32_t pattern;
@@ -124,8 +112,6 @@ extern "C" {
         uint32_t total_bits, msbs, Uval;
         uint32_t k;
         
-        assert(BitB != NULL);
-        assert(BitB->Buffer != NULL);
         assert(Parameter > 0);
         
         /* fold signed to uint32_t */
