@@ -21,7 +21,7 @@ extern "C" {
     };
     
     static void ReadINFO_IART(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) {
-        char *Artist = calloc(1, ChunkSize);
+        char *Artist = calloc(1, ChunkSize * sizeof(char));
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
             Artist[Byte] = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 8);
         }
@@ -33,7 +33,7 @@ extern "C" {
     }
     
     static void ReadINFO_ICRD(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) {
-        char *ReleaseDate = calloc(1, ChunkSize);
+        char *ReleaseDate = calloc(1, ChunkSize * sizeof(char));
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
             ReleaseDate[Byte] = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 8);
         }
@@ -45,7 +45,7 @@ extern "C" {
     }
     
     static void ReadINFO_IGNR(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) {
-        char *Genre = calloc(1, ChunkSize);
+        char *Genre = calloc(1, ChunkSize * sizeof(char));
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
             Genre[Byte] = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 8);
         }
@@ -57,7 +57,7 @@ extern "C" {
     }
     
     static void ReadINFO_INAM(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) {
-        char *Title = calloc(1, ChunkSize);
+        char *Title = calloc(1, ChunkSize * sizeof(char));
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
             Title[Byte] = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 8);
         }
@@ -69,7 +69,7 @@ extern "C" {
     }
     
     static void ReadINFO_IPRD(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) {
-        char *Album              = calloc(1, ChunkSize);
+        char *Album              = calloc(1, ChunkSize * sizeof(char));
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
             Album[Byte]          = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 8);
         }
@@ -81,7 +81,7 @@ extern "C" {
     }
     
     static void ReadINFO_ISFT(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) { // Encoder
-        char *Encoder     = calloc(1, ChunkSize);
+        char *Encoder     = calloc(1, ChunkSize * sizeof(char));
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
             Encoder[Byte] = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 8);
         }
@@ -187,7 +187,7 @@ extern "C" {
     
     uint32_t **WAVExtractSamples(PCMFile *PCM, BitBuffer *BitB, uint64_t NumSamples2Extract) {
         uint64_t ExtractedSamplesSize = NumSamples2Extract * BitDepth2SampleSizeInBytes[PCM->AUD->BitDepth] * PCM->AUD->NumChannels;
-        uint32_t **ExtractedSamples   = calloc(1, ExtractedSamplesSize);
+        uint32_t **ExtractedSamples   = calloc(1, ExtractedSamplesSize * sizeof(uint32_t));
         if (ExtractedSamples == NULL) {
             BitIOLog(LOG_ERROR, "libPCM", "WAVExtractSamples", "Couldn't allocate enough memory for the Extracted samples, %d", ExtractedSamplesSize);
         } else {

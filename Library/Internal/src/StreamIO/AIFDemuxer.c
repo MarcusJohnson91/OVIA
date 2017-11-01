@@ -27,7 +27,7 @@ extern "C" {
     
     void AIFParseNameChunk(PCMFile *PCM, BitBuffer *BitB) {
         uint32_t AIFFNameSize           = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
-        char *SongTitleTagString        = calloc(1, AIFFNameSize);
+        char *SongTitleTagString        = calloc(1, AIFFNameSize * sizeof(char));
         for (uint32_t TagByte = 0UL; TagByte < AIFFNameSize; TagByte++) {
             SongTitleTagString[TagByte] = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
         }
@@ -36,7 +36,7 @@ extern "C" {
     
     void AIFParseAuthorChunk(PCMFile *PCM, BitBuffer *BitB) {
         uint32_t AIFFAuthSize           = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
-        char *AuthorString              = calloc(1, AIFFAuthSize);
+        char *AuthorString              = calloc(1, AIFFAuthSize * sizeof(char));
         for (uint32_t TagByte = 0UL; TagByte < AIFFAuthSize; TagByte++) {
             AuthorString[TagByte] = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
         }
@@ -45,7 +45,7 @@ extern "C" {
     
     void AIFParseAnnotationChunk(PCMFile *PCM, BitBuffer *BitB) {
         uint32_t AIFFAnnoSize           = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
-        char *AnnotationString          = calloc(1, AIFFAnnoSize);
+        char *AnnotationString          = calloc(1, AIFFAnnoSize * sizeof(char));
         for (uint32_t TagByte = 0UL; TagByte < AIFFAnnoSize; TagByte++) {
             AnnotationString[TagByte]   = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
         }
@@ -141,7 +141,7 @@ extern "C" {
     
     uint32_t **AIFExtractSamples(PCMFile *PCM, BitBuffer *BitB, uint64_t NumSamples2Extract) {
         uint64_t   ExtractedSampleSize = NumSamples2Extract * PCM->AUD->NumChannels * PCM->AUD->BitDepth;
-        uint32_t **ExtractedSamples    = calloc(1, NumSamples2Extract);
+        uint32_t **ExtractedSamples    = calloc(1, NumSamples2Extract * sizeof(uint32_t));
         if (ExtractedSamples == NULL) {
             BitIOLog(LOG_ERROR, "libPCM", "AIFExtractSamples", "Not enough memory to allocate a buffer for the extracted samples, %d", ExtractedSampleSize);
         } else {

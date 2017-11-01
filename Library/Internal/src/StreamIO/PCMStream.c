@@ -106,6 +106,14 @@ extern "C" {
         }
     }
     
+    void PCMSetOutputPXMType(PCMFile *PCM, PXMTypes PXMType) {
+        if (PCM == NULL) {
+            BitIOLog(LOG_ERROR, "libPCM", "PCMSetOutputPXMType", "PCM Pointer is NULL");
+        } else {
+            PCM->PXM->PXMType = PXMType;
+        }
+    }
+    
     void PCMSetNumOutputSamples(PCMFile *PCM, uint64_t NumChannelIndependentSamples) {
         if (PCM == NULL) {
             BitIOLog(LOG_ERROR, "libPCM", "PCMSetNumOutputSamples", "PCM Pointer is NULL");

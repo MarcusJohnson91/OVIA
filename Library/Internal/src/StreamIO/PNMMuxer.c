@@ -6,8 +6,8 @@
 extern "C" {
 #endif
     
-    void WritePXMHeader(PCMFile *PCM, BitBuffer *BitB, bool WritePAM) {
-        if (WritePAM == Yes) {
+    void PXMWriteHeader(PCMFile *PCM, BitBuffer *BitB) {
+        if (PCM->PXM->PXMType == PAMPXM) {
             
         }
     }
