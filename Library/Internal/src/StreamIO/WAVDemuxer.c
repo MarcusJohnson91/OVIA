@@ -92,7 +92,7 @@ extern "C" {
         PCM->AUD->Meta->NumTags += 1;
     }
     
-    static void ParseWAVLISTChunk(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) {
+    static void WAVParseLISTChunk(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) {
         uint32_t SubChunkID   = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
         uint32_t SubChunkSize = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
         
@@ -116,20 +116,20 @@ extern "C" {
                 ReadINFO_ISFT(PCM, BitB, SubChunkSize);
                 break;
             default:
-                BitIOLog(LOG_ERROR, "libPCM", "ParseWAVLISTChunk", "Unknown LIST Chunk: 0x%X", SubChunkID);
+                BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "Unknown LIST Chunk: 0x%X", SubChunkID);
                 break;
         }
     }
     
-    static void ParseWavDATAChunk(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) {
+    static void WAVParseDATAChunk(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) {
         PCM->AUD->NumSamples            = ((ChunkSize / PCM->AUD->NumChannels) / Bits2Bytes(PCM->AUD->BitDepth, true));
     }
     
-    static void ParseWavFMTChunk(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) {
+    static void WAVParseFMTChunk(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) {
         if (PCM == NULL) {
-            BitIOLog(LOG_ERROR, "libPCM", "ParseWAV", "Pointer to PCMFile is NULL");
+            BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "Pointer to PCMFile is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libPCM", "ParseWAV", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             uint16_t wFormatTag                  = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
             PCM->AUD->NumChannels                = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
@@ -162,7 +162,7 @@ extern "C" {
             case WAV_LIST:
                 break;
             case WAV_FMT:
-                ParseWavFMTChunk(PCM, BitB, ChunkSize);
+                WAVParseFMTChunk(PCM, BitB, ChunkSize);
                 if (IsOdd(ChunkSize) == Yes) { // Skip the IFF container padding byte
                     BitBufferSkip(BitB, 8);
                 }
@@ -174,13 +174,13 @@ extern "C" {
                 }
                 break;
             case WAV_DATA:
-                ParseWavDATAChunk(PCM, BitB, ChunkSize);
+                WAVParseDATAChunk(PCM, BitB, ChunkSize);
                 if (IsOdd(ChunkSize) == Yes) { // Skip the IFF container padding byte
                     BitBufferSkip(BitB, 8);
                 }
                 break;
             default:
-                BitIOLog(LOG_ERROR, "libPCM", "WAVParseMetadata", "Invalid ChunkID: 0x%X", ChunkID);
+                BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "Invalid ChunkID: 0x%X", ChunkID);
                 break;
         }
     }
@@ -189,7 +189,7 @@ extern "C" {
         uint64_t ExtractedSamplesSize = NumSamples2Extract * BitDepth2SampleSizeInBytes[PCM->AUD->BitDepth] * PCM->AUD->NumChannels;
         uint32_t **ExtractedSamples   = calloc(1, ExtractedSamplesSize * sizeof(uint32_t));
         if (ExtractedSamples == NULL) {
-            BitIOLog(LOG_ERROR, "libPCM", "WAVExtractSamples", "Couldn't allocate enough memory for the Extracted samples, %d", ExtractedSamplesSize);
+            BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "Couldn't allocate enough memory for the Extracted samples, %d", ExtractedSamplesSize);
         } else {
             for (uint64_t Channel = 0; Channel < PCM->AUD->NumChannels; Channel++) {
                 for (uint64_t Sample = 0; Sample < NumSamples2Extract; Sample++) {

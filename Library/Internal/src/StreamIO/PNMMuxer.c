@@ -6,17 +6,33 @@
 extern "C" {
 #endif
     
-    void PXMWriteHeader(PCMFile *PCM, BitBuffer *BitB) {
+    static void PXMWritePAMHeader(PCMFile *PCM, BitBuffer *BitB) {
+        
+    }
+    
+    static void PXMWriteBinaryPNMHeader(PCMFile *PCM, BitBuffer *BitB) {
+        
+    }
+    
+    static void PXMWriteASCIIPNMHeader(PCMFile *PCM, BitBuffer *BitB) {
+        
+    }
+    
+    static void PXMWriteHeader(PCMFile *PCM, BitBuffer *BitB) {
         if (PCM->PXM->PXMType == PAMPXM) {
-            
+            PXMWritePAMHeader(PCM, BitB);
+        } else if (PCM->PXM->PXMType == BinaryPXM) {
+            PXMWriteBinaryPNMHeader(PCM, BitB);
+        } else if (PCM->PXM->PXMType == ASCIIPXM) {
+            PXMWriteASCIIPNMHeader(PCM, BitB);
         }
     }
     
     void PXMInsertPixels(PCMFile *PCM, BitBuffer *OutputPixels, uint32_t NumPixels2Write, uint16_t **Pixels2Write) {
         if (PCM == NULL) {
-            BitIOLog(LOG_ERROR, "libPCM", "PXMInsertPixels", "PCM Pointer is NULL");
+            BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "PCM Pointer is NULL");
         } else if (OutputPixels == NULL) {
-            BitIOLog(LOG_ERROR, "libPCM", "PXMInsertPixels", "BitBuffer Pointer is NULL");
+            BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "BitBuffer Pointer is NULL");
         } else {
             uint64_t ChannelCount = PCM->PXM->NumChannels;
             for (uint16_t Channel = 0; Channel < ChannelCount; Channel++) {

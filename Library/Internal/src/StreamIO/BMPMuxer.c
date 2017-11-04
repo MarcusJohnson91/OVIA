@@ -14,7 +14,7 @@ extern "C" {
         PCM->BMP->Planes      = 1;
     }
     
-    void WriteBMPHeader(PCMFile *PCM, BitBuffer *BitB, uint32_t NumPixels) {
+    void BMPWriteHeader(PCMFile *PCM, BitBuffer *BitB, uint32_t NumPixels) {
         WriteBits(BitIOMSByte, BitIOLSBit, BitB, 16, BMP_BM);
         uint32_t FileSize = 2 + 40 + Bits2Bytes(PCM->BMP->NumChannels * NumPixels, true); // Plus the various headers and shit.
         WriteBits(BitIOLSByte, BitIOLSBit, BitB, 32, FileSize);
@@ -40,9 +40,9 @@ extern "C" {
     
     void BMPInsertPixels(PCMFile *PCM, BitBuffer *OutputPixels, uint32_t NumPixels2Write, uint16_t **Pixels2Write) {
         if (PCM == NULL) {
-            BitIOLog(LOG_ERROR, "libPCM", "BMPInsertPixels", "PCM Pointer is NULL");
+            BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "PCM Pointer is NULL");
         } else if (OutputPixels == NULL) {
-            BitIOLog(LOG_ERROR, "libPCM", "BMPInsertPixels", "BitBuffer Pointer is NULL");
+            BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "BitBuffer Pointer is NULL");
         } else {
             uint64_t ChannelCount = PCM->BMP->NumChannels;
             for (uint16_t Channel = 0; Channel < ChannelCount; Channel++) {

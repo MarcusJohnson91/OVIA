@@ -11,7 +11,7 @@
 extern "C" {
 #endif
     
-    void       IdentifyPXMFileType(PCMFile *PCM, BitBuffer *BitB);
+    void       PXMIdentifyFileType(PCMFile *PCM, BitBuffer *BitB);
     
     void       PXMParseMetadata(PCMFile *PCM, BitBuffer *BitB);
     

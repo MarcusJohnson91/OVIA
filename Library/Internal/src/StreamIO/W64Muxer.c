@@ -16,7 +16,7 @@ extern "C" {
         return NumChannels * (BitDepth / 8);
     }
     
-    void WriteW64FMT(PCMFile *PCM, BitBuffer *BitB) {
+    void W64WriteFMTChunk(PCMFile *PCM, BitBuffer *BitB) {
         uint64_t ByteRate   = CalculateW64ByteRate(PCM->AUD->NumChannels, PCM->AUD->SampleRate, PCM->AUD->BitDepth);
         uint64_t BlockAlign = CalculateW64BlockAlign(PCM->AUD->NumChannels, PCM->AUD->BitDepth);
         WriteBits(BitIOLSByte, BitIOLSBit, BitB, 16, 0);
@@ -27,7 +27,7 @@ extern "C" {
         WriteBits(BitIOLSByte, BitIOLSBit, BitB, 16, PCM->AUD->BitDepth);
     }
     
-    void WriteW64Header(PCMFile *PCM, BitBuffer *BitB) {
+    void W64WriteHeader(PCMFile *PCM, BitBuffer *BitB) {
         WriteGUUID(BitIOUUIDString, BitB, W64_RIFF_GUIDString);
         // Write the size of the file including all header fields
         uint64_t W64Size = (PCM->AUD->NumSamples * PCM->AUD->NumChannels * PCM->AUD->BitDepth);
@@ -36,16 +36,16 @@ extern "C" {
         WriteGUUID(BitIOUUIDString, BitB, W64_FMT_GUIDString);
         uint64_t FMTSize = 40;
         WriteBits(BitIOLSByte, BitIOLSBit, BitB, 64, FMTSize);
-        WriteW64FMT(PCM, BitB);
+        W64WriteFMTChunk(PCM, BitB);
         WriteGUUID(BitIOUUIDString, BitB, W64_DATA_GUIDString);
         WriteBits(BitIOLSByte, BitIOLSBit, BitB, 64, PCM->AUD->NumSamples);
     }
     
     void W64InsertSamples(PCMFile *PCM, BitBuffer *OutputSamples, uint32_t NumSamples2Write, uint32_t **Samples2Write) {
         if (PCM == NULL) {
-            BitIOLog(LOG_ERROR, "libPCM", "W64InsertSamples", "PCM Pointer is NULL");
+            BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "PCM Pointer is NULL");
         } else if (OutputSamples == NULL) {
-            BitIOLog(LOG_ERROR, "libPCM", "W64InsertSamples", "BitBuffer Pointer is NULL");
+            BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "BitBuffer Pointer is NULL");
         } else {
             uint64_t ChannelCount = PCM->AUD->NumChannels;
             uint64_t BitDepth     = PCM->AUD->BitDepth;

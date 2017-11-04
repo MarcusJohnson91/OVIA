@@ -69,9 +69,9 @@ extern "C" {
     
     void AIFInsertSamples(PCMFile *PCM, BitBuffer *OutputSamples, uint32_t NumSamples2Write, uint32_t **Samples2Write) {
         if (PCM == NULL) {
-            BitIOLog(LOG_ERROR, "libPCM", "AIFInsertSamples", "PCM Pointer is NULL");
+            BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "PCM Pointer is NULL");
         } else if (OutputSamples == NULL) {
-            BitIOLog(LOG_ERROR, "libPCM", "AIFInsertSamples", "BitBuffer Pointer is NULL");
+            BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "BitBuffer Pointer is NULL");
         } else {
             uint64_t ChannelCount = PCM->AUD->NumChannels;
             uint64_t BitDepth     = PCM->AUD->BitDepth;

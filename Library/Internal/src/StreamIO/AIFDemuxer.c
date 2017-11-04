@@ -57,7 +57,7 @@ extern "C" {
         PCM->AUD->FileSize                              = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
         uint32_t AIFFChunkID                            = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
         if (AIFFChunkID != AIF_AIFF || AIFFChunkID != AIF_AIFC) {
-            BitIOLog(LOG_ERROR, "libPCM", "AIFParseMetadata", "Invalid ChunkID %s, It should be AIFF or AIFC", AIFFChunkID);
+            BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "Invalid ChunkID %s, It should be AIFF or AIFC", AIFFChunkID);
         } else {
             uint32_t AIFFSubChunkID                     = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
             uint32_t AIFFSubChunkIDSize                 = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
@@ -143,7 +143,7 @@ extern "C" {
         uint64_t   ExtractedSampleSize = NumSamples2Extract * PCM->AUD->NumChannels * PCM->AUD->BitDepth;
         uint32_t **ExtractedSamples    = calloc(1, NumSamples2Extract * sizeof(uint32_t));
         if (ExtractedSamples == NULL) {
-            BitIOLog(LOG_ERROR, "libPCM", "AIFExtractSamples", "Not enough memory to allocate a buffer for the extracted samples, %d", ExtractedSampleSize);
+            BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "Not enough memory to allocate a buffer for the extracted samples, %d", ExtractedSampleSize);
         } else {
             for (uint16_t Channel = 0; Channel < PCM->AUD->NumChannels; Channel++) {
                 for (uint32_t Sample = 0UL; Sample < NumSamples2Extract; Sample++) {

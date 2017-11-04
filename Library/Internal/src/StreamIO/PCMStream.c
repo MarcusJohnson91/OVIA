@@ -32,7 +32,7 @@ extern "C" {
         } else if (FileMagic32 == 0x72696666) {
             PCM->InputFileType = W64Format;
         } else {
-            BitIOLog(LOG_ERROR, "libPCM", "IdentifyPCMFile", "Unrecognized file magic 0x%X", FileMagic64);
+            BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "Unrecognized file magic 0x%X", FileMagic64);
         }
     }
     
@@ -100,7 +100,7 @@ extern "C" {
     
     void PCMSetOutputFileType(PCMFile *PCM, libPCMFileFormats OutputFileType) {
         if (PCM == NULL) {
-            BitIOLog(LOG_ERROR, "libPCM", "PCMSetOutputFileType", "PCM Pointer is NULL");
+            BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "PCM Pointer is NULL");
         } else {
             PCM->OutputFileType = OutputFileType;
         }
@@ -108,7 +108,7 @@ extern "C" {
     
     void PCMSetOutputPXMType(PCMFile *PCM, PXMTypes PXMType) {
         if (PCM == NULL) {
-            BitIOLog(LOG_ERROR, "libPCM", "PCMSetOutputPXMType", "PCM Pointer is NULL");
+            BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "PCM Pointer is NULL");
         } else {
             PCM->PXM->PXMType = PXMType;
         }
@@ -116,7 +116,7 @@ extern "C" {
     
     void PCMSetNumOutputSamples(PCMFile *PCM, uint64_t NumChannelIndependentSamples) {
         if (PCM == NULL) {
-            BitIOLog(LOG_ERROR, "libPCM", "PCMSetNumOutputSamples", "PCM Pointer is NULL");
+            BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "PCM Pointer is NULL");
         } else {
             PCM->AUD->NumSamples = NumChannelIndependentSamples;
         }

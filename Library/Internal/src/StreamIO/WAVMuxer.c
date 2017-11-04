@@ -9,7 +9,7 @@ extern "C" {
     
     static const uint8_t WAVNULLBinaryGUID[BitIOBinaryGUUIDSize] = {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
     
-    void WriteWAVFMTChunk(PCMFile *PCM, BitBuffer *BitB) {
+    void WAVWriteFMTChunk(PCMFile *PCM, BitBuffer *BitB) {
         WriteBits(BitIOLSByte, BitIOLSBit, BitB, 32, 40); // ChunkSize
         WriteBits(BitIOLSByte, BitIOLSBit, BitB, 16, 0xFFFE); // WaveFormatExtensible
         WriteBits(BitIOLSByte, BitIOLSBit, BitB, 16, PCM->AUD->NumChannels);
@@ -24,7 +24,7 @@ extern "C" {
         WriteGUUID(BitIOBinaryGUID, BitB, WAVNULLBinaryGUID);
     }
     
-    void WriteWAVLISTChunk(PCMFile *PCM, BitBuffer *BitB) {
+    void WAVWriteLISTChunk(PCMFile *PCM, BitBuffer *BitB) {
         if (PCM->AUD->Meta->NumTags > 0) {
             // Start checking for tags to write
         }
@@ -32,9 +32,9 @@ extern "C" {
     
     void WAVInsertSamples(PCMFile *PCM, BitBuffer *OutputSamples, uint32_t NumSamples2Write, uint32_t **Samples2Write) {
         if (PCM == NULL) {
-            BitIOLog(LOG_ERROR, "libPCM", "WAVInsertSamples", "PCM Pointer is NULL");
+            BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "PCM Pointer is NULL");
         } else if (OutputSamples == NULL) {
-            BitIOLog(LOG_ERROR, "libPCM", "WAVInsertSamples", "BitBuffer Pointer is NULL");
+            BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "BitBuffer Pointer is NULL");
         } else {
             uint64_t ChannelCount = PCM->AUD->NumChannels;
             uint64_t BitDepth     = PCM->AUD->BitDepth;
