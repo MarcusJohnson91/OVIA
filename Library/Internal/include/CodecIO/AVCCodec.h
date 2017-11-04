@@ -33,6 +33,8 @@ extern "C" {
         MacroBlockMaxPixels                         = 256,
     };
     
+    static const char *ModernAVCLibraryName         = "libModernAVC";
+    
     enum EntropyCoder {
         ExpGolomb                                   =  0,
         Arithmetic                                  =  1,

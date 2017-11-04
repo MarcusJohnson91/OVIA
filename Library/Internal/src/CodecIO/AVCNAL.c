@@ -26,9 +26,9 @@ extern "C" {
     /* Sequence Parameter Set */
     void ParseSequenceParameterSetData(DecodeAVC *Dec, BitBuffer *BitB) { // seq_parameter_set_data
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSequenceParameterSetData", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSequenceParameterSetData", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
             Dec->SPS->ProfileIDC                                                        = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8); // 100
@@ -116,9 +116,9 @@ extern "C" {
     
     void ParseNALSequenceParameterSetExtended(DecodeAVC *Dec, BitBuffer *BitB) { // seq_parameter_set_extension_rbsp?
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseNALSequenceParameterSetExtended", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseNALSequenceParameterSetExtended", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SPS->SeqParamSetID                                                     = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
             Dec->SPS->AuxiliaryFormatID                                                 = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
@@ -135,9 +135,9 @@ extern "C" {
     
     void ParseNALSubsetSPS(DecodeAVC *Dec, BitBuffer *BitB) { // subset_seq_parameter_set_rbsp
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseNALSubsetSPS", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseNALSubsetSPS", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             ReadSequenceParameterSetData(Dec, BitB);
             if ((Dec->SPS->ProfileIDC == Scalable_Constrained_Baseline_Profile) || (Dec->SPS->ProfileIDC == Scalable_High_Intra_Profile)) { // Scalable Video mode
@@ -175,9 +175,9 @@ extern "C" {
     
     void ParseNALSequenceParameterSet(DecodeAVC *Dec, BitBuffer *BitB) { // seq_parameter_set_rbsp
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseNALSequenceParameterSet", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseNALSequenceParameterSet", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             ParseSequenceParameterSetData(Dec, BitB);                        // seq_parameter_set_data
             AlignBitBuffer(BitB, 1);                                         // rbsp_trailing_bits();
@@ -187,9 +187,9 @@ extern "C" {
     /* Video Usability Information */
     void ParseVideoUsabilityInformation(DecodeAVC *Dec, BitBuffer *BitB) { // Video Usability Information; ParseVUIParameters
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseVideoUsabilityInformation", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseVideoUsabilityInformation", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->VUI->AspectRatioInfoPresent                                            = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
             if (Dec->VUI->AspectRatioInfoPresent == true) {
@@ -252,9 +252,9 @@ extern "C" {
     
     void ParseMVCDVUIParametersExtension(DecodeAVC *Dec, BitBuffer *BitB) { // mvcd_vui_parameters_extension
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseMVCDVUIParametersExtension", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseMVCDVUIParametersExtension", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->VUI->VUIMVCDNumOpPoints                                                = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false) + 1;
             for (uint8_t MVCDOpPoint = 0; MVCDOpPoint < Dec->VUI->VUIMVCDNumOpPoints; MVCDOpPoint++) {
@@ -289,9 +289,9 @@ extern "C" {
     
     void ParseMVCVUIParametersExtension(DecodeAVC *Dec, BitBuffer *BitB) { // mvc_vui_parameters_extension
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseMVCVUIParametersExtension", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseMVCVUIParametersExtension", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->VUI->MVCNumOpertionPoints                                              = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false) + 1;
             for (uint16_t Operation = 0; Operation < Dec->VUI->MVCNumOpertionPoints; Operation++) {
@@ -324,9 +324,9 @@ extern "C" {
     
     void ParseSVCVUIExtension(DecodeAVC *Dec, BitBuffer *BitB) { // svc_vui_parameters_extension
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSVCVUIExtension", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSVCVUIExtension", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->VUI->VUIExtNumEntries                                                  = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false) + 1;
             for (uint8_t VUIExtEntry = 0; VUIExtEntry < Dec->VUI->VUIExtNumEntries; VUIExtEntry++) {
@@ -358,9 +358,9 @@ extern "C" {
     /* Picture Parameter Set */
     void ParseNALPictureParameterSet(DecodeAVC *Dec, BitBuffer *BitB) { // pic_parameter_set_rbsp
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseNALPictureParameterSet", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseNALPictureParameterSet", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->PPS->PicParamSetID                                                     = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false); // 3?
             Dec->SPS->SeqParamSetID                                                     = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false); // 2
@@ -424,9 +424,9 @@ extern "C" {
     /* Scalable Video Coding */
     void ParseNALSVCExtension(DecodeAVC *Dec, BitBuffer *BitB) { // nal_unit_header_svc_extension
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseNALSVCExtension", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseNALSVCExtension", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->NAL->IDRFlag                                                           = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
             Dec->NAL->PriorityID[0]                                                     = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 6);
@@ -443,9 +443,9 @@ extern "C" {
     
     void ParseNALSequenceParameterSetSVC(DecodeAVC *Dec, BitBuffer *BitB) { // seq_parameter_set_svc_extension
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseNALSequenceParameterSetSVC", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseNALSequenceParameterSetSVC", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SVC->InterLayerDeblockingFilterPresent                                 = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
             Dec->SVC->ExtendedSpatialScalabilityIDC                                     = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 2);
@@ -475,9 +475,9 @@ extern "C" {
     
     void ParseNALPrefixUnitSVC(DecodeAVC *Dec, BitBuffer *BitB) { // prefix_nal_unit_svc
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseNALPrefixUnitSVC", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseNALPrefixUnitSVC", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             if (Dec->NAL->NALRefIDC != 0) {
                 Dec->Slice->StoreRefBasePicFlag                                         = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
@@ -503,9 +503,9 @@ extern "C" {
     /* Multi-View Coding */
     void ParseNALMVCExtension(DecodeAVC *Dec, BitBuffer *BitB) { // nal_unit_header_mvc_extension
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseNALMVCExtension", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseNALMVCExtension", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->NAL->NonIDRFlag                                                        = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
             Dec->NAL->PriorityID[0]                                                     = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 6);
@@ -519,9 +519,9 @@ extern "C" {
     
     void ParseSPSMVCDExtension(DecodeAVC *Dec, BitBuffer *BitB) { // seq_parameter_set_mvcd_extension
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSPSMVCDExtension", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSPSMVCDExtension", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SPS->ViewCount                                                         = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false) + 1;
             for (uint16_t View = 0; View < Dec->SPS->ViewCount; View++) {
@@ -584,9 +584,9 @@ extern "C" {
     
     void ParseNALDepthParameterSet(DecodeAVC *Dec, BitBuffer *BitB) { // depth_parameter_set_rbsp
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseNALDepthParameterSet", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseNALDepthParameterSet", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->DPS->DepthParameterSetID                                               = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
             Dec->DPS->PredictionDirection                                               = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
@@ -620,9 +620,9 @@ extern "C" {
     
     void ParseSPS3DAVCExtension(DecodeAVC *Dec, BitBuffer *BitB) { // seq_parameter_set_3davc_extension
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSPS3DAVCExtension", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSPS3DAVCExtension", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             if (Dec->DPS->NumDepthViews > 0) {
                 Dec->SPS->AVC3DAcquisitionIDC                                           = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
@@ -697,9 +697,9 @@ extern "C" {
     
     void ParseNAL3DAVCExtension(DecodeAVC *Dec, BitBuffer *BitB) { // nal_unit_header_3davc_extension
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseNAL3DAVCExtension", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseNAL3DAVCExtension", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->NAL->ViewIndex                                                         = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
             Dec->NAL->DepthFlag                                                         = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
@@ -713,9 +713,9 @@ extern "C" {
     /* Hypothetical Reference Decoder */
     void ParseHypotheticalReferenceDecoder(DecodeAVC *Dec, BitBuffer *BitB) { // hrd_parameters
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseHypotheticalReferenceDecoder", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseHypotheticalReferenceDecoder", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->HRD->NumCodedPictureBuffers                                            = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false) + 1;
             Dec->HRD->BitRateScale                                                      = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 4);
@@ -735,9 +735,9 @@ extern "C" {
     /* Generic */
     void ParseNALSliceHeader(DecodeAVC *Dec, BitBuffer *BitB) { // slice_header
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseNALSliceHeader", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseNALSliceHeader", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->Slice->FirstMacroBlockInSlice                                          = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false); // 0
             Dec->Slice->Type                                                            = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false); // 0, 34 0s remaining
@@ -836,9 +836,9 @@ extern "C" {
     
     void ParseNALSliceData(DecodeAVC *Dec, BitBuffer *BitB, uint8_t Category) { // slice_data
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseNALSliceData", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseNALSliceData", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             if (Dec->PPS->EntropyCodingMode == Arithmetic) {
                 while (IsBitBufferAligned(BitB, 1) == false) {
@@ -862,9 +862,9 @@ extern "C" {
     
     void ParseNALSlicePartitionA(DecodeAVC *Dec, BitBuffer *BitB) { // slice_data_partition_a_layer_rbsp
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseNALSlicePartitionA", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseNALSlicePartitionA", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             ParseSliceHeader(Dec, BitB);
             uint64_t SliceID                                                            = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
@@ -875,9 +875,9 @@ extern "C" {
     
     void ParseNALSlicePartitionB(DecodeAVC *Dec, BitBuffer *BitB) { // slice_data_partition_b_layer_rbsp
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseNALSlicePartitionB", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseNALSlicePartitionB", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             uint8_t SliceID                                                             = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
             if (Dec->SPS->SeperateColorPlane == true) {
@@ -893,9 +893,9 @@ extern "C" {
     
     void ParseNALSlicePartitionC(DecodeAVC *Dec, BitBuffer *BitB) { // slice_data_partition_c_layer_rbsp
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseNALSlicePartitionC", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseNALSlicePartitionC", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             uint8_t SliceID                                                             = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
             if (Dec->SPS->SeperateColorPlane == true) {
@@ -911,9 +911,9 @@ extern "C" {
     
     void ParseNALSliceNonPartitioned(DecodeAVC *Dec, BitBuffer *BitB) { // slice_layer_without_partitioning_rbsp
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseNALSliceNonPartitioned", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseNALSliceNonPartitioned", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             ParseNALSliceHeader(Dec, BitB);
             ParseNALSliceData(Dec, BitB, 0); // TODO: Fix category
@@ -923,9 +923,9 @@ extern "C" {
     
     void ParseNALFillerData(DecodeAVC *Dec, BitBuffer *BitB) { // filler_data_rbsp
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseNALFillerData", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseNALFillerData", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             while (PeekBits(BitIOMSByte, BitIOLSBit, BitB, 8) == 0xFF) {
                 SkipBits(BitB, 8);
@@ -935,9 +935,9 @@ extern "C" {
     
     void ParseNALPrefixUnit(DecodeAVC *Dec, BitBuffer *BitB) { // prefix_nal_unit_rbsp
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseNALPrefixUnit", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseNALPrefixUnit", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             if (Dec->NAL->SVCExtensionFlag == true) {
                 ParseNALPrefixUnitSVC(Dec, BitB);
@@ -947,9 +947,9 @@ extern "C" {
     
     void ParseNALAccessUnitDelimiter(DecodeAVC *Dec, BitBuffer *BitB) { // access_unit_delimiter_rbsp
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseNALAccessUnitDelimiter", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseNALAccessUnitDelimiter", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->Slice->PictureType                                                     = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 3);
             AlignBitBuffer(BitB, 1);
@@ -959,9 +959,9 @@ extern "C" {
     /* Supplemental Enhancement Information */
     void ParseSEIBufferingPeriod(DecodeAVC *Dec, BitBuffer *BitB) { // buffering_period
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIBufferingPeriod", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIBufferingPeriod", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SPS->SeqParamSetID                                                     = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
             if (Dec->SEI->NalHrdBpPresentFlag == true) {
@@ -994,9 +994,9 @@ extern "C" {
     
     void ParseSEIPictureTiming(DecodeAVC *Dec, BitBuffer *BitB) { // pic_timing
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIPictureTiming", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIPictureTiming", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             if (Dec->SEI->CpbDpbDelaysPresentFlag == true) {
                 Dec->SEI->CPBRemovalDelay                                               = ReadBits(BitIOMSByte, BitIOLSBit, BitB, Dec->HRD->CBPDelay);
@@ -1043,9 +1043,9 @@ extern "C" {
     
     void ParseSEIPanScan(DecodeAVC *Dec, BitBuffer *BitB) { // pan_scan_rect
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIPanScan", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIPanScan", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->PanScanID                                                         = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
             Dec->SEI->DisablePanScanFlag                                                = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
@@ -1064,9 +1064,9 @@ extern "C" {
     
     void ParseSEIFiller(DecodeAVC *Dec, BitBuffer *BitB) { // filler_payload
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIFiller", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIFiller", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             SkipBits(BitB, Bytes2Bits(Dec->SEI->SEISize));
         }
@@ -1074,9 +1074,9 @@ extern "C" {
     
     void ParseSEIRegisteredUserData(DecodeAVC *Dec, BitBuffer *BitB) { // user_data_registered_itu_t_t35
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIRegisteredUserData", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIRegisteredUserData", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             uint8_t CountryCodeSize = 0;
             Dec->SEI->CountryCode                                                       = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
@@ -1092,9 +1092,9 @@ extern "C" {
     
     void ParseSEIUnregisteredUserData(DecodeAVC *Dec, BitBuffer *BitB) { // user_data_unregistered
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIUnregisteredUserData", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIUnregisteredUserData", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->UnregisteredUserDataUUID = ReadUUID(BitB); // DC45E9BD-E6D9-48B7-962C-D820D923EEEF, x264 UserID.
             SkipBits(BitB, Bytes2Bits(Dec->SEI->SEISize - BitIOBinaryUUIDSize));
@@ -1103,9 +1103,9 @@ extern "C" {
     
     void ParseSEIRecoveryPoint(DecodeAVC *Dec, BitBuffer *BitB) { // recovery_point
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIRecoveryPoint", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIRecoveryPoint", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->RecoveryFrameCount                                                = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
             Dec->SEI->ExactMatchFlag                                                    = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
@@ -1116,9 +1116,9 @@ extern "C" {
     
     void ParseSEIRepetitiveReferencePicture(DecodeAVC *Dec, BitBuffer *BitB) { // dec_ref_pic_marking_repetition
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIRepetitiveReferencePicture", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIRepetitiveReferencePicture", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->OriginalIDRFlag                                                   = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
             Dec->SEI->OriginalFrameNum                                                  = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
@@ -1134,9 +1134,9 @@ extern "C" {
     
     void ParseSEISparePicture(DecodeAVC *Dec, BitBuffer *BitB) { // spare_pic
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEISparePicture", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEISparePicture", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             uint8_t MapUnitCount = 0;
             
@@ -1168,9 +1168,9 @@ extern "C" {
     
     void ParseSEISceneInfo(DecodeAVC *Dec, BitBuffer *BitB) { // scene_info
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEISceneInfo", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEISceneInfo", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->SceneInfoPresentFlag                                              = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
             if (Dec->SEI->SceneInfoPresentFlag == true) {
@@ -1185,9 +1185,9 @@ extern "C" {
     
     void ParseSEISubSequenceInfo(DecodeAVC *Dec, BitBuffer *BitB) { // sub_seq_info
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEISubSequenceInfo", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEISubSequenceInfo", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->SubSequenceLayerNum                                                = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
             Dec->SEI->SubSequenceID                                                      = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
@@ -1203,9 +1203,9 @@ extern "C" {
     
     void ParseSEISubSequenceLayerProperties(DecodeAVC *Dec, BitBuffer *BitB) { // sub_seq_layer_characteristics
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEISubSequenceLayerProperties", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEISubSequenceLayerProperties", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->NumSubSeqLayers                                                    = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false) + 1;
             for (uint8_t Layer = 0; Layer < Dec->SEI->NumSubSeqLayers; Layer++) {
@@ -1218,9 +1218,9 @@ extern "C" {
     
     void ParseSEISubSequenceProperties(DecodeAVC *Dec, BitBuffer *BitB) { // sub_seq_characteristics
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEISubSequenceProperties", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEISubSequenceProperties", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->SubSequenceLayerNum                                                = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
             Dec->SEI->SubSequenceID                                                      = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
@@ -1245,9 +1245,9 @@ extern "C" {
     
     void ParseSEIFullFrameFreeze(DecodeAVC *Dec, BitBuffer *BitB) { // full_frame_freeze
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIFullFrameFreeze", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIFullFrameFreeze", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->FullFrameFreezeRepitionPeriod                                      = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
         }
@@ -1255,9 +1255,9 @@ extern "C" {
     
     void ParseSEIFullFrameFreezeRelease(DecodeAVC *Dec, BitBuffer *BitB) { // full_frame_freeze_release
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIFullFrameFreezeRelease", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIFullFrameFreezeRelease", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             SkipBits(BitB, Bytes2Bits(Dec->SEI->SEISize));
         }
@@ -1265,9 +1265,9 @@ extern "C" {
     
     void ParseSEIFullFrameSnapshot(DecodeAVC *Dec, BitBuffer *BitB) { // full_frame_snapshot
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIFullFrameSnapshot", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIFullFrameSnapshot", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->SnapshotID                                                         = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
         }
@@ -1275,9 +1275,9 @@ extern "C" {
     
     void ParseSEIProgressiveRefinementSegmentStart(DecodeAVC *Dec, BitBuffer *BitB) { // progressive_refinement_segment_start
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIProgressiveRefinementSegmentStart", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIProgressiveRefinementSegmentStart", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->ProgressiveRefinementID                                            = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
             Dec->SEI->NumRefinementSteps                                                 = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false) + 1;
@@ -1286,9 +1286,9 @@ extern "C" {
     
     void ParseSEIProgressiveRefinementSegmentEnd(DecodeAVC *Dec, BitBuffer *BitB) { // progressive_refinement_segment_end
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIProgressiveRefinementSegmentEnd", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIProgressiveRefinementSegmentEnd", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->ProgressiveRefinementID                                            = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
         }
@@ -1296,9 +1296,9 @@ extern "C" {
     
     void ParseSEIMotionConstrainedSliceGroupSet(DecodeAVC *Dec, BitBuffer *BitB) { // motion_constrained_slice_group_set
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIMotionConstrainedSliceGroupSet", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIMotionConstrainedSliceGroupSet", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->NumSliceGroupsInSet                                                = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false) + 1;
             if (Dec->SEI->NumSliceGroupsInSet > 1) {
@@ -1316,9 +1316,9 @@ extern "C" {
     
     void ParseSEIFilmGrainCharacteristics(DecodeAVC *Dec, BitBuffer *BitB) { // film_grain_characteristics
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIFilmGrainCharacteristics", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIFilmGrainCharacteristics", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->FilmGrainCharactisticsCancelFlag                                   = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
             if (Dec->SEI->FilmGrainCharactisticsCancelFlag == false) {
@@ -1357,9 +1357,9 @@ extern "C" {
     
     void ParseSEIDeblockingFilterDisplayPreference(DecodeAVC *Dec, BitBuffer *BitB) { // deblocking_filter_display_preference
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIDeblockingFilterDisplayPreference", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIDeblockingFilterDisplayPreference", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->DeblockingDisplayPreferenceCancelFlag           = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
             if (Dec->SEI->DeblockingDisplayPreferenceCancelFlag == false) {
@@ -1372,9 +1372,9 @@ extern "C" {
     
     void ParseSEIStereoVideoInfo(DecodeAVC *Dec, BitBuffer *BitB) { // stereo_video_info
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIStereoVideoInfo", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIStereoVideoInfo", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->FieldViewsFlag               = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
             if (Dec->SEI->FieldViewsFlag == true) {
@@ -1390,9 +1390,9 @@ extern "C" {
     
     void ParseSEIPostFilterHint(DecodeAVC *Dec, BitBuffer *BitB) { // post_filter_hint
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIPostFilterHint", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIPostFilterHint", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->FilterHintSizeY     = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
             Dec->SEI->FilterHintSizeX     = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
@@ -1410,9 +1410,9 @@ extern "C" {
     
     void ParseSEIToneMappingInfo(DecodeAVC *Dec, BitBuffer *BitB) { // tone_mapping_info
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIToneMappingInfo", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIToneMappingInfo", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, , "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->ToneMapID  = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
             Dec->SEI->ToneMapCancelFlag = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
@@ -1461,9 +1461,9 @@ extern "C" {
     
     void ParseSEIScalabilityInfo(DecodeAVC *Dec, BitBuffer *BitB) { // scalability_info
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIScalabilityInfo", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIScalabilityInfo", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->TemporalIDNestingFlag                      = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
             Dec->SEI->PriorityLayerInfoPresent                   = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
@@ -1607,9 +1607,9 @@ extern "C" {
     
     void ParseSEISubPictureScalableLayer(DecodeAVC *Dec, BitBuffer *BitB) { // sub_pic_scalable_layer
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEISubPictureScalableLayer", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEISubPictureScalableLayer", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->LayerID[0] = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
         }
@@ -1617,9 +1617,9 @@ extern "C" {
     
     void ParseSEINonRequiredLayerRep(DecodeAVC *Dec, BitBuffer *BitB) { // non_required_layer_rep
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEINonRequiredLayerRep", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEINonRequiredLayerRep", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->NumInfoEntries = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false) + 1;
             for (uint32_t InfoEntry = 0; InfoEntry < Dec->SEI->NumInfoEntries; InfoEntry++) {
@@ -1635,9 +1635,9 @@ extern "C" {
     
     void ParseSEIPriorityLayerInfo(DecodeAVC *Dec, BitBuffer *BitB) { // priority_layer_info
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIPriorityLayerInfo", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIPriorityLayerInfo", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->PriorityDependencyID[0] = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 3);
             Dec->SEI->NumPriorityIDs          = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 4);
@@ -1649,9 +1649,9 @@ extern "C" {
     
     void ParseSEILayersNotPresent(DecodeAVC *Dec, BitBuffer *BitB) { // layers_not_present
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEILayersNotPresent", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEILayersNotPresent", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->NumLayersNotPresent = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
             for (uint8_t Layer = 0; Layer < Dec->SEI->NumLayersNotPresent; Layer++) {
@@ -1662,9 +1662,9 @@ extern "C" {
     
     void ParseSEILayerDependencyChange(DecodeAVC *Dec, BitBuffer *BitB) { // layer_dependency_change
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEILayerDependencyChange", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEILayerDependencyChange", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->NumLayers = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false) + 1;
             for (uint8_t Layer = 0; Layer < Dec->SEI->NumLayers; Layer++) {
@@ -1684,9 +1684,9 @@ extern "C" {
     
     void ParseSEIScalableNesting(DecodeAVC *Dec, BitBuffer *BitB) { // scalable_nesting
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIScalableNesting", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIScalableNesting", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->AllLayerRepresentationsInAUFlag = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
             if (Dec->SEI->AllLayerRepresentationsInAUFlag == false) {
@@ -1704,9 +1704,9 @@ extern "C" {
     
     void ParseSEIBaseLayerTemporalHRD(DecodeAVC *Dec, BitBuffer *BitB) { // base_layer_temporal_hrd
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIBaseLayerTemporalHRD", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIBaseLayerTemporalHRD", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->NumTemporalLayersInBaseLayer                 = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false) + 1;
             for (uint8_t TemporalLayer = 0; TemporalLayer < Dec->SEI->NumTemporalLayersInBaseLayer; TemporalLayer++) {
@@ -1735,9 +1735,9 @@ extern "C" {
     
     void ParseSEIQualityLayerIntegrityCheck(DecodeAVC *Dec, BitBuffer *BitB) { // quality_layer_integrity_check
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIQualityLayerIntegrityCheck", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIQualityLayerIntegrityCheck", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->NumInfoEntries = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false) + 1;
             for (uint8_t IntegrityCheck = 0; IntegrityCheck < Dec->SEI->NumInfoEntries; IntegrityCheck++) {
@@ -1749,9 +1749,9 @@ extern "C" {
     
     void ParseSEIRedundantPicProperty(DecodeAVC *Dec, BitBuffer *BitB) { // redundant_pic_property
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIRedundantPicProperty", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIRedundantPicProperty", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->NumDependencyIDs = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false) + 1;
             for (uint8_t DependencyID = 0; DependencyID < Dec->SEI->NumDependencyIDs; DependencyID++) {
@@ -1777,9 +1777,9 @@ extern "C" {
     
     void ParseSEITemporalDependencyRepresentationIndex(DecodeAVC *Dec, BitBuffer *BitB) { // tl0_dep_rep_index
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEITemporalDependencyRepresentationIndex", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEITemporalDependencyRepresentationIndex", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->TemporalDependencyRepresentationIndexLevel0 = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
             Dec->SEI->EffectiveIDRPicID                           = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 16);
@@ -1788,9 +1788,9 @@ extern "C" {
     
     void ParseSEITemporalLevelSwitchingPoint(DecodeAVC *Dec, BitBuffer *BitB) { // tl_switching_point
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEITemporalLevelSwitchingPoint", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEITemporalLevelSwitchingPoint", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->DeltaFrameNum = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, true);
         }
@@ -1798,9 +1798,9 @@ extern "C" {
     
     void ParseSEIParallelDecodingInfo(DecodeAVC *Dec, BitBuffer *BitB) { // parallel_decoding_info
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIParallelDecodingInfo", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIParallelDecodingInfo", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SPS->SeqParamSetID = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
             for (uint8_t View = 0; View <= Dec->SPS->ViewCount; View++) {
@@ -1825,9 +1825,9 @@ extern "C" {
     
     void ParseSEIMVCScalableNesting(DecodeAVC *Dec, BitBuffer *BitB) { // mvc_scalable_nesting
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIMVCScalableNesting", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIMVCScalableNesting", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->OperationPointFlag = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
             if (Dec->SEI->OperationPointFlag == false) {
@@ -1852,9 +1852,9 @@ extern "C" {
     
     void ParseSEIViewScalabilityInfo(DecodeAVC *Dec, BitBuffer *BitB) { // view_scalability_info FIXME: FINISH THIS FUNCTION!!!
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIViewScalabilityInfo", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIViewScalabilityInfo", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->NumOperationPoints                         = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false) + 1;
             for (uint8_t OperationPoint = 0; OperationPoint < Dec->SEI->NumOperationPoints; OperationPoint++) {
@@ -1955,9 +1955,9 @@ extern "C" {
     
     void ParseSEIMVCSceneInfo(DecodeAVC *Dec, BitBuffer *BitB) { // multiview_scene_info
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIMVCSceneInfo", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIMVCSceneInfo", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->MaxDisparity = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
         }
@@ -1965,9 +1965,9 @@ extern "C" {
     
     void ParseSEIMVCAcquisitionInfo(DecodeAVC *Dec, BitBuffer *BitB) { // multiview_acquisition_info
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIMVCAcquisitionInfo", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIMVCAcquisitionInfo", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SPS->ViewCount            = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false) + 1;
             Dec->SEI->IntrinsicParamFlag   = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
@@ -2039,9 +2039,9 @@ extern "C" {
     
     void ParseSEINonRequiredViewComponent(DecodeAVC *Dec, BitBuffer *BitB) { // non_required_view_component
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEINonRequiredViewComponent", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEINonRequiredViewComponent", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->NumInfoEntries                               = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false) + 1;
             for (uint8_t InfoEntry = 0; InfoEntry < Dec->SEI->NumInfoEntries; InfoEntry++) {
@@ -2056,9 +2056,9 @@ extern "C" {
     
     void ParseSEIViewDependencyChange(DecodeAVC *Dec, BitBuffer *BitB) { // view_dependency_change
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIViewDependencyChange", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIViewDependencyChange", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SPS->SeqParamSetID       = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
             Dec->SEI->AnchorUpdateFlag    = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
@@ -2088,9 +2088,9 @@ extern "C" {
     
     void ParseSEIOperationPointNotPresent(DecodeAVC *Dec, BitBuffer *BitB) { // operation_point(s)_not_present
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIOperationPointNotPresent", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIOperationPointNotPresent", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->NumOperationPoints = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false) + 1;
             for (uint8_t OperationPoint = 0; OperationPoint < Dec->SEI->NumOperationPoints; OperationPoint++) {
@@ -2101,9 +2101,9 @@ extern "C" {
     
     void ParseSEIBaseViewTemporalHRD(DecodeAVC *Dec, BitBuffer *BitB) { // base_view_temporal_hrd
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIBaseViewTemporalHRD", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIBaseViewTemporalHRD", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->NumTemporalLayersInBaseView = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false) + 1;
             for (uint8_t TemporalLayer = 0; TemporalLayer < Dec->SEI->NumTemporalLayersInBaseView; TemporalLayer++) {
@@ -2114,9 +2114,9 @@ extern "C" {
     
     void ParseSEIFramePackingArrangement(DecodeAVC *Dec, BitBuffer *BitB) { // frame_packing_arrangement
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIFramePackingArrangement", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIFramePackingArrangement", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->FramePackingArrangementID = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
             Dec->SEI->FramePackingArrangementCancelFlag = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
@@ -2145,9 +2145,9 @@ extern "C" {
     
     void ParseSEIMVCViewPosition(DecodeAVC *Dec, BitBuffer *BitB) { // multiview_view_position
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIMVCViewPosition", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIMVCViewPosition", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SPS->ViewCount = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false) + 1;
             for (uint8_t View = 0; View < Dec->SPS->ViewCount; View++) {
@@ -2159,9 +2159,9 @@ extern "C" {
     
     void ParseSEIDisplayOrientation(DecodeAVC *Dec, BitBuffer *BitB) { // display_orientation
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIDisplayOrientation", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIDisplayOrientation", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->DisplayOrientationCancelFlag = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
             if (Dec->SEI->DisplayOrientationCancelFlag == false) {
@@ -2176,9 +2176,9 @@ extern "C" {
     
     void ParseSEIDepthRepresentationInformation(DecodeAVC *Dec, BitBuffer *BitB) { // depth_representation_info
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIDepthRepresentationInformation", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIDepthRepresentationInformation", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->AllViewsEqual                                     = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
             if (Dec->SEI->AllViewsEqual == true) {
@@ -2230,9 +2230,9 @@ extern "C" {
     
     void ParseSEI3DReferenceDisplayInfo(DecodeAVC *Dec, BitBuffer *BitB) { // three_dimensional_reference_displays_info
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEI3DReferenceDisplayInfo", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEI3DReferenceDisplayInfo", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->TruncationErrorExponent                           = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
             Dec->SEI->TruncatedWidthExponent                            = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
@@ -2262,9 +2262,9 @@ extern "C" {
     
     void ParseSEIDepthTiming(DecodeAVC *Dec, BitBuffer *BitB) { // depth_timing
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIDepthTiming", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIDepthTiming", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->PerViewDepthTimingFlag                              = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
             
@@ -2280,9 +2280,9 @@ extern "C" {
     
     void ParseSEIDepthGridPosition(DecodeAVC *Dec, BitBuffer *BitB) { // depth_grid_position()
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIDepthGridPosition", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIDepthGridPosition", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->DepthGridPositionXFP                                = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 20);
             Dec->SEI->DepthGridPositionXDP                                = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 4);
@@ -2295,9 +2295,9 @@ extern "C" {
     
     void ParseSEIDepthSamplingInfo(DecodeAVC *Dec, BitBuffer *BitB) { // depth_sampling_info
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIDepthSamplingInfo", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIDepthSamplingInfo", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->DepthSampleWidthMul                                 = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 16);
             Dec->SEI->DepthSampleWidthDP                                  = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 4);
@@ -2318,9 +2318,9 @@ extern "C" {
     
     void ParseSEIConstrainedDepthParameterSetID(DecodeAVC *Dec, BitBuffer *BitB) { // constrained_depth_parameter_set_identifier
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIConstrainedDepthParameterSetID", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIConstrainedDepthParameterSetID", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->MaxDPSID                                            = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
             Dec->SEI->MaxDPSIDDiff                                        = ReadExpGolomb(BitIOMSByte, BitIOLSBit, BitB, false);
@@ -2329,9 +2329,9 @@ extern "C" {
     
     void ParseSEIMeteringDisplayColorVolume(DecodeAVC *Dec, BitBuffer *BitB) { // mastering_display_color_volume
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIMeteringDisplayColorVolume", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIMeteringDisplayColorVolume", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             for (uint8_t Color = 0; Color < 3; Color++) {
                 Dec->SEI->DisplayPrimariesX[Color]                        = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 16);
@@ -2346,9 +2346,9 @@ extern "C" {
     
     void ParseSEIMVCDScalableNesting(DecodeAVC *Dec, BitBuffer *BitB) { // mvcd_scalable_nesting
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIMVCDScalableNesting", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIMVCDScalableNesting", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             Dec->SEI->OperationPointFlag                                  = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
             if (Dec->SEI->OperationPointFlag == false) {
@@ -2379,7 +2379,7 @@ extern "C" {
     
     void ParseSEIDepthRepresentationElement(BitBuffer *BitB, uint8_t OutSign, uint8_t OutExp, uint8_t OutMantissa, uint8_t OutManLen) { // depth_representation_sei_element
         if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIDepthRepresentationElement", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             bool     DASignFlag                                           = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1); // da_sign_flag
             uint8_t  DAExponent                                           = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 7); // da_exponent
@@ -2390,7 +2390,7 @@ extern "C" {
     
     void SkipSEIReservedMessage(BitBuffer *BitB, size_t SEISize) { // reserved_sei_message
         if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "SkipSEIReservedMessage", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             SkipBits(BitB, Bytes2Bits(SEISize));
         }
@@ -2398,9 +2398,9 @@ extern "C" {
     
     void ParseSEIMessage(DecodeAVC *Dec, BitBuffer *BitB) { // sei_message
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIMessage", "Pointer to DecodeAVC is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to DecodeAVC is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIMessage", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             while (PeekBits(BitIOMSByte, BitIOLSBit, BitB, 8) == 0xFF) {
                 SkipBits(BitB, 8);
@@ -2584,7 +2584,7 @@ extern "C" {
                     ParseSEIMeteringDisplayColorVolume(Dec, BitB);
                     break;
                 default:
-                    BitIOLog(LOG_ERROR, "libModernAVC", "ParseSEIMessage", "Unrecognized SEIType: %d", Dec->SEI->SEIType);
+                    BitIOLog(LOG_ERROR, ModernAVCLibraryName, __func__, "Unrecognized SEIType: %d", Dec->SEI->SEIType);
                     SkipBits(BitB, Dec->SEI->SEISize);
                     break;
             }
