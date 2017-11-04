@@ -207,7 +207,7 @@ extern "C" {
                     PNGDecodePaethFilter(Dec, *InflatedBuffer, &DeFilteredData, Line);
                     break;
                 default:
-                    BitIOLog(LOG_ERROR, "ModernPNG", "PNGDecodeFilteredLine", "Filter type: %d is invalid\n", FilterType);
+                    BitIOLog(LOG_ERROR, "ModernPNG", __func__, "Filter type: %d is invalid\n", FilterType);
                     break;
             }
         }
