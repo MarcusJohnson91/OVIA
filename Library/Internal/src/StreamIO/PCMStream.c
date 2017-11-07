@@ -23,7 +23,7 @@ extern "C" {
         
         if (FileMagic16 == BMP_BM) {
             PCM->InputFileType = BMPFormat;
-        } else if (FileMagic16 == PortableBitMapASCII || FileMagic16 == PortableBitMapBinary || FileMagic16 == PortablePixMapASCII || FileMagic16 == PortablePixMapBinary || FileMagic16 == PortableGrayMapASCII || FileMagic16 == PortableGrayMapBinary || FileMagic16 == PortableAnyMap) {
+        } else if (FileMagic16 == PXM_PBMA || FileMagic16 == PXM_PBMB || FileMagic16 == PXM_PPMA || FileMagic16 == PXM_PPMB || FileMagic16 == PXM_PGMA || FileMagic16 == PXM_PGMB || FileMagic16 == PXM_PAMB) {
             PCM->InputFileType = PXMFormat;
         } else if (FileMagic32 == AIF_FORM) {
             PCM->InputFileType = AIFFormat;
