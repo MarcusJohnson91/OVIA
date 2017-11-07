@@ -27,7 +27,7 @@ extern "C" {
         }
         PCM->AUD->Meta->ArtistTag = Artist;
         if (IsOdd(ChunkSize) == Yes) {
-            BitBufferSkip(BitB, 8);
+            BitBuffer_Skip(BitB, 8);
         }
         PCM->AUD->Meta->NumTags += 1;
     }
@@ -39,7 +39,7 @@ extern "C" {
         }
         PCM->AUD->Meta->ReleaseDateTag = ReleaseDate;
         if (IsOdd(ChunkSize) == Yes) {
-            BitBufferSkip(BitB, 8);
+            BitBuffer_Skip(BitB, 8);
         }
         PCM->AUD->Meta->NumTags += 1;
     }
@@ -51,7 +51,7 @@ extern "C" {
         }
         PCM->AUD->Meta->GenreTag = Genre;
         if (IsOdd(ChunkSize) == Yes) {
-            BitBufferSkip(BitB, 8);
+            BitBuffer_Skip(BitB, 8);
         }
         PCM->AUD->Meta->NumTags += 1;
     }
@@ -63,7 +63,7 @@ extern "C" {
         }
         PCM->AUD->Meta->SongTitleTag = Title;
         if (IsOdd(ChunkSize) == Yes) {
-            BitBufferSkip(BitB, 8);
+            BitBuffer_Skip(BitB, 8);
         }
         PCM->AUD->Meta->NumTags += 1;
     }
@@ -75,7 +75,7 @@ extern "C" {
         }
         PCM->AUD->Meta->AlbumTag = Album;
         if (IsOdd(ChunkSize) == Yes) {
-            BitBufferSkip(BitB, 8);
+            BitBuffer_Skip(BitB, 8);
         }
         PCM->AUD->Meta->NumTags += 1;
     }
@@ -87,7 +87,7 @@ extern "C" {
         }
         PCM->AUD->Meta->EncoderTag = Encoder;
         if (IsOdd(ChunkSize) == Yes) {
-            BitBufferSkip(BitB, 8);
+            BitBuffer_Skip(BitB, 8);
         }
         PCM->AUD->Meta->NumTags += 1;
     }
@@ -140,7 +140,7 @@ extern "C" {
             
             if (ChunkSize == 18) {
                 uint16_t CBSize             = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
-                BitBufferSkip(BitB, Bytes2Bits(CBSize - 16));
+                BitBuffer_Skip(BitB, Bytes2Bits(CBSize - 16));
             } else if (ChunkSize == 40) {
                 uint16_t CBSize             = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
                 uint16_t ValidBitsPerSample = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
@@ -148,8 +148,8 @@ extern "C" {
                     PCM->AUD->BitDepth = ValidBitsPerSample;
                 }
                 uint32_t  SpeakerMask       = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-                uint8_t  *BinaryGUIDFormat  = ReadGUUID(BitIOBinaryGUID, BitB);
-                BitBufferSkip(BitB, Bytes2Bits(CBSize - 22));
+                uint8_t  *BinaryGUIDFormat  = ReadGUUID(BitIOBinaryGUUID, BitIOLSByte, BitB);
+                BitBuffer_Skip(BitB, Bytes2Bits(CBSize - 22));
             }
         }
     }
@@ -164,19 +164,19 @@ extern "C" {
             case WAV_FMT:
                 WAVParseFMTChunk(PCM, BitB, ChunkSize);
                 if (IsOdd(ChunkSize) == Yes) { // Skip the IFF container padding byte
-                    BitBufferSkip(BitB, 8);
+                    BitBuffer_Skip(BitB, 8);
                 }
                 break;
             case WAV_WAVE:
-                BitBufferSkip(BitB, 32);
+                BitBuffer_Skip(BitB, 32);
                 if (IsOdd(ChunkSize) == Yes) { // Skip the IFF container padding byte
-                    BitBufferSkip(BitB, 8);
+                    BitBuffer_Skip(BitB, 8);
                 }
                 break;
             case WAV_DATA:
                 WAVParseDATAChunk(PCM, BitB, ChunkSize);
                 if (IsOdd(ChunkSize) == Yes) { // Skip the IFF container padding byte
-                    BitBufferSkip(BitB, 8);
+                    BitBuffer_Skip(BitB, 8);
                 }
                 break;
             default:

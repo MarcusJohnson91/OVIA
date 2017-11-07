@@ -64,77 +64,77 @@ extern "C" {
             if (AIFFSubChunkID == AIF_COMM) {
                 AIFParseCOMMChunk(PCM, BitB);
                 if (IsOdd(AIFFSubChunkIDSize) == Yes) { // Skip the IFF container padding byte
-                    BitBufferSkip(BitB, 8);
+                    BitBuffer_Skip(BitB, 8);
                     PCM->DataLeft -= 1;
                 }
                 PCM->DataLeft -= AIFFSubChunkIDSize;
             } else if (AIFFSubChunkID == AIF_ID3) {
-                BitBufferSkip(BitB, Bytes2Bits(AIFFSubChunkIDSize));
+                BitBuffer_Skip(BitB, Bytes2Bits(AIFFSubChunkIDSize));
                 if (IsOdd(AIFFSubChunkIDSize) == Yes) { // Skip the IFF container padding byte
-                    BitBufferSkip(BitB, 8);
+                    BitBuffer_Skip(BitB, 8);
                     PCM->DataLeft -= 1;
                 }
                 PCM->DataLeft -= AIFFSubChunkIDSize;
             } else if (AIFFSubChunkID == AIF_NAME) {
                 AIFParseNameChunk(PCM, BitB);
                 if (IsOdd(AIFFSubChunkIDSize) == Yes) { // Skip the IFF container padding byte
-                    BitBufferSkip(BitB, 8);
+                    BitBuffer_Skip(BitB, 8);
                     PCM->DataLeft -= 1;
                 }
                 PCM->DataLeft -= AIFFSubChunkIDSize;
             } else if (AIFFSubChunkID == AIF_AUTH) {
                 AIFParseAuthorChunk(PCM, BitB);
                 if (IsOdd(AIFFSubChunkIDSize) == Yes) { // Skip the IFF container padding byte
-                    BitBufferSkip(BitB, 8);
+                    BitBuffer_Skip(BitB, 8);
                     PCM->DataLeft -= 1;
                 }
                 PCM->DataLeft -= AIFFSubChunkIDSize;
             } else if (AIFFSubChunkID == AIF_MARK) {
-                BitBufferSkip(BitB, Bytes2Bits(AIFFSubChunkIDSize));
+                BitBuffer_Skip(BitB, Bytes2Bits(AIFFSubChunkIDSize));
                 if (IsOdd(AIFFSubChunkIDSize) == Yes) { // Skip the IFF container padding byte
-                    BitBufferSkip(BitB, 8);
+                    BitBuffer_Skip(BitB, 8);
                     PCM->DataLeft -= 1;
                 }
                 PCM->DataLeft -= AIFFSubChunkIDSize;
             } else if (AIFFSubChunkID == AIF_INST) {
-                BitBufferSkip(BitB, Bytes2Bits(AIFFSubChunkIDSize));
+                BitBuffer_Skip(BitB, Bytes2Bits(AIFFSubChunkIDSize));
                 if (IsOdd(AIFFSubChunkIDSize) == Yes) { // Skip the IFF container padding byte
-                    BitBufferSkip(BitB, 8);
+                    BitBuffer_Skip(BitB, 8);
                     PCM->DataLeft -= 1;
                 }
                 PCM->DataLeft -= AIFFSubChunkIDSize;
             } else if (AIFFSubChunkID == AIF_MIDI) {
-                BitBufferSkip(BitB, Bytes2Bits(AIFFSubChunkIDSize));
+                BitBuffer_Skip(BitB, Bytes2Bits(AIFFSubChunkIDSize));
                 if (IsOdd(AIFFSubChunkIDSize) == Yes) { // Skip the IFF container padding byte
-                    BitBufferSkip(BitB, 8);
+                    BitBuffer_Skip(BitB, 8);
                     PCM->DataLeft -= 1;
                 }
                 PCM->DataLeft -= AIFFSubChunkIDSize;
             } else if (AIFFSubChunkID == AIF_AESD) {
-                BitBufferSkip(BitB, Bytes2Bits(AIFFSubChunkIDSize));
+                BitBuffer_Skip(BitB, Bytes2Bits(AIFFSubChunkIDSize));
                 if (IsOdd(AIFFSubChunkIDSize) == Yes) { // Skip the IFF container padding byte
-                    BitBufferSkip(BitB, 8);
+                    BitBuffer_Skip(BitB, 8);
                     PCM->DataLeft -= 1;
                 }
                 PCM->DataLeft -= AIFFSubChunkIDSize;
             } else if (AIFFSubChunkID == AIF_AAPL) {
-                BitBufferSkip(BitB, Bytes2Bits(AIFFSubChunkIDSize));
+                BitBuffer_Skip(BitB, Bytes2Bits(AIFFSubChunkIDSize));
                 if (IsOdd(AIFFSubChunkIDSize) == Yes) { // Skip the IFF container padding byte
-                    BitBufferSkip(BitB, 8);
+                    BitBuffer_Skip(BitB, 8);
                     PCM->DataLeft -= 1;
                 }
                 PCM->DataLeft -= AIFFSubChunkIDSize;
             } else if (AIFFSubChunkID == AIF_COMT) {
-                BitBufferSkip(BitB, Bytes2Bits(AIFFSubChunkIDSize));
+                BitBuffer_Skip(BitB, Bytes2Bits(AIFFSubChunkIDSize));
                 if (IsOdd(AIFFSubChunkIDSize) == Yes) { // Skip the IFF container padding byte
-                    BitBufferSkip(BitB, 8);
+                    BitBuffer_Skip(BitB, 8);
                     PCM->DataLeft -= 1;
                 }
                 PCM->DataLeft -= AIFFSubChunkIDSize;
             } else if (AIFFSubChunkID == AIF_SSND) {
                 PCM->AUD->AIFOffset    = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
                 PCM->AUD->AIFBlockSize = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
-                BitBufferSkip(BitB, Bytes2Bits(PCM->AUD->AIFOffset));
+                BitBuffer_Skip(BitB, Bytes2Bits(PCM->AUD->AIFOffset));
             }
         }
     }
@@ -148,11 +148,11 @@ extern "C" {
             for (uint16_t Channel = 0; Channel < PCM->AUD->NumChannels; Channel++) {
                 for (uint32_t Sample = 0UL; Sample < NumSamples2Extract; Sample++) {
                     ExtractedSamples[Channel][Sample] = ReadBits(BitIOMSByte, BitIOMSBit, BitB, PCM->AUD->BitDepth);
-                    BitBufferSkip(BitB, 8 - (PCM->AUD->BitDepth % 8)); // Skip the Zero'd bits
+                    BitBuffer_Skip(BitB, 8 - (PCM->AUD->BitDepth % 8)); // Skip the Zero'd bits
                 }
             }
             if (PCM->AUD->NumSamples == 0 && PCM->AUD->FileSize > 0) {
-                BitBufferSkip(BitB, 8); // Skip the IFF container padding byte
+                BitBuffer_Skip(BitB, 8); // Skip the IFF container padding byte
             }
         }
         return ExtractedSamples;

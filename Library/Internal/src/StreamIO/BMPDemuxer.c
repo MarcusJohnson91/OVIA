@@ -57,7 +57,7 @@ extern "C" {
                 PCM->BMP->AlphaMask                             = ReadBits(BitIOMSByte, BitIOLSBit, BitB, PCM->BMP->BitDepth);
             }
         } else {
-            BitBufferSkip(BitB, Bits2Bytes((PCM->BMP->PixelOffset - 14) - PCM->BMP->DIBSize, false)); // How do we dicker in the BitMasks?
+            BitBuffer_Skip(BitB, Bits2Bytes((PCM->BMP->PixelOffset - 14) - PCM->BMP->DIBSize, false)); // How do we dicker in the BitMasks?
             // Well, if there are bit masks, subtract them from the PixelOffset
         }
     }

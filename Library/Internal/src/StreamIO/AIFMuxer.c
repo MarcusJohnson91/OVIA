@@ -78,7 +78,7 @@ extern "C" {
             for (uint32_t Sample = 0; Sample < NumSamples2Write; Sample++) {
                 for (uint16_t Channel = 0; Channel < ChannelCount; Channel++) {
                     WriteBits(BitIOMSByte, BitIOMSBit, OutputSamples, BitDepth, Samples2Write[Channel][Sample]);
-                    BitBufferSkip(OutputSamples, 8 - (BitDepth % 8));
+                    BitBuffer_Skip(OutputSamples, 8 - (BitDepth % 8));
                 }
             }
         }

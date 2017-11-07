@@ -122,6 +122,11 @@ extern "C" {
         }
     }
     
+    uint8_t PCMGetBitDepth(PCMFile *PCM) {
+        uint8_t BitDepth = (uint8_t) PCM->AUD->BitDepth;
+        return BitDepth;
+    }
+    
     void PCMFileDeinit(PCMFile *PCM) {
         free(PCM->AUD->Meta);
         free(PCM->AUD);

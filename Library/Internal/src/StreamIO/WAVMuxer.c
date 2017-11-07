@@ -21,7 +21,7 @@ extern "C" {
         WriteBits(BitIOLSByte, BitIOLSBit, BitB, 16, CBSize);
         WriteBits(BitIOLSByte, BitIOLSBit, BitB, 16, PCM->AUD->BitDepth); // ValidBitsPerSample
         WriteBits(BitIOLSByte, BitIOLSBit, BitB, 32, PCM->AUD->ChannelMask);
-        WriteGUUID(BitIOBinaryGUID, BitB, WAVNULLBinaryGUID);
+        WriteGUUID(BitIOBinaryGUUID, BitIOLSByte, BitB, WAVNULLBinaryGUID);
     }
     
     void WAVWriteLISTChunk(PCMFile *PCM, BitBuffer *BitB) {

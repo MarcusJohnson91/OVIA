@@ -32,7 +32,7 @@ extern "C" {
     
     static void PXMParsePNMASCIIHeader(PCMFile *PCM, BitBuffer *BitB) {
         uint64_t CommentSizeWidth = PXMCheckForComment(BitB);
-        BitBufferSkip(BitB, Bytes2Bits(CommentSizeWidth));
+        BitBuffer_Skip(BitB, Bytes2Bits(CommentSizeWidth));
         /* Read Width */
         uint64_t WidthStringSize = 0ULL;
         while (ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8) != PXMFieldSeperator) {
@@ -47,7 +47,7 @@ extern "C" {
         /* Read Width */
         
         uint64_t CommentSizeHeight = PXMCheckForComment(BitB);
-        BitBufferSkip(BitB, Bytes2Bits(CommentSizeHeight));
+        BitBuffer_Skip(BitB, Bytes2Bits(CommentSizeHeight));
         
         /* Read Height */
         uint64_t HeightStringSize = 0ULL;
@@ -106,7 +106,7 @@ extern "C" {
     
     static void PXMParsePAMHeader(PCMFile *PCM, BitBuffer *BitB) {
         /* Read Width */
-        BitBufferSkip(BitB, 48); // Skip "WIDTH " string
+        BitBuffer_Skip(BitB, 48); // Skip "WIDTH " string
         uint64_t WidthStringSize = 0ULL;
         while (ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8) != PXMFieldSeperator) {
             WidthStringSize += 1;
@@ -120,7 +120,7 @@ extern "C" {
         /* Read Width */
         
         /* Read Height */
-        BitBufferSkip(BitB, 56); // Skip "HEIGHT " string
+        BitBuffer_Skip(BitB, 56); // Skip "HEIGHT " string
         uint64_t HeightStringSize = 0ULL;
         while (ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8) != PXMEndField) {
             HeightStringSize += 1;
@@ -134,7 +134,7 @@ extern "C" {
         /* Read Height */
         
         /* Read NumChannels */
-        BitBufferSkip(BitB, 48); // Skip "DEPTH " string
+        BitBuffer_Skip(BitB, 48); // Skip "DEPTH " string
         uint8_t DepthStringSize = 0;
         while (ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8) != PXMEndField) {
             DepthStringSize += 1;
@@ -148,7 +148,7 @@ extern "C" {
         /* Read NumChannels */
         
         /* Read MaxVal */
-        BitBufferSkip(BitB, 56); // Skip "MAXVAL " string
+        BitBuffer_Skip(BitB, 56); // Skip "MAXVAL " string
         uint8_t MaxValStringSize = 0;
         while (ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8) != PXMEndField) {
             MaxValStringSize += 1;
@@ -163,7 +163,7 @@ extern "C" {
         /* Read MaxVal */
         
         /* Read TupleType */
-        BitBufferSkip(BitB, 72); // Skip "TUPLETYPE " string
+        BitBuffer_Skip(BitB, 72); // Skip "TUPLETYPE " string
         uint8_t TupleTypeSize = 0;
         while (ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8) != PXMEndField) {
             TupleTypeSize += 1;
@@ -196,7 +196,7 @@ extern "C" {
         /* Read TupleType */
         
         /* Skip ENDHDR */
-        BitBufferSkip(BitB, 56); // ENDHDR
+        BitBuffer_Skip(BitB, 56); // ENDHDR
         /* Skip ENDHDR */
     }
     
@@ -211,7 +211,7 @@ extern "C" {
             Fields2Read = 3;
         }
         
-        BitBufferSkip(BitB, 8); // Skip the LineFeed after the FileType marker
+        BitBuffer_Skip(BitB, 8); // Skip the LineFeed after the FileType marker
                                 // Before each field we need to check for Comments if the file is ASCII.
         if (PCM->PXM->PXMType == ASCIIPXM) {
             PXMParsePNMASCIIHeader(PCM, BitB);
