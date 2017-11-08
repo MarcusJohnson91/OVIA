@@ -21,9 +21,9 @@ extern "C" {
         WriteBits(BitIOMSByte, BitIOLSBit, BitB, 32, AIF_COMM);
         uint16_t COMMSize = 18;
         WriteBits(BitIOMSByte, BitIOLSBit, BitB, 32, COMMSize);
-        WriteBits(BitIOMSByte, BitIOLSBit, BitB, 16, PCM->AUD->NumChannels);
-        WriteBits(BitIOMSByte, BitIOLSBit, BitB, 32, PCM->AUD->NumSamples);
-        WriteBits(BitIOMSByte, BitIOLSBit, BitB, 16, PCM->AUD->BitDepth);
+        WriteBits(BitIOMSByte, BitIOLSBit, BitB, 16, PCM->NumChannels);
+        WriteBits(BitIOMSByte, BitIOLSBit, BitB, 32, PCM->NumChannelAgnosticSamples);
+        WriteBits(BitIOMSByte, BitIOLSBit, BitB, 16, PCM->BitDepth);
         uint64_t SampleRate = ConvertInteger2Double(PCM->AUD->SampleRate);
         WriteBits(BitIOMSByte, BitIOLSBit, BitB, 16, (SampleRate >> 52) + 15360); // SampleRate Exponent
         WriteBits(BitIOMSByte, BitIOLSBit, BitB, 64, 0x8000000000000000ULL | SampleRate << 11); // SampleRate Mantissa
@@ -51,7 +51,7 @@ extern "C" {
     
     static void AIFWriteSSND(PCMFile *PCM, BitBuffer *BitB) {
         WriteBits(BitIOMSByte, BitIOLSBit, BitB, 32, AIF_SSND);
-        uint32_t ChunkSize = 8 + ((PCM->AUD->NumSamples * PCM->AUD->NumChannels) * Bits2Bytes(PCM->AUD->BitDepth, true));
+        uint32_t ChunkSize = 8 + ((PCM->NumChannelAgnosticSamples * PCM->NumChannels) * Bits2Bytes(PCM->BitDepth, true));
         WriteBits(BitIOMSByte, BitIOLSBit, BitB, 32, ChunkSize);
         WriteBits(BitIOMSByte, BitIOLSBit, BitB, 32, PCM->AUD->AIFOffset);
         WriteBits(BitIOMSByte, BitIOLSBit, BitB, 32, PCM->AUD->AIFBlockSize);
@@ -59,7 +59,7 @@ extern "C" {
     
     void AIFWriteHeader(PCMFile *PCM, BitBuffer *BitB) {
         WriteBits(BitIOMSByte, BitIOLSBit, BitB, 32, AIF_FORM);
-        WriteBits(BitIOMSByte, BitIOLSBit, BitB, 32, ((PCM->AUD->NumSamples * PCM->AUD->NumChannels) * Bits2Bytes(PCM->AUD->BitDepth, true))); // FIXME: AIF Size calculation is wrong
+        WriteBits(BitIOMSByte, BitIOLSBit, BitB, 32, ((PCM->NumChannelAgnosticSamples * PCM->NumChannels) * Bits2Bytes(PCM->BitDepth, true))); // FIXME: AIF Size calculation is wrong
         WriteBits(BitIOMSByte, BitIOLSBit, BitB, 32, AIF_AIFF);
         AIFWriteCOMM(PCM, BitB);
         AIFWriteTitle(PCM, BitB);
@@ -73,8 +73,8 @@ extern "C" {
         } else if (OutputSamples == NULL) {
             BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "BitBuffer Pointer is NULL");
         } else {
-            uint64_t ChannelCount = PCM->AUD->NumChannels;
-            uint64_t BitDepth     = PCM->AUD->BitDepth;
+            uint64_t ChannelCount = PCM->NumChannels;
+            uint64_t BitDepth     = PCM->BitDepth;
             for (uint32_t Sample = 0; Sample < NumSamples2Write; Sample++) {
                 for (uint16_t Channel = 0; Channel < ChannelCount; Channel++) {
                     WriteBits(BitIOMSByte, BitIOMSBit, OutputSamples, BitDepth, Samples2Write[Channel][Sample]);

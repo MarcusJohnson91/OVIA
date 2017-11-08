@@ -12,14 +12,14 @@ extern "C" {
     void WAVWriteFMTChunk(PCMFile *PCM, BitBuffer *BitB) {
         WriteBits(BitIOLSByte, BitIOLSBit, BitB, 32, 40); // ChunkSize
         WriteBits(BitIOLSByte, BitIOLSBit, BitB, 16, 0xFFFE); // WaveFormatExtensible
-        WriteBits(BitIOLSByte, BitIOLSBit, BitB, 16, PCM->AUD->NumChannels);
+        WriteBits(BitIOLSByte, BitIOLSBit, BitB, 16, PCM->NumChannels);
         WriteBits(BitIOLSByte, BitIOLSBit, BitB, 32, PCM->AUD->SampleRate);
-        WriteBits(BitIOLSByte, BitIOLSBit, BitB, 32, (PCM->AUD->SampleRate * PCM->AUD->NumChannels * PCM->AUD->BitDepth) / 8);
+        WriteBits(BitIOLSByte, BitIOLSBit, BitB, 32, (PCM->AUD->SampleRate * PCM->NumChannels * PCM->BitDepth) / 8);
         WriteBits(BitIOLSByte, BitIOLSBit, BitB, 32, PCM->AUD->BlockAlignment);
-        WriteBits(BitIOLSByte, BitIOLSBit, BitB, 16, PCM->AUD->BitDepth);
+        WriteBits(BitIOLSByte, BitIOLSBit, BitB, 16, PCM->BitDepth);
         uint8_t CBSize = 46;
         WriteBits(BitIOLSByte, BitIOLSBit, BitB, 16, CBSize);
-        WriteBits(BitIOLSByte, BitIOLSBit, BitB, 16, PCM->AUD->BitDepth); // ValidBitsPerSample
+        WriteBits(BitIOLSByte, BitIOLSBit, BitB, 16, PCM->BitDepth); // ValidBitsPerSample
         WriteBits(BitIOLSByte, BitIOLSBit, BitB, 32, PCM->AUD->ChannelMask);
         WriteGUUID(BitIOBinaryGUUID, BitIOLSByte, BitB, WAVNULLBinaryGUID);
     }
@@ -36,8 +36,8 @@ extern "C" {
         } else if (OutputSamples == NULL) {
             BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "BitBuffer Pointer is NULL");
         } else {
-            uint64_t ChannelCount = PCM->AUD->NumChannels;
-            uint64_t BitDepth     = PCM->AUD->BitDepth;
+            uint64_t ChannelCount = PCM->NumChannels;
+            uint64_t BitDepth     = PCM->BitDepth;
             for (uint32_t Sample = 0; Sample < NumSamples2Write; Sample++) {
                 for (uint16_t Channel = 0; Channel < ChannelCount; Channel++) {
                     WriteBits(BitIOLSByte, BitIOLSBit, OutputSamples, BitDepth, Samples2Write[Channel][Sample]);

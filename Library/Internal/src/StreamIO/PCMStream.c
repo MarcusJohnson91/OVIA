@@ -90,14 +90,6 @@ extern "C" {
         }
     }
     
-    bool IsThereMoreMetadata(PCMFile *PCM) {
-        bool Truth = No;
-        if (PCM->DataLeft > 1) {
-            Truth = Yes;
-        }
-        return Truth;
-    }
-    
     void PCMSetOutputFileType(PCMFile *PCM, libPCMFileFormats OutputFileType) {
         if (PCM == NULL) {
             BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "PCM Pointer is NULL");
@@ -110,7 +102,7 @@ extern "C" {
         if (PCM == NULL) {
             BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "PCM Pointer is NULL");
         } else {
-            PCM->PXM->PXMType = PXMType;
+            PCM->PIC->PXMType = PXMType;
         }
     }
     
@@ -118,20 +110,32 @@ extern "C" {
         if (PCM == NULL) {
             BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "PCM Pointer is NULL");
         } else {
-            PCM->AUD->NumSamples = NumChannelIndependentSamples;
+            PCM->NumChannelAgnosticSamples = NumChannelIndependentSamples;
         }
     }
     
     uint8_t PCMGetBitDepth(PCMFile *PCM) {
-        uint8_t BitDepth = (uint8_t) PCM->AUD->BitDepth;
+        uint8_t BitDepth = 0;
+        if (PCM->InputFileType == AIFFormat || PCM->InputFileType == WAVFormat || PCM->InputFileType == W64Format) {
+         	BitDepth = (uint8_t) PCM->BitDepth;
+        } else if (PCM->InputFileType == BMPFormat || PCM->InputFileType == PXMFormat) {
+         	BitDepth = (uint8_t) PCM->BitDepth;
+        }
         return BitDepth;
+    }
+    
+    uint64_t PCMGetNumChannels(PCMFile *PCM) {
+        return PCM->NumChannels;
+    }
+    
+    uint64_t PCMGetNumSamples(PCMFile *PCM) {
+        return PCM->NumChannelAgnosticSamples;
     }
     
     void PCMFileDeinit(PCMFile *PCM) {
         free(PCM->AUD->Meta);
         free(PCM->AUD);
-        free(PCM->BMP);
-        free(PCM->PXM);
+        free(PCM->PIC);
         free(PCM);
     }
     

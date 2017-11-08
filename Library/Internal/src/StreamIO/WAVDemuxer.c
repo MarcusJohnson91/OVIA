@@ -122,7 +122,7 @@ extern "C" {
     }
     
     static void WAVParseDATAChunk(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) {
-        PCM->AUD->NumSamples            = ((ChunkSize / PCM->AUD->NumChannels) / Bits2Bytes(PCM->AUD->BitDepth, true));
+        PCM->NumChannelAgnosticSamples            = ((ChunkSize / PCM->NumChannels) / Bits2Bytes(PCM->BitDepth, true));
     }
     
     static void WAVParseFMTChunk(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) {
@@ -132,11 +132,11 @@ extern "C" {
             BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             uint16_t wFormatTag                  = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
-            PCM->AUD->NumChannels                = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
+            PCM->NumChannels                = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
             PCM->AUD->SampleRate                 = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
             uint32_t AvgBytesPerSec              = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
             PCM->AUD->BlockAlignment             = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-            PCM->AUD->BitDepth                   = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
+            PCM->BitDepth                   = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
             
             if (ChunkSize == 18) {
                 uint16_t CBSize             = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
@@ -145,7 +145,7 @@ extern "C" {
                 uint16_t CBSize             = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
                 uint16_t ValidBitsPerSample = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
                 if (ValidBitsPerSample != 0) {
-                    PCM->AUD->BitDepth = ValidBitsPerSample;
+                    PCM->BitDepth = ValidBitsPerSample;
                 }
                 uint32_t  SpeakerMask       = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
                 uint8_t  *BinaryGUIDFormat  = ReadGUUID(BitIOBinaryGUUID, BitIOLSByte, BitB);
@@ -186,14 +186,14 @@ extern "C" {
     }
     
     uint32_t **WAVExtractSamples(PCMFile *PCM, BitBuffer *BitB, uint64_t NumSamples2Extract) {
-        uint64_t ExtractedSamplesSize = NumSamples2Extract * BitDepth2SampleSizeInBytes[PCM->AUD->BitDepth] * PCM->AUD->NumChannels;
+        uint64_t ExtractedSamplesSize = NumSamples2Extract * BitDepth2SampleSizeInBytes[PCM->BitDepth] * PCM->NumChannels;
         uint32_t **ExtractedSamples   = calloc(1, ExtractedSamplesSize * sizeof(uint32_t));
         if (ExtractedSamples == NULL) {
             BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "Couldn't allocate enough memory for the Extracted samples, %d", ExtractedSamplesSize);
         } else {
-            for (uint64_t Channel = 0; Channel < PCM->AUD->NumChannels; Channel++) {
+            for (uint64_t Channel = 0; Channel < PCM->NumChannels; Channel++) {
                 for (uint64_t Sample = 0; Sample < NumSamples2Extract; Sample++) {
-                    ExtractedSamples[Channel][Sample] = ReadBits(BitIOLSByte, BitIOLSBit, BitB, BitDepth2SampleSizeInBytes[PCM->AUD->BitDepth]);
+                    ExtractedSamples[Channel][Sample] = ReadBits(BitIOLSByte, BitIOLSBit, BitB, BitDepth2SampleSizeInBytes[PCM->BitDepth]);
                 }
             }
         }
