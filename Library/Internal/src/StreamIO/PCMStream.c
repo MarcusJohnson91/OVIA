@@ -11,12 +11,19 @@
 extern "C" {
 #endif
     
-    PCMFile *PCMFileInit(void) {
-        PCMFile *PCM = calloc(1, sizeof(PCMFile));
+    PCMFile *PCMFile_Init(void) {
+        PCMFile *PCM       = calloc(1, sizeof(PCMFile));
+        if (PCM == NULL) {
+            BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "PCMFile Pointer is NULL");
+        } else {
+            PCM->AUD       = calloc(1, sizeof(AUDHeader));
+            PCM->AUD->Meta = calloc(1, sizeof(AUDMetadata));
+            PCM->PIC       = calloc(1, sizeof(PICHeader));
+        }
         return PCM;
     }
     
-    void IdentifyPCMFile(PCMFile *PCM, BitBuffer *BitB) {
+    void PCMFile_Identify(PCMFile *PCM, BitBuffer *BitB) {
         uint64_t FileMagic64 = PeekBits(BitIOMSByte, BitIOLSBit, BitB, 64);
         uint16_t FileMagic16 = FileMagic64 & 0xFFFF;
         uint32_t FileMagic32 = FileMagic64 & 0xFFFFFFFF;
@@ -36,7 +43,7 @@ extern "C" {
         }
     }
     
-    void ParsePCMMetadata(PCMFile *PCM, BitBuffer *BitB) {
+    void PCMFile_ParseMetadata(PCMFile *PCM, BitBuffer *BitB) {
         if (PCM->InputFileType == AIFFormat) {
             AIFParseMetadata(PCM, BitB);
         } else if (PCM->InputFileType == WAVFormat) {
@@ -50,7 +57,7 @@ extern "C" {
         }
     }
     
-    uint32_t **ExtractSamples(PCMFile *PCM, BitBuffer *SampleArray, uint64_t NumSamples2Extract) {
+    uint32_t **PCM_ExtractSamples(PCMFile *PCM, BitBuffer *SampleArray, uint64_t NumSamples2Extract) {
         uint32_t **ExtractedSamples = NULL;
         if (PCM->InputFileType == AIFFormat) {
             ExtractedSamples        = AIFExtractSamples(PCM, SampleArray, NumSamples2Extract);
@@ -62,7 +69,7 @@ extern "C" {
         return ExtractedSamples;
     }
     
-    uint16_t **ExtractPixels(PCMFile *PCM, BitBuffer *PixelArray, uint64_t NumPixels2Extract) {
+    uint16_t **PCM_ExtractPixels(PCMFile *PCM, BitBuffer *PixelArray, uint64_t NumPixels2Extract) {
         uint16_t **ExtractedPixels = NULL;
         if (PCM->InputFileType == PXMFormat) {
             ExtractedPixels        = PXMExtractPixels(PCM, PixelArray, NumPixels2Extract);
@@ -72,7 +79,7 @@ extern "C" {
         return ExtractedPixels;
     }
     
-    void InsertSamples(PCMFile *PCM, BitBuffer *OutputSamples, uint32_t NumSamples2Write, uint32_t **Samples2Write) {
+    void PCM_InsertSamples(PCMFile *PCM, BitBuffer *OutputSamples, uint32_t NumSamples2Write, uint32_t **Samples2Write) {
         if (PCM->OutputFileType == AIFFormat) {
             AIFInsertSamples(PCM, OutputSamples, NumSamples2Write, Samples2Write);
         } else if (PCM->OutputFileType == WAVFormat) {
@@ -82,7 +89,7 @@ extern "C" {
         }
     }
     
-    void InsertPixels(PCMFile *PCM, BitBuffer *OutputPixels, uint32_t NumPixels2Write, uint16_t **Pixels2Write) {
+    void PCM_InsertPixels(PCMFile *PCM, BitBuffer *OutputPixels, uint32_t NumPixels2Write, uint16_t **Pixels2Write) {
         if (PCM->OutputFileType == PXMFormat) {
             PXMInsertPixels(PCM, OutputPixels, NumPixels2Write, Pixels2Write);
         } else if (PCM->OutputFileType == BMPFormat) {
