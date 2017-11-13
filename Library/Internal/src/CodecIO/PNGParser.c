@@ -39,7 +39,7 @@ extern "C" {
     void ParsePLTE(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) { // Palette
         if (Dec->iHDR->BitDepth > 8) { // INVALID
             BitIOLog(LOG_ERROR, "ModernPNG", __func__, "Invalid bit depth %d and palette combination\n", Dec->iHDR->BitDepth);
-            BitBufferSkip(InputPNG, Bytes2Bits(ChunkSize));
+            BitBuffer_Skip(InputPNG, Bytes2Bits(ChunkSize));
         } else {
             
             if (Dec->iHDR->ColorType == PNG_PalettedRGB || Dec->iHDR->ColorType == PNG_RGB) {
@@ -235,7 +235,7 @@ extern "C" {
             for (uint8_t ChunkIDSize = 0; ChunkIDSize < 4; ChunkIDSize++) {
                 ChunkID[ChunkIDSize] = ReadBits(BitIOMSByte, BitIOLSBit, InputPNG, 8);
             }
-            BitBufferSkip(InputPNG, -32); // Now we need to skip back so we can read the ChunkID as part of the CRC check.
+            BitBuffer_Skip(InputPNG, -32); // Now we need to skip back so we can read the ChunkID as part of the CRC check.
             // Now we call the VerifyCRC32 function with the ChunkSize
             VerifyCRC32(InputPNG, ChunkSize);
             

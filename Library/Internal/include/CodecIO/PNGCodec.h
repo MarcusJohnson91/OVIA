@@ -13,6 +13,8 @@
 extern "C" {
 #endif
     
+#define libModernPNGVersion  0.1.0
+    
 #define PNGMagic             0x89504E470D0A1A0A
     
     enum libModernPNGChunkMarkers {
@@ -90,11 +92,11 @@ extern "C" {
     BitBuffer     *EncodePNGImage(EncodePNG *Enc, void ****RawImage2Encode, bool InterlacePNG, bool OptimizePNG);
     
     /*!
-     @abstract                     "Decodes a PNG from PNGImage2Decode to a BitBuffer"
+     @abstract                     "Decodes a PNG from a bitbuffer to an array"
      @param        Dec             "Pointer to DecodePNG struct containing all the metadata about the image to be decoded"
-     @param        PNGImage2Decode "Pointer to raw array containing the image, supports 2D array containing stereoscopic frames"
+     @param        PNGFile         "Pointer to raw array containing the image, supports 2D array containing stereoscopic frames"
      */
-    BitBuffer     *DecodePNGImage(DecodePNG *Dec, void ****PNGImage2Decode);
+    uint16_t    ***DecodePNGImage(DecodePNG *Dec, BitBuffer *PNGFile);
 
 #ifdef __cplusplus
 }

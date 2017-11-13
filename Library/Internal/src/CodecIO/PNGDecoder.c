@@ -216,7 +216,7 @@ extern "C" {
     
     void DecodePNGData(BitBuffer *BitB, DecodePNG *Dec) {
         // read the iDAT/fDAT chunk header, then do the other stuff.
-        while (GetBitBufferSize(BitB) > 0) { // 12 is the start of IEND
+        while (BitBuffer_GetSize(BitB) > 0) { // 12 is the start of IEND
             uint32_t ChunkSize = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
             uint32_t ChunkID   = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
             
@@ -232,7 +232,7 @@ extern "C" {
     
     // Let's do this library right, by adding attach and delete functions for the various chunks, and let's also have a fancy function that applies color profiles to the pixels.
     // that's kinda a lot of work tho...
-    BitBuffer *DecodePNGImage(DecodePNG *Dec, void ****PNGImage2Decode) {
+    uint16_t ***DecodePNGImage(DecodePNG *Dec, BitBuffer *PNGFile) {
         return NULL;
     }
     
