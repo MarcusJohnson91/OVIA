@@ -1,7 +1,8 @@
+#include "../../../Dependencies/BitIO/libBitIO/include/BitIO.h"
+
 #include "../../include/libPCM.h"
 #include "../../include/Private/libPCMTypes.h"
 #include "../../include/Private/Audio/AIFCommon.h"
-#include <stdlib.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -12,7 +13,7 @@ extern "C" {
      the ChunkSize field does NOT include the ChunkID or ChunkSize fields.
      */
     
-    void AIFParseCOMMChunk(PCMFile *PCM, BitBuffer *BitB) {
+    static void AIFParseCOMMChunk(PCMFile *PCM, BitBuffer *BitB) {
         PCM->NumChannels           = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 16);
         PCM->NumChannelAgnosticSamples            = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32); // A SampleFrame is simply a single sample from all channels.
         PCM->BitDepth              = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 16);
@@ -25,7 +26,7 @@ extern "C" {
         }
     }
     
-    void AIFParseNameChunk(PCMFile *PCM, BitBuffer *BitB) {
+    static void AIFParseNameChunk(PCMFile *PCM, BitBuffer *BitB) {
         uint32_t AIFFNameSize           = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
         char *SongTitleTagString        = calloc(1, AIFFNameSize * sizeof(char));
         for (uint32_t TagByte = 0UL; TagByte < AIFFNameSize; TagByte++) {
@@ -34,7 +35,7 @@ extern "C" {
         PCM->AUD->Meta->SongTitleTag    = SongTitleTagString;
     }
     
-    void AIFParseAuthorChunk(PCMFile *PCM, BitBuffer *BitB) {
+    static void AIFParseAuthorChunk(PCMFile *PCM, BitBuffer *BitB) {
         uint32_t AIFFAuthSize           = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
         char *AuthorString              = calloc(1, AIFFAuthSize * sizeof(char));
         for (uint32_t TagByte = 0UL; TagByte < AIFFAuthSize; TagByte++) {
@@ -43,7 +44,7 @@ extern "C" {
         PCM->AUD->Meta->ArtistTag       = AuthorString;
     }
     
-    void AIFParseAnnotationChunk(PCMFile *PCM, BitBuffer *BitB) {
+    static void AIFParseAnnotationChunk(PCMFile *PCM, BitBuffer *BitB) {
         uint32_t AIFFAnnoSize           = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
         char *AnnotationString          = calloc(1, AIFFAnnoSize * sizeof(char));
         for (uint32_t TagByte = 0UL; TagByte < AIFFAnnoSize; TagByte++) {

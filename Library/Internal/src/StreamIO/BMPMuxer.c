@@ -1,3 +1,5 @@
+#include "../../../Dependencies/BitIO/libBitIO/include/BitIO.h"
+
 #include "../../include/libPCM.h"
 #include "../../include/Private/libPCMTypes.h"
 #include "../../include/Private/Image/BMPCommon.h"

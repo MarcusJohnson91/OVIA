@@ -1,4 +1,4 @@
-#include <math.h>
+#include "../../../Dependencies/BitIO/libBitIO/include/BitIO.h"
 
 #include "../../include/libPCM.h"
 #include "../../include/Private/libPCMTypes.h"
@@ -7,6 +7,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+    
+    static uint64_t GetBMPRowSize(const uint16_t BitsPerPixel, const uint32_t ImageWidth) {
+        return floor((BitsPerPixel * ImageWidth + 31) / 32) * 4; // floor((4 * 1024 + 31) / 32) * 4
+    }
+    
+    static uint64_t GetBMPPixelArraySize(const uint64_t RowSize, const int32_t ImageHeight) { // 5568, 3712, there's 54 extra bytes in the PixelArray...
+        return RowSize * abs(ImageHeight);
+    }
     
     void BMPParseMetadata(PCMFile *PCM, BitBuffer *BitB) {
         uint32_t DIBSize = 0UL;
@@ -60,14 +68,6 @@ extern "C" {
             BitBuffer_Skip(BitB, Bits2Bytes((PCM->PIC->BMPPixelOffset - 14) - DIBSize, false)); // How do we dicker in the BitMasks?
             // Well, if there are bit masks, subtract them from the PixelOffset
         }
-    }
-    
-    static uint64_t GetBMPRowSize(const uint16_t BitsPerPixel, const uint32_t ImageWidth) {
-        return floor((BitsPerPixel * ImageWidth + 31) / 32) * 4; // floor((4 * 1024 + 31) / 32) * 4
-    }
-    
-    static uint64_t GetBMPPixelArraySize(const uint64_t RowSize, const int32_t ImageHeight) { // 5568, 3712, there's 54 extra bytes in the PixelArray...
-        return RowSize * abs(ImageHeight);
     }
     
     uint16_t **BMPExtractPixels(PCMFile *PCM, BitBuffer *BitB, uint64_t NumPixels2Extract) { // We need to convert the pixels to the Runtime Byte and Bit order.

@@ -1,3 +1,5 @@
+#include "../../../Dependencies/BitIO/libBitIO/include/BitIO.h"
+
 #include "../../include/libPCM.h"
 #include "../../include/Private/libPCMTypes.h"
 #include "../../include/Private/Image/PXMCommon.h"
@@ -14,20 +16,6 @@ extern "C" {
             }
         }
         return CommentSize;
-    }
-    
-    void PXMIdentifyFileType(PCMFile *PCM, BitBuffer *BitB) {
-        char PXMMagicID[PXMMagicSize];
-        for (uint8_t PXMMagicByte = 0; PXMMagicByte < PXMMagicSize; PXMMagicByte++) {
-            PXMMagicID[PXMMagicByte] = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
-        }
-      	if (strncasecmp(PXMMagicID, "P1", PXMMagicSize) == 0 || strncasecmp(PXMMagicID, "P2", PXMMagicSize) == 0 || strncasecmp(PXMMagicID, "P3", PXMMagicSize) == 0) {
-            PCM->PIC->PXMType = ASCIIPXM;
-        } else if (strncasecmp(PXMMagicID, "P4", PXMMagicSize) == 0 || strncasecmp(PXMMagicID, "P5", PXMMagicSize) == 0 || strncasecmp(PXMMagicID, "P6", PXMMagicSize) == 0) {
-            PCM->PIC->PXMType = BinaryPXM;
-        } else if (strncasecmp(PXMMagicID, "P7", PXMMagicSize) == 0) {
-            PCM->PIC->PXMType = PAMPXM;
-        }
     }
     
     static void PXMParsePNMASCIIHeader(PCMFile *PCM, BitBuffer *BitB) {
@@ -198,6 +186,20 @@ extern "C" {
         /* Skip ENDHDR */
         BitBuffer_Skip(BitB, 56); // ENDHDR
         /* Skip ENDHDR */
+    }
+    
+    void PXMIdentifyFileType(PCMFile *PCM, BitBuffer *BitB) {
+        char PXMMagicID[PXMMagicSize];
+        for (uint8_t PXMMagicByte = 0; PXMMagicByte < PXMMagicSize; PXMMagicByte++) {
+            PXMMagicID[PXMMagicByte] = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
+        }
+        if (strncasecmp(PXMMagicID, "P1", PXMMagicSize) == 0 || strncasecmp(PXMMagicID, "P2", PXMMagicSize) == 0 || strncasecmp(PXMMagicID, "P3", PXMMagicSize) == 0) {
+            PCM->PIC->PXMType = ASCIIPXM;
+        } else if (strncasecmp(PXMMagicID, "P4", PXMMagicSize) == 0 || strncasecmp(PXMMagicID, "P5", PXMMagicSize) == 0 || strncasecmp(PXMMagicID, "P6", PXMMagicSize) == 0) {
+            PCM->PIC->PXMType = BinaryPXM;
+        } else if (strncasecmp(PXMMagicID, "P7", PXMMagicSize) == 0) {
+            PCM->PIC->PXMType = PAMPXM;
+        }
     }
     
     void PXMParseMetadata(PCMFile *PCM, BitBuffer *BitB) {

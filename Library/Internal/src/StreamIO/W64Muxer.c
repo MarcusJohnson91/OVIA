@@ -1,3 +1,5 @@
+#include "../../../Dependencies/BitIO/libBitIO/include/BitIO.h"
+
 #include "../../include/libPCM.h"
 #include "../../include/Private/libPCMTypes.h"
 #include "../../include/Private/Audio/W64Common.h"
@@ -8,15 +10,15 @@ extern "C" {
     
     // To encode W64 i'll need to read the values from the struct and write it to the file
     
-    uint64_t CalculateW64ByteRate(const uint64_t NumChannels, const uint64_t SampleRate, const uint8_t BitDepth) {
+    static uint64_t CalculateW64ByteRate(const uint64_t NumChannels, const uint64_t SampleRate, const uint8_t BitDepth) {
         return NumChannels * SampleRate * (BitDepth / 8);
     }
     
-    uint64_t CalculateW64BlockAlign(const uint64_t NumChannels, const uint8_t BitDepth) {
+    static uint64_t CalculateW64BlockAlign(const uint64_t NumChannels, const uint8_t BitDepth) {
         return NumChannels * (BitDepth / 8);
     }
     
-    void W64WriteFMTChunk(PCMFile *PCM, BitBuffer *BitB) {
+    static void W64WriteFMTChunk(PCMFile *PCM, BitBuffer *BitB) {
         uint64_t ByteRate   = CalculateW64ByteRate(PCM->NumChannels, PCM->AUD->SampleRate, PCM->BitDepth);
         uint64_t BlockAlign = CalculateW64BlockAlign(PCM->NumChannels, PCM->BitDepth);
         WriteBits(BitIOLSByte, BitIOLSBit, BitB, 16, 0);
