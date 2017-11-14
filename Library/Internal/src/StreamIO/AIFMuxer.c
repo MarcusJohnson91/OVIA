@@ -39,6 +39,7 @@ extern "C" {
                 WriteBits(BitIOMSByte, BitIOLSBit, BitB, 8, PCM->AUD->Meta->SongTitleTag[TitleByte]);
             }
         }
+        IFFSkipPadding(BitB, PCM->AUD->Meta->TitleSize);
     }
     
     static void AIFWriteArtist(PCMFile *PCM, BitBuffer *BitB) {
@@ -49,6 +50,7 @@ extern "C" {
                 WriteBits(BitIOMSByte, BitIOLSBit, BitB, 8, PCM->AUD->Meta->SongTitleTag[ArtistByte]);
             }
         }
+        IFFSkipPadding(BitB, PCM->AUD->Meta->ArtistTagSize);
     }
     
     static void AIFWriteSSND(PCMFile *PCM, BitBuffer *BitB) {

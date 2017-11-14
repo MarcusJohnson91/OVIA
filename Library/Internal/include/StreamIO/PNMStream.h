@@ -37,13 +37,13 @@ extern "C" {
         PXM_TUPLE_RGBAlpha  = 5,
     } PXMTupleTypes;
     
-    void       PXMIdentifyFileType(PCMFile *PCM, BitBuffer *BitB);
+    void PXMIdentifyFileType(PCMFile *PCM, BitBuffer *BitB);
     
-    void       PXMParseMetadata(PCMFile *PCM, BitBuffer *BitB);
+    void PXMParseMetadata(PCMFile *PCM, BitBuffer *BitB);
     
-    uint16_t **PXMExtractPixels(PCMFile *PCM, BitBuffer *BitB, uint64_t NumPixels2Read);
+    void PXMExtractPixels(PCMFile *PCM, BitBuffer *BitB, uint64_t NumPixels2Read, uint16_t **ExtractedPixels);
     
-    void       PXMInsertPixels(PCMFile *PCM, BitBuffer *OutputPixels, uint32_t NumPixels2Write, uint16_t **Pixels2Write);
+    void PXMInsertPixels(PCMFile *PCM, BitBuffer *OutputPixels, uint32_t NumPixels2Write, uint16_t **Pixels2Write);
     
 #ifdef __cplusplus
 }

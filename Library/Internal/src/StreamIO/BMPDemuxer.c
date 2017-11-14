@@ -70,26 +70,18 @@ extern "C" {
         }
     }
     
-    uint16_t **BMPExtractPixels(PCMFile *PCM, BitBuffer *BitB, uint64_t NumPixels2Extract) { // We need to convert the pixels to the Runtime Byte and Bit order.
-        uint16_t **ExtractedPixels = NULL;
-        uint64_t PixelArraySize    = NumPixels2Extract * PCM->NumChannels * sizeof(uint8_t);
-        ExtractedPixels            = calloc(PCM->NumChannels, PixelArraySize * sizeof(uint64_t));
-        if (ExtractedPixels == NULL) {
-            BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "Couldn't allocate memory for the Sample Array, %d", PixelArraySize);
-        } else {
-            for (uint16_t Channel = 0; Channel < PCM->NumChannels; Channel++) { // Ok, this works when the bit depth is 8 bits per pixel, but what about 1 bit images, or palettized ones?
-                for (uint64_t Pixel = 0; Pixel < NumPixels2Extract; Pixel++) {
-                    if (PCM->BitDepth == 1) {
-                        ExtractedPixels[Channel][Pixel] = ReadBits(BitIOLSByte, BitIOMSBit, BitB, 1);
-                    } else if (PCM->PIC->BMPColorsIndexed > 0 || PCM->PIC->BMPIndexColorsUsed > 0) {
-                        // Indexxed colors, we'll need to convert the bits to the original color by looking it up in the table.
-                    } else {
-                        ExtractedPixels[Channel][Pixel] = ReadBits(BitIOLSByte, BitIOLSBit, BitB, PCM->BitDepth);
-                    }
+    void BMPExtractPixels(PCMFile *PCM, BitBuffer *BitB, uint64_t NumPixels2Extract, uint16_t **ExtractedPixels) { // We need to convert the pixels to the Runtime Byte and Bit order.
+        for (uint16_t Channel = 0; Channel < PCM->NumChannels; Channel++) { // Ok, this works when the bit depth is 8 bits per pixel, but what about 1 bit images, or palettized ones?
+            for (uint64_t Pixel = 0; Pixel < NumPixels2Extract; Pixel++) {
+                if (PCM->BitDepth == 1) {
+                    ExtractedPixels[Channel][Pixel] = ReadBits(BitIOLSByte, BitIOMSBit, BitB, 1);
+                } else if (PCM->PIC->BMPColorsIndexed > 0 || PCM->PIC->BMPIndexColorsUsed > 0) {
+                    // Indexxed colors, we'll need to convert the bits to the original color by looking it up in the table.
+                } else {
+                    ExtractedPixels[Channel][Pixel] = ReadBits(BitIOLSByte, BitIOLSBit, BitB, PCM->BitDepth);
                 }
             }
         }
-        return ExtractedPixels;
     }
     
 #ifdef __cplusplus

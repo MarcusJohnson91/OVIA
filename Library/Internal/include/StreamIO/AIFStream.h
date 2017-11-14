@@ -9,10 +9,13 @@
 extern "C" {
 #endif
     
-    enum AIFChunkIDs {
+    typedef enum AIFChunkIDs {
         AIF_FORM              = 0x464F524D,
         AIF_AIFF              = 0x41494646,
         AIF_AIFC              = 0x41494643,
+    } AIFChunkIDs;
+    
+    typedef enum AIFSubChunkIDs {
         AIF_NAME              = 0x4E414D45,
         AIF_COMM              = 0x434F4D4D,
         AIF_SSND              = 0x53534E44,
@@ -25,13 +28,13 @@ extern "C" {
         AIF_COMT              = 0x434f4d54,
         AIF_AUTH              = 0x41555448,
         AIF_ANNO              = 0x414e4e4f,
-    };
+    } AIFSubChunkIDs;
     
-    void       AIFParseMetadata(PCMFile *PCM, BitBuffer *BitB);
+    void AIFParseMetadata(PCMFile *PCM, BitBuffer *BitB);
     
-    uint32_t **AIFExtractSamples(PCMFile *PCM, BitBuffer *BitB, uint64_t Samples2Extract);
+    void AIFExtractSamples(PCMFile *PCM, BitBuffer *BitB, uint64_t NumSamples2Extract, uint32_t **ExtractedSamples);
     
-    void       AIFInsertSamples(PCMFile *PCM, BitBuffer *OutputSamples, uint32_t NumSamples2Write, uint32_t **Samples2Write);
+    void AIFInsertSamples(PCMFile *PCM, BitBuffer *OutputSamples, uint32_t NumSamples2Write, uint32_t **Samples2Write);
     
 #ifdef __cplusplus
 }

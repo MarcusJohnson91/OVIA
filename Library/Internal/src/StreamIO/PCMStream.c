@@ -12,6 +12,12 @@
 extern "C" {
 #endif
     
+    void IFFSkipPadding(BitBuffer *BitB, uint32_t SubChunkSize) {
+        if (IsOdd(SubChunkSize) == Yes) {
+            BitBuffer_Skip(BitB, 8);
+        }
+    }
+    
     PCMFile *PCMFile_Init(void) {
         PCMFile *PCM       = calloc(1, sizeof(PCMFile));
         if (PCM == NULL) {
@@ -100,26 +106,22 @@ extern "C" {
         return PCM->NumChannelAgnosticSamples;
     }
     
-    uint32_t **PCM_ExtractSamples(PCMFile *PCM, BitBuffer *SampleArray, uint64_t NumSamples2Extract) {
-        uint32_t **ExtractedSamples = NULL;
+    void PCM_ExtractSamples(PCMFile *PCM, BitBuffer *SampleArray, uint64_t NumSamples2Extract, uint32_t **ExtractedSamples) {
         if (PCM->InputFileType == AIFFormat) {
-            ExtractedSamples        = AIFExtractSamples(PCM, SampleArray, NumSamples2Extract);
+            AIFExtractSamples(PCM, SampleArray, NumSamples2Extract, ExtractedSamples);
         } else if (PCM->InputFileType == WAVFormat) {
-            ExtractedSamples        = WAVExtractSamples(PCM, SampleArray, NumSamples2Extract);
+            WAVExtractSamples(PCM, SampleArray, NumSamples2Extract, ExtractedSamples);
         } else if (PCM->InputFileType == W64Format) {
-            ExtractedSamples        = W64ExtractSamples(PCM, SampleArray, NumSamples2Extract);
+            W64ExtractSamples(PCM, SampleArray, NumSamples2Extract, ExtractedSamples);
         }
-        return ExtractedSamples;
     }
     
-    uint16_t **PCM_ExtractPixels(PCMFile *PCM, BitBuffer *PixelArray, uint64_t NumPixels2Extract) {
-        uint16_t **ExtractedPixels = NULL;
+    void PCM_ExtractPixels(PCMFile *PCM, BitBuffer *PixelArray, uint64_t NumPixels2Extract, uint16_t **ExtractedPixels) {
         if (PCM->InputFileType == PXMFormat) {
-            ExtractedPixels        = PXMExtractPixels(PCM, PixelArray, NumPixels2Extract);
+            PXMExtractPixels(PCM, PixelArray, NumPixels2Extract, ExtractedPixels);
         } else if (PCM->InputFileType == BMPFormat) {
-            ExtractedPixels        = BMPExtractPixels(PCM, PixelArray, NumPixels2Extract);
+            BMPExtractPixels(PCM, PixelArray, NumPixels2Extract, ExtractedPixels);
         }
-        return ExtractedPixels;
     }
     
     void PCM_InsertSamples(PCMFile *PCM, BitBuffer *OutputSamples, uint32_t NumSamples2Write, uint32_t **Samples2Write) {

@@ -224,43 +224,33 @@ extern "C" {
         }
     }
     
-    uint16_t **PXMExtractPixels(PCMFile *PCM, BitBuffer *BitB, uint64_t NumPixels2Read) {
-        uint64_t PixelArraySize = NumPixels2Read * PCM->NumChannels * Bits2Bytes(PCM->BitDepth, Yes);
-        uint16_t **PixelArray = calloc(1, PixelArraySize * sizeof(uint16_t));
-        if (PixelArray == NULL) {
-            BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "Couldn't allocate %d bytes for the PixelArray", PixelArraySize);
-        } else {
-            if (PCM->PIC->PXMType == ASCIIPXM) {
-                if (PCM->PIC->PXMTupleType == PXM_TUPLE_BnW) {
-                    // 1 = black, 0 = white
-                }
-                for (uint64_t Pixel = 0ULL; Pixel < NumPixels2Read; Pixel++) {
-                    for (uint8_t Channel = 0; Channel < PCM->NumChannels; Channel++) {
-                        uint8_t SubPixelStringSize = 0;
-                        while (PeekBits(BitIOMSByte, BitIOLSBit, BitB, 8) != PXMFieldSeperator || PeekBits(BitIOMSByte, BitIOLSBit, BitB, 8) != PXMEndField) {
-                            SubPixelStringSize += 1;
-                        }
-                        char *SubPixelString = calloc(1, PCM->NumChannels * sizeof(char));
-                        for (uint8_t SubPixelByte = 0; SubPixelByte < SubPixelStringSize; SubPixelByte++) {
-                            SubPixelString[SubPixelByte] = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
-                        }
-                        PixelArray[Channel][Pixel]       = atoi(SubPixelString);
+    void PXMExtractPixels(PCMFile *PCM, BitBuffer *BitB, uint64_t NumPixels2Read, uint16_t **ExtractedPixels) {
+        if (PCM->PIC->PXMType == ASCIIPXM) {
+            for (uint64_t Pixel = 0ULL; Pixel < NumPixels2Read; Pixel++) {
+                for (uint8_t Channel = 0; Channel < PCM->NumChannels; Channel++) {
+                    uint8_t SubPixelStringSize          = 0;
+                    while (PeekBits(BitIOMSByte, BitIOLSBit, BitB, 8) != PXMFieldSeperator || PeekBits(BitIOMSByte, BitIOLSBit, BitB, 8) != PXMEndField) {
+                        SubPixelStringSize             += 1;
                     }
+                    char *SubPixelString                = calloc(1, PCM->NumChannels * sizeof(char));
+                    for (uint8_t SubPixelByte = 0; SubPixelByte < SubPixelStringSize; SubPixelByte++) {
+                        SubPixelString[SubPixelByte]    = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
+                    }
+                    ExtractedPixels[Channel][Pixel]     = atoi(SubPixelString);
                 }
-            } else if (PCM->PIC->PXMType == BinaryPXM || PCM->PIC->PXMType == PAMPXM) {
-                for (uint64_t Pixel = 0ULL; Pixel < NumPixels2Read; Pixel++) {
-                    for (uint8_t Channel = 0; Channel < PCM->NumChannels; Channel++) {
-                        uint8_t CurrentPixel       = ReadBits(BitIOLSByte, BitIOLSBit, BitB, PCM->BitDepth);
-                        if (PCM->PIC->PXMTupleType == PXM_TUPLE_BnW && PCM->PIC->PXMType != PAMPXM) {
-                            PixelArray[Channel][Pixel] = ~CurrentPixel; // 1 = black, 0 = white
-                        } else {
-                            PixelArray[Channel][Pixel] = CurrentPixel; // 1 = white, 0 = black
-                        }
+            }
+        } else if (PCM->PIC->PXMType == BinaryPXM || PCM->PIC->PXMType == PAMPXM) {
+            for (uint64_t Pixel = 0ULL; Pixel < NumPixels2Read; Pixel++) {
+                for (uint8_t Channel = 0; Channel < PCM->NumChannels; Channel++) {
+                    uint8_t CurrentPixel                = ReadBits(BitIOLSByte, BitIOLSBit, BitB, PCM->BitDepth);
+                    if (PCM->PIC->PXMTupleType == PXM_TUPLE_BnW && PCM->PIC->PXMType != PAMPXM) {
+                        ExtractedPixels[Channel][Pixel] = ~CurrentPixel; // 1 = black, 0 = white
+                    } else {
+                        ExtractedPixels[Channel][Pixel] = CurrentPixel; // 1 = white, 0 = black
                     }
                 }
             }
         }
-        return NULL;
     }
     
 #ifdef __cplusplus
