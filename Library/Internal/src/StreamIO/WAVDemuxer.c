@@ -166,8 +166,8 @@ extern "C" {
     }
     
     void WAVExtractSamples(PCMFile *PCM, BitBuffer *BitB, uint64_t NumSamples2Extract, uint32_t **ExtractedSamples) {
-        for (uint64_t Channel = 0; Channel < PCM->NumChannels; Channel++) {
-            for (uint64_t Sample = 0; Sample < NumSamples2Extract; Sample++) {
+        for (uint64_t Sample = 0; Sample < NumSamples2Extract; Sample++) {
+            for (uint64_t Channel = 0; Channel < PCM->NumChannels; Channel++) {
                 ExtractedSamples[Channel][Sample] = ReadBits(BitIOLSByte, BitIOLSBit, BitB, (uint64_t)Bits2Bytes(PCM->BitDepth, Yes));
             }
         }

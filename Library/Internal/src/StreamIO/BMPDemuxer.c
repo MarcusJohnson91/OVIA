@@ -71,8 +71,8 @@ extern "C" {
     }
     
     void BMPExtractPixels(PCMFile *PCM, BitBuffer *BitB, uint64_t NumPixels2Extract, uint16_t **ExtractedPixels) { // We need to convert the pixels to the Runtime Byte and Bit order.
-        for (uint16_t Channel = 0; Channel < PCM->NumChannels; Channel++) { // Ok, this works when the bit depth is 8 bits per pixel, but what about 1 bit images, or palettized ones?
-            for (uint64_t Pixel = 0; Pixel < NumPixels2Extract; Pixel++) {
+        for (uint64_t Pixel = 0; Pixel < NumPixels2Extract; Pixel++) {
+            for (uint16_t Channel = 0; Channel < PCM->NumChannels; Channel++) { // Ok, this works when the bit depth is 8 bits per pixel, but what about 1 bit images, or palettized ones?
                 if (PCM->BitDepth == 1) {
                     ExtractedPixels[Channel][Pixel] = ReadBits(BitIOLSByte, BitIOMSBit, BitB, 1);
                 } else if (PCM->PIC->BMPColorsIndexed > 0 || PCM->PIC->BMPIndexColorsUsed > 0) {

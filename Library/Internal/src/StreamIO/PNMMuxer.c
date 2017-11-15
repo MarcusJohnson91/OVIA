@@ -37,8 +37,8 @@ extern "C" {
             BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "BitBuffer Pointer is NULL");
         } else {
             uint64_t ChannelCount = PCM->NumChannels;
-            for (uint16_t Channel = 0; Channel < ChannelCount; Channel++) {
-                for (uint32_t Pixel = 0; Pixel < NumPixels2Write; Pixel++) {
+            for (uint32_t Pixel = 0; Pixel < NumPixels2Write; Pixel++) {
+                for (uint16_t Channel = 0; Channel < ChannelCount; Channel++) {
                     WriteBits(BitIOMSByte, BitIOMSBit, OutputPixels, ChannelCount, Pixels2Write[Channel][Pixel]);
                 }
             }

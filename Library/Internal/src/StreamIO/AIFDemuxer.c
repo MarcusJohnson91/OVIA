@@ -61,32 +61,7 @@ extern "C" {
             AIFSubChunkIDs AIFFSubChunkID  = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
             uint32_t AIFFSubChunkSize      = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
             switch (AIFFSubChunkID) {
-                case AIF_NAME:
-                    AIFParseNameChunk(PCM, BitB);
-                    IFFSkipPadding(BitB, AIFFSubChunkSize);
-                    break;
-                case AIF_COMM:
-                    AIFParseCOMMChunk(PCM, BitB);
-                    IFFSkipPadding(BitB, AIFFSubChunkSize);
-                    break;
-                case AIF_SSND:
-                    PCM->AUD->AIFOffset    = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
-                    PCM->AUD->AIFBlockSize = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
-                    BitBuffer_Skip(BitB, Bytes2Bits(PCM->AUD->AIFOffset));
-                    break;
-                case AIF_ID3:
-                    BitBuffer_Skip(BitB, Bytes2Bits(AIFFSubChunkSize));
-                    IFFSkipPadding(BitB, AIFFSubChunkSize);
-                    break;
-                case AIF_MARK:
-                    BitBuffer_Skip(BitB, Bytes2Bits(AIFFSubChunkSize));
-                    IFFSkipPadding(BitB, AIFFSubChunkSize);
-                    break;
-                case AIF_INST:
-                    BitBuffer_Skip(BitB, Bytes2Bits(AIFFSubChunkSize));
-                    IFFSkipPadding(BitB, AIFFSubChunkSize);
-                    break;
-                case AIF_MIDI:
+                case AIF_AAPL:
                     BitBuffer_Skip(BitB, Bytes2Bits(AIFFSubChunkSize));
                     IFFSkipPadding(BitB, AIFFSubChunkSize);
                     break;
@@ -94,11 +69,7 @@ extern "C" {
                     BitBuffer_Skip(BitB, Bytes2Bits(AIFFSubChunkSize));
                     IFFSkipPadding(BitB, AIFFSubChunkSize);
                     break;
-                case AIF_AAPL:
-                    BitBuffer_Skip(BitB, Bytes2Bits(AIFFSubChunkSize));
-                    IFFSkipPadding(BitB, AIFFSubChunkSize);
-                    break;
-                case AIF_COMT:
+                case AIF_ANNO:
                     BitBuffer_Skip(BitB, Bytes2Bits(AIFFSubChunkSize));
                     IFFSkipPadding(BitB, AIFFSubChunkSize);
                     break;
@@ -106,7 +77,38 @@ extern "C" {
                     AIFParseAuthorChunk(PCM, BitB);
                     IFFSkipPadding(BitB, AIFFSubChunkSize);
                     break;
-                case AIF_ANNO:
+                case AIF_COMM:
+                    AIFParseCOMMChunk(PCM, BitB);
+                    IFFSkipPadding(BitB, AIFFSubChunkSize);
+                    break;
+                case AIF_COMT:
+                    BitBuffer_Skip(BitB, Bytes2Bits(AIFFSubChunkSize));
+                    IFFSkipPadding(BitB, AIFFSubChunkSize);
+                    break;
+                case AIF_ID3:
+                    BitBuffer_Skip(BitB, Bytes2Bits(AIFFSubChunkSize));
+                    IFFSkipPadding(BitB, AIFFSubChunkSize);
+                    break;
+                case AIF_INST:
+                    BitBuffer_Skip(BitB, Bytes2Bits(AIFFSubChunkSize));
+                    IFFSkipPadding(BitB, AIFFSubChunkSize);
+                    break;
+                case AIF_MARK:
+                    BitBuffer_Skip(BitB, Bytes2Bits(AIFFSubChunkSize));
+                    IFFSkipPadding(BitB, AIFFSubChunkSize);
+                    break;
+                case AIF_MIDI:
+                    BitBuffer_Skip(BitB, Bytes2Bits(AIFFSubChunkSize));
+                    IFFSkipPadding(BitB, AIFFSubChunkSize);
+                    break;
+                case AIF_NAME:
+                    AIFParseNameChunk(PCM, BitB);
+                    IFFSkipPadding(BitB, AIFFSubChunkSize);
+                    break;
+                case AIF_SSND:
+                    PCM->AUD->AIFOffset    = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
+                    PCM->AUD->AIFBlockSize = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
+                    BitBuffer_Skip(BitB, Bytes2Bits(PCM->AUD->AIFOffset));
                     break;
             }
         } else {
@@ -115,8 +117,8 @@ extern "C" {
     }
     
     void AIFExtractSamples(PCMFile *PCM, BitBuffer *BitB, uint64_t NumSamples2Extract, uint32_t **ExtractedSamples) { // I should change this so that the user manages their own buffer
-        for (uint16_t Channel = 0; Channel < PCM->NumChannels; Channel++) {
-            for (uint32_t Sample = 0UL; Sample < NumSamples2Extract; Sample++) {
+        for (uint32_t Sample = 0UL; Sample < NumSamples2Extract; Sample++) {
+            for (uint16_t Channel = 0; Channel < PCM->NumChannels; Channel++) {
                 ExtractedSamples[Channel][Sample] = ReadBits(BitIOMSByte, BitIOMSBit, BitB, PCM->BitDepth);
                 BitBuffer_Skip(BitB, 8 - (PCM->BitDepth % 8)); // Skip the Zero'd bits
             }
