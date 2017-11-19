@@ -9,6 +9,10 @@
 extern "C" {
 #endif
     
+    enum AIFFTimeStamp {
+        AIFFSecondsBeforeUNIX = 2082844800,
+    };
+    
     typedef enum AIFChunkIDs {
         AIF_FORM              = 0x464F524D,
         AIF_AIFF              = 0x41494646,

@@ -22,7 +22,7 @@ extern "C" {
         if (SampleRateExponent >= 0) {
             PCM->AUD->SampleRate           = SampleRateMantissa << SampleRateExponent;
         } else {
-            PCM->AUD->SampleRate           = (SampleRateMantissa + ((1ULL << (-SampleRateExponent - 1)) >> (-SampleRateExponent)));
+            PCM->AUD->SampleRate           = (SampleRateMantissa + ((1LLU << (-SampleRateExponent - 1)) >> (-SampleRateExponent)));
         }
     }
     

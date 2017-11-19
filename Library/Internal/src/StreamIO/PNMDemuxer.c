@@ -22,7 +22,7 @@ extern "C" {
         uint64_t CommentSizeWidth = PXMCheckForComment(BitB);
         BitBuffer_Skip(BitB, Bytes2Bits(CommentSizeWidth));
         /* Read Width */
-        uint64_t WidthStringSize = 0ULL;
+        uint64_t WidthStringSize = 0LLU;
         while (ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8) != PXMFieldSeperator) {
             WidthStringSize += 1;
         }
@@ -38,7 +38,7 @@ extern "C" {
         BitBuffer_Skip(BitB, Bytes2Bits(CommentSizeHeight));
         
         /* Read Height */
-        uint64_t HeightStringSize = 0ULL;
+        uint64_t HeightStringSize = 0LLU;
         while (ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8) != PXMEndField) {
             HeightStringSize += 1;
         }
@@ -52,7 +52,7 @@ extern "C" {
     
     static void PXMParsePNMBinaryHeader(PCMFile *PCM, BitBuffer *BitB) {
         /* Read Width */
-        uint64_t WidthStringSize = 0ULL;
+        uint64_t WidthStringSize = 0LLU;
         while (ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8) != PXMFieldSeperator) {
             WidthStringSize += 1;
         }
@@ -65,7 +65,7 @@ extern "C" {
         /* Read Width */
         
         /* Read Height */
-        uint64_t HeightStringSize = 0ULL;
+        uint64_t HeightStringSize = 0LLU;
         while (ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8) != PXMEndField) {
             HeightStringSize += 1;
         }
@@ -95,7 +95,7 @@ extern "C" {
     static void PXMParsePAMHeader(PCMFile *PCM, BitBuffer *BitB) {
         /* Read Width */
         BitBuffer_Skip(BitB, 48); // Skip "WIDTH " string
-        uint64_t WidthStringSize = 0ULL;
+        uint64_t WidthStringSize = 0LLU;
         while (ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8) != PXMFieldSeperator) {
             WidthStringSize += 1;
         }
@@ -109,7 +109,7 @@ extern "C" {
         
         /* Read Height */
         BitBuffer_Skip(BitB, 56); // Skip "HEIGHT " string
-        uint64_t HeightStringSize = 0ULL;
+        uint64_t HeightStringSize = 0LLU;
         while (ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8) != PXMEndField) {
             HeightStringSize += 1;
         }
@@ -226,7 +226,7 @@ extern "C" {
     
     void PXMExtractPixels(PCMFile *PCM, BitBuffer *BitB, uint64_t NumPixels2Read, uint16_t **ExtractedPixels) {
         if (PCM->PIC->PXMType == ASCIIPXM) {
-            for (uint64_t Pixel = 0ULL; Pixel < NumPixels2Read; Pixel++) {
+            for (uint64_t Pixel = 0LLU; Pixel < NumPixels2Read; Pixel++) {
                 for (uint8_t Channel = 0; Channel < PCM->NumChannels; Channel++) {
                     uint8_t SubPixelStringSize          = 0;
                     while (PeekBits(BitIOMSByte, BitIOLSBit, BitB, 8) != PXMFieldSeperator || PeekBits(BitIOMSByte, BitIOLSBit, BitB, 8) != PXMEndField) {
@@ -240,7 +240,7 @@ extern "C" {
                 }
             }
         } else if (PCM->PIC->PXMType == BinaryPXM || PCM->PIC->PXMType == PAMPXM) {
-            for (uint64_t Pixel = 0ULL; Pixel < NumPixels2Read; Pixel++) {
+            for (uint64_t Pixel = 0LLU; Pixel < NumPixels2Read; Pixel++) {
                 for (uint8_t Channel = 0; Channel < PCM->NumChannels; Channel++) {
                     uint8_t CurrentPixel                = ReadBits(BitIOLSByte, BitIOLSBit, BitB, PCM->BitDepth);
                     if (PCM->PIC->PXMTupleType == PXM_TUPLE_BnW && PCM->PIC->PXMType != PAMPXM) {

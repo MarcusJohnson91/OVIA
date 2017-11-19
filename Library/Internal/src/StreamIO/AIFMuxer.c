@@ -28,7 +28,7 @@ extern "C" {
         WriteBits(BitIOMSByte, BitIOLSBit, BitB, 16, PCM->BitDepth);
         uint64_t SampleRate = ConvertInteger2Double(PCM->AUD->SampleRate);
         WriteBits(BitIOMSByte, BitIOLSBit, BitB, 16, (SampleRate >> 52) + 15360); // SampleRate Exponent
-        WriteBits(BitIOMSByte, BitIOLSBit, BitB, 64, 0x8000000000000000ULL | SampleRate << 11); // SampleRate Mantissa
+        WriteBits(BitIOMSByte, BitIOLSBit, BitB, 64, 0x8000000000000000LLU | SampleRate << 11); // SampleRate Mantissa
     }
     
     static void AIFWriteTitle(PCMFile *PCM, BitBuffer *BitB) {
