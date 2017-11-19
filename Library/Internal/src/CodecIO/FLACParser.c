@@ -6,9 +6,9 @@ extern "C" {
     
     void FLACParseMetadata(BitBuffer *InputFLAC, DecodeFLAC *Dec) {
         if (InputFLAC == NULL) {
-            BitIOLog(LOG_ERROR, "libModernFLAC", "FLACParseMetadata", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernFLACLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernFLAC", "FLACParseMetadata", "Pointer to DecodeFLAC is NULL");
+            BitIOLog(LOG_ERROR, ModernFLACLibraryName, __func__, "Pointer to DecodeFLAC is NULL");
         } else {
             Dec->LastMetadataBlock          = ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, 1);  // true
             uint8_t  MetadataBlockType      = ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, 7);  // 1 aka Padding
@@ -37,7 +37,7 @@ extern "C" {
                     FLACParsePicture(InputFLAC, Dec);
                     break;
                 default:
-                    BitIOLog(LOG_INFORMATION, "libModernFLAC", "FLACParseMetadata", "Invalid Metadata Type: %d\n", MetadataBlockType);
+                    BitIOLog(LOG_INFORMATION, ModernFLACLibraryName, "FLACParseMetadata", "Invalid Metadata Type: %d\n", MetadataBlockType);
                     break;
             }
         }
@@ -45,9 +45,9 @@ extern "C" {
     
     void FLACParseStreamInfo(BitBuffer *InputFLAC, DecodeFLAC *Dec) {
         if (InputFLAC == NULL) {
-            BitIOLog(LOG_ERROR, "libModernFLAC", "FLACParseStreamInfo", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernFLACLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernFLAC", "FLACParseStreamInfo", "Pointer to DecodeFLAC is NULL");
+            BitIOLog(LOG_ERROR, ModernFLACLibraryName, __func__, "Pointer to DecodeFLAC is NULL");
         } else {
             Dec->Meta->StreamInfo->MinimumBlockSize        = ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, 16);    // 4096
             Dec->Meta->StreamInfo->MaximumBlockSize        = ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, 16);    // 4096
@@ -65,9 +65,9 @@ extern "C" {
     
     void FLACSkipPadding(BitBuffer *InputFLAC, DecodeFLAC *Dec) { // 8192
         if (InputFLAC == NULL) {
-            BitIOLog(LOG_ERROR, "libModernFLAC", "FLACSkipPadding", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernFLACLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernFLAC", "FLACSkipPadding", "Pointer to DecodeFLAC is NULL");
+            BitIOLog(LOG_ERROR, ModernFLACLibraryName, __func__, "Pointer to DecodeFLAC is NULL");
         } else {
             SkipBits(InputFLAC, Bytes2Bits(Dec->Meta->MetadataSize));
         }
@@ -75,9 +75,9 @@ extern "C" {
     
     void FLACSkipCustom(BitBuffer *InputFLAC, DecodeFLAC *Dec) { // 134,775
         if (InputFLAC == NULL) {
-            BitIOLog(LOG_ERROR, "libModernFLAC", "FLACSkipCustom", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernFLACLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernFLAC", "FLACSkipCustom", "Pointer to DecodeFLAC is NULL");
+            BitIOLog(LOG_ERROR, ModernFLACLibraryName, __func__, "Pointer to DecodeFLAC is NULL");
         } else {
             SkipBits(InputFLAC, Bytes2Bits(Dec->Meta->MetadataSize + 1));
         }
@@ -85,9 +85,9 @@ extern "C" {
     
     void FLACParseSeekTable(BitBuffer *InputFLAC, DecodeFLAC *Dec) { // 18
         if (InputFLAC == NULL) {
-            BitIOLog(LOG_ERROR, "libModernFLAC", "FLACParseSeekTable", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernFLACLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernFLAC", "FLACParseSeekTable", "Pointer to DecodeFLAC is NULL");
+            BitIOLog(LOG_ERROR, ModernFLACLibraryName, __func__, "Pointer to DecodeFLAC is NULL");
         } else {
             Dec->Meta->Seek->NumSeekPoints = Dec->Meta->MetadataSize / 18; // 21
             
@@ -101,9 +101,9 @@ extern "C" {
     
     void FLACParseVorbisComment(BitBuffer *InputFLAC, DecodeFLAC *Dec) { // LITTLE ENDIAN
         if (InputFLAC == NULL) {
-            BitIOLog(LOG_ERROR, "libModernFLAC", "FLACParseVorbisComment", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernFLACLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernFLAC", "FLACParseVorbisComment", "Pointer to DecodeFLAC is NULL");
+            BitIOLog(LOG_ERROR, ModernFLACLibraryName, __func__, "Pointer to DecodeFLAC is NULL");
         } else {
             Dec->Meta->Vorbis->VendorTagSize              = ReadBits(BitIOLSByte, BitIOLSBit, InputFLAC, 32); // 32
             Dec->Meta->Vorbis->VendorTag                  = calloc(1, Dec->Meta->Vorbis->VendorTagSize * sizeof(char));
@@ -125,16 +125,16 @@ extern "C" {
             }
             
             for (uint32_t UserTag = 0; UserTag < Dec->Meta->Vorbis->NumUserTags; UserTag++) {
-                BitIOLog(LOG_INFORMATION, "libModernFLAC", "FLACParseVorbisComment", "User Tag %d of %d: %c\n", UserTag, Dec->Meta->Vorbis->NumUserTags, Dec->Meta->Vorbis->UserTagString[UserTag]);
+                BitIOLog(LOG_INFORMATION, ModernFLACLibraryName, "FLACParseVorbisComment", "User Tag %d of %d: %c\n", UserTag, Dec->Meta->Vorbis->NumUserTags, Dec->Meta->Vorbis->UserTagString[UserTag]);
             }
         }
     }
     
     void FLACParseCuesheet(BitBuffer *InputFLAC, DecodeFLAC *Dec) {
         if (InputFLAC == NULL) {
-            BitIOLog(LOG_ERROR, "libModernFLAC", "FLACParseCuesheet", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernFLACLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernFLAC", "FLACParseCuesheet", "Pointer to DecodeFLAC is NULL");
+            BitIOLog(LOG_ERROR, ModernFLACLibraryName, __func__, "Pointer to DecodeFLAC is NULL");
         } else {
             for (uint8_t CatalogChar = 0; CatalogChar < FLACMedizCatalogNumberSize; CatalogChar++) {
                 Dec->Meta->Cue->CatalogID[CatalogChar] = ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, 8);
@@ -165,9 +165,9 @@ extern "C" {
     
     void FLACParsePicture(BitBuffer *InputFLAC, DecodeFLAC *Dec) { // 17,151
         if (InputFLAC == NULL) {
-            BitIOLog(LOG_ERROR, "libModernFLAC", "FLACParsePicture", "Pointer to BitBuffer is NULL");
+            BitIOLog(LOG_ERROR, ModernFLACLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, "libModernFLAC", "FLACParsePicture", "Pointer to DecodeFLAC is NULL");
+            BitIOLog(LOG_ERROR, ModernFLACLibraryName, __func__, "Pointer to DecodeFLAC is NULL");
         } else {
             Dec->Meta->Pic->PicType  = ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, 32); // 3
             Dec->Meta->Pic->MIMESize = ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, 32); // 10

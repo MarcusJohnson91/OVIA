@@ -1,4 +1,4 @@
-#include "../../libModernFLAC.h"
+#include "../../ModernFLACLibraryName.h"
 
 #pragma once
 
