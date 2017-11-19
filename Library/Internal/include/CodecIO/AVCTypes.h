@@ -133,10 +133,10 @@ extern "C" {
         uint8_t      RedundantPictureCount:7;                      // redundant_pic_cnt
         uint8_t      PicParamSetID;                                // pic_parameter_set_id
         uint8_t      SliceGroupChangeRate;                         // slice_group_change_rate_minus1
-                                                                   // SliceChangeRate = 1024 * PicHeightInMapUnits
-        uint16_t     PicSizeInMapUnits;                            // pic_size_in_map_units_minus1
+        // SliceChangeRate = 1024 * PicHeightInMapUnits
         uint8_t      InitialSliceQP;                               // pic_init_qp_minus26
         uint8_t      InitialSliceQS;                               // pic_init_qs_minus26
+        uint16_t     PicSizeInMapUnits;                            // pic_size_in_map_units_minus1
         uint64_t    *RunLength;                                    // run_length_minus1
         uint8_t     *TopLeft;                                      // top_left
         uint8_t     *BottomRight;                                  // bottom_right
@@ -204,14 +204,26 @@ extern "C" {
         uint8_t      LumaWeightDenom:7;                            // luma_log2_weight_denom
         uint8_t      ChromaWeightDenom:7;                          // chroma_log2_weight_denom
         uint32_t     PictureOrderCountLSB:17;                      // pic_order_cnt_lsb
-        uint32_t     FirstMacroBlockInSlice;                       // first_mb_in_slice
-        uint64_t     FrameNumber;                                  // frame_num
-        uint16_t     IDRPicID;                                     // idr_pic_id
         int8_t       SliceQPDelta;                                 // slice_qp_delta
-        uint64_t     SliceGroupChangeCycle;                        // slice_group_change_cycle
-        uint64_t     SliceGroupChangeRate;                         // slice_group_change_rate
         uint8_t      TopFieldOrderCount;                           // TopFieldOrderCnt
         uint8_t      BottomFieldOrderCount;                        // BottomFieldOrderCnt
+        uint8_t      MacroBlockSkipRun;                            // mb_skip_run
+        uint8_t      PreviousMacroBlockSkipped;                    // prevMbSkipped
+        uint8_t      DepthParamSetID;                              // dps_id
+        uint8_t      AbsDiffViewIdx;                               // abs_diff_view_idx_minus1
+        int16_t      ScaledRefLayerLeftOffset;                     // scaled_ref_layer_left_offset
+        int16_t      ScaledRefLayerTopOffset;                      // scaled_ref_layer_top_offset
+        int16_t      ScaledRefLayerRightOffset;                    // scaled_ref_layer_right_offset
+        int16_t      ScaledRefLayerBottomOffset;                   // scaled_ref_layer_bottom_offset
+        uint16_t     IDRPicID;                                     // idr_pic_id
+        uint32_t     FirstMacroBlockInSlice;                       // first_mb_in_slice
+        uint32_t     MacroBlocksInSlice;                           // num_mbs_in_slice_minus1
+        uint64_t     ScaledRefLayerPicHeightInSamplesL;            // ScaledRefLayerPicHeightInSamplesL
+        uint64_t     LongTermPicNum;                               // long_term_pic_num, Min( MaxDpbMbs / ( PicWidthInMbs * FrameHeightInMbs ), 16 ) + 1
+        uint64_t     CurrentMacroBlockAddress;                     // CurrMbAddr
+        uint64_t     SliceGroupChangeCycle;                        // slice_group_change_cycle
+        uint64_t     SliceGroupChangeRate;                         // slice_group_change_rate
+        uint64_t     FrameNumber;                                  // frame_num
         uint64_t     PicWidthInSamplesChroma;                      // PicWidthInSamplesC
         uint64_t     PicWidthInSamplesLuma;                        // PicWidthInSamplesL
         uint64_t     FrameHeightInMacroBlocks;                     // FrameHeightInMbs
@@ -220,18 +232,6 @@ extern "C" {
         uint64_t     PicHeightInMacroBlocks;                       // PicHeightInMbs
         int64_t      PicSizeInMacroBlocks;                         // PicSizeInMbs
         uint64_t     RawMacroBlockSizeInBits;                      // RawMbBits
-        uint8_t      MacroBlockSkipRun;                            // mb_skip_run
-        uint8_t      PreviousMacroBlockSkipped;                    // prevMbSkipped
-        uint64_t     ScaledRefLayerPicHeightInSamplesL;            // ScaledRefLayerPicHeightInSamplesL
-        uint8_t      DepthParamSetID;                              // dps_id
-        int16_t      ScaledRefLayerLeftOffset;                     // scaled_ref_layer_left_offset
-        int16_t      ScaledRefLayerTopOffset;                      // scaled_ref_layer_top_offset
-        int16_t      ScaledRefLayerRightOffset;                    // scaled_ref_layer_right_offset
-        int16_t      ScaledRefLayerBottomOffset;                   // scaled_ref_layer_bottom_offset
-        uint32_t     MacroBlocksInSlice;                           // num_mbs_in_slice_minus1
-        uint64_t     LongTermPicNum;                               // long_term_pic_num, Min( MaxDpbMbs / ( PicWidthInMbs * FrameHeightInMbs ), 16 ) + 1
-        uint8_t      AbsDiffViewIdx;                               // abs_diff_view_idx_minus1
-        uint64_t     CurrentMacroBlockAddress;                     // CurrMbAddr
         int32_t     *DeltaPicOrderCount;                           // delta_pic_order_cnt
         uint8_t     *DeltaPictureOrderCountBottom;                 // delta_pic_order_cnt_bottom
         bool        *RefPicListModFlag;                            // ref_pic_list_modification_flag_l0, ref_pic_list_modification_flag_l1
@@ -286,17 +286,17 @@ extern "C" {
         uint8_t      BlockPatternChroma;                           // CodedBlockPatternChroma
         uint8_t      BlockPatternLuma;                             // CodedBlockPatternLuma
         uint8_t      QPDelta;                                      // mb_qp_delta
-                                                                   // 256 is a guess
+        // 256 is a guess
         uint8_t      IntraChromaPredictionMode;                    // intra_chroma_pred_mode
         uint8_t      NumRefIndexActiveLevel0;                      // num_ref_idx_l0_active_minus1
         uint8_t      NumRefIndexActiveLevel1;                      // num_ref_idx_l1_active_minus1
-        bool        *PreviousIntra4x4PredictionFlag;               // prev_intra4x4_pred_mode_flag
         uint8_t     *RemIntra4x4PredictionMode;                    // rem_intra4x4_pred_mode
-        bool        *PreviousIntra8x8PredictionFlag;               // prev_intra8x8_pred_mode_flag
         uint8_t     *RemIntra8x8PredictionMode;                    // rem_intra8x8_pred_mode
         uint8_t     *RefIndexLevel0;                               // ref_idx_l0
         uint8_t     *RefIndexLevel1;                               // ref_idx_l1
         uint8_t     *SubMacroBlockType;                            // sub_mb_type
+        bool        *PreviousIntra4x4PredictionFlag;               // prev_intra4x4_pred_mode_flag
+        bool        *PreviousIntra8x8PredictionFlag;               // prev_intra8x8_pred_mode_flag
         bool        *MotionPredictionFlagLevel0;                   // motion_prediction_flag_l0
         bool        *MotionPredictionFlagLevel1;                   // motion_prediction_flag_l1
         uint16_t    *PCMLumaSample;                                // pcm_sample_luma
@@ -311,10 +311,10 @@ extern "C" {
         uint8_t      NumCodedPictureBuffers;                       // cpb_cnt_minus1
         uint8_t      BitRateScale;                                 // bit_rate_scale
         uint8_t      CodedPictureBufferScale;                      // cpb_size_scale
-        uint32_t     InitialCPBDelayLength;                        // initial_cpb_removal_delay_length_minus1
         uint8_t      CBPDelay;                                     // cpb_removal_delay_length_minus1
         uint8_t      DBPDelay;                                     // dpb_output_delay_length_minus1
         uint8_t      TimeOffsetSize;                               // time_offset_length
+        uint32_t     InitialCPBDelayLength;                        // initial_cpb_removal_delay_length_minus1
         uint32_t    *BitRate;                                      // bit_rate_value_minus1
         uint32_t    *CodedPictureSize;                             // cpb_size_value_minus1
         bool        *IsConstantBitRate;                            // cbr_flag
@@ -351,63 +351,63 @@ extern "C" {
         bool         LowDelayHRD:1;                                // low_delay_hrd_flag
         bool         BitStreamRestricted:1;                        // bitstream_restriction_flag
         bool         MVCTimingInfoPresent:1;                       // vui_mvc_timing_info_present_flag
-        uint8_t      AspectRatioIDC;                               // aspect_ratio_idc
-        uint16_t     SARWidth;                                     // sar_width
-        uint16_t     SAWHeight;                                    // sar_height
         uint8_t      VideoType;                                    // video_format
         uint8_t      ColorPrimaries;                               // color_primaries
         uint8_t      TransferProperties;                           // transfer_characteristics
         uint8_t      MatrixCoefficients;                           // matrix_coefficients
         uint8_t      ChromaSampleLocationTop;                      // chroma_sample_loc_type_top_field
         uint8_t      ChromaSampleLocationBottom;                   // chroma_sample_loc_type_bottom_field
-        uint16_t     MVCNumOpertionPoints;                         // vui_mvc_num_ops_minus1
+        uint8_t      AspectRatioIDC;                               // aspect_ratio_idc
         uint8_t      VUIMVCDNumOpPoints;                           // vui_mvcd_num_ops_minus1
         uint8_t      VUIExtNumEntries;                             // vui_ext_num_entries_minus1
-        bool        *TimingInfoPresent;                            // timing_info_present_flag
-        uint32_t    *UnitsPerTick;                                 // num_units_in_tick
-        uint32_t    *TimeScale;                                    // time_scale
-        bool        *FixedFrameRateFlag;                           // fixed_frame_rate_flag
-        bool        *NALHrdParamsPresent;                          // nal_hrd_parameters_present_flag
-        bool        *VCLHrdParamsPresent;                          // vcl_hrd_parameters_present_flag
-        bool        *PicStructPresent;                             // pic_struct_present_flag
-        bool        *MotionVectorsOverPicBoundaries;               // motion_vectors_over_pic_boundaries_flag
+        uint16_t     MVCNumOpertionPoints;                         // vui_mvc_num_ops_minus1
+        uint16_t     SARWidth;                                     // sar_width
+        uint16_t     SAWHeight;                                    // sar_height
         uint32_t    *MaxBytesPerPicDenom;                          // max_bytes_per_pic_denom
         uint32_t    *MaxBitsPerMarcoBlockDenom;                    // max_bits_per_mb_denom
         uint32_t    *MaxMotionVectorLength;                        // log2_max_mv_length_horizontal
         uint32_t    *MaxMotionVectorHeight;                        // log2_max_mv_length_vertical
         uint32_t    *MaxReorderFrames;                             // max_num_reorder_frames
         uint32_t    *MaxFrameBuffer;                               // max_dec_frame_buffering
-        uint8_t     *MVCNumTargetViews;                            // vui_mvc_num_target_output_views_minus1
         uint32_t    *MVCUnitsInTick;                               // vui_mvc_num_units_in_tick
         uint32_t    *MVCTimeScale;                                 // vui_mvc_time_scale
+        uint32_t    *VUIMVCDNumUnitsInTick;                        // vui_mvcd_num_units_in_tick
+        uint32_t    *VUIMVCDTimeScale;                             // vui_mvcd_time_scale
+        uint32_t    *VUIExtNumUnitsInTick;                         // vui_ext_num_units_in_tick
+        uint32_t    *VUIExtTimeScale;                              // vui_ext_time_scale
+        bool        *TimingInfoPresent;                            // timing_info_present_flag
+        bool        *FixedFrameRateFlag;                           // fixed_frame_rate_flag
+        bool        *NALHrdParamsPresent;                          // nal_hrd_parameters_present_flag
+        bool        *VCLHrdParamsPresent;                          // vcl_hrd_parameters_present_flag
+        bool        *PicStructPresent;                             // pic_struct_present_flag
+        bool        *MotionVectorsOverPicBoundaries;               // motion_vectors_over_pic_boundaries_flag
         bool        *MVCFixedFrameRate;                            // vui_mvc_fixed_frame_rate_flag
         bool        *MVCNALHRDParamsPresent;                       // vui_mvc_nal_hrd_parameters_present_flag
         bool        *MVCVCLHRDParamsPresent;                       // vui_mvc_vcl_hrd_parameters_present_flag
         bool        *MVCLowDelayFlag;                              // vui_mvc_low_delay_hrd_flag
-        uint8_t     *VUIMVCDTemporalID;                            // vui_mvcd_temporal_id
-        uint16_t    *VUIMVCDNumTargetOutputViews;                  // vui_mvcd_num_target_output_views_minus1
         bool        *VUIMVCDTimingInfoPresent;                     // vui_mvcd_timing_info_present_flag
-        uint32_t    *VUIMVCDNumUnitsInTick;                        // vui_mvcd_num_units_in_tick
-        uint32_t    *VUIMVCDTimeScale;                             // vui_mvcd_time_scale
         bool        *VUIMVCDFixedFrameRateFlag;                    // vui_mvcd_fixed_frame_rate_flag
         bool        *VUIMVCDNalHRDParametersPresent;               // vui_mvcd_nal_hrd_parameters_present_flag
         bool        *VUIMVCDVclHRDParametersPresent;               // vui_mvcd_vcl_hrd_parameters_present_flag
         bool        *VUIMVCDHRDLowDelayPresent;                    // vui_mvcd_low_delay_hrd_flag
         bool        *VUIMVCDPicStructPresent;                      // vui_mvcd_pic_struct_present_flag
-        uint8_t     *VUIExtDependencyID;                           // vui_ext_dependency_id
-        uint8_t     *VUIExtQualityID;                              // vui_ext_quality_id
-        uint8_t     *VUIExtTemporalID;                             // vui_ext_temporal_id
         bool        *VUIExtTimingInfoPresentFlag;                  // vui_ext_timing_info_present_flag
-        uint32_t    *VUIExtNumUnitsInTick;                         // vui_ext_num_units_in_tick
-        uint32_t    *VUIExtTimeScale;                              // vui_ext_time_scale
         bool        *VUIExtFixedFrameRateFlag;                     // vui_ext_fixed_frame_rate_flag
         bool        *VUIExtNALHRDPresentFlag;                      // vui_ext_nal_hrd_parameters_present_flag
         bool        *VUIExtVCLHRDPresentFlag;                      // vui_ext_vcl_hrd_parameters_present_flag
         bool        *VUIExtLowDelayHRDFlag;                        // vui_ext_low_delay_hrd_flag
         bool        *VUIExtPicStructPresentFlag;                   // vui_ext_pic_struct_present_flag
-        uint8_t    **VUIMVCDViewID;                                // vui_mvcd_view_id
         bool       **VUIMVCDDepthFlag;                             // vui_mvcd_depth_flag
         bool       **VUIMVCDTextureFlag;                           // vui_mvcd_texture_flag
+        uint8_t     *MVCNumTargetViews;                            // vui_mvc_num_target_output_views_minus1
+        uint8_t     *VUIMVCDTemporalID;                            // vui_mvcd_temporal_id
+        uint8_t     *VUIExtDependencyID;                           // vui_ext_dependency_id
+        uint8_t     *VUIExtQualityID;                              // vui_ext_quality_id
+        uint8_t     *VUIExtTemporalID;                             // vui_ext_temporal_id
+        uint16_t    *VUIMVCDNumTargetOutputViews;                  // vui_mvcd_num_target_output_views_minus1
+        uint32_t    *UnitsPerTick;                                 // num_units_in_tick
+        uint32_t    *TimeScale;                                    // time_scale
+        uint8_t    **VUIMVCDViewID;                                // vui_mvcd_view_id
         uint8_t    **MVCTemporalID;                                // vui_mvc_temporal_id
         uint8_t    **MVCViewID;                                    // vui_mvc_view_id
     } VideoUsabilityInformation;

@@ -31,6 +31,7 @@ extern "C" {
         MaxLevels                                   = 64,
         ExtendedISO                                 = 255,
         MacroBlockMaxPixels                         = 256,
+        AVCStopBit                                  =   1,
     };
     
     static const char *ModernAVCLibraryName         = "libModernAVC";
