@@ -178,7 +178,7 @@ extern "C" {
         } else {
             PCM->NumChannels = 0;
             PCM->PIC->PXMTupleType   = PXM_TUPLE_Unknown;
-            BitIOLog(LOG_ERROR, "libPXM", __func__, "Unknown PXM Tuple: %s", TupleTypeString);
+            BitIOLog(BitIOLog_ERROR, "libPXM", __func__, "Unknown PXM Tuple: %s", TupleTypeString);
         }
         free(TupleTypeString);
         /* Read TupleType */

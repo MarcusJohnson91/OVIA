@@ -106,7 +106,7 @@ extern "C" {
                 ReadINFO_ISFT(PCM, BitB, SubChunkSize);
                 break;
             default:
-                BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "Unknown LIST Chunk: 0x%X", SubChunkID);
+                BitIOLog(BitIOLog_ERROR, libPCMLibraryName, __func__, "Unknown LIST Chunk: 0x%X", SubChunkID);
                 break;
         }
     }
@@ -117,9 +117,9 @@ extern "C" {
     
     static void WAVParseFMTChunk(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) {
         if (PCM == NULL) {
-            BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "Pointer to PCMFile is NULL");
+            BitIOLog(BitIOLog_ERROR, libPCMLibraryName, __func__, "Pointer to PCMFile is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "Pointer to BitBuffer is NULL");
+            BitIOLog(BitIOLog_ERROR, libPCMLibraryName, __func__, "Pointer to BitBuffer is NULL");
         } else {
             PCM->AUD->WAVCompressionFormat  = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
             PCM->NumChannels                = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
@@ -160,7 +160,7 @@ extern "C" {
                 WAVParseDATAChunk(PCM, BitB, ChunkSize);
                 break;
             default:
-                BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "Invalid ChunkID: 0x%X", ChunkID);
+                BitIOLog(BitIOLog_ERROR, libPCMLibraryName, __func__, "Invalid ChunkID: 0x%X", ChunkID);
                 break;
         }
     }

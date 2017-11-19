@@ -112,7 +112,7 @@ extern "C" {
                     break;
             }
         } else {
-            BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "Invalid ChunkID 0x%X", AIFFChunkID);
+            BitIOLog(BitIOLog_ERROR, libPCMLibraryName, __func__, "Invalid ChunkID 0x%X", AIFFChunkID);
         }
     }
     

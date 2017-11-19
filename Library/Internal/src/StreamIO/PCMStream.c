@@ -21,7 +21,7 @@ extern "C" {
     PCMFile *PCMFile_Init(void) {
         PCMFile *PCM       = calloc(1, sizeof(PCMFile));
         if (PCM == NULL) {
-            BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "PCMFile Pointer is NULL");
+            BitIOLog(BitIOLog_ERROR, libPCMLibraryName, __func__, "PCMFile Pointer is NULL");
         } else {
             PCM->AUD       = calloc(1, sizeof(AUDHeader));
             PCM->AUD->Meta = calloc(1, sizeof(AUDMetadata));
@@ -46,7 +46,7 @@ extern "C" {
         } else if (FileMagic32 == 0x72696666) {
             PCM->InputFileType = W64Format;
         } else {
-            BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "Unrecognized file magic 0x%X", FileMagic64);
+            BitIOLog(BitIOLog_ERROR, libPCMLibraryName, __func__, "Unrecognized file magic 0x%X", FileMagic64);
         }
     }
     
@@ -66,7 +66,7 @@ extern "C" {
     
     void PCMSetOutputFileType(PCMFile *PCM, libPCMFileFormats OutputFileType) {
         if (PCM == NULL) {
-            BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "PCM Pointer is NULL");
+            BitIOLog(BitIOLog_ERROR, libPCMLibraryName, __func__, "PCM Pointer is NULL");
         } else {
             PCM->OutputFileType = OutputFileType;
         }
@@ -74,7 +74,7 @@ extern "C" {
     
     void PCMSetOutputPXMType(PCMFile *PCM, PXMTypes PXMType) {
         if (PCM == NULL) {
-            BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "PCM Pointer is NULL");
+            BitIOLog(BitIOLog_ERROR, libPCMLibraryName, __func__, "PCM Pointer is NULL");
         } else {
             PCM->PIC->PXMType = PXMType;
         }
@@ -82,7 +82,7 @@ extern "C" {
     
     void PCMSetNumOutputSamples(PCMFile *PCM, uint64_t NumChannelIndependentSamples) {
         if (PCM == NULL) {
-            BitIOLog(LOG_ERROR, libPCMLibraryName, __func__, "PCM Pointer is NULL");
+            BitIOLog(BitIOLog_ERROR, libPCMLibraryName, __func__, "PCM Pointer is NULL");
         } else {
             PCM->NumChannelAgnosticSamples = NumChannelIndependentSamples;
         }
