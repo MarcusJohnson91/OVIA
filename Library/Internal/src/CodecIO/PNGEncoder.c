@@ -8,10 +8,10 @@
 extern "C" {
 #endif
     
-    EncodePNG *EncodePNGInit(void) {
+    EncodePNG *EncodePNG_Init(void) {
         EncodePNG *Enc  = calloc(1, sizeof(EncodePNG));
         if (Enc == NULL) {
-            BitIOLog(LOG_ERROR, "libModernPNG", __func__, "Failed to allocate enough memory for EncodePNG");
+            BitIOLog(BitIOLog_ERROR, "libModernPNG", __func__, "Failed to allocate enough memory for EncodePNG");
         } else {
             Enc->acTL       = calloc(1, sizeof(acTL));
             Enc->bkGD       = calloc(1, sizeof(bkGD));
@@ -35,7 +35,7 @@ extern "C" {
         return Enc;
     }
     
-    void EncodePNGDeinit(EncodePNG *Enc) {
+    void EncodePNG_Deinit(EncodePNG *Enc) {
         if (Enc->acTLExists) {
             free(Enc->acTL);
         }

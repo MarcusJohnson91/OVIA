@@ -14,17 +14,17 @@ extern "C" {
         uint32_t      Width;
         uint32_t      Height;
         uint8_t       BitDepth;
-        PNGColorTypes ColorType;
         uint8_t       Compression;
         uint8_t       FilterMethod;
-        bool          IsInterlaced;
-        bool          CRCIsValid;
+        PNGColorTypes ColorType;
+        bool          IsInterlaced:1;
+        bool          CRCIsValid:1;
     } iHDR;
     
     typedef struct acTL {
         uint32_t   NumFrames;
         uint32_t   TimesToLoop;
-        bool       CRCIsValid;
+        bool       CRCIsValid:1;
     } acTL;
     
     typedef struct fcTL {
@@ -36,35 +36,35 @@ extern "C" {
         uint16_t   FrameDelayNumerator;
         uint16_t   FrameDelayDenominator;
         uint8_t    DisposeMethod;
-        bool       BlendMethod;
-        bool       CRCIsValid;
+        bool       BlendMethod:1;
+        bool       CRCIsValid:1;
     } fcTL;
     
     typedef struct PLTE {
-        uint8_t    NumEntries;
         uint8_t  **Palette;
-        bool       CRCIsValid;
+        uint8_t    NumEntries;
+        bool       CRCIsValid:1;
     } PLTE;
 
     typedef struct tRNS {
-        uint8_t    NumEntries;
         uint8_t  **Palette;
-        bool       CRCIsValid;
+        uint8_t    NumEntries;
+        bool       CRCIsValid:1;
     } tRNS;
 
     typedef struct bkGD {
         uint8_t   *BackgroundPaletteEntry;
-        bool       CRCIsValid;
+        bool       CRCIsValid:1;
     } bkGD;
 
     typedef struct sTER {
         bool       StereoType:1;
-        bool       CRCIsValid;
+        bool       CRCIsValid:1;
     } sTER;
 
     typedef struct fdAT {
         uint32_t   FrameNum;
-        bool       CRCIsValid;
+        bool       CRCIsValid:1;
     } fdAT;
 
     typedef struct cHRM { // sRGB or iCCP overrides cHRM
@@ -76,26 +76,26 @@ extern "C" {
         uint32_t   GreenY;
         uint32_t   BlueX;
         uint32_t   BlueY;
-        bool       CRCIsValid;
+        bool       CRCIsValid:1;
     } cHRM;
 
     typedef struct gAMA { // sRGB or iCCP overrides gAMA
         uint32_t   Gamma;
-        bool       CRCIsValid;
+        bool       CRCIsValid:1;
     } gAMA;
 
     typedef struct oFFs {
         int32_t    XOffset;
         int32_t    YOffset;
-        bool       UnitSpecifier;
-        bool       CRCIsValid;
+        bool       UnitSpecifier:1;
+        bool       CRCIsValid:1;
     } oFFs;
 
     typedef struct iCCP {
         char      *ProfileName;
-        uint8_t    CompressionType;
         uint8_t   *CompressedICCPProfile;
-        bool       CRCIsValid;
+        uint8_t    CompressionType;
+        bool       CRCIsValid:1;
     } iCCP;
 
     typedef struct sBIT {
@@ -104,50 +104,49 @@ extern "C" {
         uint8_t    Green;
         uint8_t    Blue;
         uint8_t    Alpha;
-        bool       CRCIsValid;
+        bool       CRCIsValid:1;
     } sBIT;
 
     typedef struct sRGB {
         uint8_t    RenderingIntent;
-        bool       CRCIsValid;
+        bool       CRCIsValid:1;
     } sRGB;
 
     typedef struct pHYs {
         uint32_t   PixelsPerUnitXAxis;
         uint32_t   PixelsPerUnitYAxis;
         uint8_t    UnitSpecifier;
-        bool       CRCIsValid;
+        bool       CRCIsValid:1;
     } pHYs;
 
     typedef struct pCAL {
-        uint8_t    CalibrationNameSize;
-        uint8_t    UnitNameSize;
         char      *CalibrationName;
+        uint8_t   *UnitName;
         int32_t    OriginalZero;
         int32_t    OriginalMax;
+        uint8_t    CalibrationNameSize;
+        uint8_t    UnitNameSize;
         uint8_t    EquationType;
         uint8_t    NumParams;
-        uint8_t   *UnitName;
-        bool       CRCIsValid;
+        bool       CRCIsValid:1;
     } pCAL;
 
     typedef struct sCAL {
-        uint8_t    UnitSpecifier;
         float      PixelWidth; // ASCII float
         float      PixelHeight; // ASCII float
-        bool       CRCIsValid;
+        uint8_t    UnitSpecifier;
+        bool       CRCIsValid:1;
     } sCAL;
 
     typedef struct hIST {
-        
-        bool       CRCIsValid;
+        bool       CRCIsValid:1;
     } hIST;
 
     typedef struct Text { // Replaces:  tEXt, iTXt, zTXt
-        uint8_t    TextType;
         uint8_t   *Keyword;
         uint8_t   *TextString;
-        bool       CRCIsValid;
+        uint8_t    TextType;
+        bool       CRCIsValid:1;
     } Text;
 
     typedef struct tIMe {
@@ -157,34 +156,11 @@ extern "C" {
         uint8_t    Hour;
         uint8_t    Minute;
         uint8_t    Second;
-        bool       CRCIsValid;
+        bool       CRCIsValid:1;
     } tIMe;
     
     struct PNGDecoder {
-        uint32_t      CurrentFrame;
-        uint32_t      LineWidth;
-        uint32_t      LinePadding;
-        bool          IsVideo:1;
-        bool          Is3D:1;
-        bool          acTLExists:1;
-        bool          bkGDExists:1;
-        bool          cHRMExists:1;
-        bool          fcTLExists:1;
-        bool          gAMAExists:1;
-        bool          hISTExists:1;
-        bool          iCCPExists:1;
-        bool          oFFsExists:1;
-        bool          pCALExists:1;
-        bool          pHYsExists:1;
-        bool          PLTEExists:1;
-        bool          sBITExists:1;
-        bool          sCALExists:1;
-        bool          sPLTExists:1;
-        bool          sRGBExists:1;
-        bool          sTERExists:1;
-        bool          TextExists:1;
-        bool          tIMEExists:1;
-        bool          tRNSExists:1;
+        uint16_t    ***DecodedImage;
         struct acTL   *acTL;
         struct bkGD   *bkGD;
         struct cHRM   *cHRM;
@@ -205,34 +181,33 @@ extern "C" {
         struct Text   *Text;
         struct tIMe   *tIMe;
         struct tRNS   *tRNS;
-        uint16_t    ***DecodedImage;
+        uint32_t       CurrentFrame;
+        uint32_t       LineWidth;
+        uint32_t       LinePadding;
+        bool           IsVideo:1;
+        bool           Is3D:1;
+        bool           acTLExists:1;
+        bool           bkGDExists:1;
+        bool           cHRMExists:1;
+        bool           fcTLExists:1;
+        bool           gAMAExists:1;
+        bool           hISTExists:1;
+        bool           iCCPExists:1;
+        bool           oFFsExists:1;
+        bool           pCALExists:1;
+        bool           pHYsExists:1;
+        bool           PLTEExists:1;
+        bool           sBITExists:1;
+        bool           sCALExists:1;
+        bool           sPLTExists:1;
+        bool           sRGBExists:1;
+        bool           sTERExists:1;
+        bool           TextExists:1;
+        bool           tIMEExists:1;
+        bool           tRNSExists:1;
     };
     
     struct PNGEncoder {
-        uint32_t      CurrentFrame;
-        uint32_t      LineWidth;
-        uint32_t      LinePadding;
-        bool          IsAnimatedPNG:1;
-        bool          Is3D:1;
-        bool          acTLExists:1;
-        bool          bkGDExists:1;
-        bool          cHRMExists:1;
-        bool          fcTLExists:1;
-        bool          gAMAExists:1;
-        bool          hISTExists:1;
-        bool          iCCPExists:1;
-        bool          oFFsExists:1;
-        bool          pCALExists:1;
-        bool          pHYsExists:1;
-        bool          PLTEExists:1;
-        bool          sBITExists:1;
-        bool          sCALExists:1;
-        bool          sPLTExists:1;
-        bool          sRGBExists:1;
-        bool          sTERExists:1;
-        bool          TextExists:1;
-        bool          tIMEExists:1;
-        bool          tRNSExists:1;
         struct acTL   *acTL;
         struct bkGD   *bkGD;
         struct cHRM   *cHRM;
@@ -253,6 +228,30 @@ extern "C" {
         struct Text   *Text;
         struct tIMe   *tIMe;
         struct tRNS   *tRNS;
+        uint32_t       CurrentFrame;
+        uint32_t       LineWidth;
+        uint32_t       LinePadding;
+        bool           IsAnimatedPNG:1;
+        bool           Is3D:1;
+        bool           acTLExists:1;
+        bool           bkGDExists:1;
+        bool           cHRMExists:1;
+        bool           fcTLExists:1;
+        bool           gAMAExists:1;
+        bool           hISTExists:1;
+        bool           iCCPExists:1;
+        bool           oFFsExists:1;
+        bool           pCALExists:1;
+        bool           pHYsExists:1;
+        bool           PLTEExists:1;
+        bool           sBITExists:1;
+        bool           sCALExists:1;
+        bool           sPLTExists:1;
+        bool           sRGBExists:1;
+        bool           sTERExists:1;
+        bool           TextExists:1;
+        bool           tIMEExists:1;
+        bool           tRNSExists:1;
     };
     
 #ifdef __cplusplus

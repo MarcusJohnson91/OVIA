@@ -22,7 +22,7 @@ extern "C" {
         Dec->iHDR->BitDepth       = ReadBits(BitIOMSByte, BitIOLSBit, InputPNG, 8);
         Dec->iHDR->ColorType      = ReadBits(BitIOMSByte, BitIOLSBit, InputPNG, 8);
         if (Dec->iHDR->ColorType == 1 || Dec->iHDR->ColorType == 5 || Dec->iHDR->ColorType >= 7) {
-            BitIOLog(LOG_ERROR, "ModernPNG", __func__, "Invalid color type: %d", Dec->iHDR->ColorType);
+            BitIOLog(BitIOLog_ERROR, "ModernPNG", __func__, "Invalid color type: %d", Dec->iHDR->ColorType);
         }
         Dec->iHDR->Compression    = ReadBits(BitIOMSByte, BitIOLSBit, InputPNG, 8);
         Dec->iHDR->FilterMethod   = ReadBits(BitIOMSByte, BitIOLSBit, InputPNG, 8);
@@ -30,7 +30,7 @@ extern "C" {
     	
         uint32_t CRC              = ReadBits(BitIOMSByte, BitIOLSBit, InputPNG, 32);
         if (GeneratedCRC != CRC) {
-            BitIOLog(LOG_ERROR, "libModernPNG", __func__, "CRC Mismatch");
+            BitIOLog(BitIOLog_ERROR, "libModernPNG", __func__, "CRC Mismatch");
         }
         
         //VerifyCRC(Dec->iHDR, ChunkSize, 1, 1, CRC);
@@ -38,7 +38,7 @@ extern "C" {
     
     void ParsePLTE(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) { // Palette
         if (Dec->iHDR->BitDepth > 8) { // INVALID
-            BitIOLog(LOG_ERROR, "ModernPNG", __func__, "Invalid bit depth %d and palette combination\n", Dec->iHDR->BitDepth);
+            BitIOLog(BitIOLog_ERROR, "ModernPNG", __func__, "Invalid bit depth %d and palette combination\n", Dec->iHDR->BitDepth);
             BitBuffer_Skip(InputPNG, Bytes2Bits(ChunkSize));
         } else {
             
@@ -70,7 +70,7 @@ extern "C" {
             Entries = calloc(2, Bits2Bytes(Dec->iHDR->BitDepth, true) * sizeof(uint16_t));
         }
         if (Entries == NULL) {
-            BitIOLog(LOG_ERROR, "libModernPNG", __func__, "Failed to allocate enough memory for the TRNS Palette");
+            BitIOLog(BitIOLog_ERROR, "libModernPNG", __func__, "Failed to allocate enough memory for the TRNS Palette");
         } else {
             for (uint8_t Color = 0; Color < ModernPNGChannelsPerColorType[Dec->iHDR->ColorType]; Color++) {
                 Entries[Color]    = ReadBits(BitIOMSByte, BitIOLSBit, InputPNG, Bits2Bytes(Dec->iHDR->BitDepth, true));
@@ -307,56 +307,11 @@ extern "C" {
             }
             free(ChunkID);
         } else {
-            BitIOLog(LOG_ERROR, "ModernPNG", __func__, "File Magic 0x%X is not PNG, exiting\n", FileMagic);
+            BitIOLog(BitIOLog_ERROR, "ModernPNG", __func__, "File Magic 0x%X is not PNG, exiting\n", FileMagic);
             exit(EXIT_FAILURE);
         }
         
         return EXIT_SUCCESS;
-    }
-    
-    uint32_t GetPNGWidth(DecodePNG *Dec) {
-        return Dec->iHDR->Width;
-    }
-    
-    uint32_t GetPNGHeight(DecodePNG *Dec) {
-        return Dec->iHDR->Height;
-    }
-    
-    uint8_t GetPNGBitDepth(DecodePNG *Dec) {
-        return Dec->iHDR->BitDepth;
-    }
-    
-    uint8_t GetPNGColorType(DecodePNG *Dec) {
-        return Dec->iHDR->ColorType;
-    }
-    
-    bool GetPNGInterlaceStatus(DecodePNG *Dec) {
-        return Dec->iHDR->IsInterlaced;
-    }
-    
-    bool IsPNGStereoscopic(DecodePNG *Dec) {
-        return Dec->Is3D;
-    }
-    
-    uint32_t GetPNGWhitepointX(DecodePNG *Dec) {
-        return Dec->cHRM->WhitePointX;
-    }
-    
-    uint32_t GetPNGWhitepointY(DecodePNG *Dec) {
-        return Dec->cHRM->WhitePointY;
-    }
-    
-    uint32_t GetPNGGamma(DecodePNG *Dec) {
-        return Dec->gAMA->Gamma;
-    }
-    
-    const char *GetPNGColorProfileName(DecodePNG *Dec) {
-        return Dec->iCCP->ProfileName;
-    }
-    
-    uint8_t *GetColorProfile(DecodePNG *Dec) {
-        //return DecompressDEFLATE(Dec->iCCP->CompressedICCPProfile);
-        return NULL;
     }
     
 #ifdef __cplusplus

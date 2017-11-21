@@ -64,23 +64,23 @@ extern "C" {
      @abstract                     "Initializes the DecodePNG structure to start decoding this specific PNG file"
      @return                       "It takes no parameters, and returns a pointer to the PNGDecoder (typedef'd as DecodePNG) structure"
      */
-    DecodePNG     *DecodePNGInit(void);
+    DecodePNG     *DecodePNG_Init(void);
     
     /*!
      @abstract                     "Initializes the EncodePNG structure to start encoding this specific PNG file"
      @return                       "It takes no parameters, and returns a pointer to the PNGEncoder (typedef'd as EncodePNG) structure"
      */
-    EncodePNG     *EncodePNGInit(void);
+    EncodePNG     *EncodePNG_Init(void);
     
     /*!
      @abstract                     "Uninitializes the PNGDecoder (typedef'd as DecodePNG) structure after you're done decoding this specific PNG file"
      */
-    void           DecodePNGDeinit(DecodePNG *Dec);
+    void           DecodePNG_Deinit(DecodePNG *Dec);
     
     /*!
      @abstract                     "Uninitializes the PNGEncoder (typedef'd as EncodePNG) structure after you're done decoding this specific PNG file"
      */
-    void           EncodePNGDeinit(EncodePNG *Enc);
+    void           EncodePNG_Deinit(EncodePNG *Enc);
     
     /*!
      @abstract                     "Encodes a PNG from RawImage2Encode to a BitBuffer"
@@ -97,6 +97,28 @@ extern "C" {
      @param        PNGFile         "Pointer to raw array containing the image, supports 2D array containing stereoscopic frames"
      */
     uint16_t    ***DecodePNGImage(DecodePNG *Dec, BitBuffer *PNGFile);
+    
+    uint32_t GetPNGWidth(DecodePNG *Dec);
+    
+    uint32_t GetPNGHeight(DecodePNG *Dec);
+    
+    uint8_t GetPNGBitDepth(DecodePNG *Dec);
+    
+    uint8_t GetPNGColorType(DecodePNG *Dec);
+    
+    bool GetPNGInterlaceStatus(DecodePNG *Dec);
+    
+    bool IsPNGStereoscopic(DecodePNG *Dec);
+    
+    uint32_t GetPNGWhitepointX(DecodePNG *Dec);
+    
+    uint32_t GetPNGWhitepointY(DecodePNG *Dec);
+    
+    uint32_t GetPNGGamma(DecodePNG *Dec);
+    
+    const char *GetPNGColorProfileName(DecodePNG *Dec);
+    
+    uint8_t *GetColorProfile(DecodePNG *Dec);
 
 #ifdef __cplusplus
 }

@@ -2,6 +2,7 @@
 #include "../../include/Private/libModernPNG_Types.h"
 
 #include "../../include/Private/Decode/libModernPNG_Decode.h"
+#include "../../include/Private/Decode/libModernPNG_ReadChunks.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -15,7 +16,7 @@ extern "C" {
         return 7 - ((Width - 1) % 8);
     }
     
-    DecodePNG *DecodePNGInit(void) {
+    DecodePNG *DecodePNG_Init(void) {
         DecodePNG *Dec  = calloc(1, sizeof(DecodePNG));
         Dec->acTL       = calloc(1, sizeof(acTL));
         Dec->bkGD       = calloc(1, sizeof(bkGD));
@@ -38,7 +39,7 @@ extern "C" {
         return Dec;
     }
     
-    void DecodePNGDeinit(DecodePNG *Dec) {
+    void DecodePNG_Deinit(DecodePNG *Dec) {
         if (Dec->acTLExists) {
             free(Dec->acTL);
         }
@@ -207,25 +208,25 @@ extern "C" {
                     PNGDecodePaethFilter(Dec, *InflatedBuffer, &DeFilteredData, Line);
                     break;
                 default:
-                    BitIOLog(LOG_ERROR, "ModernPNG", __func__, "Filter type: %d is invalid\n", FilterType);
+                    BitIOLog(BitIOLog_ERROR, "ModernPNG", __func__, "Filter type: %d is invalid\n", FilterType);
                     break;
             }
         }
         free(DeFilteredData);
     }
     
-    void DecodePNGData(BitBuffer *BitB, DecodePNG *Dec) {
+    void DecodePNGData(DecodePNG *Dec, BitBuffer *BitB) {
         // read the iDAT/fDAT chunk header, then do the other stuff.
         while (BitBuffer_GetSize(BitB) > 0) { // 12 is the start of IEND
             uint32_t ChunkSize = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
             uint32_t ChunkID   = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
             
             if (strcasecmp(ChunkID, "iDAT") == 0) {
-                ParseIDAT(BitB, Dec, ChunkSize);
+                ParseIDAT(Dec, BitB, ChunkSize);
             } else if (strcasecmp(ChunkID, "acTL") == 0) {
                 
             } else if (strcasecmp(ChunkID, "fdAT") == 0) {
-                ParseFDAT(BitB, Dec, ChunkSize);
+                ParseFDAT(Dec, BitB, ChunkSize);
             }
         }
     }
