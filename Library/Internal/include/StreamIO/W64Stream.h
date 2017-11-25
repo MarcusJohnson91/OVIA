@@ -59,6 +59,8 @@ extern "C" {
     
     void W64InsertSamples(PCMFile *PCM, BitBuffer *OutputSamples, uint32_t NumSamples2Write, uint32_t **Samples2Write);
     
+    void W64WriteHeader(PCMFile *PCM, BitBuffer *BitB);
+    
 #ifdef __cplusplus
 }
 #endif

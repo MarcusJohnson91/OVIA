@@ -45,6 +45,8 @@ extern "C" {
     
     void PXMInsertPixels(PCMFile *PCM, BitBuffer *OutputPixels, uint32_t NumPixels2Write, uint16_t **Pixels2Write);
     
+    void PXMWriteHeader(PCMFile *PCM, BitBuffer *BitB);
+    
 #ifdef __cplusplus
 }
 #endif

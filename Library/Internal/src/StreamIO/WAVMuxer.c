@@ -10,6 +10,10 @@ extern "C" {
     
     static const uint8_t WAVNULLBinaryGUID[BitIOBinaryGUUIDSize] = {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
     
+    void WAVWriteHeader(PCMFile *PCM, BitBuffer *BitB) {
+        
+    }
+    
     static void WAVWriteFMTChunk(PCMFile *PCM, BitBuffer *BitB) {
         WriteBits(BitIOLSByte, BitIOLSBit, BitB, 32, 40); // ChunkSize
         WriteBits(BitIOLSByte, BitIOLSBit, BitB, 16, 0xFFFE); // WaveFormatExtensible

@@ -20,7 +20,7 @@ extern "C" {
         
     }
     
-    static void PXMWriteHeader(PCMFile *PCM, BitBuffer *BitB) {
+    void PXMWriteHeader(PCMFile *PCM, BitBuffer *BitB) {
         if (PCM->PIC->PXMType == PAMPXM) {
             PXMWritePAMHeader(PCM, BitB);
         } else if (PCM->PIC->PXMType == BinaryPXM) {

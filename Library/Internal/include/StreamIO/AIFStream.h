@@ -40,6 +40,8 @@ extern "C" {
     
     void AIFInsertSamples(PCMFile *PCM, BitBuffer *OutputSamples, uint32_t NumSamples2Write, uint32_t **Samples2Write);
     
+    void AIFWriteHeader(PCMFile *PCM, BitBuffer *BitB);
+    
 #ifdef __cplusplus
 }
 #endif

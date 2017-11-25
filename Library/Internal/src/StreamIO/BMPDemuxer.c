@@ -26,7 +26,7 @@ extern "C" {
             if (DIBSize > 0) {
                 if (DIBSize == 40) {
                     PCM->PIC->Width                             = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32); // 1024
-                    PCM->PIC->Height                            = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32); // 1024
+                    PCM->PIC->Height                            = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32); // 1024, Convert this to unsigned cuz it's negative
                 } else if (DIBSize == 12) {
                     PCM->PIC->Width                             = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
                     PCM->PIC->Height                            = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);

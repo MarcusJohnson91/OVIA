@@ -142,6 +142,28 @@ extern "C" {
         }
     }
     
+    void PCM_SetOutputFormat(PCMFile *PCM, libPCMFileFormats *OutputFormat) {
+        if (PCM == NULL) {
+            BitIOLog(BitIOLog_DEBUG, libPCMLibraryName, __func__, "PCMFile Pointer is NULL");
+        } else {
+            PCM->OutputFileType = *OutputFormat;
+        }
+    }
+    
+    void PCM_WriteHeader(PCMFile *PCM, BitBuffer *BitB) {
+        if (PCM->OutputFileType == BMPFormat) {
+            BMPWriteHeader(PCM, BitB, PCM->NumChannelAgnosticSamples);
+        } else if (PCM->OutputFileType == PXMFormat) {
+            PXMWriteHeader(PCM, BitB);
+        } else if (PCM->OutputFileType == AIFFormat) {
+            AIFWriteHeader(PCM, BitB);
+        } else if (PCM->OutputFileType == W64Format) {
+            W64WriteHeader(PCM, BitB);
+        } else if (PCM->OutputFileType == WAVFormat) {
+            WAVWriteHeader(PCM, BitB);
+        }
+    }
+    
     void PCMFileDeinit(PCMFile *PCM) {
         free(PCM->AUD->Meta);
         free(PCM->AUD);
