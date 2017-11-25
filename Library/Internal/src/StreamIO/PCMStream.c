@@ -64,7 +64,7 @@ extern "C" {
         }
     }
     
-    void PCMSetOutputFileType(PCMFile *PCM, libPCMFileFormats OutputFileType) {
+    void PCM_SetOutputFileType(PCMFile *PCM, libPCMFileFormats OutputFileType) {
         if (PCM == NULL) {
             BitIOLog(BitIOLog_ERROR, libPCMLibraryName, __func__, "PCM Pointer is NULL");
         } else {
@@ -72,7 +72,7 @@ extern "C" {
         }
     }
     
-    void PCMSetOutputPXMType(PCMFile *PCM, PXMTypes PXMType) {
+    void PCM_SetOutputPXMType(PCMFile *PCM, PXMTypes PXMType) {
         if (PCM == NULL) {
             BitIOLog(BitIOLog_ERROR, libPCMLibraryName, __func__, "PCM Pointer is NULL");
         } else {
@@ -80,7 +80,7 @@ extern "C" {
         }
     }
     
-    void PCMSetNumOutputSamples(PCMFile *PCM, uint64_t NumChannelIndependentSamples) {
+    void PCM_SetNumOutputSamples(PCMFile *PCM, uint64_t NumChannelIndependentSamples) {
         if (PCM == NULL) {
             BitIOLog(BitIOLog_ERROR, libPCMLibraryName, __func__, "PCM Pointer is NULL");
         } else {
@@ -88,7 +88,7 @@ extern "C" {
         }
     }
     
-    uint8_t PCMGetBitDepth(PCMFile *PCM) {
+    uint8_t PCM_GetBitDepth(PCMFile *PCM) {
         uint8_t BitDepth = 0;
         if (PCM->InputFileType == AIFFormat || PCM->InputFileType == WAVFormat || PCM->InputFileType == W64Format) {
             BitDepth = (uint8_t) PCM->BitDepth;
@@ -98,11 +98,11 @@ extern "C" {
         return BitDepth;
     }
     
-    uint64_t PCMGetNumChannels(PCMFile *PCM) {
+    uint64_t PCM_GetNumChannels(PCMFile *PCM) {
         return PCM->NumChannels;
     }
     
-    uint64_t PCMGetNumSamples(PCMFile *PCM) {
+    uint64_t PCM_GetNumSamples(PCMFile *PCM) {
         return PCM->NumChannelAgnosticSamples;
     }
     
@@ -142,14 +142,6 @@ extern "C" {
         }
     }
     
-    void PCM_SetOutputFormat(PCMFile *PCM, libPCMFileFormats *OutputFormat) {
-        if (PCM == NULL) {
-            BitIOLog(BitIOLog_DEBUG, libPCMLibraryName, __func__, "PCMFile Pointer is NULL");
-        } else {
-            PCM->OutputFileType = *OutputFormat;
-        }
-    }
-    
     void PCM_WriteHeader(PCMFile *PCM, BitBuffer *BitB) {
         if (PCM->OutputFileType == BMPFormat) {
             BMPWriteHeader(PCM, BitB, PCM->NumChannelAgnosticSamples);
@@ -164,7 +156,7 @@ extern "C" {
         }
     }
     
-    void PCMFileDeinit(PCMFile *PCM) {
+    void PCM_FileDeinit(PCMFile *PCM) {
         free(PCM->AUD->Meta);
         free(PCM->AUD);
         free(PCM->PIC);
