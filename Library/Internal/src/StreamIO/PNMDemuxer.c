@@ -237,6 +237,7 @@ extern "C" {
                         SubPixelString[SubPixelByte]    = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
                     }
                     ExtractedPixels[Channel][Pixel]     = atoi(SubPixelString);
+                    free(SubPixelString);
                 }
             }
         } else if (PCM->PIC->PXMType == BinaryPXM || PCM->PIC->PXMType == PAMPXM) {
