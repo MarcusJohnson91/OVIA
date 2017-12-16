@@ -1,4 +1,7 @@
+#include <stdlib.h>
+
 #include "../../../Dependencies/BitIO/libBitIO/include/BitIO.h"
+#include "../../../Dependencies/BitIO/libBitIO/include/BitIOMath.h"
 
 #include "../../include/libPCM.h"
 #include "../../include/Private/libPCMTypes.h"

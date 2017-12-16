@@ -1,4 +1,8 @@
+#include <stdlib.h>
+
 #include "../../Dependencies/BitIO/libBitIO/include/BitIO.h"
+#include "../../Dependencies/BitIO/libBitIO/include/BitIOLog.h"
+#include "../../Dependencies/BitIO/libBitIO/include/BitIOMath.h"
 
 #include "../include/libPCM.h"
 #include "../include/Private/libPCMTypes.h"
@@ -123,8 +127,9 @@ extern "C" {
     uint64_t PCM_GetNumSamples(PCMFile *PCM) {
         return PCM->NumChannelAgnosticSamples;
     }
-    
+    /*
     Samples *PCM_ExtractSamples2(PCMFile *PCM, BitBuffer *Input, uint64_t NumSamples2Extract) {
+        uint32_t **SampleArray = calloc(NumSamples2Extract, PCM->BitDepth * PCM->NumChannels);
         if (PCM->InputFileType == AIFFormat) {
             AIFExtractSamples(PCM, SampleArray, NumSamples2Extract, ExtractedSamples);
         } else if (PCM->InputFileType == WAVFormat) {
@@ -137,6 +142,7 @@ extern "C" {
             BMPExtractPixels(PCM, PixelArray, NumPixels2Extract, ExtractedPixels);
         }
     }
+     */
     
     void PCM_ExtractSamples(PCMFile *PCM, BitBuffer *SampleArray, uint64_t NumSamples2Extract, uint32_t **ExtractedSamples) {
         if (PCM->InputFileType == AIFFormat) {
