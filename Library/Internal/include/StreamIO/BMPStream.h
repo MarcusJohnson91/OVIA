@@ -38,7 +38,7 @@ extern "C" {
     void BMPInsertPixels(PCMFile *PCM, BitBuffer *OutputPixels, uint32_t NumPixels2Write, uint16_t **Pixels2Write);
     
     void BMPWriteHeader(PCMFile *PCM, BitBuffer *BitB, uint32_t NumPixels);
-
+    
 #ifdef __cplusplus
 }
 #endif

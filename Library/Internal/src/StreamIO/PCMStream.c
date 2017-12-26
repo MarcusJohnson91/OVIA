@@ -128,20 +128,20 @@ extern "C" {
         return PCM->NumChannelAgnosticSamples;
     }
     /*
-    Samples *PCM_ExtractSamples2(PCMFile *PCM, BitBuffer *Input, uint64_t NumSamples2Extract) {
-        uint32_t **SampleArray = calloc(NumSamples2Extract, PCM->BitDepth * PCM->NumChannels);
-        if (PCM->InputFileType == AIFFormat) {
-            AIFExtractSamples(PCM, SampleArray, NumSamples2Extract, ExtractedSamples);
-        } else if (PCM->InputFileType == WAVFormat) {
-            WAVExtractSamples(PCM, SampleArray, NumSamples2Extract, ExtractedSamples);
-        } else if (PCM->InputFileType == W64Format) {
-            W64ExtractSamples(PCM, SampleArray, NumSamples2Extract, ExtractedSamples);
-        } else if (PCM->InputFileType == PXMFormat) {
-            PXMExtractPixels(PCM, PixelArray, NumPixels2Extract, ExtractedPixels);
-        } else if (PCM->InputFileType == BMPFormat) {
-            BMPExtractPixels(PCM, PixelArray, NumPixels2Extract, ExtractedPixels);
-        }
-    }
+     Samples *PCM_ExtractSamples2(PCMFile *PCM, BitBuffer *Input, uint64_t NumSamples2Extract) {
+     uint32_t **SampleArray = calloc(NumSamples2Extract, PCM->BitDepth * PCM->NumChannels);
+     if (PCM->InputFileType == AIFFormat) {
+     AIFExtractSamples(PCM, SampleArray, NumSamples2Extract, ExtractedSamples);
+     } else if (PCM->InputFileType == WAVFormat) {
+     WAVExtractSamples(PCM, SampleArray, NumSamples2Extract, ExtractedSamples);
+     } else if (PCM->InputFileType == W64Format) {
+     W64ExtractSamples(PCM, SampleArray, NumSamples2Extract, ExtractedSamples);
+     } else if (PCM->InputFileType == PXMFormat) {
+     PXMExtractPixels(PCM, PixelArray, NumPixels2Extract, ExtractedPixels);
+     } else if (PCM->InputFileType == BMPFormat) {
+     BMPExtractPixels(PCM, PixelArray, NumPixels2Extract, ExtractedPixels);
+     }
+     }
      */
     
     void PCM_ExtractSamples(PCMFile *PCM, BitBuffer *SampleArray, uint64_t NumSamples2Extract, uint32_t **ExtractedSamples) {
