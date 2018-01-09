@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <math.h>
 
 #include "../../../Dependencies/BitIO/libBitIO/include/BitIO.h"
 #include "../../../Dependencies/BitIO/libBitIO/include/BitIOMath.h"
@@ -16,7 +17,7 @@ extern "C" {
     }
     
     static uint64_t GetBMPPixelArraySize(const uint64_t RowSize, const int32_t ImageHeight) { // 5568, 3712, there's 54 extra bytes in the PixelArray...
-        return RowSize * abs(ImageHeight);
+        return RowSize * Absolute(ImageHeight);
     }
     
     void BMPParseMetadata(PCMFile *PCM, BitBuffer *BitB) {
