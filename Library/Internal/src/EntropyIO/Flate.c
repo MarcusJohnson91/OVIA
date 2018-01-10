@@ -1,3 +1,4 @@
+#include "../../../Dependencies/libPCM/Dependencies/BitIO/libBitIO/include/BitIOMath.h"
 #include "../../include/Private/Common/libModernPNG_EntropyCoders.h"
 
 #ifdef __cplusplus
@@ -40,17 +41,17 @@ extern "C" {
     };
     
     struct HuffmanNode {
-        uint64_t            Symbol;
         struct HuffmanNode *LeftNode;
         struct HuffmanNode *RightNode;
+        uint64_t            Symbol;
     };
     
     struct HuffmanTree {
-        uint64_t           NumNodes;
         HuffmanNode       *Node;
         uint64_t          *SymbolFrequency;
-        bool               TableIsUsable;
+        uint64_t           NumNodes;
         const uint8_t     *Table;
+        bool               TableIsUsable;
     };
     
     

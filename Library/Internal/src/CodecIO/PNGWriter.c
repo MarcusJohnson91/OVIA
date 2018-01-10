@@ -1,3 +1,7 @@
+#include <string.h>
+
+#include "../../../Dependencies/libPCM/Dependencies/BitIO/libBitIO/include/BitIOMath.h"
+
 #include "../../include/libModernPNG.h"
 #include "../../include/Private/libModernPNG_Types.h"
 

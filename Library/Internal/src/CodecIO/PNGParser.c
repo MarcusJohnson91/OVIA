@@ -1,7 +1,13 @@
-#include "../../include/libModernPNG.h"
+#include <stdlib.h>
+#include <tgmath.h>
 
+#include "../../include/libModernPNG.h"
+#include "../../include/Private/libModernPNG_Types.h"
 #include "../../include/Private/Decode/libModernPNG_ReadChunks.h"
 #include "../../include/Private/Common/libModernPNG_EntropyCoders.h"
+
+#include "../../../Dependencies/libPCM/Dependencies/BitIO/libBitIO/include/BitIOLog.h"
+#include "../../../Dependencies/libPCM/Dependencies/BitIO/libBitIO/include/BitIOMath.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -22,7 +28,7 @@ extern "C" {
         Dec->iHDR->BitDepth       = ReadBits(BitIOMSByte, BitIOLSBit, InputPNG, 8);
         Dec->iHDR->ColorType      = ReadBits(BitIOMSByte, BitIOLSBit, InputPNG, 8);
         if (Dec->iHDR->ColorType == 1 || Dec->iHDR->ColorType == 5 || Dec->iHDR->ColorType >= 7) {
-            BitIOLog(BitIOLog_ERROR, "ModernPNG", __func__, "Invalid color type: %d", Dec->iHDR->ColorType);
+            BitIOLog(BitIOLog_ERROR, libModernPNGLibraryName, __func__, u8"Invalid color type: %d", Dec->iHDR->ColorType);
         }
         Dec->iHDR->Compression    = ReadBits(BitIOMSByte, BitIOLSBit, InputPNG, 8);
         Dec->iHDR->FilterMethod   = ReadBits(BitIOMSByte, BitIOLSBit, InputPNG, 8);
@@ -30,7 +36,7 @@ extern "C" {
     	
         uint32_t CRC              = ReadBits(BitIOMSByte, BitIOLSBit, InputPNG, 32);
         if (GeneratedCRC != CRC) {
-            BitIOLog(BitIOLog_ERROR, "libModernPNG", __func__, "CRC Mismatch");
+            BitIOLog(BitIOLog_ERROR, libModernPNGLibraryName, __func__, u8"CRC Mismatch");
         }
         
         //VerifyCRC(Dec->iHDR, ChunkSize, 1, 1, CRC);
@@ -38,7 +44,7 @@ extern "C" {
     
     void ParsePLTE(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) { // Palette
         if (Dec->iHDR->BitDepth > 8) { // INVALID
-            BitIOLog(BitIOLog_ERROR, "ModernPNG", __func__, "Invalid bit depth %d and palette combination\n", Dec->iHDR->BitDepth);
+            BitIOLog(BitIOLog_ERROR, libModernPNGLibraryName, __func__, u8"Invalid bit depth %d and palette combination\n", Dec->iHDR->BitDepth);
             BitBuffer_Skip(InputPNG, Bytes2Bits(ChunkSize));
         } else {
             
@@ -70,12 +76,12 @@ extern "C" {
             Entries = calloc(2, Bits2Bytes(Dec->iHDR->BitDepth, true) * sizeof(uint16_t));
         }
         if (Entries == NULL) {
-            BitIOLog(BitIOLog_ERROR, "libModernPNG", __func__, "Failed to allocate enough memory for the TRNS Palette");
+            BitIOLog(BitIOLog_ERROR, libModernPNGLibraryName, __func__, u8"Failed to allocate enough memory for the TRNS Palette");
         } else {
             for (uint8_t Color = 0; Color < ModernPNGChannelsPerColorType[Dec->iHDR->ColorType]; Color++) {
                 Entries[Color]    = ReadBits(BitIOMSByte, BitIOLSBit, InputPNG, Bits2Bytes(Dec->iHDR->BitDepth, true));
             }
-            Dec->tRNS->Palette = Entries;
+            //Dec->tRNS->Palette = Entries;
         }
     }
     
@@ -126,7 +132,6 @@ extern "C" {
                 Height[Byte] = ReadBits(BitIOMSByte, BitIOLSBit, InputPNG, 8);
             }
         }
-        
         Dec->sCAL->PixelWidth  = (float) atof(Width);
         Dec->sCAL->PixelHeight = (float) atof(Height);
     }
@@ -139,7 +144,7 @@ extern "C" {
             }
         }
         Dec->pCAL->CalibrationName     = CalibrationName;
-        Dec->pCAL->CalibrationNameSize = strlen(Dec->pCAL->CalibrationName);
+        Dec->pCAL->CalibrationNameSize = UTF8String_GetNumCodePoints(Dec->pCAL->CalibrationName);
     }
     
     void ParseSBIT(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) { // Significant bits per sample
@@ -168,7 +173,44 @@ extern "C" {
         //
     }
     
-    void ParseTEXt(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) { // tEXt
+    void ParseTEXt(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) { // Uncompressed, ASCII tEXt
+        // Read until you hit a NULL for the name string, then subtract the size of the previous string from the total length to get the number of bytes for the second string
+        uint8_t  KeywordSize = 0UL;
+        uint8_t  CurrentByte = 0; // 1 is BULLshit
+        
+        do {
+            CurrentByte  = PeekBits(BitIOMSByte, BitIOLSBit, InputPNG, 8);
+            KeywordSize += 1;
+        } while (CurrentByte != 0);
+        
+        uint32_t CommentSize = ChunkSize - KeywordSize;
+        
+        Dec->NumTextChunks  += 1;
+        DecodePNG_Text_Init(Dec, KeywordSize, CommentSize);
+        
+        
+        
+        // first we need to get the size of the strings
+        
+        // for that we would theoretically use PeekBits, but PeekBits is limited to 64 bits read at once, max.
+        // there can be up to 800 bits before we hit the NULL, so what do...
+        
+        // Well, we can use SeekBits to jump byte by byte but it's not optimal...
+        
+        
+        
+        // Ok, once we've gotten the size of the Keyword string
+        
+        
+        // Then read the Comment string.
+        
+        // Now, how do we handle multiple text strings?
+        // Why not just have a count of the text chunks?
+        // Store a variable in DecodePNG called NumTextChunks, then store a type called Comment or something that stores both the comment type as a string and the actual comment...
+        
+        
+        
+        
     }
     
     void ParseZTXt(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) { // Compressed text
@@ -206,10 +248,6 @@ extern "C" {
     }
     /* End APNG */
     
-    void ParseIDAT(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) { // IDAT
-                                                                         // DecodeINFLATE
-    }
-    
     void ParseHIST(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) {
     }
     
@@ -219,10 +257,6 @@ extern "C" {
     }
     
     void ParseSPLT(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) {
-    }
-    
-    void ParseFDAT(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) {
-        // DecodeDEFLATE
     }
     
     uint8_t ParsePNGMetadata(BitBuffer *InputPNG, DecodePNG *Dec) {
@@ -239,78 +273,77 @@ extern "C" {
             // Now we call the VerifyCRC32 function with the ChunkSize
             VerifyCRC32(InputPNG, ChunkSize);
             
-            if (strcasecmp(ChunkID, "iHDR") == 0) {        // iHDR
+            if (*ChunkID == iHDRMarker) {        // iHDR
                 ParseIHDR(Dec, InputPNG, ChunkSize);
-            } else if (strcasecmp(ChunkID, "PLTE") == 0) { // PLTE
+            } else if (*ChunkID == PLTEMarker) { // PLTE
                 Dec->PLTEExists = true;
                 ParsePLTE(Dec, InputPNG, ChunkSize);
-            } else if (strcasecmp(ChunkID, "bKGD") == 0) { // bKGD
+            } else if (*ChunkID == bKGDMarker) { // bKGD
                 Dec->bkGDExists = true;
                 ParseBKGD(Dec, InputPNG, ChunkSize);
-            } else if (strcasecmp(ChunkID, "cHRM") == 0) { // cHRM
+            } else if (*ChunkID == cHRMMarker) { // cHRM
                 Dec->cHRMExists = true;
                 ParseCHRM(Dec, InputPNG, ChunkSize);
-            } else if (strcasecmp(ChunkID, "gAMA") == 0) { // gAMA
+            } else if (*ChunkID == gAMAMarker) { // gAMA
                 Dec->gAMAExists = true;
                 ParseGAMA(Dec, InputPNG, ChunkSize);
-            } else if (strcasecmp(ChunkID, "oFFs") == 0) { // oFFs
+            } else if (*ChunkID == oFFsMarker) { // oFFs
                 Dec->oFFsExists = true;
                 ParseOFFS(Dec, InputPNG, ChunkSize);
-            } else if (strcasecmp(ChunkID, "pHYs") == 0) { // pHYs
+            } else if (*ChunkID == pHYsMarker) { // pHYs
                 Dec->pHYsExists = true;
                 ParsePHYS(Dec, InputPNG, ChunkSize);
-            } else if (strcasecmp(ChunkID, "sBIT") == 0) { // sBIT
+            } else if (*ChunkID == sBITMarker) { // sBIT
                 Dec->sBITExists = true;
                 ParseSBIT(Dec, InputPNG, ChunkSize);
-            } else if (strcasecmp(ChunkID, "sCAL") == 0) { // sCAL
+            } else if (*ChunkID == sCALMarker) { // sCAL
                 Dec->sCALExists = true;
                 ParseSCAL(Dec, InputPNG, ChunkSize);
-            } else if (strcasecmp(ChunkID, "sRGB") == 0) { // sRGB
+            } else if (*ChunkID == sRGBMarker) { // sRGB
                 Dec->sRGBExists = true;
                 ParseSRGB(Dec, InputPNG, ChunkSize);
-            } else if (strcasecmp(ChunkID, "sTER") == 0) { // sTER
+            } else if (*ChunkID == sTERMarker) { // sTER
                 Dec->sTERExists = true;
                 ParseSTER(Dec, InputPNG, ChunkSize);
-            } else if (strcasecmp(ChunkID, "tEXt") == 0) { // tEXt
+            } else if (*ChunkID == tEXtMarker) { // tEXt
                 Dec->TextExists = true;
                 ParseTEXt(Dec, InputPNG, ChunkSize);
-            } else if (strcasecmp(ChunkID, "zTXt") == 0) { // zTXt
+            } else if (*ChunkID == zTXtMarker) { // zTXt
                 Dec->TextExists = true;
                 ParseZTXt(Dec, InputPNG, ChunkSize);
-            } else if (strcasecmp(ChunkID, "iTXt") == 0) { // iTXt
+            } else if (*ChunkID == iTXtMarker) { // iTXt
                 Dec->TextExists = true;
                 ParseITXt(Dec, InputPNG, ChunkSize);
-            } else if (strcasecmp(ChunkID, "tIME") == 0) { // tIME
+            } else if (*ChunkID == tIMEMarker) { // tIME
                 Dec->tIMEExists = true;
                 ParseTIME(Dec, InputPNG, ChunkSize);
-            } else if (strcasecmp(ChunkID, "tRNS") == 0) { // tRNS
+            } else if (*ChunkID == tRNSMarker) { // tRNS
                 Dec->tRNSExists = true;
                 ParseTRNS(Dec, InputPNG, ChunkSize);
-            } else if (strcasecmp(ChunkID, "hIST") == 0 && Dec->PLTEExists) { // hIST
+            } else if (*ChunkID == hISTMarker && Dec->PLTEExists) { // hIST
                 Dec->hISTExists = true;
                 ParseHIST(Dec, InputPNG, ChunkSize);
-            } else if (strcasecmp(ChunkID, "iCCP") == 0) { // iCCP
+            } else if (*ChunkID == iCCPMarker) { // iCCP
                 Dec->iCCPExists = true;
                 ParseICCP(Dec, InputPNG, ChunkSize);
-            } else if (strcasecmp(ChunkID, "pCAL") == 0) { // pCAL
+            } else if (*ChunkID == pCALMarker) { // pCAL
                 Dec->pCALExists = true;
                 ParsePCAL(Dec, InputPNG, ChunkSize);
-            } else if (strcasecmp(ChunkID, "sPLT") == 0) { // sPLT
+            } else if (*ChunkID == sPLTMarker) { // sPLT
                 Dec->sPLTExists = true;
                 ParseSPLT(Dec, InputPNG, ChunkSize);
-            } else if (strcasecmp(ChunkID, "acTL") == 0) { // acTL
+            } else if (*ChunkID == acTLMarker) { // acTL
                 Dec->acTLExists = true;
                 ParseACTL(Dec, InputPNG, ChunkSize);
-            } else if (strcasecmp(ChunkID, "fcTL") == 0) { // fcTL
+            } else if (*ChunkID == fcTLMarker) { // fcTL
                 Dec->fcTLExists = true;
                 ParseFCTL(Dec, InputPNG, ChunkSize);
             }
             free(ChunkID);
         } else {
-            BitIOLog(BitIOLog_ERROR, "ModernPNG", __func__, "File Magic 0x%X is not PNG, exiting\n", FileMagic);
+            BitIOLog(BitIOLog_ERROR, libModernPNGLibraryName, __func__, u8"File Magic 0x%X is not PNG, exiting\n", FileMagic);
             exit(EXIT_FAILURE);
         }
-        
         return EXIT_SUCCESS;
     }
     

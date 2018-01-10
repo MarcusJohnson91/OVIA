@@ -1,5 +1,9 @@
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
+
+#include "../../../Dependencies/libPCM/Dependencies/BitIO/libBitIO/include/StringIO.h"
+#include "../../../Dependencies/libPCM/Dependencies/BitIO/libBitIO/include/BitIOLog.h"
 
 #pragma once
 
@@ -143,8 +147,8 @@ extern "C" {
     } hIST;
 
     typedef struct Text { // Replaces:  tEXt, iTXt, zTXt
-        uint8_t   *Keyword;
-        uint8_t   *TextString;
+        UTF8String Keyword;
+        UTF8String Comment;
         uint8_t    TextType;
         bool       CRCIsValid:1;
     } Text;
@@ -181,6 +185,7 @@ extern "C" {
         struct Text   *Text;
         struct tIMe   *tIMe;
         struct tRNS   *tRNS;
+        uint32_t       NumTextChunks;
         uint32_t       CurrentFrame;
         uint32_t       LineWidth;
         uint32_t       LinePadding;
@@ -228,6 +233,7 @@ extern "C" {
         struct Text   *Text;
         struct tIMe   *tIMe;
         struct tRNS   *tRNS;
+        uint32_t       NumTextChunks;
         uint32_t       CurrentFrame;
         uint32_t       LineWidth;
         uint32_t       LinePadding;

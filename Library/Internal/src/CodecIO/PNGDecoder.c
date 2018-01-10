@@ -1,3 +1,8 @@
+#include <stdlib.h>
+
+#include "../../../Dependencies/libPCM/Dependencies/BitIO/libBitIO/include/StringIO.h"
+#include "../../../Dependencies/libPCM/Dependencies/BitIO/libBitIO/include/BitIOMath.h"
+
 #include "../../include/libModernPNG.h"
 #include "../../include/Private/libModernPNG_Types.h"
 
@@ -11,96 +16,6 @@ extern "C" {
 #ifdef _WIN32
 #define strcasecmp _stricmp
 #endif
-    
-    uint32_t CalculateSTERPadding(const uint32_t Width) {
-        return 7 - ((Width - 1) % 8);
-    }
-    
-    DecodePNG *DecodePNG_Init(void) {
-        DecodePNG *Dec  = calloc(1, sizeof(DecodePNG));
-        Dec->acTL       = calloc(1, sizeof(acTL));
-        Dec->bkGD       = calloc(1, sizeof(bkGD));
-        Dec->cHRM       = calloc(1, sizeof(cHRM));
-        Dec->fcTL       = calloc(1, sizeof(fcTL));
-        Dec->fdAT       = calloc(1, sizeof(fdAT));
-        Dec->gAMA       = calloc(1, sizeof(gAMA));
-        Dec->hIST       = calloc(1, sizeof(hIST));
-        Dec->iCCP       = calloc(1, sizeof(iCCP));
-        Dec->iHDR       = calloc(1, sizeof(iHDR));
-        Dec->oFFs       = calloc(1, sizeof(oFFs));
-        Dec->pCAL       = calloc(1, sizeof(pCAL));
-        Dec->PLTE       = calloc(1, sizeof(PLTE));
-        Dec->sBIT       = calloc(1, sizeof(sBIT));
-        Dec->sRGB       = calloc(1, sizeof(sRGB));
-        Dec->sTER       = calloc(1, sizeof(sTER));
-        Dec->Text       = calloc(1, sizeof(Text));
-        Dec->tIMe       = calloc(1, sizeof(tIMe));
-        Dec->tRNS       = calloc(1, sizeof(tRNS));
-        return Dec;
-    }
-    
-    void DecodePNG_Deinit(DecodePNG *Dec) {
-        if (Dec->acTLExists) {
-            free(Dec->acTL);
-        }
-        if (Dec->bkGDExists) {
-            free(Dec->bkGD->BackgroundPaletteEntry);
-            free(Dec->bkGD);
-        }
-        if (Dec->cHRMExists) {
-            free(Dec->cHRM);
-        }
-        if (Dec->fcTLExists) {
-            free(Dec->fcTL);
-            free(Dec->fdAT);
-        }
-        if (Dec->gAMAExists) {
-            free(Dec->gAMA);
-        }
-        if (Dec->hISTExists) {
-            free(Dec->hIST);
-        }
-        if (Dec->iCCPExists) {
-            free(Dec->iCCP->CompressedICCPProfile);
-            free(Dec->iCCP->ProfileName);
-            free(Dec->iCCP);
-        }
-        if (Dec->oFFsExists) {
-            free(Dec->oFFs);
-        }
-        if (Dec->pCALExists) {
-            free(Dec->pCAL->CalibrationName);
-            free(Dec->pCAL->UnitName);
-            free(Dec->pCAL);
-        }
-        if (Dec->PLTEExists) {
-            free(Dec->PLTE->Palette);
-            free(Dec->PLTE);
-        }
-        if (Dec->sBITExists) {
-            free(Dec->sBIT);
-        }
-        if (Dec->sRGBExists) {
-            free(Dec->sRGB);
-        }
-        if (Dec->sTERExists) {
-            free(Dec->sTER);
-        }
-        if (Dec->TextExists) {
-            free(Dec->Text->Keyword);
-            free(Dec->Text->TextString);
-            free(Dec->Text);
-        }
-        if (Dec->tIMEExists) {
-            free(Dec->tIMe);
-        }
-        if (Dec->tRNSExists) {
-            free(Dec->tRNS->Palette);
-            free(Dec->tRNS);
-        }
-        free(Dec->iHDR);
-        free(Dec);
-    }
     
     /*
     bool VerifyChunkCRC(BitBuffer *BitB, uint32_t ChunkSize) {
@@ -120,32 +35,6 @@ extern "C" {
     }
     */
     
-    void PNGDecodeNonFilter(DecodePNG *Dec, uint8_t *DeEntropyedData, uint8_t *DeFilteredData, size_t Line) {
-        for (size_t Byte = 1; Byte < Bits2Bytes(Dec->iHDR->BitDepth, true); Byte++) {
-            DeFilteredData[Byte - 1] = DeEntropyedData[Byte]; // Remove filter indicating byte
-        }
-    }
-    
-    void PNGDecodeSubFilter(DecodePNG *Dec, uint8_t **DeEntropyedData, uint8_t **DeFilteredData, size_t Line) {
-        for (size_t Byte = 1; Byte < Bits2Bytes(Dec->iHDR->BitDepth, true); Byte++) {
-            DeFilteredData[Line][Byte - 1] = (DeEntropyedData[Line][Byte] + DeEntropyedData[Line][Byte+1]) & 0xFF;
-        }
-    }
-    
-    void PNGDecodeUpFilter(DecodePNG *Dec, uint8_t **DeEntropyedData, uint8_t **DeFilteredData, size_t Line) {
-        for (size_t Byte = 1; Byte < Bits2Bytes(Dec->iHDR->BitDepth, true); Byte++) {
-            DeFilteredData[Line][Byte - 1] = DeEntropyedData[Line][Byte] + DeEntropyedData[Line - 1][Byte] & 0xFF;
-        }
-    }
-    
-    void PNGDecodeAverageFilter(DecodePNG *Dec, uint8_t **DeEntropyedData, uint8_t **DeFilteredData, size_t Line) {
-        uint8_t PixelSize = Bits2Bytes(Dec->iHDR->BitDepth, true);
-        for (size_t Byte = 1; Byte < Bits2Bytes(Dec->iHDR->BitDepth, true); Byte++) {
-            uint8_t Average = floor((DeEntropyedData[Line][Byte - (PixelSize)] + DeEntropyedData[Line - 1][Byte]) / 2);
-            DeFilteredData[Line][Byte - 1] = DeEntropyedData[Line][Byte] + Average;
-        }
-    }
-    
     uint8_t PaethPredictor(int64_t Left, int64_t Above, int64_t UpperLeft) {
         int64_t Guess     = Left + Above - UpperLeft;
         int64_t DistanceA = llabs(Guess - Left);
@@ -163,15 +52,61 @@ extern "C" {
         return Output;
     }
     
-    void PNGDecodePaethFilter(DecodePNG *Dec, uint8_t **DeEntropyedData, uint8_t **DeFilteredData, size_t Line) {
+    void PNGDecodeNonFilter(DecodePNG *Dec, uint8_t ***InflatedData, uint8_t ***DeFilteredData, size_t Line) {
+        for (uint8_t StereoView = 0; StereoView < Dec->sTER->StereoType; StereoView++) {
+            for (uint32_t Width = 0; Width < Dec->iHDR->Width; Width++) {
+                for (size_t Byte = 1; Byte < Bits2Bytes(Dec->iHDR->BitDepth, true); Byte++) {
+                    DeFilteredData[StereoView][Width][Byte - 1] = InflatedData[StereoView][Width][Byte]; // Remove filter indicating byte
+                }
+            }
+        }
+    }
+    
+    void PNGDecodeSubFilter(DecodePNG *Dec, uint8_t ***InflatedData, uint8_t ***DeFilteredData, size_t Line) {
+        for (uint8_t StereoView = 0; StereoView < Dec->sTER->StereoType; StereoView++) {
+            for (uint32_t Width = 0; Width < Dec->iHDR->Width; Width++) {
+                for (size_t Byte = 1; Byte < Bits2Bytes(Dec->iHDR->BitDepth, true); Byte++) {
+                    DeFilteredData[StereoView][Line][Byte - 1] = (InflatedData[StereoView][Line][Byte] + InflatedData[StereoView][Line][Byte+1]) & 0xFF; // Byte+1 is wrong, needs to be + bitdepth
+                }
+            }
+        }
+    }
+    
+    void PNGDecodeUpFilter(DecodePNG *Dec, uint8_t ***InflatedData, uint8_t ***DeFilteredData, size_t Line) {
+        for (uint8_t StereoView = 0; StereoView < Dec->sTER->StereoType; StereoView++) {
+            for (uint32_t Width = 0; Width < Dec->iHDR->Width; Width++) {
+                for (size_t Byte = 1; Byte < Bits2Bytes(Dec->iHDR->BitDepth, true); Byte++) {
+                    DeFilteredData[StereoView][Line][Byte - 1] = InflatedData[StereoView][Line][Byte] + InflatedData[StereoView][Line - 1][Byte] & 0xFF;
+                }
+            }
+        }
+    }
+    
+    void PNGDecodeAverageFilter(DecodePNG *Dec, uint8_t ***InflatedData, uint8_t ***DeFilteredData, size_t Line) {
+        uint8_t PixelSize = Bits2Bytes(Dec->iHDR->BitDepth, true);
+        for (uint8_t StereoView = 0; StereoView < Dec->sTER->StereoType; StereoView++) {
+        for (uint32_t Width = 0; Width < Dec->iHDR->Width; Width++) {
+            for (size_t Byte = 1; Byte < Bits2Bytes(Dec->iHDR->BitDepth, true); Byte++) {
+                uint8_t Average = floor((InflatedData[StereoView][Line][Byte - (PixelSize)] + InflatedData[StereoView][Line - 1][Byte]) / 2);
+                DeFilteredData[StereoView][Line][Byte - 1] = InflatedData[StereoView][Line][Byte] + Average;
+            }
+        }
+        }
+    }
+    
+    void PNGDecodePaethFilter(DecodePNG *Dec, uint8_t ***InflatedData, uint8_t ***DeFilteredData, size_t Line) {
         // Filtering is applied to bytes, not pixels
         uint8_t PixelSize = Bits2Bytes(Dec->iHDR->BitDepth, true);
-        for (size_t Byte = 1; Byte < Bits2Bytes(Dec->iHDR->BitDepth, true); Byte++) {
-            if (Line == 0) { // Assume top and top left = 0
-                DeFilteredData[Line][Byte] = PaethPredictor(DeEntropyedData[Line][Byte], 0, 0);
-            } else {
-                DeFilteredData[Line][Byte] = PaethPredictor(DeEntropyedData[Line][Byte], DeEntropyedData[Line][Byte - PixelSize], DeEntropyedData[Line - 1][Byte - PixelSize]);
+        for (uint8_t StereoView = 0; StereoView < Dec->sTER->StereoType; StereoView++) {
+        for (uint32_t Width = 0; Width < Dec->iHDR->Width; Width++) {
+            for (size_t Byte = 1; Byte < Bits2Bytes(Dec->iHDR->BitDepth, true); Byte++) {
+                if (Line == 0) { // Assume top and top left = 0
+                    DeFilteredData[StereoView][Line][Byte] = PaethPredictor(InflatedData[StereoView][Line][Byte], 0, 0);
+                } else {
+                    DeFilteredData[StereoView][Line][Byte] = PaethPredictor(InflatedData[StereoView][Line][Byte], InflatedData[StereoView][Line][Byte - PixelSize], InflatedData[StereoView][Line - 1][Byte - PixelSize]);
+                }
             }
+        }
         }
     }
     
@@ -180,53 +115,142 @@ extern "C" {
     // then decode each line.
     // ALSO keep in mind concurrency.
     
+    libModernPNGFilterTypes ExtractLineFilterType(uint8_t *Line) {
+        uint8_t FilterType = Line[0];
+        return FilterType;
+    }
+    
     void PNGDecodeFilteredImage(DecodePNG *Dec, uint8_t ***InflatedBuffer) {
         
-		uint8_t *DeFilteredData = calloc(1, (Dec->iHDR->Height * Dec->iHDR->Width) * Bits2Bytes(Dec->iHDR->BitDepth, Yes));
+		uint8_t ***DeFilteredData = calloc((Dec->iHDR->Height * Dec->iHDR->Width), Bits2Bytes(Dec->iHDR->BitDepth, Yes));
         
-        for (size_t Line = 0; Line < Dec->iHDR->Height; Line++) {
-            uint8_t FilterType = *InflatedBuffer[Line][0];
-            switch (FilterType) {
-                case 0:
-                    // copy the Line except byte 0 (the filter indication byte) to the output buffer.
-                    PNGDecodeNonFilter(Dec, *InflatedBuffer, DeFilteredData, Line);
-                    break;
-                case 1:
-                    // SubFilter
-                    PNGDecodeSubFilter(Dec, *InflatedBuffer, &DeFilteredData, Line);
-                    break;
-                case 2:
-                    // UpFilter
-                    PNGDecodeUpFilter(Dec, *InflatedBuffer, &DeFilteredData, Line);
-                    break;
-                case 3:
-                    // AverageFilter
-                    PNGDecodeAverageFilter(Dec, *InflatedBuffer, &DeFilteredData, Line);
-                    break;
-                case 4:
-                    // PaethFilter
-                    PNGDecodePaethFilter(Dec, *InflatedBuffer, &DeFilteredData, Line);
-                    break;
-                default:
-                    BitIOLog(BitIOLog_ERROR, "ModernPNG", __func__, "Filter type: %d is invalid\n", FilterType);
-                    break;
+        for (uint8_t StereoView = 0; StereoView < IsPNGStereoscopic(Dec); StereoView++) {
+            for (size_t Line = 0; Line < Dec->iHDR->Height; Line++) {
+                libModernPNGFilterTypes FilterType = ExtractLineFilterType(Line);
+                switch (FilterType) {
+                    case NotFiltered:
+                        // copy the Line except byte 0 (the filter indication byte) to the output buffer.
+                        PNGDecodeNonFilter(Dec, InflatedBuffer, DeFilteredData, Line);
+                        break;
+                    case SubFilter:
+                        // SubFilter
+                        PNGDecodeSubFilter(Dec, InflatedBuffer, DeFilteredData, Line);
+                        break;
+                    case UpFilter:
+                        // UpFilter
+                        PNGDecodeUpFilter(Dec, InflatedBuffer, DeFilteredData, Line);
+                        break;
+                    case AverageFilter:
+                        // AverageFilter
+                        PNGDecodeAverageFilter(Dec, InflatedBuffer, DeFilteredData, Line);
+                        break;
+                    case PaethFilter:
+                        // PaethFilter
+                        PNGDecodePaethFilter(Dec, InflatedBuffer, DeFilteredData, Line);
+                        break;
+                    default:
+                        BitIOLog(BitIOLog_ERROR, libModernPNGLibraryName, __func__, u8"Filter type: %d is invalid\n", FilterType);
+                        break;
+                }
             }
         }
         free(DeFilteredData);
     }
     
+    enum DEFLATEBlockTypes {
+        UncompressedBlock   = 0,
+        FixedHuffmanBlock   = 1,
+        DynamicHuffmanBlock = 2,
+        
+    };
+    
+    void DecodeDEFLATEBlock(DecodePNG *Dec, BitBuffer *DEFLATEBlock, BitBuffer *DecodedBlock) { // LSByteFirst
+        // Huffman codes are written MSBit first, everything else is writen LSBit first
+        
+        // DEFLATE Block header:
+        bool     BlockIsFinal = ReadBits(BitIOMSByte, BitIOLSBit, DEFLATEBlock, 1); // BFINAL
+        uint8_t  BlockType    = ReadBits(BitIOMSByte, BitIOLSBit, DEFLATEBlock, 2); // BTYPE
+        
+        if (BlockType == DynamicHuffmanBlock) {
+            
+        } else if (BlockType == FixedHuffmanBlock) {
+            
+        } else if (BlockType == UncompressedBlock) {
+            
+        }
+    }
+    
+    void DecodeIFDATChunk(DecodePNG *Dec, BitBuffer *DAT2Decode, BitBuffer *DecodedDAT, uint64_t DATSize) { // Decodes both fDAT and IDAT chunks
+        // well lets go ahead and allocate a DAT block the size of DATSize
+        BitBuffer_Init(DATSize);
+        // Now we need to go ahead and parse the ZLIB Header.
+        // ok so how do we do that? I wrote some notes on the Zlib header last night...
+        
+        /* Compression Method and Flags byte */
+        uint8_t CompressionMethod = ReadBits(BitIOMSByte, BitIOLSBit, DAT2Decode, 4); // 8
+        uint8_t CompressionInfo   = ReadBits(BitIOMSByte, BitIOLSBit, DAT2Decode, 4); // 7
+        /* Compression Method and Flags byte */
+        
+        /* FlagByte */
+        uint8_t FCHECK            = ReadBits(BitIOMSByte, BitIOLSBit, DAT2Decode, 5); // 1E
+        bool    FDICTPresent      = ReadBits(BitIOMSByte, BitIOLSBit, DAT2Decode, 1); // 0
+        uint8_t FLEVEL            = ReadBits(BitIOMSByte, BitIOLSBit, DAT2Decode, 2); // 1
+        /* FlagByte */
+        
+        if (FDICTPresent) {
+            // Read TableID which is 4 bytes
+            uint32_t DICTID       = ReadBits(BitIOMSByte, BitIOLSBit, DAT2Decode, 32);
+        }
+        
+        // Start reading the DEFLATE block?
+         
+    }
+    
     void DecodePNGData(DecodePNG *Dec, BitBuffer *BitB) {
         // read the iDAT/fDAT chunk header, then do the other stuff.
         while (BitBuffer_GetSize(BitB) > 0) { // 12 is the start of IEND
-            uint32_t ChunkSize = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
-            uint32_t ChunkID   = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
+            uint32_t ChunkSize   = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
+            uint32_t ChunkID     = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
             
-            if (strcasecmp(ChunkID, "iDAT") == 0) {
-                ParseIDAT(Dec, BitB, ChunkSize);
-            } else if (strcasecmp(ChunkID, "acTL") == 0) {
-                
-            } else if (strcasecmp(ChunkID, "fdAT") == 0) {
-                ParseFDAT(Dec, BitB, ChunkSize);
+            
+            if (ChunkID == acTLMarker) {
+                ParseACTL(Dec, BitB, ChunkSize);
+            } else if (ChunkID == bKGDMarker) {
+                ParseBKGD(Dec, BitB, ChunkSize);
+            } else if (ChunkID == cHRMMarker) {
+                ParseCHRM(Dec, BitB, ChunkSize);
+            } else if (ChunkID == fcTLMarker) {
+                ParseFCTL(Dec, BitB, ChunkSize);
+            } else if (ChunkID == gAMAMarker) {
+                ParseGAMA(Dec, BitB, ChunkSize);
+            } else if (ChunkID == hISTMarker) {
+                ParseHIST(Dec, BitB, ChunkSize);
+            } else if (ChunkID == iCCPMarker) {
+                ParseOFFS(Dec, BitB, ChunkSize);
+            } else if (ChunkID == IDATMarker || ChunkID == fDATMarker) {
+                DecodeIFDATChunk(Dec, BitB, NULL, ChunkSize);
+            } else if (ChunkID == iHDRMarker) {
+                ParseIHDR(Dec, BitB, ChunkSize);
+            } else if (ChunkID == iTXtMarker) {
+                ParseITXt(Dec, BitB, ChunkSize);
+            } else if (ChunkID == oFFsMarker) {
+                ParseOFFS(Dec, BitB, ChunkSize);
+            } else if (ChunkID == pCALMarker) {
+                ParsePCAL(Dec, BitB, ChunkSize);
+            } else if (ChunkID == pHYsMarker) {
+                ParsePHYS(Dec, BitB, ChunkSize);
+            } else if (ChunkID == PLTEMarker) {
+                ParsePLTE(Dec, BitB, ChunkSize);
+            } else if (ChunkID == sBITMarker) {
+                ParseSBIT(Dec, BitB, ChunkSize);
+            } else if (ChunkID == sRGBMarker) {
+                ParseSRGB(Dec, BitB, ChunkSize);
+            } else if (ChunkID == sTERMarker) {
+                ParseSTER(Dec, BitB, ChunkSize);
+            } else if (ChunkID == tEXtMarker) {
+                ParseTEXt(Dec, BitB, ChunkSize);
+            } else if (ChunkID == zTXtMarker) {
+                ParseZTXt(Dec, BitB, ChunkSize);
             }
         }
     }

@@ -1,7 +1,12 @@
+#include <stdlib.h>
+
 #include "../../include/libModernPNG.h"
 #include "../../include/Private/libModernPNG_Types.h"
 
 #include "../../include/Private/Encode/libModernPNG_Encode.h"
+
+#include "../../../Dependencies/libPCM/Dependencies/BitIO/libBitIO/include/BitIOLog.h"
+#include "../../../Dependencies/libPCM/Dependencies/BitIO/libBitIO/include/BitIOMath.h"
 
 
 #ifdef __cplusplus
@@ -11,7 +16,7 @@ extern "C" {
     EncodePNG *EncodePNG_Init(void) {
         EncodePNG *Enc  = calloc(1, sizeof(EncodePNG));
         if (Enc == NULL) {
-            BitIOLog(BitIOLog_ERROR, "libModernPNG", __func__, "Failed to allocate enough memory for EncodePNG");
+            BitIOLog(BitIOLog_ERROR, libModernPNGLibraryName, __func__, u8"Failed to allocate enough memory for EncodePNG");
         } else {
             Enc->acTL       = calloc(1, sizeof(acTL));
             Enc->bkGD       = calloc(1, sizeof(bkGD));
@@ -83,8 +88,10 @@ extern "C" {
             free(Enc->sTER);
         }
         if (Enc->TextExists) {
-            free(Enc->Text->Keyword);
-            free(Enc->Text->TextString);
+            for (uint32_t TextChunk = 0UL; TextChunk < Enc->NumTextChunks; TextChunk++) {
+                free(Enc->Text[TextChunk].Keyword);
+                free(Enc->Text[TextChunk].Comment);
+            }
             free(Enc->Text);
         }
         if (Enc->tIMEExists) {

@@ -13,25 +13,36 @@
 extern "C" {
 #endif
     
-#define libModernPNGVersion  0.1.0
+#define PNGMagic 0x89504E470D0A1A0A
     
-#define PNGMagic             0x89504E470D0A1A0A
+    static UTF8Constant libModernPNGVersion     = u8"0.2.5";
+    static UTF8Constant libModernPNGLibraryName = u8"libModernPNG";
     
     enum libModernPNGChunkMarkers {
-        iHDRMarker         = 0x49484452,
         acTLMarker         = 0x6163544C,
+        bKGDMarker         = 0x626B4744,
+        cHRMMarker         = 0x6348524D,
         fcTLMarker         = 0x6663544C,
         fDATMarker         = 0x66444154,
-        sTERMarker         = 0x73544552,
-        bKGDMarker         = 0x626b4744,
-        cHRMMarker         = 0x6348524d,
-        gAMAMarker         = 0x67414d41,
-        oFFsMarker         = 0x6f464673,
+        gAMAMarker         = 0x67414D41,
+        hISTMarker         = 0x68495354,
         iCCPMarker         = 0x69434350,
-        sBITMarker         = 0x73424954,
-        sRGBMarker         = 0x73524742,
-        pHYsMarker         = 0x70485973,
+        IDATMarker         = 0x49444154,
+        iHDRMarker         = 0x49484452,
+        iTXtMarker         = 0x69545874,
+        oFFsMarker         = 0x6F464673,
         pCALMarker         = 0x7043414C,
+        pHYsMarker         = 0x70485973,
+        PLTEMarker         = 0x504C5445,
+        sBITMarker         = 0x73424954,
+        sCALMarker         = 0x7343414c,
+        sRGBMarker         = 0x73524742,
+        sTERMarker         = 0x73544552,
+        tEXtMarker         = 0x74455874,
+        zTXtMarker         = 0x7A545874,
+        tIMEMarker         = 0x74494d45,
+        tRNSMarker         = 0x74524e53,
+        sPLTMarker         = 0x73504c54,
     };
     
     typedef enum PNGColorTypes {
@@ -41,6 +52,14 @@ extern "C" {
         PNG_GrayAlpha      = 4,
         PNG_RGBA           = 6,
     } PNGColorTypes;
+    
+    typedef enum libModernPNGFilterTypes {
+        NotFiltered   = 0,
+        SubFilter     = 1,
+        UpFilter      = 2,
+        AverageFilter = 3,
+        PaethFilter   = 4,
+    } libModernPNGFilterTypes;
     
     enum libModernPNGInterlaceType {
         PNGNotInterlaced   = 0,
@@ -56,69 +75,81 @@ extern "C" {
         1, 0, 3, 3, 4, 0, 4
     };
     
+    uint32_t    CalculateSTERPadding(const uint32_t Width);
+    
     typedef struct PNGDecoder DecodePNG;
     
     typedef struct PNGEncoder EncodePNG;
     
     /*!
-     @abstract                     "Initializes the DecodePNG structure to start decoding this specific PNG file"
-     @return                       "It takes no parameters, and returns a pointer to the PNGDecoder (typedef'd as DecodePNG) structure"
+     @abstract                  "Initializes the DecodePNG structure to start decoding this specific PNG file"
+     @return                    "It takes no parameters, and returns a pointer to the PNGDecoder (typedef'd as DecodePNG) structure"
      */
-    DecodePNG     *DecodePNG_Init(void);
+    DecodePNG  *DecodePNG_Init(void);
     
     /*!
-     @abstract                     "Initializes the EncodePNG structure to start encoding this specific PNG file"
-     @return                       "It takes no parameters, and returns a pointer to the PNGEncoder (typedef'd as EncodePNG) structure"
+     @abstract                  "Initializes the EncodePNG structure to start encoding this specific PNG file"
+     @return                    "It takes no parameters, and returns a pointer to the PNGEncoder (typedef'd as EncodePNG) structure"
      */
-    EncodePNG     *EncodePNG_Init(void);
+    EncodePNG  *EncodePNG_Init(void);
     
     /*!
-     @abstract                     "Uninitializes the PNGDecoder (typedef'd as DecodePNG) structure after you're done decoding this specific PNG file"
+     @abstract                  "Uninitializes the PNGDecoder (typedef'd as DecodePNG) structure after you're done decoding this specific PNG file"
      */
-    void           DecodePNG_Deinit(DecodePNG *Dec);
+    void        DecodePNG_Deinit(DecodePNG *Dec);
     
     /*!
-     @abstract                     "Uninitializes the PNGEncoder (typedef'd as EncodePNG) structure after you're done decoding this specific PNG file"
+     @abstract                  "Uninitializes the PNGEncoder (typedef'd as EncodePNG) structure after you're done decoding this specific PNG file"
      */
-    void           EncodePNG_Deinit(EncodePNG *Enc);
+    void        EncodePNG_Deinit(EncodePNG *Enc);
+    
+    void        DecodePNG_Text_Init(DecodePNG *Dec, uint8_t KeywordSize, uint32_t CommentSize);
+    
+    void        EncodePNG_Text_Init(EncodePNG *Enc, uint8_t KeywordSize, uint32_t CommentSize);
     
     /*!
-     @abstract                     "Encodes a PNG from RawImage2Encode to a BitBuffer"
-     @param        Enc             "Pointer to EncodePNG struct containing all the metadata about the image to be encoded"
-     @param        RawImage2Encode "Pointer to raw array containing the image, supports 2D array containing stereoscopic frames"
-     @param        InterlacePNG    "Should this PNG file be interlaced using the Adam7 algorithm for progressive download?"
-     @param        OptimizePNG     "Should this PNG file be optimized by trying all filters? (Huffman optimization is enabled by default)"
+     @abstract                  "Encodes a PNG from RawImage2Encode to a BitBuffer"
+     @param     Enc             "Pointer to EncodePNG struct containing all the metadata about the image to be encoded"
+     @param     RawImage2Encode "Pointer to raw array containing the image, supports 2D array containing stereoscopic frames"
+     @param     InterlacePNG    "Should this PNG file be interlaced using the Adam7 algorithm for progressive download?"
+     @param     OptimizePNG     "Should this PNG file be optimized by trying all filters? (Huffman optimization is enabled by default)"
      */
-    BitBuffer     *EncodePNGImage(EncodePNG *Enc, void ****RawImage2Encode, bool InterlacePNG, bool OptimizePNG);
+    BitBuffer  *EncodePNGImage(EncodePNG *Enc, void ****RawImage2Encode, bool InterlacePNG, bool OptimizePNG);
     
     /*!
-     @abstract                     "Decodes a PNG from a bitbuffer to an array"
-     @param        Dec             "Pointer to DecodePNG struct containing all the metadata about the image to be decoded"
-     @param        PNGFile         "Pointer to raw array containing the image, supports 2D array containing stereoscopic frames"
+     @abstract                  "Decodes a PNG from a bitbuffer to an array"
+     @param     Dec             "Pointer to DecodePNG struct containing all the metadata about the image to be decoded"
+     @param     PNGFile         "Pointer to raw array containing the image, supports 2D array containing stereoscopic frames"
      */
-    uint16_t    ***DecodePNGImage(DecodePNG *Dec, BitBuffer *PNGFile);
+    uint16_t ***DecodePNGImage(DecodePNG *Dec, BitBuffer *PNGFile);
     
-    uint32_t GetPNGWidth(DecodePNG *Dec);
+    void        PNGSetTextChunk(EncodePNG *Enc, UTF8String KeywordString, UTF8String CommentString);
     
-    uint32_t GetPNGHeight(DecodePNG *Dec);
+    uint32_t    PNGGetNumTextChunks(DecodePNG *Dec);
     
-    uint8_t GetPNGBitDepth(DecodePNG *Dec);
+    void        PNGGetTextChunk(DecodePNG *Dec, uint32_t Instance, UTF8String Keyword, UTF8String Comment);
     
-    uint8_t GetPNGColorType(DecodePNG *Dec);
+    uint32_t    GetPNGWidth(DecodePNG *Dec);
     
-    bool GetPNGInterlaceStatus(DecodePNG *Dec);
+    uint32_t    GetPNGHeight(DecodePNG *Dec);
     
-    bool IsPNGStereoscopic(DecodePNG *Dec);
+    uint8_t     GetPNGBitDepth(DecodePNG *Dec);
     
-    uint32_t GetPNGWhitepointX(DecodePNG *Dec);
+    uint8_t     GetPNGColorType(DecodePNG *Dec);
     
-    uint32_t GetPNGWhitepointY(DecodePNG *Dec);
+    bool        GetPNGInterlaceStatus(DecodePNG *Dec);
     
-    uint32_t GetPNGGamma(DecodePNG *Dec);
+    bool        IsPNGStereoscopic(DecodePNG *Dec);
+    
+    uint32_t    GetPNGWhitepointX(DecodePNG *Dec);
+    
+    uint32_t    GetPNGWhitepointY(DecodePNG *Dec);
+    
+    uint32_t    GetPNGGamma(DecodePNG *Dec);
     
     const char *GetPNGColorProfileName(DecodePNG *Dec);
     
-    uint8_t *GetColorProfile(DecodePNG *Dec);
+    uint8_t    *GetColorProfile(DecodePNG *Dec);
 
 #ifdef __cplusplus
 }
