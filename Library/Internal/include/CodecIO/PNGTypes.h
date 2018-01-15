@@ -189,8 +189,8 @@ extern "C" {
         uint32_t       CurrentFrame;
         uint32_t       LineWidth;
         uint32_t       LinePadding;
-        bool           IsVideo:1;
-        bool           Is3D:1;
+        bool           PNGIsAnimated:1;
+        bool           PNGIs3D:1;
         bool           acTLExists:1;
         bool           bkGDExists:1;
         bool           cHRMExists:1;
@@ -237,8 +237,8 @@ extern "C" {
         uint32_t       CurrentFrame;
         uint32_t       LineWidth;
         uint32_t       LinePadding;
-        bool           IsAnimatedPNG:1;
-        bool           Is3D:1;
+        bool           PNGIsAnimated:1;
+        bool           PNGIs3D:1;
         bool           acTLExists:1;
         bool           bkGDExists:1;
         bool           cHRMExists:1;

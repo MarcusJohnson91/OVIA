@@ -127,6 +127,13 @@ extern "C" {
     
     uint32_t    PNGGetNumTextChunks(DecodePNG *Dec);
     
+    /*!
+     @abstract                  "Extracts the Keyword and Comment strings from the Instance of the text chunk".
+     @param     Dec             "DecodePNG Pointer to extract the text chunk from".
+     @param     Instance        "Which instance of the text chunk should we extract"?
+     @param     Keyword         "Pointer the Keyword string is returned through".
+     @param     Comment         "Pointer the Comment string is returned through".
+     */
     void        PNGGetTextChunk(DecodePNG *Dec, uint32_t Instance, UTF8String Keyword, UTF8String Comment);
     
     uint32_t    GetPNGWidth(DecodePNG *Dec);

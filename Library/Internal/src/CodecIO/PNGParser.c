@@ -158,7 +158,7 @@ extern "C" {
     }
     
     void ParseSTER(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) {
-        Dec->Is3D = true;
+        Dec->PNGIs3D                     = true;
         Dec->sTER->StereoType            = ReadBits(BitIOMSByte, BitIOLSBit, InputPNG, 8);
         
         // No matter what StereoType is used, both images are arranged side by side, and the left edge is aligned on a boundary of the 8th column in case interlacing is used.
@@ -230,7 +230,7 @@ extern "C" {
     
     /* APNG */
     void ParseACTL(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) { // Animation control, part of APNG
-        Dec->IsVideo = true;
+        Dec->PNGIsAnimated               = true;
         Dec->acTL->NumFrames             = ReadBits(BitIOMSByte, BitIOLSBit, InputPNG, 32);
         Dec->acTL->TimesToLoop           = ReadBits(BitIOMSByte, BitIOLSBit, InputPNG, 32); // If 0, loop forever.
     }

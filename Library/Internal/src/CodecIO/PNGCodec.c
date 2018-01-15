@@ -125,7 +125,7 @@ extern "C" {
     }
     
     bool IsPNGStereoscopic(DecodePNG *Dec) {
-        return Dec->Is3D;
+        return Dec->PNGIs3D;
     }
     
     uint32_t GetPNGWhitepointX(DecodePNG *Dec) {
