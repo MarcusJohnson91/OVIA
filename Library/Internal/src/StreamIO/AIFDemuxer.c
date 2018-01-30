@@ -18,11 +18,11 @@ extern "C" {
      */
     
     static void AIFParseCOMMChunk(PCMFile *PCM, BitBuffer *BitB) {
-        PCM->NumChannels                   = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 16);
-        PCM->NumChannelAgnosticSamples     = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32); // A SampleFrame is simply a single sample from all channels.
-        PCM->BitDepth                      = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 16);
-        uint16_t SampleRateExponent        = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 16) - 16446;
-        uint64_t SampleRateMantissa        = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 64);
+        PCM->NumChannels                   = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 16);
+        PCM->NumChannelAgnosticSamples     = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 32); // A SampleFrame is simply a single sample from all channels.
+        PCM->BitDepth                      = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 16);
+        uint16_t SampleRateExponent        = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 16) - 16446;
+        uint64_t SampleRateMantissa        = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 64);
         if (SampleRateExponent >= 0) {
             PCM->AUD->SampleRate           = SampleRateMantissa << SampleRateExponent;
         } else {
@@ -31,39 +31,39 @@ extern "C" {
     }
     
     static void AIFParseNameChunk(PCMFile *PCM, BitBuffer *BitB) {
-        uint32_t AIFFNameSize              = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
+        uint32_t AIFFNameSize              = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 32);
         char *SongTitleTagString           = calloc(1, AIFFNameSize * sizeof(char));
         for (uint32_t TagByte = 0UL; TagByte < AIFFNameSize; TagByte++) {
-            SongTitleTagString[TagByte]    = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
+            SongTitleTagString[TagByte]    = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 8);
         }
         PCM->AUD->Meta->SongTitleTag       = SongTitleTagString;
     }
     
     static void AIFParseAuthorChunk(PCMFile *PCM, BitBuffer *BitB) {
-        uint32_t AIFFAuthSize              = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
+        uint32_t AIFFAuthSize              = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 32);
         char *AuthorString                 = calloc(1, AIFFAuthSize * sizeof(char));
         for (uint32_t TagByte = 0UL; TagByte < AIFFAuthSize; TagByte++) {
-            AuthorString[TagByte]          = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
+            AuthorString[TagByte]          = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 8);
         }
         PCM->AUD->Meta->ArtistTag          = AuthorString;
     }
     
     static void AIFParseAnnotationChunk(PCMFile *PCM, BitBuffer *BitB) {
-        uint32_t AIFFAnnoSize              = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
+        uint32_t AIFFAnnoSize              = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 32);
         char *AnnotationString             = calloc(1, AIFFAnnoSize * sizeof(char));
         for (uint32_t TagByte = 0UL; TagByte < AIFFAnnoSize; TagByte++) {
-            AnnotationString[TagByte]      = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
+            AnnotationString[TagByte]      = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 8);
         }
         PCM->AUD->Meta->NumANNOChunks     += 1;
         PCM->AUD->Meta->AnnoChunks[PCM->AUD->Meta->NumANNOChunks - 1] = AnnotationString;
     }
     
     void AIFParseMetadata(PCMFile *PCM, BitBuffer *BitB) {
-        PCM->FileSize                      = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
-        AIFChunkIDs AIFFChunkID            = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
+        PCM->FileSize                      = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 32);
+        AIFChunkIDs AIFFChunkID            = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 32);
         if (AIFFChunkID == AIF_AIFF || AIFFChunkID == AIF_AIFC) {
-            AIFSubChunkIDs AIFFSubChunkID  = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
-            uint32_t AIFFSubChunkSize      = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
+            AIFSubChunkIDs AIFFSubChunkID  = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 32);
+            uint32_t AIFFSubChunkSize      = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 32);
             switch (AIFFSubChunkID) {
                 case AIF_AAPL:
                     BitBuffer_Skip(BitB, Bytes2Bits(AIFFSubChunkSize));
@@ -110,20 +110,20 @@ extern "C" {
                     IFFSkipPadding(BitB, AIFFSubChunkSize);
                     break;
                 case AIF_SSND:
-                    PCM->AUD->AIFOffset    = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
-                    PCM->AUD->AIFBlockSize = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
+                    PCM->AUD->AIFOffset    = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 32);
+                    PCM->AUD->AIFBlockSize = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 32);
                     BitBuffer_Skip(BitB, Bytes2Bits(PCM->AUD->AIFOffset));
                     break;
             }
         } else {
-            BitIOLog(BitIOLog_ERROR, libPCMLibraryName, __func__, "Invalid ChunkID 0x%X", AIFFChunkID);
+            BitIOLog(BitIOLog_ERROR, __func__, "Invalid ChunkID 0x%X", AIFFChunkID);
         }
     }
     
     void AIFExtractSamples(PCMFile *PCM, BitBuffer *BitB, uint64_t NumSamples2Extract, uint32_t **ExtractedSamples) { // I should change this so that the user manages their own buffer
         for (uint32_t Sample = 0UL; Sample < NumSamples2Extract; Sample++) {
             for (uint16_t Channel = 0; Channel < PCM->NumChannels; Channel++) {
-                ExtractedSamples[Channel][Sample] = ReadBits(BitIOMSByte, BitIOMSBit, BitB, PCM->BitDepth);
+                ExtractedSamples[Channel][Sample] = ReadBits(BitIOMSByteFirst, BitIOMSBitFirst, BitB, PCM->BitDepth);
                 BitBuffer_Skip(BitB, 8 - (PCM->BitDepth % 8)); // Skip the Zero'd bits
             }
         }

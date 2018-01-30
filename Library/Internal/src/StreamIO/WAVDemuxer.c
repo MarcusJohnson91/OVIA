@@ -29,7 +29,7 @@ extern "C" {
     static void ReadINFO_IART(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) {
         char *Artist              = calloc(ChunkSize, sizeof(char));
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
-            Artist[Byte]          = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 8);
+            Artist[Byte]          = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 8);
         }
         PCM->AUD->Meta->NumTags  += 1;
         PCM->AUD->Meta->ArtistTag = Artist;
@@ -39,7 +39,7 @@ extern "C" {
     static void ReadINFO_ICRD(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) {
         char *ReleaseDate              = calloc(ChunkSize, sizeof(char));
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
-            ReleaseDate[Byte]          = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 8);
+            ReleaseDate[Byte]          = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 8);
         }
         PCM->AUD->Meta->NumTags       += 1;
         PCM->AUD->Meta->ReleaseDateTag = ReleaseDate;
@@ -49,7 +49,7 @@ extern "C" {
     static void ReadINFO_IGNR(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) {
         char *Genre              = calloc(ChunkSize, sizeof(char));
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
-            Genre[Byte]          = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 8);
+            Genre[Byte]          = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 8);
         }
         PCM->AUD->Meta->NumTags += 1;
         PCM->AUD->Meta->GenreTag = Genre;
@@ -59,7 +59,7 @@ extern "C" {
     static void ReadINFO_INAM(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) {
         char *Title                  = calloc(ChunkSize, sizeof(char));
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
-            Title[Byte]              = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 8);
+            Title[Byte]              = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 8);
         }
         PCM->AUD->Meta->NumTags     += 1;
         PCM->AUD->Meta->SongTitleTag = Title;
@@ -69,7 +69,7 @@ extern "C" {
     static void ReadINFO_IPRD(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) {
         char *Album              = calloc(1, ChunkSize * sizeof(char));
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
-            Album[Byte]          = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 8);
+            Album[Byte]          = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 8);
         }
         PCM->AUD->Meta->NumTags += 1;
         PCM->AUD->Meta->AlbumTag = Album;
@@ -79,7 +79,7 @@ extern "C" {
     static void ReadINFO_ISFT(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) { // Encoder
         char *Encoder              = calloc(1, ChunkSize * sizeof(char));
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
-            Encoder[Byte]          = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 8);
+            Encoder[Byte]          = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 8);
         }
         PCM->AUD->Meta->NumTags   += 1;
         PCM->AUD->Meta->EncoderTag = Encoder;
@@ -87,8 +87,8 @@ extern "C" {
     }
     
     static void WAVParseLISTChunk(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) {
-        uint32_t SubChunkID   = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-        uint32_t SubChunkSize = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
+        uint32_t SubChunkID   = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 32);
+        uint32_t SubChunkSize = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 32);
         
         switch (SubChunkID) {
             case WAV_IART: // Artist
@@ -110,7 +110,7 @@ extern "C" {
                 ReadINFO_ISFT(PCM, BitB, SubChunkSize);
                 break;
             default:
-                BitIOLog(BitIOLog_ERROR, libPCMLibraryName, __func__, "Unknown LIST Chunk: 0x%X", SubChunkID);
+                BitIOLog(BitIOLog_ERROR, __func__, "Unknown LIST Chunk: 0x%X", SubChunkID);
                 break;
         }
     }
@@ -121,35 +121,35 @@ extern "C" {
     
     static void WAVParseFMTChunk(PCMFile *PCM, BitBuffer *BitB, uint32_t ChunkSize) {
         if (PCM == NULL) {
-            BitIOLog(BitIOLog_ERROR, libPCMLibraryName, __func__, "Pointer to PCMFile is NULL");
+            BitIOLog(BitIOLog_ERROR, __func__, "Pointer to PCMFile is NULL");
         } else if (BitB == NULL) {
-            BitIOLog(BitIOLog_ERROR, libPCMLibraryName, __func__, "Pointer to BitBuffer is NULL");
+            BitIOLog(BitIOLog_ERROR, __func__, "Pointer to BitBuffer is NULL");
         } else {
-            PCM->AUD->WAVCompressionFormat  = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
-            PCM->NumChannels                = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
-            PCM->AUD->SampleRate            = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-            PCM->AUD->WAVAvgBytesPerSecond  = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-            PCM->AUD->BlockAlignment        = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-            PCM->BitDepth                   = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
+            PCM->AUD->WAVCompressionFormat  = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 16);
+            PCM->NumChannels                = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 16);
+            PCM->AUD->SampleRate            = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 32);
+            PCM->AUD->WAVAvgBytesPerSecond  = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 32);
+            PCM->AUD->BlockAlignment        = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 32);
+            PCM->BitDepth                   = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 16);
             if (ChunkSize == 18) {
-                uint16_t CBSize             = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
+                uint16_t CBSize             = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 16);
                 BitBuffer_Skip(BitB, Bytes2Bits(CBSize - 16));
             } else if (ChunkSize == 40) {
-                uint16_t CBSize             = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
-                uint16_t ValidBitsPerSample = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 16);
+                uint16_t CBSize             = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 16);
+                uint16_t ValidBitsPerSample = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 16);
                 if (ValidBitsPerSample != 0) {
                     PCM->BitDepth = ValidBitsPerSample;
                 }
-                uint32_t  SpeakerMask       = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
-                uint8_t  *BinaryGUIDFormat  = ReadGUUID(BitIOBinaryGUUID, BitIOLSByte, BitB);
+                uint32_t  SpeakerMask       = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 32);
+                uint8_t  *BinaryGUIDFormat  = ReadGUUID(BinaryGUID, BitB);
                 BitBuffer_Skip(BitB, Bytes2Bits(CBSize - 22));
             }
         }
     }
     
     void WAVParseMetadata(PCMFile *PCM, BitBuffer *BitB) {
-        uint32_t ChunkID   = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
-        uint32_t ChunkSize = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
+        uint32_t ChunkID   = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 32);
+        uint32_t ChunkSize = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 32);
         
         switch (ChunkID) {
             case WAV_LIST:
@@ -164,7 +164,7 @@ extern "C" {
                 WAVParseDATAChunk(PCM, BitB, ChunkSize);
                 break;
             default:
-                BitIOLog(BitIOLog_ERROR, libPCMLibraryName, __func__, "Invalid ChunkID: 0x%X", ChunkID);
+                BitIOLog(BitIOLog_ERROR, __func__, "Invalid ChunkID: 0x%X", ChunkID);
                 break;
         }
     }
@@ -172,7 +172,7 @@ extern "C" {
     void WAVExtractSamples(PCMFile *PCM, BitBuffer *BitB, uint64_t NumSamples2Extract, uint32_t **ExtractedSamples) {
         for (uint64_t Sample = 0; Sample < NumSamples2Extract; Sample++) {
             for (uint64_t Channel = 0; Channel < PCM->NumChannels; Channel++) {
-                ExtractedSamples[Channel][Sample] = ReadBits(BitIOLSByte, BitIOLSBit, BitB, (uint64_t)Bits2Bytes(PCM->BitDepth, Yes));
+                ExtractedSamples[Channel][Sample] = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, (uint64_t)Bits2Bytes(PCM->BitDepth, Yes));
             }
         }
     }

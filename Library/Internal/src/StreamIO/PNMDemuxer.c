@@ -15,8 +15,8 @@ extern "C" {
     
     static uint64_t PXMCheckForComment(BitBuffer *BitB) { // returns 0 if no comment was found, returns the number of bytes that make up the comment if it was.
         uint64_t CommentSize = 0;
-        if (ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8) == PXMCommentStart) {
-            while (ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8) != PXMEndField) {
+        if (ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 8) == PXMCommentStart) {
+            while (ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 8) != PXMEndField) {
                 CommentSize += 1;
             }
         }
@@ -28,12 +28,12 @@ extern "C" {
         BitBuffer_Skip(BitB, Bytes2Bits(CommentSizeWidth));
         /* Read Width */
         uint64_t WidthStringSize = 0LLU;
-        while (ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8) != PXMFieldSeperator) {
+        while (ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 8) != PXMFieldSeperator) {
             WidthStringSize += 1;
         }
         char *WidthString = calloc(1, WidthStringSize * sizeof(char));
         for (uint64_t WidthByte = 0; WidthByte < WidthStringSize; WidthByte++) {
-            WidthString[WidthByte] = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
+            WidthString[WidthByte] = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 8);
         }
         PCM->PIC->Width = atoll(WidthString);
         free(WidthString);
@@ -44,12 +44,12 @@ extern "C" {
         
         /* Read Height */
         uint64_t HeightStringSize = 0LLU;
-        while (ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8) != PXMEndField) {
+        while (ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 8) != PXMEndField) {
             HeightStringSize += 1;
         }
         char *HeightString = calloc(1, HeightStringSize * sizeof(char));
         for (uint64_t HeightByte = 0; HeightByte < HeightStringSize; HeightByte++) {
-            HeightString[HeightByte] = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
+            HeightString[HeightByte] = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 8);
         }
         PCM->PIC->Height = atoll(HeightString); // Ok, so we read the Height.
         free(HeightString);
@@ -58,12 +58,12 @@ extern "C" {
     static void PXMParsePNMBinaryHeader(PCMFile *PCM, BitBuffer *BitB) {
         /* Read Width */
         uint64_t WidthStringSize = 0LLU;
-        while (ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8) != PXMFieldSeperator) {
+        while (ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 8) != PXMFieldSeperator) {
             WidthStringSize += 1;
         }
         char *WidthString = calloc(1, WidthStringSize * sizeof(char));
         for (uint64_t WidthByte = 0; WidthByte < WidthStringSize; WidthByte++) {
-            WidthString[WidthByte] = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
+            WidthString[WidthByte] = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 8);
         }
         PCM->PIC->Width = atoll(WidthString);
         free(WidthString);
@@ -71,12 +71,12 @@ extern "C" {
         
         /* Read Height */
         uint64_t HeightStringSize = 0LLU;
-        while (ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8) != PXMEndField) {
+        while (ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 8) != PXMEndField) {
             HeightStringSize += 1;
         }
         char *HeightString = calloc(1, HeightStringSize * sizeof(char));
         for (uint64_t HeightByte = 0; HeightByte < HeightStringSize; HeightByte++) {
-            HeightString[HeightByte] = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
+            HeightString[HeightByte] = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 8);
         }
         PCM->PIC->Height = atoll(HeightString); // Ok, so we read the Height.
         free(HeightString);
@@ -84,12 +84,12 @@ extern "C" {
         
         /* Read MaxVal */
         uint8_t MaxValStringSize = 0;
-        while (ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8) != PXMEndField) {
+        while (ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 8) != PXMEndField) {
             MaxValStringSize += 1;
         }
         char *MaxValString = calloc(1, MaxValStringSize * sizeof(char));
         for (uint8_t MaxValByte = 0; MaxValByte < MaxValStringSize; MaxValByte++) {
-            MaxValString[MaxValByte] = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
+            MaxValString[MaxValByte] = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 8);
         }
         int64_t MaxVal     = atoll(MaxValString);
         PCM->BitDepth      = IntegerLog2(MaxVal + 1);
@@ -101,12 +101,12 @@ extern "C" {
         /* Read Width */
         BitBuffer_Skip(BitB, 48); // Skip "WIDTH " string
         uint64_t WidthStringSize = 0LLU;
-        while (ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8) != PXMFieldSeperator) {
+        while (ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 8) != PXMFieldSeperator) {
             WidthStringSize += 1;
         }
         char *WidthString = calloc(1, WidthStringSize * sizeof(char));
         for (uint64_t WidthByte = 0; WidthByte < WidthStringSize; WidthByte++) {
-            WidthString[WidthByte] = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
+            WidthString[WidthByte] = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 8);
         }
         PCM->PIC->Width = atoll(WidthString);
         free(WidthString);
@@ -115,12 +115,12 @@ extern "C" {
         /* Read Height */
         BitBuffer_Skip(BitB, 56); // Skip "HEIGHT " string
         uint64_t HeightStringSize = 0LLU;
-        while (ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8) != PXMEndField) {
+        while (ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 8) != PXMEndField) {
             HeightStringSize += 1;
         }
         char *HeightString = calloc(1, HeightStringSize * sizeof(char));
         for (uint64_t HeightByte = 0; HeightByte < HeightStringSize; HeightByte++) {
-            HeightString[HeightByte] = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
+            HeightString[HeightByte] = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 8);
         }
         PCM->PIC->Height = atoll(HeightString); // Ok, so we read the Height.
         free(HeightString);
@@ -129,12 +129,12 @@ extern "C" {
         /* Read NumChannels */
         BitBuffer_Skip(BitB, 48); // Skip "DEPTH " string
         uint8_t DepthStringSize = 0;
-        while (ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8) != PXMEndField) {
+        while (ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 8) != PXMEndField) {
             DepthStringSize += 1;
         }
         char *DepthString = calloc(1, DepthStringSize * sizeof(char));
         for (uint8_t DepthByte = 0; DepthByte < DepthStringSize; DepthByte++) {
-            DepthString[DepthByte] = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
+            DepthString[DepthByte] = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 8);
         }
         PCM->NumChannels = atoll(DepthString);
         free(DepthString);
@@ -143,12 +143,12 @@ extern "C" {
         /* Read MaxVal */
         BitBuffer_Skip(BitB, 56); // Skip "MAXVAL " string
         uint8_t MaxValStringSize = 0;
-        while (ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8) != PXMEndField) {
+        while (ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 8) != PXMEndField) {
             MaxValStringSize += 1;
         }
         char *MaxValString = calloc(1, MaxValStringSize * sizeof(char));
         for (uint8_t MaxValByte = 0; MaxValByte < MaxValStringSize; MaxValByte++) {
-            MaxValString[MaxValByte] = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
+            MaxValString[MaxValByte] = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 8);
         }
         int64_t MaxVal    = atoll(MaxValString);
         PCM->BitDepth     = IntegerLog2(MaxVal + 1);
@@ -158,12 +158,12 @@ extern "C" {
         /* Read TupleType */
         BitBuffer_Skip(BitB, 72); // Skip "TUPLETYPE " string
         uint8_t TupleTypeSize = 0;
-        while (ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8) != PXMEndField) {
+        while (ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 8) != PXMEndField) {
             TupleTypeSize += 1;
         }
         char *TupleTypeString = calloc(1, TupleTypeSize * sizeof(char));
         for (uint8_t TupleByte = 0; TupleByte < TupleTypeSize; TupleByte++) {
-            TupleTypeString[TupleByte] = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
+            TupleTypeString[TupleByte] = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 8);
         }
         if (strcasecmp(TupleTypeString, "BLACKANDWHITE") == 0) {
             PCM->NumChannels = 1;
@@ -183,7 +183,7 @@ extern "C" {
         } else {
             PCM->NumChannels = 0;
             PCM->PIC->PXMTupleType   = PXM_TUPLE_Unknown;
-            BitIOLog(BitIOLog_ERROR, "libPXM", __func__, "Unknown PXM Tuple: %s", TupleTypeString);
+            BitIOLog(BitIOLog_ERROR, __func__, "Unknown PXM Tuple: %s", TupleTypeString);
         }
         free(TupleTypeString);
         /* Read TupleType */
@@ -196,7 +196,7 @@ extern "C" {
     void PXMIdentifyFileType(PCMFile *PCM, BitBuffer *BitB) {
         char PXMMagicID[PXMMagicSize];
         for (uint8_t PXMMagicByte = 0; PXMMagicByte < PXMMagicSize; PXMMagicByte++) {
-            PXMMagicID[PXMMagicByte] = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
+            PXMMagicID[PXMMagicByte] = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 8);
         }
         if (strncasecmp(PXMMagicID, "P1", PXMMagicSize) == 0 || strncasecmp(PXMMagicID, "P2", PXMMagicSize) == 0 || strncasecmp(PXMMagicID, "P3", PXMMagicSize) == 0) {
             PCM->PIC->PXMType = ASCIIPXM;
@@ -234,12 +234,12 @@ extern "C" {
             for (uint64_t Pixel = 0LLU; Pixel < NumPixels2Read; Pixel++) {
                 for (uint8_t Channel = 0; Channel < PCM->NumChannels; Channel++) {
                     uint8_t SubPixelStringSize          = 0;
-                    while (PeekBits(BitIOMSByte, BitIOLSBit, BitB, 8) != PXMFieldSeperator || PeekBits(BitIOMSByte, BitIOLSBit, BitB, 8) != PXMEndField) {
+                    while (PeekBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 8) != PXMFieldSeperator || PeekBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 8) != PXMEndField) {
                         SubPixelStringSize             += 1;
                     }
                     char *SubPixelString                = calloc(1, PCM->NumChannels * sizeof(char));
                     for (uint8_t SubPixelByte = 0; SubPixelByte < SubPixelStringSize; SubPixelByte++) {
-                        SubPixelString[SubPixelByte]    = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 8);
+                        SubPixelString[SubPixelByte]    = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 8);
                     }
                     ExtractedPixels[Channel][Pixel]     = atoi(SubPixelString);
                     free(SubPixelString);
@@ -248,7 +248,7 @@ extern "C" {
         } else if (PCM->PIC->PXMType == BinaryPXM || PCM->PIC->PXMType == PAMPXM) {
             for (uint64_t Pixel = 0LLU; Pixel < NumPixels2Read; Pixel++) {
                 for (uint8_t Channel = 0; Channel < PCM->NumChannels; Channel++) {
-                    uint8_t CurrentPixel                = ReadBits(BitIOLSByte, BitIOLSBit, BitB, PCM->BitDepth);
+                    uint8_t CurrentPixel                = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, PCM->BitDepth);
                     if (PCM->PIC->PXMTupleType == PXM_TUPLE_BnW && PCM->PIC->PXMType != PAMPXM) {
                         ExtractedPixels[Channel][Pixel] = ~CurrentPixel; // 1 = black, 0 = white
                     } else {

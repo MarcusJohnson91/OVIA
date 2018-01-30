@@ -16,18 +16,18 @@ extern "C" {
     }
     
     static void WAVWriteFMTChunk(PCMFile *PCM, BitBuffer *BitB) {
-        WriteBits(BitIOLSByte, BitIOLSBit, BitB, 32, 40); // ChunkSize
-        WriteBits(BitIOLSByte, BitIOLSBit, BitB, 16, 0xFFFE); // WaveFormatExtensible
-        WriteBits(BitIOLSByte, BitIOLSBit, BitB, 16, PCM->NumChannels);
-        WriteBits(BitIOLSByte, BitIOLSBit, BitB, 32, PCM->AUD->SampleRate);
-        WriteBits(BitIOLSByte, BitIOLSBit, BitB, 32, (PCM->AUD->SampleRate * PCM->NumChannels * PCM->BitDepth) / 8);
-        WriteBits(BitIOLSByte, BitIOLSBit, BitB, 32, PCM->AUD->BlockAlignment);
-        WriteBits(BitIOLSByte, BitIOLSBit, BitB, 16, PCM->BitDepth);
+        WriteBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 32, 40); // ChunkSize
+        WriteBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 16, 0xFFFE); // WaveFormatExtensible
+        WriteBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 16, PCM->NumChannels);
+        WriteBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 32, PCM->AUD->SampleRate);
+        WriteBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 32, (PCM->AUD->SampleRate * PCM->NumChannels * PCM->BitDepth) / 8);
+        WriteBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 32, PCM->AUD->BlockAlignment);
+        WriteBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 16, PCM->BitDepth);
         uint8_t CBSize = 46;
-        WriteBits(BitIOLSByte, BitIOLSBit, BitB, 16, CBSize);
-        WriteBits(BitIOLSByte, BitIOLSBit, BitB, 16, PCM->BitDepth); // ValidBitsPerSample
-        WriteBits(BitIOLSByte, BitIOLSBit, BitB, 32, PCM->AUD->ChannelMask);
-        WriteGUUID(BitIOBinaryGUUID, BitIOLSByte, BitB, WAVNULLBinaryGUID);
+        WriteBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 16, CBSize);
+        WriteBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 16, PCM->BitDepth); // ValidBitsPerSample
+        WriteBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 32, PCM->AUD->ChannelMask);
+        WriteGUUID(GUIDString, BitB, WAVNULLBinaryGUID);
     }
     
     static void WAVWriteLISTChunk(PCMFile *PCM, BitBuffer *BitB) {
@@ -38,15 +38,15 @@ extern "C" {
     
     void WAVInsertSamples(PCMFile *PCM, BitBuffer *OutputSamples, uint32_t NumSamples2Write, uint32_t **Samples2Write) {
         if (PCM == NULL) {
-            BitIOLog(BitIOLog_ERROR, libPCMLibraryName, __func__, "PCM Pointer is NULL");
+            BitIOLog(BitIOLog_ERROR, __func__, "PCM Pointer is NULL");
         } else if (OutputSamples == NULL) {
-            BitIOLog(BitIOLog_ERROR, libPCMLibraryName, __func__, "BitBuffer Pointer is NULL");
+            BitIOLog(BitIOLog_ERROR, __func__, "BitBuffer Pointer is NULL");
         } else {
             uint64_t ChannelCount = PCM->NumChannels;
             uint64_t BitDepth     = PCM->BitDepth;
             for (uint32_t Sample = 0; Sample < NumSamples2Write; Sample++) {
                 for (uint16_t Channel = 0; Channel < ChannelCount; Channel++) {
-                    WriteBits(BitIOLSByte, BitIOLSBit, OutputSamples, BitDepth, Samples2Write[Channel][Sample]);
+                    WriteBits(BitIOLSByteFirst, BitIOLSBitFirst, OutputSamples, BitDepth, Samples2Write[Channel][Sample]);
                 }
             }
         }
