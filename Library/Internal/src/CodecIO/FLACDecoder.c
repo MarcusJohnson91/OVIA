@@ -6,7 +6,7 @@ extern "C" {
     
     void DeinitFLACDecoder(DecodeFLAC *Dec) {
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, ModernFLACLibraryName, __func__, "Pointer to DecodeFLAC is NULL");
+            BitIOLog(BitIOLog_ERROR, __func__, u8"Pointer to DecodeFLAC is NULL");
         } else {
             free(Dec->Meta->StreamInfo);
             free(Dec->Meta->Seek);
@@ -46,13 +46,13 @@ extern "C" {
      // Which means we need metadata flags.
      //
      for (size_t StreamByte = 0; StreamByte < InputFLAC->FileSize; StreamByte++) {
-     uint16_t Marker = ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, 14, true);
+     uint16_t Marker = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, InputFLAC, 14, true);
      if (Marker == FLACFrameMagic) {
      // Get frame size by reading ahead until you find either the end of the stream, or another FLACFrameMagic
      // then skip back, and read it all.
      // OR could we somehow just read it until we got to the end of the frame, and
      size_t FrameSizeInBits = 0;
-     while (ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, 14, true) != FLACFrameMagic || (InputFLAC->FilePosition + InputFLAC->BitsUnavailable) < InputFLAC->FileSize) {
+     while (ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, InputFLAC, 14, true) != FLACFrameMagic || (InputFLAC->FilePosition + InputFLAC->BitsUnavailable) < InputFLAC->FileSize) {
      FrameSizeInBits += 14;
      }
      SkipBits(InputFLAC, FrameSizeInBits);
@@ -73,11 +73,11 @@ extern "C" {
     
     void FLACReadStream(BitBuffer *InputFLAC, DecodeFLAC *Dec) {
         if (InputFLAC == NULL) {
-            BitIOLog(LOG_ERROR, ModernFLACLibraryName, __func__, "Pointer to BitBuffer is NULL");
+            BitIOLog(BitIOLog_ERROR, __func__, u8"Pointer to BitBuffer is NULL");
         } else if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, ModernFLACLibraryName, __func__, "Pointer to DecodeFLAC is NULL");
+            BitIOLog(BitIOLog_ERROR, __func__, u8"Pointer to DecodeFLAC is NULL");
         } else {
-            uint16_t Marker = PeekBits(BitIOMSByte, BitIOLSBit, InputFLAC, 14);
+            uint16_t Marker = PeekBits(BitIOMSByteFirst, BitIOLSBitFirst, InputFLAC, 14);
             if (Marker == FLACFrameMagic) {
                 SkipBits(InputFLAC, 14);
                 FLACReadFrame(InputFLAC, Dec);
@@ -89,50 +89,50 @@ extern "C" {
     
     void FLACReadFrame(BitBuffer *InputFLAC, DecodeFLAC *Dec) {
         if (InputFLAC == NULL) {
-            BitIOLog(LOG_ERROR, ModernFLACLibraryName, __func__, "Pointer to BitBuffer is NULL");
+            BitIOLog(BitIOLog_ERROR, __func__, u8"Pointer to BitBuffer is NULL");
         } else if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, ModernFLACLibraryName, __func__, "Pointer to DecodeFLAC is NULL");
+            BitIOLog(BitIOLog_ERROR, __func__, u8"Pointer to DecodeFLAC is NULL");
         } else {
             SkipBits(InputFLAC, 1); // 0
-            Dec->Data->Frame->BlockType            = ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, 1); // 0 aka Fixed
-            ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, 1);
-            Dec->Data->Frame->CodedSamplesInBlock  = ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, 4); // 12 aka 4096
+            Dec->Data->Frame->BlockType            = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, InputFLAC, 1); // 0 aka Fixed
+            ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, InputFLAC, 1);
+            Dec->Data->Frame->CodedSamplesInBlock  = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, InputFLAC, 4); // 12 aka 4096
             if (((Dec->Data->Frame->CodedSamplesInBlock != 6) || (Dec->Data->Frame->CodedSamplesInBlock != 7))) {
                 Dec->Data->Frame->BlockSize        = GetBlockSizeInSamples(Dec->Data->Frame->CodedSamplesInBlock); // SamplesInBlock
             }
-            Dec->Data->Frame->CodedSampleRate      = ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, 4); // 9 aka 44100
+            Dec->Data->Frame->CodedSampleRate      = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, InputFLAC, 4); // 9 aka 44100
             if ((Dec->Data->Frame->CodedSampleRate >= 0) && (Dec->Data->Frame->CodedSampleRate <= 11)) {
                 FLACSampleRate(InputFLAC, Dec);
             }
-            Dec->Data->Frame->ChannelLayout        = ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, 4) + 1; // 2
-            Dec->Data->Frame->CodedBitDepth        = ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, 3); // 4 aka 16 bits per sample
+            Dec->Data->Frame->ChannelLayout        = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, InputFLAC, 4) + 1; // 2
+            Dec->Data->Frame->CodedBitDepth        = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, InputFLAC, 3); // 4 aka 16 bits per sample
             if (Dec->Data->Frame->CodedBitDepth != 0) {
                 FLACBitDepth(Dec);
             }
             SkipBits(InputFLAC, 1); // 0
             
             if (Dec->Data->Frame->BlockType        == FixedBlockSize) { // variable blocktype
-                Dec->Data->Frame->FrameNumber      = ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, 31); // 6,356,992
+                Dec->Data->Frame->FrameNumber      = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, InputFLAC, 31); // 6,356,992
             } else if (Dec->Data->Frame->BlockType == VariableBlockSize) {
-                Dec->Data->Frame->SampleNumber     = ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, 36);
+                Dec->Data->Frame->SampleNumber     = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, InputFLAC, 36);
             }
             
             if (Dec->Data->Frame->CodedSamplesInBlock == 6) {
-                Dec->Data->Frame->BlockSize        = ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, 8); // SamplesInBlock
+                Dec->Data->Frame->BlockSize        = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, InputFLAC, 8); // SamplesInBlock
             } else if (Dec->Data->Frame->CodedSamplesInBlock == 7) {
-                Dec->Data->Frame->BlockSize        = ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, 16); // SamplesInBlock
+                Dec->Data->Frame->BlockSize        = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, InputFLAC, 16); // SamplesInBlock
             }
             
             
             if (Dec->Data->Frame->CodedSampleRate == 12) {
-                Dec->Data->Frame->SampleRate       = ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, 8) * 1000;
+                Dec->Data->Frame->SampleRate       = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, InputFLAC, 8) * 1000;
             } else if (Dec->Data->Frame->CodedSampleRate == 13) {
-                Dec->Data->Frame->SampleRate       = ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, 16);
+                Dec->Data->Frame->SampleRate       = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, InputFLAC, 16);
             } else if (Dec->Data->Frame->CodedSampleRate == 14) {
-                Dec->Data->Frame->SampleRate       = ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, 16) * 10;
+                Dec->Data->Frame->SampleRate       = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, InputFLAC, 16) * 10;
             }
             
-            Dec->Data->Frame->FLACFrameCRC         = ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, 8); // CRC, 0x7
+            Dec->Data->Frame->FLACFrameCRC         = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, InputFLAC, 8); // CRC, 0x7
             
             for (uint8_t Channel = 0; Channel < Dec->Meta->StreamInfo->Channels; Channel++) { // read SubFrame
                 FLACReadSubFrame(InputFLAC, Dec, Channel);
@@ -142,16 +142,16 @@ extern "C" {
     
     void FLACReadSubFrame(BitBuffer *InputFLAC, DecodeFLAC *Dec, uint8_t Channel) { // 2 channels
         if (InputFLAC == NULL) {
-            BitIOLog(LOG_ERROR, ModernFLACLibraryName, __func__, "Pointer to BitBuffer is NULL");
+            BitIOLog(BitIOLog_ERROR, __func__, u8"Pointer to BitBuffer is NULL");
         } else if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, ModernFLACLibraryName, __func__, "Pointer to DecodeFLAC is NULL");
+            BitIOLog(BitIOLog_ERROR, __func__, u8"Pointer to DecodeFLAC is NULL");
         } else {
             SkipBits(InputFLAC, 1); // Reserved
-            Dec->Data->SubFrame->SubFrameType      = ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, 6); // 6 or 0
+            Dec->Data->SubFrame->SubFrameType      = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, InputFLAC, 6); // 6 or 0
             if (Dec->Data->SubFrame->SubFrameType > 0) {
                 Dec->Data->LPC->LPCOrder = (Dec->Data->SubFrame->SubFrameType & 0x1F) - 1; // 5 or 6
             }
-            Dec->Data->SubFrame->WastedBitsFlag    = ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, 1); // 1
+            Dec->Data->SubFrame->WastedBitsFlag    = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, InputFLAC, 1); // 1
             if (Dec->Data->SubFrame->WastedBitsFlag == true) {
                 Dec->Data->SubFrame->WastedBits    = ReadRICE(InputFLAC, false, 0); // 11111 0 00000
             }
@@ -165,42 +165,42 @@ extern "C" {
             } else if (Dec->Data->SubFrame->SubFrameType >= Subframe_LPC) { // LPC
                 FLACDecodeSubFrameLPC(InputFLAC, Dec, Channel);
             } else {
-                BitIOLog(LOG_ERROR, ModernFLACLibraryName, "FLACReadSubFrame", "Invalid Subframe type: %d", Dec->Data->SubFrame->SubFrameType);
+                BitIOLog(BitIOLog_ERROR, __func__, u8"Invalid Subframe type: %d", Dec->Data->SubFrame->SubFrameType);
             }
         }
     }
     
     void FLACDecodeSubFrameVerbatim(BitBuffer *InputFLAC, DecodeFLAC *Dec) {
         if (InputFLAC == NULL) {
-            BitIOLog(LOG_ERROR, ModernFLACLibraryName, __func__, "Pointer to BitBuffer is NULL");
+            BitIOLog(BitIOLog_ERROR, __func__, u8"Pointer to BitBuffer is NULL");
         } else if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, ModernFLACLibraryName, __func__, "Pointer to DecodeFLAC is NULL");
+            BitIOLog(BitIOLog_ERROR, __func__, u8"Pointer to DecodeFLAC is NULL");
         } else {
             for (uint16_t Sample = 0; Sample < Dec->Data->Frame->BlockSize; Sample++) {
-                Dec->DecodedSamples[Sample] = ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, Dec->Data->Frame->BitDepth);
+                Dec->DecodedSamples[Sample] = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, InputFLAC, Dec->Data->Frame->BitDepth);
             }
         }
     }
     
     void FLACDecodeSubFrameConstant(BitBuffer *InputFLAC, DecodeFLAC *Dec) {
         if (InputFLAC == NULL) {
-            BitIOLog(LOG_ERROR, ModernFLACLibraryName, __func__, "Pointer to BitBuffer is NULL");
+            BitIOLog(BitIOLog_ERROR, __func__, u8"Pointer to BitBuffer is NULL");
         } else if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, ModernFLACLibraryName, __func__, "Pointer to DecodeFLAC is NULL");
+            BitIOLog(BitIOLog_ERROR, __func__, u8"Pointer to DecodeFLAC is NULL");
         } else {
-            int64_t Constant = ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, Dec->Data->Frame->BitDepth);
+            int64_t Constant = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, InputFLAC, Dec->Data->Frame->BitDepth);
             memset(Dec->DecodedSamples, Constant, Dec->Data->Frame->BlockSize);
         }
     }
     
     void FLACDecodeSubFrameFixed(BitBuffer *InputFLAC, DecodeFLAC *Dec) {
         if (InputFLAC == NULL) {
-            BitIOLog(LOG_ERROR, ModernFLACLibraryName, __func__, "Pointer to BitBuffer is NULL");
+            BitIOLog(BitIOLog_ERROR, __func__, u8"Pointer to BitBuffer is NULL");
         } else if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, ModernFLACLibraryName, __func__, "Pointer to DecodeFLAC is NULL");
+            BitIOLog(BitIOLog_ERROR, __func__, u8"Pointer to DecodeFLAC is NULL");
         } else {
             for (uint16_t WarmupSample = 0; WarmupSample < Dec->Data->Frame->BitDepth * Dec->Data->LPC->LPCOrder; WarmupSample++) {
-                Dec->DecodedSamples[WarmupSample]  = ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, Dec->Data->Frame->BitDepth);
+                Dec->DecodedSamples[WarmupSample]  = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, InputFLAC, Dec->Data->Frame->BitDepth);
             }
             DecodeFLACResidual(InputFLAC, Dec);
         }
@@ -208,19 +208,19 @@ extern "C" {
     
     void FLACDecodeSubFrameLPC(BitBuffer *InputFLAC, DecodeFLAC *Dec, uint8_t Channel) { // 4 0's
         if (InputFLAC == NULL) {
-            BitIOLog(LOG_ERROR, ModernFLACLibraryName, __func__, "Pointer to BitBuffer is NULL");
+            BitIOLog(BitIOLog_ERROR, __func__, u8"Pointer to BitBuffer is NULL");
         } else if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, ModernFLACLibraryName, __func__, "Pointer to DecodeFLAC is NULL");
+            BitIOLog(BitIOLog_ERROR, __func__, u8"Pointer to DecodeFLAC is NULL");
         } else {
             for (uint16_t WarmupSample = 0; WarmupSample < Dec->Data->Frame->BitDepth * Dec->Data->LPC->LPCOrder; WarmupSample++) {
-                Dec->DecodedSamples[WarmupSample]  = ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, Dec->Data->Frame->BitDepth);
+                Dec->DecodedSamples[WarmupSample]  = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, InputFLAC, Dec->Data->Frame->BitDepth);
             }
-            Dec->Data->LPC->LPCPrecision           = ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, 4) + 1; // 0x1F aka 31
-            Dec->Data->LPC->LPCShift               = ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, 5); // 0b01110 aka 14
+            Dec->Data->LPC->LPCPrecision           = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, InputFLAC, 4) + 1; // 0x1F aka 31
+            Dec->Data->LPC->LPCShift               = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, InputFLAC, 5); // 0b01110 aka 14
             Dec->Data->LPC->NumLPCCoeffs           = Dec->Data->LPC->LPCPrecision * Dec->Data->LPC->LPCOrder;
             
             for (uint16_t LPCCoefficent = 0; LPCCoefficent < Dec->Data->LPC->NumLPCCoeffs; LPCCoefficent++) {
-                Dec->Data->LPC->LPCCoeff[LPCCoefficent] = ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, Dec->Data->LPC->NumLPCCoeffs) + 1;
+                Dec->Data->LPC->LPCCoeff[LPCCoefficent] = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, InputFLAC, Dec->Data->LPC->NumLPCCoeffs) + 1;
             }
             DecodeFLACResidual(InputFLAC, Dec);
         }
@@ -228,11 +228,11 @@ extern "C" {
     
     void DecodeFLACResidual(BitBuffer *InputFLAC, DecodeFLAC *Dec) {
         if (InputFLAC == NULL) {
-            BitIOLog(LOG_ERROR, ModernFLACLibraryName, __func__, "Pointer to BitBuffer is NULL");
+            BitIOLog(BitIOLog_ERROR, __func__, u8"Pointer to BitBuffer is NULL");
         } else if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, ModernFLACLibraryName, __func__, "Pointer to DecodeFLAC is NULL");
+            BitIOLog(BitIOLog_ERROR, __func__, u8"Pointer to DecodeFLAC is NULL");
         } else {
-            Dec->Data->LPC->RicePartitionType      = ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, 2);
+            Dec->Data->LPC->RicePartitionType      = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, InputFLAC, 2);
             if (Dec->Data->LPC->RicePartitionType == RICE1) {
                 DecodeFLACRice1Partition(InputFLAC, Dec);
             } else if (Dec->Data->LPC->RicePartitionType == RICE2) {
@@ -243,22 +243,22 @@ extern "C" {
     
     void DecodeFLACRice1Partition(BitBuffer *InputFLAC, DecodeFLAC *Dec) {
         if (InputFLAC == NULL) {
-            BitIOLog(LOG_ERROR, ModernFLACLibraryName, __func__, "Pointer to BitBuffer is NULL");
+            BitIOLog(BitIOLog_ERROR, __func__, u8"Pointer to BitBuffer is NULL");
         } else if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, ModernFLACLibraryName, __func__, "Pointer to DecodeFLAC is NULL");
+            BitIOLog(BitIOLog_ERROR, __func__, u8"Pointer to DecodeFLAC is NULL");
         } else {
-            Dec->Data->LPC->PartitionOrder = ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, 4);
+            Dec->Data->LPC->PartitionOrder = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, InputFLAC, 4);
             for (uint8_t Partition = 0; Partition < Dec->Data->LPC->PartitionOrder; Partition++) {
-                Dec->Data->Rice->RICEParameter[Partition] = ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, 4) + 5;
+                Dec->Data->Rice->RICEParameter[Partition] = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, InputFLAC, 4) + 5;
                 if (Dec->Data->Rice->RICEParameter[Partition] == 20) {
                     // Escape code, meaning the partition is in unencoded binary form using n bits per sample; n follows as a 5-bit number.
                 } else {
                     if (Dec->Data->LPC->PartitionOrder == 0) {
-                        Dec->Data->Rice->RICEParameter[Partition] = ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, Dec->Data->Frame->BlockSize - Dec->Data->LPC->LPCOrder);
+                        Dec->Data->Rice->RICEParameter[Partition] = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, InputFLAC, Dec->Data->Frame->BlockSize - Dec->Data->LPC->LPCOrder);
                     } else if (Dec->Data->LPC->PartitionOrder > 0) {
-                        Dec->Data->Rice->RICEParameter[Partition] = ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, (Dec->Data->Frame->BlockSize / pow(2, Dec->Data->LPC->PartitionOrder)));
+                        Dec->Data->Rice->RICEParameter[Partition] = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, InputFLAC, (Dec->Data->Frame->BlockSize / pow(2, Dec->Data->LPC->PartitionOrder)));
                     } else {
-                        Dec->Data->Rice->RICEParameter[Partition] = ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, (Dec->Data->Frame->BlockSize / pow(2, Dec->Data->LPC->PartitionOrder)) - Dec->Data->LPC->LPCOrder);
+                        Dec->Data->Rice->RICEParameter[Partition] = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, InputFLAC, (Dec->Data->Frame->BlockSize / pow(2, Dec->Data->LPC->PartitionOrder)) - Dec->Data->LPC->LPCOrder);
                     }
                 }
             }
@@ -267,21 +267,21 @@ extern "C" {
     
     void DecodeFLACRice2Partition(BitBuffer *InputFLAC, DecodeFLAC *Dec) {
         if (InputFLAC == NULL) {
-            BitIOLog(LOG_ERROR, ModernFLACLibraryName, __func__, "Pointer to BitBuffer is NULL");
+            BitIOLog(BitIOLog_ERROR, __func__, u8"Pointer to BitBuffer is NULL");
         } else if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, ModernFLACLibraryName, __func__, "Pointer to DecodeFLAC is NULL");
+            BitIOLog(BitIOLog_ERROR, __func__, u8"Pointer to DecodeFLAC is NULL");
         } else {
             for (uint8_t Partition = 0; Partition < Dec->Data->LPC->PartitionOrder; Partition++) {
-                Dec->Data->Rice->RICEParameter[Partition] = ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, 5) + 5;
+                Dec->Data->Rice->RICEParameter[Partition] = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, InputFLAC, 5) + 5;
                 if (Dec->Data->Rice->RICEParameter[Partition] == 36) {
                     // Escape code, meaning the partition is in unencoded binary form using n bits per sample; n follows as a 5-bit number.
                 } else {
                     if (Dec->Data->LPC->PartitionOrder == 0) {
-                        Dec->Data->Rice->RICEParameter[Partition] = ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, Dec->Data->Frame->BlockSize - Dec->Data->LPC->LPCOrder);
+                        Dec->Data->Rice->RICEParameter[Partition] = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, InputFLAC, Dec->Data->Frame->BlockSize - Dec->Data->LPC->LPCOrder);
                     } else if (Dec->Data->LPC->PartitionOrder > 0) {
-                        Dec->Data->Rice->RICEParameter[Partition] = ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, (Dec->Data->Frame->BlockSize / pow(2, Dec->Data->LPC->PartitionOrder)));
+                        Dec->Data->Rice->RICEParameter[Partition] = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, InputFLAC, (Dec->Data->Frame->BlockSize / pow(2, Dec->Data->LPC->PartitionOrder)));
                     } else {
-                        Dec->Data->Rice->RICEParameter[Partition] = ReadBits(BitIOMSByte, BitIOLSBit, InputFLAC, (Dec->Data->Frame->BlockSize / pow(2, Dec->Data->LPC->PartitionOrder)) - Dec->Data->LPC->LPCOrder);
+                        Dec->Data->Rice->RICEParameter[Partition] = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, InputFLAC, (Dec->Data->Frame->BlockSize / pow(2, Dec->Data->LPC->PartitionOrder)) - Dec->Data->LPC->LPCOrder);
                     }
                 }
             }
@@ -309,7 +309,7 @@ extern "C" {
     
     void FLACBitDepth(DecodeFLAC *Dec) {
         if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, ModernFLACLibraryName, __func__, "Pointer to DecodeFLAC is NULL");
+            BitIOLog(BitIOLog_ERROR, __func__, u8"Pointer to DecodeFLAC is NULL");
         } else {
             switch (Dec->Meta->StreamInfo->CodedBitDepth) {
                 case 0:
@@ -339,9 +339,9 @@ extern "C" {
     
     void FLACSampleRate(BitBuffer *InputFLAC, DecodeFLAC *Dec) {
         if (InputFLAC == NULL) {
-            BitIOLog(LOG_ERROR, ModernFLACLibraryName, __func__, "Pointer to BitBuffer is NULL");
+            BitIOLog(BitIOLog_ERROR, __func__, u8"Pointer to BitBuffer is NULL");
         } else if (Dec == NULL) {
-            BitIOLog(LOG_ERROR, ModernFLACLibraryName, __func__, "Pointer to DecodeFLAC is NULL");
+            BitIOLog(BitIOLog_ERROR, __func__, u8"Pointer to DecodeFLAC is NULL");
         } else {
             switch (Dec->Meta->StreamInfo->CodedSampleRate) {
                 case 0:

@@ -1,3 +1,5 @@
+#include "../../../Dependencies/libPCM/Dependencies/BitIO/libBitIO/include/BitIOMath.h"
+
 #include "../../include/Private/Common/libModernFLAC_EntropyCoders.h"
 
 #ifdef __cplusplus
@@ -6,51 +8,7 @@ extern "C" {
     
     // MY functions to create Golomb codes
     inline static uint8_t NumBits4Symbol(const int64_t Integer2Store) {
-        return (uint8_t) ceill(log2(llabs(Integer2Store)+1));
-    }
-    
-    // libFLAC functions to create Golomb codes
-    static inline uint32_t FLAC__clz_soft_uint32(uint32_t Word) {
-        static const uint8_t byte_to_unary_table[256] = {
-            8, 7, 6, 6, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4, // 1, 1, 2, 4, 8
-            3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 16
-            2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, // 32
-            2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 64
-            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 128
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        };
-        
-        if (Word > Power2Mask(24)) {
-            return byte_to_unary_table[Word >> 24];
-        } else if (Word > Power2Mask(16)) {
-            return byte_to_unary_table[Word >> 16] + 8;
-        } else if (Word > Power2Mask(8)) {
-            return byte_to_unary_table[Word >> 8] + 16;
-        } else {
-            return byte_to_unary_table[Word] + 24;
-        }
-        
-    }
-    
-    static inline uint32_t FLAC__clz_uint32(uint32_t v) {
-        /* Never used with input 0 */
-        FLAC__ASSERT(v > 0);
-        return FLAC__clz_soft_uint32(v);
-    }
-    
-    static inline uint32_t FLAC__bitmath_ilog2(uint32_t v) {
-        FLAC__ASSERT(v > 0);
-        return FLAC__clz_uint32(v) ^ 31U;
+        return (uint8_t) ceill(log2(llabs(Integer2Store) + 1));
     }
     
     bool ModernFLACWriteUnsignedGolomb(BitBuffer *BitB, uint32_t Uval, uint32_t Parameter) {
