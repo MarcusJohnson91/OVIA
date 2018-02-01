@@ -81,7 +81,9 @@ extern "C" {
         }
     }
     
-    void PNGSetFCTL(EncodePNG *Enc, const )
+    void PNGSetFCTL(EncodePNG *Enc, const uint32_t FrameNum, const uint32_t FrameWidth, const uint32_t FrameHeight, uint32_t XOffset, uint32_t YOffset, uint16_t FrameDelayNumerator, uint16_t FrameDelayDenominator, uint8_t DisposalType, uint8_t BlendType) {
+        
+    }
     
     void ComposePNGCHRMWhitePoint() {
         

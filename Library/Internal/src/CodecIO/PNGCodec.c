@@ -66,7 +66,7 @@ extern "C" {
      Actually, fuck that, I'm making 1 function to set/get the info from a Text chunk.
      */
     
-    void PNGSetTextChunk(EncodePNG *Enc, UTF8String KeywordString, UTF8String CommentString) {
+    void PNGSetTextChunk(EncodePNG *Enc, UTF8 *KeywordString, UTF8 *CommentString) {
         if (Enc != NULL && KeywordString != NULL && CommentString != NULL) {
             // Check to see if the current Comment field has been set, if it has increment Enc->NumTextChunks, and realloc, otherwise just set it.
             if (Enc->Text[Enc->NumTextChunks - 1].Comment != NULL) {
@@ -83,7 +83,7 @@ extern "C" {
         }
     }
     
-    void PNGGetTextChunk(DecodePNG *Dec, uint32_t Instance, UTF8String Keyword, UTF8String Comment) {
+    void PNGGetTextChunk(DecodePNG *Dec, uint32_t Instance, UTF8 *Keyword, UTF8 *Comment) {
         if (Dec != NULL && Instance <= Dec->NumTextChunks - 1) {
             Keyword = Dec->Text[Instance].Keyword;
             Comment = Dec->Text[Instance].Comment;

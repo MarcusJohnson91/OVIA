@@ -72,7 +72,7 @@ extern "C" {
         /*
         for (uint64_t Bit = BitOffset; Bit < BitOffset + BitLength; Bit++) {
             // Now we need to select a bit from the buffer
-            CurrentBit = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 1);
+            CurrentBit = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 1);
             
         }
          */
@@ -101,7 +101,7 @@ extern "C" {
              */
             
         }
-        uint32_t EmbeddedCRC = ReadBits(BitIOLSByte, BitIOLSBit, BitB, 32);
+        uint32_t EmbeddedCRC = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 32);
         if (CRCsMatch == EmbeddedCRC) {
             CRCsMatch  = Yes;
         }

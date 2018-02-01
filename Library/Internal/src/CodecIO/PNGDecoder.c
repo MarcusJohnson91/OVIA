@@ -28,7 +28,7 @@ extern "C" {
             free(Buffer2CRC);
             
         }
-        uint32_t ChunkCRC = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
+        uint32_t ChunkCRC = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 32);
         bool CRCsMatch = VerifyCRC(Buffer2CRC, ChunkSize, 0x82608EDB, 32, 0xFFFFFFFF, ChunkCRC);
         SkipBits(BitB, -Bytes2Bits(ChunkSize));
         return CRCsMatch;
@@ -168,8 +168,8 @@ extern "C" {
         // Huffman codes are written MSBit first, everything else is writen LSBit first
         
         // DEFLATE Block header:
-        bool     BlockIsFinal = ReadBits(BitIOMSByte, BitIOLSBit, DEFLATEBlock, 1); // BFINAL
-        uint8_t  BlockType    = ReadBits(BitIOMSByte, BitIOLSBit, DEFLATEBlock, 2); // BTYPE
+        bool     BlockIsFinal = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, DEFLATEBlock, 1); // BFINAL
+        uint8_t  BlockType    = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, DEFLATEBlock, 2); // BTYPE
         
         if (BlockType == DynamicHuffmanBlock) {
             
@@ -187,19 +187,19 @@ extern "C" {
         // ok so how do we do that? I wrote some notes on the Zlib header last night...
         
         /* Compression Method and Flags byte */
-        uint8_t CompressionMethod = ReadBits(BitIOMSByte, BitIOLSBit, DAT2Decode, 4); // 8
-        uint8_t CompressionInfo   = ReadBits(BitIOMSByte, BitIOLSBit, DAT2Decode, 4); // 7
+        uint8_t CompressionMethod = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, DAT2Decode, 4); // 8
+        uint8_t CompressionInfo   = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, DAT2Decode, 4); // 7
         /* Compression Method and Flags byte */
         
         /* FlagByte */
-        uint8_t FCHECK            = ReadBits(BitIOMSByte, BitIOLSBit, DAT2Decode, 5); // 1E
-        bool    FDICTPresent      = ReadBits(BitIOMSByte, BitIOLSBit, DAT2Decode, 1); // 0
-        uint8_t FLEVEL            = ReadBits(BitIOMSByte, BitIOLSBit, DAT2Decode, 2); // 1
+        uint8_t FCHECK            = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, DAT2Decode, 5); // 1E
+        bool    FDICTPresent      = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, DAT2Decode, 1); // 0
+        uint8_t FLEVEL            = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, DAT2Decode, 2); // 1
         /* FlagByte */
         
         if (FDICTPresent) {
             // Read TableID which is 4 bytes
-            uint32_t DICTID       = ReadBits(BitIOMSByte, BitIOLSBit, DAT2Decode, 32);
+            uint32_t DICTID       = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, DAT2Decode, 32);
         }
         
         // Start reading the DEFLATE block?
@@ -209,8 +209,8 @@ extern "C" {
     void DecodePNGData(DecodePNG *Dec, BitBuffer *BitB) {
         // read the iDAT/fDAT chunk header, then do the other stuff.
         while (BitBuffer_GetSize(BitB) > 0) { // 12 is the start of IEND
-            uint32_t ChunkSize   = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
-            uint32_t ChunkID     = ReadBits(BitIOMSByte, BitIOLSBit, BitB, 32);
+            uint32_t ChunkSize   = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 32);
+            uint32_t ChunkID     = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 32);
             
             
             if (ChunkID == acTLMarker) {

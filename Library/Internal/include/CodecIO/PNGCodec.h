@@ -3,6 +3,7 @@
 #include <math.h>
 
 #include "../../Dependencies/libPCM/Dependencies/BitIO/libBitIO/include/BitIO.h"
+#include "../../Dependencies/libPCM/Dependencies/BitIO/libBitIO/include/StringIO.h"
 
 #pragma once
 
@@ -15,8 +16,8 @@ extern "C" {
     
 #define PNGMagic 0x89504E470D0A1A0A
     
-    static UTF8Constant libModernPNGVersion     = u8"0.2.5";
-    static UTF8Constant libModernPNGLibraryName = u8"libModernPNG";
+    static const UTF8 libModernPNGVersion[]     = u8"0.2.5";
+    static const UTF8 libModernPNGLibraryName[] = u8"libModernPNG";
     
     enum libModernPNGChunkMarkers {
         acTLMarker         = 0x6163544C,
@@ -123,7 +124,7 @@ extern "C" {
      */
     uint16_t ***DecodePNGImage(DecodePNG *Dec, BitBuffer *PNGFile);
     
-    void        PNGSetTextChunk(EncodePNG *Enc, UTF8String KeywordString, UTF8String CommentString);
+    void        PNGSetTextChunk(EncodePNG *Enc, UTF8 *KeywordString, UTF8 *CommentString);
     
     uint32_t    PNGGetNumTextChunks(DecodePNG *Dec);
     
@@ -134,7 +135,7 @@ extern "C" {
      @param     Keyword         "Pointer the Keyword string is returned through".
      @param     Comment         "Pointer the Comment string is returned through".
      */
-    void        PNGGetTextChunk(DecodePNG *Dec, uint32_t Instance, UTF8String Keyword, UTF8String Comment);
+    void        PNGGetTextChunk(DecodePNG *Dec, uint32_t Instance, UTF8 *Keyword, UTF8 *Comment);
     
     uint32_t    GetPNGWidth(DecodePNG *Dec);
     

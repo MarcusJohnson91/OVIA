@@ -147,8 +147,8 @@ extern "C" {
     } hIST;
 
     typedef struct Text { // Replaces:  tEXt, iTXt, zTXt
-        UTF8String Keyword;
-        UTF8String Comment;
+        UTF8      *Keyword;
+        UTF8      *Comment;
         uint8_t    TextType;
         bool       CRCIsValid:1;
     } Text;
