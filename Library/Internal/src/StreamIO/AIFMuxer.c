@@ -1,6 +1,6 @@
-#include "../../../Dependencies/BitIO/libBitIO/include/BitIO.h"
-#include "../../../Dependencies/BitIO/libBitIO/include/BitIOLog.h"
-#include "../../../Dependencies/BitIO/libBitIO/include/BitIOMath.h"
+#include "../../../Dependencies/FoundationIO/libFoundationIO/include/BitIO.h"
+#include "../../../Dependencies/FoundationIO/libFoundationIO/include/Log.h"
+#include "../../../Dependencies/FoundationIO/libFoundationIO/include/Math.h"
 
 #include "../../include/libPCM.h"
 #include "../../include/Private/libPCMTypes.h"
@@ -22,23 +22,23 @@ extern "C" {
     }
     
     static void AIFWriteCOMM(PCMFile *PCM, BitBuffer *BitB) {
-        WriteBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 32, AIF_COMM);
+        WriteBits(MSByteFirst, LSBitFirst, BitB, 32, AIF_COMM);
         uint16_t COMMSize = 18;
-        WriteBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 32, COMMSize);
-        WriteBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 16, PCM->NumChannels);
-        WriteBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 32, PCM->NumChannelAgnosticSamples);
-        WriteBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 16, PCM->BitDepth);
+        WriteBits(MSByteFirst, LSBitFirst, BitB, 32, COMMSize);
+        WriteBits(MSByteFirst, LSBitFirst, BitB, 16, PCM->NumChannels);
+        WriteBits(MSByteFirst, LSBitFirst, BitB, 32, PCM->NumChannelAgnosticSamples);
+        WriteBits(MSByteFirst, LSBitFirst, BitB, 16, PCM->BitDepth);
         uint64_t SampleRate = ConvertInteger2Double(PCM->AUD->SampleRate);
-        WriteBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 16, (SampleRate >> 52) + 15360); // SampleRate Exponent
-        WriteBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 64, 0x8000000000000000LLU | SampleRate << 11); // SampleRate Mantissa
+        WriteBits(MSByteFirst, LSBitFirst, BitB, 16, (SampleRate >> 52) + 15360); // SampleRate Exponent
+        WriteBits(MSByteFirst, LSBitFirst, BitB, 64, 0x8000000000000000LLU | SampleRate << 11); // SampleRate Mantissa
     }
     
     static void AIFWriteTitle(PCMFile *PCM, BitBuffer *BitB) {
         if (PCM->AUD->Meta->SongTitleTag != NULL) {
-            WriteBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 32, AIF_NAME);
-            WriteBits(BitIOMSByteFirst, BitIOMSBitFirst, BitB, 32, PCM->AUD->Meta->TitleSize);
+            WriteBits(MSByteFirst, LSBitFirst, BitB, 32, AIF_NAME);
+            WriteBits(MSByteFirst, MSBitFirst, BitB, 32, PCM->AUD->Meta->TitleSize);
             for (uint8_t TitleByte = 0; TitleByte < PCM->AUD->Meta->TitleSize; TitleByte++) {
-                WriteBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 8, PCM->AUD->Meta->SongTitleTag[TitleByte]);
+                WriteBits(MSByteFirst, LSBitFirst, BitB, 8, PCM->AUD->Meta->SongTitleTag[TitleByte]);
             }
         }
         IFFSkipPadding(BitB, PCM->AUD->Meta->TitleSize);
@@ -46,27 +46,27 @@ extern "C" {
     
     static void AIFWriteArtist(PCMFile *PCM, BitBuffer *BitB) {
         if (PCM->AUD->Meta->ArtistTag != NULL) {
-            WriteBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 32, AIF_AUTH);
-            WriteBits(BitIOMSByteFirst, BitIOMSBitFirst, BitB, 32, PCM->AUD->Meta->ArtistTagSize);
+            WriteBits(MSByteFirst, LSBitFirst, BitB, 32, AIF_AUTH);
+            WriteBits(MSByteFirst, MSBitFirst, BitB, 32, PCM->AUD->Meta->ArtistTagSize);
             for (uint8_t ArtistByte = 0; ArtistByte < PCM->AUD->Meta->ArtistTagSize; ArtistByte++) {
-                WriteBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 8, PCM->AUD->Meta->SongTitleTag[ArtistByte]);
+                WriteBits(MSByteFirst, LSBitFirst, BitB, 8, PCM->AUD->Meta->SongTitleTag[ArtistByte]);
             }
         }
         IFFSkipPadding(BitB, PCM->AUD->Meta->ArtistTagSize);
     }
     
     static void AIFWriteSSND(PCMFile *PCM, BitBuffer *BitB) {
-        WriteBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 32, AIF_SSND);
+        WriteBits(MSByteFirst, LSBitFirst, BitB, 32, AIF_SSND);
         uint32_t ChunkSize = 8 + ((PCM->NumChannelAgnosticSamples * PCM->NumChannels) * Bits2Bytes(PCM->BitDepth, true));
-        WriteBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 32, ChunkSize);
-        WriteBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 32, PCM->AUD->AIFOffset);
-        WriteBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 32, PCM->AUD->AIFBlockSize);
+        WriteBits(MSByteFirst, LSBitFirst, BitB, 32, ChunkSize);
+        WriteBits(MSByteFirst, LSBitFirst, BitB, 32, PCM->AUD->AIFOffset);
+        WriteBits(MSByteFirst, LSBitFirst, BitB, 32, PCM->AUD->AIFBlockSize);
     }
     
     void AIFWriteHeader(PCMFile *PCM, BitBuffer *BitB) {
-        WriteBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 32, AIF_FORM);
-        WriteBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 32, ((PCM->NumChannelAgnosticSamples * PCM->NumChannels) * Bits2Bytes(PCM->BitDepth, true))); // FIXME: AIF Size calculation is wrong
-        WriteBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 32, AIF_AIFF);
+        WriteBits(MSByteFirst, LSBitFirst, BitB, 32, AIF_FORM);
+        WriteBits(MSByteFirst, LSBitFirst, BitB, 32, ((PCM->NumChannelAgnosticSamples * PCM->NumChannels) * Bits2Bytes(PCM->BitDepth, true))); // FIXME: AIF Size calculation is wrong
+        WriteBits(MSByteFirst, LSBitFirst, BitB, 32, AIF_AIFF);
         AIFWriteCOMM(PCM, BitB);
         AIFWriteTitle(PCM, BitB);
         AIFWriteArtist(PCM, BitB);
@@ -74,19 +74,21 @@ extern "C" {
     }
     
     void AIFInsertSamples(PCMFile *PCM, BitBuffer *OutputSamples, uint32_t NumSamples2Write, uint32_t **Samples2Write) {
-        if (PCM == NULL) {
-            BitIOLog(BitIOLog_ERROR, __func__, "PCM Pointer is NULL");
-        } else if (OutputSamples == NULL) {
-            BitIOLog(BitIOLog_ERROR, __func__, "BitBuffer Pointer is NULL");
-        } else {
+        if (PCM != NULL && OutputSamples != NULL && Samples2Write != NULL) {
             uint64_t ChannelCount = PCM->NumChannels;
             uint64_t BitDepth     = PCM->BitDepth;
             for (uint32_t Sample = 0; Sample < NumSamples2Write; Sample++) {
                 for (uint16_t Channel = 0; Channel < ChannelCount; Channel++) {
-                    WriteBits(BitIOMSByteFirst, BitIOMSBitFirst, OutputSamples, BitDepth, Samples2Write[Channel][Sample]);
+                    WriteBits(MSByteFirst, MSBitFirst, OutputSamples, BitDepth, Samples2Write[Channel][Sample]);
                     BitBuffer_Skip(OutputSamples, 8 - (BitDepth % 8));
                 }
             }
+        } else if (PCM == NULL) {
+            Log(Log_ERROR, __func__, U8("PCM Pointer is NULL"));
+        } else if (OutputSamples == NULL) {
+            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
+        } else if (Samples2Write == NULL) {
+            Log(Log_ERROR, __func__, U8("Samples2Write Pointer is NULL"));
         }
     }
     

@@ -1,8 +1,8 @@
 #include <stdlib.h>
-#include <math.h>
 
-#include "../../../Dependencies/BitIO/libBitIO/include/BitIO.h"
-#include "../../../Dependencies/BitIO/libBitIO/include/BitIOMath.h"
+#include "../../../Dependencies/FoundationIO/libFoundationIO/include/BitIO.h"
+#include "../../../Dependencies/FoundationIO/libFoundationIO/include/Math.h"
+#include "../../../Dependencies/FoundationIO/libFoundationIO/include/Log.h"
 
 #include "../../include/libPCM.h"
 #include "../../include/Private/libPCMTypes.h"
@@ -22,51 +22,51 @@ extern "C" {
     
     void BMPParseMetadata(PCMFile *PCM, BitBuffer *BitB) {
         uint32_t DIBSize = 0UL;
-        PCM->FileSize                                           = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 32); // 524406
+        PCM->FileSize                                           = ReadBits(LSByteFirst, LSBitFirst, BitB, 32); // 524406
         BitBuffer_Skip(BitB, 32); // 2 16 bit Reserved fields
-        PCM->PIC->BMPPixelOffset                                = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 32); // 118 from the start, so subtract 112 bits (14 from the magic) to get the real offset from here.
+        PCM->PIC->BMPPixelOffset                                = ReadBits(LSByteFirst, LSBitFirst, BitB, 32); // 118 from the start, so subtract 112 bits (14 from the magic) to get the real offset from here.
         if (PCM->PIC->BMPPixelOffset > 14) { // DIB Header
-            DIBSize                                             = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 32); // 40
+            DIBSize                                             = ReadBits(LSByteFirst, LSBitFirst, BitB, 32); // 40
             if (DIBSize > 0) {
                 if (DIBSize == 40) {
-                    PCM->PIC->Width                             = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 32); // 1024
-                    PCM->PIC->Height                            = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 32); // 1024, Convert this to unsigned cuz it's negative
+                    PCM->PIC->Width                             = ReadBits(LSByteFirst, LSBitFirst, BitB, 32); // 1024
+                    PCM->PIC->Height                            = ReadBits(LSByteFirst, LSBitFirst, BitB, 32); // 1024, Convert this to unsigned cuz it's negative
                 } else if (DIBSize == 12) {
-                    PCM->PIC->Width                             = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 16);
-                    PCM->PIC->Height                            = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 16);
+                    PCM->PIC->Width                             = ReadBits(LSByteFirst, LSBitFirst, BitB, 16);
+                    PCM->PIC->Height                            = ReadBits(LSByteFirst, LSBitFirst, BitB, 16);
                 }
                 BitBuffer_Skip(BitB, 16); // NumPlanes, always 1
-                PCM->BitDepth                                   = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 16); // 4
-                PCM->PIC->BMPCompressionType                    = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 32); // 0
-                PCM->PIC->NumBytesUsedBySamples                 = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 32); // 524288 (Width * Height * BitDepth) / 8, so ImageSizeInBytes?
-                PCM->PIC->BMPWidthPixelsPerMeter                = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 32); // 0
-                PCM->PIC->BMPHeightPixelsPerMeter               = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 32); // 0
-                PCM->PIC->BMPColorsIndexed                      = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 32); // 0
-                PCM->PIC->BMPIndexColorsUsed                    = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 32); // 0
+                PCM->BitDepth                                   = ReadBits(LSByteFirst, LSBitFirst, BitB, 16); // 4
+                PCM->PIC->BMPCompressionType                    = ReadBits(LSByteFirst, LSBitFirst, BitB, 32); // 0
+                PCM->PIC->NumBytesUsedBySamples                 = ReadBits(LSByteFirst, LSBitFirst, BitB, 32); // 524288 (Width * Height * BitDepth) / 8, so ImageSizeInBytes?
+                PCM->PIC->BMPWidthPixelsPerMeter                = ReadBits(LSByteFirst, LSBitFirst, BitB, 32); // 0
+                PCM->PIC->BMPHeightPixelsPerMeter               = ReadBits(LSByteFirst, LSBitFirst, BitB, 32); // 0
+                PCM->PIC->BMPColorsIndexed                      = ReadBits(LSByteFirst, LSBitFirst, BitB, 32); // 0
+                PCM->PIC->BMPIndexColorsUsed                    = ReadBits(LSByteFirst, LSBitFirst, BitB, 32); // 0
                 if (DIBSize >= 56) {
-                    PCM->PIC->BMPColorSpaceType                 = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 32);
+                    PCM->PIC->BMPColorSpaceType                 = ReadBits(LSByteFirst, LSBitFirst, BitB, 32);
                     if (DIBSize >= 108) {
-                        PCM->PIC->BMPXYZCoordinates[0]          = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 32);
-                        PCM->PIC->BMPXYZCoordinates[1]          = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 32);
-                        PCM->PIC->BMPXYZCoordinates[2]          = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 32);
-                        PCM->PIC->BMPRedGamma                   = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 32);
-                        PCM->PIC->BMPGreenGamma                 = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 32);
-                        PCM->PIC->BMPBlueGamma                  = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 32);
+                        PCM->PIC->BMPXYZCoordinates[0]          = ReadBits(LSByteFirst, LSBitFirst, BitB, 32);
+                        PCM->PIC->BMPXYZCoordinates[1]          = ReadBits(LSByteFirst, LSBitFirst, BitB, 32);
+                        PCM->PIC->BMPXYZCoordinates[2]          = ReadBits(LSByteFirst, LSBitFirst, BitB, 32);
+                        PCM->PIC->BMPRedGamma                   = ReadBits(LSByteFirst, LSBitFirst, BitB, 32);
+                        PCM->PIC->BMPGreenGamma                 = ReadBits(LSByteFirst, LSBitFirst, BitB, 32);
+                        PCM->PIC->BMPBlueGamma                  = ReadBits(LSByteFirst, LSBitFirst, BitB, 32);
                         if (DIBSize >= 124) {
-                            PCM->PIC->BMPICCIntent              = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 32);
-                            PCM->PIC->BMPICCPayload             = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 32);
-                            PCM->PIC->BMPICCPayloadSize         = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 32);
+                            PCM->PIC->BMPICCIntent              = ReadBits(LSByteFirst, LSBitFirst, BitB, 32);
+                            PCM->PIC->BMPICCPayload             = ReadBits(LSByteFirst, LSBitFirst, BitB, 32);
+                            PCM->PIC->BMPICCPayloadSize         = ReadBits(LSByteFirst, LSBitFirst, BitB, 32);
                             BitBuffer_Skip(BitB, 32); // More Reserved data.
                         }
                     }
                 }
             }
         } else if (DIBSize == 40 && (PCM->PIC->BMPCompressionType == BMP_BitFields || PCM->PIC->BMPCompressionType == BMP_RGBABitFields)) {
-            PCM->PIC->BMPRedMask                                = ReadBits(BitIOLSByteFirst, BitIOMSBitFirst, BitB, PCM->BitDepth);
-            PCM->PIC->BMPGreenMask                              = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, PCM->BitDepth);
-            PCM->PIC->BMPBlueMask                               = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, PCM->BitDepth);
+            PCM->PIC->BMPRedMask                                = ReadBits(LSByteFirst, MSBitFirst, BitB, PCM->BitDepth);
+            PCM->PIC->BMPGreenMask                              = ReadBits(LSByteFirst, LSBitFirst, BitB, PCM->BitDepth);
+            PCM->PIC->BMPBlueMask                               = ReadBits(MSByteFirst, LSBitFirst, BitB, PCM->BitDepth);
             if (PCM->PIC->BMPCompressionType == BMP_RGBABitFields) {
-                PCM->PIC->BMPAlphaMask                          = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, PCM->BitDepth);
+                PCM->PIC->BMPAlphaMask                          = ReadBits(MSByteFirst, LSBitFirst, BitB, PCM->BitDepth);
             }
         } else {
             BitBuffer_Skip(BitB, Bits2Bytes((PCM->PIC->BMPPixelOffset - 14) - DIBSize, false)); // How do we dicker in the BitMasks?
@@ -75,16 +75,24 @@ extern "C" {
     }
     
     void BMPExtractPixels(PCMFile *PCM, BitBuffer *BitB, uint64_t NumPixels2Extract, uint16_t **ExtractedPixels) { // We need to convert the pixels to the Runtime Byte and Bit order.
-        for (uint64_t Pixel = 0; Pixel < NumPixels2Extract; Pixel++) {
-            for (uint16_t Channel = 0; Channel < PCM->NumChannels; Channel++) { // Ok, this works when the bit depth is 8 bits per pixel, but what about 1 bit images, or palettized ones?
-                if (PCM->BitDepth == 1) {
-                    ExtractedPixels[Channel][Pixel] = ReadBits(BitIOLSByteFirst, BitIOMSBitFirst, BitB, 1);
-                } else if (PCM->PIC->BMPColorsIndexed > 0 || PCM->PIC->BMPIndexColorsUsed > 0) {
-                    // Indexxed colors, we'll need to convert the bits to the original color by looking it up in the table.
-                } else {
-                    ExtractedPixels[Channel][Pixel] = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, PCM->BitDepth);
+        if (PCM != NULL && BitB != NULL && ExtractedPixels != NULL) {
+            for (uint64_t Pixel = 0; Pixel < NumPixels2Extract; Pixel++) {
+                for (uint16_t Channel = 0; Channel < PCM->NumChannels; Channel++) { // Ok, this works when the bit depth is 8 bits per pixel, but what about 1 bit images, or palettized ones?
+                    if (PCM->BitDepth == 1) {
+                        ExtractedPixels[Channel][Pixel] = ReadBits(LSByteFirst, MSBitFirst, BitB, 1);
+                    } else if (PCM->PIC->BMPColorsIndexed > 0 || PCM->PIC->BMPIndexColorsUsed > 0) {
+                        // Indexxed colors, we'll need to convert the bits to the original color by looking it up in the table.
+                    } else {
+                        ExtractedPixels[Channel][Pixel] = ReadBits(LSByteFirst, LSBitFirst, BitB, PCM->BitDepth);
+                    }
                 }
             }
+        } else if (PCM == NULL) {
+            Log(Log_ERROR, __func__, U8("PCM Pointer is NULL"));
+        } else if (BitB == NULL) {
+            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
+        } else if (ExtractedPixels == NULL) {
+            Log(Log_ERROR, __func__, U8("ExtractedPixels Pointer is NULL"));
         }
     }
     

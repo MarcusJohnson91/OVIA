@@ -1,5 +1,6 @@
-#include "../../../Dependencies/BitIO/libBitIO/include/BitIO.h"
-#include "../../../Dependencies/BitIO/libBitIO/include/BitIOLog.h"
+#include "../../../Dependencies/FoundationIO/libFoundationIO/include/BitIO.h"
+#include "../../../Dependencies/FoundationIO/libFoundationIO/include/Log.h"
+#include "../../../Dependencies/FoundationIO/libFoundationIO/include/GUUID.h"
 
 #include "../../include/libPCM.h"
 #include "../../include/Private/libPCMTypes.h"
@@ -9,24 +10,24 @@
 extern "C" {
 #endif
     
-    static const uint8_t WAVNULLBinaryGUID[BitIOBinaryGUUIDSize] = {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
+    static const uint8_t WAVNULLBinaryGUID[BinaryGUUIDSize] = {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
     
     void WAVWriteHeader(PCMFile *PCM, BitBuffer *BitB) {
         
     }
     
     static void WAVWriteFMTChunk(PCMFile *PCM, BitBuffer *BitB) {
-        WriteBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 32, 40); // ChunkSize
-        WriteBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 16, 0xFFFE); // WaveFormatExtensible
-        WriteBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 16, PCM->NumChannels);
-        WriteBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 32, PCM->AUD->SampleRate);
-        WriteBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 32, (PCM->AUD->SampleRate * PCM->NumChannels * PCM->BitDepth) / 8);
-        WriteBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 32, PCM->AUD->BlockAlignment);
-        WriteBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 16, PCM->BitDepth);
+        WriteBits(LSByteFirst, LSBitFirst, BitB, 32, 40); // ChunkSize
+        WriteBits(LSByteFirst, LSBitFirst, BitB, 16, 0xFFFE); // WaveFormatExtensible
+        WriteBits(LSByteFirst, LSBitFirst, BitB, 16, PCM->NumChannels);
+        WriteBits(LSByteFirst, LSBitFirst, BitB, 32, PCM->AUD->SampleRate);
+        WriteBits(LSByteFirst, LSBitFirst, BitB, 32, (PCM->AUD->SampleRate * PCM->NumChannels * PCM->BitDepth) / 8);
+        WriteBits(LSByteFirst, LSBitFirst, BitB, 32, PCM->AUD->BlockAlignment);
+        WriteBits(LSByteFirst, LSBitFirst, BitB, 16, PCM->BitDepth);
         uint8_t CBSize = 46;
-        WriteBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 16, CBSize);
-        WriteBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 16, PCM->BitDepth); // ValidBitsPerSample
-        WriteBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 32, PCM->AUD->ChannelMask);
+        WriteBits(LSByteFirst, LSBitFirst, BitB, 16, CBSize);
+        WriteBits(LSByteFirst, LSBitFirst, BitB, 16, PCM->BitDepth); // ValidBitsPerSample
+        WriteBits(LSByteFirst, LSBitFirst, BitB, 32, PCM->AUD->ChannelMask);
         WriteGUUID(GUIDString, BitB, WAVNULLBinaryGUID);
     }
     
@@ -37,18 +38,20 @@ extern "C" {
     }
     
     void WAVInsertSamples(PCMFile *PCM, BitBuffer *OutputSamples, uint32_t NumSamples2Write, uint32_t **Samples2Write) {
-        if (PCM == NULL) {
-            BitIOLog(BitIOLog_ERROR, __func__, "PCM Pointer is NULL");
-        } else if (OutputSamples == NULL) {
-            BitIOLog(BitIOLog_ERROR, __func__, "BitBuffer Pointer is NULL");
-        } else {
+        if (PCM != NULL && OutputSamples != NULL && Samples2Write != NULL) {
             uint64_t ChannelCount = PCM->NumChannels;
             uint64_t BitDepth     = PCM->BitDepth;
             for (uint32_t Sample = 0; Sample < NumSamples2Write; Sample++) {
                 for (uint16_t Channel = 0; Channel < ChannelCount; Channel++) {
-                    WriteBits(BitIOLSByteFirst, BitIOLSBitFirst, OutputSamples, BitDepth, Samples2Write[Channel][Sample]);
+                    WriteBits(LSByteFirst, LSBitFirst, OutputSamples, BitDepth, Samples2Write[Channel][Sample]);
                 }
             }
+        } else if (PCM == NULL) {
+            Log(Log_ERROR, __func__, U8("PCM Pointer is NULL"));
+        } else if (OutputSamples == NULL) {
+            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
+        } else if (Samples2Write == NULL) {
+            Log(Log_ERROR, __func__, U8("Samples2Write Pointer is NULL"));
         }
     }
     
