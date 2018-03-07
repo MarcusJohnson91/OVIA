@@ -24,9 +24,9 @@ extern "C" {
         uint16_t SampleRateExponent        = ReadBits(MSByteFirst, LSBitFirst, BitB, 16) - 16446;
         uint64_t SampleRateMantissa        = ReadBits(MSByteFirst, LSBitFirst, BitB, 64);
         if (SampleRateExponent >= 0) {
-            PCM->AUD->SampleRate           = SampleRateMantissa << SampleRateExponent;
+            PCM->Aud->SampleRate           = SampleRateMantissa << SampleRateExponent;
         } else {
-            PCM->AUD->SampleRate           = (SampleRateMantissa + ((1LLU << (-SampleRateExponent - 1)) >> (-SampleRateExponent)));
+            PCM->Aud->SampleRate           = (SampleRateMantissa + ((1LLU << (-SampleRateExponent - 1)) >> (-SampleRateExponent)));
         }
     }
     
@@ -36,7 +36,7 @@ extern "C" {
         for (uint32_t TagByte = 0UL; TagByte < AIFFNameSize; TagByte++) {
             SongTitleTagString[TagByte]    = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
-        PCM->AUD->Meta->SongTitleTag       = SongTitleTagString;
+        PCM->Aud->Meta->SongTitleTag       = SongTitleTagString;
     }
     
     static void AIFParseAuthorChunk(PCMFile *PCM, BitBuffer *BitB) {
@@ -45,7 +45,7 @@ extern "C" {
         for (uint32_t TagByte = 0UL; TagByte < AIFFAuthSize; TagByte++) {
             AuthorString[TagByte]          = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
-        PCM->AUD->Meta->ArtistTag          = AuthorString;
+        PCM->Aud->Meta->ArtistTag          = AuthorString;
     }
     
     static void AIFParseAnnotationChunk(PCMFile *PCM, BitBuffer *BitB) {
@@ -54,8 +54,8 @@ extern "C" {
         for (uint32_t TagByte = 0UL; TagByte < AIFFAnnoSize; TagByte++) {
             AnnotationString[TagByte]      = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
-        PCM->AUD->Meta->NumANNOChunks     += 1;
-        PCM->AUD->Meta->AnnoChunks[PCM->AUD->Meta->NumANNOChunks - 1] = AnnotationString;
+        PCM->Aud->Meta->NumANNOChunks     += 1;
+        PCM->Aud->Meta->AnnoChunks[PCM->Aud->Meta->NumANNOChunks - 1] = AnnotationString;
     }
     
     void AIFParseMetadata(PCMFile *PCM, BitBuffer *BitB) {
@@ -110,9 +110,9 @@ extern "C" {
                     IFFSkipPadding(BitB, AIFFSubChunkSize);
                     break;
                 case AIF_SSND:
-                    PCM->AUD->AIFOffset    = ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
-                    PCM->AUD->AIFBlockSize = ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
-                    BitBuffer_Skip(BitB, Bytes2Bits(PCM->AUD->AIFOffset));
+                    PCM->Aud->AIFOffset    = ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
+                    PCM->Aud->AIFBlockSize = ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
+                    BitBuffer_Skip(BitB, Bytes2Bits(PCM->Aud->AIFOffset));
                     break;
             }
         } else {

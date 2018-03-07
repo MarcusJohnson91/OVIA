@@ -28,39 +28,39 @@ extern "C" {
         WriteBits(MSByteFirst, LSBitFirst, BitB, 16, PCM->NumChannels);
         WriteBits(MSByteFirst, LSBitFirst, BitB, 32, PCM->NumChannelAgnosticSamples);
         WriteBits(MSByteFirst, LSBitFirst, BitB, 16, PCM->BitDepth);
-        uint64_t SampleRate = ConvertInteger2Double(PCM->AUD->SampleRate);
+        uint64_t SampleRate = ConvertInteger2Double(PCM->Aud->SampleRate);
         WriteBits(MSByteFirst, LSBitFirst, BitB, 16, (SampleRate >> 52) + 15360); // SampleRate Exponent
         WriteBits(MSByteFirst, LSBitFirst, BitB, 64, 0x8000000000000000LLU | SampleRate << 11); // SampleRate Mantissa
     }
     
     static void AIFWriteTitle(PCMFile *PCM, BitBuffer *BitB) {
-        if (PCM->AUD->Meta->SongTitleTag != NULL) {
+        if (PCM->Aud->Meta->SongTitleTag != NULL) {
             WriteBits(MSByteFirst, LSBitFirst, BitB, 32, AIF_NAME);
-            WriteBits(MSByteFirst, MSBitFirst, BitB, 32, PCM->AUD->Meta->TitleSize);
-            for (uint8_t TitleByte = 0; TitleByte < PCM->AUD->Meta->TitleSize; TitleByte++) {
-                WriteBits(MSByteFirst, LSBitFirst, BitB, 8, PCM->AUD->Meta->SongTitleTag[TitleByte]);
+            WriteBits(MSByteFirst, MSBitFirst, BitB, 32, PCM->Aud->Meta->TitleSize);
+            for (uint8_t TitleByte = 0; TitleByte < PCM->Aud->Meta->TitleSize; TitleByte++) {
+                WriteBits(MSByteFirst, LSBitFirst, BitB, 8, PCM->Aud->Meta->SongTitleTag[TitleByte]);
             }
         }
-        IFFSkipPadding(BitB, PCM->AUD->Meta->TitleSize);
+        IFFSkipPadding(BitB, PCM->Aud->Meta->TitleSize);
     }
     
     static void AIFWriteArtist(PCMFile *PCM, BitBuffer *BitB) {
-        if (PCM->AUD->Meta->ArtistTag != NULL) {
+        if (PCM->Aud->Meta->ArtistTag != NULL) {
             WriteBits(MSByteFirst, LSBitFirst, BitB, 32, AIF_AUTH);
-            WriteBits(MSByteFirst, MSBitFirst, BitB, 32, PCM->AUD->Meta->ArtistTagSize);
-            for (uint8_t ArtistByte = 0; ArtistByte < PCM->AUD->Meta->ArtistTagSize; ArtistByte++) {
-                WriteBits(MSByteFirst, LSBitFirst, BitB, 8, PCM->AUD->Meta->SongTitleTag[ArtistByte]);
+            WriteBits(MSByteFirst, MSBitFirst, BitB, 32, PCM->Aud->Meta->ArtistTagSize);
+            for (uint8_t ArtistByte = 0; ArtistByte < PCM->Aud->Meta->ArtistTagSize; ArtistByte++) {
+                WriteBits(MSByteFirst, LSBitFirst, BitB, 8, PCM->Aud->Meta->SongTitleTag[ArtistByte]);
             }
         }
-        IFFSkipPadding(BitB, PCM->AUD->Meta->ArtistTagSize);
+        IFFSkipPadding(BitB, PCM->Aud->Meta->ArtistTagSize);
     }
     
     static void AIFWriteSSND(PCMFile *PCM, BitBuffer *BitB) {
         WriteBits(MSByteFirst, LSBitFirst, BitB, 32, AIF_SSND);
         uint32_t ChunkSize = 8 + ((PCM->NumChannelAgnosticSamples * PCM->NumChannels) * Bits2Bytes(PCM->BitDepth, true));
         WriteBits(MSByteFirst, LSBitFirst, BitB, 32, ChunkSize);
-        WriteBits(MSByteFirst, LSBitFirst, BitB, 32, PCM->AUD->AIFOffset);
-        WriteBits(MSByteFirst, LSBitFirst, BitB, 32, PCM->AUD->AIFBlockSize);
+        WriteBits(MSByteFirst, LSBitFirst, BitB, 32, PCM->Aud->AIFOffset);
+        WriteBits(MSByteFirst, LSBitFirst, BitB, 32, PCM->Aud->AIFBlockSize);
     }
     
     void AIFWriteHeader(PCMFile *PCM, BitBuffer *BitB) {

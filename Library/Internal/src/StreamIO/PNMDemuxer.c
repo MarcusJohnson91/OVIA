@@ -35,7 +35,7 @@ extern "C" {
         for (uint64_t WidthByte = 0; WidthByte < WidthStringSize; WidthByte++) {
             WidthString[WidthByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
-        PCM->PIC->Width = atoll(WidthString);
+        PCM->Pic->Width = atoll(WidthString);
         free(WidthString);
         /* Read Width */
         
@@ -51,7 +51,7 @@ extern "C" {
         for (uint64_t HeightByte = 0; HeightByte < HeightStringSize; HeightByte++) {
             HeightString[HeightByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
-        PCM->PIC->Height = atoll(HeightString); // Ok, so we read the Height.
+        PCM->Pic->Height = atoll(HeightString); // Ok, so we read the Height.
         free(HeightString);
     }
     
@@ -65,7 +65,7 @@ extern "C" {
         for (uint64_t WidthByte = 0; WidthByte < WidthStringSize; WidthByte++) {
             WidthString[WidthByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
-        PCM->PIC->Width = atoll(WidthString);
+        PCM->Pic->Width = atoll(WidthString);
         free(WidthString);
         /* Read Width */
         
@@ -78,7 +78,7 @@ extern "C" {
         for (uint64_t HeightByte = 0; HeightByte < HeightStringSize; HeightByte++) {
             HeightString[HeightByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
-        PCM->PIC->Height = atoll(HeightString); // Ok, so we read the Height.
+        PCM->Pic->Height = atoll(HeightString); // Ok, so we read the Height.
         free(HeightString);
         /* Read Height */
         
@@ -108,7 +108,7 @@ extern "C" {
         for (uint64_t WidthByte = 0; WidthByte < WidthStringSize; WidthByte++) {
             WidthString[WidthByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
-        PCM->PIC->Width = atoll(WidthString);
+        PCM->Pic->Width = atoll(WidthString);
         free(WidthString);
         /* Read Width */
         
@@ -122,7 +122,7 @@ extern "C" {
         for (uint64_t HeightByte = 0; HeightByte < HeightStringSize; HeightByte++) {
             HeightString[HeightByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
-        PCM->PIC->Height = atoll(HeightString); // Ok, so we read the Height.
+        PCM->Pic->Height = atoll(HeightString); // Ok, so we read the Height.
         free(HeightString);
         /* Read Height */
         
@@ -167,22 +167,22 @@ extern "C" {
         }
         if (strcasecmp(TupleTypeString, U8("BLACKANDWHITE")) == 0) {
             PCM->NumChannels = 1;
-            PCM->PIC->PXMTupleType   = PXM_TUPLE_BnW;
+            PCM->Pic->PXMTupleType   = PXM_TUPLE_BnW;
         } else if (strcasecmp(TupleTypeString, U8("GRAYSCALE")) == 0) {
             PCM->NumChannels = 1;
-            PCM->PIC->PXMTupleType   = PXM_TUPLE_Gray;
+            PCM->Pic->PXMTupleType   = PXM_TUPLE_Gray;
         } else if (strcasecmp(TupleTypeString, U8("GRAYSCALE_ALPHA")) == 0) {
             PCM->NumChannels = 2;
-            PCM->PIC->PXMTupleType   = PXM_TUPLE_GrayAlpha;
+            PCM->Pic->PXMTupleType   = PXM_TUPLE_GrayAlpha;
         } else if (strcasecmp(TupleTypeString, U8("RGB")) == 0) {
             PCM->NumChannels = 3;
-            PCM->PIC->PXMTupleType   = PXM_TUPLE_RGB;
+            PCM->Pic->PXMTupleType   = PXM_TUPLE_RGB;
         } else if (strcasecmp(TupleTypeString, U8("RGB_ALPHA")) == 0) {
             PCM->NumChannels = 4;
-            PCM->PIC->PXMTupleType   = PXM_TUPLE_RGBAlpha;
+            PCM->Pic->PXMTupleType   = PXM_TUPLE_RGBAlpha;
         } else {
             PCM->NumChannels = 0;
-            PCM->PIC->PXMTupleType   = PXM_TUPLE_Unknown;
+            PCM->Pic->PXMTupleType   = PXM_TUPLE_Unknown;
             Log(Log_ERROR, __func__, U8("Unknown PXM Tuple: %s"), TupleTypeString);
         }
         free(TupleTypeString);
@@ -199,39 +199,39 @@ extern "C" {
             PXMMagicID[PXMMagicByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
         if (strncasecmp(PXMMagicID, U8("P1"), PXMMagicSize) == 0 || strncasecmp(PXMMagicID, U8("P2"), PXMMagicSize) == 0 || strncasecmp(PXMMagicID, U8("P3"), PXMMagicSize) == 0) {
-            PCM->PIC->PXMType = ASCIIPXM;
+            PCM->Pic->PXMType = ASCIIPXM;
         } else if (strncasecmp(PXMMagicID, U8("P4"), PXMMagicSize) == 0 || strncasecmp(PXMMagicID, U8("P5"), PXMMagicSize) == 0 || strncasecmp(PXMMagicID, U8("P6"), PXMMagicSize) == 0) {
-            PCM->PIC->PXMType = BinaryPXM;
+            PCM->Pic->PXMType = BinaryPXM;
         } else if (strncasecmp(PXMMagicID, U8("P7"), PXMMagicSize) == 0) {
-            PCM->PIC->PXMType = PAMPXM;
+            PCM->Pic->PXMType = PAMPXM;
         }
     }
     
     void PXMParseMetadata(PCMFile *PCM, BitBuffer *BitB) {
         uint8_t NumFieldsRead = 0;
         uint8_t Fields2Read = 0;
-        if (PCM->PIC->PXMType == PAMPXM) {
+        if (PCM->Pic->PXMType == PAMPXM) {
             Fields2Read = 5;
-        } else if (PCM->PIC->PXMType == ASCIIPXM) {
+        } else if (PCM->Pic->PXMType == ASCIIPXM) {
             Fields2Read = 2; // there is no MaxVal field
-        } else if (PCM->PIC->PXMType == BinaryPXM) {
+        } else if (PCM->Pic->PXMType == BinaryPXM) {
             Fields2Read = 3;
         }
         
         BitBuffer_Skip(BitB, 8); // Skip the LineFeed after the FileType marker
                                 // Before each field we need to check for Comments if the file is ASCII.
-        if (PCM->PIC->PXMType == ASCIIPXM) {
+        if (PCM->Pic->PXMType == ASCIIPXM) {
             PXMParsePNMASCIIHeader(PCM, BitB);
-        } else if (PCM->PIC->PXMType == BinaryPXM) {
+        } else if (PCM->Pic->PXMType == BinaryPXM) {
             PXMParsePNMBinaryHeader(PCM, BitB);
-        } else if (PCM->PIC->PXMType == PAMPXM) {
+        } else if (PCM->Pic->PXMType == PAMPXM) {
             PXMParsePAMHeader(PCM, BitB);
         }
     }
     
     void PXMExtractPixels(PCMFile *PCM, BitBuffer *BitB, uint64_t NumPixels2Read, uint16_t **ExtractedPixels) {
         if (PCM != NULL && BitB != NULL && ExtractedPixels != NULL) {
-            if (PCM->PIC->PXMType == ASCIIPXM) {
+            if (PCM->Pic->PXMType == ASCIIPXM) {
                 for (uint64_t Pixel = 0LLU; Pixel < NumPixels2Read; Pixel++) {
                     for (uint8_t Channel = 0; Channel < PCM->NumChannels; Channel++) {
                         uint8_t SubPixelStringSize          = 0;
@@ -246,11 +246,11 @@ extern "C" {
                         free(SubPixelString);
                     }
                 }
-            } else if (PCM->PIC->PXMType == BinaryPXM || PCM->PIC->PXMType == PAMPXM) {
+            } else if (PCM->Pic->PXMType == BinaryPXM || PCM->Pic->PXMType == PAMPXM) {
                 for (uint64_t Pixel = 0LLU; Pixel < NumPixels2Read; Pixel++) {
                     for (uint8_t Channel = 0; Channel < PCM->NumChannels; Channel++) {
                         uint8_t CurrentPixel                = ReadBits(LSByteFirst, LSBitFirst, BitB, PCM->BitDepth);
-                        if (PCM->PIC->PXMTupleType == PXM_TUPLE_BnW && PCM->PIC->PXMType != PAMPXM) {
+                        if (PCM->Pic->PXMTupleType == PXM_TUPLE_BnW && PCM->Pic->PXMType != PAMPXM) {
                             ExtractedPixels[Channel][Pixel] = ~CurrentPixel; // 1 = black, 0 = white
                         } else {
                             ExtractedPixels[Channel][Pixel] = CurrentPixel; // 1 = white, 0 = black

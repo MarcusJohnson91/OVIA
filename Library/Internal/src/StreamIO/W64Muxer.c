@@ -20,11 +20,11 @@ extern "C" {
     }
     
     static void W64WriteFMTChunk(PCMFile *PCM, BitBuffer *BitB) {
-        uint64_t ByteRate   = CalculateW64ByteRate(PCM->NumChannels, PCM->AUD->SampleRate, PCM->BitDepth);
+        uint64_t ByteRate   = CalculateW64ByteRate(PCM->NumChannels, PCM->Aud->SampleRate, PCM->BitDepth);
         uint64_t BlockAlign = CalculateW64BlockAlign(PCM->NumChannels, PCM->BitDepth);
         WriteBits(LSByteFirst, LSBitFirst, BitB, 16, 0);
         WriteBits(LSByteFirst, LSBitFirst, BitB, 16, PCM->NumChannels);
-        WriteBits(LSByteFirst, LSBitFirst, BitB, 32, PCM->AUD->SampleRate);
+        WriteBits(LSByteFirst, LSBitFirst, BitB, 32, PCM->Aud->SampleRate);
         WriteBits(LSByteFirst, LSBitFirst, BitB, 32, ByteRate);
         WriteBits(LSByteFirst, LSBitFirst, BitB, 32, BlockAlign);
         WriteBits(LSByteFirst, LSBitFirst, BitB, 16, PCM->BitDepth);

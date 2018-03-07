@@ -11,8 +11,8 @@ extern "C" {
 #endif
     
     void SetBMPParameters(PCMFile *PCM, uint32_t Height, uint32_t Width, uint8_t NumChannels, uint16_t BitDepth) {
-        PCM->PIC->Height = Height;
-        PCM->PIC->Width  = Width;
+        PCM->Pic->Height = Height;
+        PCM->Pic->Width  = Width;
         PCM->BitDepth    = BitDepth;
         PCM->NumChannels = NumChannels;
     }
@@ -23,22 +23,22 @@ extern "C" {
         WriteBits(LSByteFirst, LSBitFirst, BitB, 32, PCM->FileSize);
         WriteBits(LSByteFirst, LSBitFirst, BitB, 16, 0); // Reserved1
         WriteBits(LSByteFirst, LSBitFirst, BitB, 16, 0); // Reserved2
-        WriteBits(LSByteFirst, LSBitFirst, BitB, 32, PCM->PIC->BMPPixelOffset);
+        WriteBits(LSByteFirst, LSBitFirst, BitB, 32, PCM->Pic->BMPPixelOffset);
         uint32_t DIBHeaderSize = 40;
         WriteBits(LSByteFirst, LSBitFirst, BitB, 32, DIBHeaderSize);
         /* Write DIB Header */
-        WriteBits(LSByteFirst, LSBitFirst, BitB, 32, PCM->PIC->Width);
-        WriteBits(LSByteFirst, LSBitFirst, BitB, 32, PCM->PIC->Height);
+        WriteBits(LSByteFirst, LSBitFirst, BitB, 32, PCM->Pic->Width);
+        WriteBits(LSByteFirst, LSBitFirst, BitB, 32, PCM->Pic->Height);
         uint16_t NumPlanes = 1; // Constant
         WriteBits(LSByteFirst, LSBitFirst, BitB, 16, NumPlanes);
         WriteBits(LSByteFirst, LSBitFirst, BitB, 16, PCM->BitDepth);
-        WriteBits(LSByteFirst, LSBitFirst, BitB, 32, PCM->PIC->BMPCompressionType);
+        WriteBits(LSByteFirst, LSBitFirst, BitB, 32, PCM->Pic->BMPCompressionType);
         uint32_t ImageSize = Bits2Bytes(NumPixels * PCM->BitDepth, No);
         WriteBits(LSByteFirst, LSBitFirst, BitB, 32, ImageSize);
-        WriteBits(LSByteFirst, LSBitFirst, BitB, 32, PCM->PIC->BMPWidthPixelsPerMeter);
-        WriteBits(LSByteFirst, LSBitFirst, BitB, 32, PCM->PIC->BMPHeightPixelsPerMeter);
-        WriteBits(LSByteFirst, LSBitFirst, BitB, 32, PCM->PIC->BMPColorsIndexed);
-        WriteBits(LSByteFirst, LSBitFirst, BitB, 32, PCM->PIC->BMPIndexColorsUsed);
+        WriteBits(LSByteFirst, LSBitFirst, BitB, 32, PCM->Pic->BMPWidthPixelsPerMeter);
+        WriteBits(LSByteFirst, LSBitFirst, BitB, 32, PCM->Pic->BMPHeightPixelsPerMeter);
+        WriteBits(LSByteFirst, LSBitFirst, BitB, 32, PCM->Pic->BMPColorsIndexed);
+        WriteBits(LSByteFirst, LSBitFirst, BitB, 32, PCM->Pic->BMPIndexColorsUsed);
     }
     
     void BMPInsertPixels(PCMFile *PCM, BitBuffer *OutputPixels, uint32_t NumPixels2Write, uint16_t **Pixels2Write) {

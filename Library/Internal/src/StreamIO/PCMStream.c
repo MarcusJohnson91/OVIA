@@ -45,9 +45,9 @@ extern "C" {
         if (PCM == NULL) {
             Log(Log_ERROR, __func__, U8("PCMFile Pointer is NULL"));
         } else {
-            PCM->AUD       = calloc(1, sizeof(AUDHeader));
-            PCM->AUD->Meta = calloc(1, sizeof(AUDMetadata));
-            PCM->PIC       = calloc(1, sizeof(PICHeader));
+            PCM->Aud       = calloc(1, sizeof(AUDHeader));
+            PCM->Aud->Meta = calloc(1, sizeof(AUDMetadata));
+            PCM->Pic       = calloc(1, sizeof(PICHeader));
         }
         return PCM;
     }
@@ -98,7 +98,7 @@ extern "C" {
         if (PCM == NULL) {
             Log(Log_ERROR, __func__, U8("PCM Pointer is NULL"));
         } else {
-            PCM->PIC->PXMType = PXMType;
+            PCM->Pic->PXMType = PXMType;
         }
     }
     
@@ -127,22 +127,6 @@ extern "C" {
     uint64_t PCM_GetNumSamples(PCMFile *PCM) {
         return PCM->NumChannelAgnosticSamples;
     }
-    /*
-     Samples *PCM_ExtractSamples2(PCMFile *PCM, BitBuffer *Input, uint64_t NumSamples2Extract) {
-     uint32_t **SampleArray = calloc(NumSamples2Extract, PCM->BitDepth * PCM->NumChannels);
-     if (PCM->InputFileType == AIFFormat) {
-     AIFExtractSamples(PCM, SampleArray, NumSamples2Extract, ExtractedSamples);
-     } else if (PCM->InputFileType == WAVFormat) {
-     WAVExtractSamples(PCM, SampleArray, NumSamples2Extract, ExtractedSamples);
-     } else if (PCM->InputFileType == W64Format) {
-     W64ExtractSamples(PCM, SampleArray, NumSamples2Extract, ExtractedSamples);
-     } else if (PCM->InputFileType == PXMFormat) {
-     PXMExtractPixels(PCM, PixelArray, NumPixels2Extract, ExtractedPixels);
-     } else if (PCM->InputFileType == BMPFormat) {
-     BMPExtractPixels(PCM, PixelArray, NumPixels2Extract, ExtractedPixels);
-     }
-     }
-     */
     
     void PCM_ExtractSamples(PCMFile *PCM, BitBuffer *SampleArray, uint64_t NumSamples2Extract, uint32_t **ExtractedSamples) {
         if (PCM->InputFileType == AIFFormat) {
@@ -195,9 +179,9 @@ extern "C" {
     }
     
     void PCMFile_Deinit(PCMFile *PCM) {
-        free(PCM->AUD->Meta);
-        free(PCM->AUD);
-        free(PCM->PIC);
+        free(PCM->Aud->Meta);
+        free(PCM->Aud);
+        free(PCM->Pic);
         free(PCM);
     }
     

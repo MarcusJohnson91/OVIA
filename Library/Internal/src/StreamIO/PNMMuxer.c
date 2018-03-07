@@ -22,11 +22,11 @@ extern "C" {
     }
     
     void PXMWriteHeader(PCMFile *PCM, BitBuffer *BitB) {
-        if (PCM->PIC->PXMType == PAMPXM) {
+        if (PCM->Pic->PXMType == PAMPXM) {
             PXMWritePAMHeader(PCM, BitB);
-        } else if (PCM->PIC->PXMType == BinaryPXM) {
+        } else if (PCM->Pic->PXMType == BinaryPXM) {
             PXMWriteBinaryPNMHeader(PCM, BitB);
-        } else if (PCM->PIC->PXMType == ASCIIPXM) {
+        } else if (PCM->Pic->PXMType == ASCIIPXM) {
             PXMWriteASCIIPNMHeader(PCM, BitB);
         }
     }

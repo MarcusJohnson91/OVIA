@@ -32,8 +32,8 @@ extern "C" {
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
             Artist[Byte]          = ReadBits(LSByteFirst, LSBitFirst, BitB, 8);
         }
-        PCM->AUD->Meta->NumTags  += 1;
-        PCM->AUD->Meta->ArtistTag = Artist;
+        PCM->Aud->Meta->NumTags  += 1;
+        PCM->Aud->Meta->ArtistTag = Artist;
         IFFSkipPadding(BitB, ChunkSize);
     }
     
@@ -42,8 +42,8 @@ extern "C" {
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
             ReleaseDate[Byte]          = ReadBits(LSByteFirst, LSBitFirst, BitB, 8);
         }
-        PCM->AUD->Meta->NumTags       += 1;
-        PCM->AUD->Meta->ReleaseDateTag = ReleaseDate;
+        PCM->Aud->Meta->NumTags       += 1;
+        PCM->Aud->Meta->ReleaseDateTag = ReleaseDate;
         IFFSkipPadding(BitB, ChunkSize);
     }
     
@@ -52,8 +52,8 @@ extern "C" {
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
             Genre[Byte]          = ReadBits(LSByteFirst, LSBitFirst, BitB, 8);
         }
-        PCM->AUD->Meta->NumTags += 1;
-        PCM->AUD->Meta->GenreTag = Genre;
+        PCM->Aud->Meta->NumTags += 1;
+        PCM->Aud->Meta->GenreTag = Genre;
         IFFSkipPadding(BitB, ChunkSize);
     }
     
@@ -62,8 +62,8 @@ extern "C" {
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
             Title[Byte]              = ReadBits(LSByteFirst, LSBitFirst, BitB, 8);
         }
-        PCM->AUD->Meta->NumTags     += 1;
-        PCM->AUD->Meta->SongTitleTag = Title;
+        PCM->Aud->Meta->NumTags     += 1;
+        PCM->Aud->Meta->SongTitleTag = Title;
         IFFSkipPadding(BitB, ChunkSize);
     }
     
@@ -72,8 +72,8 @@ extern "C" {
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
             Album[Byte]          = ReadBits(LSByteFirst, LSBitFirst, BitB, 8);
         }
-        PCM->AUD->Meta->NumTags += 1;
-        PCM->AUD->Meta->AlbumTag = Album;
+        PCM->Aud->Meta->NumTags += 1;
+        PCM->Aud->Meta->AlbumTag = Album;
         IFFSkipPadding(BitB, ChunkSize);
     }
     
@@ -82,8 +82,8 @@ extern "C" {
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
             Encoder[Byte]          = ReadBits(LSByteFirst, LSBitFirst, BitB, 8);
         }
-        PCM->AUD->Meta->NumTags   += 1;
-        PCM->AUD->Meta->EncoderTag = Encoder;
+        PCM->Aud->Meta->NumTags   += 1;
+        PCM->Aud->Meta->EncoderTag = Encoder;
         IFFSkipPadding(BitB, ChunkSize);
     }
     
@@ -126,11 +126,11 @@ extern "C" {
         } else if (BitB == NULL) {
             Log(Log_ERROR, __func__, U8("Pointer to BitBuffer is NULL"));
         } else {
-            PCM->AUD->WAVCompressionFormat  = ReadBits(LSByteFirst, LSBitFirst, BitB, 16);
+            PCM->Aud->WAVCompressionFormat  = ReadBits(LSByteFirst, LSBitFirst, BitB, 16);
             PCM->NumChannels                = ReadBits(LSByteFirst, LSBitFirst, BitB, 16);
-            PCM->AUD->SampleRate            = ReadBits(LSByteFirst, LSBitFirst, BitB, 32);
-            PCM->AUD->WAVAvgBytesPerSecond  = ReadBits(LSByteFirst, LSBitFirst, BitB, 32);
-            PCM->AUD->BlockAlignment        = ReadBits(LSByteFirst, LSBitFirst, BitB, 32);
+            PCM->Aud->SampleRate            = ReadBits(LSByteFirst, LSBitFirst, BitB, 32);
+            PCM->Aud->WAVAvgBytesPerSecond  = ReadBits(LSByteFirst, LSBitFirst, BitB, 32);
+            PCM->Aud->BlockAlignment        = ReadBits(LSByteFirst, LSBitFirst, BitB, 32);
             PCM->BitDepth                   = ReadBits(LSByteFirst, LSBitFirst, BitB, 16);
             if (ChunkSize == 18) {
                 uint16_t CBSize             = ReadBits(LSByteFirst, LSBitFirst, BitB, 16);

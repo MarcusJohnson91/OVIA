@@ -20,19 +20,19 @@ extern "C" {
         WriteBits(LSByteFirst, LSBitFirst, BitB, 32, 40); // ChunkSize
         WriteBits(LSByteFirst, LSBitFirst, BitB, 16, 0xFFFE); // WaveFormatExtensible
         WriteBits(LSByteFirst, LSBitFirst, BitB, 16, PCM->NumChannels);
-        WriteBits(LSByteFirst, LSBitFirst, BitB, 32, PCM->AUD->SampleRate);
-        WriteBits(LSByteFirst, LSBitFirst, BitB, 32, (PCM->AUD->SampleRate * PCM->NumChannels * PCM->BitDepth) / 8);
-        WriteBits(LSByteFirst, LSBitFirst, BitB, 32, PCM->AUD->BlockAlignment);
+        WriteBits(LSByteFirst, LSBitFirst, BitB, 32, PCM->Aud->SampleRate);
+        WriteBits(LSByteFirst, LSBitFirst, BitB, 32, (PCM->Aud->SampleRate * PCM->NumChannels * PCM->BitDepth) / 8);
+        WriteBits(LSByteFirst, LSBitFirst, BitB, 32, PCM->Aud->BlockAlignment);
         WriteBits(LSByteFirst, LSBitFirst, BitB, 16, PCM->BitDepth);
         uint8_t CBSize = 46;
         WriteBits(LSByteFirst, LSBitFirst, BitB, 16, CBSize);
         WriteBits(LSByteFirst, LSBitFirst, BitB, 16, PCM->BitDepth); // ValidBitsPerSample
-        WriteBits(LSByteFirst, LSBitFirst, BitB, 32, PCM->AUD->ChannelMask);
+        WriteBits(LSByteFirst, LSBitFirst, BitB, 32, PCM->Aud->ChannelMask);
         WriteGUUID(GUIDString, BitB, WAVNULLBinaryGUID);
     }
     
     static void WAVWriteLISTChunk(PCMFile *PCM, BitBuffer *BitB) {
-        if (PCM->AUD->Meta->NumTags > 0) {
+        if (PCM->Aud->Meta->NumTags > 0) {
             // Start checking for tags to write
         }
     }
