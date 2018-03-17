@@ -5,8 +5,8 @@
 
 #include "../../include/Private/Encode/libModernPNG_Encode.h"
 
-#include "../../../Dependencies/libPCM/Dependencies/BitIO/libBitIO/include/BitIOLog.h"
-#include "../../../Dependencies/libPCM/Dependencies/BitIO/libBitIO/include/BitIOMath.h"
+#include "../../../Dependencies/libPCM/Dependencies/FoundationIO/libFoundationIO/include/Log.h"
+#include "../../../Dependencies/libPCM/Dependencies/FoundationIO/libFoundationIO/include/Math.h"
 
 
 #ifdef __cplusplus
@@ -15,9 +15,7 @@ extern "C" {
     
     EncodePNG *EncodePNG_Init(void) {
         EncodePNG *Enc  = calloc(1, sizeof(EncodePNG));
-        if (Enc == NULL) {
-            BitIOLog(BitIOLog_ERROR, libModernPNGLibraryName, __func__, u8"Failed to allocate enough memory for EncodePNG");
-        } else {
+        if (Enc != NULL) {
             Enc->acTL       = calloc(1, sizeof(acTL));
             Enc->bkGD       = calloc(1, sizeof(bkGD));
             Enc->cHRM       = calloc(1, sizeof(cHRM));
@@ -36,6 +34,8 @@ extern "C" {
             Enc->Text       = calloc(1, sizeof(Text));
             Enc->tIMe       = calloc(1, sizeof(tIMe));
             Enc->tRNS       = calloc(1, sizeof(tRNS));
+        } else {
+            Log(Log_ERROR, __func__, U8("Failed to allocate enough memory for EncodePNG"));
         }
         return Enc;
     }

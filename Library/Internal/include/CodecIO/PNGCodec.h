@@ -2,8 +2,8 @@
 #include <stdint.h>
 #include <math.h>
 
-#include "../../Dependencies/libPCM/Dependencies/BitIO/libBitIO/include/BitIO.h"
-#include "../../Dependencies/libPCM/Dependencies/BitIO/libBitIO/include/StringIO.h"
+#include "../../Dependencies/libPCM/Dependencies/FoundationIO/libFoundationIO/include/BitIO.h"
+#include "../../Dependencies/libPCM/Dependencies/FoundationIO/libFoundationIO/include/StringIO.h"
 
 #pragma once
 
@@ -15,9 +15,6 @@ extern "C" {
 #endif
     
 #define PNGMagic 0x89504E470D0A1A0A
-    
-    static const UTF8 libModernPNGVersion[]     = u8"0.2.5";
-    static const UTF8 libModernPNGLibraryName[] = u8"libModernPNG";
     
     enum libModernPNGChunkMarkers {
         acTLMarker         = 0x6163544C,
@@ -68,8 +65,8 @@ extern "C" {
     };
     
     static const char ModernPNGNumber2Month[12][3] = {
-        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+        U8("Jan"), U8("Feb"), U8("Mar"), U8("Apr"), U8("May"), U8("Jun"),
+        U8("Jul"), U8("Aug"), U8("Sep"), U8("Oct"), U8("Nov"), U8("Dec"),
     };
     
     static const uint8_t ModernPNGChannelsPerColorType[7] = {

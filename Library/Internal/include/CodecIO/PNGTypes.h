@@ -2,8 +2,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../../../Dependencies/libPCM/Dependencies/BitIO/libBitIO/include/StringIO.h"
-#include "../../../Dependencies/libPCM/Dependencies/BitIO/libBitIO/include/BitIOLog.h"
+#include "../../../Dependencies/libPCM/Dependencies/FoundationIO/libFoundationIO/include/StringIO.h"
+#include "../../../Dependencies/libPCM/Dependencies/FoundationIO/libFoundationIO/include/Log.h"
 
 #pragma once
 
@@ -143,6 +143,8 @@ extern "C" {
     } sCAL;
 
     typedef struct hIST {
+        uint32_t   NumColors;
+        uint16_t  *Histogram; // For each PLTE entry, there needs to be 1 array element
         bool       CRCIsValid:1;
     } hIST;
 

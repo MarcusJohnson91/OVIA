@@ -1,4 +1,5 @@
-#include "../../../Dependencies/libPCM/Dependencies/BitIO/libBitIO/include/BitIOMath.h"
+#include "../../../Dependencies/libPCM/Dependencies/FoundationIO/libFoundationIO/include/BitIO.h"
+#include "../../../Dependencies/libPCM/Dependencies/FoundationIO/libFoundationIO/include/Math.h"
 #include "../../include/Private/Common/libModernPNG_EntropyCoders.h"
 
 #ifdef __cplusplus
@@ -72,7 +73,7 @@ extern "C" {
         /*
         for (uint64_t Bit = BitOffset; Bit < BitOffset + BitLength; Bit++) {
             // Now we need to select a bit from the buffer
-            CurrentBit = ReadBits(BitIOMSByteFirst, BitIOLSBitFirst, BitB, 1);
+            CurrentBit = ReadBits(MSByteFirst, LSBitFirst, BitB, 1);
             
         }
          */
@@ -101,7 +102,7 @@ extern "C" {
              */
             
         }
-        uint32_t EmbeddedCRC = ReadBits(BitIOLSByteFirst, BitIOLSBitFirst, BitB, 32);
+        uint32_t EmbeddedCRC = ReadBits(LSByteFirst, LSBitFirst, BitB, 32);
         if (CRCsMatch == EmbeddedCRC) {
             CRCsMatch  = Yes;
         }

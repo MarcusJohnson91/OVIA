@@ -21,7 +21,7 @@ extern "C" {
             Dec->Text[Dec->NumTextChunks - 1].Keyword = calloc(1, KeywordSize);
             Dec->Text[Dec->NumTextChunks - 1].Comment = calloc(1, CommentSize);
         } else if (Dec == NULL) {
-            BitIOLog(BitIOLog_ERROR, libModernPNGLibraryName, __func__, "DecodePNG Pointer is NULL");
+            Log(Log_ERROR, __func__, U8("DecodePNG Pointer is NULL"));
         }
     }
     
@@ -35,7 +35,7 @@ extern "C" {
             Enc->Text[Enc->NumTextChunks - 1].Keyword = calloc(1, KeywordSize);
             Enc->Text[Enc->NumTextChunks - 1].Comment = calloc(1, CommentSize);
         } else if (Enc == NULL) {
-            BitIOLog(BitIOLog_ERROR, libModernPNGLibraryName, __func__, "EncodePNG Pointer is NULL");
+            Log(Log_ERROR, __func__, U8("EncodePNG Pointer is NULL"));
         }
     }
     
@@ -75,11 +75,11 @@ extern "C" {
             Enc->Text[Enc->NumTextChunks - 1].Keyword = KeywordString;
             Enc->Text[Enc->NumTextChunks - 1].Comment = CommentString; // TODO: When writing these chunks out, make sure to scan the Comments for Unicode, if it is, you have to use iTXt
         } else if (Enc == NULL) {
-            BitIOLog(BitIOLog_ERROR, libModernPNGLibraryName, __func__, "EncodePNG Pointer is NULL");
+            Log(Log_ERROR, __func__, U8("EncodePNG Pointer is NULL"));
         } else if (KeywordString == NULL) {
-            BitIOLog(BitIOLog_ERROR, libModernPNGLibraryName, __func__, "KeywordString Pointer is NULL");
+            Log(Log_ERROR, __func__, U8("KeywordString Pointer is NULL"));
         } else if (CommentString == NULL) {
-            BitIOLog(BitIOLog_ERROR, libModernPNGLibraryName, __func__, "CommentString Pointer is NULL");
+            Log(Log_ERROR, __func__, U8("CommentString Pointer is NULL"));
         }
     }
     
@@ -88,9 +88,9 @@ extern "C" {
             Keyword = Dec->Text[Instance].Keyword;
             Comment = Dec->Text[Instance].Comment;
         } else if (Dec == NULL) {
-            BitIOLog(BitIOLog_ERROR, libModernPNGLibraryName, __func__, "DecodePNG Pointer is NULL");
+            Log(Log_ERROR, __func__, U8("DecodePNG Pointer is NULL"));
         } else if (Instance > Dec->NumTextChunks - 1) {
-            BitIOLog(BitIOLog_ERROR, libModernPNGLibraryName, __func__, "Instance %d is greater than there are Text chunks %d", Instance, Dec->NumTextChunks);
+            Log(Log_ERROR, __func__, "Instance %d is greater than there are Text chunks %d", Instance, Dec->NumTextChunks);
         }
     }
     
@@ -99,7 +99,7 @@ extern "C" {
         if (Dec != NULL) {
             NumTextChunks      = Dec->NumTextChunks;
         } else {
-            BitIOLog(BitIOLog_ERROR, libModernPNGLibraryName, __func__, "DecodePNG Pointer is NULL");
+            Log(Log_ERROR, __func__, U8("DecodePNG Pointer is NULL"));
         }
         return NumTextChunks;
     }
