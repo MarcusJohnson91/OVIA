@@ -97,65 +97,34 @@ extern "C" {
         }
     }
     
-    void **BMPExtractImage(PCMFile *PCM, BitBuffer *BitB) { // We need to convert the pixels to the Runtime Byte and Bit order.
-        void **ExtractedImage = NULL;
+    void ***BMPExtractImage(PCMFile *PCM, BitBuffer *BitB) { // We need to convert the pixels to the Runtime Byte and Bit order.
+        void ***ExtractedImage = NULL;
         if (PCM != NULL && BitB != NULL) {
-            uint8_t LinePadding = 4 - (PCM->Pic->Width % 4);
+            ExtractedImage    = calloc(PCM->Pic->Width + PCM->Pic->Height * PCM->NumChannels, Bits2Bytes(PCM->BitDepth, Yes));
             if (PCM->Pic->ImageIsTopDown == Yes) {
-                // Then read normally
-                for (uint64_t Pixel = 0; Pixel < PCM->NumChannelAgnosticSamples; Pixel++) {
-                    for (uint16_t Channel = 0; Channel < PCM->NumChannels; Channel++) {
-                        // If the width is not divisible by 4, there are padding bytes at the end of each line
+                // Read from the bottom to the top.
+                for (uint32_t HeightLine = 0; HeightLine < PCM->Pic->Height; HeightLine++) {
+                    for (uint32_t WidthLine = 0; WidthLine < PCM->Pic->Width; WidthLine++) {
+                        for (uint16_t Channel = 0; Channel < PCM->NumChannels; Channel++) { // Ok, this works when the bit depth is 8 bits per pixel, but what about 1 bit images, or palettized ones?
+                            ExtractedImage[HeightLine][WidthLine][Channel] = ReadBits(LSByteFirst, LSBitFirst, BitB, PCM->BitDepth);
+                        }
                     }
                 }
             } else {
                 // Read from the bottom to the top.
-                for (uint64_t Pixel = PCM->NumChannelAgnosticSamples; Pixel > 0; Pixel++) {
-                    for (uint16_t Channel = 0; Channel < PCM->NumChannels; Channel++) {
-                        // Ok so we need to loop from left to right normally, but we need to start at the bottom of the image
-                        // We need to calculate the offset of the left most, bottom pixel that way we can read each line in properly.
-                        // We need to know the width of each sub pixel, the number of sub pixels per pixel, the amount of padding per line, and the padding per subpixel for less than 8 bit bitdepths.
+                for (uint32_t HeightLine = Absolute(PCM->Pic->Height); HeightLine > 0; HeightLine--) {
+                    for (uint32_t WidthLine = 0; WidthLine < PCM->Pic->Width; WidthLine++) {
+                        for (uint16_t Channel = 0; Channel < PCM->NumChannels; Channel++) { // Ok, this works when the bit depth is 8 bits per pixel, but what about 1 bit images, or palettized ones?
+                            ExtractedImage[HeightLine][WidthLine][Channel] = ReadBits(LSByteFirst, LSBitFirst, BitB, PCM->BitDepth);
+                        }
                     }
                 }
             }
-            if (PCM->Pic->BMPIndexColorsUsed == Yes && PCM->Pic->BMPColorsIndexed > 0) {
-                
-            }
+        }
+        if (PCM->Pic->BMPColorsIndexed > 0) {
+            // The image is palettized, so we need to go ahead and map the pixel bits to the actual colors.
         }
         return ExtractedImage;
-    }
-    
-    void BMPExtractPixels(PCMFile *PCM, BitBuffer *BitB, uint64_t NumPixels2Extract, uint16_t **ExtractedPixels) { // We need to convert the pixels to the Runtime Byte and Bit order.
-        if (PCM != NULL && BitB != NULL && ExtractedPixels != NULL) {
-            if (PCM->Pic->ImageIsTopDown == Yes) {
-                // Then read normally
-            } else {
-                // Read from the bottom to the top.
-            }
-            
-            
-            
-            
-            
-            
-            for (uint64_t Pixel = 0; Pixel < NumPixels2Extract; Pixel++) {
-                for (uint16_t Channel = 0; Channel < PCM->NumChannels; Channel++) { // Ok, this works when the bit depth is 8 bits per pixel, but what about 1 bit images, or palettized ones?
-                    if (PCM->BitDepth == 1) {
-                        ExtractedPixels[Channel][Pixel] = ReadBits(LSByteFirst, MSBitFirst, BitB, 1);
-                    } else if (PCM->Pic->BMPColorsIndexed > 0 || PCM->Pic->BMPIndexColorsUsed > 0) {
-                        // Indexxed colors, we'll need to convert the bits to the original color by looking it up in the table.
-                    } else {
-                        ExtractedPixels[Channel][Pixel] = ReadBits(LSByteFirst, LSBitFirst, BitB, PCM->BitDepth);
-                    }
-                }
-            }
-        } else if (PCM == NULL) {
-            Log(Log_ERROR, __func__, U8("PCM Pointer is NULL"));
-        } else if (BitB == NULL) {
-            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
-        } else if (ExtractedPixels == NULL) {
-            Log(Log_ERROR, __func__, U8("ExtractedPixels Pointer is NULL"));
-        }
     }
     
 #ifdef __cplusplus
