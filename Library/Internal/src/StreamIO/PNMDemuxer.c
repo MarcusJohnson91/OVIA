@@ -1,4 +1,3 @@
-#include <strings.h>
 #include <stdlib.h>
 
 #include "../../../Dependencies/FoundationIO/libFoundationIO/include/BitIO.h"
@@ -35,7 +34,7 @@ extern "C" {
         for (uint64_t WidthByte = 0; WidthByte < WidthStringSize; WidthByte++) {
             WidthString[WidthByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
-        PCM->Pic->Width = atoll(WidthString);
+        PCM->Pic->Width = UTF32_String2Integer(UTF8_Decode(WidthString));
         free(WidthString);
         /* Read Width */
         
@@ -51,7 +50,7 @@ extern "C" {
         for (uint64_t HeightByte = 0; HeightByte < HeightStringSize; HeightByte++) {
             HeightString[HeightByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
-        PCM->Pic->Height = atoll(HeightString); // Ok, so we read the Height.
+        PCM->Pic->Height = UTF32_String2Integer(UTF8_Decode(HeightString)); // Ok, so we read the Height.
         free(HeightString);
     }
     
@@ -65,7 +64,7 @@ extern "C" {
         for (uint64_t WidthByte = 0; WidthByte < WidthStringSize; WidthByte++) {
             WidthString[WidthByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
-        PCM->Pic->Width = atoll(WidthString);
+        PCM->Pic->Width = UTF32_String2Integer(UTF8_Decode(WidthString));
         free(WidthString);
         /* Read Width */
         
@@ -78,7 +77,7 @@ extern "C" {
         for (uint64_t HeightByte = 0; HeightByte < HeightStringSize; HeightByte++) {
             HeightString[HeightByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
-        PCM->Pic->Height = atoll(HeightString); // Ok, so we read the Height.
+        PCM->Pic->Height = UTF32_String2Integer(UTF8_Decode(HeightString)); // Ok, so we read the Height.
         free(HeightString);
         /* Read Height */
         
@@ -91,7 +90,7 @@ extern "C" {
         for (uint8_t MaxValByte = 0; MaxValByte < MaxValStringSize; MaxValByte++) {
             MaxValString[MaxValByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
-        int64_t MaxVal     = atoll(MaxValString);
+        int64_t MaxVal     = UTF32_String2Integer(UTF8_Decode(MaxValString));
         PCM->BitDepth      = Logarithm(2, MaxVal + 1);
         free(MaxValString);
         /* Read MaxVal */
@@ -108,7 +107,7 @@ extern "C" {
         for (uint64_t WidthByte = 0; WidthByte < WidthStringSize; WidthByte++) {
             WidthString[WidthByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
-        PCM->Pic->Width = atoll(WidthString);
+        PCM->Pic->Width = UTF32_String2Integer(UTF8_Decode(WidthString));
         free(WidthString);
         /* Read Width */
         
@@ -122,7 +121,7 @@ extern "C" {
         for (uint64_t HeightByte = 0; HeightByte < HeightStringSize; HeightByte++) {
             HeightString[HeightByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
-        PCM->Pic->Height = atoll(HeightString); // Ok, so we read the Height.
+        PCM->Pic->Height = UTF32_String2Integer(UTF8_Decode(HeightString)); // Ok, so we read the Height.
         free(HeightString);
         /* Read Height */
         
@@ -136,7 +135,7 @@ extern "C" {
         for (uint8_t DepthByte = 0; DepthByte < DepthStringSize; DepthByte++) {
             DepthString[DepthByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
-        PCM->NumChannels = atoll(DepthString);
+        PCM->NumChannels = UTF32_String2Integer(UTF8_Decode(DepthString));
         free(DepthString);
         /* Read NumChannels */
         
@@ -146,11 +145,11 @@ extern "C" {
         while (ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PXMEndField) {
             MaxValStringSize += 1;
         }
-        char *MaxValString = calloc(1, MaxValStringSize * sizeof(char));
+        UTF8 *MaxValString = calloc(1, MaxValStringSize * sizeof(UTF8));
         for (uint8_t MaxValByte = 0; MaxValByte < MaxValStringSize; MaxValByte++) {
             MaxValString[MaxValByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
-        int64_t MaxVal    = atoll(MaxValString);
+        int64_t MaxVal    = UTF32_String2Integer(UTF8_Decode(MaxValString));
         PCM->BitDepth     = Logarithm(2, MaxVal + 1);
         free(MaxValString);
         /* Read MaxVal */
@@ -165,19 +164,19 @@ extern "C" {
         for (uint8_t TupleByte = 0; TupleByte < TupleTypeSize; TupleByte++) {
             TupleTypeString[TupleByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
-        if (strcasecmp(TupleTypeString, U8("BLACKANDWHITE")) == 0) {
+        if (UTF8_Compare(TupleTypeString, U8("BLACKANDWHITE"), NormalizationFormKC, Yes) == Yes) {
             PCM->NumChannels = 1;
             PCM->Pic->PXMTupleType   = PXM_TUPLE_BnW;
-        } else if (strcasecmp(TupleTypeString, U8("GRAYSCALE")) == 0) {
+        } else if (UTF8_Compare(TupleTypeString, U8("GRAYSCALE"), NormalizationFormKC, Yes) == Yes) {
             PCM->NumChannels = 1;
             PCM->Pic->PXMTupleType   = PXM_TUPLE_Gray;
-        } else if (strcasecmp(TupleTypeString, U8("GRAYSCALE_ALPHA")) == 0) {
+        } else if (UTF8_Compare(TupleTypeString, U8("GRAYSCALE_ALPHA"), NormalizationFormKC, Yes) == Yes) {
             PCM->NumChannels = 2;
             PCM->Pic->PXMTupleType   = PXM_TUPLE_GrayAlpha;
-        } else if (strcasecmp(TupleTypeString, U8("RGB")) == 0) {
+        } else if (UTF8_Compare(TupleTypeString, U8("RGB"), NormalizationFormKC, Yes) == Yes) {
             PCM->NumChannels = 3;
             PCM->Pic->PXMTupleType   = PXM_TUPLE_RGB;
-        } else if (strcasecmp(TupleTypeString, U8("RGB_ALPHA")) == 0) {
+        } else if (UTF8_Compare(TupleTypeString, U8("RGB_ALPHA"), NormalizationFormKC, Yes) == Yes) {
             PCM->NumChannels = 4;
             PCM->Pic->PXMTupleType   = PXM_TUPLE_RGBAlpha;
         } else {
@@ -198,11 +197,11 @@ extern "C" {
         for (uint8_t PXMMagicByte = 0; PXMMagicByte < PXMMagicSize; PXMMagicByte++) {
             PXMMagicID[PXMMagicByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
-        if (strncasecmp(PXMMagicID, U8("P1"), PXMMagicSize) == 0 || strncasecmp(PXMMagicID, U8("P2"), PXMMagicSize) == 0 || strncasecmp(PXMMagicID, U8("P3"), PXMMagicSize) == 0) {
+        if (UTF8_Compare(PXMMagicID, U8("P1"), NormalizationFormKC, Yes) == Yes || UTF8_Compare(PXMMagicID, U8("P2"), NormalizationFormKC, Yes) == Yes || UTF8_Compare(PXMMagicID, U8("P3"), NormalizationFormKC, Yes) == Yes) {
             PCM->Pic->PXMType = ASCIIPXM;
-        } else if (strncasecmp(PXMMagicID, U8("P4"), PXMMagicSize) == 0 || strncasecmp(PXMMagicID, U8("P5"), PXMMagicSize) == 0 || strncasecmp(PXMMagicID, U8("P6"), PXMMagicSize) == 0) {
+        } else if (UTF8_Compare(PXMMagicID, U8("P4"), NormalizationFormKC, Yes) == Yes || UTF8_Compare(PXMMagicID, U8("P5"), NormalizationFormKC, Yes) == Yes || UTF8_Compare(PXMMagicID, U8("P6"), NormalizationFormKC, Yes) == Yes) {
             PCM->Pic->PXMType = BinaryPXM;
-        } else if (strncasecmp(PXMMagicID, U8("P7"), PXMMagicSize) == 0) {
+        } else if (UTF8_Compare(PXMMagicID, U8("P7"), NormalizationFormKC, Yes) == 0) {
             PCM->Pic->PXMType = PAMPXM;
         }
     }
@@ -219,7 +218,7 @@ extern "C" {
         }
         
         BitBuffer_Skip(BitB, 8); // Skip the LineFeed after the FileType marker
-                                // Before each field we need to check for Comments if the file is ASCII.
+        // Before each field we need to check for Comments if the file is ASCII.
         if (PCM->Pic->PXMType == ASCIIPXM) {
             PXMParsePNMASCIIHeader(PCM, BitB);
         } else if (PCM->Pic->PXMType == BinaryPXM) {
@@ -229,31 +228,36 @@ extern "C" {
         }
     }
     
-    void PXMExtractPixels(PCMFile *PCM, BitBuffer *BitB, uint64_t NumPixels2Read, uint16_t **ExtractedPixels) {
-        if (PCM != NULL && BitB != NULL && ExtractedPixels != NULL) {
+    uint16_t ***PXMExtractImage(PCMFile *PCM, BitBuffer *BitB) {
+        uint16_t ***ExtractedImage = calloc(PCM->Pic->Width * PCM->Pic->Height * PCM->NumChannels, sizeof(uint16_t));
+        if (PCM != NULL && BitB != NULL && ExtractedImage != NULL) {
             if (PCM->Pic->PXMType == ASCIIPXM) {
-                for (uint64_t Pixel = 0LLU; Pixel < NumPixels2Read; Pixel++) {
-                    for (uint8_t Channel = 0; Channel < PCM->NumChannels; Channel++) {
-                        uint8_t SubPixelStringSize          = 0;
-                        while (PeekBits(MSByteFirst, LSBitFirst, BitB, 8) != PXMFieldSeperator || PeekBits(MSByteFirst, LSBitFirst, BitB, 8) != PXMEndField) {
-                            SubPixelStringSize             += 1;
+                for (uint64_t Width = 0; Width < PCM->Pic->Width; Width++) {
+                    for (uint64_t Height = 0; Height < PCM->Pic->Height; Height++) {
+                        for (uint8_t Channel = 0; Channel < PCM->NumChannels; Channel++) {
+                            uint8_t SubPixelStringSize          = 0;
+                            while (PeekBits(MSByteFirst, LSBitFirst, BitB, 8) != PXMFieldSeperator || PeekBits(MSByteFirst, LSBitFirst, BitB, 8) != PXMEndField) {
+                                SubPixelStringSize             += 1;
+                            }
+                            char *SubPixelString                = calloc(1, PCM->NumChannels * sizeof(char));
+                            for (uint8_t SubPixelByte = 0; SubPixelByte < SubPixelStringSize; SubPixelByte++) {
+                                SubPixelString[SubPixelByte]    = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
+                            }
+                            ExtractedImage[Width][Height][Channel] = atoi(SubPixelString);
+                            free(SubPixelString);
                         }
-                        char *SubPixelString                = calloc(1, PCM->NumChannels * sizeof(char));
-                        for (uint8_t SubPixelByte = 0; SubPixelByte < SubPixelStringSize; SubPixelByte++) {
-                            SubPixelString[SubPixelByte]    = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
-                        }
-                        ExtractedPixels[Channel][Pixel]     = atoi(SubPixelString);
-                        free(SubPixelString);
                     }
                 }
             } else if (PCM->Pic->PXMType == BinaryPXM || PCM->Pic->PXMType == PAMPXM) {
-                for (uint64_t Pixel = 0LLU; Pixel < NumPixels2Read; Pixel++) {
-                    for (uint8_t Channel = 0; Channel < PCM->NumChannels; Channel++) {
-                        uint8_t CurrentPixel                = ReadBits(LSByteFirst, LSBitFirst, BitB, PCM->BitDepth);
-                        if (PCM->Pic->PXMTupleType == PXM_TUPLE_BnW && PCM->Pic->PXMType != PAMPXM) {
-                            ExtractedPixels[Channel][Pixel] = ~CurrentPixel; // 1 = black, 0 = white
-                        } else {
-                            ExtractedPixels[Channel][Pixel] = CurrentPixel; // 1 = white, 0 = black
+                for (uint64_t Width = 0; Width < PCM->Pic->Width; Width++) {
+                    for (uint64_t Height = 0; Height < PCM->Pic->Height; Height++) {
+                        for (uint8_t Channel = 0; Channel < PCM->NumChannels; Channel++) {
+                            uint8_t CurrentPixel                = ReadBits(LSByteFirst, LSBitFirst, BitB, PCM->BitDepth);
+                            if (PCM->Pic->PXMTupleType == PXM_TUPLE_BnW && PCM->Pic->PXMType != PAMPXM) {
+                                ExtractedImage[Width][Height][Channel] = ~CurrentPixel; // 1 = black, 0 = white
+                            } else {
+                                ExtractedImage[Width][Height][Channel] = CurrentPixel; // 1 = white, 0 = black
+                            }
                         }
                     }
                 }
@@ -262,9 +266,10 @@ extern "C" {
             Log(Log_ERROR, __func__, U8("PCM Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
-        } else if (ExtractedPixels == NULL) {
-            Log(Log_ERROR, __func__, U8("ExtractedPixels Pointer is NULL"));
+        } else if (ExtractedImage == NULL) {
+            Log(Log_ERROR, __func__, U8("ExtractedImage Pointer is NULL"));
         }
+        return ExtractedImage;
     }
     
 #ifdef __cplusplus

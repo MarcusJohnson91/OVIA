@@ -31,13 +31,13 @@ extern "C" {
         BMP_CMYK_RLE_4Bit     = 13,
     };
     
-    void BMPParseMetadata(PCMFile *PCM, BitBuffer *BitB);
+    void        BMPParseMetadata(PCMFile *PCM, BitBuffer *BitB);
     
-    void BMPExtractPixels(PCMFile *PCM, BitBuffer *BitB, uint64_t NumPixels2Extract, uint16_t **ExtractedPixels);
+    uint16_t ***BMPExtractImage(PCMFile *PCM, BitBuffer *BitB);
     
-    void BMPInsertPixels(PCMFile *PCM, BitBuffer *OutputPixels, uint32_t NumPixels2Write, uint16_t **Pixels2Write);
+    void        BMPInsertImage(PCMFile *PCM, BitBuffer *BitB, uint16_t ***Image2Insert);
     
-    void BMPWriteHeader(PCMFile *PCM, BitBuffer *BitB, uint32_t NumPixels);
+    void        BMPWriteHeader(PCMFile *PCM, BitBuffer *BitB, uint32_t NumPixels);
     
 #ifdef __cplusplus
 }

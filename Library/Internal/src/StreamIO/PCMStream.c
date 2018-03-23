@@ -17,9 +17,9 @@ extern "C" {
 #endif
     
     struct Samples {
+        void   **SampleArray;
         uint8_t  BitDepth;
         uint8_t  NumChannels;
-        void   **SampleArray;
     };
     
     Samples *InitSamplesBuffer(PCMFile *PCM, uint64_t NumSamples) {
@@ -138,11 +138,21 @@ extern "C" {
         }
     }
     
-    void PCM_ExtractPixels(PCMFile *PCM, BitBuffer *PixelArray, uint64_t NumPixels2Extract, uint16_t **ExtractedPixels) {
+    uint16_t ***PCM_ExtractImage(PCMFile *PCM, BitBuffer *PixelArray) {
+        uint16_t ***ExtractedImage = NULL;
         if (PCM->InputFileType == PXMFormat) {
-            PXMExtractPixels(PCM, PixelArray, NumPixels2Extract, ExtractedPixels);
+            ExtractedImage = PXMExtractImage(PCM, PixelArray);
         } else if (PCM->InputFileType == BMPFormat) {
-            BMPExtractPixels(PCM, PixelArray, NumPixels2Extract, ExtractedPixels);
+            ExtractedImage = BMPExtractImage(PCM, PixelArray);
+        }
+        return ExtractedImage;
+    }
+    
+    void PCM_InsertImage(PCMFile *PCM, BitBuffer *CreatedImage, uint16_t ***Image2Insert) {
+        if (PCM->InputFileType == PXMFormat) {
+            PXMInsertImage(PCM, CreatedImage, Image2Insert);
+        } else if (PCM->InputFileType == BMPFormat) {
+            BMPInsertImage(PCM, CreatedImage, Image2Insert);
         }
     }
     
@@ -153,14 +163,6 @@ extern "C" {
             WAVInsertSamples(PCM, OutputSamples, NumSamples2Write, Samples2Write);
         } else if (PCM->OutputFileType == W64Format) {
             W64InsertSamples(PCM, OutputSamples, NumSamples2Write, Samples2Write);
-        }
-    }
-    
-    void PCM_InsertPixels(PCMFile *PCM, BitBuffer *OutputPixels, uint32_t NumPixels2Write, uint16_t **Pixels2Write) {
-        if (PCM->OutputFileType == PXMFormat) {
-            PXMInsertPixels(PCM, OutputPixels, NumPixels2Write, Pixels2Write);
-        } else if (PCM->OutputFileType == BMPFormat) {
-            BMPInsertPixels(PCM, OutputPixels, NumPixels2Write, Pixels2Write);
         }
     }
     

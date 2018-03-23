@@ -41,9 +41,9 @@ extern "C" {
     
     void PXMParseMetadata(PCMFile *PCM, BitBuffer *BitB);
     
-    void PXMExtractPixels(PCMFile *PCM, BitBuffer *BitB, uint64_t NumPixels2Read, uint16_t **ExtractedPixels);
+    uint16_t ***PXMExtractImage(PCMFile *PCM, BitBuffer *BitB);
     
-    void PXMInsertPixels(PCMFile *PCM, BitBuffer *OutputPixels, uint32_t NumPixels2Write, uint16_t **Pixels2Write);
+    void        PXMInsertImage(PCMFile *PCM, BitBuffer *CreatedImage, uint16_t ***Image2Insert);
     
     void PXMWriteHeader(PCMFile *PCM, BitBuffer *BitB);
     

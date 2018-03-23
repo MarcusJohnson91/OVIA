@@ -97,10 +97,9 @@ extern "C" {
         }
     }
     
-    void ***BMPExtractImage(PCMFile *PCM, BitBuffer *BitB) { // We need to convert the pixels to the Runtime Byte and Bit order.
-        void ***ExtractedImage = NULL;
-        if (PCM != NULL && BitB != NULL) {
-            ExtractedImage    = calloc(PCM->Pic->Width + PCM->Pic->Height * PCM->NumChannels, Bits2Bytes(PCM->BitDepth, Yes));
+    uint16_t ***BMPExtractImage(PCMFile *PCM, BitBuffer *BitB) { // We need to convert the pixels to the Runtime Byte and Bit order.
+        uint16_t ***ExtractedImage = calloc(PCM->Pic->Width * PCM->Pic->Height * PCM->NumChannels, sizeof(uint16_t**));;
+        if (PCM != NULL && BitB != NULL && ExtractedImage != NULL) {
             if (PCM->Pic->ImageIsTopDown == Yes) {
                 // Read from the bottom to the top.
                 for (uint32_t HeightLine = 0; HeightLine < PCM->Pic->Height; HeightLine++) {
@@ -120,10 +119,17 @@ extern "C" {
                     }
                 }
             }
+            if (PCM->Pic->BMPColorsIndexed > 0) {
+                // The image is palettized, so we need to go ahead and map the pixel bits to the actual colors.
+            }
+        } else if (PCM == NULL) {
+            Log(Log_ERROR, __func__, U8("PCM Pointer is NULL"));
+        } else if (BitB == NULL) {
+            Log(Log_ERROR, __func__, U8("BitB Pointer is NULL"));
+        } else if (ExtractedImage == NULL) {
+            Log(Log_ERROR, __func__, U8("Couldn't allocate enough memory to decode the image"));
         }
-        if (PCM->Pic->BMPColorsIndexed > 0) {
-            // The image is palettized, so we need to go ahead and map the pixel bits to the actual colors.
-        }
+        
         return ExtractedImage;
     }
     
