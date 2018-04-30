@@ -8,6 +8,7 @@
 
 #include "../../../Dependencies/libPCM/Dependencies/FoundationIO/libFoundationIO/include/Log.h"
 #include "../../../Dependencies/libPCM/Dependencies/FoundationIO/libFoundationIO/include/Math.h"
+#include "../../../Dependencies/libPCM/Dependencies/FoundationIO/libFoundationIO/include/StringIO.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -122,18 +123,29 @@ extern "C" {
         // Ok, so we need to take the size of the chunk into account.
         Dec->sCAL->UnitSpecifier = ReadBits(MSByteFirst, LSBitFirst, InputPNG, 8); // 1 = Meter, 2 = Radian
         
-        char Width[ChunkSize - 1]; // minus 1 for the UnitSpecifier
-        char Height[ChunkSize - 1];
+        uint32_t WidthStringSize  = 0;
+        uint32_t HeightStringSize = 0;
         
-        for (uint32_t Byte = 0; Byte < ChunkSize - 1; Byte++) {
-            if (PeekBits(MSByteFirst, LSBitFirst, InputPNG, 8) != 0x00) {
-                Width[Byte]  = ReadBits(MSByteFirst, LSBitFirst, InputPNG, 8);
-            } else {
-                Height[Byte] = ReadBits(MSByteFirst, LSBitFirst, InputPNG, 8);
+        for (uint32_t Byte = 0UL; Byte < ChunkSize - 1; Byte++) { // Get the sizes for the field strings
+            if (PeekBits(MSByteFirst, LSBitFirst, InputPNG, 8) != '\0') {
+                WidthStringSize += 1;
             }
         }
-        Dec->sCAL->PixelWidth  = (float) atof(Width);
-        Dec->sCAL->PixelHeight = (float) atof(Height);
+        HeightStringSize = ChunkSize - (WidthStringSize + 1);
+        
+        UTF8 *WidthString = calloc(WidthStringSize, sizeof(UTF8));
+        UTF8 *HeightString = calloc(HeightStringSize, sizeof(UTF8));
+        
+        for (uint32_t WidthCodePoint = 0; WidthCodePoint < WidthStringSize; WidthCodePoint++) {
+            WidthString[WidthCodePoint] = ReadBits(MSByteFirst, LSBitFirst, InputPNG, 8);
+        }
+        BitBuffer_Skip(InputPNG, 8); // Skip the NULL seperator
+        for (uint32_t HeightCodePoint = 0; HeightCodePoint < HeightStringSize; HeightCodePoint++) {
+            HeightString[HeightCodePoint] = ReadBits(MSByteFirst, LSBitFirst, InputPNG, 8);
+        }
+        
+        Dec->sCAL->PixelWidth  = String2Decimal(UTF8_Decode(WidthString));
+        Dec->sCAL->PixelHeight = String2Decimal(UTF8_Decode(HeightString));
     }
     
     void ParsePCAL(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) {

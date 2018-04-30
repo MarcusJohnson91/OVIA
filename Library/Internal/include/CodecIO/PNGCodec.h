@@ -64,7 +64,7 @@ extern "C" {
         PNGInterlacedAdam7 = 1,
     };
     
-    static const char ModernPNGNumber2Month[12][3] = {
+    static const UTF8 ModernPNGNumber2Month[12][4] = {
         U8("Jan"), U8("Feb"), U8("Mar"), U8("Apr"), U8("May"), U8("Jun"),
         U8("Jul"), U8("Aug"), U8("Sep"), U8("Oct"), U8("Nov"), U8("Dec"),
     };
@@ -134,27 +134,27 @@ extern "C" {
      */
     void        PNGGetTextChunk(DecodePNG *Dec, uint32_t Instance, UTF8 *Keyword, UTF8 *Comment);
     
-    uint32_t    GetPNGWidth(DecodePNG *Dec);
+    uint32_t    PNGGetWidth(DecodePNG *Dec);
     
-    uint32_t    GetPNGHeight(DecodePNG *Dec);
+    uint32_t    PNGGetHeight(DecodePNG *Dec);
     
-    uint8_t     GetPNGBitDepth(DecodePNG *Dec);
+    uint8_t     PNGGetBitDepth(DecodePNG *Dec);
     
-    uint8_t     GetPNGColorType(DecodePNG *Dec);
+    uint8_t     PNGGetColorType(DecodePNG *Dec);
     
-    bool        GetPNGInterlaceStatus(DecodePNG *Dec);
+    bool        PNGGetInterlaceStatus(DecodePNG *Dec);
     
-    bool        IsPNGStereoscopic(DecodePNG *Dec);
+    bool        PNGGetStereoscopicStatus(DecodePNG *Dec);
     
-    uint32_t    GetPNGWhitepointX(DecodePNG *Dec);
+    uint32_t    PNGGetWhitepointX(DecodePNG *Dec);
     
-    uint32_t    GetPNGWhitepointY(DecodePNG *Dec);
+    uint32_t    PNGGetWhitepointY(DecodePNG *Dec);
     
-    uint32_t    GetPNGGamma(DecodePNG *Dec);
+    uint32_t    PNGGetGamma(DecodePNG *Dec);
     
-    const char *GetPNGColorProfileName(DecodePNG *Dec);
+    UTF8       *PNGGetColorProfileName(DecodePNG *Dec);
     
-    uint8_t    *GetColorProfile(DecodePNG *Dec);
+    uint8_t    *PNGGetColorProfile(DecodePNG *Dec);
 
 #ifdef __cplusplus
 }

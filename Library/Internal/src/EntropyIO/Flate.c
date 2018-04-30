@@ -87,6 +87,11 @@ extern "C" {
         return 0ULL;
     }
     
+    /* How do I want the API to work? I'd prefer to do everyhting in one step right at the beginning, or end.
+     
+       For that to work, I need 
+     */
+    
     bool VerifyCRC32(BitBuffer *BitB, uint64_t ChunkSize) {
         bool CRCsMatch = No;
         // Lets wrap Data2CRC in a BitBuffer

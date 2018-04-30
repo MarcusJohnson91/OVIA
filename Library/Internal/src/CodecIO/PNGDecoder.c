@@ -124,7 +124,7 @@ extern "C" {
         
 		uint8_t ***DeFilteredData = calloc((Dec->iHDR->Height * Dec->iHDR->Width), Bits2Bytes(Dec->iHDR->BitDepth, Yes));
         
-        for (uint8_t StereoView = 0; StereoView < IsPNGStereoscopic(Dec); StereoView++) {
+        for (uint8_t StereoView = 0; StereoView < PNGGetStereoscopicStatus(Dec); StereoView++) {
             for (size_t Line = 0; Line < Dec->iHDR->Height; Line++) {
                 libModernPNGFilterTypes FilterType = ExtractLineFilterType(Line);
                 switch (FilterType) {

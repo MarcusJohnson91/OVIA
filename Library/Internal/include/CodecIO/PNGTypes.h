@@ -96,7 +96,7 @@ extern "C" {
     } oFFs;
 
     typedef struct iCCP {
-        char      *ProfileName;
+        UTF8      *ProfileName;
         uint8_t   *CompressedICCPProfile;
         uint8_t    CompressionType;
         bool       CRCIsValid:1;
@@ -124,7 +124,7 @@ extern "C" {
     } pHYs;
 
     typedef struct pCAL {
-        char      *CalibrationName;
+        UTF8      *CalibrationName;
         uint8_t   *UnitName;
         int32_t    OriginalZero;
         int32_t    OriginalMax;

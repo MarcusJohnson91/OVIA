@@ -62,27 +62,7 @@ extern "C" {
         return Dec;
     }
     
-    /*
-     Actually, fuck that, I'm making 1 function to set/get the info from a Text chunk.
-     */
-    
-    void PNGSetTextChunk(EncodePNG *Enc, UTF8 *KeywordString, UTF8 *CommentString) {
-        if (Enc != NULL && KeywordString != NULL && CommentString != NULL) {
-            // Check to see if the current Comment field has been set, if it has increment Enc->NumTextChunks, and realloc, otherwise just set it.
-            if (Enc->Text[Enc->NumTextChunks - 1].Comment != NULL) {
-                Enc->NumTextChunks += 1;
-            }
-            Enc->Text[Enc->NumTextChunks - 1].Keyword = KeywordString;
-            Enc->Text[Enc->NumTextChunks - 1].Comment = CommentString; // TODO: When writing these chunks out, make sure to scan the Comments for Unicode, if it is, you have to use iTXt
-        } else if (Enc == NULL) {
-            Log(Log_ERROR, __func__, U8("EncodePNG Pointer is NULL"));
-        } else if (KeywordString == NULL) {
-            Log(Log_ERROR, __func__, U8("KeywordString Pointer is NULL"));
-        } else if (CommentString == NULL) {
-            Log(Log_ERROR, __func__, U8("CommentString Pointer is NULL"));
-        }
-    }
-    
+    /* PNG Get functions */
     void PNGGetTextChunk(DecodePNG *Dec, uint32_t Instance, UTF8 *Keyword, UTF8 *Comment) {
         if (Dec != NULL && Instance <= Dec->NumTextChunks - 1) {
             Keyword = Dec->Text[Instance].Keyword;
@@ -104,112 +84,129 @@ extern "C" {
         return NumTextChunks;
     }
     
-    uint32_t GetPNGWidth(DecodePNG *Dec) {
+    uint32_t PNGGetWidth(DecodePNG *Dec) {
         return Dec->iHDR->Width;
     }
     
-    uint32_t GetPNGHeight(DecodePNG *Dec) {
+    uint32_t PNGGetHeight(DecodePNG *Dec) {
         return Dec->iHDR->Height;
     }
     
-    uint8_t GetPNGBitDepth(DecodePNG *Dec) {
+    uint8_t PNGGetBitDepth(DecodePNG *Dec) {
         return Dec->iHDR->BitDepth;
     }
     
-    uint8_t GetPNGColorType(DecodePNG *Dec) {
+    uint8_t PNGGetColorType(DecodePNG *Dec) {
         return Dec->iHDR->ColorType;
     }
     
-    bool GetPNGInterlaceStatus(DecodePNG *Dec) {
+    bool PNGGetInterlaceStatus(DecodePNG *Dec) {
         return Dec->iHDR->IsInterlaced;
     }
     
-    bool IsPNGStereoscopic(DecodePNG *Dec) {
+    bool PNGGetStereoscopicStatus(DecodePNG *Dec) {
         return Dec->PNGIs3D;
     }
     
-    uint32_t GetPNGWhitepointX(DecodePNG *Dec) {
+    uint32_t PNGGetWhitepointX(DecodePNG *Dec) {
         return Dec->cHRM->WhitePointX;
     }
     
-    uint32_t GetPNGWhitepointY(DecodePNG *Dec) {
+    uint32_t PNGGetWhitepointY(DecodePNG *Dec) {
         return Dec->cHRM->WhitePointY;
     }
     
-    uint32_t GetPNGGamma(DecodePNG *Dec) {
+    uint32_t PNGGetGamma(DecodePNG *Dec) {
         return Dec->gAMA->Gamma;
     }
     
-    const char *GetPNGColorProfileName(DecodePNG *Dec) {
+    UTF8 *PNGGetColorProfileName(DecodePNG *Dec) {
         return Dec->iCCP->ProfileName;
     }
     
-    uint8_t *GetColorProfile(DecodePNG *Dec) {
+    uint8_t *PNGGetColorProfile(DecodePNG *Dec) {
         //return DecompressDEFLATE(Dec->iCCP->CompressedICCPProfile);
         return NULL;
     }
+    /* PNG Get functions */
+    
+    /* PNG Set functions */
+    void PNGSetIHDRChunk(EncodePNG *Enc, uint32_t Width, uint32_t Height, uint8_t BitDepth, bool Interlaced) {
+        if (Enc != NULL) {
+            if (Enc->iHDR == NULL) {
+                Enc->iHDR           = calloc(1, sizeof(iHDR));
+            }
+            Enc->iHDR->Width        = Width;
+            Enc->iHDR->Height       = Height;
+            Enc->iHDR->BitDepth     = BitDepth;
+            Enc->iHDR->IsInterlaced = Interlaced;
+        } else {
+            Log(Log_ERROR, __func__, U8("EncodePNG Pointer is NULL"));
+        }
+    }
+    
+    void PNGSetACTLChunk(EncodePNG *Enc, uint32_t NumFrames, uint32_t Times2Loop) {
+        if (Enc != NULL) {
+            if (Enc->acTL == NULL) {
+                Enc->acTL          = calloc(1, sizeof(acTL));
+            }
+            Enc->acTL->NumFrames   = NumFrames;
+            Enc->acTL->TimesToLoop = Times2Loop;
+        } else {
+            Log(Log_ERROR, __func__, U8("EncodePNG Pointer is NULL"));
+        }
+    }
+    
+    void PNGSetFCTLChunk(EncodePNG *Enc, uint32_t FrameNum, uint32_t Width, uint32_t Height);
+    
+    void PNGSetTextChunk(EncodePNG *Enc, UTF8 *KeywordString, UTF8 *CommentString) {
+        if (Enc != NULL && KeywordString != NULL && CommentString != NULL) {
+            // Check to see if the current Comment field has been set, if it has increment Enc->NumTextChunks, and realloc, otherwise just set it.
+            if (Enc->Text[Enc->NumTextChunks - 1].Comment != NULL) {
+                Enc->NumTextChunks += 1;
+            }
+            Enc->Text[Enc->NumTextChunks - 1].Keyword = KeywordString;
+            Enc->Text[Enc->NumTextChunks - 1].Comment = CommentString; // TODO: When writing these chunks out, make sure to scan the Comments for Unicode, if it is, you have to use iTXt
+        } else if (Enc == NULL) {
+            Log(Log_ERROR, __func__, U8("EncodePNG Pointer is NULL"));
+        } else if (KeywordString == NULL) {
+            Log(Log_ERROR, __func__, U8("KeywordString Pointer is NULL"));
+        } else if (CommentString == NULL) {
+            Log(Log_ERROR, __func__, U8("CommentString Pointer is NULL"));
+        }
+    }
+    
+    /* PNG Set functions */
     
     void DecodePNG_Deinit(DecodePNG *Dec) {
-        if (Dec->acTLExists) {
-            free(Dec->acTL);
+        free(Dec->acTL);
+        free(Dec->bkGD->BackgroundPaletteEntry);
+        free(Dec->bkGD);
+        free(Dec->cHRM);
+        free(Dec->fcTL);
+        free(Dec->fdAT);
+        free(Dec->gAMA);
+        free(Dec->hIST);
+        free(Dec->iCCP->CompressedICCPProfile);
+        free(Dec->iCCP->ProfileName);
+        free(Dec->iCCP);
+        free(Dec->oFFs);
+        free(Dec->pCAL->CalibrationName);
+        free(Dec->pCAL->UnitName);
+        free(Dec->pCAL);
+        free(Dec->PLTE->Palette);
+        free(Dec->PLTE);
+        free(Dec->sBIT);
+        free(Dec->sRGB);
+        free(Dec->sTER);
+        for (uint32_t TextChunk = 0UL; TextChunk < Dec->NumTextChunks; TextChunk++) {
+            free(Dec->Text[TextChunk].Keyword);
+            free(Dec->Text[TextChunk].Comment);
         }
-        if (Dec->bkGDExists) {
-            free(Dec->bkGD->BackgroundPaletteEntry);
-            free(Dec->bkGD);
-        }
-        if (Dec->cHRMExists) {
-            free(Dec->cHRM);
-        }
-        if (Dec->fcTLExists) {
-            free(Dec->fcTL);
-            free(Dec->fdAT);
-        }
-        if (Dec->gAMAExists) {
-            free(Dec->gAMA);
-        }
-        if (Dec->hISTExists) {
-            free(Dec->hIST);
-        }
-        if (Dec->iCCPExists) {
-            free(Dec->iCCP->CompressedICCPProfile);
-            free(Dec->iCCP->ProfileName);
-            free(Dec->iCCP);
-        }
-        if (Dec->oFFsExists) {
-            free(Dec->oFFs);
-        }
-        if (Dec->pCALExists) {
-            free(Dec->pCAL->CalibrationName);
-            free(Dec->pCAL->UnitName);
-            free(Dec->pCAL);
-        }
-        if (Dec->PLTEExists) {
-            free(Dec->PLTE->Palette);
-            free(Dec->PLTE);
-        }
-        if (Dec->sBITExists) {
-            free(Dec->sBIT);
-        }
-        if (Dec->sRGBExists) {
-            free(Dec->sRGB);
-        }
-        if (Dec->sTERExists) {
-            free(Dec->sTER);
-        }
-        if (Dec->TextExists) {
-            for (uint32_t TextChunk = 0UL; TextChunk < Dec->NumTextChunks; TextChunk++) {
-                free(Dec->Text[TextChunk].Keyword);
-                free(Dec->Text[TextChunk].Comment);
-            }
-            free(Dec->Text);
-        }
-        if (Dec->tIMEExists) {
-            free(Dec->tIMe);
-        }
-        if (Dec->tRNSExists) {
-            free(Dec->tRNS->Palette);
-            free(Dec->tRNS);
-        }
+        free(Dec->Text);
+        free(Dec->tIMe);
+        free(Dec->tRNS->Palette);
+        free(Dec->tRNS);
         free(Dec->iHDR);
         free(Dec);
     }
