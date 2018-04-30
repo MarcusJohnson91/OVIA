@@ -3,6 +3,7 @@
 #include "../../../Dependencies/FoundationIO/libFoundationIO/include/BitIO.h"
 #include "../../../Dependencies/FoundationIO/libFoundationIO/include/Math.h"
 #include "../../../Dependencies/FoundationIO/libFoundationIO/include/Log.h"
+#include "../../../Dependencies/FoundationIO/libFoundationIO/include/ContainerIO.h"
 
 #include "../../include/libPCM.h"
 #include "../../include/Private/libPCMTypes.h"
@@ -131,6 +132,62 @@ extern "C" {
         }
         
         return ExtractedImage;
+    }
+    
+    Container *BMPExtractImage2(PCMFile *PCM, BitBuffer *BitB) {
+        Container *Container = NULL;
+        uint8_t   *Pixels8   = NULL;
+        uint16_t  *Pixels16  = NULL;
+        
+        if (PCM != NULL && BitB != NULL) {
+            if (PCM->BitDepth <= 8) {
+                Pixels8        = calloc(PCM->Pic->Width * PCM->Pic->Height * PCM->NumChannels, sizeof(uint8_t));
+                Container      = Container_Init(PCM->NumChannels, PCM->Pic->Width * PCM->Pic->Height, UnsignedInteger8);
+                Container_Attach(Container, Pixels8);
+            } else if (PCM->BitDepth <= 16) {
+                Pixels16       = calloc(PCM->Pic->Width * PCM->Pic->Height * PCM->NumChannels, sizeof(uint16_t));
+                Container      = Container_Init(PCM->NumChannels, PCM->Pic->Width * PCM->Pic->Height, UnsignedInteger16);
+                Container_Attach(Container, Pixels16);
+            }
+        }
+        
+        if (PCM->Pic->ImageIsTopDown == Yes) {
+            // Read from the bottom to the top.
+            for (uint32_t HeightLine = 0; HeightLine < PCM->Pic->Height; HeightLine++) {
+                for (uint32_t WidthLine = 0; WidthLine < PCM->Pic->Width; WidthLine++) {
+                    for (uint16_t Channel = 0; Channel < PCM->NumChannels; Channel++) { // Ok, this works when the bit depth is 8 bits per pixel, but what about 1 bit images, or palettized ones?
+                        if (PCM->BitDepth <= 8) {
+                            Pixels8[HeightLine * WidthLine * Channel]  = ReadBits(LSByteFirst, LSBitFirst, BitB, PCM->BitDepth);
+                        } else if (PCM->BitDepth <= 16) {
+                            Pixels16[HeightLine * WidthLine * Channel] = ReadBits(LSByteFirst, LSBitFirst, BitB, PCM->BitDepth);
+                        }
+                    }
+                }
+            }
+        } else {
+            // Read from the bottom to the top.
+            for (uint32_t HeightLine = Absolute(PCM->Pic->Height); HeightLine > 0; HeightLine--) {
+                for (uint32_t WidthLine = 0; WidthLine < PCM->Pic->Width; WidthLine++) {
+                    for (uint16_t Channel = 0; Channel < PCM->NumChannels; Channel++) { // Ok, this works when the bit depth is 8 bits per pixel, but what about 1 bit images, or palettized ones?
+                        if (PCM->BitDepth <= 8) {
+                            Pixels8[HeightLine * WidthLine * Channel]  = ReadBits(LSByteFirst, LSBitFirst, BitB, PCM->BitDepth);
+                        } else if (PCM->BitDepth <= 16) {
+                            Pixels16[HeightLine * WidthLine * Channel] = ReadBits(LSByteFirst, LSBitFirst, BitB, PCM->BitDepth);
+                        }
+                        if (PCM->Pic->BMPColorsIndexed == Yes) {
+                            // Look up Pixels8[HeightLine * WidthLine * Channel] in the index.
+                            PCM->Pic->BMPColorsIndexed
+                        }
+                    }
+                }
+            }
+        }
+        if (PCM->Pic->BMPColorsIndexed > 0) {
+            // The image is palettized, so we need to go ahead and map the pixel bits to the actual colors.
+            // Basically just look up the value
+        }
+        
+        return Container;
     }
     
 #ifdef __cplusplus

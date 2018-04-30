@@ -30,11 +30,11 @@ extern "C" {
         while (ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PXMFieldSeperator) {
             WidthStringSize += 1;
         }
-        char *WidthString = calloc(1, WidthStringSize * sizeof(char));
+        UTF8 *WidthString = calloc(1, WidthStringSize * sizeof(char));
         for (uint64_t WidthByte = 0; WidthByte < WidthStringSize; WidthByte++) {
             WidthString[WidthByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
-        PCM->Pic->Width = UTF32_String2Integer(UTF8_Decode(WidthString));
+        PCM->Pic->Width = UTF8_String2Integer(WidthString);
         free(WidthString);
         /* Read Width */
         
@@ -46,11 +46,11 @@ extern "C" {
         while (ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PXMEndField) {
             HeightStringSize += 1;
         }
-        char *HeightString = calloc(1, HeightStringSize * sizeof(char));
+        UTF8 *HeightString = calloc(1, HeightStringSize * sizeof(char));
         for (uint64_t HeightByte = 0; HeightByte < HeightStringSize; HeightByte++) {
             HeightString[HeightByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
-        PCM->Pic->Height = UTF32_String2Integer(UTF8_Decode(HeightString)); // Ok, so we read the Height.
+        PCM->Pic->Height = UTF8_String2Integer(HeightString); // Ok, so we read the Height.
         free(HeightString);
     }
     
@@ -60,11 +60,11 @@ extern "C" {
         while (ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PXMFieldSeperator) {
             WidthStringSize += 1;
         }
-        char *WidthString = calloc(1, WidthStringSize * sizeof(char));
+        UTF8 *WidthString = calloc(1, WidthStringSize * sizeof(char));
         for (uint64_t WidthByte = 0; WidthByte < WidthStringSize; WidthByte++) {
             WidthString[WidthByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
-        PCM->Pic->Width = UTF32_String2Integer(UTF8_Decode(WidthString));
+        PCM->Pic->Width = UTF8_String2Integer(WidthString);
         free(WidthString);
         /* Read Width */
         
@@ -73,11 +73,11 @@ extern "C" {
         while (ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PXMEndField) {
             HeightStringSize += 1;
         }
-        char *HeightString = calloc(1, HeightStringSize * sizeof(char));
+        UTF8 *HeightString = calloc(1, HeightStringSize * sizeof(char));
         for (uint64_t HeightByte = 0; HeightByte < HeightStringSize; HeightByte++) {
             HeightString[HeightByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
-        PCM->Pic->Height = UTF32_String2Integer(UTF8_Decode(HeightString)); // Ok, so we read the Height.
+        PCM->Pic->Height = UTF8_String2Integer(HeightString); // Ok, so we read the Height.
         free(HeightString);
         /* Read Height */
         
@@ -86,11 +86,11 @@ extern "C" {
         while (ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PXMEndField) {
             MaxValStringSize += 1;
         }
-        char *MaxValString = calloc(1, MaxValStringSize * sizeof(char));
+        UTF8 *MaxValString = calloc(1, MaxValStringSize * sizeof(char));
         for (uint8_t MaxValByte = 0; MaxValByte < MaxValStringSize; MaxValByte++) {
             MaxValString[MaxValByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
-        int64_t MaxVal     = UTF32_String2Integer(UTF8_Decode(MaxValString));
+        int64_t MaxVal     = UTF8_String2Integer(MaxValString);
         PCM->BitDepth      = Logarithm(2, MaxVal + 1);
         free(MaxValString);
         /* Read MaxVal */
@@ -103,11 +103,11 @@ extern "C" {
         while (ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PXMFieldSeperator) {
             WidthStringSize += 1;
         }
-        char *WidthString = calloc(1, WidthStringSize * sizeof(char));
+        UTF8 *WidthString = calloc(1, WidthStringSize * sizeof(char));
         for (uint64_t WidthByte = 0; WidthByte < WidthStringSize; WidthByte++) {
             WidthString[WidthByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
-        PCM->Pic->Width = UTF32_String2Integer(UTF8_Decode(WidthString));
+        PCM->Pic->Width = UTF8_String2Integer(WidthString);
         free(WidthString);
         /* Read Width */
         
@@ -117,11 +117,11 @@ extern "C" {
         while (ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PXMEndField) {
             HeightStringSize += 1;
         }
-        char *HeightString = calloc(1, HeightStringSize * sizeof(char));
+        UTF8 *HeightString = calloc(1, HeightStringSize * sizeof(char));
         for (uint64_t HeightByte = 0; HeightByte < HeightStringSize; HeightByte++) {
             HeightString[HeightByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
-        PCM->Pic->Height = UTF32_String2Integer(UTF8_Decode(HeightString)); // Ok, so we read the Height.
+        PCM->Pic->Height = UTF8_String2Integer(HeightString); // Ok, so we read the Height.
         free(HeightString);
         /* Read Height */
         
@@ -131,11 +131,11 @@ extern "C" {
         while (ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PXMEndField) {
             DepthStringSize += 1;
         }
-        char *DepthString = calloc(1, DepthStringSize * sizeof(char));
+        UTF8 *DepthString = calloc(1, DepthStringSize * sizeof(char));
         for (uint8_t DepthByte = 0; DepthByte < DepthStringSize; DepthByte++) {
             DepthString[DepthByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
-        PCM->NumChannels = UTF32_String2Integer(UTF8_Decode(DepthString));
+        PCM->NumChannels = UTF8_String2Integer(DepthString);
         free(DepthString);
         /* Read NumChannels */
         
@@ -149,7 +149,7 @@ extern "C" {
         for (uint8_t MaxValByte = 0; MaxValByte < MaxValStringSize; MaxValByte++) {
             MaxValString[MaxValByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
-        int64_t MaxVal    = UTF32_String2Integer(UTF8_Decode(MaxValString));
+        int64_t MaxVal    = UTF8_String2Integer(MaxValString);
         PCM->BitDepth     = Logarithm(2, MaxVal + 1);
         free(MaxValString);
         /* Read MaxVal */
@@ -160,7 +160,7 @@ extern "C" {
         while (ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PXMEndField) {
             TupleTypeSize += 1;
         }
-        char *TupleTypeString = calloc(1, TupleTypeSize * sizeof(char));
+        UTF8 *TupleTypeString = calloc(1, TupleTypeSize * sizeof(char));
         for (uint8_t TupleByte = 0; TupleByte < TupleTypeSize; TupleByte++) {
             TupleTypeString[TupleByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
@@ -193,7 +193,7 @@ extern "C" {
     }
     
     void PXMIdentifyFileType(PCMFile *PCM, BitBuffer *BitB) {
-        char PXMMagicID[PXMMagicSize];
+        UTF8 PXMMagicID[PXMMagicSize];
         for (uint8_t PXMMagicByte = 0; PXMMagicByte < PXMMagicSize; PXMMagicByte++) {
             PXMMagicID[PXMMagicByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
