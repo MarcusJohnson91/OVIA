@@ -68,7 +68,7 @@ extern "C" {
         } else if (FileMagic32 == 0x72696666) {
             PCM->InputFileType = W64Format;
         } else {
-            Log(Log_ERROR, __func__, U8("Unrecognized file magic 0x%X"), FileMagic64);
+            Log(Log_ERROR, __func__, U8("Unrecognized file magic 0x%llX"), FileMagic64);
         }
     }
     
