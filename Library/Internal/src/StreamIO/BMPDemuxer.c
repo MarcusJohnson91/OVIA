@@ -142,11 +142,11 @@ extern "C" {
         if (PCM != NULL && BitB != NULL) {
             if (PCM->BitDepth <= 8) {
                 Pixels8        = calloc(PCM->Pic->Width * PCM->Pic->Height * PCM->NumChannels, sizeof(uint8_t));
-                Container      = Container_Init(PCM->NumChannels, PCM->Pic->Width * PCM->Pic->Height, UnsignedInteger8);
+                Container      = Container_Init(PCM->NumChannels, PCM->Pic->Width * PCM->Pic->Height, UInteger8Array);
                 Container_Attach(Container, Pixels8);
             } else if (PCM->BitDepth <= 16) {
                 Pixels16       = calloc(PCM->Pic->Width * PCM->Pic->Height * PCM->NumChannels, sizeof(uint16_t));
-                Container      = Container_Init(PCM->NumChannels, PCM->Pic->Width * PCM->Pic->Height, UnsignedInteger16);
+                Container      = Container_Init(PCM->NumChannels, PCM->Pic->Width * PCM->Pic->Height, UInteger16Array);
                 Container_Attach(Container, Pixels16);
             }
         }
@@ -176,7 +176,7 @@ extern "C" {
                         }
                         if (PCM->Pic->BMPColorsIndexed == Yes) {
                             // Look up Pixels8[HeightLine * WidthLine * Channel] in the index.
-                            PCM->Pic->BMPColorsIndexed
+                            PCM->Pic->BMPColorsIndexed;
                         }
                     }
                 }
