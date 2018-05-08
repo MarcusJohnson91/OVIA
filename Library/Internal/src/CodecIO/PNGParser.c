@@ -144,8 +144,8 @@ extern "C" {
             HeightString[HeightCodePoint] = ReadBits(MSByteFirst, LSBitFirst, InputPNG, 8);
         }
         
-        Dec->sCAL->PixelWidth  = String2Decimal(UTF8_Decode(WidthString));
-        Dec->sCAL->PixelHeight = String2Decimal(UTF8_Decode(HeightString));
+        Dec->sCAL->PixelWidth  = UTF8_String2Decimal(WidthString);
+        Dec->sCAL->PixelHeight = UTF8_String2Decimal(HeightString);
     }
     
     void ParsePCAL(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) {
@@ -156,7 +156,7 @@ extern "C" {
             }
         }
         Dec->pCAL->CalibrationName     = CalibrationName;
-        Dec->pCAL->CalibrationNameSize = UTF8_GetSizeInCodePoints(Dec->pCAL->CalibrationName);
+        Dec->pCAL->CalibrationNameSize = UTF8_GetStringSizeInCodePoints(Dec->pCAL->CalibrationName);
     }
     
     void ParseSBIT(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) { // Significant bits per sample
