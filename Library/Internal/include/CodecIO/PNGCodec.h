@@ -4,6 +4,7 @@
 
 #include "../../Dependencies/libPCM/Dependencies/FoundationIO/libFoundationIO/include/BitIO.h"
 #include "../../Dependencies/libPCM/Dependencies/FoundationIO/libFoundationIO/include/StringIO.h"
+#include "../../Dependencies/libPCM/Dependencies/FoundationIO/libFoundationIO/include/ContainerIO.h"
 
 #pragma once
 
@@ -93,17 +94,15 @@ extern "C" {
     
     /*!
      @abstract                  "Uninitializes the PNGDecoder (typedef'd as DecodePNG) structure after you're done decoding this specific PNG file"
+     @param     Dec             "Pointer to the DecodePNG instance to deinitalize".
      */
     void        DecodePNG_Deinit(DecodePNG *Dec);
     
     /*!
      @abstract                  "Uninitializes the PNGEncoder (typedef'd as EncodePNG) structure after you're done decoding this specific PNG file"
+     @param     Enc             "Pointer to the EncodePNG instance to deinitalize".
      */
     void        EncodePNG_Deinit(EncodePNG *Enc);
-    
-    void        DecodePNG_Text_Init(DecodePNG *Dec, uint8_t KeywordSize, uint32_t CommentSize);
-    
-    void        EncodePNG_Text_Init(EncodePNG *Enc, uint8_t KeywordSize, uint32_t CommentSize);
     
     /*!
      @abstract                  "Encodes a PNG from RawImage2Encode to a BitBuffer"
@@ -127,12 +126,13 @@ extern "C" {
     
     /*!
      @abstract                  "Extracts the Keyword and Comment strings from the Instance of the text chunk".
+     @remark                    "If the Keyword or Comment is DEFLATE encoded, we decode it to a regular string".
      @param     Dec             "DecodePNG Pointer to extract the text chunk from".
      @param     Instance        "Which instance of the text chunk should we extract"?
      @param     Keyword         "Pointer the Keyword string is returned through".
-     @param     Comment         "Pointer the Comment string is returned through".
+     @return                    "Returns the actual Comment string".
      */
-    void        PNGGetTextChunk(DecodePNG *Dec, uint32_t Instance, UTF8 *Keyword, UTF8 *Comment);
+    UTF8       *PNGGetTextChunk(DecodePNG *Dec, uint32_t Instance, UTF8 *Keyword);
     
     uint32_t    PNGGetWidth(DecodePNG *Dec);
     
@@ -155,7 +155,12 @@ extern "C" {
     UTF8       *PNGGetColorProfileName(DecodePNG *Dec);
     
     uint8_t    *PNGGetColorProfile(DecodePNG *Dec);
-
+    
+    /*
+     @param     GammaCorrect only does anything if there is a GAMA chunk present.
+     */
+    Container  *PNGDecodeImage2(DecodePNG *Dec, BitBuffer *PNG2Decode, uint16_t GammaCorrect);
+    
 #ifdef __cplusplus
 }
 #endif

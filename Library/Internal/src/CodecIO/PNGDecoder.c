@@ -269,6 +269,10 @@ extern "C" {
         return ProgressiveImage;
     }
     
+    Container  *PNGDecodeImage2(DecodePNG *Dec, BitBuffer *PNG2Decode, uint16_t GammaCorrect) {
+        return NULL;
+    }
+    
 #ifdef __cplusplus
 }
 #endif

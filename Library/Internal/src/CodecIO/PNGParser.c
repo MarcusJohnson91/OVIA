@@ -198,7 +198,6 @@ extern "C" {
         uint32_t CommentSize = ChunkSize - KeywordSize;
         
         Dec->NumTextChunks  += 1;
-        DecodePNG_Text_Init(Dec, KeywordSize, CommentSize);
         
         
         

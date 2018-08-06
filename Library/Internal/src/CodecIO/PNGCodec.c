@@ -11,34 +11,6 @@ extern "C" {
         return 7 - ((Width - 1) % 8);
     }
     
-    void DecodePNG_Text_Init(struct PNGDecoder *Dec, uint8_t KeywordSize, uint32_t CommentSize) {
-        if (Dec != NULL && KeywordSize > 0 && CommentSize > 0) {
-            if (Dec->Text != NULL) {
-                Dec->Text  = realloc(Dec->Text, sizeof(Text) * Dec->NumTextChunks);
-            } else {
-                Dec->Text  = calloc(Dec->NumTextChunks, sizeof(Text));
-            }
-            Dec->Text[Dec->NumTextChunks - 1].Keyword = calloc(1, KeywordSize);
-            Dec->Text[Dec->NumTextChunks - 1].Comment = calloc(1, CommentSize);
-        } else if (Dec == NULL) {
-            Log(Log_ERROR, __func__, U8("DecodePNG Pointer is NULL"));
-        }
-    }
-    
-    void EncodePNG_Text_Init(struct PNGEncoder *Enc, uint8_t KeywordSize, uint32_t CommentSize) {
-        if (Enc != NULL && KeywordSize > 0 && CommentSize > 0) {
-            if (Enc->Text != NULL) {
-                Enc->Text  = realloc(Enc->Text, sizeof(Text) * Enc->NumTextChunks);
-            } else {
-                Enc->Text  = calloc(Enc->NumTextChunks, sizeof(Text));
-            }
-            Enc->Text[Enc->NumTextChunks - 1].Keyword = calloc(1, KeywordSize);
-            Enc->Text[Enc->NumTextChunks - 1].Comment = calloc(1, CommentSize);
-        } else if (Enc == NULL) {
-            Log(Log_ERROR, __func__, U8("EncodePNG Pointer is NULL"));
-        }
-    }
-    
     DecodePNG *DecodePNG_Init(void) {
         DecodePNG *Dec  = calloc(1, sizeof(DecodePNG));
         Dec->acTL       = calloc(1, sizeof(acTL));
@@ -63,15 +35,17 @@ extern "C" {
     }
     
     /* PNG Get functions */
-    void PNGGetTextChunk(DecodePNG *Dec, uint32_t Instance, UTF8 *Keyword, UTF8 *Comment) {
+    UTF8 *PNGGetTextChunk(DecodePNG *Dec, uint32_t Instance, UTF8 *Keyword) {
+        UTF8 *Comment = NULL;
         if (Dec != NULL && Instance <= Dec->NumTextChunks - 1) {
             Keyword = Dec->Text[Instance].Keyword;
             Comment = Dec->Text[Instance].Comment;
         } else if (Dec == NULL) {
             Log(Log_ERROR, __func__, U8("DecodePNG Pointer is NULL"));
         } else if (Instance > Dec->NumTextChunks - 1) {
-            Log(Log_ERROR, __func__, "Instance %d is greater than there are Text chunks %d", Instance, Dec->NumTextChunks);
+            Log(Log_ERROR, __func__, U8("Instance %ud is greater than there are Text chunks %ud"), Instance, Dec->NumTextChunks);
         }
+        return Comment;
     }
     
     uint32_t PNGGetNumTextChunks(DecodePNG *Dec) {
