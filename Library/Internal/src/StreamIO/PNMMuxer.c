@@ -1,37 +1,32 @@
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/BitIO.h"
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/Log.h"
-
-#include "../../include/libPCM.h"
-#include "../../include/Private/libPCMTypes.h"
-#include "../../include/Private/Image/PXMCommon.h"
+#include "../../../include/Private/Image/PNMCommon.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
     
-    static void PXMWritePAMHeader(PCMFile *PCM, BitBuffer *BitB) {
+    static void PNMWritePAMHeader(PCMFile *PCM, BitBuffer *BitB) {
         
     }
     
-    static void PXMWriteBinaryPNMHeader(PCMFile *PCM, BitBuffer *BitB) {
+    static void PNMWriteBinaryPNMHeader(PCMFile *PCM, BitBuffer *BitB) {
         
     }
     
-    static void PXMWriteASCIIPNMHeader(PCMFile *PCM, BitBuffer *BitB) {
+    static void PNMWriteASCIIPNMHeader(PCMFile *PCM, BitBuffer *BitB) {
         
     }
     
-    void PXMWriteHeader(PCMFile *PCM, BitBuffer *BitB) {
-        if (PCM->Pic->PXMType == PAMPXM) {
-            PXMWritePAMHeader(PCM, BitB);
-        } else if (PCM->Pic->PXMType == BinaryPXM) {
-            PXMWriteBinaryPNMHeader(PCM, BitB);
-        } else if (PCM->Pic->PXMType == ASCIIPXM) {
-            PXMWriteASCIIPNMHeader(PCM, BitB);
+    void PNMWriteHeader(PNMTypes PNMType, BitBuffer *BitB) {
+        if (PNMType == PAMPNM) {
+            PNMWritePAMHeader(PCM, BitB);
+        } else if (PNMType == BinaryPNM) {
+            PNMWriteBinaryPNMHeader(PCM, BitB);
+        } else if (PNMType == ASCIIPNM) {
+            PNMWriteASCIIPNMHeader(PCM, BitB);
         }
     }
     
-    void PXMInsertImage(PCMFile *PCM, BitBuffer *CreatedImage, uint16_t ***Image2Insert) {
+    void PNMInsertImage(PCMFile *PCM, BitBuffer *CreatedImage, uint16_t ***Image2Insert) {
         if (PCM != NULL && CreatedImage != NULL && Image2Insert != NULL) {
             for (uint64_t Width = 0; Width < PCM->Pic->Width; Width++) {
                 for (uint64_t Height = 0; Height < PCM->Pic->Height; Height++) {
@@ -49,7 +44,7 @@ extern "C" {
         }
     }
     
-    void PXMInsertPixels(PCMFile *PCM, BitBuffer *OutputPixels, uint32_t NumPixels2Write, uint16_t **Pixels2Write) {
+    void PNMInsertPixels(PCMFile *PCM, BitBuffer *OutputPixels, uint32_t NumPixels2Write, uint16_t **Pixels2Write) {
         if (PCM != NULL && OutputPixels != NULL && Pixels2Write != NULL) {
             uint64_t ChannelCount = PCM->NumChannels;
             for (uint32_t Pixel = 0; Pixel < NumPixels2Write; Pixel++) {

@@ -1,9 +1,14 @@
-#include "../../libPCM.h"
+#include "../../libOVIA.h"
+
+#include "../../../../Dependencies/FoundationIO/libFoundationIO/include/BitIO.h"
+#include "../../../../Dependencies/FoundationIO/libFoundationIO/include/Log.h"
+#include "../../../../Dependencies/FoundationIO/libFoundationIO/include/Math.h"
+#include "../../../../Dependencies/FoundationIO/libFoundationIO/include/ContainerIO.h"
 
 #pragma once
 
-#ifndef LIBPCM_W64Common_H
-#define LIBPCM_W64Common_H
+#ifndef OVIA_W64Common_H
+#define OVIA_W64Common_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -57,12 +62,12 @@ extern "C" {
     
     void W64ExtractSamples(PCMFile *PCM, BitBuffer *BitB, uint64_t NumSamples2Extract, uint32_t **ExtractedSamples);
     
-    void W64InsertSamples(PCMFile *PCM, BitBuffer *OutputSamples, uint32_t NumSamples2Write, uint32_t **Samples2Write);
+    void W64AppendSamples(AudioContainer *Audio, BitBuffer *OutputSamples);
     
-    void W64WriteHeader(PCMFile *PCM, BitBuffer *BitB);
+    void W64WriteHeader(AudioContainer *Audio, BitBuffer *BitB);
     
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* LIBPCM_W64Common_H */
+#endif /* OVIA_W64Common_H */

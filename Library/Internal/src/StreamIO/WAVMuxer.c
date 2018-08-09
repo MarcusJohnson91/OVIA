@@ -1,9 +1,4 @@
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/BitIO.h"
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/Log.h"
-
-#include "../../include/libPCM.h"
-#include "../../include/Private/libPCMTypes.h"
-#include "../../include/Private/Audio/WAVCommon.h"
+#include "../../../include/Private/Audio/WAVCommon.h"
 
 #ifdef __cplusplus
 extern "C" {

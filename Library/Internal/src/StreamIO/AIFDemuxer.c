@@ -1,12 +1,4 @@
-#include <stdlib.h>
-
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/BitIO.h"
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/Log.h"
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/Math.h"
-
-#include "../../include/libPCM.h"
-#include "../../include/Private/libPCMTypes.h"
-#include "../../include/Private/Audio/AIFCommon.h"
+#include "../../../include/Private/Audio/AIFCommon.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -120,7 +112,7 @@ extern "C" {
         }
     }
     
-    void AIFExtractSamples(PCMFile *PCM, BitBuffer *BitB, uint64_t NumSamples2Extract, uint32_t **ExtractedSamples) { // I should change this so that the user manages their own buffer
+    void AIFExtractSamples(AudioContainer *PCM, BitBuffer *BitB, uint64_t NumSamples2Extract, uint32_t **ExtractedSamples) { // I should change this so that the user manages their own buffer
         for (uint32_t Sample = 0UL; Sample < NumSamples2Extract; Sample++) {
             for (uint16_t Channel = 0; Channel < PCM->NumChannels; Channel++) {
                 ExtractedSamples[Channel][Sample] = ReadBits(MSByteFirst, MSBitFirst, BitB, PCM->BitDepth);

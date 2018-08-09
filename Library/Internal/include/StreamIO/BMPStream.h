@@ -1,9 +1,14 @@
-#include "../../libPCM.h"
+#include "../../libOVIA.h"
+
+#include "../../../../Dependencies/FoundationIO/libFoundationIO/include/BitIO.h"
+#include "../../../../Dependencies/FoundationIO/libFoundationIO/include/Log.h"
+#include "../../../../Dependencies/FoundationIO/libFoundationIO/include/Math.h"
+#include "../../../../Dependencies/FoundationIO/libFoundationIO/include/ContainerIO.h"
 
 #pragma once
 
-#ifndef LIBPCM_BMPCommon_H
-#define LIBPCM_BMPCommon_H
+#ifndef OVIA_BMPCommon_H
+#define OVIA_BMPCommon_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -43,4 +48,4 @@ extern "C" {
 }
 #endif
 
-#endif /* LIBPCM_BMPCommon_H */
+#endif /* OVIA_BMPCommon_H */

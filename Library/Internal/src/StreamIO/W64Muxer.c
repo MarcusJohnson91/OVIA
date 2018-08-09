@@ -1,9 +1,4 @@
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/BitIO.h"
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/Log.h"
-
-#include "../../include/libPCM.h"
-#include "../../include/Private/libPCMTypes.h"
-#include "../../include/Private/Audio/W64Common.h"
+#include "../../../include/Private/Audio/W64Common.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,37 +14,44 @@ extern "C" {
         return NumChannels * (BitDepth / 8);
     }
     
-    static void W64WriteFMTChunk(PCMFile *PCM, BitBuffer *BitB) {
-        uint64_t ByteRate   = CalculateW64ByteRate(PCM->NumChannels, PCM->Aud->SampleRate, PCM->BitDepth);
-        uint64_t BlockAlign = CalculateW64BlockAlign(PCM->NumChannels, PCM->BitDepth);
+    static void W64WriteFMTChunk(AudioContainer *Audio, BitBuffer *BitB) {
+        uint64_t NumChannels = AudioContainer_GetNumSamples(Audio);
+        uint64_t SampleRate  = AudioContainer_GetSampleRate(Audio);
+        uint8_t  BitDepth    = Bits2Bytes(AudioContainer_GetBitDepth(Audio), Yes);
+        uint64_t ByteRate    = CalculateW64ByteRate(NumChannels, SampleRate, BitDepth);
+        uint64_t BlockAlign  = CalculateW64BlockAlign(NumChannels, BitDepth);
         WriteBits(LSByteFirst, LSBitFirst, BitB, 16, 0);
-        WriteBits(LSByteFirst, LSBitFirst, BitB, 16, PCM->NumChannels);
-        WriteBits(LSByteFirst, LSBitFirst, BitB, 32, PCM->Aud->SampleRate);
+        WriteBits(LSByteFirst, LSBitFirst, BitB, 16, NumChannels);
+        WriteBits(LSByteFirst, LSBitFirst, BitB, 32, SampleRate);
         WriteBits(LSByteFirst, LSBitFirst, BitB, 32, ByteRate);
         WriteBits(LSByteFirst, LSBitFirst, BitB, 32, BlockAlign);
-        WriteBits(LSByteFirst, LSBitFirst, BitB, 16, PCM->BitDepth);
+        WriteBits(LSByteFirst, LSBitFirst, BitB, 16, BitDepth);
     }
     
-    void W64WriteHeader(PCMFile *PCM, BitBuffer *BitB) {
+    void W64WriteHeader(AudioContainer *Audio, BitBuffer *BitB) {
+        uint64_t NumChannels = AudioContainer_GetNumSamples(Audio);
+        uint64_t NumSamples  = AudioContainer_GetNumSamples(Audio);
+        uint8_t  BitDepth    = Bits2Bytes(AudioContainer_GetBitDepth(Audio), Yes);
         WriteGUUID(GUIDString, BitB, W64_RIFF_GUIDString);
-        // Write the size of the file including all header fields
-        uint64_t W64Size = (PCM->NumChannelAgnosticSamples * PCM->NumChannels * PCM->BitDepth);
+        uint64_t W64Size     = (NumSamples * NumChannels * BitDepth);
         WriteBits(LSByteFirst, LSBitFirst, BitB, 64, W64Size);
         WriteGUUID(GUIDString, BitB, W64_WAVE_GUIDString);
         WriteGUUID(GUIDString, BitB, W64_FMT_GUIDString);
-        uint64_t FMTSize = 40;
+        uint64_t FMTSize     = 40;
         WriteBits(LSByteFirst, LSBitFirst, BitB, 64, FMTSize);
-        W64WriteFMTChunk(PCM, BitB);
+        W64WriteFMTChunk(Audio, BitB);
         WriteGUUID(GUIDString, BitB, W64_DATA_GUIDString);
-        WriteBits(LSByteFirst, LSBitFirst, BitB, 64, PCM->NumChannelAgnosticSamples);
+        WriteBits(LSByteFirst, LSBitFirst, BitB, 64, NumSamples);
     }
     
-    void W64InsertSamples(PCMFile *PCM, BitBuffer *OutputSamples, uint32_t NumSamples2Write, uint32_t **Samples2Write) {
-        if (PCM != NULL && OutputSamples != NULL && Samples2Write != NULL) {
-            uint64_t ChannelCount = PCM->NumChannels;
-            uint64_t BitDepth     = PCM->BitDepth;
-            for (uint32_t Sample = 0; Sample < NumSamples2Write; Sample++) {
-                for (uint16_t Channel = 0; Channel < ChannelCount; Channel++) {
+    void W64AppendSamples(AudioContainer *Audio, BitBuffer *OutputSamples) {
+        if (Audio != NULL && OutputSamples != NULL) {
+            uint64_t NumChannels  = AudioContainer_GetNumSamples(Audio);
+            uint64_t BitDepth     = Bits2Bytes(AudioContainer_GetBitDepth(Audio), Yes);
+            uint64_t NumSamples   = AudioContainer_GetNumSamples(Audio);
+            for (uint32_t Sample = 0; Sample < NumSamples; Sample++) {
+                for (uint16_t Channel = 0; Channel < NumChannels; Channel++) {
+                    WriteBits(LSByteFirst, LSBitFirst, OutputSamples, BitDepth, ); // The last parameter needs to be a pointer to the actual array.
                     WriteBits(LSByteFirst, LSBitFirst, OutputSamples, BitDepth, Samples2Write[Channel][Sample]);
                 }
             }

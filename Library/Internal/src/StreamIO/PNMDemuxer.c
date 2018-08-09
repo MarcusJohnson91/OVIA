@@ -1,33 +1,25 @@
-#include <stdlib.h>
-
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/BitIO.h"
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/Log.h"
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/Math.h"
-
-#include "../../include/libPCM.h"
-#include "../../include/Private/libPCMTypes.h"
-#include "../../include/Private/Image/PXMCommon.h"
+#include "../../../include/Private/Image/PNMCommon.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
     
-    static uint64_t PXMCheckForComment(BitBuffer *BitB) { // returns 0 if no comment was found, returns the number of bytes that make up the comment if it was.
+    static uint64_t PNMCheckForComment(BitBuffer *BitB) { // returns 0 if no comment was found, returns the number of bytes that make up the comment if it was.
         uint64_t CommentSize = 0;
-        if (ReadBits(MSByteFirst, LSBitFirst, BitB, 8) == PXMCommentStart) {
-            while (ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PXMEndField) {
+        if (ReadBits(MSByteFirst, LSBitFirst, BitB, 8) == PNMCommentStart) {
+            while (ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PNMEndField) {
                 CommentSize += 1;
             }
         }
         return CommentSize;
     }
     
-    static void PXMParsePNMASCIIHeader(PCMFile *PCM, BitBuffer *BitB) {
-        uint64_t CommentSizeWidth = PXMCheckForComment(BitB);
+    static void PNMParsePNMASCIIHeader(PCMFile *PCM, BitBuffer *BitB) {
+        uint64_t CommentSizeWidth = PNMCheckForComment(BitB);
         BitBuffer_Skip(BitB, Bytes2Bits(CommentSizeWidth));
         /* Read Width */
         uint64_t WidthStringSize = 0LLU;
-        while (ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PXMFieldSeperator) {
+        while (ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PNMFieldSeperator) {
             WidthStringSize += 1;
         }
         UTF8 *WidthString = calloc(1, WidthStringSize * sizeof(char));
@@ -38,12 +30,12 @@ extern "C" {
         free(WidthString);
         /* Read Width */
         
-        uint64_t CommentSizeHeight = PXMCheckForComment(BitB);
+        uint64_t CommentSizeHeight = PNMCheckForComment(BitB);
         BitBuffer_Skip(BitB, Bytes2Bits(CommentSizeHeight));
         
         /* Read Height */
         uint64_t HeightStringSize = 0LLU;
-        while (ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PXMEndField) {
+        while (ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PNMEndField) {
             HeightStringSize += 1;
         }
         UTF8 *HeightString = calloc(1, HeightStringSize * sizeof(char));
@@ -54,10 +46,10 @@ extern "C" {
         free(HeightString);
     }
     
-    static void PXMParsePNMBinaryHeader(PCMFile *PCM, BitBuffer *BitB) {
+    static void PNMParsePNMBinaryHeader(PCMFile *PCM, BitBuffer *BitB) {
         /* Read Width */
         uint64_t WidthStringSize = 0LLU;
-        while (ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PXMFieldSeperator) {
+        while (ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PNMFieldSeperator) {
             WidthStringSize += 1;
         }
         UTF8 *WidthString = calloc(1, WidthStringSize * sizeof(char));
@@ -70,7 +62,7 @@ extern "C" {
         
         /* Read Height */
         uint64_t HeightStringSize = 0LLU;
-        while (ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PXMEndField) {
+        while (ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PNMEndField) {
             HeightStringSize += 1;
         }
         UTF8 *HeightString = calloc(1, HeightStringSize * sizeof(char));
@@ -83,7 +75,7 @@ extern "C" {
         
         /* Read MaxVal */
         uint8_t MaxValStringSize = 0;
-        while (ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PXMEndField) {
+        while (ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PNMEndField) {
             MaxValStringSize += 1;
         }
         UTF8 *MaxValString = calloc(1, MaxValStringSize * sizeof(char));
@@ -96,11 +88,11 @@ extern "C" {
         /* Read MaxVal */
     }
     
-    static void PXMParsePAMHeader(PCMFile *PCM, BitBuffer *BitB) {
+    static void PNMParsePAMHeader(PCMFile *PCM, BitBuffer *BitB) {
         /* Read Width */
         BitBuffer_Skip(BitB, 48); // Skip "WIDTH " string
         uint64_t WidthStringSize = 0LLU;
-        while (ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PXMFieldSeperator) {
+        while (ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PNMFieldSeperator) {
             WidthStringSize += 1;
         }
         UTF8 *WidthString = calloc(1, WidthStringSize * sizeof(char));
@@ -114,7 +106,7 @@ extern "C" {
         /* Read Height */
         BitBuffer_Skip(BitB, 56); // Skip "HEIGHT " string
         uint64_t HeightStringSize = 0LLU;
-        while (ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PXMEndField) {
+        while (ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PNMEndField) {
             HeightStringSize += 1;
         }
         UTF8 *HeightString = calloc(1, HeightStringSize * sizeof(char));
@@ -128,7 +120,7 @@ extern "C" {
         /* Read NumChannels */
         BitBuffer_Skip(BitB, 48); // Skip "DEPTH " string
         uint8_t DepthStringSize = 0;
-        while (ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PXMEndField) {
+        while (ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PNMEndField) {
             DepthStringSize += 1;
         }
         UTF8 *DepthString = calloc(1, DepthStringSize * sizeof(char));
@@ -142,7 +134,7 @@ extern "C" {
         /* Read MaxVal */
         BitBuffer_Skip(BitB, 56); // Skip "MAXVAL " string
         uint8_t MaxValStringSize = 0;
-        while (ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PXMEndField) {
+        while (ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PNMEndField) {
             MaxValStringSize += 1;
         }
         UTF8 *MaxValString = calloc(1, MaxValStringSize * sizeof(UTF8));
@@ -157,7 +149,7 @@ extern "C" {
         /* Read TupleType */
         BitBuffer_Skip(BitB, 72); // Skip "TUPLETYPE " string
         uint8_t TupleTypeSize = 0;
-        while (ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PXMEndField) {
+        while (ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PNMEndField) {
             TupleTypeSize += 1;
         }
         UTF8 *TupleTypeString = calloc(1, TupleTypeSize * sizeof(char));
@@ -166,23 +158,23 @@ extern "C" {
         }
         if (UTF8_Compare(TupleTypeString, U8("BLACKANDWHITE"), NormalizationFormKC, Yes) == Yes) {
             PCM->NumChannels = 1;
-            PCM->Pic->PXMTupleType   = PXM_TUPLE_BnW;
+            PCM->Pic->PNMTupleType   = PNM_TUPLE_BnW;
         } else if (UTF8_Compare(TupleTypeString, U8("GRAYSCALE"), NormalizationFormKC, Yes) == Yes) {
             PCM->NumChannels = 1;
-            PCM->Pic->PXMTupleType   = PXM_TUPLE_Gray;
+            PCM->Pic->PNMTupleType   = PNM_TUPLE_Gray;
         } else if (UTF8_Compare(TupleTypeString, U8("GRAYSCALE_ALPHA"), NormalizationFormKC, Yes) == Yes) {
             PCM->NumChannels = 2;
-            PCM->Pic->PXMTupleType   = PXM_TUPLE_GrayAlpha;
+            PCM->Pic->PNMTupleType   = PNM_TUPLE_GrayAlpha;
         } else if (UTF8_Compare(TupleTypeString, U8("RGB"), NormalizationFormKC, Yes) == Yes) {
             PCM->NumChannels = 3;
-            PCM->Pic->PXMTupleType   = PXM_TUPLE_RGB;
+            PCM->Pic->PNMTupleType   = PNM_TUPLE_RGB;
         } else if (UTF8_Compare(TupleTypeString, U8("RGB_ALPHA"), NormalizationFormKC, Yes) == Yes) {
             PCM->NumChannels = 4;
-            PCM->Pic->PXMTupleType   = PXM_TUPLE_RGBAlpha;
+            PCM->Pic->PNMTupleType   = PNM_TUPLE_RGBAlpha;
         } else {
             PCM->NumChannels = 0;
-            PCM->Pic->PXMTupleType   = PXM_TUPLE_Unknown;
-            Log(Log_ERROR, __func__, U8("Unknown PXM Tuple: %s"), TupleTypeString);
+            PCM->Pic->PNMTupleType   = PNM_TUPLE_Unknown;
+            Log(Log_ERROR, __func__, U8("Unknown PNM Tuple: %s"), TupleTypeString);
         }
         free(TupleTypeString);
         /* Read TupleType */
@@ -192,51 +184,51 @@ extern "C" {
         /* Skip ENDHDR */
     }
     
-    void PXMIdentifyFileType(PCMFile *PCM, BitBuffer *BitB) {
-        UTF8 PXMMagicID[PXMMagicSize];
-        for (uint8_t PXMMagicByte = 0; PXMMagicByte < PXMMagicSize; PXMMagicByte++) {
-            PXMMagicID[PXMMagicByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
+    void PNMIdentifyFileType(PCMFile *PCM, BitBuffer *BitB) {
+        UTF8 PNMMagicID[PNMMagicSize];
+        for (uint8_t PNMMagicByte = 0; PNMMagicByte < PNMMagicSize; PNMMagicByte++) {
+            PNMMagicID[PNMMagicByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
-        if (UTF8_Compare(PXMMagicID, U8("P1"), NormalizationFormKC, Yes) == Yes || UTF8_Compare(PXMMagicID, U8("P2"), NormalizationFormKC, Yes) == Yes || UTF8_Compare(PXMMagicID, U8("P3"), NormalizationFormKC, Yes) == Yes) {
-            PCM->Pic->PXMType = ASCIIPXM;
-        } else if (UTF8_Compare(PXMMagicID, U8("P4"), NormalizationFormKC, Yes) == Yes || UTF8_Compare(PXMMagicID, U8("P5"), NormalizationFormKC, Yes) == Yes || UTF8_Compare(PXMMagicID, U8("P6"), NormalizationFormKC, Yes) == Yes) {
-            PCM->Pic->PXMType = BinaryPXM;
-        } else if (UTF8_Compare(PXMMagicID, U8("P7"), NormalizationFormKC, Yes) == 0) {
-            PCM->Pic->PXMType = PAMPXM;
+        if (UTF8_Compare(PNMMagicID, U8("P1"), NormalizationFormKC, Yes) == Yes || UTF8_Compare(PNMMagicID, U8("P2"), NormalizationFormKC, Yes) == Yes || UTF8_Compare(PNMMagicID, U8("P3"), NormalizationFormKC, Yes) == Yes) {
+            PCM->Pic->PNMType = ASCIIPNM;
+        } else if (UTF8_Compare(PNMMagicID, U8("P4"), NormalizationFormKC, Yes) == Yes || UTF8_Compare(PNMMagicID, U8("P5"), NormalizationFormKC, Yes) == Yes || UTF8_Compare(PNMMagicID, U8("P6"), NormalizationFormKC, Yes) == Yes) {
+            PCM->Pic->PNMType = BinaryPNM;
+        } else if (UTF8_Compare(PNMMagicID, U8("P7"), NormalizationFormKC, Yes) == 0) {
+            PCM->Pic->PNMType = PAMPNM;
         }
     }
     
-    void PXMParseMetadata(PCMFile *PCM, BitBuffer *BitB) {
+    void PNMParseMetadata(PCMFile *PCM, BitBuffer *BitB) {
         uint8_t NumFieldsRead = 0;
         uint8_t Fields2Read = 0;
-        if (PCM->Pic->PXMType == PAMPXM) {
+        if (PCM->Pic->PNMType == PAMPNM) {
             Fields2Read = 5;
-        } else if (PCM->Pic->PXMType == ASCIIPXM) {
+        } else if (PCM->Pic->PNMType == ASCIIPNM) {
             Fields2Read = 2; // there is no MaxVal field
-        } else if (PCM->Pic->PXMType == BinaryPXM) {
+        } else if (PCM->Pic->PNMType == BinaryPNM) {
             Fields2Read = 3;
         }
         
         BitBuffer_Skip(BitB, 8); // Skip the LineFeed after the FileType marker
         // Before each field we need to check for Comments if the file is ASCII.
-        if (PCM->Pic->PXMType == ASCIIPXM) {
-            PXMParsePNMASCIIHeader(PCM, BitB);
-        } else if (PCM->Pic->PXMType == BinaryPXM) {
-            PXMParsePNMBinaryHeader(PCM, BitB);
-        } else if (PCM->Pic->PXMType == PAMPXM) {
-            PXMParsePAMHeader(PCM, BitB);
+        if (PCM->Pic->PNMType == ASCIIPNM) {
+            PNMParsePNMASCIIHeader(PCM, BitB);
+        } else if (PCM->Pic->PNMType == BinaryPNM) {
+            PNMParsePNMBinaryHeader(PCM, BitB);
+        } else if (PCM->Pic->PNMType == PAMPNM) {
+            PNMParsePAMHeader(PCM, BitB);
         }
     }
     
-    uint16_t ***PXMExtractImage(PCMFile *PCM, BitBuffer *BitB) {
+    uint16_t ***PNMExtractImage(PCMFile *PCM, BitBuffer *BitB) {
         uint16_t ***ExtractedImage = calloc(PCM->Pic->Width * PCM->Pic->Height * PCM->NumChannels, sizeof(uint16_t));
         if (PCM != NULL && BitB != NULL && ExtractedImage != NULL) {
-            if (PCM->Pic->PXMType == ASCIIPXM) {
+            if (PCM->Pic->PNMType == ASCIIPNM) {
                 for (uint64_t Width = 0; Width < PCM->Pic->Width; Width++) {
                     for (uint64_t Height = 0; Height < PCM->Pic->Height; Height++) {
                         for (uint8_t Channel = 0; Channel < PCM->NumChannels; Channel++) {
                             uint8_t SubPixelStringSize          = 0;
-                            while (PeekBits(MSByteFirst, LSBitFirst, BitB, 8) != PXMFieldSeperator || PeekBits(MSByteFirst, LSBitFirst, BitB, 8) != PXMEndField) {
+                            while (PeekBits(MSByteFirst, LSBitFirst, BitB, 8) != PNMFieldSeperator || PeekBits(MSByteFirst, LSBitFirst, BitB, 8) != PNMEndField) {
                                 SubPixelStringSize             += 1;
                             }
                             char *SubPixelString                = calloc(1, PCM->NumChannels * sizeof(char));
@@ -248,12 +240,12 @@ extern "C" {
                         }
                     }
                 }
-            } else if (PCM->Pic->PXMType == BinaryPXM || PCM->Pic->PXMType == PAMPXM) {
+            } else if (PCM->Pic->PNMType == BinaryPNM || PCM->Pic->PNMType == PAMPNM) {
                 for (uint64_t Width = 0; Width < PCM->Pic->Width; Width++) {
                     for (uint64_t Height = 0; Height < PCM->Pic->Height; Height++) {
                         for (uint8_t Channel = 0; Channel < PCM->NumChannels; Channel++) {
                             uint8_t CurrentPixel                = ReadBits(LSByteFirst, LSBitFirst, BitB, PCM->BitDepth);
-                            if (PCM->Pic->PXMTupleType == PXM_TUPLE_BnW && PCM->Pic->PXMType != PAMPXM) {
+                            if (PCM->Pic->PNMTupleType == PNM_TUPLE_BnW && PCM->Pic->PNMType != PAMPNM) {
                                 ExtractedImage[Width][Height][Channel] = ~CurrentPixel; // 1 = black, 0 = white
                             } else {
                                 ExtractedImage[Width][Height][Channel] = CurrentPixel; // 1 = white, 0 = black

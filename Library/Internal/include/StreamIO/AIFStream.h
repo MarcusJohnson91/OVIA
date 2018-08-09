@@ -1,9 +1,14 @@
-#include "../../libPCM.h"
+#include "../../libOVIA.h"
+
+#include "../../../../Dependencies/FoundationIO/libFoundationIO/include/BitIO.h"
+#include "../../../../Dependencies/FoundationIO/libFoundationIO/include/Log.h"
+#include "../../../../Dependencies/FoundationIO/libFoundationIO/include/Math.h"
+#include "../../../../Dependencies/FoundationIO/libFoundationIO/include/ContainerIO.h"
 
 #pragma once
 
-#ifndef LIBPCM_AIFCommon_H
-#define LIBPCM_AIFCommon_H
+#ifndef OVIA_AIFCommon_H
+#define OVIA_AIFCommon_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,4 +51,4 @@ extern "C" {
 }
 #endif
 
-#endif /* LIBPCM_AIFCommon_H */
+#endif /* OVIA_AIFCommon_H */
