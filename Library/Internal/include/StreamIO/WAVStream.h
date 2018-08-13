@@ -14,6 +14,27 @@
 extern "C" {
 #endif
     
+    enum WAVSpeakerMask {
+        WAVFrontRight         = 0x1,
+        WAVFrontLeft          = 0x2,
+        WAVFrontCenter        = 0x4,
+        WAVLFE                = 0x8,
+        WAVBackLeft           = 0x10,
+        WAVBackRight          = 0x20,
+        WAVFrontLeftCenter    = 0x40,
+        WAVFrontRightCenter   = 0x80,
+        WAVBackCenter         = 0x100,
+        WAVSideLeft           = 0x200,
+        WAVSideRight          = 0x400,
+        WAVTopCenter          = 0x800,
+        WAVTopFrontLeft       = 0x1000,
+        WAVTopFrontCenter     = 0x2000,
+        WAVTopFrontRight      = 0x4000,
+        WAVTopBackLeft        = 0x8000,
+        WAVTopBackCenter      = 0x10000,
+        WAVTopBackRight       = 0x20000,
+    };
+    
     typedef enum WAVCompressionFormats {
         UnknownCompressionFormat      = 0x0000,
         Lossless_PCM                  = 0x0001,

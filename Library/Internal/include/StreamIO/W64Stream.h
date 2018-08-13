@@ -14,6 +14,27 @@
 extern "C" {
 #endif
     
+    enum W64SpeakerMask {
+        WAVFrontRight         = 0x1,
+        WAVFrontLeft          = 0x2,
+        WAVFrontCenter        = 0x4,
+        WAVLFE                = 0x8,
+        WAVBackLeft           = 0x10,
+        WAVBackRight          = 0x20,
+        WAVFrontLeftCenter    = 0x40,
+        WAVFrontRightCenter   = 0x80,
+        WAVBackCenter         = 0x100,
+        WAVSideLeft           = 0x200,
+        WAVSideRight          = 0x400,
+        WAVTopCenter          = 0x800,
+        WAVTopFrontLeft       = 0x1000,
+        WAVTopFrontCenter     = 0x2000,
+        WAVTopFrontRight      = 0x4000,
+        WAVTopBackLeft        = 0x8000,
+        WAVTopBackCenter      = 0x10000,
+        WAVTopBackRight       = 0x20000,
+    };
+    
     static const uint8_t W64_RIFF_GUIDString[GUUIDStringSize] = {
         0x72,0x69,0x66,0x66,0x2D,0x2E,0x91,0x2D,0xCF,0x11,0x2D,0xA5,0xD6,0x2D,0x28,0xDB,0x04,0xC1,0x00,0x00,0x00
     };

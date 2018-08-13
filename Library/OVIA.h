@@ -12,77 +12,58 @@
 extern "C" {
 #endif
     
+    typedef enum OVIA_Types {
+        UnknownType           = 0,
+        AudioType             = 1,
+        ImageType             = 2,
+    } OVIA_Types;
+    
     typedef enum OVIA_FileFormats {
         UnknownFormat         = 0,
         AIFFormat             = 1,
         WAVFormat             = 2,
-        WAVFormatExtensible   = 4,
-        W64Format             = 5,
-        BMPFormat             = 6,
-        PNMFormat             = 7,
+        W64Format             = 3,
+        FLACFormat            = 4,
+        BMPFormat             = 5,
+        PNMFormat             = 6,
+        PNGFormat             = 7,
     } OVIA_FileFormats;
     
-    enum AIFSpeakerMask {
-        AIFFrontLeft          = 0x1,
-        AIFFrontRight         = 0x2,
-        AIFFrontCenter        = 0x4,
-        AIFRearLeft           = 0x8,
-        AIFRearRight          = 0x10,
-        AIFSurround           = 0x20,
-        AIFLeftCenter         = 0x40,
-        AIFRightCenter        = 0x80,
-    };
+    /*
+     OVIA API Design:
+     
+     ProgramA exists, user calls it with arguments.
+     
+     Parse the arguments with CommandLineIO.
+     
+     Create BitInput, BitOutput, and BitBuffer structs for dealing with the file.
+     
+     it's a media file, the user wants to load the image into memory to manipulate it.
+     
+     The user asks OVIA to identify the file, to do thi OVIA_Identify needs access to the BitBuffer.
+     
+     The file is identified as PNG.
+     
+     The user wants to decode the PNG.
+     
+     The User needs to get the metadata for the file, and put it into OVIA, and the Image/Audio Container.
+     */
     
-    enum WAVSpeakerMask {
-        WAVFrontRight         = 0x1,
-        WAVFrontLeft          = 0x2,
-        WAVFrontCenter        = 0x4,
-        WAVLFE                = 0x8,
-        WAVBackLeft           = 0x10,
-        WAVBackRight          = 0x20,
-        WAVFrontLeftCenter    = 0x40,
-        WAVFrontRightCenter   = 0x80,
-        WAVBackCenter         = 0x100,
-        WAVSideLeft           = 0x200,
-        WAVSideRight          = 0x400,
-        WAVTopCenter          = 0x800,
-        WAVTopFrontLeft       = 0x1000,
-        WAVTopFrontCenter     = 0x2000,
-        WAVTopFrontRight      = 0x4000,
-        WAVTopBackLeft        = 0x8000,
-        WAVTopBackCenter      = 0x10000,
-        WAVTopBackRight       = 0x20000,
-    };
+    typedef struct AudioContainer AudioContainer;
     
-    typedef enum PNMTypes {
-        UnknownPNM            = 0,
-        BlackAndWhitePNM      = 1,
-        BinaryPNM             = 2,
-        ASCIIPNM              = 3,
-        PAMPNM                = 4,
-    } PNMTypes;
+    typedef struct ImageContainer ImageContainer;
     
-    typedef struct       PCMFile   PCMFile;
+    typedef struct OVIA OVIA;
     
-    typedef struct       BitBuffer BitBuffer;
+    OVIA                *OVIA_Identify(BitBuffer *BitB);
     
-    void                 IFFSkipPadding(BitBuffer *BitB, uint32_t SubChunkSize);
+    void                 OVIA_Audio_ReadMetadata(OVIA *Ovia, AudioContainer *Audio, BitBuffer *BitB);
     
-    PCMFile             *PCMFile_Init(void);
-    
-    void                 PCMFile_Identify(PCMFile *PCM, BitBuffer *BitB);
+    void                 OVIA_Image_ReadMetadata(OVIA *Ovia, ImageContainer *Image, BitBuffer *BitB);
     
     void                 PCMFile_ParseMetadata(PCMFile *PCM, BitBuffer *BitB);
     
-    uint8_t              PCM_GetBitDepth(PCMFile *PCM);
-    
-    uint64_t             PCM_GetNumChannels(PCMFile *PCM);
-    
-    uint64_t             PCM_GetNumSamples(PCMFile *PCM);
-    
     bool                 PCM_IsThereMoreMetadata(PCMFile *PCM);
-    
-    void                 PCM_SetNumOutputSamples(PCMFile *PCM, uint64_t NumChannelIndependentSamples);
     
     void                 PCM_SetOutputPNMType(PCMFile *PCM, PNMTypes PNMType);
     

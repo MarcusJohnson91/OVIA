@@ -49,18 +49,54 @@ extern "C" {
             uint64_t NumChannels  = AudioContainer_GetNumSamples(Audio);
             uint64_t BitDepth     = Bits2Bytes(AudioContainer_GetBitDepth(Audio), Yes);
             uint64_t NumSamples   = AudioContainer_GetNumSamples(Audio);
-            for (uint32_t Sample = 0; Sample < NumSamples; Sample++) {
-                for (uint16_t Channel = 0; Channel < NumChannels; Channel++) {
-                    WriteBits(LSByteFirst, LSBitFirst, OutputSamples, BitDepth, ); // The last parameter needs to be a pointer to the actual array.
-                    WriteBits(LSByteFirst, LSBitFirst, OutputSamples, BitDepth, Samples2Write[Channel][Sample]);
+            Audio_Types Type      = AudioContainer_GetType(Audio);
+            if (Type == AudioContainer_SInteger8) {
+                int8_t **Samples  = (int8_t**)    AudioContainer_GetArray(Audio);
+                for (uint32_t Sample = 0; Sample < NumSamples; Sample++) {
+                    for (uint16_t Channel = 0; Channel < NumChannels; Channel++) {
+                        WriteBits(LSByteFirst, LSBitFirst, OutputSamples, BitDepth, Samples[Channel][Sample]); // The last parameter needs to be a pointer to the actual array.
+                    }
+                }
+            } else if (AudioContainer_UInteger8) {
+                uint8_t **Samples = (uint8_t**)   AudioContainer_GetArray(Audio);
+                for (uint32_t Sample = 0; Sample < NumSamples; Sample++) {
+                    for (uint16_t Channel = 0; Channel < NumChannels; Channel++) {
+                        WriteBits(LSByteFirst, LSBitFirst, OutputSamples, BitDepth, Samples[Channel][Sample]); // The last parameter needs to be a pointer to the actual array.
+                    }
+                }
+            } else if (AudioContainer_SInteger16) {
+                int16_t **Samples = (int16_t**)   AudioContainer_GetArray(Audio);
+                for (uint32_t Sample = 0; Sample < NumSamples; Sample++) {
+                    for (uint16_t Channel = 0; Channel < NumChannels; Channel++) {
+                        WriteBits(LSByteFirst, LSBitFirst, OutputSamples, BitDepth, Samples[Channel][Sample]); // The last parameter needs to be a pointer to the actual array.
+                    }
+                }
+            } else if (AudioContainer_UInteger16) {
+                uint16_t **Samples = (uint16_t**) AudioContainer_GetArray(Audio);
+                for (uint32_t Sample = 0; Sample < NumSamples; Sample++) {
+                    for (uint16_t Channel = 0; Channel < NumChannels; Channel++) {
+                        WriteBits(LSByteFirst, LSBitFirst, OutputSamples, BitDepth, Samples[Channel][Sample]); // The last parameter needs to be a pointer to the actual array.
+                    }
+                }
+            } else if (AudioContainer_SInteger32) {
+                int32_t  **Samples = (int32_t**)  AudioContainer_GetArray(Audio);
+                for (uint32_t Sample = 0; Sample < NumSamples; Sample++) {
+                    for (uint16_t Channel = 0; Channel < NumChannels; Channel++) {
+                        WriteBits(LSByteFirst, LSBitFirst, OutputSamples, BitDepth, Samples[Channel][Sample]); // The last parameter needs to be a pointer to the actual array.
+                    }
+                }
+            } else if (AudioContainer_UInteger32) {
+                uint32_t **Samples = (uint32_t**) AudioContainer_GetArray(Audio);
+                for (uint32_t Sample = 0; Sample < NumSamples; Sample++) {
+                    for (uint16_t Channel = 0; Channel < NumChannels; Channel++) {
+                        WriteBits(LSByteFirst, LSBitFirst, OutputSamples, BitDepth, Samples[Channel][Sample]); // The last parameter needs to be a pointer to the actual array.
+                    }
                 }
             }
-        } else if (PCM == NULL) {
-            Log(Log_ERROR, __func__, U8("PCM Pointer is NULL"));
+        } else if (Audio == NULL) {
+            Log(Log_ERROR, __func__, U8("AudioContainer Pointer is NULL"));
         } else if (OutputSamples == NULL) {
             Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
-        } else if (Samples2Write == NULL) {
-            Log(Log_ERROR, __func__, U8("Samples2Write Pointer is NULL"));
         }
     }
     

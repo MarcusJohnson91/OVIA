@@ -14,6 +14,17 @@
 extern "C" {
 #endif
     
+    enum AIFSpeakerMask {
+        AIFFrontLeft          = 0x1,
+        AIFFrontRight         = 0x2,
+        AIFFrontCenter        = 0x4,
+        AIFRearLeft           = 0x8,
+        AIFRearRight          = 0x10,
+        AIFSurround           = 0x20,
+        AIFLeftCenter         = 0x40,
+        AIFRightCenter        = 0x80,
+    };
+    
     enum AIFFTimeStamp {
         AIFFSecondsBeforeUNIX = 2082844800,
     };

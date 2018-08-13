@@ -1,4 +1,4 @@
-#include "../../libOVIA.h"
+#include "../include/libOVIA.h"
 
 #include "../include/Private/Audio/AIFCommon.h"
 #include "../include/Private/Audio/FLACCommon.h"
@@ -12,23 +12,11 @@
 extern "C" {
 #endif
     
-    struct Samples {
-        void   **SampleArray;
-        uint8_t  BitDepth;
-        uint8_t  NumChannels;
-    };
-    
-    Samples *InitSamplesBuffer(PCMFile *PCM, uint64_t NumSamples) {
-        Samples *Data = calloc(1, sizeof(Samples));
-        if (Data == NULL) {
-            Log(Log_ERROR, __func__, U8("Not enough memory to init Samples"));
-        } else {
-            Data->BitDepth    = PCM->BitDepth;
-            Data->NumChannels = PCM->NumChannels;
-            Data->SampleArray = calloc(NumSamples * Data->NumChannels, Bits2Bytes(Data->BitDepth, Yes));
-        }
-        return Data;
-    }
+    typedef struct OVIA {
+        OVIA_Types       Type;
+        OVIA_FileFormats Format;
+        
+    } OVIA;
     
     void IFFSkipPadding(BitBuffer *BitB, uint32_t SubChunkSize) {
         if (IsOdd(SubChunkSize) == Yes) {
@@ -36,16 +24,14 @@ extern "C" {
         }
     }
     
-    PCMFile *PCMFile_Init(void) {
-        PCMFile *PCM       = calloc(1, sizeof(PCMFile));
-        if (PCM == NULL) {
-            Log(Log_ERROR, __func__, U8("PCMFile Pointer is NULL"));
+    OVIA *OVIA_Init(void) {
+        OVIA *Ovia        = calloc(1, sizeof(OVIA));
+        if (Ovia != NULL) {
+            
         } else {
-            PCM->Aud       = calloc(1, sizeof(AUDHeader));
-            PCM->Aud->Meta = calloc(1, sizeof(AUDMetadata));
-            PCM->Pic       = calloc(1, sizeof(PICHeader));
+            Log(Log_ERROR, __func__, U8("PCMFile Pointer is NULL"));
         }
-        return PCM;
+        return Ovia;
     }
     
     void PCMFile_Identify(PCMFile *PCM, BitBuffer *BitB) {
