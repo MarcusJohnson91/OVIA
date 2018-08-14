@@ -50,13 +50,15 @@ extern "C" {
         AIF_SSND              = 0x53534E44,
     } AIFSubChunkIDs;
     
-    void AIFParseMetadata(PCMFile *PCM, BitBuffer *BitB);
+    void AIFSkipPadding(BitBuffer *BitB, uint32_t SubChunkSize);
     
-    void AIFExtractSamples(PCMFile *PCM, BitBuffer *BitB, uint64_t NumSamples2Extract, uint32_t **ExtractedSamples);
+    void AIFParseMetadata(OVIA *Ovia, BitBuffer *BitB);
     
-    void AIFInsertSamples(PCMFile *PCM, BitBuffer *OutputSamples, uint32_t NumSamples2Write, uint32_t **Samples2Write);
+    void AIFExtractSamples(OVIA *Ovia, BitBuffer *BitB, uint64_t NumSamples2Extract, uint32_t **ExtractedSamples);
     
-    void AIFWriteHeader(PCMFile *PCM, BitBuffer *BitB);
+    void AIFInsertSamples(OVIA *Ovia, AudioContainer *Audio, BitBuffer *BitB);
+    
+    void AIFWriteHeader(OVIA *Ovia, BitBuffer *BitB);
     
 #ifdef __cplusplus
 }

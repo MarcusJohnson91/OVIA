@@ -13,10 +13,213 @@ extern "C" {
 #endif
     
     typedef struct OVIA {
+        uint64_t         NumSamples;
+        uint64_t         NumChannels;
+        uint64_t         BitDepth;
+        uint64_t         SampleRate;
+        uint64_t         Width;
+        uint64_t         Height;
+        uint64_t         FileSize;
+        uint64_t         SampleOffset;
+        uint64_t         BlockSize;
+        uint64_t         NumTags;
+        UTF8           **Tags;
+        OVIA_TagTypes   *TagTypes;
+        
         OVIA_Types       Type;
         OVIA_FileFormats Format;
-        
+        bool             Is3D;
     } OVIA;
+    
+    void OVIA_SetNumChannels(OVIA *Ovia, uint64_t NumChannels) {
+        if (Ovia != NULL) {
+            Ovia->NumChannels = NumChannels;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
+    uint64_t OVIA_GetNumChannels(OVIA *Ovia) {
+        uint64_t NumChannels = 0;
+        if (Ovia != NULL) {
+            NumChannels = Ovia->NumChannels;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return NumChannels;
+    }
+    
+    void OVIA_SetNumSamples(OVIA *Ovia, uint64_t NumSamples) {
+        if (Ovia != NULL) {
+            Ovia->NumSamples = NumSamples;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
+    uint64_t OVIA_GetNumSamples(OVIA *Ovia) {
+        uint64_t NumSamples = 0;
+        if (Ovia != NULL) {
+            NumSamples = Ovia->NumSamples;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return NumSamples;
+    }
+    
+    void OVIA_SetBitDepth(OVIA *Ovia, uint64_t BitDepth) {
+        if (Ovia != NULL) {
+            Ovia->BitDepth = BitDepth;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
+    uint64_t OVIA_GetBitDepth(OVIA *Ovia) {
+        uint64_t BitDepth = 0;
+        if (Ovia != NULL) {
+            BitDepth = Ovia->BitDepth;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return BitDepth;
+    }
+    
+    void OVIA_SetSampleRate(OVIA *Ovia, uint64_t SampleRate) {
+        if (Ovia != NULL) {
+            Ovia->SampleRate = SampleRate;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
+    uint64_t OVIA_GetSampleRate(OVIA *Ovia) {
+        uint64_t SampleRate = 0ULL;
+        if (Ovia != NULL) {
+            SampleRate = Ovia->SampleRate;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return SampleRate;
+    }
+    
+    void OVIA_SetTag(OVIA *Ovia, OVIA_TagTypes TagType, UTF8 *Tag) {
+        if (Ovia != NULL && Tag != NULL) {
+            Ovia->NumTags += 1;
+            if (Ovia->Tags != NULL) {
+                Ovia->Tags                    = realloc(Ovia->Tags, Ovia->NumTags * sizeof(UTF8*));
+            } else {
+                Ovia->Tags                    = calloc(Ovia->NumTags, sizeof(UTF8*));
+            }
+            if (Ovia->TagTypes != NULL) {
+                Ovia->TagTypes                = realloc(Ovia->TagTypes, Ovia->NumTags * sizeof(OVIA_TagTypes));
+            } else {
+                Ovia->Tags                    = calloc(Ovia->NumTags, sizeof(OVIA_TagTypes));
+            }
+            Ovia->Tags[Ovia->NumTags - 1]     = Tag;
+            Ovia->TagTypes[Ovia->NumTags - 1] = TagType;
+        } else if (Ovia == NULL) {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        } else if (Tag == NULL) {
+            Log(Log_ERROR, __func__, U8("Tag Pointer is NULL"));
+        }
+    }
+    
+    uint64_t OVIA_GetTagsIndex(OVIA *Ovia, OVIA_TagTypes TagType) { // 0xFFFFFFFFFFFFFFFF means not found
+        uint64_t TagIndex = 0xFFFFFFFFFFFFFFFF;
+        if (Ovia != NULL) {
+            for (uint64_t Tag = 0ULL; Tag < Ovia->NumTags; Tag++) {
+                if (Ovia->TagTypes[Tag] == TagType) {
+                    TagIndex = Tag;
+                }
+            }
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return TagIndex;
+    }
+    
+    UTF8 *OVIA_GetTag(OVIA *Ovia, uint64_t Tag) {
+        UTF8 *TagString = NULL;
+        if (Ovia != NULL && Tag < Ovia->NumTags) {
+            TagString   = Ovia->Tags[Tag];
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return TagString;
+    }
+    
+    void OVIA_SetFileSize(OVIA *Ovia, uint64_t FileSize) {
+        if (Ovia != NULL) {
+            Ovia->FileSize = FileSize;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
+    uint64_t OVIA_GetFileSize(OVIA *Ovia) {
+        uint64_t FileSize = 0ULL;
+        if (Ovia != NULL) {
+            FileSize = Ovia->FileSize;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return FileSize;
+    }
+    
+    void OVIA_SetSampleOffset(OVIA *Ovia, uint64_t SampleOffset) {
+        if (Ovia != NULL) {
+            Ovia->SampleOffset = SampleOffset;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
+    uint64_t OVIA_GetSampleOffset(OVIA *Ovia) {
+        uint64_t SampleOffset = 0ULL;
+        if (Ovia != NULL) {
+            SampleOffset = Ovia->SampleOffset;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return SampleOffset;
+    }
+    
+    void OVIA_SetBlockSize(OVIA *Ovia, uint64_t BlockSize) {
+        if (Ovia != NULL) {
+            Ovia->BlockSize = BlockSize;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
+    uint64_t OVIA_GetBlockSize(OVIA *Ovia) {
+        uint64_t BlockSize = 0ULL;
+        if (Ovia != NULL) {
+            BlockSize = Ovia->BlockSize;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return BlockSize;
+    }
+    
+    /*
+     Ok, so we have a PNG file, the user calls OVIA_Identify.
+     
+     OVIA_Identify sets the OVIA struct saying it's a PNG file.
+     
+     From then on, all OVIA calls act with the PNG versions.
+     
+     The user calls OVIA_ReadMetadata.
+     
+     The user strips the black lines from the image.
+     
+     the user then writes the file back to the disk.
+     
+     OVIA just needs to manage the user accessible metadata.
+     
+     the individual format handlers will handle reading manipulating and writing the data...
+     */
     
     void IFFSkipPadding(BitBuffer *BitB, uint32_t SubChunkSize) {
         if (IsOdd(SubChunkSize) == Yes) {
@@ -29,144 +232,140 @@ extern "C" {
         if (Ovia != NULL) {
             
         } else {
-            Log(Log_ERROR, __func__, U8("PCMFile Pointer is NULL"));
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         }
         return Ovia;
     }
     
-    void PCMFile_Identify(PCMFile *PCM, BitBuffer *BitB) {
+    void OVIA_Identify(OVIA *Ovia, BitBuffer *BitB) {
         uint64_t FileMagic64 = PeekBits(MSByteFirst, LSBitFirst, BitB, 64);
-        uint16_t FileMagic16 = FileMagic64 & 0xFFFF;
         uint32_t FileMagic32 = FileMagic64 & 0xFFFFFFFF;
+        uint16_t FileMagic16 = FileMagic64 & 0xFFFF;
         
         if (FileMagic16 == BMP_BM) {
-            PCM->InputFileType = BMPFormat;
-        } else if (FileMagic16 == PNM_PBMA || FileMagic16 == PNM_PBMB || FileMagic16 == PNM_PPMA || FileMagic16 == PNM_PPMB || FileMagic16 == PNM_PGMA || FileMagic16 == PNM_PGMB || FileMagic16 == PNM_PAMB) {
-            PCM->InputFileType = PNMFormat;
+            Ovia->Type          = ImageType;
+            Ovia->Format        = BMPFormat;
+        } else if (FileMagic16 == PNM_PBMA ||
+                   FileMagic16 == PNM_PBMB ||
+                   FileMagic16 == PNM_PPMA ||
+                   FileMagic16 == PNM_PPMB ||
+                   FileMagic16 == PNM_PGMA ||
+                   FileMagic16 == PNM_PGMB ||
+                   FileMagic16 == PNM_PAMB) {
+            Ovia->Type          = ImageType;
+            Ovia->Format        = PNMFormat;
+        } else if (FileMagic64 == PNGMagic) {
+            Ovia->Type          = ImageType;
+            Ovia->Format        = PNGFormat;
         } else if (FileMagic32 == AIF_FORM) {
-            PCM->InputFileType = AIFFormat;
-        } else if (FileMagic32 == WAV_RIFF) {
-            PCM->InputFileType = WAVFormat;
+            Ovia->Type          = AudioType;
+            Ovia->Format        = AIFFormat;
+        } else if (FileMagic32 == 0x52494646) {
+            Ovia->Type          = AudioType;
+            Ovia->Format        = WAVFormat;
         } else if (FileMagic32 == 0x72696666) {
-            PCM->InputFileType = W64Format;
+            Ovia->Type          = AudioType;
+            Ovia->Format        = W64Format;
         } else {
-            Log(Log_ERROR, __func__, U8("Unrecognized file magic 0x%llX"), FileMagic64);
+            Log(Log_ERROR, __func__, U8("Unrecognized file magic 0x%llu"), FileMagic64);
         }
     }
     
-    void PCMFile_ParseMetadata(PCMFile *PCM, BitBuffer *BitB) {
-        if (PCM->InputFileType == AIFFormat) {
-            AIFParseMetadata(PCM, BitB);
-        } else if (PCM->InputFileType == WAVFormat) {
-            WAVParseMetadata(PCM, BitB);
-        } else if (PCM->InputFileType == W64Format) {
-            W64ParseMetadata(PCM, BitB);
-        } else if (PCM->InputFileType == BMPFormat) {
-            BMPParseMetadata(PCM, BitB);
-        } else if (PCM->InputFileType == PNMFormat) {
-            PNMParseMetadata(PCM, BitB);
+    void OVIA_ParseMetadata(OVIA *Ovia, BitBuffer *BitB) {
+        if (Ovia->Format == AIFFormat) {
+            AIFParseMetadata(Ovia, BitB);
+        } else if (Ovia->Format == WAVFormat) {
+            WAVParseMetadata(Ovia, BitB);
+        } else if (Ovia->Format == W64Format) {
+            W64ParseMetadata(Ovia, BitB);
+        } else if (Ovia->Format == BMPFormat) {
+            BMPParseMetadata(Ovia, BitB);
+        } else if (Ovia->Format == PNMFormat) {
+            PNMParseMetadata(Ovia, BitB);
+        } else if (Ovia->Format == PNGFormat) {
+            PNGParseMetadata(Ovia, BitB);
+        } else if (Ovia->Format == FLACFormat) {
+            FLACParseMetadata(Ovia, BitB);
         }
     }
     
-    void PCM_SetOutputFileType(PCMFile *PCM, OVIA_FileFormats OutputFileType) {
-        if (PCM == NULL) {
-            Log(Log_ERROR, __func__, U8("PCM Pointer is NULL"));
-        } else {
-            PCM->OutputFileType = OutputFileType;
-        }
-    }
-    
-    void PCM_SetOutputPNMType(PCMFile *PCM, PNMTypes PNMType) {
-        if (PCM == NULL) {
-            Log(Log_ERROR, __func__, U8("PCM Pointer is NULL"));
-        } else {
-            PCM->Pic->PNMType = PNMType;
-        }
-    }
-    
-    void PCM_SetNumOutputSamples(PCMFile *PCM, uint64_t NumChannelIndependentSamples) {
-        if (PCM == NULL) {
-            Log(Log_ERROR, __func__, U8("PCM Pointer is NULL"));
-        } else {
-            PCM->NumChannelAgnosticSamples = NumChannelIndependentSamples;
-        }
-    }
-    
-    uint8_t PCM_GetBitDepth(PCMFile *PCM) {
+    uint8_t OVIA_GetBitDepth(OVIA *Ovia) {
         uint8_t BitDepth = 0;
-        if (PCM->InputFileType == AIFFormat || PCM->InputFileType == WAVFormat || PCM->InputFileType == W64Format) {
-            BitDepth = (uint8_t) PCM->BitDepth;
-        } else if (PCM->InputFileType == BMPFormat || PCM->InputFileType == PNMFormat) {
-            BitDepth = (uint8_t) PCM->BitDepth;
+        if (Ovia->Format == AIFFormat || Ovia->Format == WAVFormat || Ovia->Format == W64Format) {
+            BitDepth = (uint8_t) Ovia->BitDepth;
+        } else if (Ovia->Format == BMPFormat || Ovia->Format == PNMFormat) {
+            BitDepth = (uint8_t) Ovia->BitDepth;
         }
         return BitDepth;
     }
     
-    uint64_t PCM_GetNumChannels(PCMFile *PCM) {
-        return PCM->NumChannels;
+    uint64_t OVIA_GetNumChannels(OVIA *Ovia) {
+        return Ovia->NumChannels;
     }
     
-    uint64_t PCM_GetNumSamples(PCMFile *PCM) {
-        return PCM->NumChannelAgnosticSamples;
+    uint64_t OVIA_GetNumSamples(OVIA *Ovia) {
+        return Ovia->NumChannelAgnosticSamples;
     }
     
-    void PCM_ExtractSamples(PCMFile *PCM, BitBuffer *SampleArray, uint64_t NumSamples2Extract, uint32_t **ExtractedSamples) {
-        if (PCM->InputFileType == AIFFormat) {
-            AIFExtractSamples(PCM, SampleArray, NumSamples2Extract, ExtractedSamples);
-        } else if (PCM->InputFileType == WAVFormat) {
-            WAVExtractSamples(PCM, SampleArray, NumSamples2Extract, ExtractedSamples);
-        } else if (PCM->InputFileType == W64Format) {
-            W64ExtractSamples(PCM, SampleArray, NumSamples2Extract, ExtractedSamples);
+    void OVIA_ExtractSamples(OVIA *Ovia, BitBuffer *SampleArray, uint64_t NumSamples2Extract, uint32_t **ExtractedSamples) {
+        if (Ovia->Format == AIFFormat) {
+            AIFExtractSamples(Ovia, SampleArray, NumSamples2Extract, ExtractedSamples);
+        } else if (Ovia->Format == WAVFormat) {
+            WAVExtractSamples(Ovia, SampleArray, NumSamples2Extract, ExtractedSamples);
+        } else if (Ovia->Format == W64Format) {
+            W64ExtractSamples(Ovia, SampleArray, NumSamples2Extract, ExtractedSamples);
         }
     }
     
-    uint16_t ***PCM_ExtractImage(PCMFile *PCM, BitBuffer *PixelArray) {
-        uint16_t ***ExtractedImage = NULL;
-        if (PCM->InputFileType == PNMFormat) {
-            ExtractedImage = PNMExtractImage(PCM, PixelArray);
-        } else if (PCM->InputFileType == BMPFormat) {
-            ExtractedImage = BMPExtractImage(PCM, PixelArray);
+    ImageContainer *OVIA_ExtractImage(OVIA *Ovia, BitBuffer *BitB) {
+        ImageContainer *Image = ImageContainer_Init(<#Image_Types Type#>, <#uint8_t BitDepth#>, <#uint8_t NumChannels#>, <#uint64_t Width#>, <#uint64_t Height#>)
+        if (Ovia->Format == PNMFormat) {
+            ExtractedImage = PNMExtractImage(Ovia, BitB);
+        } else if (Ovia->Format == BMPFormat) {
+            ExtractedImage = BMPExtractImage(Ovia, BitB);
         }
         return ExtractedImage;
     }
     
-    void PCM_InsertImage(PCMFile *PCM, BitBuffer *CreatedImage, uint16_t ***Image2Insert) {
-        if (PCM->InputFileType == PNMFormat) {
-            PNMInsertImage(PCM, CreatedImage, Image2Insert);
-        } else if (PCM->InputFileType == BMPFormat) {
-            BMPInsertImage(PCM, CreatedImage, Image2Insert);
+    void OVIA_InsertImage(OVIA *Ovia, BitBuffer *CreatedImage, uint16_t ***Image2Insert) {
+        if (Ovia->Format == PNMFormat) {
+            PNMInsertImage(Ovia, CreatedImage, Image2Insert);
+        } else if (Ovia->Format == BMPFormat) {
+            BMPInsertImage(Ovia, CreatedImage, Image2Insert);
         }
     }
     
-    void PCM_InsertSamples(PCMFile *PCM, BitBuffer *OutputSamples, uint32_t NumSamples2Write, uint32_t **Samples2Write) {
-        if (PCM->OutputFileType == AIFFormat) {
-            AIFInsertSamples(PCM, OutputSamples, NumSamples2Write, Samples2Write);
-        } else if (PCM->OutputFileType == WAVFormat) {
-            WAVInsertSamples(PCM, OutputSamples, NumSamples2Write, Samples2Write);
-        } else if (PCM->OutputFileType == W64Format) {
-            W64AppendSamples(PCM, OutputSamples, NumSamples2Write, Samples2Write);
+    void OVIA_InsertSamples(OVIA *Ovia, BitBuffer *OutputSamples, uint32_t NumSamples2Write, uint32_t **Samples2Write) {
+        if (Ovia->Format == AIFFormat) {
+            AIFInsertSamples(Ovia, OutputSamples, NumSamples2Write, Samples2Write);
+        } else if (Ovia->Format == WAVFormat) {
+            WAVInsertSamples(Ovia, OutputSamples, NumSamples2Write, Samples2Write);
+        } else if (Ovia->Format == W64Format) {
+            W64AppendSamples(Ovia, OutputSamples, NumSamples2Write, Samples2Write);
         }
     }
     
-    void PCM_WriteHeader(PCMFile *PCM, BitBuffer *BitB) {
-        if (PCM->OutputFileType == BMPFormat) {
-            BMPWriteHeader(PCM, BitB, PCM->NumChannelAgnosticSamples);
-        } else if (PCM->OutputFileType == PNMFormat) {
-            PNMWriteHeader(PCM, BitB);
-        } else if (PCM->OutputFileType == AIFFormat) {
-            AIFWriteHeader(PCM, BitB);
-        } else if (PCM->OutputFileType == W64Format) {
-            W64WriteHeader(PCM, BitB);
-        } else if (PCM->OutputFileType == WAVFormat) {
-            WAVWriteHeader(PCM, BitB);
+    void OVIA_WriteHeader(OVIA *Ovia, BitBuffer *BitB) {
+        if (Ovia->Format == BMPFormat) {
+            BMPWriteHeader(Ovia, BitB);
+        } else if (Ovia->Format == PNMFormat) {
+            PNMWriteHeader(Ovia, BitB);
+        } else if (Ovia->Format == AIFFormat) {
+            AIFWriteHeader(Ovia, BitB);
+        } else if (Ovia->Format == W64Format) {
+            W64WriteHeader(Ovia, BitB);
+        } else if (Ovia->Format == WAVFormat) {
+            WAVWriteHeader(Ovia, BitB);
         }
     }
     
-    void PCMFile_Deinit(PCMFile *PCM) {
-        free(PCM->Aud->Meta);
-        free(PCM->Aud);
-        free(PCM->Pic);
-        free(PCM);
+    void OVIA_Deinit(OVIA *Ovia) {
+        free(Ovia->TagTypes);
+        for (uint64_t Tag = 0ULL; Tag < Ovia->NumTags; Tag++) {
+            free(Ovia->Tags[Tag]);
+        }
+        free(Ovia->Tags);
+        free(Ovia);
     }
     
 #ifdef __cplusplus

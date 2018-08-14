@@ -166,7 +166,7 @@ extern "C" {
         Lossy_DVM                     = 0x2000,
     } WAVCompressionFormats;
     
-    enum WAVChunkIDs { // odd sized chunks have a trailing 0 byte, and strings are null padded, this is for WAV, and W64.
+    typedef enum WAVChunkIDs { // odd sized chunks have a trailing 0 byte, and strings are null padded, this is for WAV, and W64.
         WAV_RIFF                      = 0x52494646,
         WAV_WAVE                      = 0x57415645,
         WAV_FMT                       = 0x666D7420,
@@ -185,15 +185,15 @@ extern "C" {
         WAV_YEAR                      = 0x59454152, // Year
         WAV_TRCK                      = 0x5452434b, // Track
         WAV_DATA                      = 0x64617461,
-    };
+    } WAVChunkIDs;
     
-    void WAVParseMetadata(PCMFile *PCM, BitBuffer *BitB);
+    void WAVParseMetadata(OVIA *Ovia, BitBuffer *BitB);
     
-    void WAVExtractSamples(PCMFile *PCM, BitBuffer *BitB, uint64_t NumSamples2Extract, uint32_t **ExtractedSamples);
+    void WAVExtractSamples(OVIA *Ovia, BitBuffer *BitB, uint64_t NumSamples2Extract, uint32_t **ExtractedSamples);
     
-    void WAVInsertSamples(PCMFile *PCM, BitBuffer *OutputSamples, uint32_t NumSamples2Write, uint32_t **Samples2Write);
+    void WAVInsertSamples(OVIA *Ovia, BitBuffer *OutputSamples, uint32_t NumSamples2Write, uint32_t **Samples2Write);
     
-    void WAVWriteHeader(PCMFile *PCM, BitBuffer *BitB);
+    void WAVWriteHeader(OVIA *Ovia, BitBuffer *BitB);
     
 #ifdef __cplusplus
 }

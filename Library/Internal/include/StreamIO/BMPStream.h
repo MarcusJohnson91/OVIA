@@ -36,13 +36,13 @@ extern "C" {
         BMP_CMYK_RLE_4Bit     = 13,
     };
     
-    void        BMPParseMetadata(PCMFile *PCM, BitBuffer *BitB);
+    void        BMPParseMetadata(OVIA *Ovia, BitBuffer *BitB);
     
-    uint16_t ***BMPExtractImage(PCMFile *PCM, BitBuffer *BitB);
+    uint16_t ***BMPExtractImage(OVIA *Ovia, BitBuffer *BitB);
     
-    void        BMPInsertImage(PCMFile *PCM, BitBuffer *BitB, uint16_t ***Image2Insert);
+    void        BMPInsertImage(OVIA *Ovia, BitBuffer *BitB, uint16_t ***Image2Insert);
     
-    void        BMPWriteHeader(PCMFile *PCM, BitBuffer *BitB, uint32_t NumPixels);
+    void        BMPWriteHeader(OVIA *Ovia, BitBuffer *BitB);
     
 #ifdef __cplusplus
 }

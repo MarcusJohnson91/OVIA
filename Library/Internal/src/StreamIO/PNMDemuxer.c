@@ -14,7 +14,7 @@ extern "C" {
         return CommentSize;
     }
     
-    static void PNMParsePNMASCIIHeader(PCMFile *PCM, BitBuffer *BitB) {
+    static void PNMParsePNMASCIIHeader(OVIA *Ovia, BitBuffer *BitB) {
         uint64_t CommentSizeWidth = PNMCheckForComment(BitB);
         BitBuffer_Skip(BitB, Bytes2Bits(CommentSizeWidth));
         /* Read Width */
@@ -26,7 +26,7 @@ extern "C" {
         for (uint64_t WidthByte = 0; WidthByte < WidthStringSize; WidthByte++) {
             WidthString[WidthByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
-        PCM->Pic->Width = UTF8_String2Integer(WidthString);
+        Ovia->Pic->Width = UTF8_String2Integer(WidthString);
         free(WidthString);
         /* Read Width */
         
@@ -42,11 +42,11 @@ extern "C" {
         for (uint64_t HeightByte = 0; HeightByte < HeightStringSize; HeightByte++) {
             HeightString[HeightByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
-        PCM->Pic->Height = UTF8_String2Integer(HeightString); // Ok, so we read the Height.
+        Ovia->Pic->Height = UTF8_String2Integer(HeightString); // Ok, so we read the Height.
         free(HeightString);
     }
     
-    static void PNMParsePNMBinaryHeader(PCMFile *PCM, BitBuffer *BitB) {
+    static void PNMParsePNMBinaryHeader(OVIA *Ovia, BitBuffer *BitB) {
         /* Read Width */
         uint64_t WidthStringSize = 0LLU;
         while (ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PNMFieldSeperator) {
@@ -56,7 +56,7 @@ extern "C" {
         for (uint64_t WidthByte = 0; WidthByte < WidthStringSize; WidthByte++) {
             WidthString[WidthByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
-        PCM->Pic->Width = UTF8_String2Integer(WidthString);
+        Ovia->Pic->Width = UTF8_String2Integer(WidthString);
         free(WidthString);
         /* Read Width */
         
@@ -69,7 +69,7 @@ extern "C" {
         for (uint64_t HeightByte = 0; HeightByte < HeightStringSize; HeightByte++) {
             HeightString[HeightByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
-        PCM->Pic->Height = UTF8_String2Integer(HeightString); // Ok, so we read the Height.
+        Ovia->Pic->Height = UTF8_String2Integer(HeightString); // Ok, so we read the Height.
         free(HeightString);
         /* Read Height */
         
@@ -83,12 +83,12 @@ extern "C" {
             MaxValString[MaxValByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
         int64_t MaxVal     = UTF8_String2Integer(MaxValString);
-        PCM->BitDepth      = Logarithm(2, MaxVal + 1);
+        Ovia->BitDepth      = Logarithm(2, MaxVal + 1);
         free(MaxValString);
         /* Read MaxVal */
     }
     
-    static void PNMParsePAMHeader(PCMFile *PCM, BitBuffer *BitB) {
+    static void PNMParsePAMHeader(OVIA *Ovia, BitBuffer *BitB) {
         /* Read Width */
         BitBuffer_Skip(BitB, 48); // Skip "WIDTH " string
         uint64_t WidthStringSize = 0LLU;
@@ -99,7 +99,7 @@ extern "C" {
         for (uint64_t WidthByte = 0; WidthByte < WidthStringSize; WidthByte++) {
             WidthString[WidthByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
-        PCM->Pic->Width = UTF8_String2Integer(WidthString);
+        Ovia->Pic->Width = UTF8_String2Integer(WidthString);
         free(WidthString);
         /* Read Width */
         
@@ -113,7 +113,7 @@ extern "C" {
         for (uint64_t HeightByte = 0; HeightByte < HeightStringSize; HeightByte++) {
             HeightString[HeightByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
-        PCM->Pic->Height = UTF8_String2Integer(HeightString); // Ok, so we read the Height.
+        Ovia->Pic->Height = UTF8_String2Integer(HeightString); // Ok, so we read the Height.
         free(HeightString);
         /* Read Height */
         
@@ -127,7 +127,7 @@ extern "C" {
         for (uint8_t DepthByte = 0; DepthByte < DepthStringSize; DepthByte++) {
             DepthString[DepthByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
-        PCM->NumChannels = UTF8_String2Integer(DepthString);
+        Ovia->NumChannels = UTF8_String2Integer(DepthString);
         free(DepthString);
         /* Read NumChannels */
         
@@ -142,7 +142,7 @@ extern "C" {
             MaxValString[MaxValByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
         int64_t MaxVal    = UTF8_String2Integer(MaxValString);
-        PCM->BitDepth     = Logarithm(2, MaxVal + 1);
+        Ovia->BitDepth     = Logarithm(2, MaxVal + 1);
         free(MaxValString);
         /* Read MaxVal */
         
@@ -157,23 +157,23 @@ extern "C" {
             TupleTypeString[TupleByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
         if (UTF8_Compare(TupleTypeString, U8("BLACKANDWHITE"), NormalizationFormKC, Yes) == Yes) {
-            PCM->NumChannels = 1;
-            PCM->Pic->PNMTupleType   = PNM_TUPLE_BnW;
+            Ovia->NumChannels = 1;
+            Ovia->Pic->PNMTupleType   = PNM_TUPLE_BnW;
         } else if (UTF8_Compare(TupleTypeString, U8("GRAYSCALE"), NormalizationFormKC, Yes) == Yes) {
-            PCM->NumChannels = 1;
-            PCM->Pic->PNMTupleType   = PNM_TUPLE_Gray;
+            Ovia->NumChannels = 1;
+            Ovia->Pic->PNMTupleType   = PNM_TUPLE_Gray;
         } else if (UTF8_Compare(TupleTypeString, U8("GRAYSCALE_ALPHA"), NormalizationFormKC, Yes) == Yes) {
-            PCM->NumChannels = 2;
-            PCM->Pic->PNMTupleType   = PNM_TUPLE_GrayAlpha;
+            Ovia->NumChannels = 2;
+            Ovia->Pic->PNMTupleType   = PNM_TUPLE_GrayAlpha;
         } else if (UTF8_Compare(TupleTypeString, U8("RGB"), NormalizationFormKC, Yes) == Yes) {
-            PCM->NumChannels = 3;
-            PCM->Pic->PNMTupleType   = PNM_TUPLE_RGB;
+            Ovia->NumChannels = 3;
+            Ovia->Pic->PNMTupleType   = PNM_TUPLE_RGB;
         } else if (UTF8_Compare(TupleTypeString, U8("RGB_ALPHA"), NormalizationFormKC, Yes) == Yes) {
-            PCM->NumChannels = 4;
-            PCM->Pic->PNMTupleType   = PNM_TUPLE_RGBAlpha;
+            Ovia->NumChannels = 4;
+            Ovia->Pic->PNMTupleType   = PNM_TUPLE_RGBAlpha;
         } else {
-            PCM->NumChannels = 0;
-            PCM->Pic->PNMTupleType   = PNM_TUPLE_Unknown;
+            Ovia->NumChannels = 0;
+            Ovia->Pic->PNMTupleType   = PNM_TUPLE_Unknown;
             Log(Log_ERROR, __func__, U8("Unknown PNM Tuple: %s"), TupleTypeString);
         }
         free(TupleTypeString);
@@ -184,54 +184,54 @@ extern "C" {
         /* Skip ENDHDR */
     }
     
-    void PNMIdentifyFileType(PCMFile *PCM, BitBuffer *BitB) {
+    void PNMIdentifyFileType(OVIA *Ovia, BitBuffer *BitB) {
         UTF8 PNMMagicID[PNMMagicSize];
         for (uint8_t PNMMagicByte = 0; PNMMagicByte < PNMMagicSize; PNMMagicByte++) {
             PNMMagicID[PNMMagicByte] = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
         }
         if (UTF8_Compare(PNMMagicID, U8("P1"), NormalizationFormKC, Yes) == Yes || UTF8_Compare(PNMMagicID, U8("P2"), NormalizationFormKC, Yes) == Yes || UTF8_Compare(PNMMagicID, U8("P3"), NormalizationFormKC, Yes) == Yes) {
-            PCM->Pic->PNMType = ASCIIPNM;
+            Ovia->Pic->PNMType = ASCIIPNM;
         } else if (UTF8_Compare(PNMMagicID, U8("P4"), NormalizationFormKC, Yes) == Yes || UTF8_Compare(PNMMagicID, U8("P5"), NormalizationFormKC, Yes) == Yes || UTF8_Compare(PNMMagicID, U8("P6"), NormalizationFormKC, Yes) == Yes) {
-            PCM->Pic->PNMType = BinaryPNM;
+            Ovia->Pic->PNMType = BinaryPNM;
         } else if (UTF8_Compare(PNMMagicID, U8("P7"), NormalizationFormKC, Yes) == 0) {
-            PCM->Pic->PNMType = PAMPNM;
+            Ovia->Pic->PNMType = PAMPNM;
         }
     }
     
-    void PNMParseMetadata(PCMFile *PCM, BitBuffer *BitB) {
+    void PNMParseMetadata(OVIA *Ovia, BitBuffer *BitB) {
         uint8_t NumFieldsRead = 0;
         uint8_t Fields2Read = 0;
-        if (PCM->Pic->PNMType == PAMPNM) {
+        if (Ovia->Pic->PNMType == PAMPNM) {
             Fields2Read = 5;
-        } else if (PCM->Pic->PNMType == ASCIIPNM) {
+        } else if (Ovia->Pic->PNMType == ASCIIPNM) {
             Fields2Read = 2; // there is no MaxVal field
-        } else if (PCM->Pic->PNMType == BinaryPNM) {
+        } else if (Ovia->Pic->PNMType == BinaryPNM) {
             Fields2Read = 3;
         }
         
         BitBuffer_Skip(BitB, 8); // Skip the LineFeed after the FileType marker
         // Before each field we need to check for Comments if the file is ASCII.
-        if (PCM->Pic->PNMType == ASCIIPNM) {
-            PNMParsePNMASCIIHeader(PCM, BitB);
-        } else if (PCM->Pic->PNMType == BinaryPNM) {
-            PNMParsePNMBinaryHeader(PCM, BitB);
-        } else if (PCM->Pic->PNMType == PAMPNM) {
-            PNMParsePAMHeader(PCM, BitB);
+        if (Ovia->Pic->PNMType == ASCIIPNM) {
+            PNMParsePNMASCIIHeader(Ovia, BitB);
+        } else if (Ovia->Pic->PNMType == BinaryPNM) {
+            PNMParsePNMBinaryHeader(Ovia, BitB);
+        } else if (Ovia->Pic->PNMType == PAMPNM) {
+            PNMParsePAMHeader(Ovia, BitB);
         }
     }
     
-    uint16_t ***PNMExtractImage(PCMFile *PCM, BitBuffer *BitB) {
-        uint16_t ***ExtractedImage = calloc(PCM->Pic->Width * PCM->Pic->Height * PCM->NumChannels, sizeof(uint16_t));
+    uint16_t ***PNMExtractImage(OVIA *Ovia, BitBuffer *BitB) {
+        uint16_t ***ExtractedImage = calloc(Ovia->Pic->Width * Ovia->Pic->Height * Ovia->NumChannels, sizeof(uint16_t));
         if (PCM != NULL && BitB != NULL && ExtractedImage != NULL) {
-            if (PCM->Pic->PNMType == ASCIIPNM) {
-                for (uint64_t Width = 0; Width < PCM->Pic->Width; Width++) {
-                    for (uint64_t Height = 0; Height < PCM->Pic->Height; Height++) {
-                        for (uint8_t Channel = 0; Channel < PCM->NumChannels; Channel++) {
+            if (Ovia->Pic->PNMType == ASCIIPNM) {
+                for (uint64_t Width = 0; Width < Ovia->Pic->Width; Width++) {
+                    for (uint64_t Height = 0; Height < Ovia->Pic->Height; Height++) {
+                        for (uint8_t Channel = 0; Channel < Ovia->NumChannels; Channel++) {
                             uint8_t SubPixelStringSize          = 0;
                             while (PeekBits(MSByteFirst, LSBitFirst, BitB, 8) != PNMFieldSeperator || PeekBits(MSByteFirst, LSBitFirst, BitB, 8) != PNMEndField) {
                                 SubPixelStringSize             += 1;
                             }
-                            char *SubPixelString                = calloc(1, PCM->NumChannels * sizeof(char));
+                            char *SubPixelString                = calloc(1, Ovia->NumChannels * sizeof(char));
                             for (uint8_t SubPixelByte = 0; SubPixelByte < SubPixelStringSize; SubPixelByte++) {
                                 SubPixelString[SubPixelByte]    = ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
                             }
@@ -240,12 +240,12 @@ extern "C" {
                         }
                     }
                 }
-            } else if (PCM->Pic->PNMType == BinaryPNM || PCM->Pic->PNMType == PAMPNM) {
-                for (uint64_t Width = 0; Width < PCM->Pic->Width; Width++) {
-                    for (uint64_t Height = 0; Height < PCM->Pic->Height; Height++) {
-                        for (uint8_t Channel = 0; Channel < PCM->NumChannels; Channel++) {
-                            uint8_t CurrentPixel                = ReadBits(LSByteFirst, LSBitFirst, BitB, PCM->BitDepth);
-                            if (PCM->Pic->PNMTupleType == PNM_TUPLE_BnW && PCM->Pic->PNMType != PAMPNM) {
+            } else if (Ovia->Pic->PNMType == BinaryPNM || Ovia->Pic->PNMType == PAMPNM) {
+                for (uint64_t Width = 0; Width < Ovia->Pic->Width; Width++) {
+                    for (uint64_t Height = 0; Height < Ovia->Pic->Height; Height++) {
+                        for (uint8_t Channel = 0; Channel < Ovia->NumChannels; Channel++) {
+                            uint8_t CurrentPixel                = ReadBits(LSByteFirst, LSBitFirst, BitB, Ovia->BitDepth);
+                            if (Ovia->Pic->PNMTupleType == PNM_TUPLE_BnW && Ovia->Pic->PNMType != PAMPNM) {
                                 ExtractedImage[Width][Height][Channel] = ~CurrentPixel; // 1 = black, 0 = white
                             } else {
                                 ExtractedImage[Width][Height][Channel] = CurrentPixel; // 1 = white, 0 = black

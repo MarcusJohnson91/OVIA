@@ -29,6 +29,14 @@ extern "C" {
         PNGFormat             = 7,
     } OVIA_FileFormats;
     
+    typedef enum OVIA_TagTypes {
+        UnknownTag            = 0,
+        TitleTag              = 1,
+        AuthorTag             = 2,
+        AnnotationTag         = 3,
+        ArtistTag             = 4,
+    } OVIA_TagTypes;
+    
     /*
      OVIA API Design:
      
@@ -49,42 +57,78 @@ extern "C" {
      The User needs to get the metadata for the file, and put it into OVIA, and the Image/Audio Container.
      */
     
-    typedef struct AudioContainer AudioContainer;
+    typedef struct       AudioContainer AudioContainer;
     
-    typedef struct ImageContainer ImageContainer;
+    typedef struct       ImageContainer ImageContainer;
     
-    typedef struct OVIA OVIA;
+    typedef struct       OVIA OVIA;
     
-    OVIA                *OVIA_Identify(BitBuffer *BitB);
+    void                 OVIA_Identify(OVIA *Ovia, BitBuffer *BitB);
+    
+    void                 OVIA_SetNumChannels(OVIA *Ovia, uint64_t NumChannels);
+    
+    uint64_t             OVIA_GetNumChannels(OVIA *Ovia);
+    
+    void                 OVIA_SetNumSamples(OVIA *Ovia, uint64_t NumSamples);
+    
+    uint64_t             OVIA_GetNumSamples(OVIA *Ovia);
+    
+    void                 OVIA_SetBitDepth(OVIA *Ovia, uint64_t BitDepth);
+    
+    uint64_t             OVIA_GetBitDepth(OVIA *Ovia);
+    
+    void                 OVIA_SetSampleRate(OVIA *Ovia, uint64_t SampleRate);
+    
+    uint64_t             OVIA_GetSampleRate(OVIA *Ovia);
+    
+    void                 OVIA_SetTag(OVIA *Ovia, OVIA_TagTypes TagType, UTF8 *Tag);
+    
+    uint64_t             OVIA_GetTagsIndex(OVIA *Ovia, OVIA_TagTypes TagType);
+    
+    UTF8                *OVIA_GetTag(OVIA *Ovia, uint64_t Tag);
+    
+    void                 OVIA_SetFileSize(OVIA *Ovia, uint64_t FileSize);
+    
+    uint64_t             OVIA_GetFileSize(OVIA *Ovia);
+    
+    void OVIA_SetSampleOffset(OVIA *Ovia, uint64_t SampleOffset);
+    
+    uint64_t OVIA_GetSampleOffset(OVIA *Ovia);
+    
+    void OVIA_SetBlockSize(OVIA *Ovia, uint64_t BlockSize);
+    
+    uint64_t OVIA_GetBlockSize(OVIA *Ovia);
+    
+    
+    
+    
+    
+    
     
     void                 OVIA_Audio_ReadMetadata(OVIA *Ovia, AudioContainer *Audio, BitBuffer *BitB);
     
     void                 OVIA_Image_ReadMetadata(OVIA *Ovia, ImageContainer *Image, BitBuffer *BitB);
     
-    void                 PCMFile_ParseMetadata(PCMFile *PCM, BitBuffer *BitB);
+    void                 OVIA_ParseMetadata(OVIA *Ovia, BitBuffer *BitB);
     
-    bool                 PCM_IsThereMoreMetadata(PCMFile *PCM);
+    bool                 OVIA_IsThereMoreMetadata(OVIA *Ovia);
     
-    void                 PCM_SetOutputPNMType(PCMFile *PCM, PNMTypes PNMType);
+    void                 OVIA_SetNumOutputSamples(OVIA *Ovia, uint64_t NumChannelIndependentSamples);
     
-    void                 PCM_SetNumOutputSamples(PCMFile *PCM, uint64_t NumChannelIndependentSamples);
+    void                 OVIA_ExtractSamples(OVIA *Ovia, BitBuffer *SampleArray, uint64_t NumSamples2Extract, uint32_t **ExtractedSamples);
     
-    void                 PCM_ExtractSamples(PCMFile *PCM, BitBuffer *SampleArray, uint64_t NumSamples2Extract, uint32_t **ExtractedSamples);
+    void                 OVIA_InsertSamples(OVIA *Ovia, BitBuffer *OutputSamples, uint32_t NumSamples2Write, uint32_t **Samples2Write);
     
-    void                 PCM_InsertSamples(PCMFile *PCM, BitBuffer *OutputSamples, uint32_t NumSamples2Write, uint32_t **Samples2Write);
+    void                 OVIA_InsertPixels(OVIA *Ovia, BitBuffer *OutputPixels, uint32_t NumPixels2Write, uint16_t **Pixels2Write);
     
-    void                 PCM_InsertPixels(PCMFile *PCM, BitBuffer *OutputPixels, uint32_t NumPixels2Write, uint16_t **Pixels2Write);
+    void                 OVIA_WriteHeader(OVIA *Ovia, BitBuffer *BitB);
     
-    void                 PCM_SetOutputFileType(PCMFile *PCM, OVIA_FileFormats OutputFileType);
-    
-    void                 PCM_WriteHeader(PCMFile *PCM, BitBuffer *BitB);
-    
-    void                 PCMFile_Deinit(PCMFile *PCM);
+    void                 OVIA_Deinit(OVIA *Ovia);
     
     
-    void PCM_InsertImage(PCMFile *PCM, BitBuffer *CreatedImage, uint16_t ***Image2Insert);
+    void                 OVIA_InsertImage(OVIA *Ovia, BitBuffer *CreatedImage, ImageContainer *Image);
     
-    uint16_t ***PCM_ExtractImage(PCMFile *PCM, BitBuffer *PixelArray);
+    ImageContainer      *OVIA_ExtractImage(OVIA *Ovia, BitBuffer *BitB);
     
 #ifdef __cplusplus
 }

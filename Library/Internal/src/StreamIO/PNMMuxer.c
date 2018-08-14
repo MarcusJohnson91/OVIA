@@ -4,34 +4,34 @@
 extern "C" {
 #endif
     
-    static void PNMWritePAMHeader(PCMFile *PCM, BitBuffer *BitB) {
+    static void PNMWritePAMHeader(OVIA *Ovia, BitBuffer *BitB) {
         
     }
     
-    static void PNMWriteBinaryPNMHeader(PCMFile *PCM, BitBuffer *BitB) {
+    static void PNMWriteBinaryPNMHeader(OVIA *Ovia, BitBuffer *BitB) {
         
     }
     
-    static void PNMWriteASCIIPNMHeader(PCMFile *PCM, BitBuffer *BitB) {
+    static void PNMWriteASCIIPNMHeader(OVIA *Ovia, BitBuffer *BitB) {
         
     }
     
     void PNMWriteHeader(PNMTypes PNMType, BitBuffer *BitB) {
         if (PNMType == PAMPNM) {
-            PNMWritePAMHeader(PCM, BitB);
+            PNMWritePAMHeader(Ovia, BitB);
         } else if (PNMType == BinaryPNM) {
-            PNMWriteBinaryPNMHeader(PCM, BitB);
+            PNMWriteBinaryPNMHeader(Ovia, BitB);
         } else if (PNMType == ASCIIPNM) {
-            PNMWriteASCIIPNMHeader(PCM, BitB);
+            PNMWriteASCIIPNMHeader(Ovia, BitB);
         }
     }
     
-    void PNMInsertImage(PCMFile *PCM, BitBuffer *CreatedImage, uint16_t ***Image2Insert) {
+    void PNMInsertImage(OVIA *Ovia, BitBuffer *CreatedImage, uint16_t ***Image2Insert) {
         if (PCM != NULL && CreatedImage != NULL && Image2Insert != NULL) {
-            for (uint64_t Width = 0; Width < PCM->Pic->Width; Width++) {
-                for (uint64_t Height = 0; Height < PCM->Pic->Height; Height++) {
-                    for (uint16_t Channel = 0; Channel < PCM->NumChannels; Channel++) {
-                        WriteBits(MSByteFirst, MSBitFirst, CreatedImage, PCM->BitDepth, Image2Insert[Width][Height][Channel]);
+            for (uint64_t Width = 0; Width < Ovia->Pic->Width; Width++) {
+                for (uint64_t Height = 0; Height < Ovia->Pic->Height; Height++) {
+                    for (uint16_t Channel = 0; Channel < Ovia->NumChannels; Channel++) {
+                        WriteBits(MSByteFirst, MSBitFirst, CreatedImage, Ovia->BitDepth, Image2Insert[Width][Height][Channel]);
                     }
                 }
             }
@@ -44,9 +44,9 @@ extern "C" {
         }
     }
     
-    void PNMInsertPixels(PCMFile *PCM, BitBuffer *OutputPixels, uint32_t NumPixels2Write, uint16_t **Pixels2Write) {
+    void PNMInsertPixels(OVIA *Ovia, BitBuffer *OutputPixels, uint32_t NumPixels2Write, uint16_t **Pixels2Write) {
         if (PCM != NULL && OutputPixels != NULL && Pixels2Write != NULL) {
-            uint64_t ChannelCount = PCM->NumChannels;
+            uint64_t ChannelCount = Ovia->NumChannels;
             for (uint32_t Pixel = 0; Pixel < NumPixels2Write; Pixel++) {
                 for (uint16_t Channel = 0; Channel < ChannelCount; Channel++) {
                     WriteBits(MSByteFirst, MSBitFirst, OutputPixels, ChannelCount, Pixels2Write[Channel][Pixel]);

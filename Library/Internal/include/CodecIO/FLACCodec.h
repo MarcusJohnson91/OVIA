@@ -173,7 +173,7 @@ extern "C" {
     
     /* Encode specific functions */
     
-    int8_t      EncodeFLACFile(PCMFile *PCM, BitBuffer *OutputFLAC, EncodeFLAC *Enc);
+    int8_t      EncodeFLACFile(OVIA *Ovia, BitBuffer *OutputFLAC, EncodeFLAC *Enc);
     
     typedef struct FLACStreamInfo {
         uint64_t  SamplesInStream:36; // 36 bits, all the samples in the stream; channel agnostic

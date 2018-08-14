@@ -31,7 +31,7 @@ extern "C" {
         WriteBits(BitIOMSByteFirst, BitIOLSBitFirst, OutputFLAC, 7, MetadataBlockType);
     }
     
-    int8_t EncodeFLACFile(PCMFile *PCM, BitBuffer *OutputFLAC, EncodeFLAC *Enc) {
+    int8_t EncodeFLACFile(OVIA *Ovia, BitBuffer *OutputFLAC, EncodeFLAC *Enc) {
         if (Enc->EncodeSubset == true && Enc->Data->Frame->SampleRate <= 48000) {
             Enc->MaxBlockSize          =  4608;
             Enc->MaxFilterOrder        =    12;
