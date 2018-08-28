@@ -115,61 +115,49 @@ extern "C" {
         RICE2                                                       =          1,
     };
     
-    typedef struct FLACEncoder EncodeFLAC;
+    /* OVIA specific functions */
     
-    typedef struct FLACDecoder DecodeFLAC;
+    void        FLACReadFrame(OVIA *Ovia, BitBuffer *BitB);
     
-    EncodeFLAC *InitFLACEncoder(void);
+    void        FLACReadSubFrame(OVIA *Ovia, BitBuffer *BitB, uint8_t Channel);
     
-    DecodeFLAC *InitFLACDecoder(void);
+    void        FLACOVIASubFrameVerbatim(OVIA *Ovia, BitBuffer *BitB);
     
-    void        DeinitFLACEncoder(EncodeFLAC *Enc);
+    void        FLACOVIASubFrameConstant(OVIA *Ovia, BitBuffer *BitB);
     
-    void        DeinitFLACDecoder(DecodeFLAC *Dec);
+    void        FLACOVIASubFrameFixed(OVIA *Ovia, BitBuffer *BitB);
     
-    /* Decode specific functions */
+    void        FLACOVIASubFrameLPC(OVIA *Ovia, BitBuffer *BitB, uint8_t Channel);
     
-    void        FLACReadFrame(BitBuffer *InputFLAC, DecodeFLAC *Dec);
+    void        DecodeFLACResidual(OVIA *Ovia, BitBuffer *BitB);
     
-    void        FLACReadSubFrame(BitBuffer *InputFLAC, DecodeFLAC *Dec, uint8_t Channel);
+    void        DecodeFLACRice1Partition(OVIA *Ovia, BitBuffer *BitB);
     
-    void        FLACDecodeSubFrameVerbatim(BitBuffer *InputFLAC, DecodeFLAC *Dec);
+    void        DecodeFLACRice2Partition(OVIA *Ovia, BitBuffer *BitB);
     
-    void        FLACDecodeSubFrameConstant(BitBuffer *InputFLAC, DecodeFLAC *Dec);
+    void        FLACBitDepth(OVIA *Ovia);
     
-    void        FLACDecodeSubFrameFixed(BitBuffer *InputFLAC, DecodeFLAC *Dec);
-    
-    void        FLACDecodeSubFrameLPC(BitBuffer *InputFLAC, DecodeFLAC *Dec, uint8_t Channel);
-    
-    void        DecodeFLACesidual(BitBuffer *InputFLAC, DecodeFLAC *Dec);
-    
-    void        DecodeFLACice1Partition(BitBuffer *InputFLAC, DecodeFLAC *Dec);
-    
-    void        DecodeFLACice2Partition(BitBuffer *InputFLAC, DecodeFLAC *Dec);
-    
-    void        FLACBitDepth(DecodeFLAC *Dec);
-    
-    void        FLACSampleRate(BitBuffer *InputFLAC, DecodeFLAC *Dec);
+    void        FLACSampleRate(OVIA *Ovia, BitBuffer *BitB);
     
     uint8_t     GetBlockSizeInSamples(uint8_t BlockSize);
     
-    void        FLACReadStream(BitBuffer *InputFLAC, DecodeFLAC *Dec);
+    void        FLACReadStream(OVIA *Ovia, BitBuffer *BitB);
     
-    void        FLACParseMetadata(BitBuffer *InputFLAC, DecodeFLAC *Dec);
+    void        FLACParseMetadata(OVIA *Ovia, BitBuffer *BitB);
     
-    void        FLACParseStreamInfo(BitBuffer *InputFLAC, DecodeFLAC *Dec);
+    void        FLACParseStreamInfo(OVIA *Ovia, BitBuffer *BitB);
     
-    void        FLACSkipPadding(BitBuffer *InputFLAC, DecodeFLAC *Dec);
+    void        FLACSkipPadding(OVIA *Ovia, BitBuffer *BitB);
     
-    void        FLACSkipCustom(BitBuffer *InputFLAC, DecodeFLAC *Dec);
+    void        FLACSkipCustom(OVIA *Ovia, BitBuffer *BitB);
     
-    void        FLACParseSeekTable(BitBuffer *InputFLAC, DecodeFLAC *Dec);
+    void        FLACParseSeekTable(OVIA *Ovia, BitBuffer *BitB);
     
-    void        FLACParseVorbisComment(BitBuffer *InputFLAC, DecodeFLAC *Dec);
+    void        FLACParseVorbisComment(OVIA *Ovia, BitBuffer *BitB);
     
-    void        FLACParseCuesheet(BitBuffer *InputFLAC, DecodeFLAC *Dec);
+    void        FLACParseCuesheet(OVIA *Ovia, BitBuffer *BitB);
     
-    void        FLACParsePicture(BitBuffer *InputFLAC, DecodeFLAC *Dec);
+    void        FLACParsePicture(OVIA *Ovia, BitBuffer *BitB);
     
     /* Encode specific functions */
     
@@ -234,8 +222,8 @@ extern "C" {
     } FLACStream;
     
     typedef struct FLACPicture {
-        uint32_t *PictureStart; // Pointer to the start of the picture
-        uint8_t  *MIMEString;
+        uint32_t     *PictureStart; // Pointer to the start of the picture
+        uint8_t      *MIMEString;
         uint8_t      *PicDescriptionString;
         uint32_t      PicDescriptionSize;
         FLACPicTypes  PicType;
@@ -294,7 +282,7 @@ extern "C" {
         FLACPicture       *Pic;
         FLACCueSheet      *Cue;
         FLACStreamInfo    *StreamInfo;
-        FLACSeekTable     *Seek; // Because the user may want to skip around, but this has nothing to do with decoding.
+        FLACSeekTable     *Seek; // Because the user may want to skip around, but this has nothing to do with Oviaoding.
         FLACVorbisComment *Vorbis;
         uint32_t           MetadataSize;
     } FLACMeta;
@@ -319,8 +307,8 @@ extern "C" {
         bool      OptimizeFile;
     };
     
-    struct FLACDecoder {
-        int64_t   DecodedSamples[FLACMaxSamplesInBlock];
+    struct FLACOVIAr {
+        int64_t   OVIAdSamples[FLACMaxSamplesInBlock];
         FLACMeta *Meta;
         FLACData *Data;
         bool      SeekTableIsPresent;
@@ -340,51 +328,9 @@ extern "C" {
     void ModernFLACSetPicture(EncodeFLAC *Enc, const char *MIMEString, const FLACPicTypes PictureType, const UTF8 *PicDescription, const uint8_t *PictureBuffer) {
     }
     
-    uint8_t *ModernFLACExtractPicture(DecodeFLAC *Dec, const FLACPictureTypes PictureType) {
+    uint8_t *ModernFLACExtractPicture(OVIA *Ovia, const FLACPictureTypes PictureType) {
         
         return NULL;
-    }
-    
-    DecodeFLAC *InitDecodeFLAC(void) {
-        DecodeFLAC *Dec           = calloc(1, sizeof(DecodeFLAC));
-        if (Dec != NULL) {
-            Dec->Meta             = calloc(1, sizeof(FLACMeta));
-            Dec->Meta->StreamInfo = calloc(1, sizeof(FLACStreamInfo));
-            Dec->Meta->Seek       = calloc(1, sizeof(FLACSeekTable));
-            Dec->Meta->Vorbis     = calloc(1, sizeof(FLACVorbisComment));
-            Dec->Meta->Cue        = calloc(1, sizeof(FLACCueSheet));
-            Dec->Meta->Pic        = calloc(1, sizeof(FLACPicture));
-            
-            Dec->Data             = calloc(1, sizeof(FLACData));
-            Dec->Data->Frame      = calloc(1, sizeof(FLACFrame));
-            Dec->Data->SubFrame   = calloc(1, sizeof(FLACSubFrame));
-            Dec->Data->LPC        = calloc(1, sizeof(FLACLPC));
-            Dec->Data->Rice       = calloc(1, sizeof(RICEPartition));
-        } else {
-            BitIOLog(BitIOLog_ERROR, __func__, u8"EncodeFLAC Pointer is NULL");
-        }
-        return Dec;
-    }
-    
-    EncodeFLAC *InitEncodeFLAC(void) {
-        EncodeFLAC *Enc            = calloc(1, sizeof(EncodeFLAC));
-        if (Enc != NULL) {
-            Enc->Meta              = calloc(1, sizeof(FLACMeta));
-            Enc->Meta->StreamInfo  = calloc(1, sizeof(FLACStreamInfo));
-            Enc->Meta->Seek        = calloc(1, sizeof(FLACSeekTable));
-            Enc->Meta->Vorbis      = calloc(1, sizeof(FLACVorbisComment));
-            Enc->Meta->Cue         = calloc(1, sizeof(FLACCueSheet));
-            Enc->Meta->Pic         = calloc(1, sizeof(FLACPicture));
-            
-            Enc->Data              = calloc(1, sizeof(FLACData));
-            Enc->Data->Frame       = calloc(1, sizeof(FLACFrame));
-            Enc->Data->SubFrame    = calloc(1, sizeof(FLACSubFrame));
-            Enc->Data->LPC         = calloc(1, sizeof(FLACLPC));
-            Enc->Data->Rice        = calloc(1, sizeof(RICEPartition));
-        } else {
-            BitIOLog(BitIOLog_ERROR, __func__, u8"EncodeFLAC Pointer is NULL");
-        }
-        return Enc;
     }
     
     

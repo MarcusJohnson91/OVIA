@@ -4,98 +4,6 @@
 extern "C" {
 #endif
     
-    EncodePNG *EncodePNG_Init(void) {
-        EncodePNG *Enc  = calloc(1, sizeof(EncodePNG));
-        if (Enc != NULL) {
-            Enc->acTL       = calloc(1, sizeof(acTL));
-            Enc->bkGD       = calloc(1, sizeof(bkGD));
-            Enc->cHRM       = calloc(1, sizeof(cHRM));
-            Enc->fcTL       = calloc(1, sizeof(fcTL));
-            Enc->fdAT       = calloc(1, sizeof(fdAT));
-            Enc->gAMA       = calloc(1, sizeof(gAMA));
-            Enc->hIST       = calloc(1, sizeof(hIST));
-            Enc->iCCP       = calloc(1, sizeof(iCCP));
-            Enc->iHDR       = calloc(1, sizeof(iHDR));
-            Enc->oFFs       = calloc(1, sizeof(oFFs));
-            Enc->pCAL       = calloc(1, sizeof(pCAL));
-            Enc->PLTE       = calloc(1, sizeof(PLTE));
-            Enc->sBIT       = calloc(1, sizeof(sBIT));
-            Enc->sRGB       = calloc(1, sizeof(sRGB));
-            Enc->sTER       = calloc(1, sizeof(sTER));
-            Enc->Text       = calloc(1, sizeof(Text));
-            Enc->tIMe       = calloc(1, sizeof(tIMe));
-            Enc->tRNS       = calloc(1, sizeof(tRNS));
-        } else {
-            Log(Log_ERROR, __func__, U8("Failed to allocate enough memory for EncodePNG"));
-        }
-        return Enc;
-    }
-    
-    void EncodePNG_Deinit(EncodePNG *Enc) {
-        if (Enc->acTLExists) {
-            free(Enc->acTL);
-        }
-        if (Enc->bkGDExists) {
-            free(Enc->bkGD->BackgroundPaletteEntry);
-            free(Enc->bkGD);
-        }
-        if (Enc->cHRMExists) {
-            free(Enc->cHRM);
-        }
-        if (Enc->fcTLExists) {
-            free(Enc->fcTL);
-            free(Enc->fdAT);
-        }
-        if (Enc->gAMAExists) {
-            free(Enc->gAMA);
-        }
-        if (Enc->hISTExists) {
-            free(Enc->hIST);
-        }
-        if (Enc->iCCPExists) {
-            free(Enc->iCCP->CompressedICCPProfile);
-            free(Enc->iCCP->ProfileName);
-            free(Enc->iCCP);
-        }
-        if (Enc->oFFsExists) {
-            free(Enc->oFFs);
-        }
-        if (Enc->pCALExists) {
-            free(Enc->pCAL->CalibrationName);
-            free(Enc->pCAL->UnitName);
-            free(Enc->pCAL);
-        }
-        if (Enc->PLTEExists) {
-            free(Enc->PLTE->Palette);
-            free(Enc->PLTE);
-        }
-        if (Enc->sBITExists) {
-            free(Enc->sBIT);
-        }
-        if (Enc->sRGBExists) {
-            free(Enc->sRGB);
-        }
-        if (Enc->sTERExists) {
-            free(Enc->sTER);
-        }
-        if (Enc->TextExists) {
-            for (uint32_t TextChunk = 0UL; TextChunk < Enc->NumTextChunks; TextChunk++) {
-                free(Enc->Text[TextChunk].Keyword);
-                free(Enc->Text[TextChunk].Comment);
-            }
-            free(Enc->Text);
-        }
-        if (Enc->tIMEExists) {
-            free(Enc->tIMe);
-        }
-        if (Enc->tRNSExists) {
-            free(Enc->tRNS->Palette);
-            free(Enc->tRNS);
-        }
-        free(Enc->iHDR);
-        free(Enc);
-    }
-    
     BitBuffer *EncodePNGImage(EncodePNG *Enc, void ****RawImage2Encode, bool InterlacePNG, bool OptimizePNG) {
         // RawImage2Encode is a void pointer, the contents of Enc->iHDR->BitDepth will define the data type, uint8_t or uint16_t
         
@@ -116,8 +24,8 @@ extern "C" {
     }
     
     void PNGEncodeFilterPaeth(EncodePNG *Enc, uint8_t *Line, size_t LineSize) {
-        // RawData is after decoding the I/f DATs, and after INFLAT'ing and De-LZ77'ing it.
-        // Each line is preceded by a filter type byte, so decode it by a line by line basis.
+        // RawData is after Oviaoding the I/f DATs, and after INFLAT'ing and De-LZ77'ing it.
+        // Each line is preceded by a filter type byte, so OVIA it by a line by line basis.
         // Good candidate for multi-threading.
     }
     
@@ -134,52 +42,52 @@ extern "C" {
         free(EncodedLine);
     }
     
-    void WriteIHDRChunk(EncodePNG *Enc, BitBuffer *OutputPNG) {
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, 13);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, iHDRMarker);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, Enc->iHDR->Width);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, Enc->iHDR->Height);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 8,  Enc->iHDR->BitDepth);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 8,  Enc->iHDR->ColorType);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 8,  Enc->iHDR->Compression);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 8,  Enc->iHDR->FilterMethod);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 8,  Enc->iHDR->IsInterlaced);
+    void WriteIHDRChunk(EncodePNG *Enc, BitBuffer *BitB) {
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, 13);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, iHDRMarker);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->iHDR->Width);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->iHDR->Height);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8,  Enc->iHDR->BitDepth);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8,  Enc->iHDR->ColorType);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8,  Enc->iHDR->Compression);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8,  Enc->iHDR->FilterMethod);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8,  Enc->iHDR->Progressive);
     }
     
-    void WriteACTLChunk(EncodePNG *Enc, BitBuffer *OutputPNG) {
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, 8);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, acTLMarker);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, Enc->acTL->NumFrames);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, Enc->acTL->TimesToLoop);
+    void WriteACTLChunk(EncodePNG *Enc, BitBuffer *BitB) {
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, 8);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, acTLMarker);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->acTL->NumFrames);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->acTL->TimesToLoop);
     }
     
-    void WriteFCTLChunk(EncodePNG *Enc, BitBuffer *OutputPNG) {
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, 29);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, fcTLMarker);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, Enc->fcTL->FrameNum);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, Enc->fcTL->Width);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, Enc->fcTL->Height);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, Enc->fcTL->XOffset);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, Enc->fcTL->YOffset);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 16, Enc->fcTL->FrameDelayNumerator);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 16, Enc->fcTL->FrameDelayDenominator);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 8,  Enc->fcTL->DisposeMethod);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 8,  Enc->fcTL->BlendMethod);
+    void WriteFCTLChunk(EncodePNG *Enc, BitBuffer *BitB) {
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, 29);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, fcTLMarker);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->fcTL->FrameNum);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->fcTL->Width);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->fcTL->Height);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->fcTL->XOffset);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->fcTL->YOffset);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 16, Enc->fcTL->FrameDelayNumerator);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 16, Enc->fcTL->FrameDelayDenominator);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8,  Enc->fcTL->DisposeMethod);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8,  Enc->fcTL->BlendMethod);
     }
     
-    void WriteFDATChunk(EncodePNG *Enc, BitBuffer *OutputPNG, uint8_t *DeflatedFrameData, uint32_t DeflatedFrameDataSize) {
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, DeflatedFrameData + 8);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, fDATMarker);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, Enc->fdAT->FrameNum);
+    void WriteFDATChunk(EncodePNG *Enc, BitBuffer *BitB, uint8_t *DeflatedFrameData, uint32_t DeflatedFrameDataSize) {
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, DeflatedFrameData + 8);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, fDATMarker);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->fdAT->FrameNum);
     }
     
-    void WriteSTERChunk(EncodePNG *Enc, BitBuffer *OutputPNG) {
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, 1);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, sTERMarker);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 8,  Enc->sTER->StereoType);
+    void WriteSTERChunk(EncodePNG *Enc, BitBuffer *BitB) {
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, 1);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, sTERMarker);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8,  Enc->sTER->StereoType);
     }
     
-    void WriteBKGDChunk(EncodePNG *Enc, BitBuffer *OutputPNG) {
+    void WriteBKGDChunk(EncodePNG *Enc, BitBuffer *BitB) {
         uint8_t  NumChannels   = ModernPNGChannelsPerColorType[Enc->iHDR->ColorType];
         uint32_t Size          = 0;
         uint8_t  BKGDEntrySize = 0; // in bits
@@ -195,59 +103,59 @@ extern "C" {
             BKGDEntrySize = Bytes2Bits(NumChannels * 2);
         }
         
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, Size);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, bKGDMarker);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Size);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, bKGDMarker);
         
         if (Enc->iHDR->ColorType == PNG_PalettedRGB || Enc->iHDR->ColorType == PNG_Grayscale || Enc->iHDR->ColorType == PNG_GrayAlpha) {
             for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
-                WriteBits(MSByteFirst, LSBitFirst, OutputPNG, BKGDEntrySize, Enc->bkGD->BackgroundPaletteEntry[Channel]);
+                WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, BKGDEntrySize, Enc->bkGD->BackgroundPaletteEntry[Channel]);
             }
         } else if (Enc->iHDR->ColorType == PNG_RGB || Enc->iHDR->ColorType == PNG_RGBA) {
             for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
-                WriteBits(MSByteFirst, LSBitFirst, OutputPNG, NumChannels * 16, Enc->bkGD->BackgroundPaletteEntry[Channel]);
+                WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, NumChannels * 16, Enc->bkGD->BackgroundPaletteEntry[Channel]);
             }
         }
     }
     
-    void WriteCHRMChunk(EncodePNG *Enc, BitBuffer *OutputPNG) {
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, 32);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, cHRMMarker);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, Enc->cHRM->WhitePointX);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, Enc->cHRM->WhitePointY);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, Enc->cHRM->RedX);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, Enc->cHRM->RedY);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, Enc->cHRM->GreenX);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, Enc->cHRM->GreenY);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, Enc->cHRM->BlueX);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, Enc->cHRM->BlueY);
+    void WriteCHRMChunk(EncodePNG *Enc, BitBuffer *BitB) {
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, 32);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, cHRMMarker);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->cHRM->WhitePointX);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->cHRM->WhitePointY);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->cHRM->RedX);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->cHRM->RedY);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->cHRM->GreenX);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->cHRM->GreenY);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->cHRM->BlueX);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->cHRM->BlueY);
     }
     
-    void WriteGAMAChunk(EncodePNG *Enc, BitBuffer *OutputPNG) {
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, 4);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, gAMAMarker);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, Enc->gAMA->Gamma);
+    void WriteGAMAChunk(EncodePNG *Enc, BitBuffer *BitB) {
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, 4);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, gAMAMarker);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->gAMA->Gamma);
     }
     
-    void WriteOFFSChunk(EncodePNG *Enc, BitBuffer *OutputPNG) {
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, 9);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, oFFsMarker);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, Enc->oFFs->XOffset);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, Enc->oFFs->YOffset);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 8,  Enc->oFFs->UnitSpecifier);
+    void WriteOFFSChunk(EncodePNG *Enc, BitBuffer *BitB) {
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, 9);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, oFFsMarker);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->oFFs->XOffset);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->oFFs->YOffset);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8,  Enc->oFFs->UnitSpecifier);
     }
     
-    void WriteICCPChunk(EncodePNG *Enc, BitBuffer *OutputPNG) {
+    void WriteICCPChunk(EncodePNG *Enc, BitBuffer *BitB) {
         uint32_t ProfileNameSize       = strlen(Enc->iCCP->ProfileName);
         uint32_t CompressedProfileSize = strlen(Enc->iCCP->CompressedICCPProfile);
         
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, 8 + CompressedProfileSize + ProfileNameSize);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, iCCPMarker);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, Bytes2Bits(ProfileNameSize), Enc->iCCP->ProfileName);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 8, Enc->iCCP->CompressionType);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, Bytes2Bits(CompressedProfileSize), Enc->iCCP->CompressedICCPProfile);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, 8 + CompressedProfileSize + ProfileNameSize);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, iCCPMarker);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, Bytes2Bits(ProfileNameSize), Enc->iCCP->ProfileName);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8, Enc->iCCP->CompressionType);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, Bytes2Bits(CompressedProfileSize), Enc->iCCP->CompressedICCPProfile);
     }
     
-    void WriteSBITChunk(EncodePNG *Enc, BitBuffer *OutputPNG) {
+    void WriteSBITChunk(EncodePNG *Enc, BitBuffer *BitB) {
         uint8_t ChunkSize = 0;
         uint8_t NumChannels = ModernPNGChannelsPerColorType[Enc->iHDR->ColorType];
         if (Enc->iHDR->ColorType == PNG_Grayscale) {
@@ -260,48 +168,48 @@ extern "C" {
             ChunkSize = 4;
         }
         
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, ChunkSize);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, sBITMarker);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, ChunkSize);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, sBITMarker);
         
         if (Enc->iHDR->ColorType == PNG_RGB || Enc->iHDR->ColorType == PNG_PalettedRGB) {
-            WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 8, Enc->sBIT->Red);
-            WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 8, Enc->sBIT->Green);
-            WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 8, Enc->sBIT->Blue);
+            WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8, Enc->sBIT->Red);
+            WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8, Enc->sBIT->Green);
+            WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8, Enc->sBIT->Blue);
         } else if (Enc->iHDR->ColorType == PNG_RGBA) {
-            WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 8, Enc->sBIT->Red);
-            WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 8, Enc->sBIT->Green);
-            WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 8, Enc->sBIT->Blue);
-            WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 8, Enc->sBIT->Alpha);
+            WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8, Enc->sBIT->Red);
+            WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8, Enc->sBIT->Green);
+            WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8, Enc->sBIT->Blue);
+            WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8, Enc->sBIT->Alpha);
         } else if (Enc->iHDR->ColorType == PNG_Grayscale) {
-            WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 8, Enc->sBIT->Grayscale);
+            WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8, Enc->sBIT->Grayscale);
         } else if (Enc->iHDR->ColorType == PNG_GrayAlpha) {
-            WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 8, Enc->sBIT->Grayscale);
-            WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 8, Enc->sBIT->Alpha);
+            WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8, Enc->sBIT->Grayscale);
+            WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8, Enc->sBIT->Alpha);
         }
     }
     
-    void WriteSRGBChunk(EncodePNG *Enc, BitBuffer *OutputPNG) {
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 8, 1);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, sRGBMarker);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 8,  Enc->sRGB->RenderingIntent);
+    void WriteSRGBChunk(EncodePNG *Enc, BitBuffer *BitB) {
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8, 1);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, sRGBMarker);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8,  Enc->sRGB->RenderingIntent);
     }
     
-    void WritePHYSChunk(EncodePNG *Enc, BitBuffer *OutputPNG) {
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 8, 9);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, pHYsMarker);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, Enc->pHYs->PixelsPerUnitXAxis);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, Enc->pHYs->PixelsPerUnitYAxis);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 8,  Enc->pHYs->UnitSpecifier);
+    void WritePHYSChunk(EncodePNG *Enc, BitBuffer *BitB) {
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8, 9);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, pHYsMarker);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->pHYs->PixelsPerUnitXAxis);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->pHYs->PixelsPerUnitYAxis);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8,  Enc->pHYs->UnitSpecifier);
     }
     
-    void WritePCALChunk(EncodePNG *Enc, BitBuffer *OutputPNG) {
+    void WritePCALChunk(EncodePNG *Enc, BitBuffer *BitB) {
         uint32_t ChunkSize = 0;
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, ChunkSize);
-        WriteBits(MSByteFirst, LSBitFirst, OutputPNG, 32, pCALMarker);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, ChunkSize);
+        WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, pCALMarker);
         
     }
     
-    void WriteSCALChunk(EncodePNG *Enc, BitBuffer *OutputPNG) {
+    void WriteSCALChunk(EncodePNG *Enc, BitBuffer *BitB) {
         uint32_t ChunkSize = 0;
     }
     
@@ -338,13 +246,24 @@ extern "C" {
         }
     }
     
-    void PNGSetIHDR(EncodePNG *Enc, const uint32_t Height, const uint32_t Width, const uint8_t BitDepth, PNGColorTypes ColorType, const bool Interlace) {
-        if (Enc != NULL && Height > 0 && Width > 0 && (BitDepth > 0 || BitDepth > 16) && (ColorType <= 6 && ColorType != 1 && ColorType != 5) && Interlace >= 0 && Interlace <= 1) {
+    // Interlace is the wrong word, despite what the spec says, it's not interpolating fields, it's optimizing the image for streaming.
+    // The word I'm looking for is "Progressive".
+    void OVIA_PNG_SetIHDR(OVIA *Ovia, ImageContainer *Image, const bool Progressive) {
+        if (Ovia != NULL && Image != NULL) {
+            
+        } else if (Ovia == NULL) {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        } else if (Image == NULL) {
+            Log(Log_ERROR, __func__, U8("ImageContainer Pointer is NULL"));
+        }
+        
+        
+        if (Enc != NULL && Height > 0 && Width > 0 && (BitDepth > 0 || BitDepth > 16) && (ColorType <= 6 && ColorType != 1 && ColorType != 5) && Progressive >= 0 && Interlace <= 1) {
             Enc->iHDR->Height       = Height;
             Enc->iHDR->Width        = Width;
             Enc->iHDR->BitDepth     = BitDepth;
             Enc->iHDR->ColorType    = ColorType;
-            Enc->iHDR->IsInterlaced = Interlace;
+            Enc->iHDR->Progressive  = Progressive;
         } else if (Enc == NULL) {
             Log(Log_ERROR, __func__, U8("EncodePNG Pointer is NULL"));
         } else if (Height == 0) {
@@ -360,7 +279,7 @@ extern "C" {
         }
     }
     
-    void PNGSetSTER(EncodePNG *Enc, const bool StereoType) {
+    void OVIA_PNG_SetSTER(EncodePNG *Enc, const bool StereoType) {
         if (Enc != NULL && StereoType >= 0 && StereoType <= 1) {
             Enc->sTER->StereoType = StereoType;
         } else if (Enc == NULL) {
@@ -370,7 +289,7 @@ extern "C" {
         }
     }
     
-    void PNGSetACTL(EncodePNG *Enc, const uint32_t NumFrames, const uint32_t Times2Loop) {
+    void OVIA_PNG_SetACTL(EncodePNG *Enc, const uint32_t NumFrames, const uint32_t Times2Loop) {
         if (Enc != NULL && NumFrames > 0) {
             Enc->acTL->NumFrames   = NumFrames;
             Enc->acTL->TimesToLoop = Times2Loop;
@@ -381,11 +300,15 @@ extern "C" {
         }
     }
     
-    void PNGSetFCTL(EncodePNG *Enc, const uint32_t FrameNum, const uint32_t FrameWidth, const uint32_t FrameHeight, uint32_t XOffset, uint32_t YOffset, uint16_t FrameDelayNumerator, uint16_t FrameDelayDenominator, uint8_t DisposalType, uint8_t BlendType) {
+    void OVIA_PNG_SetFCTL(EncodePNG *Enc, const uint32_t FrameNum, const uint32_t FrameWidth, const uint32_t FrameHeight, uint32_t XOffset, uint32_t YOffset, uint16_t FrameDelayNumerator, uint16_t FrameDelayDenominator, uint8_t DisposalType, uint8_t BlendType) {
         
     }
     
     void ComposePNGCHRMWhitePoint() {
+        
+    }
+    
+    void PNGInsertImage(OVIA *Ovia, BitBuffer *BitB, ImageContainer *Image) {
         
     }
     

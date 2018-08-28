@@ -81,7 +81,7 @@ extern "C" {
     
     void W64ParseMetadata(OVIA *Ovia, BitBuffer *BitB);
     
-    void W64ExtractSamples(OVIA *Ovia, BitBuffer *BitB, uint64_t NumSamples2Extract, uint32_t **ExtractedSamples);
+    AudioContainer *W64ExtractSamples(OVIA *Ovia, BitBuffer *BitB);
     
     void W64AppendSamples(AudioContainer *Audio, BitBuffer *OutputSamples);
     

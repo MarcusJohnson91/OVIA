@@ -10,12 +10,28 @@ extern "C" {
      */
     
     void AIFSkipPadding(BitBuffer *BitB, uint32_t SubChunkSize) {
+        if (Ovia != NULL && BitB != NULL) {
+            
+        } else if (Ovia == NULL) {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        } else if (BitB == NULL) {
+            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
+        }
+        
         if (IsOdd(SubChunkSize) == Yes) {
             BitBuffer_Skip(BitB, 8);
         }
     }
     
     static void AIFParseCOMMChunk(OVIA *Ovia, BitBuffer *BitB) {
+        if (Ovia != NULL && BitB != NULL) {
+            
+        } else if (Ovia == NULL) {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        } else if (BitB == NULL) {
+            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
+        }
+        
         uint16_t NumChannels               = ReadBits(MSByteFirst, MSBitFirst, BitB, 16);
         OVIA_SetNumChannels(Ovia, NumChannels);
         uint32_t NumSamples                = ReadBits(MSByteFirst, LSBitFirst, BitB, 32); // A SampleFrame is simply a single sample from all channels.
@@ -32,6 +48,14 @@ extern "C" {
     }
     
     static void AIFParseNameChunk(OVIA *Ovia, BitBuffer *BitB) {
+        if (Ovia != NULL && BitB != NULL) {
+            
+        } else if (Ovia == NULL) {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        } else if (BitB == NULL) {
+            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
+        }
+        
         uint32_t TitleSize                 = ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
         UTF8    *Title                     = calloc(TitleSize, sizeof(UTF8));
         for (uint32_t TitleByte = 0; TitleByte < TitleSize; TitleByte++) {
@@ -41,6 +65,14 @@ extern "C" {
     }
     
     static void AIFParseAuthorChunk(OVIA *Ovia, BitBuffer *BitB) {
+        if (Ovia != NULL && BitB != NULL) {
+            
+        } else if (Ovia == NULL) {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        } else if (BitB == NULL) {
+            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
+        }
+        
         uint32_t AuthorSize                = ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
         UTF8    *Author                    = calloc(AuthorSize, sizeof(UTF8));
         for (uint32_t AuthorByte = 0; AuthorByte < AuthorSize; AuthorByte++) {
@@ -50,6 +82,14 @@ extern "C" {
     }
     
     static void AIFParseAnnotationChunk(OVIA *Ovia, BitBuffer *BitB) {
+        if (Ovia != NULL && BitB != NULL) {
+            
+        } else if (Ovia == NULL) {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        } else if (BitB == NULL) {
+            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
+        }
+        
         uint32_t AnnotationSize            = ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
         UTF8    *Annotation                = calloc(AnnotationSize, sizeof(UTF8));
         for (uint32_t AnnotationByte = 0; AnnotationByte < AnnotationSize; AnnotationByte++) {
@@ -59,6 +99,14 @@ extern "C" {
     }
     
     void AIFParseMetadata(OVIA *Ovia, BitBuffer *BitB) {
+        if (Ovia != NULL && BitB != NULL) {
+            
+        } else if (Ovia == NULL) {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        } else if (BitB == NULL) {
+            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
+        }
+        
         uint32_t FileSize                  = ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
         OVIA_SetFileSize(Ovia, FileSize);
         AIFChunkIDs AIFFChunkID            = ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
@@ -124,12 +172,42 @@ extern "C" {
         }
     }
     
-    void AIFExtractSamples(AudioContainer *Ovia, BitBuffer *BitB, uint64_t NumSamples2Extract, uint32_t **ExtractedSamples) { // I should change this so that the user manages their own buffer
-        for (uint32_t Sample = 0UL; Sample < NumSamples2Extract; Sample++) {
-            for (uint16_t Channel = 0; Channel < Ovia->NumChannels; Channel++) {
-                ExtractedSamples[Channel][Sample] = ReadBits(MSByteFirst, MSBitFirst, BitB, Ovia->BitDepth);
-                BitBuffer_Skip(BitB, 8 - (Ovia->BitDepth % 8)); // Skip the Zero'd bits
+    AudioContainer *AIFExtractSamples(OVIA *Ovia, BitBuffer *BitB) { // I should change this so that the user manages their own buffer
+        AudioContainer *Audio = NULL;
+        if (Ovia != NULL && BitB != NULL) {
+            uint64_t BitDepth     = OVIA_GetBitDepth(Ovia);
+            uint64_t NumChannels  = OVIA_GetNumChannels(Ovia);
+            uint64_t SampleRate   = OVIA_GetSampleRate(Ovia);
+            uint64_t NumSamples   = OVIA_GetNumSamples(Ovia);
+            if (BitDepth <= 8) {
+                Audio = AudioContainer_Init(AudioContainer_UInteger8, BitDepth, NumChannels, SampleRate, NumSamples);
+                uint8_t **Samples = (uint8_t**) AudioContainer_GetArray(Audio);
+                for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
+                    for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
+                        Samples[Channel][Sample] = ReadBits(MSByteFirst, LSBitFirst, BitB, Bits2Bytes(BitDepth, Yes));
+                    }
+                }
+            } else if (BitDepth > 8 && BitDepth <= 16) {
+                Audio = AudioContainer_Init(AudioContainer_UInteger16, BitDepth, NumChannels, SampleRate, NumSamples);
+                uint16_t **Samples = (uint16_t**) AudioContainer_GetArray(Audio);
+                for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
+                    for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
+                        Samples[Channel][Sample] = ReadBits(MSByteFirst, LSBitFirst, BitB, Bits2Bytes(BitDepth, Yes));
+                    }
+                }
+            } else if (BitDepth > 16 && BitDepth <= 32) {
+                Audio = AudioContainer_Init(AudioContainer_UInteger32, BitDepth, NumChannels, SampleRate, NumSamples);
+                uint32_t **Samples = (uint32_t**) AudioContainer_GetArray(Audio);
+                for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
+                    for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
+                        Samples[Channel][Sample] = ReadBits(MSByteFirst, LSBitFirst, BitB, Bits2Bytes(BitDepth, Yes));
+                    }
+                }
             }
+        } else if (Ovia == NULL) {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        } else if (BitB == NULL) {
+            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     

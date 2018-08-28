@@ -54,9 +54,9 @@ extern "C" {
     
     void AIFParseMetadata(OVIA *Ovia, BitBuffer *BitB);
     
-    void AIFExtractSamples(OVIA *Ovia, BitBuffer *BitB, uint64_t NumSamples2Extract, uint32_t **ExtractedSamples);
+    AudioContainer *AIFExtractSamples(OVIA *Ovia, BitBuffer *BitB);
     
-    void AIFInsertSamples(OVIA *Ovia, AudioContainer *Audio, BitBuffer *BitB);
+    AudioContainer *AIFAppendSamples(OVIA *Ovia, AudioContainer *Audio, BitBuffer *BitB);
     
     void AIFWriteHeader(OVIA *Ovia, BitBuffer *BitB);
     

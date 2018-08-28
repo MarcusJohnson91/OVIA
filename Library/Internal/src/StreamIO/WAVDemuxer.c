@@ -19,6 +19,14 @@ extern "C" {
     };
     
     static void ReadINFO_IART(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize) {
+        if (Ovia != NULL && BitB != NULL) {
+            
+        } else if (Ovia == NULL) {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        } else if (BitB == NULL) {
+            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
+        }
+        
         char *Artist              = calloc(ChunkSize, sizeof(char));
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
             Artist[Byte]          = ReadBits(LSByteFirst, LSBitFirst, BitB, 8);
@@ -29,6 +37,14 @@ extern "C" {
     }
     
     static void ReadINFO_ICRD(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize) {
+        if (Ovia != NULL && BitB != NULL) {
+            
+        } else if (Ovia == NULL) {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        } else if (BitB == NULL) {
+            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
+        }
+        
         char *ReleaseDate              = calloc(ChunkSize, sizeof(char));
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
             ReleaseDate[Byte]          = ReadBits(LSByteFirst, LSBitFirst, BitB, 8);
@@ -39,6 +55,14 @@ extern "C" {
     }
     
     static void ReadINFO_IGNR(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize) {
+        if (Ovia != NULL && BitB != NULL) {
+            
+        } else if (Ovia == NULL) {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        } else if (BitB == NULL) {
+            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
+        }
+        
         char *Genre              = calloc(ChunkSize, sizeof(char));
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
             Genre[Byte]          = ReadBits(LSByteFirst, LSBitFirst, BitB, 8);
@@ -49,6 +73,14 @@ extern "C" {
     }
     
     static void ReadINFO_INAM(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize) {
+        if (Ovia != NULL && BitB != NULL) {
+            
+        } else if (Ovia == NULL) {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        } else if (BitB == NULL) {
+            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
+        }
+        
         char *Title                  = calloc(ChunkSize, sizeof(char));
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
             Title[Byte]              = ReadBits(LSByteFirst, LSBitFirst, BitB, 8);
@@ -59,6 +91,14 @@ extern "C" {
     }
     
     static void ReadINFO_IPRD(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize) {
+        if (Ovia != NULL && BitB != NULL) {
+            
+        } else if (Ovia == NULL) {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        } else if (BitB == NULL) {
+            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
+        }
+        
         char *Album              = calloc(1, ChunkSize * sizeof(char));
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
             Album[Byte]          = ReadBits(LSByteFirst, LSBitFirst, BitB, 8);
@@ -69,6 +109,14 @@ extern "C" {
     }
     
     static void ReadINFO_ISFT(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize) { // Encoder
+        if (Ovia != NULL && BitB != NULL) {
+            
+        } else if (Ovia == NULL) {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        } else if (BitB == NULL) {
+            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
+        }
+        
         char *Encoder              = calloc(1, ChunkSize * sizeof(char));
         for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
             Encoder[Byte]          = ReadBits(LSByteFirst, LSBitFirst, BitB, 8);
@@ -79,6 +127,14 @@ extern "C" {
     }
     
     static void WAVParseLISTChunk(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize) {
+        if (Ovia != NULL && BitB != NULL) {
+            
+        } else if (Ovia == NULL) {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        } else if (BitB == NULL) {
+            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
+        }
+        
         uint32_t SubChunkID   = ReadBits(LSByteFirst, LSBitFirst, BitB, 32);
         uint32_t SubChunkSize = ReadBits(LSByteFirst, LSBitFirst, BitB, 32);
         
@@ -108,17 +164,33 @@ extern "C" {
     }
     
     static void WAVParseDATAChunk(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize) {
-        Ovia->NumChannelAgnosticSamples            = ((ChunkSize / Ovia->NumChannels) / Bits2Bytes(Ovia->BitDepth, true));
+        if (Ovia != NULL && BitB != NULL) {
+            
+        } else if (Ovia == NULL) {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        } else if (BitB == NULL) {
+            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
+        }
+        
+        Ovia->NumChannelAgnosticSamples            = ((ChunkSize / OVIA_GetNumChannels(Ovia)) / Bits2Bytes(Ovia->BitDepth, true));
     }
     
     static void WAVParseFMTChunk(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize) {
+        if (Ovia != NULL && BitB != NULL) {
+            
+        } else if (Ovia == NULL) {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        } else if (BitB == NULL) {
+            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
+        }
+        
         if (PCM == NULL) {
             Log(Log_ERROR, __func__, U8("Pointer to OVIA is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_ERROR, __func__, U8("Pointer to BitBuffer is NULL"));
+            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
         } else {
             Ovia->Aud->WAVCompressionFormat  = ReadBits(LSByteFirst, LSBitFirst, BitB, 16);
-            Ovia->NumChannels                = ReadBits(LSByteFirst, LSBitFirst, BitB, 16);
+            OVIA_GetNumChannels(Ovia)                = ReadBits(LSByteFirst, LSBitFirst, BitB, 16);
             Ovia->Aud->SampleRate            = ReadBits(LSByteFirst, LSBitFirst, BitB, 32);
             Ovia->Aud->WAVAvgBytesPerSecond  = ReadBits(LSByteFirst, LSBitFirst, BitB, 32);
             Ovia->Aud->BlockAlignment        = ReadBits(LSByteFirst, LSBitFirst, BitB, 32);
@@ -140,6 +212,14 @@ extern "C" {
     }
     
     void WAVParseMetadata(OVIA *Ovia, BitBuffer *BitB) {
+        if (Ovia != NULL && BitB != NULL) {
+            
+        } else if (Ovia == NULL) {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        } else if (BitB == NULL) {
+            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
+        }
+        
         uint32_t ChunkID   = ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
         uint32_t ChunkSize = ReadBits(LSByteFirst, LSBitFirst, BitB, 32);
         
@@ -161,20 +241,44 @@ extern "C" {
         }
     }
     
-    void WAVExtractSamples(OVIA *Ovia, BitBuffer *BitB, uint64_t NumSamples2Extract, uint32_t **ExtractedSamples) {
-        if (PCM != NULL && BitB != NULL && ExtractedSamples != NULL) {
-            for (uint64_t Sample = 0; Sample < NumSamples2Extract; Sample++) {
-                for (uint64_t Channel = 0; Channel < Ovia->NumChannels; Channel++) {
-                    ExtractedSamples[Channel][Sample] = ReadBits(LSByteFirst, LSBitFirst, BitB, (uint64_t)Bits2Bytes(Ovia->BitDepth, Yes));
+    AudioContainer *WAVExtractSamples(OVIA *Ovia, BitBuffer *BitB) {
+        AudioContainer *Audio = NULL;
+        if (Ovia != NULL && BitB != NULL) {
+            uint64_t BitDepth     = OVIA_GetBitDepth(Ovia);
+            uint64_t NumChannels  = OVIA_GetNumChannels(Ovia);
+            uint64_t SampleRate   = OVIA_GetSampleRate(Ovia);
+            uint64_t NumSamples   = OVIA_GetNumSamples(Ovia);
+            if (BitDepth <= 8) {
+                Audio = AudioContainer_Init(AudioContainer_UInteger8, BitDepth, NumChannels, SampleRate, NumSamples);
+                uint8_t **Samples = (uint8_t**) AudioContainer_GetArray(Audio);
+                for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
+                    for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
+                        Samples[Channel][Sample] = ReadBits(MSByteFirst, LSBitFirst, BitB, Bits2Bytes(BitDepth, Yes));
+                    }
+                }
+            } else if (BitDepth > 8 && BitDepth <= 16) {
+                Audio = AudioContainer_Init(AudioContainer_UInteger16, BitDepth, NumChannels, SampleRate, NumSamples);
+                uint16_t **Samples = (uint16_t**) AudioContainer_GetArray(Audio);
+                for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
+                    for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
+                        Samples[Channel][Sample] = ReadBits(MSByteFirst, LSBitFirst, BitB, Bits2Bytes(BitDepth, Yes));
+                    }
+                }
+            } else if (BitDepth > 16 && BitDepth <= 32) {
+                Audio = AudioContainer_Init(AudioContainer_UInteger32, BitDepth, NumChannels, SampleRate, NumSamples);
+                uint32_t **Samples = (uint32_t**) AudioContainer_GetArray(Audio);
+                for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
+                    for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
+                        Samples[Channel][Sample] = ReadBits(MSByteFirst, LSBitFirst, BitB, Bits2Bytes(BitDepth, Yes));
+                    }
                 }
             }
-        } else if (PCM == NULL) {
-            Log(Log_ERROR, __func__, U8("PCM Pointer is NULL"));
+        } else if (Ovia == NULL) {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
-        } else if (ExtractedSamples == NULL) {
-            Log(Log_ERROR, __func__, U8("ExtractedSamples Pointer is NULL"));
         }
+        return Audio;
     }
     
 #ifdef __cplusplus

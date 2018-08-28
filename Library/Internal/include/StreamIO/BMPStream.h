@@ -14,6 +14,14 @@
 extern "C" {
 #endif
     
+    static uint32_t BMPCompressionType   = 0;
+    static uint32_t BMPColorsIndexed     = 0;
+    static uint32_t BMPIndexedColorsUsed = 0;
+    static uint32_t BMPRedMask           = 0;
+    static uint32_t BMPGreenMask         = 0;
+    static uint32_t BMPBlueMask          = 0;
+    static uint32_t BMPAlphaMask         = 0;
+    
     enum BMPMagic {
         BMP_BM                = 0x424D,
         BMP_BitmapArray       = 0x4141,
@@ -38,7 +46,7 @@ extern "C" {
     
     void        BMPParseMetadata(OVIA *Ovia, BitBuffer *BitB);
     
-    uint16_t ***BMPExtractImage(OVIA *Ovia, BitBuffer *BitB);
+    ImageContainer *BMPExtractImage(OVIA *Ovia, BitBuffer *BitB);
     
     void        BMPInsertImage(OVIA *Ovia, BitBuffer *BitB, uint16_t ***Image2Insert);
     

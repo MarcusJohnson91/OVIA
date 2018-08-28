@@ -55,7 +55,7 @@ extern "C" {
         Lossy_DIGIFIX                 = 0x0016,
         Lossy_DIALOGIC_OKI_ADPCM      = 0x0017,
         Lossy_MEDIAVISION_ADPCM       = 0x0018,
-        Lossy_CU_CODEC                = 0x0019,
+        Lossy_CU_COOvia                = 0x0019,
         Lossy_YAMAHA_ADPCM            = 0x0020,
         Lossy_SONARC                  = 0x0021,
         Lossy_DSPGROUP_TRUESPEECH     = 0x0022,
@@ -143,7 +143,7 @@ extern "C" {
         Lossy_CREATIVE_FASTSPEECH8    = 0x0202,
         Lossy_CREATIVE_FASTSPEECH10   = 0x0203,
         Lossy_UHER_ADPCM              = 0x0210,
-        Lossy_QUARTERDECK             = 0x0220,
+        Lossy_QUARTEROviaK             = 0x0220,
         Lossy_ILINK_VC                = 0x0230,
         Lossy_RAW_SPORT               = 0x0240,
         Lossy_IPI_HSX                 = 0x0250,
@@ -160,7 +160,7 @@ extern "C" {
         Lossy_OLICELP                 = 0x1002,
         Lossy_OLISBC                  = 0x1003,
         Lossy_OLIOPR                  = 0x1004,
-        Lossy_LH_CODEC                = 0x1100,
+        Lossy_LH_COOvia                = 0x1100,
         Lossy_NORRIS                  = 0x1400,
         Lossy_SOUNDSPACE_MUSICOMPRESS = 0x1500,
         Lossy_DVM                     = 0x2000,
@@ -189,9 +189,9 @@ extern "C" {
     
     void WAVParseMetadata(OVIA *Ovia, BitBuffer *BitB);
     
-    void WAVExtractSamples(OVIA *Ovia, BitBuffer *BitB, uint64_t NumSamples2Extract, uint32_t **ExtractedSamples);
+    AudioContainer *WAVExtractSamples(OVIA *Ovia, BitBuffer *BitB);
     
-    void WAVInsertSamples(OVIA *Ovia, BitBuffer *OutputSamples, uint32_t NumSamples2Write, uint32_t **Samples2Write);
+    void WAVAppendSamples(OVIA *Ovia, AudioContainer *Audio, BitBuffer *BitB);
     
     void WAVWriteHeader(OVIA *Ovia, BitBuffer *BitB);
     
