@@ -218,6 +218,7 @@ extern "C" {
         fcTLChunk    *fcTL;
         fdATChunk    *fdAT;
         /* APNG */
+        bool          IsAnimated;
     } PNGOptions;
     
     typedef struct BMPOptions {
@@ -271,11 +272,14 @@ extern "C" {
     } W64Options;
     
     typedef struct FLACOptions {
-        uint16_t         MinBlockSize;
-        uint16_t         MaxBlockSize;
+        uint8_t         *MD5;
         uint32_t         MinFrameSize;
         uint32_t         MaxFrameSize;
-        uint8_t         *MD5;
+        uint16_t         MinBlockSize;
+        uint16_t         MaxBlockSize;
+        uint16_t         MaxFilterOrder;
+        uint8_t          MaxRICEPartitionOrder;
+        bool             EncodeSubset;
     } FLACOptions;
     
     typedef struct OVIA {
@@ -306,7 +310,7 @@ extern "C" {
     
     void OVIA_SetNumChannels(OVIA *Ovia, uint64_t NumChannels) {
         if (Ovia != NULL) {
-            OVIA_GetNumChannels(Ovia) = NumChannels;
+            Ovia->NumChannels = NumChannels;
         } else {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         }
@@ -351,25 +355,7 @@ extern "C" {
     uint64_t OVIA_GetBitDepth(OVIA *Ovia) {
         uint64_t BitDepth = 0;
         if (Ovia != NULL) {
-            if (Ovia->Type == AudioType) {
-                if (Ovia->Format == AIFFormat) {
-                    BitDepth = Ovia->AIFInfo->BitDepth;
-                } else if (Ovia->Format == WAVFormat) {
-                    BitDepth = Ovia->WAVInfo->BitDepth;
-                } else if (Ovia->Format == W64Format) {
-                    BitDepth = Ovia->W64Info->BitDepth;
-                } else if (Ovia->Format == FLACFormat) {
-                    BitDepth = Ovia->FLACInfo->BitDepth;
-                }
-            } else if (Ovia->Type == ImageType) {
-                if (Ovia->Format == BMPFormat) {
-                    BitDepth = Ovia->BMPInfo->BitDepth;
-                } else if (Ovia->Format == PNMFormat) {
-                    BitDepth = Ovia->PNMInfo->BitDepth;
-                } else if (Ovia->Format == PNGFormat) {
-                    BitDepth = Ovia->PNGInfo->iHDR->BitDepth;
-                }
-            }
+            BitDepth      = Ovia->BitDepth;
         } else {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         }
@@ -378,7 +364,7 @@ extern "C" {
     
     void OVIA_SetSampleRate(OVIA *Ovia, uint64_t SampleRate) {
         if (Ovia != NULL) {
-            
+            Ovia->SampleRate = SampleRate;
         } else {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         }
@@ -387,17 +373,7 @@ extern "C" {
     uint64_t OVIA_GetSampleRate(OVIA *Ovia) {
         uint64_t SampleRate = 0ULL;
         if (Ovia != NULL) {
-            if (Ovia->Type == AudioType) {
-                if (Ovia->Format == AIFFormat) {
-                    SampleRate = Ovia->AIFInfo->SampleRate;
-                } else if (Ovia->Format == WAVFormat) {
-                    SampleRate = Ovia->WAVInfo->SampleRate;
-                } else if (Ovia->Format == W64Format) {
-                    SampleRate = Ovia->W64Info->SampleRate;
-                } else if (Ovia->Format == FLACFormat) {
-                    SampleRate = Ovia->FLACInfo->SampleRate;
-                }
-            }
+            SampleRate      = Ovia->SampleRate;
         } else {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         }
@@ -448,6 +424,28 @@ extern "C" {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         }
         return TagString;
+    }
+    
+    uint64_t OVIA_GetNumTags(OVIA *Ovia) {
+        uint64_t NumTags = 0ULL;
+        if (Ovia != NULL) {
+            NumTags      = Ovia->NumTags;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return NumTags;
+    }
+    
+    uint64_t OVIA_GetTagSize(OVIA *Ovia, uint64_t Tag) {
+        uint64_t TagSize = 0ULL;
+        if (Ovia != NULL) {
+            if (Tag < Ovia->NumTags) {
+                TagSize  = UTF8_GetStringSizeInCodeUnits(Ovia->Tags[Tag]);
+            }
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return TagSize;
     }
     
     void OVIA_SetFileSize(OVIA *Ovia, uint64_t FileSize) {
@@ -606,6 +604,40 @@ extern "C" {
         }
     }
     
+    void OVIA_FLAC_SetMaxFilterOrder(OVIA *Ovia, uint16_t MaxFilterOrder) {
+        if (Ovia != NULL) {
+            Ovia->FLACInfo->MaxFilterOrder = MaxFilterOrder;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
+    void OVIA_FLAC_SetMaxRicePartitionOrder(OVIA *Ovia, uint8_t MaxRICEPartitionOrder) {
+        if (Ovia != NULL) {
+            Ovia->FLACInfo->MaxRICEPartitionOrder = MaxRICEPartitionOrder;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
+    void OVIA_FLAC_SetEncodeSubset(OVIA *Ovia, bool EncodeSubset) {
+        if (Ovia != NULL) {
+            Ovia->FLACInfo->EncodeSubset = EncodeSubset;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
+    bool OVIA_FLAC_GetEncodeSubset(OVIA *Ovia) {
+        bool EncodeSubset = No;
+        if (Ovia != NULL) {
+            EncodeSubset = Ovia->FLACInfo->EncodeSubset;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return EncodeSubset;
+    }
+    
     void OVIA_FLAC_SetMD5(OVIA *Ovia, uint8_t *MD5) {
         if (Ovia != NULL) {
             Ovia->FLACInfo->MD5 = MD5;
@@ -614,8 +646,63 @@ extern "C" {
         }
     }
     
+    void OVIA_PNG_SetIHDR(OVIA *Ovia, uint32_t Height, uint32_t Width, uint8_t BitDepth, uint8_t ColorType const bool Interlace) {
+        if (Ovia != NULL && Height > 0 && Width > 0 && (BitDepth > 0 || BitDepth > 16) && (ColorType <= 6 && ColorType != 1 && ColorType != 5) && Interlace >= 0 && Interlace <= 1) {
+            OVIA_SetHeight(Ovia, Height);
+            OVIA_SetWidth(Ovia, Width);
+            OVIA_SetBitDepth(Ovia, BitDepth);
+            OVIA_PNG_SetColorType(Ovia, BitDepth);
+            OVIA_PNG_SetInterlace(Ovia, Interlace);
+        } else if (Ovia == NULL) {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        } else if (Height == 0) {
+            Log(Log_ERROR, __func__, U8("Height is 0, which is invalid"));
+        } else if (Width == 0) {
+            Log(Log_ERROR, __func__, U8("Width is 0, which is invalid"));
+        } else if (BitDepth == 0 || BitDepth > 16) {
+            Log(Log_ERROR, __func__, U8("BitDepth %d is invalid, valid values range from 1-16"), BitDepth);
+        } else if (ColorType > 6 || ColorType == 1 || ColorType == 5) {
+            Log(Log_ERROR, __func__, U8("ColorType %d is invalid, valid values range from 0-6, excluding 1 and 5"), ColorType);
+        } else if (Interlace > 1) {
+            Log(Log_ERROR, __func__, U8("Interlace %d is invalid, valid values range from 0-1"), Interlace);
+        }
+    }
+    
+    void OVIA_PNG_SetSTER(OVIA *Ovia, const bool StereoType) {
+        if (Ovia != NULL && StereoType >= 0 && StereoType <= 1) {
+            Ovia->PNGInfo->sTER->StereoType = StereoType;
+        } else if (Ovia == NULL) {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        } else if (StereoType < 0 || StereoType > 1) {
+            Log(Log_ERROR, __func__, U8("StereoType %d is invalid, valid values range from 0-1"));
+        }
+    }
+    
+    void OVIA_PNG_SetACTL(OVIA *Ovia, const uint32_t NumFrames, const uint32_t Times2Loop) {
+        if (Ovia != NULL && NumFrames > 0) {
+            Ovia->PNGInfo->acTL->NumFrames   = NumFrames;
+            Ovia->PNGInfo->acTL->TimesToLoop = Times2Loop;
+        } else if (Enc == NULL) {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        } else if (NumFrames == 0) {
+            Log(Log_ERROR, __func__, U8("NumFrames is 0, that isn't possible..."));
+        }
+    }
+    
+    void OVIA_PNG_SetFCTL(OVIA *Ovia, const uint32_t FrameNum, const uint32_t FrameWidth, const uint32_t FrameHeight, uint32_t XOffset, uint32_t YOffset, uint16_t FrameDelayNumerator, uint16_t FrameDelayDenominator, uint8_t DisposalType, uint8_t BlendType) {
+        
+    }
+    
+    void OVIA_PNG_SetAnimated(OVIA *Ovia, const bool PNGIsAnimated) { // OVIA_PNG_SetAnimated
+        if (Ovia != NULL) {
+            Ovia->PNGInfo->IsAnimated = PNGIsAnimated;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
     void OVIA_Identify(OVIA *Ovia, BitBuffer *BitB) {
-        uint64_t FileMagic64 = PeekBits(MSByteFirst, LSBitFirst, BitB, 64);
+        uint64_t FileMagic64 = BitBuffer_PeekBits(MSByteFirst, LSBitFirst, BitB, 64);
         uint32_t FileMagic32 = FileMagic64 & 0xFFFFFFFF;
         uint16_t FileMagic16 = FileMagic64 & 0xFFFF;
         
@@ -668,24 +755,41 @@ extern "C" {
     
     uint8_t OVIA_GetBitDepth(OVIA *Ovia) {
         uint8_t BitDepth = 0;
-        if (Ovia->Format == AIFFormat || Ovia->Format == WAVFormat || Ovia->Format == W64Format) {
-            BitDepth = (uint8_t) Ovia->BitDepth;
-        } else if (Ovia->Format == BMPFormat || Ovia->Format == PNMFormat) {
-            BitDepth = (uint8_t) Ovia->BitDepth;
+        if (Ovia != NULL) {
+            
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         }
+            BitDepth = (uint8_t) Ovia->BitDepth;
+        
         return BitDepth;
     }
     
     uint64_t OVIA_GetNumChannels(OVIA *Ovia) {
+        if (Ovia != NULL) {
+            
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
         return OVIA_GetNumChannels(Ovia);
     }
     
     uint64_t OVIA_GetNumSamples(OVIA *Ovia) {
+        if (Ovia != NULL) {
+            
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
         return Ovia->NumChannelAgnosticSamples;
     }
     
     AudioContainer *OVIA_ExtractSamples(OVIA *Ovia, BitBuffer *BitB) {
         AudioContainer *Audio = NULL;
+        if (Ovia != NULL) {
+            
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
         if (Ovia->Format == AIFFormat) {
             Audio = AIFExtractSamples(Ovia, BitB);
         } else if (Ovia->Format == WAVFormat) {
@@ -698,6 +802,11 @@ extern "C" {
     
     ImageContainer *OVIA_ExtractImage(OVIA *Ovia, BitBuffer *BitB) {
         ImageContainer *Image = NULL;
+        if (Ovia != NULL) {
+            
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
         if (Ovia->Format == PNMFormat) {
             Image = PNMExtractImage(Ovia, BitB);
         } else if (Ovia->Format == BMPFormat) {
@@ -709,6 +818,11 @@ extern "C" {
     }
     
     void OVIA_InsertImage(OVIA *Ovia, BitBuffer *BitB, ImageContainer *Image) {
+        if (Ovia != NULL) {
+            
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
         if (Ovia->Format == PNMFormat) {
             PNMInsertImage(Ovia, BitB, Image);
         } else if (Ovia->Format == BMPFormat) {
@@ -718,37 +832,62 @@ extern "C" {
         }
     }
     
-    void OVIA_AppendSamples(OVIA *Ovia, BitBuffer *BitB, AudioContainer *Audio) {
-        if (Ovia->Format == AIFFormat) {
-            AIFAppendSamples(Ovia, OutputSamples, NumSamples2Write, Samples2Write);
-        } else if (Ovia->Format == WAVFormat) {
-            WAVAppendSamples(Ovia, OutputSamples, NumSamples2Write, Samples2Write);
-        } else if (Ovia->Format == W64Format) {
-            W64AppendSamples(Ovia, OutputSamples, NumSamples2Write, Samples2Write);
+    void OVIA_AppendSamples(OVIA *Ovia, AudioContainer *Audio, BitBuffer *BitB) {
+        if (Ovia != NULL && Audio != NULL && BitB != NULL) {
+            if (Ovia->Format == AIFFormat) {
+                AIFAppendSamples(Ovia, Audio, BitB);
+            } else if (Ovia->Format == WAVFormat) {
+                WAVAppendSamples(Audio, BitB);
+            } else if (Ovia->Format == W64Format) {
+                W64AppendSamples(Ovia, Audio, BitB);
+            } else if (Ovia->Format == FLACFormat) {
+                FLACAppendSamples(Ovia, Audio, BitB);
+            }
+        } else if (Ovia == NULL) {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        } else if (Audio == NULL) {
+            Log(Log_ERROR, __func__, U8("AudioContainer Pointer is NULL"));
+        } else if (BitB == NULL) {
+            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
         }
+        
     }
     
     void OVIA_WriteHeader(OVIA *Ovia, BitBuffer *BitB) {
-        if (Ovia->Format == BMPFormat) {
-            BMPWriteHeader(Ovia, BitB);
-        } else if (Ovia->Format == PNMFormat) {
-            PNMWriteHeader(Ovia, BitB);
-        } else if (Ovia->Format == AIFFormat) {
-            AIFWriteHeader(Ovia, BitB);
-        } else if (Ovia->Format == W64Format) {
-            W64WriteHeader(Ovia, BitB);
-        } else if (Ovia->Format == WAVFormat) {
-            WAVWriteHeader(Ovia, BitB);
+        if (Ovia != NULL && BitB != NULL) {
+            if (Ovia->Format == BMPFormat) {
+                BMPWriteHeader(Ovia, BitB);
+            } else if (Ovia->Format == PNMFormat) {
+                PNMWriteHeader(Ovia, BitB);
+            } else if (Ovia->Format == PNGFormat) {
+                PNGWriteHeader(Ovia, BitB);
+            } else if (Ovia->Format == AIFFormat) {
+                AIFWriteHeader(Ovia, BitB);
+            } else if (Ovia->Format == W64Format) {
+                W64WriteHeader(Ovia, BitB);
+            } else if (Ovia->Format == WAVFormat) {
+                WAVWriteHeader(Ovia, BitB);
+            } else if (Ovia->Format == FLACFormat) {
+                FLACWriteHeader(Ovia, BitB);
+            }
+        } else if (Ovia == NULL) {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        } else if (BitB == NULL) {
+            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
     void OVIA_Deinit(OVIA *Ovia) {
-        free(Ovia->TagTypes);
-        for (uint64_t Tag = 0ULL; Tag < Ovia->NumTags; Tag++) {
-            free(Ovia->Tags[Tag]);
+        if (Ovia != NULL) {
+            free(Ovia->TagTypes);
+            for (uint64_t Tag = 0ULL; Tag < Ovia->NumTags; Tag++) {
+                free(Ovia->Tags[Tag]);
+            }
+            free(Ovia->Tags);
+            free(Ovia);
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         }
-        free(Ovia->Tags);
-        free(Ovia);
     }
     
 #ifdef __cplusplus

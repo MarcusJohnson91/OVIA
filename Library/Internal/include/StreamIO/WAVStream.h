@@ -191,7 +191,7 @@ extern "C" {
     
     AudioContainer *WAVExtractSamples(OVIA *Ovia, BitBuffer *BitB);
     
-    void WAVAppendSamples(OVIA *Ovia, AudioContainer *Audio, BitBuffer *BitB);
+    void WAVAppendSamples(AudioContainer *Audio, BitBuffer *BitB);
     
     void WAVWriteHeader(OVIA *Ovia, BitBuffer *BitB);
     

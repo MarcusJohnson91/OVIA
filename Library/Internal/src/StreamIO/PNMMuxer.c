@@ -1,3 +1,4 @@
+#include "../../../../Dependencies/FoundationIO/libFoundationIO/include/Macros.h"
 #include "../../../include/Private/Image/PNMCommon.h"
 
 #ifdef __cplusplus
@@ -5,18 +6,43 @@ extern "C" {
 #endif
     
     static void PNMWritePAMHeader(OVIA *Ovia, BitBuffer *BitB) {
-        
+        if (Ovia != NULL && BitB != NULL) {
+            
+        } else if (Ovia == NULL) {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        } else if (BitB == NULL) {
+            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
+        }
     }
     
     static void PNMWriteBinaryPNMHeader(OVIA *Ovia, BitBuffer *BitB) {
-        
+        if (Ovia != NULL && BitB != NULL) {
+            
+        } else if (Ovia == NULL) {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        } else if (BitB == NULL) {
+            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
+        }
     }
     
     static void PNMWriteASCIIPNMHeader(OVIA *Ovia, BitBuffer *BitB) {
-        
+        if (Ovia != NULL && BitB != NULL) {
+            
+        } else if (Ovia == NULL) {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        } else if (BitB == NULL) {
+            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
+        }
     }
     
     void PNMWriteHeader(PNMTypes PNMType, BitBuffer *BitB) {
+        if (Ovia != NULL && BitB != NULL) {
+            
+        } else if (Ovia == NULL) {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        } else if (BitB == NULL) {
+            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
+        }
         if (PNMType == PAMPNM) {
             PNMWritePAMHeader(Ovia, BitB);
         } else if (PNMType == BinaryPNM) {
@@ -37,7 +63,7 @@ extern "C" {
                 for (uint64_t W = 0ULL; W < Width; W++) {
                     for (uint64_t H = 0ULL; H < Height; H++) {
                         for (uint16_t Channel = 0; Channel < ChannelCount; Channel++) {
-                            WriteBits(MSByteFirst, MSBitFirst, BitB, ChannelCount, Array[0][W][H][Channel]);
+                            BitBuffer_WriteBits(MSByteFirst, MSBitFirst, BitB, ChannelCount, Array[0][W][H][Channel]);
                         }
                     }
                 }
@@ -46,7 +72,7 @@ extern "C" {
                 for (uint64_t W = 0ULL; W < Width; W++) {
                     for (uint64_t H = 0ULL; H < Height; H++) {
                         for (uint16_t Channel = 0; Channel < ChannelCount; Channel++) {
-                            WriteBits(MSByteFirst, MSBitFirst, BitB, ChannelCount, Array[0][W][H][Channel]);
+                            BitBuffer_WriteBits(MSByteFirst, MSBitFirst, BitB, ChannelCount, Array[0][W][H][Channel]);
                         }
                     }
                 }
@@ -55,7 +81,7 @@ extern "C" {
                 for (uint64_t W = 0ULL; W < Width; W++) {
                     for (uint64_t H = 0ULL; H < Height; H++) {
                         for (uint16_t Channel = 0; Channel < ChannelCount; Channel++) {
-                            WriteBits(MSByteFirst, MSBitFirst, BitB, ChannelCount, Array[0][W][H][Channel]);
+                            BitBuffer_WriteBits(MSByteFirst, MSBitFirst, BitB, ChannelCount, Array[0][W][H][Channel]);
                         }
                     }
                 }
@@ -64,7 +90,7 @@ extern "C" {
                 for (uint64_t W = 0ULL; W < Width; W++) {
                     for (uint64_t H = 0ULL; H < Height; H++) {
                         for (uint16_t Channel = 0; Channel < ChannelCount; Channel++) {
-                            WriteBits(MSByteFirst, MSBitFirst, BitB, ChannelCount, Array[0][W][H][Channel]);
+                            BitBuffer_WriteBits(MSByteFirst, MSBitFirst, BitB, ChannelCount, Array[0][W][H][Channel]);
                         }
                     }
                 }

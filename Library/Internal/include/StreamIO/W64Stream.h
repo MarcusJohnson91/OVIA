@@ -83,7 +83,7 @@ extern "C" {
     
     AudioContainer *W64ExtractSamples(OVIA *Ovia, BitBuffer *BitB);
     
-    void W64AppendSamples(AudioContainer *Audio, BitBuffer *OutputSamples);
+    void W64AppendSamples(OVIA *Ovia, AudioContainer *Audio, BitBuffer *BitB);
     
     void W64WriteHeader(AudioContainer *Audio, BitBuffer *BitB);
     

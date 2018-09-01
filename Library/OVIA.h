@@ -77,6 +77,10 @@ extern "C" {
     
     UTF8                *OVIA_GetTag(OVIA *Ovia, uint64_t Tag);
     
+    uint64_t             OVIA_GetNumTags(OVIA *Ovia);
+    
+    uint64_t             OVIA_GetTagSize(OVIA *Ovia, uint64_t Tag);
+    
     uint64_t             OVIA_GetFileSize(OVIA *Ovia);
     
     uint64_t             OVIA_GetSampleOffset(OVIA *Ovia);
@@ -142,7 +146,7 @@ extern "C" {
     
     AudioContainer      *OVIA_ExtractSamples(OVIA *Ovia, BitBuffer *BitB);
     
-    void                 OVIA_AppendSamples(OVIA *Ovia, BitBuffer *BitB, AudioContainer *Audio);
+    void                 OVIA_AppendSamples(OVIA *Ovia, AudioContainer *Audio, BitBuffer *BitB);
     
     void                 OVIA_InsertFrame(OVIA *Ovia, BitBuffer *BitB, ImageContainer *Image);
     

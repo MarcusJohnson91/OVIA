@@ -1,3 +1,4 @@
+#include "../../../../Dependencies/FoundationIO/libFoundationIO/include/Macros.h"
 #include "../../../include/Private/Audio/W64Common.h"
 
 #ifdef __cplusplus
@@ -15,33 +16,46 @@ extern "C" {
     }
     
     static void W64WriteFMTChunk(AudioContainer *Audio, BitBuffer *BitB) {
-        uint64_t NumChannels = AudioContainer_GetNumSamples(Audio);
-        uint64_t SampleRate  = AudioContainer_GetSampleRate(Audio);
-        uint8_t  BitDepth    = Bits2Bytes(AudioContainer_GetBitDepth(Audio), Yes);
-        uint64_t ByteRate    = CalculateW64ByteRate(NumChannels, BitDepth, SampleRate);
-        uint64_t BlockAlign  = CalculateW64BlockAlign(NumChannels, BitDepth);
-        WriteBits(LSByteFirst, LSBitFirst, BitB, 16, 0);
-        WriteBits(LSByteFirst, LSBitFirst, BitB, 16, NumChannels);
-        WriteBits(LSByteFirst, LSBitFirst, BitB, 32, SampleRate);
-        WriteBits(LSByteFirst, LSBitFirst, BitB, 32, ByteRate);
-        WriteBits(LSByteFirst, LSBitFirst, BitB, 32, BlockAlign);
-        WriteBits(LSByteFirst, LSBitFirst, BitB, 16, BitDepth);
+        if (Audio != NULL && BitB != NULL) {
+            uint64_t NumChannels = AudioContainer_GetNumSamples(Audio);
+            uint64_t SampleRate  = AudioContainer_GetSampleRate(Audio);
+            uint8_t  BitDepth    = Bits2Bytes(AudioContainer_GetBitDepth(Audio), Yes);
+            uint64_t ByteRate    = CalculateW64ByteRate(NumChannels, BitDepth, SampleRate);
+            uint64_t BlockAlign  = CalculateW64BlockAlign(NumChannels, BitDepth);
+            BitBuffer_WriteBits(LSByteFirst, LSBitFirst, BitB, 16, 0);
+            BitBuffer_WriteBits(LSByteFirst, LSBitFirst, BitB, 16, NumChannels);
+            BitBuffer_WriteBits(LSByteFirst, LSBitFirst, BitB, 32, SampleRate);
+            BitBuffer_WriteBits(LSByteFirst, LSBitFirst, BitB, 32, ByteRate);
+            BitBuffer_WriteBits(LSByteFirst, LSBitFirst, BitB, 32, BlockAlign);
+            BitBuffer_WriteBits(LSByteFirst, LSBitFirst, BitB, 16, BitDepth);
+        } else if (Audio == NULL) {
+            Log(Log_ERROR, __func__, U8("AudioContainer Pointer is NULL"));
+        } else if (BitB == NULL) {
+            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
+        }
     }
     
     void W64WriteHeader(AudioContainer *Audio, BitBuffer *BitB) {
-        uint64_t NumChannels = AudioContainer_GetNumSamples(Audio);
-        uint64_t NumSamples  = AudioContainer_GetNumSamples(Audio);
-        uint8_t  BitDepth    = Bits2Bytes(AudioContainer_GetBitDepth(Audio), Yes);
-        WriteGUUID(GUIDString, BitB, W64_RIFF_GUIDString);
-        uint64_t W64Size     = (NumSamples * NumChannels * BitDepth);
-        WriteBits(LSByteFirst, LSBitFirst, BitB, 64, W64Size);
-        WriteGUUID(GUIDString, BitB, W64_WAVE_GUIDString);
-        WriteGUUID(GUIDString, BitB, W64_FMT_GUIDString);
-        uint64_t FMTSize     = 40;
-        WriteBits(LSByteFirst, LSBitFirst, BitB, 64, FMTSize);
-        W64WriteFMTChunk(Audio, BitB);
-        WriteGUUID(GUIDString, BitB, W64_DATA_GUIDString);
-        WriteBits(LSByteFirst, LSBitFirst, BitB, 64, NumSamples);
+        if (Audio != NULL && BitB != NULL) {
+            uint64_t NumChannels = AudioContainer_GetNumSamples(Audio);
+            uint64_t NumSamples  = AudioContainer_GetNumSamples(Audio);
+            uint8_t  BitDepth    = Bits2Bytes(AudioContainer_GetBitDepth(Audio), Yes);
+            uint64_t W64Size     = (NumSamples * NumChannels * BitDepth);
+            uint64_t FMTSize     = 40;
+            
+            BitBuffer_WriteGUUID(BitB, GUIDString, W64_RIFF_GUIDString);
+            BitBuffer_WriteBits(LSByteFirst, LSBitFirst, BitB, 64, W64Size);
+            BitBuffer_WriteGUUID(BitB, GUIDString, W64_WAVE_GUIDString);
+            BitBuffer_WriteGUUID(BitB, GUIDString, W64_FMT_GUIDString);
+            BitBuffer_WriteBits(LSByteFirst, LSBitFirst, BitB, 64, FMTSize);
+            W64WriteFMTChunk(Audio, BitB);
+            BitBuffer_WriteGUUID(BitB, GUIDString, W64_DATA_GUIDString);
+            BitBuffer_WriteBits(LSByteFirst, LSBitFirst, BitB, 64, NumSamples);
+        } else if (Audio == NULL) {
+            Log(Log_ERROR, __func__, U8("AudioContainer Pointer is NULL"));
+        } else if (BitB == NULL) {
+            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
+        }
     }
     
     void W64AppendSamples(AudioContainer *Audio, BitBuffer *BitB) {
@@ -54,42 +68,42 @@ extern "C" {
                 int8_t **Samples  = (int8_t**)    AudioContainer_GetArray(Audio);
                 for (uint32_t Sample = 0; Sample < NumSamples; Sample++) {
                     for (uint16_t Channel = 0; Channel < NumChannels; Channel++) {
-                        WriteBits(LSByteFirst, LSBitFirst, BitB, BitDepth, Samples[Channel][Sample]);
+                        BitBuffer_WriteBits(LSByteFirst, LSBitFirst, BitB, BitDepth, Samples[Channel][Sample]);
                     }
                 }
             } else if (AudioContainer_UInteger8) {
                 uint8_t **Samples = (uint8_t**)   AudioContainer_GetArray(Audio);
                 for (uint32_t Sample = 0; Sample < NumSamples; Sample++) {
                     for (uint16_t Channel = 0; Channel < NumChannels; Channel++) {
-                        WriteBits(LSByteFirst, LSBitFirst, BitB, BitDepth, Samples[Channel][Sample]);
+                        BitBuffer_WriteBits(LSByteFirst, LSBitFirst, BitB, BitDepth, Samples[Channel][Sample]);
                     }
                 }
             } else if (AudioContainer_SInteger16) {
                 int16_t **Samples = (int16_t**)   AudioContainer_GetArray(Audio);
                 for (uint32_t Sample = 0; Sample < NumSamples; Sample++) {
                     for (uint16_t Channel = 0; Channel < NumChannels; Channel++) {
-                        WriteBits(LSByteFirst, LSBitFirst, BitB, BitDepth, Samples[Channel][Sample]);
+                        BitBuffer_WriteBits(LSByteFirst, LSBitFirst, BitB, BitDepth, Samples[Channel][Sample]);
                     }
                 }
             } else if (AudioContainer_UInteger16) {
                 uint16_t **Samples = (uint16_t**) AudioContainer_GetArray(Audio);
                 for (uint32_t Sample = 0; Sample < NumSamples; Sample++) {
                     for (uint16_t Channel = 0; Channel < NumChannels; Channel++) {
-                        WriteBits(LSByteFirst, LSBitFirst, BitB, BitDepth, Samples[Channel][Sample]);
+                        BitBuffer_WriteBits(LSByteFirst, LSBitFirst, BitB, BitDepth, Samples[Channel][Sample]);
                     }
                 }
             } else if (AudioContainer_SInteger32) {
                 int32_t  **Samples = (int32_t**)  AudioContainer_GetArray(Audio);
                 for (uint32_t Sample = 0; Sample < NumSamples; Sample++) {
                     for (uint16_t Channel = 0; Channel < NumChannels; Channel++) {
-                        WriteBits(LSByteFirst, LSBitFirst, BitB, BitDepth, Samples[Channel][Sample]);
+                        BitBuffer_WriteBits(LSByteFirst, LSBitFirst, BitB, BitDepth, Samples[Channel][Sample]);
                     }
                 }
             } else if (AudioContainer_UInteger32) {
                 uint32_t **Samples = (uint32_t**) AudioContainer_GetArray(Audio);
                 for (uint32_t Sample = 0; Sample < NumSamples; Sample++) {
                     for (uint16_t Channel = 0; Channel < NumChannels; Channel++) {
-                        WriteBits(LSByteFirst, LSBitFirst, BitB, BitDepth, Samples[Channel][Sample]);
+                        BitBuffer_WriteBits(LSByteFirst, LSBitFirst, BitB, BitDepth, Samples[Channel][Sample]);
                     }
                 }
             }
