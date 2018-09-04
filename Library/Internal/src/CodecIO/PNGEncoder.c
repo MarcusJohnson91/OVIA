@@ -33,8 +33,8 @@ extern "C" {
             
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
-        } else if (BitB == NULL) {
-            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
+        } else if (Image == NULL) {
+            Log(Log_ERROR, __func__, U8("ImageContainer Pointer is NULL"));
         }
     }
     
@@ -43,8 +43,8 @@ extern "C" {
             
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
-        } else if (BitB == NULL) {
-            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
+        } else if (Image == NULL) {
+            Log(Log_ERROR, __func__, U8("ImageContainer Pointer is NULL"));
         }
         // RawData is after Oviaoding the I/f DATs, and after INFLAT'ing and De-LZ77'ing it.
         // Each line is preceded by a filter type byte, so OVIA it by a line by line basis.
@@ -65,23 +65,23 @@ extern "C" {
             free(EncodedLine);
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
-        } else if (BitB == NULL) {
-            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
+        } else if (Image == NULL) {
+            Log(Log_ERROR, __func__, U8("ImageContainer Pointer is NULL"));
         }
         
     }
     
     void WriteIHDRChunk(OVIA *Ovia, BitBuffer *BitB) {
         if (Ovia != NULL && BitB != NULL) {
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, 13);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, iHDRMarker);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, OVIA_GetWidth(Ovia));
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, OVIA_GetHeight(Ovia));
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8,  OVIA_GetBitDepth(Ovia));
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8,  OVIA_PNG_GetColorType(Ovia));
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8,  OVIA_PNG_GetCompression(Ovia));
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8,  OVIA_PNG_GetFilterMethod(Ovia));
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8,  OVIA_PNG_GetInterlaceStatus(Ovia));
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, 13);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, iHDRMarker);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, OVIA_GetWidth(Ovia));
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, OVIA_GetHeight(Ovia));
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8,  OVIA_GetBitDepth(Ovia));
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8,  OVIA_PNG_GetColorType(Ovia));
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8,  OVIA_PNG_GetCompression(Ovia));
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8,  OVIA_PNG_GetFilterMethod(Ovia));
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8,  OVIA_PNG_GetInterlaceStatus(Ovia));
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -91,10 +91,10 @@ extern "C" {
     
     void WriteACTLChunk(OVIA *Ovia, BitBuffer *BitB) {
         if (Ovia != NULL && BitB != NULL) {
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, 8);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, acTLMarker);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->acTL->NumFrames);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->acTL->TimesToLoop);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, 8);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, acTLMarker);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, OVIA_PNG_ACTL_GetNumFrames(Ovia));
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, OVIA_PNG_ACTL_GetTimes2Loop(Ovia));
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -104,17 +104,17 @@ extern "C" {
     
     void WriteFCTLChunk(OVIA *Ovia, BitBuffer *BitB) {
         if (Ovia != NULL && BitB != NULL) {
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, 29);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, fcTLMarker);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->fcTL->FrameNum);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->fcTL->Width);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->fcTL->Height);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->fcTL->XOffset);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->fcTL->YOffset);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 16, Enc->fcTL->FrameDelayNumerator);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 16, Enc->fcTL->FrameDelayDenominator);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8,  Enc->fcTL->DisposeMethod);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8,  Enc->fcTL->BlendMethod);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, 29);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, fcTLMarker);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, OVIA_PNG_FCTL_GetFrameNum(Ovia));
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, OVIA_PNG_FCTL_GetWidth(Ovia));
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, OVIA_PNG_FCTL_GetHeight(Ovia));
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, OVIA_PNG_FCTL_GetXOffset(Ovia));
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, OVIA_PNG_FCTL_GetYOffset(Ovia));
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 16, OVIA_PNG_FCTL_GetFrameDelayNumerator(Ovia));
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 16, OVIA_PNG_FCTL_GetFrameDelayDenominator(Ovia));
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8,  OVIA_PNG_FCTL_GetDisposeMethod(Ovia));
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8,  OVIA_PNG_FCTL_GetBlendMethod(Ovia));
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -124,9 +124,9 @@ extern "C" {
     
     void WriteFDATChunk(OVIA *Ovia, BitBuffer *BitB, uint8_t *DeflatedFrameData, uint32_t DeflatedFrameDataSize) {
         if (Ovia != NULL && BitB != NULL) {
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, DeflatedFrameData + 8);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, fDATMarker);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->fdAT->FrameNum);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, DeflatedFrameData + 8);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, fDATMarker);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, OVIA_PNG_FCTL_GetFrameNum(Ovia));
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -136,9 +136,9 @@ extern "C" {
     
     void WriteSTERChunk(OVIA *Ovia, BitBuffer *BitB) {
         if (Ovia != NULL && BitB != NULL) {
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, 1);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, sTERMarker);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8,  Enc->sTER->StereoType);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, 1);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, sTERMarker);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8,  OVIA_PNG_STER_GetSterType(Ovia));
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -148,31 +148,32 @@ extern "C" {
     
     void WriteBKGDChunk(OVIA *Ovia, BitBuffer *BitB) {
         if (Ovia != NULL && BitB != NULL) {
-            uint8_t  NumChannels   = ModernPNGChannelsPerColorType[Enc->iHDR->ColorType];
+            uint8_t  ColorType     = OVIA_PNG_iHDR_GetColorType(Ovia);
+            uint8_t  NumChannels   = OVIA_GetNumChannels(Ovia);
             uint32_t Size          = 0;
             uint8_t  BKGDEntrySize = 0; // in bits
             
-            if (Enc->iHDR->ColorType == PNG_PalettedRGB) {
+            if (ColorType == PNG_PalettedRGB) {
                 Size          = 1;
                 BKGDEntrySize = Bytes2Bits(1);
-            } else if (Enc->iHDR->ColorType == PNG_Grayscale || Enc->iHDR->ColorType == PNG_GrayAlpha) {
+            } else if (ColorType == PNG_Grayscale || ColorType == PNG_GrayAlpha) {
                 Size          = 2;
                 BKGDEntrySize = Bytes2Bits(2);
-            } else if (Enc->iHDR->ColorType == PNG_RGB || Enc->iHDR->ColorType == PNG_RGBA) {
+            } else if (ColorType == PNG_RGB || ColorType == PNG_RGBA) {
                 Size          = NumChannels * 2;
                 BKGDEntrySize = Bytes2Bits(NumChannels * 2);
             }
             
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Size);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, bKGDMarker);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, Size);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, bKGDMarker);
             
-            if (Enc->iHDR->ColorType == PNG_PalettedRGB || Enc->iHDR->ColorType == PNG_Grayscale || Enc->iHDR->ColorType == PNG_GrayAlpha) {
+            if (ColorType == PNG_PalettedRGB || ColorType == PNG_Grayscale || ColorType == PNG_GrayAlpha) {
                 for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
-                    BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, BKGDEntrySize, Enc->bkGD->BackgroundPaletteEntry[Channel]);
+                    BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, BKGDEntrySize, Enc->bkGD->BackgroundPaletteEntry[Channel]);
                 }
-            } else if (Enc->iHDR->ColorType == PNG_RGB || Enc->iHDR->ColorType == PNG_RGBA) {
+            } else if (ColorType == PNG_RGB || ColorType == PNG_RGBA) {
                 for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
-                    BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, NumChannels * 16, Enc->bkGD->BackgroundPaletteEntry[Channel]);
+                    BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, NumChannels * 16, Enc->bkGD->BackgroundPaletteEntry[Channel]);
                 }
             }
         } else if (Ovia == NULL) {
@@ -184,16 +185,16 @@ extern "C" {
     
     void WriteCHRMChunk(OVIA *Ovia, BitBuffer *BitB) {
         if (Ovia != NULL && BitB != NULL) {
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, 32);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, cHRMMarker);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->cHRM->WhitePointX);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->cHRM->WhitePointY);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->cHRM->RedX);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->cHRM->RedY);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->cHRM->GreenX);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->cHRM->GreenY);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->cHRM->BlueX);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->cHRM->BlueY);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, 32);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, cHRMMarker);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, OVIA_PNG_CHRM_GetWhitePointX(Ovia));
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, OVIA_PNG_CHRM_GetWhitePointY(Ovia));
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, OVIA_PNG_CHRM_GetRedX(Ovia));
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, OVIA_PNG_CHRM_GetRedY(Ovia));
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, OVIA_PNG_CHRM_GetGreenX(Ovia));
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, OVIA_PNG_CHRM_GetGreenY(Ovia));
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, OVIA_PNG_CHRM_GetBlueX(Ovia));
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, OVIA_PNG_CHRM_GetBlueY(Ovia));
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -203,9 +204,9 @@ extern "C" {
     
     void WriteGAMAChunk(OVIA *Ovia, BitBuffer *BitB) {
         if (Ovia != NULL && BitB != NULL) {
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, 4);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, gAMAMarker);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->gAMA->Gamma);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, 4);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, gAMAMarker);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, OVIA_PNG_GetGamma(Ovia));
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -215,11 +216,11 @@ extern "C" {
     
     void WriteOFFSChunk(OVIA *Ovia, BitBuffer *BitB) {
         if (Ovia != NULL && BitB != NULL) {
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, 9);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, oFFsMarker);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->oFFs->XOffset);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->oFFs->YOffset);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8,  Enc->oFFs->UnitSpecifier);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, 9);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, oFFsMarker);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, OVIA_PNG_OFFS_GetXOffset(Ovia));
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, OVIA_PNG_OFFS_GetYOffset(Ovia));
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8,  OVIA_PNG_OFFS_GetSpecifier(Ovia));
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -229,14 +230,17 @@ extern "C" {
     
     void WriteICCPChunk(OVIA *Ovia, BitBuffer *BitB) {
         if (Ovia != NULL && BitB != NULL) {
-            uint32_t ProfileNameSize       = strlen(Enc->iCCP->ProfileName);
-            uint32_t CompressedProfileSize = strlen(Enc->iCCP->CompressedICCPProfile);
+            UTF8     *ProfileName           = OVIA_PNG_ICCP_GetProfileName(Ovia);
+            uint64_t  ProfileNameSize       = UTF8_GetStringSizeInCodeUnits(ProfileName);
+            uint64_t  CompressedProfileSize = OVIA_PNG_ICCP_GetProfileDataSize(Ovia);
             
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, 8 + CompressedProfileSize + ProfileNameSize);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, iCCPMarker);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, Bytes2Bits(ProfileNameSize), Enc->iCCP->ProfileName);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8, Enc->iCCP->CompressionType);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, Bytes2Bits(CompressedProfileSize), Enc->iCCP->CompressedICCPProfile);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, 8 + CompressedProfileSize + ProfileNameSize);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, iCCPMarker);
+            BitBuffer_WriteUTF8(BitB, ProfileName);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8, OVIA_PNG_ICCP_GetCompressionType(Ovia));
+            for (uint64_t Byte = 0ULL; Byte < OVIA_PNG_ICCP_GetProfileDataSize(Ovia); Byte++) {
+                BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8, OVIA_PNG_ICCP_GetProfileData(Ovia));
+            }
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -247,34 +251,34 @@ extern "C" {
     void WriteSBITChunk(OVIA *Ovia, BitBuffer *BitB) {
         if (Ovia != NULL && BitB != NULL) {
             uint8_t ChunkSize = 0;
-            uint8_t NumChannels = ModernPNGChannelsPerColorType[Enc->iHDR->ColorType];
-            if (Enc->iHDR->ColorType == PNG_Grayscale) {
+            PNGColorTypes ColorType = OVIA_PNG_IHDR_GetColorType(Ovia);
+            if (ColorType == PNG_Grayscale) {
                 ChunkSize = 1;
-            } else if (Enc->iHDR->ColorType == PNG_RGB || Enc->iHDR->ColorType == PNG_PalettedRGB) {
+            } else if (ColorType == PNG_RGB || ColorType == PNG_PalettedRGB) {
                 ChunkSize = 3;
-            } else if (Enc->iHDR->ColorType == PNG_GrayAlpha) {
+            } else if (ColorType == PNG_GrayAlpha) {
                 ChunkSize = 2;
-            } else if (Enc->iHDR->ColorType == PNG_RGBA) {
+            } else if (ColorType == PNG_RGBA) {
                 ChunkSize = 4;
             }
             
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, ChunkSize);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, sBITMarker);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, ChunkSize);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, sBITMarker);
             
-            if (Enc->iHDR->ColorType == PNG_RGB || Enc->iHDR->ColorType == PNG_PalettedRGB) {
-                BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8, Enc->sBIT->Red);
-                BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8, Enc->sBIT->Green);
-                BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8, Enc->sBIT->Blue);
-            } else if (Enc->iHDR->ColorType == PNG_RGBA) {
-                BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8, Enc->sBIT->Red);
-                BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8, Enc->sBIT->Green);
-                BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8, Enc->sBIT->Blue);
-                BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8, Enc->sBIT->Alpha);
-            } else if (Enc->iHDR->ColorType == PNG_Grayscale) {
-                BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8, Enc->sBIT->Grayscale);
-            } else if (Enc->iHDR->ColorType == PNG_GrayAlpha) {
-                BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8, Enc->sBIT->Grayscale);
-                BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8, Enc->sBIT->Alpha);
+            if (ColorType == PNG_RGB || ColorType == PNG_PalettedRGB) {
+                BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8, OVIA_PNG_SBIT_GetRed(Ovia));
+                BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8, OVIA_PNG_SBIT_GetGreen(Ovia));
+                BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8, OVIA_PNG_SBIT_GetBlue(Ovia));
+            } else if (ColorType == PNG_RGBA) {
+                BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8, OVIA_PNG_SBIT_GetRed(Ovia));
+                BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8, OVIA_PNG_SBIT_GetGreen(Ovia));
+                BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8, OVIA_PNG_SBIT_GetBlue(Ovia));
+                BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8, OVIA_PNG_SBIT_GetAlpha(Ovia));
+            } else if (ColorType == PNG_Grayscale) {
+                BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8, OVIA_PNG_SBIT_GetGray(Ovia));
+            } else if (ColorType == PNG_GrayAlpha) {
+                BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8, OVIA_PNG_SBIT_GetGray(Ovia));
+                BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8, OVIA_PNG_SBIT_GetAlpha(Ovia));
             }
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
@@ -285,9 +289,9 @@ extern "C" {
     
     void WriteSRGBChunk(OVIA *Ovia, BitBuffer *BitB) {
         if (Ovia != NULL && BitB != NULL) {
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8, 1);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, sRGBMarker);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8,  Enc->sRGB->RenderingIntent);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8, 1);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, sRGBMarker);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8, OVIA_PNG_SRGB_GetRenderingIntent(Ovia));
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -297,11 +301,12 @@ extern "C" {
     
     void WritePHYSChunk(OVIA *Ovia, BitBuffer *BitB) {
         if (Ovia != NULL && BitB != NULL) {
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8, 9);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, pHYsMarker);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->pHYs->PixelsPerUnitXAxis);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, Enc->pHYs->PixelsPerUnitYAxis);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 8,  Enc->pHYs->UnitSpecifier);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8, 9);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, pHYsMarker);
+            
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, OVIA_PNG_PHYS_GetPixelsPerUnitX(Ovia));
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, OVIA_PNG_PHYS_GetPixelsPerUnitY(Ovia));
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8,  OVIA_PNG_PHYS_GetUnitSpecifier(Ovia));
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -312,8 +317,8 @@ extern "C" {
     void WritePCALChunk(OVIA *Ovia, BitBuffer *BitB) {
         if (Ovia != NULL && BitB != NULL) {
             uint32_t ChunkSize = 0;
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, ChunkSize);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitBuffer *BitB, 32, pCALMarker);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, ChunkSize);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, pCALMarker);
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -332,7 +337,7 @@ extern "C" {
     }
     
     void ComposeAPNGNumFrames(OVIA *Ovia, const uint32_t NumFrames) {
-        if (Enc != NULL) {
+        if (Ovia != NULL) {
             Enc->acTL->NumFrames = NumFrames;
         } else {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
@@ -340,7 +345,7 @@ extern "C" {
     }
     
     void ComposeAPNGTimes2Loop(OVIA *Ovia, const uint32_t NumTimes2Loop) {
-        if (Enc != NULL) {
+        if (Ovia != NULL) {
             Enc->acTL->TimesToLoop = NumTimes2Loop;
         } else {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
@@ -348,29 +353,19 @@ extern "C" {
     }
     
     void ComposeAPNGFrameDelay(OVIA *Ovia, const uint32_t FrameDelayNumerator, const uint32_t FrameDelayDenominator) {
-        if (Enc == NULL) {
-            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
-        } else {
+        if (Enc != NULL) {
             Enc->fcTL->FrameDelayNumerator   = FrameDelayNumerator;
             Enc->fcTL->FrameDelayDenominator = FrameDelayDenominator;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         }
     }
     
-    void ComposePNGCHRMWhitePoint() {
-        if (Ovia != NULL && BitB != NULL) {
+    void PNGInsertImage(ImageContainer *Image, BitBuffer *BitB) {
+        if (Image != NULL && BitB != NULL) {
             
-        } else if (Ovia == NULL) {
-            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
-        } else if (BitB == NULL) {
-            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
-        }
-    }
-    
-    void PNGInsertImage(OVIA *Ovia, BitBuffer *BitB, ImageContainer *Image) {
-        if (Ovia != NULL && BitB != NULL) {
-            
-        } else if (Ovia == NULL) {
-            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        } else if (Image == NULL) {
+            Log(Log_ERROR, __func__, U8("ImageContainer Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
         }

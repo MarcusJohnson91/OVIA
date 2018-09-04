@@ -91,6 +91,8 @@ extern "C" {
             if (AIFFChunkID == AIF_AIFF || AIFFChunkID == AIF_AIFC) {
                 AIFSubChunkIDs AIFFSubChunkID  = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
                 uint32_t AIFFSubChunkSize      = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
+                uint32_t SampleOffset          = 0;
+                uint32_t BlockSize             = 0;
                 switch (AIFFSubChunkID) {
                     case AIF_AAPL:
                         BitBuffer_Skip(BitB, Bytes2Bits(AIFFSubChunkSize));
@@ -137,12 +139,10 @@ extern "C" {
                         AIFSkipPadding(BitB, AIFFSubChunkSize);
                         break;
                     case AIF_SSND:
-                        uint32_t SampleOffset   = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
-                        OVIA_SetSampleOffset(Ovia, SampleOffset);
-                        
-                        uint32_t BlockSize      = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
+                        SampleOffset = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
+                        OVIA_SetSampleRate(Ovia, SampleOffset);
+                        BlockSize    = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
                         OVIA_SetBlockSize(Ovia, BlockSize);
-                        BitBuffer_Skip(BitB, BlockSize);
                         break;
                 }
             } else {
@@ -192,6 +192,7 @@ extern "C" {
         } else if (BitB == NULL) {
             Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
         }
+        return Audio;
     }
     
 #ifdef __cplusplus

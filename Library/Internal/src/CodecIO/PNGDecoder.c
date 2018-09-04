@@ -382,13 +382,13 @@ extern "C" {
             } else if (Ovia->iHDR->ColorType == PNG_GrayAlpha) {
                 Entries = calloc(2, Bits2Bytes(Ovia->iHDR->BitDepth, true) * sizeof(uint16_t));
             }
-            if (Entries == NULL) {
-                Log(Log_ERROR, __func__, U8("Failed to allocate enough memory for the TRNS Palette"));
-            } else {
+            if (Entries != NULL) {
                 for (uint8_t Color = 0; Color < ModernPNGChannelsPerColorType[Ovia->iHDR->ColorType]; Color++) {
                     Entries[Color]    = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, Bits2Bytes(Ovia->iHDR->BitDepth, true));
                 }
                 //Ovia->tRNS->Palette = Entries;
+            } else {
+                Log(Log_ERROR, __func__, U8("Failed to allocate enough memory for the TRNS Palette"));
             }
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
@@ -627,6 +627,7 @@ extern "C" {
     
     void ParseFCTL(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize) { // Frame Control, part of APNG
         if (Ovia != NULL && BitB != NULL) {
+            OVIA_PNG_FCTL_Set
             Ovia->fcTL->FrameNum              = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
             Ovia->fcTL->Width                 = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
             Ovia->fcTL->Height                = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);

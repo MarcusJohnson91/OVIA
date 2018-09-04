@@ -12,119 +12,88 @@ extern "C" {
      INFO
      */
     
-    static const uint8_t BitDepth2SampleSizeInBytes[32] = {
-         0,  8,  8,  8,  8,  8,  8,  8,
-         8, 16, 16, 16, 16, 16, 16, 16,
-        16, 24, 24, 24, 24, 24, 24, 24,
-        24, 32, 32, 32, 32, 32, 32, 32
-    };
+    void WAVSkipPadding(BitBuffer *BitB, uint32_t SubChunkSize) {
+        if (IsOdd(SubChunkSize) == true) {
+            BitBuffer_Skip(BitB, 8);
+        }
+    }
     
     static void ReadINFO_IART(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize) {
         if (Ovia != NULL && BitB != NULL) {
-            
+            UTF8 *Artist                   = calloc(ChunkSize, sizeof(UTF8));
+            Artist                         = BitBuffer_ReadUTF8(BitB, ChunkSize);
+            OVIA_SetNumTags(Ovia, OVIA_GetNumTags(Ovia) + 1);
+            OVIA_SetTag(Ovia, ArtistTag, Artist);
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
         }
-        
-        char *Artist              = calloc(ChunkSize, sizeof(char));
-        for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
-            Artist[Byte]          = BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 8);
-        }
-        Ovia->Aud->Meta->NumTags  += 1;
-        Ovia->Aud->Meta->ArtistTag = Artist;
-        IFFSkipPadding(BitB, ChunkSize);
     }
     
     static void ReadINFO_ICRD(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize) {
         if (Ovia != NULL && BitB != NULL) {
-            
+            UTF8 *ReleaseDate              = calloc(ChunkSize, sizeof(UTF8));
+            ReleaseDate                    = BitBuffer_ReadUTF8(BitB, ChunkSize);
+            OVIA_SetNumTags(Ovia, OVIA_GetNumTags(Ovia) + 1);
+            OVIA_SetTag(Ovia, ReleaseTag, ReleaseDate);
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
         }
-        
-        char *ReleaseDate              = calloc(ChunkSize, sizeof(char));
-        for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
-            ReleaseDate[Byte]          = BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 8);
-        }
-        Ovia->Aud->Meta->NumTags       += 1;
-        Ovia->Aud->Meta->ReleaseDateTag = ReleaseDate;
-        IFFSkipPadding(BitB, ChunkSize);
     }
     
     static void ReadINFO_IGNR(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize) {
         if (Ovia != NULL && BitB != NULL) {
-            
+            UTF8 *Genre              = calloc(ChunkSize, sizeof(UTF8));
+            Genre                    = BitBuffer_ReadUTF8(BitB, ChunkSize);
+            OVIA_SetNumTags(Ovia, OVIA_GetNumTags(Ovia) + 1);
+            OVIA_SetTag(Ovia, GenreTag, Genre);
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
         }
-        
-        char *Genre              = calloc(ChunkSize, sizeof(char));
-        for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
-            Genre[Byte]          = BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 8);
-        }
-        Ovia->Aud->Meta->NumTags += 1;
-        Ovia->Aud->Meta->GenreTag = Genre;
-        IFFSkipPadding(BitB, ChunkSize);
     }
     
     static void ReadINFO_INAM(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize) {
         if (Ovia != NULL && BitB != NULL) {
-            
+            UTF8 *Title                  = calloc(ChunkSize, sizeof(UTF8));
+            Title = BitBuffer_ReadUTF8(BitB, ChunkSize);
+            OVIA_SetNumTags(Ovia, OVIA_GetNumTags(Ovia) + 1);
+            OVIA_SetTag(Ovia, TitleTag, Title);
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
         }
-        
-        char *Title                  = calloc(ChunkSize, sizeof(char));
-        for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
-            Title[Byte]              = BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 8);
-        }
-        Ovia->Aud->Meta->NumTags     += 1;
-        Ovia->Aud->Meta->SongTitleTag = Title;
-        IFFSkipPadding(BitB, ChunkSize);
     }
     
     static void ReadINFO_IPRD(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize) {
         if (Ovia != NULL && BitB != NULL) {
-            
+            char *Album              = calloc(1, ChunkSize * sizeof(char));
+            Album                    = BitBuffer_ReadUTF8(BitB, ChunkSize);
+            OVIA_SetNumTags(Ovia, OVIA_GetNumTags(Ovia) + 1);
+            OVIA_SetTag(Ovia, AlbumTag, Album);
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
         }
-        
-        char *Album              = calloc(1, ChunkSize * sizeof(char));
-        for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
-            Album[Byte]          = BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 8);
-        }
-        Ovia->Aud->Meta->NumTags += 1;
-        Ovia->Aud->Meta->AlbumTag = Album;
-        IFFSkipPadding(BitB, ChunkSize);
     }
     
     static void ReadINFO_ISFT(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize) { // Encoder
         if (Ovia != NULL && BitB != NULL) {
-            
+            char *CreationSoftware   = calloc(1, ChunkSize * sizeof(char));
+            CreationSoftware         = BitBuffer_ReadUTF8(BitB, ChunkSize);
+            OVIA_SetNumTags(Ovia, OVIA_GetNumTags(Ovia) + 1);
+            OVIA_SetTag(Ovia, CreatingSoftware, CreationSoftware);
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
         }
-        
-        char *Encoder              = calloc(1, ChunkSize * sizeof(char));
-        for (uint8_t Byte = 0; Byte < ChunkSize; Byte++) {
-            Encoder[Byte]          = BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 8);
-        }
-        Ovia->Aud->Meta->NumTags   += 1;
-        Ovia->Aud->Meta->EncoderTag = Encoder;
-        IFFSkipPadding(BitB, ChunkSize);
     }
     
     static void WAVParseLISTChunk(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize) {
@@ -164,7 +133,7 @@ extern "C" {
     
     static void WAVParseDATAChunk(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize) {
         if (Ovia != NULL && BitB != NULL) {
-            Ovia->NumChannelAgnosticSamples            = ((ChunkSize / OVIA_GetNumChannels(Ovia)) / Bits2Bytes(Ovia->BitDepth, true));
+            OVIA_SetNumSamples(Ovia, ChunkSize / OVIA_GetNumChannels(Ovia));
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -174,12 +143,12 @@ extern "C" {
     
     static void WAVParseFMTChunk(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize) {
         if (Ovia != NULL && BitB != NULL) {
-            Ovia->Aud->WAVCompressionFormat  = BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 16);
-            OVIA_GetNumChannels(Ovia)                = BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 16);
-            Ovia->Aud->SampleRate            = BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 32);
-            Ovia->Aud->WAVAvgBytesPerSecond  = BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 32);
-            Ovia->Aud->BlockAlignment        = BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 32);
-            Ovia->BitDepth                   = BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 16);
+            OVIA_WAV_SetCompressionType(Ovia, BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 16));
+            OVIA_SetNumChannels(Ovia, BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 16));
+            OVIA_SetSampleRate(Ovia, BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 32));
+            OVIA_SetBlockSize(Ovia, BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 32));
+            OVIA_WAV_SetBlockAlignment(Ovia, BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 32));
+            OVIA_SetBitDepth(Ovia, BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 16));
             if (ChunkSize == 18) {
                 uint16_t CBSize             = BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 16);
                 BitBuffer_Skip(BitB, Bytes2Bits(CBSize - 16));
@@ -187,7 +156,7 @@ extern "C" {
                 uint16_t CBSize             = BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 16);
                 uint16_t ValidBitsPerSample = BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 16);
                 if (ValidBitsPerSample != 0) {
-                    Ovia->BitDepth = ValidBitsPerSample;
+                    OVIA_SetBitDepth(Ovia, ValidBitsPerSample);
                 }
                 uint32_t  SpeakerMask       = BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 32);
                 uint8_t  *BinaryGUIDFormat  = BitBuffer_ReadGUUID(BinaryGUID, BitB);

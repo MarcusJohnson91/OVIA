@@ -12,29 +12,16 @@
 extern "C" {
 #endif
     
-    typedef enum OVIA_Types {
-        UnknownType           = 0,
-        AudioType             = 1,
-        ImageType             = 2,
-    } OVIA_Types;
-    
-    typedef enum OVIA_FileFormats {
-        UnknownFormat         = 0,
-        AIFFormat             = 1,
-        WAVFormat             = 2,
-        W64Format             = 3,
-        FLACFormat            = 4,
-        BMPFormat             = 5,
-        PNMFormat             = 6,
-        PNGFormat             = 7,
-    } OVIA_FileFormats;
-    
     typedef enum OVIA_TagTypes {
         UnknownTag            = 0,
         TitleTag              = 1,
         AuthorTag             = 2,
         AnnotationTag         = 3,
         ArtistTag             = 4,
+        AlbumTag              = 5,
+        GenreTag              = 6,
+        ReleaseTag            = 7,
+        CreatingSoftware      = 8,
     } OVIA_TagTypes;
     
     /*
@@ -79,6 +66,8 @@ extern "C" {
     
     uint64_t             OVIA_GetNumTags(OVIA *Ovia);
     
+    void                 OVIA_SetNumTags(OVIA *Ovia, uint64_t NumTags);
+    
     uint64_t             OVIA_GetTagSize(OVIA *Ovia, uint64_t Tag);
     
     uint64_t             OVIA_GetFileSize(OVIA *Ovia);
@@ -91,49 +80,6 @@ extern "C" {
     
     int64_t              OVIA_GetHeight(OVIA *Ovia);
     
-    void                 OVIA_SetNumChannels(OVIA *Ovia, uint64_t NumChannels);
-    
-    void                 OVIA_SetNumSamples(OVIA *Ovia, uint64_t NumSamples);
-    
-    void                 OVIA_SetBitDepth(OVIA *Ovia, uint64_t BitDepth);
-    
-    void                 OVIA_SetSampleRate(OVIA *Ovia, uint64_t SampleRate);
-    
-    void                 OVIA_SetTag(OVIA *Ovia, OVIA_TagTypes TagType, UTF8 *Tag);
-    
-    void                 OVIA_SetFileSize(OVIA *Ovia, uint64_t FileSize);
-    
-    void                 OVIA_SetSampleOffset(OVIA *Ovia, uint64_t SampleOffset);
-    
-    void                 OVIA_SetBlockSize(OVIA *Ovia, uint64_t BlockSize);
-    
-    void                 OVIA_SetWidth(OVIA *Ovia, int64_t Width);
-    
-    void                 OVIA_SetHeight(OVIA *Ovia, int64_t Height);
-    
-    void                 OVIA_FLAC_SetMinBlockSize(OVIA *Ovia, uint16_t MinBlockSize);
-    
-    void                 OVIA_FLAC_SetMaxBlockSize(OVIA *Ovia, uint16_t MaxBlockSize);
-    
-    void                 OVIA_FLAC_SetMinFrameSize(OVIA *Ovia, uint16_t MinFrameSize);
-    
-    void                 OVIA_FLAC_SetMaxFrameSize(OVIA *Ovia, uint16_t MaxFrameSize);
-    
-    void                 OVIA_FLAC_SetMD5(OVIA *Ovia, uint8_t *MD5);
-    
-    
-    /* Format Specific Options */
-    void OVIA_PNG_SetIHDR(ImageContainer *Image, const bool Progressive);
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     void                 OVIA_Audio_ReadMetadata(OVIA *Ovia, AudioContainer *Audio, BitBuffer *BitB);
     
     void                 OVIA_Image_ReadMetadata(OVIA *Ovia, ImageContainer *Image, BitBuffer *BitB);
@@ -142,22 +88,19 @@ extern "C" {
     
     bool                 OVIA_IsThereMoreMetadata(OVIA *Ovia);
     
-    void                 OVIA_SetNumOutputSamples(OVIA *Ovia, uint64_t NumChannelIndependentSamples);
-    
     AudioContainer      *OVIA_ExtractSamples(OVIA *Ovia, BitBuffer *BitB);
     
     void                 OVIA_AppendSamples(OVIA *Ovia, AudioContainer *Audio, BitBuffer *BitB);
     
-    void                 OVIA_InsertFrame(OVIA *Ovia, BitBuffer *BitB, ImageContainer *Image);
+    void                 OVIA_InsertFrame(OVIA *Ovia, ImageContainer *Image, BitBuffer *BitB);
     
     void                 OVIA_WriteHeader(OVIA *Ovia, BitBuffer *BitB);
     
-    void                 OVIA_Deinit(OVIA *Ovia);
-    
-    
-    void                 OVIA_InsertImage(OVIA *Ovia, BitBuffer *BitB, ImageContainer *Image);
+    void                 OVIA_InsertImage(OVIA *Ovia, ImageContainer *Image, BitBuffer *BitB);
     
     ImageContainer      *OVIA_ExtractImage(OVIA *Ovia, BitBuffer *BitB);
+    
+    void                 OVIA_Deinit(OVIA *Ovia);
     
 #ifdef __cplusplus
 }

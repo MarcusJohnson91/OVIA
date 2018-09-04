@@ -1,9 +1,5 @@
 #include "../../libOVIA.h"
-
-#include "../../../../Dependencies/FoundationIO/libFoundationIO/include/BitIO.h"
-#include "../../../../Dependencies/FoundationIO/libFoundationIO/include/Log.h"
-#include "../../../../Dependencies/FoundationIO/libFoundationIO/include/Math.h"
-#include "../../../../Dependencies/FoundationIO/libFoundationIO/include/ContainerIO.h"
+#include "../InternalOVIA.h"
 
 #pragma once
 
@@ -56,7 +52,7 @@ extern "C" {
     
     AudioContainer *AIFExtractSamples(OVIA *Ovia, BitBuffer *BitB);
     
-    AudioContainer *AIFAppendSamples(OVIA *Ovia, AudioContainer *Audio, BitBuffer *BitB);
+    void AIFAppendSamples(OVIA *Ovia, AudioContainer *Audio, BitBuffer *BitB);
     
     void AIFWriteHeader(OVIA *Ovia, BitBuffer *BitB);
     

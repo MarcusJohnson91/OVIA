@@ -1,9 +1,5 @@
 #include "../../libOVIA.h"
-
-#include "../../../../Dependencies/FoundationIO/libFoundationIO/include/BitIO.h"
-#include "../../../../Dependencies/FoundationIO/libFoundationIO/include/Log.h"
-#include "../../../../Dependencies/FoundationIO/libFoundationIO/include/Math.h"
-#include "../../../../Dependencies/FoundationIO/libFoundationIO/include/ContainerIO.h"
+#include "../InternalOVIA.h"
 
 #pragma once
 
@@ -13,14 +9,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-    
-    static uint32_t BMPCompressionType   = 0;
-    static uint32_t BMPColorsIndexed     = 0;
-    static uint32_t BMPIndexedColorsUsed = 0;
-    static uint32_t BMPRedMask           = 0;
-    static uint32_t BMPGreenMask         = 0;
-    static uint32_t BMPBlueMask          = 0;
-    static uint32_t BMPAlphaMask         = 0;
     
     enum BMPMagic {
         BMP_BM                = 0x424D,
@@ -48,7 +36,7 @@ extern "C" {
     
     ImageContainer *BMPExtractImage(OVIA *Ovia, BitBuffer *BitB);
     
-    void        BMPInsertImage(OVIA *Ovia, BitBuffer *BitB, uint16_t ***Image2Insert);
+    void        BMPInsertImage(ImageContainer *Image, BitBuffer *BitB);
     
     void        BMPWriteHeader(OVIA *Ovia, BitBuffer *BitB);
     

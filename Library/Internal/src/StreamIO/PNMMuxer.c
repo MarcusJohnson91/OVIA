@@ -35,24 +35,24 @@ extern "C" {
         }
     }
     
-    void PNMWriteHeader(PNMTypes PNMType, BitBuffer *BitB) {
+    void PNMWriteHeader(OVIA *Ovia, BitBuffer *BitB) {
         if (Ovia != NULL && BitB != NULL) {
-            
+            PNMTypes Type = OVIA_PNM_GetPNMType(Ovia);
+            if (Type == PAMPNM) {
+                PNMWritePAMHeader(Ovia, BitB);
+            } else if (Type == BinaryPNM) {
+                PNMWriteBinaryPNMHeader(Ovia, BitB);
+            } else if (Type == ASCIIPNM) {
+                PNMWriteASCIIPNMHeader(Ovia, BitB);
+            }
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
         }
-        if (PNMType == PAMPNM) {
-            PNMWritePAMHeader(Ovia, BitB);
-        } else if (PNMType == BinaryPNM) {
-            PNMWriteBinaryPNMHeader(Ovia, BitB);
-        } else if (PNMType == ASCIIPNM) {
-            PNMWriteASCIIPNMHeader(Ovia, BitB);
-        }
     }
     
-    void PNMInsertImage(OVIA *Ovia, BitBuffer *BitB, ImageContainer *Image) {
+    void PNMInsertImage(OVIA *Ovia, ImageContainer *Image, BitBuffer *BitB) {
         if (Ovia != NULL && BitB != NULL && Image != NULL) {
             uint64_t ChannelCount = OVIA_GetNumChannels(Ovia);
             uint64_t Width        = ImageContainer_GetWidth(Image);
