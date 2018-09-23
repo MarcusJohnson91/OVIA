@@ -28,47 +28,14 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_EncodeFilterNone(OVIA *Ovia, ImageContainer *Image) {
+    void OVIA_PNG_FilterImage(OVIA *Ovia, ImageContainer *Image) {
         if (Ovia != NULL && Image != NULL) {
-            
+            // Try each filter on each line, get the best by counting the diff between the symbols to decide which to use.
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (Image == NULL) {
-            Log(Log_ERROR, __func__, U8("ImageContainer Pointer is NULL"));
+            Log(Log_ERROR, __func__, U8("Image Pointer is NULL"));
         }
-    }
-    
-    void PNGEncodeFilterPaeth(OVIA *Ovia, ImageContainer *Image) {
-        if (Ovia != NULL && Image != NULL) {
-            
-        } else if (Ovia == NULL) {
-            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
-        } else if (Image == NULL) {
-            Log(Log_ERROR, __func__, U8("ImageContainer Pointer is NULL"));
-        }
-        // RawData is after Oviaoding the I/f DATs, and after INFLAT'ing and De-LZ77'ing it.
-        // Each line is preceded by a filter type byte, so OVIA it by a line by line basis.
-        // Good candidate for multi-threading.
-    }
-    
-    void PNGEncodeFilterSub(OVIA *Ovia, ImageContainer *Image) {
-        if (Ovia != NULL && Image != NULL) {
-            // NumPixel means whole pixel not sub pixel.
-            uint16_t *EncodedLine = calloc(1, Enc->iHDR->Width * Bits2Bytes(Enc->iHDR->BitDepth, Yes) * sizeof(uint16_t));
-            for (size_t Pixel = 1; Pixel < NumPixels; Pixel++) {
-                if (Pixel == 1) {
-                    EncodedLine[Pixel] = Line[Pixel];
-                } else {
-                    EncodedLine[Pixel] = Line[Pixel] - Line[Pixel - 1];
-                }
-            }
-            free(EncodedLine);
-        } else if (Ovia == NULL) {
-            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
-        } else if (Image == NULL) {
-            Log(Log_ERROR, __func__, U8("ImageContainer Pointer is NULL"));
-        }
-        
     }
     
     void WriteIHDRChunk(OVIA *Ovia, BitBuffer *BitB) {
@@ -169,11 +136,11 @@ extern "C" {
             
             if (ColorType == PNG_PalettedRGB || ColorType == PNG_Grayscale || ColorType == PNG_GrayAlpha) {
                 for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
-                    BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, BKGDEntrySize, Enc->bkGD->BackgroundPaletteEntry[Channel]);
+                    BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, BKGDEntrySize, OVIA_PNG_BKGD_GetBackgroundPaletteEntry(Ovia));
                 }
             } else if (ColorType == PNG_RGB || ColorType == PNG_RGBA) {
                 for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
-                    BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, NumChannels * 16, Enc->bkGD->BackgroundPaletteEntry[Channel]);
+                    BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, NumChannels * 16, OVIA_PNG_BKGD_GetBackgroundPaletteEntry(Ovia));
                 }
             }
         } else if (Ovia == NULL) {
@@ -333,31 +300,6 @@ extern "C" {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
-        }
-    }
-    
-    void ComposeAPNGNumFrames(OVIA *Ovia, const uint32_t NumFrames) {
-        if (Ovia != NULL) {
-            Enc->acTL->NumFrames = NumFrames;
-        } else {
-            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
-        }
-    }
-    
-    void ComposeAPNGTimes2Loop(OVIA *Ovia, const uint32_t NumTimes2Loop) {
-        if (Ovia != NULL) {
-            Enc->acTL->TimesToLoop = NumTimes2Loop;
-        } else {
-            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
-        }
-    }
-    
-    void ComposeAPNGFrameDelay(OVIA *Ovia, const uint32_t FrameDelayNumerator, const uint32_t FrameDelayDenominator) {
-        if (Enc != NULL) {
-            Enc->fcTL->FrameDelayNumerator   = FrameDelayNumerator;
-            Enc->fcTL->FrameDelayDenominator = FrameDelayDenominator;
-        } else {
-            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         }
     }
     

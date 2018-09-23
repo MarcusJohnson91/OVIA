@@ -13,7 +13,7 @@ extern "C" {
      bool VerifyChunkCRC(BitBuffer *BitB, uint32_t ChunkSize) {
      // So basically we need to read ChunkSize bytes into an array, then read the following 4 bytes as the CRC
      // then run VerifyCRC over the buffer, and finally compare the generated CRC with the extracted one, and return whether they match.
-     // Then call SkipBits(BitB, Bytes2Bits(ChunkSize)); to reset to the beginning of the chunk
+     // Then call BitBuffer_Seek(BitB, Bytes2Bits(ChunkSize)); to reset to the beginning of the chunk
      uint8_t *Buffer2CRC = calloc(1, ChunkSize * sizeof(uint8_t));
      for (uint32_t Byte = 0; Byte < ChunkSize; Byte++) {
      Buffer2CRC[Byte] = BitB->Buffer[Bits2Bytes(, false)];
@@ -22,7 +22,7 @@ extern "C" {
      }
      uint32_t ChunkCRC = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
      bool CRCsMatch = VerifyCRC(Buffer2CRC, ChunkSize, 0x82608EDB, 32, 0xFFFFFFFF, ChunkCRC);
-     SkipBits(BitB, -Bytes2Bits(ChunkSize));
+     BitBuffer_Seek(BitB, -Bytes2Bits(ChunkSize));
      return CRCsMatch;
      }
      */

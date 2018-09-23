@@ -131,8 +131,9 @@ extern "C" {
         }
     }
     
-    static void WAVParseDATAChunk(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize) {
+    static void WAVParseDATAChunk(OVIA *Ovia, BitBuffer *BitB) {
         if (Ovia != NULL && BitB != NULL) {
+            uint32_t ChunkSize = BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 32);
             OVIA_SetNumSamples(Ovia, ChunkSize / OVIA_GetNumChannels(Ovia));
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
@@ -141,14 +142,17 @@ extern "C" {
         }
     }
     
-    static void WAVParseFMTChunk(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize) {
+    static void WAVParseFMTChunk(OVIA *Ovia, BitBuffer *BitB) {
         if (Ovia != NULL && BitB != NULL) {
-            OVIA_WAV_SetCompressionType(Ovia, BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 16));
-            OVIA_SetNumChannels(Ovia, BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 16));
-            OVIA_SetSampleRate(Ovia, BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 32));
-            OVIA_SetBlockSize(Ovia, BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 32));
-            OVIA_WAV_SetBlockAlignment(Ovia, BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 32));
-            OVIA_SetBitDepth(Ovia, BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 16));
+            uint32_t ChunkSize = BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 32);
+            
+            OVIA_WAV_SetCompressionType(Ovia, BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 16)); // 1
+            OVIA_SetNumChannels(Ovia, BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 16)); // 2
+            OVIA_SetSampleRate(Ovia, BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 32)); // 44100
+            BitBuffer_Seek(BitB, 32); // ByteRate
+            BitBuffer_Seek(BitB, 16); // BlockAlign
+            //OVIA_WAV_SetBlockAlignment(Ovia, BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 32));
+            OVIA_SetBitDepth(Ovia, BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 16)); // 16
             if (ChunkSize == 18) {
                 uint16_t CBSize             = BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 16);
                 BitBuffer_Skip(BitB, Bytes2Bits(CBSize - 16));
@@ -178,7 +182,7 @@ extern "C" {
                 case WAV_LIST:
                     break;
                 case WAV_FMT:
-                    WAVParseFMTChunk(Ovia, BitB, ChunkSize);
+                    WAVParseFMTChunk(Ovia, BitB);
                     break;
                 case WAV_WAVE:
                     BitBuffer_Skip(BitB, 32);

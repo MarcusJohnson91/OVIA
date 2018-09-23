@@ -29,7 +29,7 @@ extern "C" {
         FLACVorbisMaxComments                                       =        100,
         FLACISRCSize                                                =         12,
         FLACMaxLPCCoefficents                                       =         32,
-        FLACMedizCatalogNumberSize                                  =        128,
+        FLACMediaCatalogNumberSize                                  =        128,
         FLACMaxCoeffs                                               =        882,
         FLACMaxRicePartitions                                       =         16,
     };
