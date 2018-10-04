@@ -1,65 +1,58 @@
-#include "../../libModernPNG.h"
+#include "stdint.h"
 
 #pragma once
 
-#ifndef libModernPNG_EntropyCoders_H
-#define libModernPNG_EntropyCoders_H
+#ifndef OVIA_Flate_H
+#define OVIA_Flate_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-    
-    typedef struct LZ77Tuple LZ77Tuple;
-    
-    typedef struct HuffmanNode HuffmanNode;
-    
-    typedef struct HuffmanTree HuffmanTree;
-    
-    uint32_t GenerateCRC32(BitBuffer *BitB, const uint64_t ChunkSize);
-    bool     VerifyCRC32(BitBuffer *BitB, uint64_t ChunkSize);
-    
-    /*!
-     @abstract                                    "Generates CRC from data".
-     @param             Data2CRC                  "Pointer to a BitBuffer containing data to CRC".
-     @param             BitOffset                 "Which bit should we start CRCing?".
-     @param             BitLength                 "How many bits should we CRC?"
-     @param             Polynomial                "The Polynomial in Normal representation".
-     @param             PolySize                  "The size of the polynomial in bits".
-     @param             PolyInit                  "Initialization value".
+    /*
+     Deflate uses MSBit first bit order and MSByte first byte order
+     
+     CMF   = Compression Method and Flags
+     CINFO = Compression Info
+     CM    = Compression Method
+     
+     FLG   = FLaGs
+     
+     CMF:
+        CINFO: top 4 bits, if CM == 8 CINFO = base 2 logarithm of the LZ77 window size, minus 8; CINFO > 7 is not allowed.
+        CM: bottom 4 bits, CM = 8 is DEFLATE, 15 is reserved.
+     
+     FLG:
+        FLEVEL: top 2 bits, Compression level
+        FDICT:  middle 1 bit, Preset Dictionary
+        FCHECK: bottom 5 bits, check bits for CMF and FLG
+     
+     FCHECK: If you treat CMF and FLG as a uint16_t, the value should be  multiple of 31.
+     
+     if FDICT is set to 1, there is a DICT dictionary identifier right after the FLG byte.
+     
+     FLEVEL values: 0 = fastest, 1 = fast, 2 = default, 3 = best
      */
-    uint64_t            GenerateCRC(BitBuffer *Data2CRC, const uint64_t BitOffset, const uint64_t BitLength, const uint64_t Polynomial, const uint8_t PolySize, const uint64_t PolyInit);
     
-    /*!
-     @abstract                                    "Computes the CRC of DataBuffer, and compares it to the submitted CRC".
-     @param             Data2CRC                  "Pointer to a BitBuffer containing data to CRC".
-     @param             BitOffset                 "Which bit should we start CRCing?".
-     @param             BitLength                 "How many bits should we CRC?"
-     @param             Polynomial                "The Polynomial in Normal representation".
-     @param             PolySize                  "The size of the polynomial in bits".
-     @param             PolyInit                  "Initialization value".
-     @param             PrecomputedCRC            "The precomputed resulting CRC of Data2CRC, to compare the generated CRC with".
-     */
-    bool                VerifyCRC(BitBuffer *Data2CRC, const uint64_t BitOffset, const uint64_t BitLength, const uint64_t Polynomial, const uint8_t PolySize, const uint64_t PolyInit, const uint64_t PrecomputedCRC);
+    typedef struct FlateHeader {
+        uint8_t CINFO:4;  // 7
+        uint8_t CM:4;     // 8
+        uint8_t FLEVEL:2; // 0
+        uint8_t FDICT:1;  // 0
+        uint8_t FCHECK:5; // 1, passed.
+    } FlateHeader;
     
-    /*!
-     @abstract                                    "Creates Adler32 checksum from input data".
-     @return                                      "Returns the Adler32 data from the data input".
-     @param             Data                      "Pointer to the data to generate the Adler hash from".
-     @param             DataSize                  "Size of data".
-     */
-    uint32_t            GenerateAdler32(const uint8_t *Data, const uint64_t DataSize);
+    typedef struct HuffmanCode {
+        uint8_t  Bits:4;
+        uint16_t Code:12;
+    } HuffmanCode;
     
-    /*!
-     @abstract                                    "Generates Adler32 from the input data, and compares it to the submitted checksum".
-     @return                                      "Returns whether the input data matched the provided checksum or not".
-     @param             Data                      "Pointer to the data to generate the Adler hash from".
-     @param             DataSize                  "Size of data".
-     @param             EmbeddedAdler32           "Embedded Adler32 to compare the generated one to".
-     */
-    bool                VerifyAdler32(const uint8_t *Data, const uint64_t DataSize, const uint32_t EmbeddedAdler32);
+    typedef struct HuffmanTable {
+        uint16_t     Entries;
+        HuffmanCode *Codes;
+    } HuffmanTable;
     
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* libModernPNG_EntropyCoders_H */
+#endif /* OVIA_Flate_H */

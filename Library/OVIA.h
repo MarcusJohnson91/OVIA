@@ -2,6 +2,7 @@
 #include "../../Dependencies/FoundationIO/libFoundationIO/include/CommandLineIO.h"
 #include "../../Dependencies/FoundationIO/libFoundationIO/include/Log.h"
 #include "../../Dependencies/FoundationIO/libFoundationIO/include/Math.h"
+#include "../../Dependencies/FoundationIO/libFoundationIO/include/StringIO.h"
 
 #pragma once
 

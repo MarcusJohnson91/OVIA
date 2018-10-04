@@ -188,7 +188,7 @@ extern "C" {
                     BitBuffer_Skip(BitB, 32);
                     break;
                 case WAV_DATA:
-                    WAVParseDATAChunk(Ovia, BitB, ChunkSize);
+                    WAVParseDATAChunk(Ovia, BitB);
                     break;
                 default:
                     Log(Log_ERROR, __func__, U8("Invalid ChunkID: 0x%X"), ChunkID);
@@ -209,7 +209,7 @@ extern "C" {
             uint64_t SampleRate   = OVIA_GetSampleRate(Ovia);
             uint64_t NumSamples   = OVIA_GetNumSamples(Ovia);
             if (BitDepth <= 8) {
-                Audio = AudioContainer_Init(AudioContainer_UInteger8, BitDepth, NumChannels, SampleRate, NumSamples);
+                Audio = AudioContainer_Init(AudioType_UInteger8, BitDepth, NumChannels, SampleRate, NumSamples);
                 uint8_t **Samples = (uint8_t**) AudioContainer_GetArray(Audio);
                 for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                     for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
@@ -217,7 +217,7 @@ extern "C" {
                     }
                 }
             } else if (BitDepth > 8 && BitDepth <= 16) {
-                Audio = AudioContainer_Init(AudioContainer_UInteger16, BitDepth, NumChannels, SampleRate, NumSamples);
+                Audio = AudioContainer_Init(AudioType_UInteger16, BitDepth, NumChannels, SampleRate, NumSamples);
                 uint16_t **Samples = (uint16_t**) AudioContainer_GetArray(Audio);
                 for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                     for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
@@ -225,7 +225,7 @@ extern "C" {
                     }
                 }
             } else if (BitDepth > 16 && BitDepth <= 32) {
-                Audio = AudioContainer_Init(AudioContainer_UInteger32, BitDepth, NumChannels, SampleRate, NumSamples);
+                Audio = AudioContainer_Init(AudioType_UInteger32, BitDepth, NumChannels, SampleRate, NumSamples);
                 uint32_t **Samples = (uint32_t**) AudioContainer_GetArray(Audio);
                 for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                     for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {

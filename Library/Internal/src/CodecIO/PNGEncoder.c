@@ -28,7 +28,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_FilterImage(OVIA *Ovia, ImageContainer *Image) {
+    void OVIA_PNG_Filter_Image(OVIA *Ovia, ImageContainer *Image) {
         if (Ovia != NULL && Image != NULL) {
             // Try each filter on each line, get the best by counting the diff between the symbols to decide which to use.
         } else if (Ovia == NULL) {
@@ -47,7 +47,7 @@ extern "C" {
             BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8,  OVIA_GetBitDepth(Ovia));
             BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8,  OVIA_PNG_GetColorType(Ovia));
             BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8,  OVIA_PNG_GetCompression(Ovia));
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8,  OVIA_PNG_GetFilterMethod(Ovia));
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8,  OVIA_PNG_Filter_GetMethod(Ovia));
             BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8,  OVIA_PNG_GetInterlaceStatus(Ovia));
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));

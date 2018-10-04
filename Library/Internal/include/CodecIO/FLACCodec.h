@@ -117,19 +117,19 @@ extern "C" {
     
     void        FLACReadSubFrame(OVIA *Ovia, BitBuffer *BitB, uint8_t Channel);
     
-    void        FLACOVIASubFrameVerbatim(OVIA *Ovia, BitBuffer *BitB);
+    void        OVIA_FLAC_SubFrame_Verbatim(OVIA *Ovia, BitBuffer *BitB);
     
-    void        FLACOVIASubFrameConstant(OVIA *Ovia, BitBuffer *BitB);
+    void        OVIA_FLAC_SubFrame_Constant(OVIA *Ovia, BitBuffer *BitB);
     
-    void        FLACOVIASubFrameFixed(OVIA *Ovia, BitBuffer *BitB);
+    void        OVIA_FLAC_SubFrame_Fixed(OVIA *Ovia, BitBuffer *BitB);
     
-    void        FLACOVIASubFrameLPC(OVIA *Ovia, BitBuffer *BitB, uint8_t Channel);
+    void        OVIA_FLAC_SubFrame_LPC(OVIA *Ovia, BitBuffer *BitB, uint8_t Channel);
     
-    void        DecodeFLACResidual(OVIA *Ovia, BitBuffer *BitB);
+    void        OVIA_FLAC_Decode_Residual(OVIA *Ovia, BitBuffer *BitB);
     
     void        DecodeFLACRice1Partition(OVIA *Ovia, BitBuffer *BitB);
     
-    void        DecodeFLACRice2Partition(OVIA *Ovia, BitBuffer *BitB);
+    void        OVIA_FLAC_Decode_RICE2(OVIA *Ovia, BitBuffer *BitB);
     
     void        FLACBitDepth(OVIA *Ovia);
     

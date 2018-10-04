@@ -27,6 +27,47 @@ extern "C" {
      }
      */
     
+    void OVIA_PNG_Defilter(ImageContainer *Image) {
+        if (Image != NULL) {
+            // Get the type, width, height, numviews, numchannels
+            uint8_t  BitDepth = ImageContainer_GetBitDepth(Image);
+            uint64_t Width    = ImageContainer_GetWidth(Image);
+            uint64_t Height   = ImageContainer_GetHeight(Image);
+            uint8_t  NumViews = ImageContainer_GetNumViews(Image);
+            Image_Types Type  = ImageContainer_GetType(Image);
+                // Let's do 2 passes over the image, the first will defilter everything but Paeth, the second will do any paeth lines.
+            uint8_t ****Array  = (uint8_t****)  ImageContainer_GetArray(Image);
+            uint64_t NumBytes = (uint64_t) Bits2Bytes(Width * BitDepth, Yes);
+            // it's line by line, so all we need is to loop over the height.
+            for (uint64_t Line = 0ULL; Line < Height; Line++) {
+                uint8_t Filter = Array[0][0][Line][0];
+                switch (Filter) {
+                    case SubFilter:
+                        for (uint64_t W = 0ULL; W < Width; W++) {
+                            for (uint64_t Byte = 0ULL; Byte < NumBytes; Byte++) { // This is byte based
+                                // Basically, you just take this byte, and subtract the byte to it's left.
+                                uint8_t Data = Array[0][W][Line][Byte] - Array[0][W][Line][Byte - 1];
+                            }
+                        }
+                        break;
+                    case UpFilter:
+                        // Replace each byte with the difference between the current one and the one above it
+                        
+                        break;
+                    case AverageFilter:
+                        // Replace each byte with the leftmost byte + the upmost byte divided by 2 and removing any decimal
+                        break;
+                    case PaethFilter:
+                        break;
+                    default:
+                        break;
+                }
+            }
+        } else {
+            Log(Log_ERROR, __func__, U8("ImageContainer Pointer is NULL"));
+        }
+    }
+    
     uint8_t PaethPredictor(int64_t Left, int64_t Above, int64_t UpperLeft) {
         uint8_t Output    = 0;
         
@@ -45,7 +86,7 @@ extern "C" {
         return Output;
     }
     
-    void PNGOVIANonFilter(ImageContainer *Image) {
+    void OVIA_PNG_Filter_Non(ImageContainer *Image) {
         if (Image != NULL) {
             uint8_t  NumViews = ImageContainer_GetNumViews(Image);
             uint32_t Width    = ImageContainer_GetWidth(Image);
@@ -63,8 +104,15 @@ extern "C" {
         }
     }
     
-    void PNGOVIASubFilter(ImageContainer *Image) {
+    void OVIA_PNG_Filter_Sub(ImageContainer *Image) {
         if (Image != NULL) {
+            
+            
+            
+            
+            
+            
+            
             for (uint8_t StereoView = 0; StereoView < Ovia->sTER->StereoType; StereoView++) {
                 for (uint32_t Width = 0; Width < Ovia->iHDR->Width; Width++) {
                     for (size_t Byte = 1; Byte < Bits2Bytes(Ovia->iHDR->BitDepth, true); Byte++) {
@@ -78,7 +126,7 @@ extern "C" {
         
     }
     
-    void PNGOVIAUpFilter(OVIA *Ovia, uint8_t ***InflatedData, uint8_t ***DeFilteredData, size_t Line) {
+    void OVIA_PNG_Filter_Up(OVIA *Ovia, uint8_t ***InflatedData, uint8_t ***DeFilteredData, size_t Line) {
         if (Image != NULL) {
             for (uint8_t StereoView = 0; StereoView < Ovia->sTER->StereoType; StereoView++) {
                 for (uint32_t Width = 0; Width < Ovia->iHDR->Width; Width++) {
@@ -93,7 +141,7 @@ extern "C" {
         
     }
     
-    void PNGOVIAAverageFilter(OVIA *Ovia, uint8_t ***InflatedData, uint8_t ***DeFilteredData, size_t Line) {
+    void OVIA_PNG_Filter_Average(OVIA *Ovia, uint8_t ***InflatedData, uint8_t ***DeFilteredData, size_t Line) {
         if (Image != NULL) {
             uint8_t PixelSize = Bits2Bytes(Ovia->iHDR->BitDepth, true);
             for (uint8_t StereoView = 0; StereoView < Ovia->sTER->StereoType; StereoView++) {
@@ -110,7 +158,7 @@ extern "C" {
         
     }
     
-    void PNGOVIAPaethFilter(OVIA *Ovia, uint8_t ***InflatedData, uint8_t ***DeFilteredData, size_t Line) {
+    void OVIA_PNG_Filter_Paeth(OVIA *Ovia, uint8_t ***InflatedData, uint8_t ***DeFilteredData, size_t Line) {
         if (Image != NULL) {
             // Filtering is applied to bytes, not pixels
             uint8_t PixelSize = Bits2Bytes(Ovia->iHDR->BitDepth, true);
@@ -135,7 +183,7 @@ extern "C" {
     // then OVIA each line.
     // ALSO keep in mind concurrency.
     
-    libModernPNGFilterTypes ExtractLineFilterType(uint8_t *Line) {
+    OVIA_PNG_Filter_Types ExtractLineFilterType(uint8_t *Line) {
         uint8_t FilterType = Line[0];
         return FilterType;
     }
@@ -146,27 +194,27 @@ extern "C" {
             
             for (uint8_t StereoView = 0; StereoView < OVIA_PNG_GetStereoscopicStatus(Ovia); StereoView++) {
                 for (size_t Line = 0; Line < Ovia->iHDR->Height; Line++) {
-                    libModernPNGFilterTypes FilterType = ExtractLineFilterType(Line);
+                    OVIA_PNG_Filter_Types FilterType = ExtractLineFilterType(Line);
                     switch (FilterType) {
                         case NotFiltered:
                             // copy the Line except byte 0 (the filter indication byte) to the output buffer.
-                            PNGOVIANonFilter(Ovia, InflatedBuffer, DeFilteredData, Line);
+                            OVIA_PNG_Filter_Non(Ovia, InflatedBuffer, DeFilteredData, Line);
                             break;
                         case SubFilter:
                             // SubFilter
-                            PNGOVIASubFilter(Ovia, InflatedBuffer, DeFilteredData, Line);
+                            OVIA_PNG_Filter_Sub(Ovia, InflatedBuffer, DeFilteredData, Line);
                             break;
                         case UpFilter:
                             // UpFilter
-                            PNGOVIAUpFilter(Ovia, InflatedBuffer, DeFilteredData, Line);
+                            OVIA_PNG_Filter_Up(Ovia, InflatedBuffer, DeFilteredData, Line);
                             break;
                         case AverageFilter:
                             // AverageFilter
-                            PNGOVIAAverageFilter(Ovia, InflatedBuffer, DeFilteredData, Line);
+                            OVIA_PNG_Filter_Average(Ovia, InflatedBuffer, DeFilteredData, Line);
                             break;
                         case PaethFilter:
                             // PaethFilter
-                            PNGOVIAPaethFilter(Ovia, InflatedBuffer, DeFilteredData, Line);
+                            OVIA_PNG_Filter_Paeth(Ovia, InflatedBuffer, DeFilteredData, Line);
                             break;
                         default:
                             Log(Log_ERROR, __func__, U8("Filter type: %d is invalid"), FilterType);

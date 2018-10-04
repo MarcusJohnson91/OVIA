@@ -58,7 +58,7 @@ extern "C" {
             uint64_t Width        = ImageContainer_GetWidth(Image);
             uint64_t Height       = ImageContainer_GetHeight(Image);
             Image_Types Type      = ImageContainer_GetType(Image);
-            if (Type == ImageContainer_2DSInteger8) {
+            if (Type == ImageType_SInteger8) {
                 int8_t ****Array  = (int8_t****) ImageContainer_GetArray(Image);
                 for (uint64_t W = 0ULL; W < Width; W++) {
                     for (uint64_t H = 0ULL; H < Height; H++) {
@@ -67,7 +67,7 @@ extern "C" {
                         }
                     }
                 }
-            } else if (Type == ImageContainer_2DUInteger8) {
+            } else if (Type == ImageType_UInteger8) {
                 uint8_t ****Array  = (uint8_t****) ImageContainer_GetArray(Image);
                 for (uint64_t W = 0ULL; W < Width; W++) {
                     for (uint64_t H = 0ULL; H < Height; H++) {
@@ -76,7 +76,7 @@ extern "C" {
                         }
                     }
                 }
-            } else if (Type == ImageContainer_2DSInteger16) {
+            } else if (Type == ImageType_SInteger16) {
                 int16_t ****Array  = (int16_t****) ImageContainer_GetArray(Image);
                 for (uint64_t W = 0ULL; W < Width; W++) {
                     for (uint64_t H = 0ULL; H < Height; H++) {
@@ -85,7 +85,7 @@ extern "C" {
                         }
                     }
                 }
-            } else if (Type == ImageContainer_2DUInteger16) {
+            } else if (Type == ImageType_UInteger16) {
                 uint16_t ****Array  = (uint16_t****) ImageContainer_GetArray(Image);
                 for (uint64_t W = 0ULL; W < Width; W++) {
                     for (uint64_t H = 0ULL; H < Height; H++) {

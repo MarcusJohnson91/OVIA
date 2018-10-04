@@ -322,7 +322,7 @@ extern "C" {
     } FLACPicture;
     
     typedef struct FLACSubFrame {
-        uint8_t SubFrameType:6;
+        uint8_t SubFrameType;
         uint8_t LPCFilterOrder;
         uint8_t WastedBits:6; // Uses unary coding
         bool    WastedBitsFlag:1;
@@ -376,6 +376,8 @@ extern "C" {
     } FLACOptions;
     
     typedef struct OVIA {
+        AudioContainer  *Audio;
+        ImageContainer  *Image;
         uint64_t         FileSize;
         uint64_t         NumChannels;
         uint64_t         BitDepth;
@@ -749,6 +751,24 @@ extern "C" {
         } else if (CatalogID == NULL) {
             Log(Log_ERROR, __func__, U8("CatalogID Pointer is NULL"));
         }
+    }
+    
+    void OVIA_FLAC_LPC_SetLPCOrder(OVIA *Ovia, uint8_t LPCOrder) {
+        if (Ovia != NULL) {
+            Ovia->FLACInfo->LPC->LPCOrder = LPCOrder;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
+    uint8_t OVIA_FLAC_LPC_GetLPCOrder(OVIA *Ovia) {
+        uint8_t LPCOrder = 0;
+        if (Ovia != NULL) {
+           LPCOrder      = Ovia->FLACInfo->LPC->LPCOrder;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return LPCOrder;
     }
     
     void OVIA_PNG_SetIHDR(OVIA *Ovia, uint32_t Height, uint32_t Width, uint8_t BitDepth, uint8_t ColorType, const bool Interlace) {
@@ -1293,7 +1313,7 @@ extern "C" {
     uint8_t OVIA_PNG_ICCP_GetProfileData(OVIA *Ovia) {
         uint8_t *ProfileData = NULL;
         if (Ovia != NULL) {
-            ProfileData      = Ovia->PNGInfo->iCCP->ProfileData;
+            ProfileData      = Ovia->PNGInfo->iCCP->CompressedICCPProfile;
         } else {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         }
@@ -1444,7 +1464,7 @@ extern "C" {
         return PixelsPerUnitX;
     }
     
-    int32_t OVIA_PNG_PHYS_GetPixelsPerUnitX(OVIA *Ovia) {
+    int32_t OVIA_PNG_PHYS_GetPixelsPerUnitY(OVIA *Ovia) {
         int32_t PixelsPerUnitY = 0;
         if (Ovia != NULL) {
             PixelsPerUnitY     = Ovia->PNGInfo->pHYs->PixelsPerUnitYAxis;
@@ -1921,28 +1941,6 @@ extern "C" {
         return AlphaMask;
     }
     
-    bool OVIA_FLAC_Frame_GetBlockType(OVIA *Ovia) {
-        bool BlockType = 0;
-        if (Ovia != NULL) {
-            BlockType = Ovia->FLACInfo->Frame->BlockType;
-        } else {
-            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
-        }
-        return BlockType;
-    }
-    
-    uint8_t OVIA_FLAC_Frame_GetCodedBlockSize(OVIA *Ovia) {
-        uint8_t CodedBlockSize = 0;
-        if (Ovia != NULL) {
-            CodedBlockSize = Ovia->FLACInfo->Frame->CodedBlockSize;
-        } else {
-            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
-        }
-        return CodedBlockSize;
-    }
-    
-    
-    
     void OVIA_FLAC_Frame_SetBlockType(OVIA *Ovia, bool BlockTypeIsFixed) {
         if (Ovia != NULL) {
             Ovia->FLACInfo->Frame->BlockType = BlockTypeIsFixed;
@@ -2025,9 +2023,125 @@ extern "C" {
     }
     
     
+    bool OVIA_FLAC_Frame_GetBlockType(OVIA *Ovia) {
+        bool BlockType = No;
+        if (Ovia != NULL) {
+            BlockType = Ovia->FLACInfo->Frame->BlockType;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return BlockType;
+    }
     
+    uint8_t OVIA_FLAC_Frame_GetCodedBlockSize(OVIA *Ovia) {
+        uint8_t CodedBlockSize = 0;
+        if (Ovia != NULL) {
+            CodedBlockSize = Ovia->FLACInfo->Frame->CodedBlockSize;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return CodedBlockSize;
+    }
     
+    uint8_t OVIA_FLAC_Frame_GetCodedSampleRate(OVIA *Ovia) {
+        uint8_t CodedSampleRate = 0;
+        if (Ovia != NULL) {
+            CodedSampleRate = Ovia->FLACInfo->Frame->CodedSampleRate;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return CodedSampleRate;
+    }
     
+    uint8_t OVIA_FLAC_Frame_GetChannelLayout(OVIA *Ovia) {
+        uint8_t ChannelLayout = 0;
+        if (Ovia != NULL) {
+            ChannelLayout = Ovia->FLACInfo->Frame->ChannelLayout;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return ChannelLayout;
+    }
+    
+    uint8_t OVIA_FLAC_Frame_GetCodedBitDepth(OVIA *Ovia) {
+        uint8_t CodedBitDepth = 0;
+        if (Ovia != NULL) {
+            CodedBitDepth = Ovia->FLACInfo->Frame->CodedBitDepth;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return CodedBitDepth;
+    }
+    
+    uint64_t OVIA_FLAC_Frame_GetFrameNumber(OVIA *Ovia) {
+        uint64_t FrameNumber = 0;
+        if (Ovia != NULL) {
+            FrameNumber = Ovia->FLACInfo->Frame->FrameNumber;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return FrameNumber;
+    }
+    
+    uint64_t OVIA_FLAC_Frame_GetSampleNumber(OVIA *Ovia) {
+        uint64_t SampleNumber = 0;
+        if (Ovia != NULL) {
+            SampleNumber = Ovia->FLACInfo->Frame->SampleNumber;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return SampleNumber;
+    }
+    
+    uint8_t OVIA_FLAC_Frame_GetCRC(OVIA *Ovia) {
+        uint8_t CRC = 0;
+        if (Ovia != NULL) {
+            CRC = Ovia->FLACInfo->Frame->FLACFrameCRC;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return CRC;
+    }
+    
+    void OVIA_FLAC_SubFrame_SetType(OVIA *Ovia, uint8_t SubframeType) {
+        if (Ovia != NULL) {
+            Ovia->FLACInfo->Frame->Sub->SubFrameType   = SubframeType;
+            if (SubframeType > 0) {
+                Ovia->FLACInfo->Frame->Sub->LPCFilterOrder = (SubframeType & 0x1F) - 1;
+            }
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
+    void OVIA_FLAC_SubFrame_SetWastedBits(OVIA *Ovia, bool WastedBitsFlag, uint8_t NumWastedBits) {
+        if (Ovia != NULL) {
+            Ovia->FLACInfo->Frame->Sub->WastedBitsFlag = WastedBitsFlag;
+            Ovia->FLACInfo->Frame->Sub->WastedBits     = NumWastedBits;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
+    AudioContainer *OVIA_GetAudioContainerPointer(OVIA *Ovia) {
+        AudioContainer *Audio = NULL;
+        if (Ovia != NULL) {
+            Audio = Ovia->Audio;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return Audio;
+    }
+    
+    void OVIA_SetAudioContainerPointer(OVIA *Ovia, AudioContainer *Audio) {
+        if (Ovia != NULL && Audio != NULL) {
+            Ovia->Audio = Audio;
+        } else if (Ovia == NULL) {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        } else if (Audio == NULL) {
+            Log(Log_ERROR, __func__, U8("AudioContainer Pointer is NULL"));
+        }
+    }
     
     
     

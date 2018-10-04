@@ -258,8 +258,7 @@ extern "C" {
             uint64_t Height      = OVIA_GetHeight(Ovia);
             uint64_t NumChannels = OVIA_GetNumChannels(Ovia);
             uint8_t  BitDepth    = OVIA_GetBitDepth(Ovia);
-            
-            Image = ImageContainer_Init(BitDepth <= 8 ? ImageContainer_2DUInteger8 : ImageContainer_2DUInteger16, BitDepth, NumChannels, Width, Height);
+            Image                = ImageContainer_Init(BitDepth <= 8 ? ImageType_UInteger8 : ImageType_UInteger16, BitDepth, 1, NumChannels, Width, Height);
             
             if (OVIA_PNM_GetPNMType(Ovia) == ASCIIPNM) {
                 if (BitDepth <= 8) {
