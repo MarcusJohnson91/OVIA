@@ -158,10 +158,14 @@ extern "C" {
         uint32_t   CRC;
     } tIMeChunk;
     
-    typedef struct iDATChunk {
+    typedef struct DATChunk {
+        uint32_t   DictID;
+        uint32_t   Adler32;
         uint32_t   Size;
         uint32_t   CRC;
-    } iDATChunk;
+        uint8_t    CMF;
+        uint8_t    FLG;
+    } DATChunk;
     
     typedef struct acTLChunk {
         uint32_t   NumFrames;
@@ -211,7 +215,7 @@ extern "C" {
         pCALChunk    *pCAL; // Extension, after PLTE, before iDAT
         tIMeChunk    *tIMe; // Order doesn't matter
         TextChunk    *Text; // Order doesn't matter
-        iDATChunk    *iDAT;
+        DATChunk     *DAT;
         /* 3D */
         sTERChunk    *sTER;
         /* 3D */
@@ -281,17 +285,16 @@ extern "C" {
     } FLACStreamInfo;
     
     typedef struct CueSheetTrack {
-        uint8_t  **ISRC;                // the tracks's ISRC number.
+        UTF8      *ISRC;                // the tracks's ISRC number as a string.
         uint64_t  *TrackOffset;         // samples from the beginning of the FLAC file to the first sample of the track
         uint8_t   *TrackNum;            // which track is this again?
         bool      *IsAudio;             // 1 for audio, 0 for data
         bool      *PreEmphasis;         // 1 for yes 0 for no.
-        uint8_t    NumTrackIndexPoints;
     } CueSheetTrack;
     
     typedef struct FLACCueSheet {
         CueSheetTrack *Tracks;
-        uint8_t       *NumTrackIndexPoints;
+        uint8_t        NumTrackIndexPoints;
         char          *CatalogID;
         uint64_t       LeadIn;              // in samples
         uint64_t       IndexOffset;         // no idea. must be multiple of CD sector for cd sources
@@ -302,6 +305,7 @@ extern "C" {
     } FLACCueSheet;
     
     typedef struct FLACSeekTable {
+        uint32_t      NumSeekPoints;
         uint64_t     *SampleInTargetFrame; // FIXME: Sample in the whole file, or sample in a specific frame?
         uint64_t     *OffsetFrom1stSample; // in bytes
         uint16_t     *TargetFrameSize;
@@ -371,7 +375,6 @@ extern "C" {
         FLACLPC         *LPC;
         RICEPartition   *Rice;
         uint32_t         NumPictures;
-        uint32_t         NumSeekPoints;
         bool             EncodeSubset;
     } FLACOptions;
     
@@ -477,7 +480,7 @@ extern "C" {
     
     void OVIA_SetTag(OVIA *Ovia, OVIA_TagTypes TagType, UTF8 *Tag) {
         if (Ovia != NULL && Tag != NULL) {
-            Ovia->NumTags += 1;
+            Ovia->NumTags                    += 1;
             if (Ovia->Tags != NULL) {
                 Ovia->Tags                    = realloc(Ovia->Tags, Ovia->NumTags * sizeof(UTF8*));
             } else {
@@ -761,14 +764,191 @@ extern "C" {
         }
     }
     
+    uint8_t OVIA_FLAC_LPC_GetLPCPrecision(OVIA *Ovia) {
+        uint8_t LPCPrecision = 0;
+        if (Ovia != NULL) {
+           LPCPrecision      = Ovia->FLACInfo->LPC->LPCPrecision;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return LPCPrecision;
+    }
+    
+    void OVIA_FLAC_LPC_SetLPCPrecision(OVIA *Ovia, uint8_t LPCPrecision) {
+        if (Ovia != NULL) {
+            Ovia->FLACInfo->LPC->LPCPrecision = LPCPrecision;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
+    uint8_t OVIA_FLAC_LPC_GetLPCShift(OVIA *Ovia) {
+        uint8_t LPCShift = 0;
+        if (Ovia != NULL) {
+            LPCShift     = Ovia->FLACInfo->LPC->LPCShift;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return LPCShift;
+    }
+    
+    void OVIA_FLAC_LPC_SetLPCShift(OVIA *Ovia, uint8_t LPCShift) {
+        if (Ovia != NULL) {
+            Ovia->FLACInfo->LPC->LPCShift = LPCShift;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
+    uint8_t OVIA_FLAC_LPC_GetNumLPCCoeffs(OVIA *Ovia) {
+        uint8_t NumLPCCoeffs = 0;
+        if (Ovia != NULL) {
+            NumLPCCoeffs     = Ovia->FLACInfo->LPC->NumLPCCoeffs;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return NumLPCCoeffs;
+    }
+    
+    void OVIA_FLAC_LPC_SetNumLPCCoeffs(OVIA *Ovia, uint8_t NumLPCCoeffs) {
+        if (Ovia != NULL) {
+            Ovia->FLACInfo->LPC->NumLPCCoeffs = NumLPCCoeffs;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
+    uint8_t OVIA_FLAC_LPC_GetNumLPCCoeff(OVIA *Ovia, uint8_t CoeffNum) {
+        uint8_t Coeff = 0;
+        if (Ovia != NULL) {
+            Coeff     = Ovia->FLACInfo->LPC->LPCCoeff[Coeff];
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return Coeff;
+    }
+    
+    void OVIA_FLAC_LPC_SetLPCCoeff(OVIA *Ovia, uint8_t CoeffNum, uint8_t Coeff) {
+        if (Ovia != NULL) {
+            Ovia->FLACInfo->LPC->LPCCoeff[CoeffNum] = Coeff;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
     uint8_t OVIA_FLAC_LPC_GetLPCOrder(OVIA *Ovia) {
         uint8_t LPCOrder = 0;
         if (Ovia != NULL) {
-           LPCOrder      = Ovia->FLACInfo->LPC->LPCOrder;
+            LPCOrder      = Ovia->FLACInfo->LPC->LPCOrder;
         } else {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         }
         return LPCOrder;
+    }
+    
+    uint8_t OVIA_FLAC_LPC_GetRICEPartitionType(OVIA *Ovia) {
+        uint8_t RICEPartitionType = 0;
+        if (Ovia != NULL) {
+            RICEPartitionType      = Ovia->FLACInfo->LPC->RicePartitionType;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return RICEPartitionType;
+    }
+    
+    void OVIA_FLAC_LPC_SetRICEPartitionType(OVIA *Ovia, uint8_t RICEPartitionType) {
+        if (Ovia != NULL) {
+            Ovia->FLACInfo->LPC->RicePartitionType = RICEPartitionType;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
+    uint8_t OVIA_FLAC_LPC_GetRICEPartitionOrder(OVIA *Ovia) {
+        uint8_t RICEPartitionOrder = 0;
+        if (Ovia != NULL) {
+            RICEPartitionOrder     = Ovia->FLACInfo->LPC->PartitionOrder;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return RICEPartitionOrder;
+    }
+    
+    void OVIA_FLAC_LPC_SetRICEParameter(OVIA *Ovia, uint8_t Partition, uint8_t Parameter) {
+        if (Ovia != NULL) {
+            Ovia->FLACInfo->Rice->RICEParameter[Partition] = Parameter;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
+    uint8_t OVIA_FLAC_LPC_GetRICEParameter(OVIA *Ovia, uint8_t Partition) {
+        uint8_t Parameter = 0;
+        if (Ovia != NULL) {
+            Parameter     = Ovia->FLACInfo->Rice->RICEParameter[Partition];
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return Parameter;
+    }
+    
+    void OVIA_FLAC_LPC_SetRICEPartitionOrder(OVIA *Ovia, uint8_t RICEPartitionOrder) {
+        if (Ovia != NULL) {
+            Ovia->FLACInfo->LPC->PartitionOrder = RICEPartitionOrder;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
+    void OVIA_FLAC_Seek_SetSeekPoint(OVIA *Ovia, uint32_t SeekPoint, uint64_t Sample, uint64_t Offset, uint16_t FrameSize) {
+        if (Ovia != NULL) {
+            Ovia->FLACInfo->SeekPoints->NumSeekPoints += 1;
+            Ovia->FLACInfo->SeekPoints->SampleInTargetFrame[SeekPoint] = Sample;
+            Ovia->FLACInfo->SeekPoints->OffsetFrom1stSample[SeekPoint] = Offset;
+            Ovia->FLACInfo->SeekPoints->TargetFrameSize[SeekPoint]     = FrameSize;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
+    void OVIA_FLAC_CUE_SetLeadIn(OVIA *Ovia, uint64_t LeadIn) {
+        if (Ovia != NULL) {
+            Ovia->FLACInfo->CueSheet->LeadIn = LeadIn;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
+    void OVIA_FLAC_CUE_SetIsCD(OVIA *Ovia, bool IsCD) {
+        if (Ovia != NULL) {
+            Ovia->FLACInfo->CueSheet->IsCD = IsCD;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
+    void OVIA_FLAC_CUE_SetIsCD(OVIA *Ovia, bool IsCD) {
+        if (Ovia != NULL) {
+            Ovia->FLACInfo->CueSheet->IsCD = IsCD;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
+    void OVIA_FLAC_CUE_SetNumTracks(OVIA *Ovia, uint8_t NumTracks) {
+        if (Ovia != NULL) {
+            Ovia->FLACInfo->CueSheet->NumTracks = NumTracks;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
+    void OVIA_FLAC_CUE_SetTrackOffset(OVIA *Ovia, uint8_t Track, uint64_t TrackOffset) {
+        if (Ovia != NULL) {
+            Ovia->FLACInfo->CueSheet->Tracks[Track].TrackOffset = TrackOffset;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
     }
     
     void OVIA_PNG_SetIHDR(OVIA *Ovia, uint32_t Height, uint32_t Width, uint8_t BitDepth, uint8_t ColorType, const bool Interlace) {
@@ -799,7 +979,7 @@ extern "C" {
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (StereoType < 0 || StereoType > 1) {
-            Log(Log_ERROR, __func__, U8("StereoType %d is invalid, valid values range from 0-1"));
+            Log(Log_ERROR, __func__, U8("StereoType %d is invalid, valid values range from 0-1"), StereoType);
         }
     }
     
@@ -1484,10 +1664,177 @@ extern "C" {
         return UnitSpecifier;
     }
     
+    void OVIA_PNG_PLTE_Init(OVIA *Ovia, uint64_t NumEntries) {
+        if (Ovia != NULL) {
+            uint8_t NumChannels             = OVIA_GetNumChannels(Ovia);
+            uint8_t BitDepth                = OVIA_GetBitDepth(Ovia);
+            Ovia->PNGInfo->PLTE->NumEntries = NumEntries;
+            Ovia->PNGInfo->PLTE->Palette    = calloc(NumEntries * NumChannels, BitDepth * NumChannels);
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
     
+    void OVIA_PNG_PLTE_SetPalette(OVIA *Ovia, uint64_t Entry, uint16_t Red, uint16_t Green, uint16_t Blue) {
+        if (Ovia != NULL) {
+            Ovia->PNGInfo->PLTE->Palette[Entry][0] = Red;
+            Ovia->PNGInfo->PLTE->Palette[Entry][1] = Green;
+            Ovia->PNGInfo->PLTE->Palette[Entry][2] = Blue;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
     
+    uint8_t OVIA_PNG_PLTE_GetPaletteEntryRed(OVIA *Ovia, uint64_t Entry) {
+        uint8_t Red = 0;
+        if (Ovia != NULL) {
+            Red = Ovia->PNGInfo->PLTE->Palette[Entry][0];
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return Red;
+    }
     
+    uint8_t OVIA_PNG_PLTE_GetPaletteEntryGreen(OVIA *Ovia, uint64_t Entry) {
+        uint8_t Green = 0;
+        if (Ovia != NULL) {
+            Green = Ovia->PNGInfo->PLTE->Palette[Entry][1];
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return Green;
+    }
     
+    uint8_t OVIA_PNG_PLTE_GetPaletteEntryBlue(OVIA *Ovia, uint64_t Entry) {
+        uint8_t Blue = 0;
+        if (Ovia != NULL) {
+            Blue = Ovia->PNGInfo->PLTE->Palette[Entry][2];
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return Blue;
+    }
+    
+    void OVIA_PNG_TRNS_Init(OVIA *Ovia, uint64_t NumEntries) {
+        if (Ovia != NULL) {
+            uint8_t NumChannels             = OVIA_GetNumChannels(Ovia);
+            uint8_t BitDepth                = OVIA_GetBitDepth(Ovia);
+            Ovia->PNGInfo->tRNS->NumEntries = NumEntries;
+            Ovia->PNGInfo->tRNS->Palette    = calloc(NumEntries, BitDepth);
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
+    void OVIA_PNG_TRNS_SetPalette(OVIA *Ovia, uint64_t Entry, uint8_t Alpha) {
+        if (Ovia != NULL) {
+            Ovia->PNGInfo->tRNS->Palette[Entry] = Alpha;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
+    uint8_t OVIA_PNG_PLTE_GetPaletteEntry(OVIA *Ovia, uint64_t Entry) {
+        uint8_t Alpha = 0;
+        if (Ovia != NULL) {
+            Alpha = Ovia->PNGInfo->PLTE->Palette[Entry];
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return Alpha;
+    }
+    
+    void OVIA_PNG_DAT_SetCMF(OVIA *Ovia, uint8_t CMF) {
+        if (Ovia != NULL) {
+            Ovia->PNGInfo->DAT->CMF =  CMF;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
+    void OVIA_PNG_DAT_SetFLG(OVIA *Ovia, uint8_t FLG) {
+        if (Ovia != NULL) {
+            Ovia->PNGInfo->DAT->FLG =  FLG;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
+    void OVIA_PNG_DAT_SetAdler32(OVIA *Ovia, uint32_t Adler32) {
+        if (Ovia != NULL) {
+            Ovia->PNGInfo->DAT->Adler32 =  Adler32;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
+    uint8_t OVIA_PNG_DAT_GetCompressionMethod(OVIA *Ovia) {
+        uint8_t CompressionMethod = 0;
+        if (Ovia != NULL) {
+            CompressionMethod = Ovia->PNGInfo->DAT->CMF & 0xF0 >> 4;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return CompressionMethod;
+    }
+    
+    uint8_t OVIA_PNG_DAT_GetCompressionInfo(OVIA *Ovia) {
+        uint8_t CompressionInfo = 0;
+        if (Ovia != NULL) {
+            CompressionInfo = Ovia->PNGInfo->DAT->CMF & 0xF;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return CompressionInfo;
+    }
+    
+    uint8_t OVIA_PNG_DAT_GetFCHECK(OVIA *Ovia) {
+        uint8_t FCHECK = 0;
+        if (Ovia != NULL) {
+            FCHECK = Ovia->PNGInfo->DAT->FLG & 0xF8 >> 3;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return FCHECK;
+    }
+    
+    uint8_t OVIA_PNG_DAT_GetFDICT(OVIA *Ovia) {
+        uint8_t FDICT = 0;
+        if (Ovia != NULL) {
+            FDICT = Ovia->PNGInfo->DAT->FLG & 0x4 >> 2;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return FDICT;
+    }
+    
+    uint8_t OVIA_PNG_DAT_GetFLEVEL(OVIA *Ovia) {
+        uint8_t FLEVEL = 0;
+        if (Ovia != NULL) {
+            FLEVEL = Ovia->PNGInfo->DAT->FLG & 0x3;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return FLEVEL;
+    }
+    
+    void OVIA_PNG_DAT_SetDictID(OVIA *Ovia, uint32_t DictID) {
+        if (Ovia != NULL) {
+            Ovia->PNGInfo->DAT->DictID = DictID;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
+    uint32_t OVIA_PNG_DAT_GetDictID(OVIA *Ovia) {
+        uint32_t DictID = 0;
+        if (Ovia != NULL) {
+            DictID = Ovia->PNGInfo->DAT->DictID;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return DictID;
+    }
     
     void OVIA_WAV_SetCompressionType(OVIA *Ovia, uint16_t CompressionType) {
         if (Ovia != NULL) {
@@ -2143,6 +2490,21 @@ extern "C" {
         }
     }
     
+    void OVIA_FLAC_CUE_SetTrack(OVIA *Ovia, uint64_t Offset, bool IsAudio, bool PreEmphasis, UTF8 *ISRC) {
+        if (Ovia != NULL) {
+            Ovia->FLACInfo->CueSheet->NumTracks += 1;
+            
+            uint8_t CurrentTrack = Ovia->FLACInfo->CueSheet->NumTracks - 1;
+            
+            Ovia->FLACInfo->CueSheet->Tracks[CurrentTrack].TrackOffset = Offset;
+            Ovia->FLACInfo->CueSheet->Tracks[CurrentTrack].IsAudio     = IsAudio;
+            Ovia->FLACInfo->CueSheet->Tracks[CurrentTrack].PreEmphasis = PreEmphasis;
+            Ovia->FLACInfo->CueSheet->Tracks[CurrentTrack].ISRC        = UTF8_Clone(ISRC);
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
     
     
     
@@ -2164,9 +2526,6 @@ extern "C" {
                    FileMagic16 == PNM_PAMB) {
             Ovia->Type          = ImageType;
             Ovia->Format        = PNMFormat;
-        } else if (FileMagic64 == PNGMagic) {
-            Ovia->Type          = ImageType;
-            Ovia->Format        = PNGFormat;
         } else if (FileMagic32 == AIF_FORM) {
             Ovia->Type          = AudioType;
             Ovia->Format        = AIFFormat;
@@ -2176,6 +2535,9 @@ extern "C" {
         } else if (FileMagic32 == 0x72696666) {
             Ovia->Type          = AudioType;
             Ovia->Format        = W64Format;
+        } else if (FileMagic64 == PNGMagic) {
+            Ovia->Type          = ImageType;
+            Ovia->Format        = PNGFormat;
         } else {
             Log(Log_ERROR, __func__, U8("Unrecognized file magic 0x%llu"), FileMagic64);
         }

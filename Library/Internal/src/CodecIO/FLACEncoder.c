@@ -67,7 +67,7 @@ extern "C" {
             }
             BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, OVIA_GetNumTags(Ovia));
             for (uint32_t UserTag = 0; UserTag < OVIA_GetNumTags(Ovia); UserTag++) {
-                BitBuffer_WriteUTF8(BitB, OVIA_GetTag(Ovia, UserTag));
+                BitBuffer_WriteUTF8(Ovia, BitB_GetTag(Ovia, UserTag));
             }
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));

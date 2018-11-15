@@ -1,4 +1,5 @@
 #include "../../../../Dependencies/FoundationIO/libFoundationIO/include/Macros.h"
+#include "../../../../Dependencies/FoundationIO/libFoundationIO/include/BitIO.h"
 #include "../../../include/Private/Audio/WAVCommon.h"
 
 #ifdef __cplusplus
@@ -14,7 +15,7 @@ extern "C" {
     
     void WAVSkipPadding(BitBuffer *BitB, uint32_t SubChunkSize) {
         if (IsOdd(SubChunkSize) == true) {
-            BitBuffer_Skip(BitB, 8);
+            BitBuffer_Seek(BitB, 8);
         }
     }
     
@@ -155,7 +156,7 @@ extern "C" {
             OVIA_SetBitDepth(Ovia, BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 16)); // 16
             if (ChunkSize == 18) {
                 uint16_t CBSize             = BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 16);
-                BitBuffer_Skip(BitB, Bytes2Bits(CBSize - 16));
+                BitBuffer_Seek(BitB, Bytes2Bits(CBSize - 16));
             } else if (ChunkSize == 40) {
                 uint16_t CBSize             = BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 16);
                 uint16_t ValidBitsPerSample = BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 16);
@@ -164,7 +165,7 @@ extern "C" {
                 }
                 uint32_t  SpeakerMask       = BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 32);
                 uint8_t  *BinaryGUIDFormat  = BitBuffer_ReadGUUID(BinaryGUID, BitB);
-                BitBuffer_Skip(BitB, Bytes2Bits(CBSize - 22));
+                BitBuffer_Seek(BitB, Bytes2Bits(CBSize - 22));
             }
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
@@ -185,7 +186,7 @@ extern "C" {
                     WAVParseFMTChunk(Ovia, BitB);
                     break;
                 case WAV_WAVE:
-                    BitBuffer_Skip(BitB, 32);
+                    BitBuffer_Seek(BitB, 32);
                     break;
                 case WAV_DATA:
                     WAVParseDATAChunk(Ovia, BitB);
@@ -209,7 +210,7 @@ extern "C" {
             uint64_t SampleRate   = OVIA_GetSampleRate(Ovia);
             uint64_t NumSamples   = OVIA_GetNumSamples(Ovia);
             if (BitDepth <= 8) {
-                Audio = AudioContainer_Init(AudioType_UInteger8, BitDepth, NumChannels, SampleRate, NumSamples);
+                Audio = AudioContainer_Init(AudioType_Integer8, BitDepth, NumChannels, SampleRate, NumSamples);
                 uint8_t **Samples = (uint8_t**) AudioContainer_GetArray(Audio);
                 for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                     for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
@@ -217,7 +218,7 @@ extern "C" {
                     }
                 }
             } else if (BitDepth > 8 && BitDepth <= 16) {
-                Audio = AudioContainer_Init(AudioType_UInteger16, BitDepth, NumChannels, SampleRate, NumSamples);
+                Audio = AudioContainer_Init(AudioType_Integer16, BitDepth, NumChannels, SampleRate, NumSamples);
                 uint16_t **Samples = (uint16_t**) AudioContainer_GetArray(Audio);
                 for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                     for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
@@ -225,7 +226,7 @@ extern "C" {
                     }
                 }
             } else if (BitDepth > 16 && BitDepth <= 32) {
-                Audio = AudioContainer_Init(AudioType_UInteger32, BitDepth, NumChannels, SampleRate, NumSamples);
+                Audio = AudioContainer_Init(AudioType_Integer32, BitDepth, NumChannels, SampleRate, NumSamples);
                 uint32_t **Samples = (uint32_t**) AudioContainer_GetArray(Audio);
                 for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                     for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {

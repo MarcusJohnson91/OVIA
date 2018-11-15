@@ -32,13 +32,13 @@ extern "C" {
         BMP_CMYK_RLE_4Bit     = 13,
     };
     
-    void        BMPParseMetadata(OVIA *Ovia, BitBuffer *BitB);
+    void            BMPParseMetadata(OVIA *Ovia, BitBuffer *BitB);
     
     ImageContainer *BMPExtractImage(OVIA *Ovia, BitBuffer *BitB);
     
-    void        BMPInsertImage(ImageContainer *Image, BitBuffer *BitB);
+    void            BMPInsertImage(ImageContainer *Image, BitBuffer *BitB);
     
-    void        BMPWriteHeader(OVIA *Ovia, BitBuffer *BitB);
+    void            BMPWriteHeader(OVIA *Ovia, BitBuffer *BitB);
     
 #ifdef __cplusplus
 }

@@ -113,9 +113,9 @@ extern "C" {
     
     /* OVIA specific functions */
     
-    void        FLACReadFrame(OVIA *Ovia, BitBuffer *BitB);
+    void        OVIA_FLAC_Frame_Read(OVIA *Ovia, BitBuffer *BitB);
     
-    void        FLACReadSubFrame(OVIA *Ovia, BitBuffer *BitB, uint8_t Channel);
+    void        OVIA_FLAC_SubFrame_Read(OVIA *Ovia, BitBuffer *BitB, uint8_t Channel);
     
     void        OVIA_FLAC_SubFrame_Verbatim(OVIA *Ovia, BitBuffer *BitB);
     
@@ -127,9 +127,9 @@ extern "C" {
     
     void        OVIA_FLAC_Decode_Residual(OVIA *Ovia, BitBuffer *BitB);
     
-    void        DecodeFLACRice1Partition(OVIA *Ovia, BitBuffer *BitB);
+    void        OVIA_FLAC_Decode_Rice1(OVIA *Ovia, BitBuffer *BitB);
     
-    void        OVIA_FLAC_Decode_RICE2(OVIA *Ovia, BitBuffer *BitB);
+    void        OVIA_FLAC_Decode_Rice2(OVIA *Ovia, BitBuffer *BitB);
     
     void        FLACBitDepth(OVIA *Ovia);
     
@@ -137,21 +137,21 @@ extern "C" {
     
     uint8_t     GetBlockSizeInSamples(uint8_t BlockSize);
     
-    void        FLACReadStream(OVIA *Ovia, BitBuffer *BitB);
+    void        OVIA_FLAC_Stream_Read(OVIA *Ovia, BitBuffer *BitB);
     
     void        FLACParseMetadata(OVIA *Ovia, BitBuffer *BitB);
     
-    void        FLACParseStreamInfo(OVIA *Ovia, BitBuffer *BitB);
+    void        OVIA_FLAC_StreamInfo_Parse(OVIA *Ovia, BitBuffer *BitB);
     
-    void        FLACSkipPadding(OVIA *Ovia, BitBuffer *BitB);
+    void        OVIA_FLAC_SkipPadding(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize);
     
-    void        FLACSkipCustom(OVIA *Ovia, BitBuffer *BitB);
+    void        OVIA_FLAC_SkipCustom(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize);
     
-    void        FLACParseSeekTable(OVIA *Ovia, BitBuffer *BitB);
+    void        OVIA_FLAC_SeekTable_Read(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize);
     
-    void        FLACParseVorbisComment(OVIA *Ovia, BitBuffer *BitB);
+    void        OVIA_FLAC_Vorbis_Parse(OVIA *Ovia, BitBuffer *BitB);
     
-    void        FLACParseCuesheet(OVIA *Ovia, BitBuffer *BitB);
+    void        OVIA_FLAC_CUE_Parse(OVIA *Ovia, BitBuffer *BitB);
     
     void        FLACParsePicture(OVIA *Ovia, BitBuffer *BitB);
     

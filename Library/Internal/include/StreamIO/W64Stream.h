@@ -75,13 +75,13 @@ extern "C" {
         0x74,0x73,0x69,0x6C,0x2D,0x91,0x2F,0x2D,0x11,0xCF,0x2D,0xA5,0xD6,0x2D,0x28,0xDB,0x04,0xC1,0x00,0x00,0x00
     };
     
-    void W64ParseMetadata(OVIA *Ovia, BitBuffer *BitB);
+    void            W64ParseMetadata(OVIA *Ovia, BitBuffer *BitB);
     
     AudioContainer *W64ExtractSamples(OVIA *Ovia, BitBuffer *BitB);
     
-    void W64AppendSamples(AudioContainer *Audio, BitBuffer *BitB);
+    void            W64AppendSamples(AudioContainer *Audio, BitBuffer *BitB);
     
-    void W64WriteHeader(AudioContainer *Audio, BitBuffer *BitB);
+    void            W64WriteHeader(AudioContainer *Audio, BitBuffer *BitB);
     
 #ifdef __cplusplus
 }

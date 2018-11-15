@@ -183,13 +183,13 @@ extern "C" {
         WAV_DATA                      = 0x64617461,
     } WAVChunkIDs;
     
-    void WAVParseMetadata(OVIA *Ovia, BitBuffer *BitB);
+    void            WAVParseMetadata(OVIA *Ovia, BitBuffer *BitB);
     
     AudioContainer *WAVExtractSamples(OVIA *Ovia, BitBuffer *BitB);
     
-    void WAVAppendSamples(AudioContainer *Audio, BitBuffer *BitB);
+    void            WAVAppendSamples(AudioContainer *Audio, BitBuffer *BitB);
     
-    void WAVWriteHeader(OVIA *Ovia, BitBuffer *BitB);
+    void            WAVWriteHeader(OVIA *Ovia, BitBuffer *BitB);
     
 #ifdef __cplusplus
 }

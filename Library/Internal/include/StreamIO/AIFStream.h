@@ -46,15 +46,15 @@ extern "C" {
         AIF_SSND              = 0x53534E44,
     } AIFSubChunkIDs;
     
-    void AIFSkipPadding(BitBuffer *BitB, uint32_t SubChunkSize);
+    void            AIFSkipPadding(BitBuffer *BitB, uint32_t SubChunkSize);
     
-    void AIFParseMetadata(OVIA *Ovia, BitBuffer *BitB);
+    void            AIFParseMetadata(OVIA *Ovia, BitBuffer *BitB);
     
     AudioContainer *AIFExtractSamples(OVIA *Ovia, BitBuffer *BitB);
     
-    void AIFAppendSamples(OVIA *Ovia, AudioContainer *Audio, BitBuffer *BitB);
+    void            AIFAppendSamples(OVIA *Ovia, AudioContainer *Audio, BitBuffer *BitB);
     
-    void AIFWriteHeader(OVIA *Ovia, BitBuffer *BitB);
+    void            AIFWriteHeader(OVIA *Ovia, BitBuffer *BitB);
     
 #ifdef __cplusplus
 }

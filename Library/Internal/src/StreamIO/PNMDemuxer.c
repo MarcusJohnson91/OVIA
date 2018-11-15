@@ -22,7 +22,7 @@ extern "C" {
     static void PNMParsePNMASCIIHeader(OVIA *Ovia, BitBuffer *BitB) {
         if (Ovia != NULL && BitB != NULL) {
             uint64_t CommentSizeWidth = PNMCheckForComment(BitB);
-            BitBuffer_Skip(BitB, Bytes2Bits(CommentSizeWidth));
+            BitBuffer_Seek(BitB, Bytes2Bits(CommentSizeWidth));
             /* Read Width */
             uint64_t WidthStringSize = 0LLU;
             while (BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PNMFieldSeperator) {
@@ -37,7 +37,7 @@ extern "C" {
             /* Read Width */
             
             uint64_t CommentSizeHeight = PNMCheckForComment(BitB);
-            BitBuffer_Skip(BitB, Bytes2Bits(CommentSizeHeight));
+            BitBuffer_Seek(BitB, Bytes2Bits(CommentSizeHeight));
             
             /* Read Height */
             uint64_t HeightStringSize = 0LLU;
@@ -107,7 +107,7 @@ extern "C" {
     static void PNMParsePAMHeader(OVIA *Ovia, BitBuffer *BitB) {
         if (Ovia != NULL && BitB != NULL) {
             /* Read Width */
-            BitBuffer_Skip(BitB, 48); // Skip "WIDTH " string
+            BitBuffer_Seek(BitB, 48); // Skip "WIDTH " string
             uint64_t WidthStringSize = 0LLU;
             while (BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PNMFieldSeperator) {
                 WidthStringSize += 1;
@@ -121,7 +121,7 @@ extern "C" {
             /* Read Width */
             
             /* Read Height */
-            BitBuffer_Skip(BitB, 56); // Skip "HEIGHT " string
+            BitBuffer_Seek(BitB, 56); // Skip "HEIGHT " string
             uint64_t HeightStringSize = 0LLU;
             while (BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PNMEndField) {
                 HeightStringSize += 1;
@@ -135,7 +135,7 @@ extern "C" {
             /* Read Height */
             
             /* Read NumChannels */
-            BitBuffer_Skip(BitB, 48); // Skip "DEPTH " string
+            BitBuffer_Seek(BitB, 48); // Skip "DEPTH " string
             uint8_t DepthStringSize = 0;
             while (BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PNMEndField) {
                 DepthStringSize += 1;
@@ -149,7 +149,7 @@ extern "C" {
             /* Read NumChannels */
             
             /* Read MaxVal */
-            BitBuffer_Skip(BitB, 56); // Skip "MAXVAL " string
+            BitBuffer_Seek(BitB, 56); // Skip "MAXVAL " string
             uint8_t MaxValStringSize = 0;
             while (BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PNMEndField) {
                 MaxValStringSize += 1;
@@ -163,7 +163,7 @@ extern "C" {
             /* Read MaxVal */
             
             /* Read TupleType */
-            BitBuffer_Skip(BitB, 72); // Skip "TUPLETYPE " string
+            BitBuffer_Seek(BitB, 72); // Skip "TUPLETYPE " string
             uint8_t TupleTypeSize = 0;
             while (BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PNMEndField) {
                 TupleTypeSize += 1;
@@ -194,7 +194,7 @@ extern "C" {
             /* Read TupleType */
             
             /* Skip ENDHDR */
-            BitBuffer_Skip(BitB, 56); // ENDHDR
+            BitBuffer_Seek(BitB, 56); // ENDHDR
             /* Skip ENDHDR */
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
@@ -235,7 +235,7 @@ extern "C" {
                 Fields2Read = 3;
             }
             
-            BitBuffer_Skip(BitB, 8); // Skip the LineFeed after the FileType marker
+            BitBuffer_Seek(BitB, 8); // Skip the LineFeed after the FileType marker
             // Before each field we need to check for Comments if the file is ASCII.
             if (OVIA_PNM_GetTupleType(Ovia) == ASCIIPNM) {
                 PNMParsePNMASCIIHeader(Ovia, BitB);
@@ -258,7 +258,7 @@ extern "C" {
             uint64_t Height      = OVIA_GetHeight(Ovia);
             uint64_t NumChannels = OVIA_GetNumChannels(Ovia);
             uint8_t  BitDepth    = OVIA_GetBitDepth(Ovia);
-            Image                = ImageContainer_Init(BitDepth <= 8 ? ImageType_UInteger8 : ImageType_UInteger16, BitDepth, 1, NumChannels, Width, Height);
+            Image                = ImageContainer_Init(BitDepth <= 8 ? ImageType_Integer8 : ImageType_Integer16, BitDepth, 1, NumChannels, Width, Height);
             
             if (OVIA_PNM_GetPNMType(Ovia) == ASCIIPNM) {
                 if (BitDepth <= 8) {
