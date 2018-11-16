@@ -29,19 +29,16 @@ extern "C" {
         uint8_t       FilterMethod;
         PNGColorTypes ColorType;
         bool          Progressive;
-        uint32_t      CRC;
     } iHDRChunk;
     
     typedef struct PLTEChunk {
         uint8_t  **Palette;
         uint8_t    NumEntries;
-        uint32_t   CRC;
     } PLTEChunk;
     
     typedef struct tRNSChunk {
         uint8_t  **Palette;
         uint8_t    NumEntries;
-        uint32_t   CRC;
     } tRNSChunk;
     
     typedef struct bkGDChunk {
@@ -50,12 +47,10 @@ extern "C" {
         uint16_t   Red;
         uint16_t   Green;
         uint16_t   Blue;
-        uint32_t   CRC;
     } bkGDChunk;
     
     typedef struct sTERChunk {
         bool       StereoType:1;
-        uint32_t   CRC;
     } sTERChunk;
     
     typedef struct cHRMChunk { // sRGB or iCCP overrides cHRM
@@ -67,19 +62,16 @@ extern "C" {
         uint32_t   GreenY;
         uint32_t   BlueX;
         uint32_t   BlueY;
-        uint32_t   CRC;
     } cHRMChunk;
     
     typedef struct gAMAChunk { // sRGB or iCCP overrides gAMA
         uint32_t   Gamma;
-        uint32_t   CRC;
     } gAMAChunk;
     
     typedef struct oFFsChunk {
         int32_t    XOffset;
         int32_t    YOffset;
         bool       UnitSpecifier:1;
-        uint32_t   CRC;
     } oFFsChunk;
     
     typedef struct iCCPChunk {
@@ -87,7 +79,6 @@ extern "C" {
         uint8_t   *CompressedICCPProfile;
         uint64_t   CompressedICCPProfileSize;
         uint8_t    CompressionType;
-        uint32_t   CRC;
     } iCCPChunk;
     
     typedef struct sBITChunk {
@@ -96,56 +87,52 @@ extern "C" {
         uint8_t    Green;
         uint8_t    Blue;
         uint8_t    Alpha;
-        uint32_t   CRC;
     } sBITChunk;
     
     typedef struct sRGBChunk {
         uint8_t    RenderingIntent;
-        uint32_t   CRC;
     } sRGBChunk;
     
     typedef struct pHYsChunk {
         uint32_t   PixelsPerUnitXAxis;
         uint32_t   PixelsPerUnitYAxis;
         uint8_t    UnitSpecifier;
-        uint32_t   CRC;
     } pHYsChunk;
     
     typedef struct sPLTChunk {
+        uint16_t  *Red;
+        uint16_t  *Green;
+        uint16_t  *Blue;
+        uint16_t  *Alpha;
+        uint16_t  *RelativeFrequency;
         char      *Name;
-        
+        uint8_t    SampleDepth;
     } sPLTChunk;
     
     typedef struct pCALChunk {
         UTF8      *CalibrationName;
-        uint8_t   *UnitName;
+        UTF8      *UnitName;
+        uint8_t    NumParams;
         int32_t    OriginalZero;
         int32_t    OriginalMax;
-        uint8_t    CalibrationNameSize;
-        uint8_t    UnitNameSize;
         uint8_t    EquationType;
-        uint8_t    NumParams;
-        uint32_t   CRC;
     } pCALChunk;
     
     typedef struct sCALChunk {
-        float      PixelWidth; // ASCII float
-        float      PixelHeight; // ASCII float
+        double     PixelWidth; // ASCII float
+        double     PixelHeight; // ASCII float
         uint8_t    UnitSpecifier;
-        uint32_t   CRC;
     } sCALChunk;
     
     typedef struct hISTChunk {
         uint32_t   NumColors;
         uint16_t  *Histogram; // For each PLTE entry, there needs to be 1 array element
-        uint32_t   CRC;
     } hISTChunk;
     
     typedef struct TextChunk { // Replaces:  tEXt, iTXt, zTXt
         UTF8         *Keyword;
         UTF8         *Comment;
         PNGTextTypes  TextType;
-        uint32_t      CRC;
     } TextChunk;
     
     typedef struct tIMeChunk {
@@ -155,14 +142,11 @@ extern "C" {
         uint8_t    Hour:5;
         uint8_t    Minute:6;
         uint8_t    Second:6;
-        uint32_t   CRC;
     } tIMeChunk;
     
     typedef struct DATChunk {
         uint32_t   DictID;
-        uint32_t   Adler32;
         uint32_t   Size;
-        uint32_t   CRC;
         uint8_t    CMF;
         uint8_t    FLG;
     } DATChunk;
@@ -170,7 +154,6 @@ extern "C" {
     typedef struct acTLChunk {
         uint32_t   NumFrames;
         uint32_t   TimesToLoop;
-        uint32_t   CRC;
     } acTLChunk;
     
     typedef struct fcTLChunk {
@@ -183,18 +166,15 @@ extern "C" {
         uint16_t   FrameDelayDenominator;
         uint8_t    DisposeMethod;
         bool       BlendMethod:1;
-        uint32_t   CRC;
     } fcTLChunk;
     
     typedef struct fdATChunk {
         uint32_t   FrameNum;
-        uint32_t   CRC;
+        
     } fdATChunk;
     
     typedef struct iENDChunk {
-        uint32_t  Size;    // 0
-        uint32_t  ChunkID; // iEND
-        uint32_t  CRC;     // 0xAE426082
+        uint32_t  Size;
     } iENDChunk;
     
     typedef struct PNGOptions {
@@ -209,7 +189,7 @@ extern "C" {
         hISTChunk    *hIST;
         tRNSChunk    *tRNS;
         pHYsChunk    *pHYs;
-        sPLTChunk    *sPLT;
+        sPLTChunk   **sPLT; // May be multiple
         oFFsChunk    *oFFs; // Extension, before first iDAT
         sCALChunk    *sCAL; // Extension, before first iDAT
         pCALChunk    *pCAL; // Extension, after PLTE, before iDAT
@@ -339,7 +319,6 @@ extern "C" {
         uint32_t      FrameNumber:31;
         uint16_t      BlockSize; // SamplesInBlock
         uint8_t       BitDepth;
-        uint8_t       FLACFrameCRC;
         uint8_t       PartitionOrder;
         uint8_t       CurrentPartition;
         uint8_t       SamplesInPartition;
@@ -927,12 +906,14 @@ extern "C" {
         }
     }
     
-    void OVIA_FLAC_CUE_SetIsCD(OVIA *Ovia, bool IsCD) {
+    bool OVIA_FLAC_CUE_GetIsCD(OVIA *Ovia) {
+        bool IsCD = No;
         if (Ovia != NULL) {
-            Ovia->FLACInfo->CueSheet->IsCD = IsCD;
+            IsCD = Ovia->FLACInfo->CueSheet->IsCD;
         } else {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         }
+        return IsCD;
     }
     
     void OVIA_FLAC_CUE_SetNumTracks(OVIA *Ovia, uint8_t NumTracks) {
@@ -943,7 +924,7 @@ extern "C" {
         }
     }
     
-    void OVIA_FLAC_CUE_SetTrackOffset(OVIA *Ovia, uint8_t Track, uint64_t TrackOffset) {
+    void OVIA_FLAC_CUE_Track_SetOffset(OVIA *Ovia, uint8_t Track, uint64_t TrackOffset) {
         if (Ovia != NULL) {
             Ovia->FLACInfo->CueSheet->Tracks[Track].TrackOffset = TrackOffset;
         } else {
@@ -951,7 +932,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_SetIHDR(OVIA *Ovia, uint32_t Height, uint32_t Width, uint8_t BitDepth, uint8_t ColorType, const bool Interlace) {
+    void OVIA_PNG_IHDR_SetIHDR(OVIA *Ovia, uint32_t Height, uint32_t Width, uint8_t BitDepth, uint8_t ColorType, const bool Interlace) {
         if (Ovia != NULL && Height > 0 && Width > 0 && (BitDepth > 0 || BitDepth > 16) && (ColorType <= 6 && ColorType != 1 && ColorType != 5) && Interlace >= 0 && Interlace <= 1) {
             OVIA_SetHeight(Ovia, Height);
             OVIA_SetWidth(Ovia, Width);
@@ -973,7 +954,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_SetSTER(OVIA *Ovia, const bool StereoType) {
+    void OVIA_PNG_STER_SetSTER(OVIA *Ovia, const bool StereoType) {
         if (Ovia != NULL && StereoType >= 0 && StereoType <= 1) {
             Ovia->PNGInfo->sTER->StereoType = StereoType;
         } else if (Ovia == NULL) {
@@ -983,7 +964,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_SetACTL(OVIA *Ovia, const uint32_t NumFrames, const uint32_t Times2Loop) {
+    void OVIA_PNG_ACTL_SetACTL(OVIA *Ovia, const uint32_t NumFrames, const uint32_t Times2Loop) {
         if (Ovia != NULL && NumFrames > 0) {
             Ovia->PNGInfo->acTL->NumFrames   = NumFrames;
             Ovia->PNGInfo->acTL->TimesToLoop = Times2Loop;
@@ -994,7 +975,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_SetFCTL(OVIA *Ovia, const uint32_t FrameNum, const uint32_t Width, const uint32_t Height, uint32_t XOffset, uint32_t YOffset, uint16_t DelayNumerator, uint16_t DelayDenominator, uint8_t DisposalType, uint8_t BlendType) {
+    void OVIA_PNG_FCTL_SetFCTL(OVIA *Ovia, const uint32_t FrameNum, const uint32_t Width, const uint32_t Height, uint32_t XOffset, uint32_t YOffset, uint16_t DelayNumerator, uint16_t DelayDenominator, uint8_t DisposalType, uint8_t BlendType) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->fcTL->FrameNum              = FrameNum;
             Ovia->PNGInfo->fcTL->Width                 = Width;
@@ -1238,6 +1219,14 @@ extern "C" {
         return STERType;
     }
     
+    void OVIA_PNG_STER_SetSterType(OVIA *Ovia, uint8_t sTERType) {
+        if (Ovia != NULL) {
+            Ovia->PNGInfo->sTER->StereoType = sTERType;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
     uint8_t OVIA_PNG_iHDR_GetColorType(OVIA *Ovia) {
         uint8_t ColorType = 0;
         if (Ovia != NULL) {
@@ -1256,6 +1245,14 @@ extern "C" {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         }
         return PaletteEntry;
+    }
+    
+    void OVIA_PNG_BKGD_SetBackgroundPaletteEntry(OVIA *Ovia, uint8_t PaletteEntry) {
+        if (Ovia != NULL) {
+            Ovia->PNGInfo->bkGD->BackgroundPaletteEntry = PaletteEntry;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
     }
 
     void OVIA_PNG_CHRM_SetWhitePoint(OVIA *Ovia, uint32_t WhitePointX, uint32_t WhitePointY) {
@@ -1608,6 +1605,16 @@ extern "C" {
         return RenderingIntent;
     }
     
+    void OVIA_PNG_PCAL_SetCalibrationName(OVIA *Ovia, UTF8 *CalibrationName) {
+        if (Ovia != NULL && CalibrationName != NULL) {
+            Ovia->PNGInfo->pCAL->CalibrationName = UTF8_Clone(CalibrationName);
+        } else if (Ovia == NULL) {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        } else if (CalibrationName == NULL) {
+            Log(Log_ERROR, __func__, U8("CalibrationName Pointer is NULL"));
+        }
+    }
+    
     void OVIA_PNG_PHYS_SetPixelsPerUnitX(OVIA *Ovia, int32_t PixelsPerUnitX) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->pHYs->PixelsPerUnitXAxis = PixelsPerUnitX;
@@ -1631,8 +1638,6 @@ extern "C" {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         }
     }
-    
-    
     
     int32_t OVIA_PNG_PHYS_GetPixelsPerUnitX(OVIA *Ovia) {
         int32_t PixelsPerUnitX = 0;
@@ -1734,14 +1739,81 @@ extern "C" {
         }
     }
     
-    uint8_t OVIA_PNG_PLTE_GetPaletteEntry(OVIA *Ovia, uint64_t Entry) {
-        uint8_t Alpha = 0;
+    void OVIA_PNG_HIST_SetNumEntries() {
+        
+    }
+    
+    void OVIA_PNG_TIME_SetTime(OVIA *Ovia, uint16_t Year, uint8_t Month, uint8_t Day, uint8_t Hour, uint8_t Minute, uint8_t Second) {
         if (Ovia != NULL) {
-            Alpha = Ovia->PNGInfo->PLTE->Palette[Entry];
+            Ovia->PNGInfo->tIMe->Year   = Year;
+            Ovia->PNGInfo->tIMe->Month  = Month;
+            Ovia->PNGInfo->tIMe->Day    = Day;
+            Ovia->PNGInfo->tIMe->Hour   = Hour;
+            Ovia->PNGInfo->tIMe->Minute = Minute;
+            Ovia->PNGInfo->tIMe->Second = Second;
         } else {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         }
-        return Alpha;
+    }
+    
+    uint16_t OVIA_PNG_TIME_GetYear(OVIA *Ovia) {
+        uint16_t Year = 0;
+        if (Ovia != NULL) {
+            Year = Ovia->PNGInfo->tIMe->Year;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return Year;
+    }
+    
+    uint8_t OVIA_PNG_TIME_GetMonth(OVIA *Ovia) {
+        uint8_t Month = 0;
+        if (Ovia != NULL) {
+            Month = Ovia->PNGInfo->tIMe->Month;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return Month;
+    }
+    
+    uint8_t OVIA_PNG_TIME_GetDay(OVIA *Ovia) {
+        uint8_t Day = 0;
+        if (Ovia != NULL) {
+            Day = Ovia->PNGInfo->tIMe->Day;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return Day;
+    }
+    
+    uint8_t OVIA_PNG_TIME_GetHour(OVIA *Ovia) {
+        uint8_t Hour = 0;
+        if (Ovia != NULL) {
+            Hour = Ovia->PNGInfo->tIMe->Hour;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return Hour;
+    }
+    
+    uint8_t OVIA_PNG_TIME_GetMinute(OVIA *Ovia) {
+        uint8_t Minute = 0;
+        if (Ovia != NULL) {
+            Minute = Ovia->PNGInfo->tIMe->Minute;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return Minute;
+    }
+    
+    uint8_t OVIA_PNG_TIME_GetSecond(OVIA *Ovia) {
+        uint8_t Second = 0;
+        if (Ovia != NULL) {
+            Second = Ovia->PNGInfo->tIMe->Second;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return Second;
     }
     
     void OVIA_PNG_DAT_SetCMF(OVIA *Ovia, uint8_t CMF) {
@@ -1755,14 +1827,6 @@ extern "C" {
     void OVIA_PNG_DAT_SetFLG(OVIA *Ovia, uint8_t FLG) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->DAT->FLG =  FLG;
-        } else {
-            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
-        }
-    }
-    
-    void OVIA_PNG_DAT_SetAdler32(OVIA *Ovia, uint32_t Adler32) {
-        if (Ovia != NULL) {
-            Ovia->PNGInfo->DAT->Adler32 =  Adler32;
         } else {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         }
@@ -2352,15 +2416,6 @@ extern "C" {
         }
     }
     
-    void OVIA_FLAC_Frame_SetCRC(OVIA *Ovia, uint8_t CRC) {
-        if (Ovia != NULL) {
-            Ovia->FLACInfo->Frame->FLACFrameCRC = CRC;
-        } else {
-            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
-        }
-    }
-    
-    
     void OVIA_FLAC_Frame_SetBlockSize(OVIA *Ovia, uint16_t BlockSize) {
         if (Ovia != NULL) {
             Ovia->FLACInfo->Frame->BlockSize = BlockSize;
@@ -2368,7 +2423,6 @@ extern "C" {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         }
     }
-    
     
     bool OVIA_FLAC_Frame_GetBlockType(OVIA *Ovia) {
         bool BlockType = No;
@@ -2438,16 +2492,6 @@ extern "C" {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         }
         return SampleNumber;
-    }
-    
-    uint8_t OVIA_FLAC_Frame_GetCRC(OVIA *Ovia) {
-        uint8_t CRC = 0;
-        if (Ovia != NULL) {
-            CRC = Ovia->FLACInfo->Frame->FLACFrameCRC;
-        } else {
-            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
-        }
-        return CRC;
     }
     
     void OVIA_FLAC_SubFrame_SetType(OVIA *Ovia, uint8_t SubframeType) {
@@ -2659,6 +2703,24 @@ extern "C" {
             }
             free(Ovia->Tags);
             free(Ovia);
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
+    void OVIA_PNG_GAMA_SetGamma(OVIA *Ovia, uint32_t Gamma) {
+        if (Ovia != NULL) {
+            Ovia->PNGInfo->gAMA->Gamma = Gamma;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
+    void OVIA_PNG_SCAL_SetSCAL(OVIA *Ovia, uint8_t UnitSpecifier, double Width, double Height) {
+        if (Ovia != NULL) {
+            Ovia->PNGInfo->sCAL->UnitSpecifier = UnitSpecifier;
+            Ovia->PNGInfo->sCAL->PixelWidth    = Width;
+            Ovia->PNGInfo->sCAL->PixelHeight   = Height;
         } else {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         }

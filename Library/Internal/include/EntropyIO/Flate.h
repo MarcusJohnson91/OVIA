@@ -1,4 +1,4 @@
-#include "stdint.h"
+#include "../../../../Dependencies/FoundationIO/libFoundationIO/include/BitIO.h"
 
 #pragma once
 
@@ -8,6 +8,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+    
     /*
      Deflate uses MSBit first bit order and MSByte first byte order
      
@@ -18,13 +19,13 @@ extern "C" {
      FLG   = FLaGs
      
      CMF:
-        CINFO: top 4 bits, if CM == 8 CINFO = base 2 logarithm of the LZ77 window size, minus 8; CINFO > 7 is not allowed.
-        CM: bottom 4 bits, CM = 8 is DEFLATE, 15 is reserved.
+     CINFO: top 4 bits, if CM == 8 CINFO = base 2 logarithm of the LZ77 window size, minus 8; CINFO > 7 is not allowed.
+     CM: bottom 4 bits, CM = 8 is DEFLATE, 15 is reserved.
      
      FLG:
-        FLEVEL: top 2 bits, Compression level
-        FDICT:  middle 1 bit, Preset Dictionary
-        FCHECK: bottom 5 bits, check bits for CMF and FLG
+     FLEVEL: top 2 bits, Compression level
+     FDICT:  middle 1 bit, Preset Dictionary
+     FCHECK: bottom 5 bits, check bits for CMF and FLG
      
      FCHECK: If you treat CMF and FLG as a uint16_t, the value should be  multiple of 31.
      
@@ -34,11 +35,12 @@ extern "C" {
      */
     
     typedef struct FlateHeader {
-        uint8_t CINFO:4;  // 7
-        uint8_t CM:4;     // 8
-        uint8_t FLEVEL:2; // 0
-        uint8_t FDICT:1;  // 0
-        uint8_t FCHECK:5; // 1, passed.
+        uint32_t DictID;   // Adler32 of the tree used to compress the block.
+        uint8_t  CINFO:4;  // CompressionInfo
+        uint8_t  CM:4;     // CompressionMethod
+        uint8_t  FLEVEL:2; // CompressionLevel
+        uint8_t  FDICT:1;  // DictionaryPresent
+        uint8_t  FCHECK:5; // CheckBits, X added to the other fields so that when the whole header is modulo'd with 31 the result is 0.
     } FlateHeader;
     
     typedef struct HuffmanCode {
@@ -50,6 +52,26 @@ extern "C" {
         uint16_t     Entries;
         HuffmanCode *Codes;
     } HuffmanTable;
+    
+    void OVIA_PNG_DAT_ReadFlateHeader(FlateHeader *Header, BitBuffer *BitB);
+    
+    void OVIA_PNG_DAT_WriteFlateHeader(FlateHeader *Header, BitBuffer *BitB);
+    
+    void OVIA_PNG_DAT_ReadHuffmanTrees(FlateHeader *Header, BitBuffer *BitB);
+    
+    static const uint8_t FixedLengthAdditionalBits[]  = {
+        0, 0, 0, 0, 0, 0, 0, 0,
+        1, 1, 1, 1, 2, 2, 2, 2,
+        3, 3, 3, 3, 4, 4, 4, 4,
+        5, 5, 5, 5, 0
+    };
+    
+    static const uint8_t FixedDistanceAdditionalBits[] = {
+        0,   0,  0,  0,  1,  1,  2,  2,
+        3,   3,  4,  4,  5,  5,  6,  6,
+        7,   7,  8,  8,  9,  9, 10, 10,
+        11, 11, 12, 12, 13, 13
+    }; // So, Read 5 bits for the Distance code, look it up here.
     
 #ifdef __cplusplus
 }

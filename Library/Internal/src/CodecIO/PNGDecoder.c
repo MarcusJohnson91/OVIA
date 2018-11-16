@@ -9,24 +9,6 @@ extern "C" {
 #define strcasecmp _stricmp
 #endif
     
-    /*
-     bool VerifyChunkCRC(BitBuffer *BitB, uint32_t ChunkSize) {
-     // So basically we need to read ChunkSize bytes into an array, then read the following 4 bytes as the CRC
-     // then run VerifyCRC over the buffer, and finally compare the generated CRC with the extracted one, and return whether they match.
-     // Then call BitBuffer_Seek(BitB, Bytes2Bits(ChunkSize)); to reset to the beginning of the chunk
-     uint8_t *Buffer2CRC = calloc(1, ChunkSize * sizeof(uint8_t));
-     for (uint32_t Byte = 0; Byte < ChunkSize; Byte++) {
-     Buffer2CRC[Byte] = BitB->Buffer[Bits2Bytes(, false)];
-     free(Buffer2CRC);
-     
-     }
-     uint32_t ChunkCRC = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
-     bool CRCsMatch = VerifyCRC(Buffer2CRC, ChunkSize, 0x82608EDB, 32, 0xFFFFFFFF, ChunkCRC);
-     BitBuffer_Seek(BitB, -Bytes2Bits(ChunkSize));
-     return CRCsMatch;
-     }
-     */
-    
     uint8_t PaethPredictor(int64_t Left, int64_t Above, int64_t UpperLeft) {
         uint8_t Output    = 0;
         
@@ -315,7 +297,6 @@ extern "C" {
             
             OVIA_PNG_DAT_SetCMF(Ovia, BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8));
             OVIA_PNG_DAT_SetFLG(Ovia, BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8));
-            OVIA_PNG_DAT_SetAdler32(Ovia, BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32));
             
             /* Compression Method and Flags byte */
             uint8_t CompressionMethod = OVIA_PNG_DAT_GetCompressionMethod(Ovia); // 8
@@ -351,9 +332,7 @@ extern "C" {
     }
     
     void OVIA_PNG_IHDR_Parse(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize) {
-        /* When checking the CRC, you need to skip over the ChunkSize field, but include the ChunkID */
         if (Ovia != NULL && BitB != NULL) {
-            uint32_t GeneratedCRC     = GenerateCRC32(BitB, ChunkSize);
             uint32_t Width          = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
             uint32_t Height         = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
             uint8_t  BitDepth       = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
@@ -365,14 +344,7 @@ extern "C" {
             uint8_t FilterMethod   = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
             uint8_t Progressive    = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
             
-            OVIA_PNG_SetIHDR(Ovia, Height, Width, BitDepth, ColorType, Progressive);
-            
-            uint32_t CRC              = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
-            if (GeneratedCRC != CRC) {
-                Log(Log_ERROR, __func__, U8("CRC Mismatch"));
-            }
-            
-            //VerifyCRC(Ovia->iHDR, ChunkSize, 1, 1, CRC);
+            OVIA_PNG_IHDR_SetIHDR(Ovia, Height, Width, BitDepth, ColorType, Progressive);
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -447,7 +419,8 @@ extern "C" {
     void OVIA_PNG_BKGD_Parse(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize) { // Background
         if (Ovia != NULL && BitB != NULL) {
             for (uint8_t Entry = 0; Entry < 3; Entry++) {
-                Ovia->bkGD->BackgroundPaletteEntry[Entry] = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
+                uint8_t BackgroundEntry = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
+                OVIA_PNG_BKGD_SetBackgroundPaletteEntry(Ovia, BackgroundEntry);
             }
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
@@ -458,14 +431,19 @@ extern "C" {
     
     void OVIA_PNG_CHRM_Parse(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize) { // Chromaticities
         if (Ovia != NULL && BitB != NULL) {
-            Ovia->cHRM->WhitePointX = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
-            Ovia->cHRM->WhitePointY = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
-            Ovia->cHRM->RedX        = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
-            Ovia->cHRM->RedY        = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
-            Ovia->cHRM->GreenX      = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
-            Ovia->cHRM->GreenY      = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
-            Ovia->cHRM->BlueX       = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
-            Ovia->cHRM->BlueY       = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
+            uint32_t WhitePointX = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
+            uint32_t WhitePointY = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
+            uint32_t RedX        = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
+            uint32_t RedY        = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
+            uint32_t GreenX      = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
+            uint32_t GreenY      = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
+            uint32_t BlueX       = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
+            uint32_t BlueY       = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
+            
+            OVIA_PNG_CHRM_SetWhitePoint(Ovia, WhitePointX, WhitePointY);
+            OVIA_PNG_CHRM_SetRed(Ovia, RedX, RedY);
+            OVIA_PNG_CHRM_SetGreen(Ovia, GreenX, GreenY);
+            OVIA_PNG_CHRM_SetBlue(Ovia, BlueX, BlueY);
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -475,7 +453,9 @@ extern "C" {
     
     void OVIA_PNG_GAMA_Parse(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize) { // Gamma
         if (Ovia != NULL && BitB != NULL) {
-            Ovia->gAMA->Gamma = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
+            
+            uint32_t Gamma = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
+            OVIA_PNG_GAMA_SetGamma(Ovia, Gamma);
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -485,9 +465,9 @@ extern "C" {
     
     void OVIA_PNG_OFFS_Parse(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize) { // Image Offset
         if (Ovia != NULL && BitB != NULL) {
-            Ovia->oFFs->XOffset       = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
-            Ovia->oFFs->YOffset       = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
-            Ovia->oFFs->UnitSpecifier = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
+            OVIA_PNG_OFFS_SetXOffset(Ovia, BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32));
+            OVIA_PNG_OFFS_SetYOffset(Ovia, BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32));
+            OVIA_PNG_OFFS_SetSpecifier(Ovia, BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8));
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -497,9 +477,9 @@ extern "C" {
     
     void OVIA_PNG_PHYS_Parse(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize) { // Aspect ratio, Physical pixel size
         if (Ovia != NULL && BitB != NULL) {
-            Ovia->pHYs->PixelsPerUnitXAxis = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
-            Ovia->pHYs->PixelsPerUnitYAxis = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
-            Ovia->pHYs->UnitSpecifier      = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
+            OVIA_PNG_PHYS_SetPixelsPerUnitX(Ovia, BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32));
+            OVIA_PNG_PHYS_SetPixelsPerUnitY(Ovia, BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32));
+            OVIA_PNG_PHYS_SetUnitSpecifier(Ovia, BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8));
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -508,33 +488,23 @@ extern "C" {
     }
     
     void OVIA_PNG_SCAL_Parse(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize) { // Physical Scale
-                                                                                // Ok, so we need to take the size of the chunk into account.
         if (Ovia != NULL && BitB != NULL) {
-            Ovia->sCAL->UnitSpecifier = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8); // 1 = Meter, 2 = Radian
+            uint8_t UnitSpecifier     = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8); // 1 = Meter, 2 = Radian
             
-            uint32_t WidthStringSize  = 0;
-            uint32_t HeightStringSize = 0;
+            uint32_t WidthStringSize  = BitBuffer_GetUTF8StringSize(BitB);
+            uint32_t HeightStringSize = ChunkSize - WidthStringSize - 1 - 1; // - 1 for the Unit specifier, and the null terminator for string1
             
-            for (uint32_t Byte = 0UL; Byte < ChunkSize - 1; Byte++) { // Get the sizes for the field strings
-                if (BitBuffer_PeekBits(MSByteFirst, LSBitFirst, BitB, 8) != '\0') {
-                    WidthStringSize += 1;
-                }
-            }
-            HeightStringSize = ChunkSize - (WidthStringSize + 1);
-            
-            UTF8 *WidthString = calloc(WidthStringSize, sizeof(UTF8));
-            UTF8 *HeightString = calloc(HeightStringSize, sizeof(UTF8));
-            
-            for (uint32_t WidthCodePoint = 0; WidthCodePoint < WidthStringSize; WidthCodePoint++) {
-                WidthString[WidthCodePoint] = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
-            }
+            UTF8 *WidthString         = BitBuffer_ReadUTF8(BitB, WidthStringSize);
             BitBuffer_Seek(BitB, 8); // Skip the NULL seperator
-            for (uint32_t HeightCodePoint = 0; HeightCodePoint < HeightStringSize; HeightCodePoint++) {
-                HeightString[HeightCodePoint] = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
-            }
+            UTF8 *HeightString        = BitBuffer_ReadUTF8(BitB, HeightStringSize);
             
-            Ovia->sCAL->PixelWidth  = UTF8_String2Oviaimal(WidthString);
-            Ovia->sCAL->PixelHeight = UTF8_String2Oviaimal(HeightString);
+            double Width              = UTF8_String2Decimal(WidthString);
+            double Height             = UTF8_String2Decimal(HeightString);
+            
+            free(WidthString);
+            free(HeightString);
+            
+            OVIA_PNG_SCAL_SetSCAL(Ovia, UnitSpecifier, Width, Height);
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -544,14 +514,10 @@ extern "C" {
     
     void OVIA_PNG_PCAL_Parse(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize) {
         if (Ovia != NULL && BitB != NULL) {
-            char CalibrationName[80];
-            while (BitBuffer_PeekBits(MSByteFirst, LSBitFirst, BitB, 8) != 0x0) {
-                for (uint8_t Byte = 0; Byte < 80; Byte++) {
-                    CalibrationName[Byte] = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
-                }
-            }
-            Ovia->pCAL->CalibrationName     = CalibrationName;
-            Ovia->pCAL->CalibrationNameSize = UTF8_GetStringSizeInCodePoints(Ovia->pCAL->CalibrationName);
+            uint8_t CalibrationSize = BitBuffer_GetUTF8StringSize(BitB);
+            UTF8   *Calibration     = BitBuffer_ReadUTF8(BitB, CalibrationSize);
+            
+            OVIA_PNG_PCAL_SetCalibrationName(Ovia, Calibration);
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -561,9 +527,9 @@ extern "C" {
     
     void OVIA_PNG_SBIT_Parse(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize) { // Significant bits per sample
         if (Ovia != NULL && BitB != NULL) {
-            Ovia->sBIT->Red                   = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
-            Ovia->sBIT->Green                 = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
-            Ovia->sBIT->Blue                  = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
+            OVIA_PNG_SBIT_SetRed(Ovia, BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8));
+            OVIA_PNG_SBIT_SetGreen(Ovia, BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8));
+            OVIA_PNG_SBIT_SetBlue(Ovia, BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8));
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -573,7 +539,7 @@ extern "C" {
     
     void OVIA_PNG_SRGB_Parse(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize) {
         if (Ovia != NULL && BitB != NULL) {
-            Ovia->sRGB->RenderingIntent       = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
+            OVIA_PNG_SRGB_SetRenderingIntent(Ovia, BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8));
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -583,8 +549,7 @@ extern "C" {
     
     void OVIA_PNG_STER_Parse(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize) {
         if (Ovia != NULL && BitB != NULL) {
-            Ovia->PNGIs3D                     = true;
-            OVIA_PNG_STER_GetSterType(Ovia)            = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
+            OVIA_PNG_STER_SetSterType(Ovia, BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8));
             
             // No matter what StereoType is used, both images are arranged side by side, and the left edge is aligned on a boundary of the 8th column in case interlacing is used.
             // The two sub images must have the same dimensions after padding is removed.
@@ -616,7 +581,7 @@ extern "C" {
             
             uint32_t CommentSize = ChunkSize - KeywordSize;
             
-            Ovia->NumTextChunks  += 1;
+            //Ovia->NumTextChunks  += 1;
             
             
             
@@ -646,12 +611,13 @@ extern "C" {
     
     void OVIA_PNG_TIME_Parse(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize) {
         if (Ovia != NULL && BitB != NULL) {
-            Ovia->tIMe->Year                  = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 16);
-            Ovia->tIMe->Month                 = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
-            Ovia->tIMe->Day                   = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
-            Ovia->tIMe->Hour                  = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
-            Ovia->tIMe->Minute                = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
-            Ovia->tIMe->Second                = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
+            uint16_t Year                     = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 16);
+            uint8_t  Month                    = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
+            uint8_t  Day                      = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
+            uint8_t  Hour                     = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
+            uint8_t  Minute                   = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
+            uint8_t  Second                   = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
+            OVIA_PNG_TIME_SetTime(Ovia, Year, Month, Day, Hour, Minute, Second);
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -662,9 +628,9 @@ extern "C" {
     /* APNG */
     void OVIA_PNG_ACTL_Parse(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize) { // Animation control, part of APNG
         if (Ovia != NULL && BitB != NULL) {
-            Ovia->PNGIsAnimated               = true;
-            Ovia->acTL->NumFrames             = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
-            Ovia->acTL->TimesToLoop           = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32); // If 0, loop forever.
+            uint32_t NumFrames             = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
+            uint32_t TimesToLoop           = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32); // If 0, loop forever.
+            OVIA_PNG_ACTL_SetACTL(Ovia, NumFrames, TimesToLoop);
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -674,15 +640,23 @@ extern "C" {
     
     void OVIA_PNG_FCTL_Parse(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize) { // Frame Control, part of APNG
         if (Ovia != NULL && BitB != NULL) {
-            Ovia->fcTL->FrameNum              = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
-            Ovia->fcTL->Width                 = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
-            Ovia->fcTL->Height                = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
-            Ovia->fcTL->XOffset               = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
-            Ovia->fcTL->YOffset               = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
-            Ovia->fcTL->FrameDelayNumerator   = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 16);
-            Ovia->fcTL->FrameDelayDenominator = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 16);
-            Ovia->fcTL->DisposeMethod         = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
-            Ovia->fcTL->BlendMethod           = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
+            uint32_t FrameNum              = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
+            uint32_t Width                 = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
+            uint32_t Height                = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
+            uint32_t XOffset               = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
+            uint32_t YOffset               = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
+            uint16_t FrameDelayNumerator   = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 16);
+            uint16_t FrameDelayDenominator = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 16);
+            uint8_t  DisposeMethod         = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
+            uint8_t  BlendMethod           = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
+            OVIA_PNG_FCTL_SetFrameNum(Ovia, FrameNum);
+            OVIA_PNG_FCTL_SetWidth(Ovia, Width);
+            OVIA_PNG_FCTL_SetHeight(Ovia, Height);
+            OVIA_PNG_FCTL_SetXOffset(Ovia, XOffset);
+            OVIA_PNG_FCTL_SetFrameDelayNumerator(Ovia, FrameDelayNumerator);
+            OVIA_PNG_FCTL_SetFrameDelayDenominator(Ovia, FrameDelayDenominator);
+            OVIA_PNG_FCTL_SetDisposeMethod(Ovia, DisposeMethod);
+            OVIA_PNG_FCTL_SetBlendMethod(Ovia, BlendMethod);
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -715,6 +689,7 @@ extern "C" {
     
     void OVIA_PNG_SPLT_Parse(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize) {
         if (Ovia != NULL && BitB != NULL) {
+            
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -722,12 +697,11 @@ extern "C" {
         }
     }
     
-    uint8_t OVIA_PNG_ParseChunks(OVIA *Ovia, BitBuffer *BitB) {
+    void OVIA_PNG_ParseChunks(OVIA *Ovia, BitBuffer *BitB) {
         if (Ovia != NULL && BitB != NULL) {
             while (BitBuffer_GetSize(BitB) > 0) { // 12 is the start of IEND
                 uint32_t ChunkSize   = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
                 uint32_t ChunkID     = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
-                VerifyCRC32(BitB, ChunkSize);
                 
                 if (ChunkID == acTLMarker) {
                     OVIA_PNG_ACTL_Parse(Ovia, BitB, ChunkSize);
@@ -781,6 +755,7 @@ extern "C" {
     }
     
     ImageContainer *PNGExtractImage(OVIA *Ovia, BitBuffer *BitB) {
+        ImageContainer *Image = NULL;
         if (Ovia != NULL && BitB != NULL) {
             
         } else if (Ovia == NULL) {
@@ -788,6 +763,7 @@ extern "C" {
         } else if (BitB == NULL) {
             Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
         }
+        return Image;
     }
     
 #ifdef __cplusplus

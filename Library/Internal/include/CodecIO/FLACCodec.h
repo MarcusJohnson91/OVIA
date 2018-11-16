@@ -127,13 +127,9 @@ extern "C" {
     
     void        OVIA_FLAC_Decode_Residual(OVIA *Ovia, BitBuffer *BitB);
     
-    void        OVIA_FLAC_Decode_Rice1(OVIA *Ovia, BitBuffer *BitB);
+    void        OVIA_FLAC_Decode_RICE1(OVIA *Ovia, BitBuffer *BitB);
     
-    void        OVIA_FLAC_Decode_Rice2(OVIA *Ovia, BitBuffer *BitB);
-    
-    void        FLACBitDepth(OVIA *Ovia);
-    
-    void        FLACSampleRate(OVIA *Ovia, BitBuffer *BitB);
+    void        OVIA_FLAC_Decode_RICE2(OVIA *Ovia, BitBuffer *BitB);
     
     uint8_t     GetBlockSizeInSamples(uint8_t BlockSize);
     
