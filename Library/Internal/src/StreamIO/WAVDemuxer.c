@@ -164,7 +164,7 @@ extern "C" {
                     OVIA_SetBitDepth(Ovia, ValidBitsPerSample);
                 }
                 uint32_t  SpeakerMask       = BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, 32);
-                uint8_t  *BinaryGUIDFormat  = BitBuffer_ReadGUUID(BinaryGUID, BitB);
+                uint8_t  *BinaryGUIDFormat  = BitBuffer_ReadGUUID(BitB, BinaryGUID);
                 BitBuffer_Seek(BitB, Bytes2Bits(CBSize - 22));
             }
         } else if (Ovia == NULL) {

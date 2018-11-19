@@ -13,9 +13,9 @@ extern "C" {
         uint8_t Output    = 0;
         
         int64_t Guess     = Left + Above - UpperLeft;
-        int64_t DistanceA = Absolute(Guess - Left);
-        int64_t DistanceB = Absolute(Guess - Above);
-        int64_t DistanceC = Absolute(Guess - UpperLeft);
+        int64_t DistanceA = AbsoluteI(Guess - Left);
+        int64_t DistanceB = AbsoluteI(Guess - Above);
+        int64_t DistanceC = AbsoluteI(Guess - UpperLeft);
         
         if (DistanceA <= DistanceB && DistanceA <= DistanceC) {
             Output = DistanceA;
@@ -108,7 +108,7 @@ extern "C" {
                         for (uint32_t Width = 0UL; Width < OVIA_GetWidth(Ovia); Width++) {
                             for (uint32_t Byte = 0UL; Byte < Bits2Bytes(OVIA_GetBitDepth(Ovia), true); Byte++) {
                                 float   PreAverage = (ImageArray[StereoView][Height][Width][Byte - Bits2Bytes(OVIA_GetBitDepth(Ovia), true)] + ImageArray[StereoView][Height][Width - 1][Byte]) / 2;
-                                uint8_t Average    = Floor(PreAverage) % 256;
+                                uint8_t Average    = FloorF(PreAverage) % 256;
                                 
                                 ImageArray[StereoView][Height][Width][Byte] = Average;
                             }
@@ -123,7 +123,7 @@ extern "C" {
                         for (uint32_t Width = 0UL; Width < OVIA_GetWidth(Ovia); Width++) {
                             for (uint32_t Byte = 0UL; Byte < Bits2Bytes(OVIA_GetBitDepth(Ovia), true); Byte++) {
                                 float   PreAverage = (ImageArray[StereoView][Height][Width][Byte - Bits2Bytes(OVIA_GetBitDepth(Ovia), true)] + ImageArray[StereoView][Height][Width - 1][Byte]) / 2;
-                                uint16_t Average   = Floor(PreAverage) % 65536;
+                                uint16_t Average   = FloorF(PreAverage) % 65536;
                                 
                                 ImageArray[StereoView][Height][Width][Byte] = Average;
                             }
