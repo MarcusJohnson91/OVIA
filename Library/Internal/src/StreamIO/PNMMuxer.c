@@ -1,5 +1,8 @@
 #include "../../../../Dependencies/FoundationIO/libFoundationIO/include/Macros.h"
+#include "../../../../Dependencies/FoundationIO/libFoundationIO/include/StringIO.h"
+#include "../../../../Dependencies/FoundationIO/libFoundationIO/include/Math.h"
 #include "../../../include/Private/Image/PNMCommon.h"
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -7,17 +10,63 @@ extern "C" {
     
     static void PNMWritePAMHeader(OVIA *Ovia, BitBuffer *BitB) {
         if (Ovia != NULL && BitB != NULL) {
+            BitBuffer_WriteUTF8(BitB, U8("P7"));
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8, 0x0A);
             
-        } else if (Ovia == NULL) {
-            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
-        } else if (BitB == NULL) {
-            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
-        }
-    }
-    
-    static void PNMWriteBinaryPNMHeader(OVIA *Ovia, BitBuffer *BitB) {
-        if (Ovia != NULL && BitB != NULL) {
+            /* Write the Width */
+            UTF8 *Width = UTF8_Integer2String(10, OVIA_GetWidth(Ovia));
+            BitBuffer_WriteUTF8(BitB, U8("WIDTH "));
+            BitBuffer_WriteUTF8(BitB, Width);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8, 0x0A);
+            free(Width);
+            /* Write the Width */
             
+            /* Write the Height */
+            UTF8 *Height = UTF8_Integer2String(10, OVIA_GetHeight(Ovia));
+            BitBuffer_WriteUTF8(BitB, U8("HEIGHT "));
+            BitBuffer_WriteUTF8(BitB, Height);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8, 0x0A);
+            free(Height);
+            /* Write the Height */
+            
+            /* Write the NumChannels */
+            UTF8 *NumChannels = UTF8_Integer2String(10, OVIA_GetNumChannels(Ovia));
+            BitBuffer_WriteUTF8(BitB, U8("DEPTH "));
+            BitBuffer_WriteUTF8(BitB, NumChannels);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8, 0x0A);
+            free(NumChannels);
+            /* Write the NumChannels */
+            
+            /* Write the BitDepth */
+            uint64_t MaxVal = Exponentiate(2, OVIA_GetBitDepth(Ovia)) - 1;
+            UTF8 *BitDepth  = UTF8_Integer2String(10, MaxVal);
+            BitBuffer_WriteUTF8(BitB, U8("MAXVAL "));
+            BitBuffer_WriteUTF8(BitB, BitDepth);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8, 0x0A);
+            free(BitDepth);
+            /* Write the BitDepth */
+            
+            /* Write the TUPLTYPE */
+            BitBuffer_WriteUTF8(BitB, U8("TUPLTYPE "));
+            PNMTupleTypes TupleType = OVIA_PNM_GetTupleType(Ovia);
+            if (TupleType == PNM_TUPLE_BnW) {
+                BitBuffer_WriteUTF8(BitB, U8("BLACKANDWHITE"));
+            } else if (TupleType == PNM_TUPLE_Gray) {
+                BitBuffer_WriteUTF8(BitB, U8("GRAYSCALE"));
+            } else if (TupleType == PNM_TUPLE_GrayAlpha) {
+                BitBuffer_WriteUTF8(BitB, U8("GRAYSCALE_ALPHA"));
+            } else if (TupleType == PNM_TUPLE_RGB) {
+                BitBuffer_WriteUTF8(BitB, U8("RGB"));
+            } else if (TupleType == PNM_TUPLE_RGBAlpha) {
+                BitBuffer_WriteUTF8(BitB, U8("RGB_ALPHA"));
+            }
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8, 0x0A);
+            /* Write the TUPLTYPE */
+            
+            /* Write the ENDHDR */
+            BitBuffer_WriteUTF8(BitB, U8("ENDHDR"));
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8, 0x0A);
+            /* Write the ENDHDR */
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -27,7 +76,49 @@ extern "C" {
     
     static void PNMWriteASCIIPNMHeader(OVIA *Ovia, BitBuffer *BitB) {
         if (Ovia != NULL && BitB != NULL) {
+            /* Write the Width */
+            UTF8 *Width = UTF8_Integer2String(10, OVIA_GetWidth(Ovia));
+            BitBuffer_WriteUTF8(BitB, Width);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8, 0x0A);
+            free(Width);
+            /* Write the Width */
             
+            /* Write the Height */
+            UTF8 *Height = UTF8_Integer2String(10, OVIA_GetHeight(Ovia));
+            BitBuffer_WriteUTF8(BitB, Height);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8, 0x0A);
+            free(Height);
+            /* Write the Height */
+        } else if (Ovia == NULL) {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        } else if (BitB == NULL) {
+            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
+        }
+    }
+    
+    static void PNMWriteBinaryPNMHeader(OVIA *Ovia, BitBuffer *BitB) {
+        if (Ovia != NULL && BitB != NULL) {
+            /* Write the Width */
+            UTF8 *Width = UTF8_Integer2String(10, OVIA_GetWidth(Ovia));
+            BitBuffer_WriteUTF8(BitB, Width);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8, 0x0A);
+            free(Width);
+            /* Write the Width */
+            
+            /* Write the Height */
+            UTF8 *Height = UTF8_Integer2String(10, OVIA_GetHeight(Ovia));
+            BitBuffer_WriteUTF8(BitB, Height);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8, 0x0A);
+            free(Height);
+            /* Write the Height */
+            
+            /* Write the BitDepth */
+            uint64_t MaxVal    = Exponentiate(2, OVIA_GetBitDepth(Ovia)) - 1;
+            UTF8    *BitDepth  = UTF8_Integer2String(10, MaxVal);
+            BitBuffer_WriteUTF8(BitB, BitDepth);
+            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8, 0x0A);
+            free(BitDepth);
+            /* Write the BitDepth */
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -38,6 +129,10 @@ extern "C" {
     void PNMWriteHeader(OVIA *Ovia, BitBuffer *BitB) {
         if (Ovia != NULL && BitB != NULL) {
             PNMTypes Type = OVIA_PNM_GetPNMType(Ovia);
+            if (Type == UnknownPNM) {
+                Type = PAMPNM;
+            }
+            
             if (Type == PAMPNM) {
                 PNMWritePAMHeader(Ovia, BitB);
             } else if (Type == BinaryPNM) {

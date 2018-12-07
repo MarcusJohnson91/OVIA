@@ -8,10 +8,11 @@ extern "C" {
     static uint64_t PNMCheckForComment(BitBuffer *BitB) { // returns 0 if no comment was found, returns the number of bytes that make up the comment if it was.
         uint64_t CommentSize = 0;
         if (BitB != NULL) {
-            if (BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8) == PNMCommentStart) {
-                while (BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PNMEndField) {
+            if (BitBuffer_PeekBits(MSByteFirst, LSBitFirst, BitB, 8) == PNMCommentStart) {
+                BitBuffer_Seek(BitB, 8);
+                do {
                     CommentSize += 1;
-                }
+                } while (BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PNMEndField);
             }
         } else {
             Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
@@ -24,14 +25,8 @@ extern "C" {
             uint64_t CommentSizeWidth = PNMCheckForComment(BitB);
             BitBuffer_Seek(BitB, Bytes2Bits(CommentSizeWidth));
             /* Read Width */
-            uint64_t WidthStringSize = 0LLU;
-            while (BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PNMFieldSeperator) {
-                WidthStringSize += 1;
-            }
-            UTF8 *WidthString = calloc(1, WidthStringSize * sizeof(char));
-            for (uint64_t WidthByte = 0; WidthByte < WidthStringSize; WidthByte++) {
-                WidthString[WidthByte] = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
-            }
+            uint64_t WidthStringSize  = BitBuffer_GetUTF8StringSize(BitB);
+            UTF8    *WidthString      = BitBuffer_ReadUTF8(BitB, WidthStringSize);
             OVIA_SetWidth(Ovia, UTF8_String2Integer(10, WidthString));
             free(WidthString);
             /* Read Width */
@@ -40,16 +35,11 @@ extern "C" {
             BitBuffer_Seek(BitB, Bytes2Bits(CommentSizeHeight));
             
             /* Read Height */
-            uint64_t HeightStringSize = 0LLU;
-            while (BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PNMEndField) {
-                HeightStringSize += 1;
-            }
-            UTF8 *HeightString = calloc(1, HeightStringSize * sizeof(char));
-            for (uint64_t HeightByte = 0; HeightByte < HeightStringSize; HeightByte++) {
-                HeightString[HeightByte] = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
-            }
+            uint64_t HeightStringSize = BitBuffer_GetUTF8StringSize(BitB);
+            UTF8    *HeightString     = BitBuffer_ReadUTF8(BitB, HeightStringSize);
             OVIA_SetHeight(Ovia, UTF8_String2Integer(10, HeightString));
             free(HeightString);
+            /* Read Height */
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -60,40 +50,22 @@ extern "C" {
     static void PNMParsePNMBinaryHeader(OVIA *Ovia, BitBuffer *BitB) {
         if (Ovia != NULL && BitB != NULL) {
             /* Read Width */
-            uint64_t WidthStringSize = 0LLU;
-            while (BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PNMFieldSeperator) {
-                WidthStringSize += 1;
-            }
-            UTF8 *WidthString = calloc(1, WidthStringSize * sizeof(char));
-            for (uint64_t WidthByte = 0; WidthByte < WidthStringSize; WidthByte++) {
-                WidthString[WidthByte] = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
-            }
+            uint64_t WidthStringSize  = BitBuffer_GetUTF8StringSize(BitB);
+            UTF8    *WidthString      = BitBuffer_ReadUTF8(BitB, WidthStringSize);
             OVIA_SetWidth(Ovia, UTF8_String2Integer(10, WidthString));
             free(WidthString);
             /* Read Width */
             
             /* Read Height */
-            uint64_t HeightStringSize = 0LLU;
-            while (BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PNMEndField) {
-                HeightStringSize += 1;
-            }
-            UTF8 *HeightString = calloc(1, HeightStringSize * sizeof(char));
-            for (uint64_t HeightByte = 0; HeightByte < HeightStringSize; HeightByte++) {
-                HeightString[HeightByte] = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
-            }
+            uint64_t HeightStringSize = BitBuffer_GetUTF8StringSize(BitB);
+            UTF8    *HeightString     = BitBuffer_ReadUTF8(BitB, HeightStringSize);
             OVIA_SetHeight(Ovia, UTF8_String2Integer(10, HeightString));
             free(HeightString);
             /* Read Height */
             
             /* Read MaxVal */
-            uint8_t MaxValStringSize = 0;
-            while (BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PNMEndField) {
-                MaxValStringSize += 1;
-            }
-            UTF8 *MaxValString = calloc(1, MaxValStringSize * sizeof(char));
-            for (uint8_t MaxValByte = 0; MaxValByte < MaxValStringSize; MaxValByte++) {
-                MaxValString[MaxValByte] = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
-            }
+            uint64_t MaxValStringSize = BitBuffer_GetUTF8StringSize(BitB);
+            UTF8    *MaxValString     = BitBuffer_ReadUTF8(BitB, MaxValStringSize);
             OVIA_SetBitDepth(Ovia, Logarithm(2, UTF8_String2Integer(10, MaxValString) + 1));
             free(MaxValString);
             /* Read MaxVal */
@@ -108,70 +80,49 @@ extern "C" {
         if (Ovia != NULL && BitB != NULL) {
             /* Read Width */
             BitBuffer_Seek(BitB, 48); // Skip "WIDTH " string
-            uint64_t WidthStringSize = 0LLU;
-            while (BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PNMFieldSeperator) {
-                WidthStringSize += 1;
-            }
-            UTF8 *WidthString = calloc(1, WidthStringSize * sizeof(char));
-            for (uint64_t WidthByte = 0; WidthByte < WidthStringSize; WidthByte++) {
-                WidthString[WidthByte] = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
-            }
+            
+            uint64_t WidthStringSize  = BitBuffer_GetUTF8StringSize(BitB);
+            UTF8    *WidthString      = BitBuffer_ReadUTF8(BitB, WidthStringSize);
+            
             OVIA_SetWidth(Ovia, UTF8_String2Integer(10, WidthString));
             free(WidthString);
             /* Read Width */
             
             /* Read Height */
             BitBuffer_Seek(BitB, 56); // Skip "HEIGHT " string
-            uint64_t HeightStringSize = 0LLU;
-            while (BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PNMEndField) {
-                HeightStringSize += 1;
-            }
-            UTF8 *HeightString = calloc(1, HeightStringSize * sizeof(char));
-            for (uint64_t HeightByte = 0; HeightByte < HeightStringSize; HeightByte++) {
-                HeightString[HeightByte] = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
-            }
+            
+            uint64_t HeightStringSize = BitBuffer_GetUTF8StringSize(BitB);
+            UTF8    *HeightString     = BitBuffer_ReadUTF8(BitB, HeightStringSize);
+            
             OVIA_SetHeight(Ovia, UTF8_String2Integer(10, HeightString));
             free(HeightString);
             /* Read Height */
             
             /* Read NumChannels */
             BitBuffer_Seek(BitB, 48); // Skip "DEPTH " string
-            uint8_t DepthStringSize = 0;
-            while (BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PNMEndField) {
-                DepthStringSize += 1;
-            }
-            UTF8 *DepthString = calloc(1, DepthStringSize * sizeof(char));
-            for (uint8_t DepthByte = 0; DepthByte < DepthStringSize; DepthByte++) {
-                DepthString[DepthByte] = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
-            }
+            
+            uint64_t DepthStringSize  = BitBuffer_GetUTF8StringSize(BitB);
+            UTF8    *DepthString      = BitBuffer_ReadUTF8(BitB, DepthStringSize);
+            
             OVIA_SetNumChannels(Ovia, UTF8_String2Integer(10, DepthString));
             free(DepthString);
             /* Read NumChannels */
             
             /* Read MaxVal */
             BitBuffer_Seek(BitB, 56); // Skip "MAXVAL " string
-            uint8_t MaxValStringSize = 0;
-            while (BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PNMEndField) {
-                MaxValStringSize += 1;
-            }
-            UTF8 *MaxValString = calloc(1, MaxValStringSize * sizeof(UTF8));
-            for (uint8_t MaxValByte = 0; MaxValByte < MaxValStringSize; MaxValByte++) {
-                MaxValString[MaxValByte] = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
-            }
+            
+            uint64_t MaxValStringSize = BitBuffer_GetUTF8StringSize(BitB);
+            UTF8    *MaxValString     = BitBuffer_ReadUTF8(BitB, MaxValStringSize);
+            
             OVIA_SetBitDepth(Ovia, Logarithm(2, UTF8_String2Integer(10, MaxValString) + 1));
             free(MaxValString);
             /* Read MaxVal */
             
             /* Read TupleType */
             BitBuffer_Seek(BitB, 72); // Skip "TUPLETYPE " string
-            uint8_t TupleTypeSize = 0;
-            while (BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8) != PNMEndField) {
-                TupleTypeSize += 1;
-            }
-            UTF8 *TupleTypeString = calloc(1, TupleTypeSize * sizeof(char));
-            for (uint8_t TupleByte = 0; TupleByte < TupleTypeSize; TupleByte++) {
-                TupleTypeString[TupleByte] = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
-            }
+            uint64_t TupleTypeSize     = BitBuffer_GetUTF8StringSize(BitB);
+            UTF8    *TupleTypeString   = BitBuffer_ReadUTF8(BitB, TupleTypeSize);
+            
             if (UTF8_Compare(TupleTypeString, U8("BLACKANDWHITE")) == Yes) {
                 OVIA_SetNumChannels(Ovia, 1);
                 OVIA_PNM_SetTupleType(Ovia, PNM_TUPLE_BnW);
