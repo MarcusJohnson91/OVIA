@@ -213,7 +213,7 @@ extern "C" {
             
             if (OVIA_PNM_GetPNMType(Ovia) == ASCIIPNM) {
                 if (BitDepth <= 8) {
-                    uint8_t ****Array  = (uint8_t****) ImageContainer_GetArray(Image);
+                    uint8_t *Array  = (uint8_t*) ImageContainer_GetArray(Image);
                     
                     for (uint64_t W = 0; W < Width; W++) {
                         for (uint64_t H = 0; H < Height; H++) {
@@ -226,7 +226,7 @@ extern "C" {
                                 for (uint8_t SubPixelByte = 0; SubPixelByte < SubPixelStringSize; SubPixelByte++) {
                                     SubPixelString[SubPixelByte]    = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
                                 }
-                                Array[0][Width][Height][Channel]    = UTF8_String2Integer(10, SubPixelString);
+                                Array[1 * Width * Height * Channel] = UTF8_String2Integer(10, SubPixelString);
                                 free(SubPixelString);
                             }
                         }
@@ -236,31 +236,31 @@ extern "C" {
                 }
             } else if (OVIA_PNM_GetPNMType(Ovia) == BinaryPNM || OVIA_PNM_GetPNMType(Ovia) == PAMPNM) {
                 if (BitDepth <= 8) {
-                    uint8_t ****Array  = (uint8_t****) ImageContainer_GetArray(Image);
+                    uint8_t *Array  = (uint8_t*) ImageContainer_GetArray(Image);
                     
                     for (uint64_t W = 0; W < Width; W++) {
                         for (uint64_t H = 0; H < Height; H++) {
                             for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
                                 uint8_t CurrentPixel                = BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, BitDepth);
                                 if (OVIA_PNM_GetTupleType(Ovia) == PNM_TUPLE_BnW && OVIA_PNM_GetTupleType(Ovia) != PAMPNM) {
-                                    Array[0][Width][Height][Channel] = ~CurrentPixel; // 1 = black, 0 = white
+                                    Array[1 * Width * Height * Channel] = ~CurrentPixel; // 1 = black, 0 = white
                                 } else {
-                                    Array[0][Width][Height][Channel] = CurrentPixel; // 1 = white, 0 = black
+                                    Array[1 * Width * Height * Channel] = CurrentPixel; // 1 = white, 0 = black
                                 }
                             }
                         }
                     }
                 } else if (BitDepth <= 16) {
-                    uint16_t ****Array  = (uint16_t****) ImageContainer_GetArray(Image);
+                    uint16_t *Array  = (uint16_t*) ImageContainer_GetArray(Image);
                     
                     for (uint64_t W = 0; W < Width; W++) {
                         for (uint64_t H = 0; H < Height; H++) {
                             for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
                                 uint8_t CurrentPixel                = BitBuffer_ReadBits(LSByteFirst, LSBitFirst, BitB, BitDepth);
                                 if (OVIA_PNM_GetTupleType(Ovia) == PNM_TUPLE_BnW && OVIA_PNM_GetTupleType(Ovia) != PAMPNM) {
-                                    Array[0][Width][Height][Channel] = ~CurrentPixel; // 1 = black, 0 = white
+                                    Array[1 * Width * Height * Channel] = ~CurrentPixel; // 1 = black, 0 = white
                                 } else {
-                                    Array[0][Width][Height][Channel] = CurrentPixel; // 1 = white, 0 = black
+                                    Array[1 * Width * Height * Channel] = CurrentPixel; // 1 = white, 0 = black
                                 }
                             }
                         }

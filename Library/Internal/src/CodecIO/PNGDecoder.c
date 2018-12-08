@@ -1,5 +1,6 @@
 #include "../../../../Dependencies/FoundationIO/libFoundationIO/include/Macros.h"
 #include "../../../include/Private/Image/PNGCommon.h"
+#include "../../../include/Private/Image/Flate.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,25 +32,25 @@ extern "C" {
         if (Ovia != NULL && Image != NULL) {
             Image_Types Type = ImageContainer_GetType(Image);
             if (Type == ImageType_Integer8) {
-                uint8_t  ****ImageArray = (uint8_t****)  ImageContainer_GetArray(Image);
+                uint8_t  *ImageArray = (uint8_t*)  ImageContainer_GetArray(Image);
                 
                 for (uint8_t StereoView = 0; StereoView < ImageContainer_GetNumViews(Image); StereoView++) {
                     for (uint32_t Height = 0UL; Height < ImageContainer_GetHeight(Image); Height++) {
                         for (uint32_t Width = 0UL; Width < OVIA_GetWidth(Ovia); Width++) {
                             for (uint32_t Byte = 0UL; Byte < Bits2Bytes(OVIA_GetBitDepth(Ovia), true); Byte++) {
-                                ImageArray[StereoView][Height][Width][Byte] = (ImageArray[StereoView][Height][Width][Byte] + ImageArray[StereoView][Height][Width][Byte + 1]) % 256;
+                                ImageArray[StereoView * Height * Width * Byte] = (ImageArray[StereoView * Height * Width * Byte] + ImageArray[StereoView * Height * Width * (Byte + 1)]) % 256;
                             }
                         }
                     }
                 }
             } else {
-                uint16_t ****ImageArray = (uint16_t****) ImageContainer_GetArray(Image);
+                uint16_t *ImageArray = (uint16_t*) ImageContainer_GetArray(Image);
                 
                 for (uint8_t StereoView = 0; StereoView < ImageContainer_GetNumViews(Image); StereoView++) {
                     for (uint32_t Height = 0UL; Height < ImageContainer_GetHeight(Image); Height++) {
                         for (uint32_t Width = 0UL; Width < OVIA_GetWidth(Ovia); Width++) {
                             for (uint32_t Byte = 0UL; Byte < Bits2Bytes(OVIA_GetBitDepth(Ovia), true); Byte++) {
-                                ImageArray[StereoView][Height][Width][Byte] = (ImageArray[StereoView][Height][Width][Byte] + ImageArray[StereoView][Height][Width][Byte + 1]) % 256;
+                                ImageArray[StereoView * Height * Width * Byte] = (ImageArray[StereoView * Height * Width * Byte] + ImageArray[StereoView * Height * Width * (Byte + 1)]) % 65536;
                             }
                         }
                     }
@@ -66,25 +67,25 @@ extern "C" {
         if (Ovia != NULL && Image != NULL) {
             Image_Types Type = ImageContainer_GetType(Image);
             if (Type == ImageType_Integer8) {
-                uint8_t  ****ImageArray = (uint8_t****)  ImageContainer_GetArray(Image);
+                uint8_t  *ImageArray = (uint8_t*)  ImageContainer_GetArray(Image);
                 
                 for (uint8_t StereoView = 0; StereoView < ImageContainer_GetNumViews(Image); StereoView++) {
                     for (uint32_t Height = 0UL; Height < ImageContainer_GetHeight(Image); Height++) {
                         for (uint32_t Width = 0UL; Width < OVIA_GetWidth(Ovia); Width++) {
                             for (uint32_t Byte = 0UL; Byte < Bits2Bytes(OVIA_GetBitDepth(Ovia), true); Byte++) {
-                                ImageArray[StereoView][Height][Width][Byte] = (ImageArray[StereoView][Height][Width][Byte] + ImageArray[StereoView][Height - 1][Width][Byte]) % 256;
+                                ImageArray[StereoView * Height * Width * Byte] = (ImageArray[StereoView * Height * Width * Byte] + ImageArray[StereoView * (Height - 1) * Width * Byte]) % 256;
                             }
                         }
                     }
                 }
             } else {
-                uint16_t ****ImageArray = (uint16_t****) ImageContainer_GetArray(Image);
+                uint16_t *ImageArray = (uint16_t*) ImageContainer_GetArray(Image);
                 
                 for (uint8_t StereoView = 0; StereoView < ImageContainer_GetNumViews(Image); StereoView++) {
                     for (uint32_t Height = 0UL; Height < ImageContainer_GetHeight(Image); Height++) {
                         for (uint32_t Width = 0UL; Width < OVIA_GetWidth(Ovia); Width++) {
                             for (uint32_t Byte = 0UL; Byte < Bits2Bytes(OVIA_GetBitDepth(Ovia), true); Byte++) {
-                                ImageArray[StereoView][Height][Width][Byte] = (ImageArray[StereoView][Height][Width][Byte] + ImageArray[StereoView][Height - 1][Width][Byte]) % 256;
+                                ImageArray[StereoView * Height * Width * Byte] = (ImageArray[StereoView * Height * Width * Byte] + ImageArray[StereoView * (Height - 1) * Width * Byte]) % 65536;
                             }
                         }
                     }
@@ -101,31 +102,31 @@ extern "C" {
         if (Ovia != NULL && Image != NULL) {
             Image_Types Type = ImageContainer_GetType(Image);
             if (Type == ImageType_Integer8) {
-                uint8_t  ****ImageArray = (uint8_t****)  ImageContainer_GetArray(Image);
+                uint8_t  *ImageArray = (uint8_t*)  ImageContainer_GetArray(Image);
                 
                 for (uint8_t StereoView = 0; StereoView < ImageContainer_GetNumViews(Image); StereoView++) {
                     for (uint32_t Height = 0UL; Height < ImageContainer_GetHeight(Image); Height++) {
                         for (uint32_t Width = 0UL; Width < OVIA_GetWidth(Ovia); Width++) {
                             for (uint32_t Byte = 0UL; Byte < Bits2Bytes(OVIA_GetBitDepth(Ovia), true); Byte++) {
-                                float   PreAverage = (ImageArray[StereoView][Height][Width][Byte - Bits2Bytes(OVIA_GetBitDepth(Ovia), true)] + ImageArray[StereoView][Height][Width - 1][Byte]) / 2;
+                                float   PreAverage = (ImageArray[StereoView * Height * Width * (Byte - Bits2Bytes(OVIA_GetBitDepth(Ovia), true))] + ImageArray[StereoView * Height * (Width - 1) * Byte]) / 2;
                                 uint8_t Average    = FloorF(PreAverage) % 256;
                                 
-                                ImageArray[StereoView][Height][Width][Byte] = Average;
+                                ImageArray[StereoView * Height * Width * Byte] = Average;
                             }
                         }
                     }
                 }
             } else {
-                uint16_t ****ImageArray = (uint16_t****) ImageContainer_GetArray(Image);
+                uint16_t *ImageArray = (uint16_t*) ImageContainer_GetArray(Image);
                 
                 for (uint8_t StereoView = 0; StereoView < ImageContainer_GetNumViews(Image); StereoView++) {
                     for (uint32_t Height = 0UL; Height < ImageContainer_GetHeight(Image); Height++) {
                         for (uint32_t Width = 0UL; Width < OVIA_GetWidth(Ovia); Width++) {
                             for (uint32_t Byte = 0UL; Byte < Bits2Bytes(OVIA_GetBitDepth(Ovia), true); Byte++) {
-                                float   PreAverage = (ImageArray[StereoView][Height][Width][Byte - Bits2Bytes(OVIA_GetBitDepth(Ovia), true)] + ImageArray[StereoView][Height][Width - 1][Byte]) / 2;
+                                float   PreAverage = (ImageArray[StereoView * Height * Width * (Byte - Bits2Bytes(OVIA_GetBitDepth(Ovia), true))] + ImageArray[StereoView * Height * (Width - 1) * Byte]) / 2;
                                 uint16_t Average   = FloorF(PreAverage) % 65536;
                                 
-                                ImageArray[StereoView][Height][Width][Byte] = Average;
+                                ImageArray[StereoView * Height * Width * Byte] = Average;
                             }
                         }
                     }
@@ -142,39 +143,39 @@ extern "C" {
         if (Ovia != NULL && Image != NULL) {
             Image_Types Type = ImageContainer_GetType(Image);
             if (Type == ImageType_Integer8) {
-                uint8_t  ****ImageArray = (uint8_t****)  ImageContainer_GetArray(Image);
+                uint8_t  *ImageArray = (uint8_t*)  ImageContainer_GetArray(Image);
                 
                 for (uint8_t StereoView = 0; StereoView < ImageContainer_GetNumViews(Image); StereoView++) {
                     for (uint32_t Height = 0UL; Height < ImageContainer_GetHeight(Image); Height++) {
                         for (uint32_t Width = 0UL; Width < OVIA_GetWidth(Ovia); Width++) {
                             for (uint32_t Byte = 0UL; Byte < Bits2Bytes(OVIA_GetBitDepth(Ovia), true); Byte++) {
-                                uint8_t Current = (ImageArray[StereoView][Height][Width][Byte]);
+                                uint8_t Current = (ImageArray[StereoView * Height * Width * Byte]);
                                 
-                                uint8_t Left    = ImageArray[StereoView][Height][Width][Byte - 1];
-                                uint8_t Above   = ImageArray[StereoView][Height - 1][Width][Byte];
-                                uint8_t UpLeft  = ImageArray[StereoView][Height - 1][Width][Byte - 1];
+                                uint8_t Left    = ImageArray[StereoView * Height * Width * (Byte - 1)];
+                                uint8_t Above   = ImageArray[StereoView * Height * Width * Byte];
+                                uint8_t UpLeft  = ImageArray[StereoView * (Height - 1) * Width * (Byte - 1)];
                                 uint8_t Paeth   = PaethPredictor(Left, Above, UpLeft);
                                 
-                                ImageArray[StereoView][Height][Width][Byte] = (Current - Paeth) % 256;
+                                ImageArray[StereoView * Height * Width * Byte] = (Current - Paeth) % 256;
                             }
                         }
                     }
                 }
             } else {
-                uint16_t ****ImageArray = (uint16_t****) ImageContainer_GetArray(Image);
+                uint16_t *ImageArray = (uint16_t*) ImageContainer_GetArray(Image);
                 
                 for (uint8_t StereoView = 0; StereoView < ImageContainer_GetNumViews(Image); StereoView++) {
                     for (uint32_t Height = 0UL; Height < ImageContainer_GetHeight(Image); Height++) {
                         for (uint32_t Width = 0UL; Width < OVIA_GetWidth(Ovia); Width++) {
                             for (uint32_t Byte = 0UL; Byte < Bits2Bytes(OVIA_GetBitDepth(Ovia), true); Byte++) {
-                                uint8_t Current = (ImageArray[StereoView][Height][Width][Byte]);
+                                uint16_t Current = (ImageArray[StereoView * Height * Width * Byte]);
                                 
-                                uint8_t Left    = ImageArray[StereoView][Height][Width][Byte - 1];
-                                uint8_t Above   = ImageArray[StereoView][Height - 1][Width][Byte];
-                                uint8_t UpLeft  = ImageArray[StereoView][Height - 1][Width][Byte - 1];
-                                uint8_t Paeth   = PaethPredictor(Left, Above, UpLeft);
+                                uint16_t Left    = ImageArray[StereoView * Height * Width * (Byte - 1)];
+                                uint16_t Above   = ImageArray[StereoView * Height * Width * Byte];
+                                uint16_t UpLeft  = ImageArray[StereoView * (Height - 1) * Width * (Byte - 1)];
+                                uint16_t Paeth   = PaethPredictor(Left, Above, UpLeft);
                                 
-                                ImageArray[StereoView][Height][Width][Byte] = (Current - Paeth) % 256;
+                                ImageArray[StereoView * Height * Width * Byte] = (Current - Paeth) % 65536;
                             }
                         }
                     }
@@ -197,10 +198,10 @@ extern "C" {
             Image_Types Type = ImageContainer_GetType(Image);
             if (Type == ImageType_Integer8) {
                 // Image8
-                uint8_t  ****ImageArray = (uint8_t****) ImageContainer_GetArray(Image);
+                uint8_t  *ImageArray = (uint8_t*) ImageContainer_GetArray(Image);
                 
                 for (size_t ScanLine = 0; ScanLine < ImageContainer_GetWidth(Image); ScanLine++) {
-                    switch (ImageArray[0][ScanLine][0][0]) {
+                    switch (ImageArray[ScanLine]) {
                         case NotFiltered:
                             // copy the Line except byte 0 (the filter indication byte) to the output buffer.
                             // With the ImageContainer framework the way it is, this is only possible at the end.
@@ -222,16 +223,16 @@ extern "C" {
                             OVIA_PNG_Filter_Paeth(Ovia, Image);
                             break;
                         default:
-                            Log(Log_ERROR, __func__, U8("Filter type: %d is invalid"), ImageArray[0][ScanLine][0][0]);
+                            Log(Log_ERROR, __func__, U8("Filter type: %d is invalid"), ImageArray[ScanLine]);
                             break;
                     }
                 }
             } else {
                 // Image16
-                uint16_t ****ImageArray = (uint16_t****) ImageContainer_GetArray(Image);
+                uint16_t *ImageArray = (uint16_t*) ImageContainer_GetArray(Image);
                 
                 for (size_t ScanLine = 0; ScanLine < ImageContainer_GetWidth(Image); ScanLine++) {
-                    switch (ImageArray[0][ScanLine][0][0]) {
+                    switch (ImageArray[ScanLine]) {
                         case NotFiltered:
                             // copy the Line except byte 0 (the filter indication byte) to the output buffer.
                             break;
@@ -248,7 +249,7 @@ extern "C" {
                             OVIA_PNG_Filter_Paeth(Ovia, Image);
                             break;
                         default:
-                            Log(Log_ERROR, __func__, U8("Filter type: %d is invalid"), ImageArray[0][ScanLine][0][0]);
+                            Log(Log_ERROR, __func__, U8("Filter type: %d is invalid"), ImageArray[ScanLine]);
                             break;
                     }
                 }
@@ -262,7 +263,6 @@ extern "C" {
         UncompressedBlock   = 0,
         FixedHuffmanBlock   = 1,
         DynamicHuffmanBlock = 2,
-        
     };
     
     void OVIA_PNG_DecodeDeflateBlock(OVIA *Ovia, BitBuffer *BitB, ImageContainer *Image) {
@@ -290,10 +290,10 @@ extern "C" {
     
     void OVIA_PNG_DAT_Parse(OVIA *Ovia, BitBuffer *BitB, uint32_t DATSize) { // OVIAs both fDAT and IDAT chunks
         if (Ovia != NULL && BitB != NULL) {
-            // well lets go ahead and allocate a DAT block the size of DATSize
-            BitBuffer_Init(DATSize);
             // Now we need to go ahead and parse the ZLIB Header.
             // ok so how do we do that? I wrote some notes on the Zlib header last night...
+            
+            OVIA_PNG_Flate_ReadZlibHeader(Ovia, BitB);
             
             OVIA_PNG_DAT_SetCMF(Ovia, BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8));
             OVIA_PNG_DAT_SetFLG(Ovia, BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8));

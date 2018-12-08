@@ -135,7 +135,7 @@ extern "C" {
     
     void        OVIA_FLAC_Stream_Read(OVIA *Ovia, BitBuffer *BitB);
     
-    void        FLACParseMetadata(OVIA *Ovia, BitBuffer *BitB);
+    bool        OVIA_FLAC_Parse_Blocks(OVIA *Ovia, BitBuffer *BitB);
     
     void        OVIA_FLAC_StreamInfo_Parse(OVIA *Ovia, BitBuffer *BitB);
     
@@ -149,7 +149,7 @@ extern "C" {
     
     void        OVIA_FLAC_CUE_Parse(OVIA *Ovia, BitBuffer *BitB);
     
-    void        FLACParsePicture(OVIA *Ovia, BitBuffer *BitB);
+    uint8_t    *OVIA_FLAC_Pic_Read(OVIA *Ovia, BitBuffer *BitB);
     
 #ifdef __cplusplus
 }

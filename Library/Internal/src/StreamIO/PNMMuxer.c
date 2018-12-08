@@ -154,20 +154,20 @@ extern "C" {
             uint64_t Height       = ImageContainer_GetHeight(Image);
             Image_Types Type      = ImageContainer_GetType(Image);
             if (Type == ImageType_Integer8) {
-                uint8_t ****Array  = (uint8_t****) ImageContainer_GetArray(Image);
+                uint8_t *Array  = (uint8_t*) ImageContainer_GetArray(Image);
                 for (uint64_t W = 0ULL; W < Width; W++) {
                     for (uint64_t H = 0ULL; H < Height; H++) {
                         for (uint16_t Channel = 0; Channel < ChannelCount; Channel++) {
-                            BitBuffer_WriteBits(MSByteFirst, MSBitFirst, BitB, ChannelCount, Array[0][W][H][Channel]);
+                            BitBuffer_WriteBits(MSByteFirst, MSBitFirst, BitB, ChannelCount, Array[W * H * Channel]);
                         }
                     }
                 }
             } else if (Type == ImageType_Integer16) {
-                uint16_t ****Array  = (uint16_t****) ImageContainer_GetArray(Image);
+                uint16_t *Array  = (uint16_t*) ImageContainer_GetArray(Image);
                 for (uint64_t W = 0ULL; W < Width; W++) {
                     for (uint64_t H = 0ULL; H < Height; H++) {
                         for (uint16_t Channel = 0; Channel < ChannelCount; Channel++) {
-                            BitBuffer_WriteBits(MSByteFirst, MSBitFirst, BitB, ChannelCount, Array[0][W][H][Channel]);
+                            BitBuffer_WriteBits(MSByteFirst, MSBitFirst, BitB, ChannelCount, Array[W * H * Channel]);
                         }
                     }
                 }
