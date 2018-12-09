@@ -1,6 +1,8 @@
-#include "../../Dependencies/FoundationIO/libFoundationIO/include/Macros.h"
-#include "../include/Private/Image/Flate.h"
-#include "../../Dependencies/FoundationIO/libFoundationIO/include/Log.h"
+#include "../../../Dependencies/FoundationIO/libFoundationIO/include/Macros.h"
+#include "../../../Dependencies/FoundationIO/libFoundationIO/include/Log.h"
+#include "../../../Dependencies/FoundationIO/libFoundationIO/include/BitIO.h"
+#include "../../../Dependencies/FoundationIO/libFoundationIO/include/StringIO.h"
+#include "../../include/Private/Image/Flate.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -22,9 +24,9 @@ extern "C" {
         } else if (BitB == NULL) {
             Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
         } else if (Start * 8 < BitBuffer_GetSize(BitB)) {
-            Log(Log_ERROR, __func__, U8("Start: %d is larger than the BitBuffer"), Start * 8, BitBuffer_GetSize(BitB));
+            Log(Log_ERROR, __func__, U8("Start: %lld is larger than the BitBuffer %lld"), Start * 8, BitBuffer_GetSize(BitB));
         } else if ((Start + NumBytes) * 8 <= BitBuffer_GetSize(BitB)) {
-            Log(Log_ERROR, __func__, U8("End: %d is larger than the BitBuffer"), (Start + NumBytes) * 8, BitBuffer_GetSize(BitB));
+            Log(Log_ERROR, __func__, U8("End: %lld is larger than the BitBuffer %lld"), (Start + NumBytes) * 8, BitBuffer_GetSize(BitB));
         }
         return Adler32;
     }
@@ -48,11 +50,48 @@ extern "C" {
         } else if (BitB == NULL) {
             Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
         } else if (Start * 8 < BitBuffer_GetSize(BitB)) {
-            Log(Log_ERROR, __func__, U8("Start: %d is larger than the BitBuffer"), Start * 8, BitBuffer_GetSize(BitB));
+            Log(Log_ERROR, __func__, U8("Start: %lld is larger than the BitBuffer %lld"), Start * 8, BitBuffer_GetSize(BitB));
         } else if ((Start + NumBytes) * 8 <= BitBuffer_GetSize(BitB)) {
-            Log(Log_ERROR, __func__, U8("End: %d is larger than the BitBuffer"), (Start + NumBytes) * 8, BitBuffer_GetSize(BitB));
+            Log(Log_ERROR, __func__, U8("End: %lld is larger than the BitBuffer %lld"), (Start + NumBytes) * 8, BitBuffer_GetSize(BitB));
         }
         return ~CRC32;
+    }
+    
+    HuffmanTable *OVIA_PNG_Huffman_BuildTree(uint64_t NumSymbols, uint16_t *CodeLengths) {
+        HuffmanTable *Tree   = calloc(1, sizeof(HuffmanTable));
+        if (Tree != NULL) {
+            Tree->Symbols    = calloc(NumSymbols, sizeof(uint16_t));
+            Tree->Frequency  = calloc(NumSymbols, sizeof(uint16_t));
+            uint64_t *Offset = calloc(NumSymbols, sizeof(uint64_t));
+            
+            if (Tree->Symbols != NULL && Tree->Frequency != NULL) {
+                for (uint64_t Value = 0ULL; Value < NumSymbols - 1; Value++) {
+                    Tree->Frequency[CodeLengths[Value]] += 1;
+                }
+                
+                if (Tree->Frequency[0] == NumSymbols) {
+                    Log(Log_ERROR, __func__, U8("All frequencies are zero, that doesn't make sense..."));
+                }
+                
+                for (uint64_t Length = 1ULL; Length < MaxBitsPerSymbol; Length++) {
+                    Offset[Length + 1]   = Offset[Length] + Tree->Frequency[Length];
+                }
+                
+                for (uint64_t Symbol = 0ULL; Symbol < NumSymbols; Symbol++) {
+                    if (CodeLengths[Symbol] != 0) {
+                        uint16_t Index       = Offset[CodeLengths[Symbol]] + 1;
+                        Tree->Symbols[Index] = Symbol;
+                    }
+                }
+            } else if (Tree->Frequency == NULL) {
+                Log(Log_ERROR, __func__, U8("Could not allocate Huffman Symbols"));
+            } else if (Tree->Frequency == NULL) {
+                Log(Log_ERROR, __func__, U8("Could not allocate Huffman Frequency"));
+            }
+        } else {
+            Log(Log_ERROR, __func__, U8("Could not allocate Huffman Tree"));
+        }
+        return NULL;
     }
     
 #ifdef __cplusplus

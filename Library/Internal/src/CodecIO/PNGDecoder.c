@@ -265,55 +265,9 @@ extern "C" {
         DynamicHuffmanBlock = 2,
     };
     
-    void OVIA_PNG_DecodeDeflateBlock(OVIA *Ovia, BitBuffer *BitB, ImageContainer *Image) {
-        // Huffman codes are written MSBit first, everything else is writen LSBit first
-        if (Ovia != NULL && BitB != NULL && Image != NULL) {
-            // DEFLATE Block header:
-            bool     BlockIsFinal = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 1); // BFINAL
-            uint8_t  BlockType    = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 2); // BTYPE
-            
-            if (BlockType == DynamicHuffmanBlock) {
-                
-            } else if (BlockType == FixedHuffmanBlock) {
-                
-            } else if (BlockType == UncompressedBlock) {
-                
-            }
-        } else if (Ovia == NULL) {
-            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
-        } else if (BitB == NULL) {
-            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
-        } else if (Image == NULL) {
-            Log(Log_ERROR, __func__, U8("ImageContainer Pointer is NULL"));
-        }
-    }
-    
-    void OVIA_PNG_DAT_Parse(OVIA *Ovia, BitBuffer *BitB, uint32_t DATSize) { // OVIAs both fDAT and IDAT chunks
+    void OVIA_PNG_DAT_Parse(OVIA *Ovia, BitBuffer *BitB, uint32_t DATSize) {
         if (Ovia != NULL && BitB != NULL) {
-            // Now we need to go ahead and parse the ZLIB Header.
-            // ok so how do we do that? I wrote some notes on the Zlib header last night...
-            
             OVIA_PNG_Flate_ReadZlibHeader(Ovia, BitB);
-            
-            OVIA_PNG_DAT_SetCMF(Ovia, BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8));
-            OVIA_PNG_DAT_SetFLG(Ovia, BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8));
-            
-            /* Compression Method and Flags byte */
-            uint8_t CompressionMethod = OVIA_PNG_DAT_GetCompressionMethod(Ovia); // 8
-            uint8_t CompressionInfo   = OVIA_PNG_DAT_GetCompressionInfo(Ovia); // 7
-            /* Compression Method and Flags byte */
-            
-            /* FlagByte */
-            uint8_t FCHECK            = OVIA_PNG_DAT_GetFCHECK(Ovia); // 1E
-            bool    FDICTPresent      = OVIA_PNG_DAT_GetFDICT(Ovia); // 0
-            uint8_t FLEVEL            = OVIA_PNG_DAT_GetFLEVEL(Ovia); // 1
-            /* FlagByte */
-            
-            if (OVIA_PNG_DAT_GetFDICT(Ovia)) {
-                OVIA_PNG_DAT_SetDictID(Ovia, BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32));
-            }
-            
-            // Start reading the DEFLATE block?
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {

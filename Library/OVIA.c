@@ -145,10 +145,17 @@ extern "C" {
     } tIMeChunk;
     
     typedef struct DATChunk {
-        uint32_t   DictID;
-        uint32_t   Size;
-        uint8_t    CMF;
-        uint8_t    FLG;
+        uint8_t     *ImageArray;
+        HuffmanTable *LengthLiteralTree;
+        HuffmanTable *DistanceTree;
+        uint64_t     ImageSize;
+        uint64_t     ImageOffset;
+        uint32_t     DictID;
+        uint32_t     Size;
+        uint16_t     LengthLiteralTreeSize;
+        uint8_t      DistanceTreeSize;
+        uint8_t      CMF;
+        uint8_t      FLG;
     } DATChunk;
     
     typedef struct acTLChunk {
@@ -178,6 +185,7 @@ extern "C" {
     } iENDChunk;
     
     typedef struct PNGOptions {
+        sPLTChunk   **sPLT; // May be multiple
         iHDRChunk    *iHDR;
         cHRMChunk    *cHRM;
         gAMAChunk    *gAMA;
@@ -189,7 +197,6 @@ extern "C" {
         hISTChunk    *hIST;
         tRNSChunk    *tRNS;
         pHYsChunk    *pHYs;
-        sPLTChunk   **sPLT; // May be multiple
         oFFsChunk    *oFFs; // Extension, before first iDAT
         sCALChunk    *sCAL; // Extension, before first iDAT
         pCALChunk    *pCAL; // Extension, after PLTE, before iDAT
@@ -926,7 +933,7 @@ extern "C" {
     
     void OVIA_FLAC_CUE_Track_SetOffset(OVIA *Ovia, uint8_t Track, uint64_t TrackOffset) {
         if (Ovia != NULL) {
-            Ovia->FLACInfo->CueSheet->Tracks[Track].TrackOffset = TrackOffset;
+            Ovia->FLACInfo->CueSheet->Tracks[Track].TrackOffset[Track] = TrackOffset;
         } else {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         }
@@ -937,8 +944,8 @@ extern "C" {
             OVIA_SetHeight(Ovia, Height);
             OVIA_SetWidth(Ovia, Width);
             OVIA_SetBitDepth(Ovia, BitDepth);
-            OVIA_PNG_SetColorType(Ovia, BitDepth);
-            OVIA_PNG_SetInterlace(Ovia, Interlace);
+            OVIA_PNG_iHDR_SetColorType(Ovia, ColorType);
+            OVIA_PNG_iHDR_SetInterlace(Ovia, Interlace);
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (Height == 0) {
@@ -1002,6 +1009,14 @@ extern "C" {
     void OVIA_PNM_SetPNMType(OVIA *Ovia, PNMTypes PNMType) {
         if (Ovia != NULL) {
             Ovia->PNMInfo->Type = PNMType;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
+    void OVIA_PNM_SetTupleType(OVIA *Ovia, PNMTupleTypes TupleType) {
+        if (Ovia != NULL) {
+            Ovia->PNMInfo->TupleType = TupleType;
         } else {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         }
@@ -1487,7 +1502,7 @@ extern "C" {
         return ProfileSize;
     }
     
-    uint8_t OVIA_PNG_ICCP_GetProfileData(OVIA *Ovia) {
+    uint8_t *OVIA_PNG_ICCP_GetProfileData(OVIA *Ovia) {
         uint8_t *ProfileData = NULL;
         if (Ovia != NULL) {
             ProfileData      = Ovia->PNGInfo->iCCP->CompressedICCPProfile;
@@ -1852,6 +1867,14 @@ extern "C" {
         return CompressionInfo;
     }
     
+    void OVIA_PNG_DAT_SetFCHECK(OVIA *Ovia, uint8_t FCHECK) {
+        if (Ovia != NULL) {
+            Ovia->PNGInfo->DAT->FLG  = FCHECK & 0xF8 >> 3;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
     uint8_t OVIA_PNG_DAT_GetFCHECK(OVIA *Ovia) {
         uint8_t FCHECK = 0;
         if (Ovia != NULL) {
@@ -1898,6 +1921,96 @@ extern "C" {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         }
         return DictID;
+    }
+    
+    void OVIA_PNG_DAT_SetArray(OVIA *Ovia, uint8_t *Array) {
+        if (Ovia != NULL) {
+            Ovia->PNGInfo->DAT->ImageArray = Array;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
+    uint8_t *OVIA_PNG_DAT_GetArray(OVIA *Ovia) {
+        uint8_t *Array = NULL;
+        if (Ovia != NULL) {
+            Array = Ovia->PNGInfo->DAT->ImageArray;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return Array;
+    }
+    
+    void OVIA_PNG_DAT_SetArraySize(OVIA *Ovia, uint64_t ArraySize) {
+        if (Ovia != NULL) {
+            Ovia->PNGInfo->DAT->ImageSize = ArraySize;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
+    uint64_t OVIA_PNG_DAT_GetArraySize(OVIA *Ovia) {
+        uint64_t ArraySize = 0ULL;
+        if (Ovia != NULL) {
+            ArraySize = Ovia->PNGInfo->DAT->ImageSize;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return ArraySize;
+    }
+    
+    void OVIA_PNG_DAT_SetArrayOffset(OVIA *Ovia, uint64_t ArrayOffset) {
+        if (Ovia != NULL) {
+            Ovia->PNGInfo->DAT->ImageOffset = ArrayOffset;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
+    uint64_t OVIA_PNG_DAT_GetArrayOffset(OVIA *Ovia) {
+        uint64_t ArrayOffset = 0ULL;
+        if (Ovia != NULL) {
+            ArrayOffset = Ovia->PNGInfo->DAT->ImageOffset;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return ArrayOffset;
+    }
+    
+    void OVIA_PNG_DAT_SetLengthLiteralHuffmanTable(OVIA *Ovia, HuffmanTable *LengthLiteralTree) {
+        if (Ovia != NULL) {
+            Ovia->PNGInfo->DAT->LengthLiteralTree = LengthLiteralTree;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
+    HuffmanTable *OVIA_PNG_DAT_GetLengthLiteralHuffmanTable(OVIA *Ovia) {
+        HuffmanTable *LengthLiteralTree = NULL;
+        if (Ovia != NULL) {
+            LengthLiteralTree = Ovia->PNGInfo->DAT->LengthLiteralTree;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return LengthLiteralTree;
+    }
+    
+    void OVIA_PNG_DAT_SetDistanceHuffmanTable(OVIA *Ovia, HuffmanTable *DistanceTree) {
+        if (Ovia != NULL) {
+            Ovia->PNGInfo->DAT->DistanceTree = DistanceTree;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
+    HuffmanTable *OVIA_PNG_DAT_GetDistanceHuffmanTable(OVIA *Ovia) {
+        HuffmanTable *DistanceTree = NULL;
+        if (Ovia != NULL) {
+            DistanceTree = Ovia->PNGInfo->DAT->DistanceTree;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return DistanceTree;
     }
     
     void OVIA_WAV_SetCompressionType(OVIA *Ovia, uint16_t CompressionType) {
@@ -2601,7 +2714,7 @@ extern "C" {
         } else if (Ovia->Format == PNGFormat) {
             PNGParseMetadata(Ovia, BitB);
         } else if (Ovia->Format == FLACFormat) {
-            FLACParseMetadata(Ovia, BitB);
+            OVIA_FLAC_Parse_Blocks(Ovia, BitB);
         }
     }
     
