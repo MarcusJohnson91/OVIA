@@ -354,7 +354,7 @@ extern "C" {
                 Entries = calloc(2, Bits2Bytes(OVIA_GetBitDepth(Ovia), true) * sizeof(uint16_t));
             }
             if (Entries != NULL) {
-                for (uint8_t Color = 0; Color < ModernPNGChannelsPerColorType[OVIA_PNG_GetColorType(Ovia)]; Color++) {
+                for (uint8_t Color = 0; Color < OVIA_PNG_NumChannelsPerColorType[OVIA_PNG_GetColorType(Ovia)]; Color++) {
                     Entries[Color]    = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, Bits2Bytes(OVIA_GetBitDepth(Ovia), true));
                 }
                 //Ovia->tRNS->Palette = Entries;

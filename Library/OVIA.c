@@ -27,8 +27,9 @@ extern "C" {
         uint8_t       BitDepth;
         uint8_t       Compression;
         uint8_t       FilterMethod;
-        PNGColorTypes ColorType;
+        OVIA_PNG_ColorTypes ColorType;
         bool          Progressive;
+        bool          Interlaced;
     } iHDRChunk;
     
     typedef struct PLTEChunk {
@@ -392,6 +393,14 @@ extern "C" {
         bool             Is3D;
     } OVIA;
     
+    OVIA *OVIA_Init(void) {
+        OVIA *Ovia        = calloc(1, sizeof(OVIA));
+        if (Ovia == NULL) {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return Ovia;
+    }
+    
     void OVIA_SetNumChannels(OVIA *Ovia, uint64_t NumChannels) {
         if (Ovia != NULL) {
             Ovia->NumChannels = NumChannels;
@@ -630,34 +639,6 @@ extern "C" {
         }
     }
     
-    /*
-     Ok, so we have a PNG file, the user calls OVIA_Identify.
-     
-     OVIA_Identify sets the OVIA struct saying it's a PNG file.
-     
-     From then on, all OVIA calls act with the PNG versions.
-     
-     The user calls OVIA_ReadMetadata.
-     
-     The user strips the black lines from the image.
-     
-     the user then writes the file back to the disk.
-     
-     OVIA just needs to manage the user accessible metadata.
-     
-     the individual format handlers will handle reading manipulating and writing the data...
-     */
-    
-    OVIA *OVIA_Init(void) {
-        OVIA *Ovia        = calloc(1, sizeof(OVIA));
-        if (Ovia != NULL) {
-            
-        } else {
-            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
-        }
-        return Ovia;
-    }
-    
     void OVIA_FLAC_SetMinBlockSize(OVIA *Ovia, uint16_t MinBlockSize) {
         if (Ovia != NULL) {
             Ovia->FLACInfo->StreamInfo->MinimumBlockSize = MinBlockSize;
@@ -732,6 +713,16 @@ extern "C" {
         }
     }
     
+    uint8_t *OVIA_FLAC_GetMD5(OVIA *Ovia) {
+        uint8_t *MD5 = NULL;
+        if (Ovia != NULL) {
+            MD5 = Ovia->FLACInfo->StreamInfo->MD5;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+        return MD5;
+    }
+    
     void OVIA_FLAC_CUE_SetCatalogID(OVIA *Ovia, char *CatalogID) {
         if (Ovia != NULL && CatalogID != NULL) {
             Ovia->FLACInfo->CueSheet->CatalogID = CatalogID;
@@ -804,7 +795,7 @@ extern "C" {
         }
     }
     
-    uint8_t OVIA_FLAC_LPC_GetNumLPCCoeff(OVIA *Ovia, uint8_t CoeffNum) {
+    uint8_t OVIA_FLAC_LPC_GetLPCCoeff(OVIA *Ovia, uint8_t CoeffNum) {
         uint8_t Coeff = 0;
         if (Ovia != NULL) {
             Coeff     = Ovia->FLACInfo->LPC->LPCCoeff[Coeff];
@@ -941,6 +932,18 @@ extern "C" {
     
     void OVIA_PNG_IHDR_SetIHDR(OVIA *Ovia, uint32_t Height, uint32_t Width, uint8_t BitDepth, uint8_t ColorType, const bool Interlace) {
         if (Ovia != NULL && Height > 0 && Width > 0 && (BitDepth > 0 || BitDepth > 16) && (ColorType <= 6 && ColorType != 1 && ColorType != 5) && Interlace >= 0 && Interlace <= 1) {
+            Ovia->PNGInfo->iHDR->Width      = Width;
+            Ovia->PNGInfo->iHDR->Height     = Height;
+            Ovia->PNGInfo->iHDR->BitDepth   = BitDepth;
+            Ovia->PNGInfo->iHDR->ColorType  = ColorType;
+            Ovia->PNGInfo->iHDR->Interlaced = Interlace;
+            Ovia->Width                     = Width;
+            Ovia->Height                    = Height;
+            Ovia->BitDepth                  = BitDepth;
+            
+            
+            
+            
             OVIA_SetHeight(Ovia, Height);
             OVIA_SetWidth(Ovia, Width);
             OVIA_SetBitDepth(Ovia, BitDepth);
@@ -958,16 +961,6 @@ extern "C" {
             Log(Log_ERROR, __func__, U8("ColorType %d is invalid, valid values range from 0-6, excluding 1 and 5"), ColorType);
         } else if (Interlace > 1) {
             Log(Log_ERROR, __func__, U8("Interlace %d is invalid, valid values range from 0-1"), Interlace);
-        }
-    }
-    
-    void OVIA_PNG_STER_SetSTER(OVIA *Ovia, const bool StereoType) {
-        if (Ovia != NULL && StereoType >= 0 && StereoType <= 1) {
-            Ovia->PNGInfo->sTER->StereoType = StereoType;
-        } else if (Ovia == NULL) {
-            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
-        } else if (StereoType < 0 || StereoType > 1) {
-            Log(Log_ERROR, __func__, U8("StereoType %d is invalid, valid values range from 0-1"), StereoType);
         }
     }
     
@@ -1242,6 +1235,14 @@ extern "C" {
         }
     }
     
+    void OVIA_PNG_IHDR_SetColorType(OVIA *Ovia, uint8_t ColorType) {
+        if (Ovia != NULL) {
+            Ovia->PNGInfo->iHDR->ColorType = ColorType;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
     uint8_t OVIA_PNG_iHDR_GetColorType(OVIA *Ovia) {
         uint8_t ColorType = 0;
         if (Ovia != NULL) {
@@ -1442,7 +1443,7 @@ extern "C" {
     
     void OVIA_PNG_ICCP_SetProfileName(OVIA *Ovia, UTF8 *ProfileName) {
         if (Ovia != NULL) {
-            Ovia->PNGInfo->iCCP->ProfileName = ProfileName;
+            Ovia->PNGInfo->iCCP->ProfileName = UTF8_Clone(ProfileName);
         } else {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         }
@@ -1483,7 +1484,7 @@ extern "C" {
     }
     
     uint8_t OVIA_PNG_ICCP_GetCompressionType(OVIA *Ovia) {
-        uint8_t CompressionType = NULL;
+        uint8_t CompressionType = 0;
         if (Ovia != NULL) {
             CompressionType   = Ovia->PNGInfo->iCCP->CompressionType;
         } else {
@@ -1754,8 +1755,18 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_HIST_SetNumEntries() {
-        
+    void OVIA_PNG_HIST_SetNumEntries(OVIA *Ovia, uint32_t NumEntries) {
+        if (Ovia != NULL) {
+            Ovia->PNGInfo->hIST->Histogram  = calloc(1, NumEntries);
+            if (Ovia->PNGInfo->hIST->Histogram != NULL) {
+                Ovia->PNGInfo->hIST->NumColors  = NumEntries;
+            } else {
+                free(Ovia->PNGInfo->hIST->Histogram);
+                Log(Log_ERROR, __func__, U8("Couldn't allocate PNG HIST Chunk"));
+            }
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
     }
     
     void OVIA_PNG_TIME_SetTime(OVIA *Ovia, uint16_t Year, uint8_t Month, uint8_t Day, uint8_t Hour, uint8_t Minute, uint8_t Second) {
@@ -2011,6 +2022,24 @@ extern "C" {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         }
         return DistanceTree;
+    }
+    
+    void OVIA_PNG_GAMA_SetGamma(OVIA *Ovia, uint32_t Gamma) {
+        if (Ovia != NULL) {
+            Ovia->PNGInfo->gAMA->Gamma = Gamma;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
+    void OVIA_PNG_SCAL_SetSCAL(OVIA *Ovia, uint8_t UnitSpecifier, double Width, double Height) {
+        if (Ovia != NULL) {
+            Ovia->PNGInfo->sCAL->UnitSpecifier = UnitSpecifier;
+            Ovia->PNGInfo->sCAL->PixelWidth    = Width;
+            Ovia->PNGInfo->sCAL->PixelHeight   = Height;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
     }
     
     void OVIA_WAV_SetCompressionType(OVIA *Ovia, uint16_t CompressionType) {
@@ -2662,10 +2691,6 @@ extern "C" {
         }
     }
     
-    
-    
-    
-    
     void OVIA_Identify(OVIA *Ovia, BitBuffer *BitB) {
         uint64_t FileMagic64 = BitBuffer_PeekBits(MSByteFirst, LSBitFirst, BitB, 64);
         uint32_t FileMagic32 = FileMagic64 & 0xFFFFFFFF;
@@ -2757,7 +2782,7 @@ extern "C" {
             } else if (Ovia->Format == BMPFormat) {
                 BMPInsertImage(Image, BitB);
             } else if (Ovia->Format == PNGFormat) {
-                PNGInsertImage(Image, BitB);
+                OVIA_PNG_Image_Insert(Image, BitB);
             }
         } else {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
@@ -2816,24 +2841,6 @@ extern "C" {
             }
             free(Ovia->Tags);
             free(Ovia);
-        } else {
-            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
-        }
-    }
-    
-    void OVIA_PNG_GAMA_SetGamma(OVIA *Ovia, uint32_t Gamma) {
-        if (Ovia != NULL) {
-            Ovia->PNGInfo->gAMA->Gamma = Gamma;
-        } else {
-            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
-        }
-    }
-    
-    void OVIA_PNG_SCAL_SetSCAL(OVIA *Ovia, uint8_t UnitSpecifier, double Width, double Height) {
-        if (Ovia != NULL) {
-            Ovia->PNGInfo->sCAL->UnitSpecifier = UnitSpecifier;
-            Ovia->PNGInfo->sCAL->PixelWidth    = Width;
-            Ovia->PNGInfo->sCAL->PixelHeight   = Height;
         } else {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         }

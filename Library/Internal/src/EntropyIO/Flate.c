@@ -57,7 +57,7 @@ extern "C" {
         return ~CRC32;
     }
     
-    HuffmanTable *OVIA_PNG_Huffman_BuildTree(uint64_t NumSymbols, uint16_t *CodeLengths) {
+    HuffmanTable *OVIA_PNG_Huffman_BuildTree(uint64_t NumSymbols, const uint16_t *CodeLengths) {
         HuffmanTable *Tree   = calloc(1, sizeof(HuffmanTable));
         if (Tree != NULL) {
             Tree->Symbols    = calloc(NumSymbols, sizeof(uint16_t));
@@ -91,7 +91,7 @@ extern "C" {
         } else {
             Log(Log_ERROR, __func__, U8("Could not allocate Huffman Tree"));
         }
-        return NULL;
+        return Tree;
     }
     
 #ifdef __cplusplus

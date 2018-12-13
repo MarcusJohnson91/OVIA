@@ -59,7 +59,7 @@ extern "C" {
     
     void OVIA_PNG_DAT_Decode(OVIA *Ovia, BitBuffer *BitB, ImageContainer *Image);
     
-    HuffmanTable *OVIA_PNG_Huffman_BuildTree(uint64_t NumSymbols, uint16_t *Lengths);
+    HuffmanTable *OVIA_PNG_Huffman_BuildTree(uint64_t NumSymbols, const uint16_t *Lengths);
     
     static const uint16_t LengthBase[29] = {
         3,   4,   5,   6,   7,  8,  9,  10,

@@ -5,7 +5,7 @@
 extern "C" {
 #endif
     
-    void EncodePNGImage(ImageContainer *Image, BitBuffer *BitB, bool InterlacePNG, bool OptimizePNG) {
+    void OVIA_PNG_Image_Insert(ImageContainer *Image, BitBuffer *BitB, bool InterlacePNG, bool OptimizePNG) {
         if (Image != NULL && BitB != NULL) {
             /*
              Loop over the image container, line by line, and try all the filters.
@@ -218,7 +218,7 @@ extern "C" {
     void WriteSBITChunk(OVIA *Ovia, BitBuffer *BitB) {
         if (Ovia != NULL && BitB != NULL) {
             uint8_t ChunkSize = 0;
-            PNGColorTypes ColorType = OVIA_PNG_IHDR_GetColorType(Ovia);
+            OVIA_PNG_ColorTypes ColorType = OVIA_PNG_IHDR_GetColorType(Ovia);
             if (ColorType == PNG_Grayscale) {
                 ChunkSize = 1;
             } else if (ColorType == PNG_RGB || ColorType == PNG_PalettedRGB) {
@@ -303,7 +303,7 @@ extern "C" {
         }
     }
     
-    void PNGInsertImage(ImageContainer *Image, BitBuffer *BitB) {
+    void OVIA_PNG_Image_Insert(ImageContainer *Image, BitBuffer *BitB) {
         if (Image != NULL && BitB != NULL) {
             
         } else if (Image == NULL) {
