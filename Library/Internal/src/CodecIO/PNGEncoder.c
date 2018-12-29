@@ -303,16 +303,6 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_Image_Insert(ImageContainer *Image, BitBuffer *BitB) {
-        if (Image != NULL && BitB != NULL) {
-            
-        } else if (Image == NULL) {
-            Log(Log_ERROR, __func__, U8("ImageContainer Pointer is NULL"));
-        } else if (BitB == NULL) {
-            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
-        }
-    }
-    
 #ifdef __cplusplus
 }
 #endif
