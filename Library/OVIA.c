@@ -744,7 +744,7 @@ extern "C" {
     uint8_t OVIA_FLAC_LPC_GetLPCPrecision(OVIA *Ovia) {
         uint8_t LPCPrecision = 0;
         if (Ovia != NULL) {
-           LPCPrecision      = Ovia->FLACInfo->LPC->LPCPrecision;
+            LPCPrecision      = Ovia->FLACInfo->LPC->LPCPrecision;
         } else {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         }
@@ -1270,7 +1270,7 @@ extern "C" {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         }
     }
-
+    
     void OVIA_PNG_CHRM_SetWhitePoint(OVIA *Ovia, uint32_t WhitePointX, uint32_t WhitePointY) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->cHRM->WhitePointX = WhitePointX;
@@ -1279,7 +1279,7 @@ extern "C" {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         }
     }
-
+    
     void OVIA_PNG_CHRM_SetRed(OVIA *Ovia, uint32_t RedX, uint32_t RedY) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->cHRM->RedX = RedX;
@@ -1288,7 +1288,7 @@ extern "C" {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         }
     }
-
+    
     void OVIA_PNG_CHRM_SetGreen(OVIA *Ovia, uint32_t GreenX, uint32_t GreenY) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->cHRM->GreenX = GreenX;
@@ -1297,7 +1297,7 @@ extern "C" {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         }
     }
-
+    
     void OVIA_PNG_CHRM_SetBlue(OVIA *Ovia, uint32_t BlueX, uint32_t BlueY) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->cHRM->BlueX = BlueX;
@@ -1306,7 +1306,7 @@ extern "C" {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         }
     }
-
+    
     uint32_t OVIA_PNG_CHRM_GetWhitePointX(OVIA *Ovia) {
         uint32_t WhitePointX = 0;
         if (Ovia != NULL) {
@@ -1316,7 +1316,7 @@ extern "C" {
         }
         return WhitePointX;
     }
-
+    
     uint32_t OVIA_PNG_CHRM_GetWhitePointY(OVIA *Ovia) {
         uint32_t WhitePointY = 0;
         if (Ovia != NULL) {
@@ -1326,7 +1326,7 @@ extern "C" {
         }
         return WhitePointY;
     }
-
+    
     uint32_t OVIA_PNG_CHRM_GetRedX(OVIA *Ovia) {
         uint32_t RedX = 0;
         if (Ovia != NULL) {
@@ -1336,7 +1336,7 @@ extern "C" {
         }
         return RedX;
     }
-
+    
     uint32_t OVIA_PNG_CHRM_GetRedY(OVIA *Ovia) {
         uint32_t RedY = 0;
         if (Ovia != NULL) {
@@ -1346,7 +1346,7 @@ extern "C" {
         }
         return RedY;
     }
-
+    
     uint32_t OVIA_PNG_CHRM_GetGreenX(OVIA *Ovia) {
         uint32_t GreenX = 0;
         if (Ovia != NULL) {
@@ -1356,7 +1356,7 @@ extern "C" {
         }
         return GreenX;
     }
-
+    
     uint32_t OVIA_PNG_CHRM_GetGreenY(OVIA *Ovia) {
         uint32_t GreenY = 0;
         if (Ovia != NULL) {
@@ -1366,7 +1366,7 @@ extern "C" {
         }
         return GreenY;
     }
-
+    
     uint32_t OVIA_PNG_CHRM_GetBlueX(OVIA *Ovia) {
         uint32_t BlueX = 0;
         if (Ovia != NULL) {
@@ -1376,7 +1376,7 @@ extern "C" {
         }
         return BlueX;
     }
-
+    
     uint32_t OVIA_PNG_CHRM_GetBlueY(OVIA *Ovia) {
         uint32_t BlueY = 0;
         if (Ovia != NULL) {
@@ -2782,7 +2782,7 @@ extern "C" {
             } else if (Ovia->Format == BMPFormat) {
                 BMPInsertImage(Image, BitB);
             } else if (Ovia->Format == PNGFormat) {
-                OVIA_PNG_Image_Insert(Image, BitB);
+                OVIA_PNG_Image_Insert(Image, BitB, No, Yes);
             }
         } else {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
