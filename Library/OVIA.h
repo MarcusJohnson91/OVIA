@@ -129,7 +129,7 @@ extern "C" {
     ImageContainer      *OVIA_ExtractImage(OVIA *Ovia, BitBuffer *BitB);
     int64_t              OVIA_GetHeight(OVIA *Ovia);
     int64_t              OVIA_GetWidth(OVIA *Ovia);
-    uint64_t             OVIA_GetBitDepth(OVIA *Ovia);
+    uint8_t              OVIA_GetBitDepth(OVIA *Ovia);
     uint64_t             OVIA_GetBlockSize(OVIA *Ovia);
     uint64_t             OVIA_GetFileSize(OVIA *Ovia);
     uint64_t             OVIA_GetNumChannels(OVIA *Ovia);

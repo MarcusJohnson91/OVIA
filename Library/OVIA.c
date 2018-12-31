@@ -55,7 +55,7 @@ extern "C" {
     } sTERChunk;
     
     typedef struct cHRMChunk { // sRGB or iCCP overrides cHRM
-        uint32_t   WhitePointX; // X = 0, Y = 1
+        uint32_t   WhitePointX;
         uint32_t   WhitePointY;
         uint32_t   RedX;
         uint32_t   RedY;
@@ -178,7 +178,6 @@ extern "C" {
     
     typedef struct fdATChunk {
         uint32_t   FrameNum;
-        
     } fdATChunk;
     
     typedef struct iENDChunk {
@@ -370,7 +369,6 @@ extern "C" {
         ImageContainer  *Image;
         uint64_t         FileSize;
         uint64_t         NumChannels;
-        uint64_t         BitDepth;
         int64_t          Width;
         int64_t          Height;
         uint64_t         NumSamples;
@@ -386,6 +384,7 @@ extern "C" {
         WAVOptions      *WAVInfo;
         uint64_t         NumTags;
         UTF8           **Tags;
+        uint8_t          BitDepth;
         OVIA_TagTypes   *TagTypes;
         
         OVIA_Types       Type;
@@ -445,10 +444,10 @@ extern "C" {
         }
     }
     
-    uint64_t OVIA_GetBitDepth(OVIA *Ovia) {
-        uint64_t BitDepth = 0;
+    uint8_t OVIA_GetBitDepth(OVIA *Ovia) {
+        uint8_t BitDepth = 0;
         if (Ovia != NULL) {
-            BitDepth      = Ovia->BitDepth;
+            BitDepth     = Ovia->BitDepth;
         } else {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         }
@@ -1861,7 +1860,7 @@ extern "C" {
     uint8_t OVIA_PNG_DAT_GetCompressionMethod(OVIA *Ovia) {
         uint8_t CompressionMethod = 0;
         if (Ovia != NULL) {
-            CompressionMethod = Ovia->PNGInfo->DAT->CMF & 0xF0 >> 4;
+            CompressionMethod = Ovia->PNGInfo->DAT->CMF & 0xF;
         } else {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         }
@@ -1871,7 +1870,7 @@ extern "C" {
     uint8_t OVIA_PNG_DAT_GetCompressionInfo(OVIA *Ovia) {
         uint8_t CompressionInfo = 0;
         if (Ovia != NULL) {
-            CompressionInfo = Ovia->PNGInfo->DAT->CMF & 0xF;
+            CompressionInfo = Ovia->PNGInfo->DAT->CMF & 0xF0 >> 4;
         } else {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         }

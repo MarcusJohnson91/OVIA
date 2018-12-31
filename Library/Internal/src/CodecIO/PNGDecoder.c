@@ -267,7 +267,24 @@ extern "C" {
     
     void OVIA_PNG_DAT_Parse(OVIA *Ovia, BitBuffer *BitB, uint32_t DATSize) {
         if (Ovia != NULL && BitB != NULL) {
+            uint8_t  BitDepth       = OVIA_GetBitDepth(Ovia);
+            uint8_t  ColorType      = OVIA_PNG_iHDR_GetColorType(Ovia);
+            uint8_t  NumChannels    = OVIA_PNG_NumChannelsPerColorType[ColorType];
+            uint64_t Width          = OVIA_GetWidth(Ovia);
+            uint64_t Height         = OVIA_GetHeight(Ovia);
+            ImageContainer *Decoded = NULL;
+            
             OVIA_PNG_Flate_ReadZlibHeader(Ovia, BitB);
+            
+            if (BitDepth <= 8) {
+                Decoded = ImageContainer_Init(ImageType_Integer8, BitDepth, 1, NumChannels, Width, Height);
+            } else if (BitDepth <= 16) {
+                Decoded = ImageContainer_Init(ImageType_Integer16, BitDepth, 1, NumChannels, Width, Height);
+            } else {
+                Log(Log_ERROR, __func__, U8("BitDepth %d is invalid"), BitDepth);
+            }
+            
+            OVIA_PNG_DAT_Decode(Ovia, BitB, Decoded);
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -653,7 +670,7 @@ extern "C" {
     
     void OVIA_PNG_ParseChunks(OVIA *Ovia, BitBuffer *BitB) {
         if (Ovia != NULL && BitB != NULL) {
-            while (BitBuffer_GetSize(BitB) > 0) { // 12 is the start of IEND
+            while (BitBuffer_GetSize(BitB) > 0) {
                 uint32_t ChunkSize   = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
                 uint32_t ChunkID     = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
                 
