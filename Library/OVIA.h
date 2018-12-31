@@ -75,6 +75,17 @@ extern "C" {
         PNGInterlacedAdam7 = 1,
     };
     
+    typedef enum OVIA_FileFormats {
+        UnknownFormat         = 0,
+        AIFFormat             = 1,
+        WAVFormat             = 2,
+        W64Format             = 3,
+        FLACFormat            = 4,
+        BMPFormat             = 5,
+        PNMFormat             = 6,
+        PNGFormat             = 7,
+    } OVIA_FileFormats;
+    
     static const UTF8 OVIA_PNG_MonthMap[12][4] = {
         U8("Jan"), U8("Feb"), U8("Mar"), U8("Apr"), U8("May"), U8("Jun"),
         U8("Jul"), U8("Aug"), U8("Sep"), U8("Oct"), U8("Nov"), U8("Dec"),
@@ -150,6 +161,8 @@ extern "C" {
     void                 OVIA_SetWidth(OVIA *Ovia, int64_t Width);
     void                 OVIA_WriteHeader(OVIA *Ovia, BitBuffer *BitB);
     
+    
+    void                 OVIA_SetFormat(OVIA *Ovia, OVIA_FileFormats Format);
     void                 OVIA_Deinit(OVIA *Ovia);
     
 #ifdef __cplusplus

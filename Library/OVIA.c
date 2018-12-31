@@ -2833,6 +2833,20 @@ extern "C" {
         }
     }
     
+    void OVIA_SetFormat(OVIA *Ovia, OVIA_FileFormats Format) {
+        if (Ovia != NULL && Format != UnknownFormat) {
+            if (Format == AIFFormat || Format == WAVFormat ||Format == W64Format || Format == FLACFormat) {
+                Ovia->Type   = AudioType;
+                Ovia->Format = Format;
+            } else if (Format == BMPFormat || Format == PNMFormat || Format == PNGFormat) {
+                Ovia->Type   = ImageType;
+                Ovia->Format = Format;
+            }
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
     void OVIA_Deinit(OVIA *Ovia) {
         if (Ovia != NULL) {
             free(Ovia->TagTypes);
