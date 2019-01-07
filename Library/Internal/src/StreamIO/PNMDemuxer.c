@@ -1,11 +1,10 @@
-#include "../../../../Dependencies/FoundationIO/libFoundationIO/include/Macros.h"
 #include "../../../include/Private/Image/PNMCommon.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
     
-    static uint64_t PNMCheckForComment(BitBuffer *BitB) { // returns 0 if no comment was found, returns the number of bytes that make up the comment if it was.
+    static uint64_t PNMCheckForComment(BitBuffer *BitB) { // returns 0 if false comment was found, returns the number of bytes that make up the comment if it was.
         uint64_t CommentSize = 0;
         if (BitB != NULL) {
             if (BitBuffer_PeekBits(MSByteFirst, LSBitFirst, BitB, 8) == PNMCommentStart) {
@@ -123,19 +122,19 @@ extern "C" {
             uint64_t TupleTypeSize     = BitBuffer_GetUTF8StringSize(BitB);
             UTF8    *TupleTypeString   = BitBuffer_ReadUTF8(BitB, TupleTypeSize);
             
-            if (UTF8_Compare(TupleTypeString, U8("BLACKANDWHITE")) == Yes) {
+            if (UTF8_Compare(TupleTypeString, U8("BLACKANDWHITE")) == true) {
                 OVIA_SetNumChannels(Ovia, 1);
                 OVIA_PNM_SetTupleType(Ovia, PNM_TUPLE_BnW);
-            } else if (UTF8_Compare(TupleTypeString, U8("GRAYSCALE")) == Yes) {
+            } else if (UTF8_Compare(TupleTypeString, U8("GRAYSCALE")) == true) {
                 OVIA_SetNumChannels(Ovia, 1);
                 OVIA_PNM_SetTupleType(Ovia, PNM_TUPLE_Gray);
-            } else if (UTF8_Compare(TupleTypeString, U8("GRAYSCALE_ALPHA")) == Yes) {
+            } else if (UTF8_Compare(TupleTypeString, U8("GRAYSCALE_ALPHA")) == true) {
                 OVIA_SetNumChannels(Ovia, 2);
                 OVIA_PNM_SetTupleType(Ovia, PNM_TUPLE_GrayAlpha);
-            } else if (UTF8_Compare(TupleTypeString, U8("RGB")) == Yes) {
+            } else if (UTF8_Compare(TupleTypeString, U8("RGB")) == true) {
                 OVIA_SetNumChannels(Ovia, 3);
                 OVIA_PNM_SetTupleType(Ovia, PNM_TUPLE_RGB);
-            } else if (UTF8_Compare(TupleTypeString, U8("RGB_ALPHA")) == Yes) {
+            } else if (UTF8_Compare(TupleTypeString, U8("RGB_ALPHA")) == true) {
                 OVIA_SetNumChannels(Ovia, 4);
                 OVIA_PNM_SetTupleType(Ovia, PNM_TUPLE_RGBAlpha);
             } else {
@@ -160,11 +159,11 @@ extern "C" {
             for (uint8_t PNMMagicByte = 0; PNMMagicByte < PNMMagicSize; PNMMagicByte++) {
                 PNMMagicID[PNMMagicByte] = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 8);
             }
-            if (UTF8_Compare(PNMMagicID, U8("P1")) == Yes || UTF8_Compare(PNMMagicID, U8("P2")) == Yes || UTF8_Compare(PNMMagicID, U8("P3")) == Yes) {
+            if (UTF8_Compare(PNMMagicID, U8("P1")) == true || UTF8_Compare(PNMMagicID, U8("P2")) == true || UTF8_Compare(PNMMagicID, U8("P3")) == true) {
                 OVIA_PNM_SetPNMType(Ovia, ASCIIPNM);
-            } else if (UTF8_Compare(PNMMagicID, U8("P4")) == Yes || UTF8_Compare(PNMMagicID, U8("P5")) == Yes || UTF8_Compare(PNMMagicID, U8("P6")) == Yes) {
+            } else if (UTF8_Compare(PNMMagicID, U8("P4")) == true || UTF8_Compare(PNMMagicID, U8("P5")) == true || UTF8_Compare(PNMMagicID, U8("P6")) == true) {
                 OVIA_PNM_SetPNMType(Ovia, BinaryPNM);
-            } else if (UTF8_Compare(PNMMagicID, U8("P7")) == Yes) {
+            } else if (UTF8_Compare(PNMMagicID, U8("P7")) == true) {
                 OVIA_PNM_SetPNMType(Ovia, PAMPNM);
             }
         } else if (Ovia == NULL) {
@@ -181,7 +180,7 @@ extern "C" {
             if (OVIA_PNM_GetPNMType(Ovia) == PAMPNM) {
                 Fields2Read = 5;
             } else if (OVIA_PNM_GetPNMType(Ovia) == ASCIIPNM) {
-                Fields2Read = 2; // there is no MaxVal field
+                Fields2Read = 2; // there is false MaxVal field
             } else if (OVIA_PNM_GetPNMType(Ovia) == BinaryPNM) {
                 Fields2Read = 3;
             }
@@ -209,7 +208,7 @@ extern "C" {
             uint64_t Height      = OVIA_GetHeight(Ovia);
             uint64_t NumChannels = OVIA_GetNumChannels(Ovia);
             uint8_t  BitDepth    = OVIA_GetBitDepth(Ovia);
-            Image                = ImageContainer_Init(BitDepth <= 8 ? ImageType_Integer8 : ImageType_Integer16, BitDepth, 1, NumChannels, Width, Height);
+            Image                = ImageContainer_Init(BitDepth <= 8 ? ImageType_Integer8 : ImageType_Integer16, ImageMask_Red | ImageMask_Green | ImageMask_Blue, Width, Height);
             
             if (OVIA_PNM_GetPNMType(Ovia) == ASCIIPNM) {
                 if (BitDepth <= 8) {

@@ -1,4 +1,3 @@
-#include "../../../../Dependencies/FoundationIO/libFoundationIO/include/Macros.h"
 #include "../../../include/Private/Image/PNGCommon.h"
 
 #ifdef __cplusplus

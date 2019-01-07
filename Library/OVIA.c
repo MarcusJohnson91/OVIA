@@ -1,6 +1,5 @@
-#include "../../Dependencies/FoundationIO/libFoundationIO/include/Macros.h"
-
 #include "../include/libOVIA.h"
+#include "../include/Private/InternalOVIA.h"
 
 #include "../include/Private/Audio/AIFCommon.h"
 #include "../include/Private/Audio/FLACCommon.h"
@@ -695,7 +694,7 @@ extern "C" {
     }
     
     bool OVIA_FLAC_GetEncodeSubset(OVIA *Ovia) {
-        bool EncodeSubset = No;
+        bool EncodeSubset = false;
         if (Ovia != NULL) {
             EncodeSubset = Ovia->FLACInfo->EncodeSubset;
         } else {
@@ -904,7 +903,7 @@ extern "C" {
     }
     
     bool OVIA_FLAC_CUE_GetIsCD(OVIA *Ovia) {
-        bool IsCD = No;
+        bool IsCD = false;
         if (Ovia != NULL) {
             IsCD = Ovia->FLACInfo->CueSheet->IsCD;
         } else {
@@ -2566,7 +2565,7 @@ extern "C" {
     }
     
     bool OVIA_FLAC_Frame_GetBlockType(OVIA *Ovia) {
-        bool BlockType = No;
+        bool BlockType = false;
         if (Ovia != NULL) {
             BlockType = Ovia->FLACInfo->Frame->BlockType;
         } else {
@@ -2781,7 +2780,7 @@ extern "C" {
             } else if (Ovia->Format == BMPFormat) {
                 BMPInsertImage(Image, BitB);
             } else if (Ovia->Format == PNGFormat) {
-                OVIA_PNG_Image_Insert(Image, BitB, No, Yes);
+                OVIA_PNG_Image_Insert(Image, BitB, false, true);
             }
         } else {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));

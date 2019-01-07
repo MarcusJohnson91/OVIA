@@ -1,4 +1,3 @@
-#include "../../../../Dependencies/FoundationIO/libFoundationIO/include/Macros.h"
 #include "../../../include/Private/Image/PNGCommon.h"
 #include "../../../include/Private/Image/Flate.h"
 
@@ -265,21 +264,55 @@ extern "C" {
         DynamicHuffmanBlock = 2,
     };
     
+    static const uint8_t OVIA_PNG_NumChannelsPerColorType[7] = {
+        1, 0, 3, 3, 4, 0, 4
+    };
+    
+    static const UTF8 OVIA_PNG_MonthMap[12][4] = {
+        u8"Jan", u8"Feb", u8"Mar", u8"Apr", u8"May", u8"Jun",
+        u8"Jul", u8"Aug", u8"Sep", u8"Oct", u8"Nov", u8"Dec",
+    };
+    
     void OVIA_PNG_DAT_Parse(OVIA *Ovia, BitBuffer *BitB, uint32_t DATSize) {
         if (Ovia != NULL && BitB != NULL) {
+            bool     Is3D           = OVIA_PNG_STER_GetSterType(Ovia);
             uint8_t  BitDepth       = OVIA_GetBitDepth(Ovia);
             uint8_t  ColorType      = OVIA_PNG_iHDR_GetColorType(Ovia);
             uint8_t  NumChannels    = OVIA_PNG_NumChannelsPerColorType[ColorType];
             uint64_t Width          = OVIA_GetWidth(Ovia);
             uint64_t Height         = OVIA_GetHeight(Ovia);
             ImageContainer *Decoded = NULL;
+            Image_ChannelMask Mask  = 0;
             
             OVIA_PNG_Flate_ReadZlibHeader(Ovia, BitB);
             
+            // Convert PNG color type to ContainerIO ImageMask
+            
+            if (Is3D == true) {
+                Mask += ImageMask_3D_L;
+                Mask += ImageMask_3D_R;
+            }
+            
+            if (ColorType == PNG_Grayscale) {
+                Mask += ImageMask_Luma;
+            } else if (ColorType == PNG_GrayAlpha) {
+                Mask += ImageMask_Luma;
+                Mask += ImageMask_Alpha;
+            } else if (ColorType == PNG_RGB || ColorType == PNG_PalettedRGB) {
+                Mask += ImageMask_Red;
+                Mask += ImageMask_Green;
+                Mask += ImageMask_Blue;
+            } else if (ColorType == PNG_RGBA) {
+                Mask += ImageMask_Red;
+                Mask += ImageMask_Green;
+                Mask += ImageMask_Blue;
+                Mask += ImageMask_Alpha;
+            }
+            
             if (BitDepth <= 8) {
-                Decoded = ImageContainer_Init(ImageType_Integer8, BitDepth, 1, NumChannels, Width, Height);
+                Decoded = ImageContainer_Init(ImageType_Integer8, Mask, Width, Height);
             } else if (BitDepth <= 16) {
-                Decoded = ImageContainer_Init(ImageType_Integer16, BitDepth, 1, NumChannels, Width, Height);
+                Decoded = ImageContainer_Init(ImageType_Integer16, Mask, Width, Height);
             } else {
                 Log(Log_ERROR, __func__, U8("BitDepth %d is invalid"), BitDepth);
             }

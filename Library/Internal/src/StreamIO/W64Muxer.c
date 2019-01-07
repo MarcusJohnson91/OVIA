@@ -1,4 +1,3 @@
-#include "../../../../Dependencies/FoundationIO/libFoundationIO/include/Macros.h"
 #include "../../../include/Private/Audio/W64Common.h"
 
 #ifdef __cplusplus
@@ -19,7 +18,7 @@ extern "C" {
         if (Audio != NULL && BitB != NULL) {
             uint64_t NumChannels = AudioContainer_GetNumSamples(Audio);
             uint64_t SampleRate  = AudioContainer_GetSampleRate(Audio);
-            uint8_t  BitDepth    = Bits2Bytes(AudioContainer_GetBitDepth(Audio), Yes);
+            uint8_t  BitDepth    = Bits2Bytes(AudioContainer_GetBitDepth(Audio), true);
             uint64_t ByteRate    = CalculateW64ByteRate(NumChannels, BitDepth, SampleRate);
             uint64_t BlockAlign  = CalculateW64BlockAlign(NumChannels, BitDepth);
             BitBuffer_WriteBits(LSByteFirst, LSBitFirst, BitB, 16, 0);
@@ -39,7 +38,7 @@ extern "C" {
         if (Audio != NULL && BitB != NULL) {
             uint64_t NumChannels = AudioContainer_GetNumSamples(Audio);
             uint64_t NumSamples  = AudioContainer_GetNumSamples(Audio);
-            uint8_t  BitDepth    = Bits2Bytes(AudioContainer_GetBitDepth(Audio), Yes);
+            uint8_t  BitDepth    = Bits2Bytes(AudioContainer_GetBitDepth(Audio), true);
             uint64_t W64Size     = (NumSamples * NumChannels * BitDepth);
             uint64_t FMTSize     = 40;
             
@@ -61,7 +60,7 @@ extern "C" {
     void W64AppendSamples(AudioContainer *Audio, BitBuffer *BitB) {
         if (Audio != NULL && BitB != NULL) {
             uint64_t NumChannels  = AudioContainer_GetNumSamples(Audio);
-            uint64_t BitDepth     = Bits2Bytes(AudioContainer_GetBitDepth(Audio), Yes);
+            uint64_t BitDepth     = Bits2Bytes(AudioContainer_GetBitDepth(Audio), true);
             uint64_t NumSamples   = AudioContainer_GetNumSamples(Audio);
             Audio_Types Type      = AudioContainer_GetType(Audio);
             if (Type == (AudioType_Signed | AudioType_Integer8)) {

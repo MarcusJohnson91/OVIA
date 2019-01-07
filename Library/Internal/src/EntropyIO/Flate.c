@@ -1,4 +1,3 @@
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/Macros.h"
 #include "../../../Dependencies/FoundationIO/libFoundationIO/include/Log.h"
 #include "../../../Dependencies/FoundationIO/libFoundationIO/include/BitIO.h"
 #include "../../../Dependencies/FoundationIO/libFoundationIO/include/StringIO.h"
