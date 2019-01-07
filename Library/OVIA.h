@@ -1,8 +1,26 @@
-#include "../../Dependencies/FoundationIO/libFoundationIO/include/BitIO.h"
-#include "../../Dependencies/FoundationIO/libFoundationIO/include/CommandLineIO.h"
-#include "../../Dependencies/FoundationIO/libFoundationIO/include/Log.h"
-#include "../../Dependencies/FoundationIO/libFoundationIO/include/Math.h"
-#include "../../Dependencies/FoundationIO/libFoundationIO/include/StringIO.h"
+#include <stdbool.h>
+#include <stdint.h>
+
+/* Forward declare StringIO's types */
+#ifndef UTF8
+typedef               unsigned char                        UTF8;
+#endif
+
+#ifndef UTF16
+#ifdef  char16_t
+typedef               char16_t                             UTF16;
+#else
+typedef               uint_least16_t                       UTF16;
+#endif
+#endif
+
+#ifndef UTF32
+#ifdef  char32_t
+typedef               char32_t                             UTF32;
+#else
+typedef               uint_least32_t                       UTF32;
+#endif
+#endif
 
 #pragma once
 
@@ -12,68 +30,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-    
-    typedef enum OVIA_TagTypes {
-        UnknownTag            = 0,
-        TitleTag              = 1,
-        AuthorTag             = 2,
-        AnnotationTag         = 3,
-        ArtistTag             = 4,
-        AlbumTag              = 5,
-        GenreTag              = 6,
-        ReleaseTag            = 7,
-        CreatingSoftware      = 8,
-    } OVIA_TagTypes;
-    
-#define PNGMagic 0x89504E470D0A1A0A
-    
-    typedef enum OVIA_PNG_ChunkMarkers {
-        acTLMarker         = 0x6163544C,
-        bKGDMarker         = 0x626B4744,
-        cHRMMarker         = 0x6348524D,
-        fcTLMarker         = 0x6663544C,
-        fDATMarker         = 0x66444154,
-        gAMAMarker         = 0x67414D41,
-        hISTMarker         = 0x68495354,
-        iCCPMarker         = 0x69434350,
-        IDATMarker         = 0x49444154,
-        iHDRMarker         = 0x49484452,
-        iTXtMarker         = 0x69545874,
-        oFFsMarker         = 0x6F464673,
-        pCALMarker         = 0x7043414C,
-        pHYsMarker         = 0x70485973,
-        PLTEMarker         = 0x504C5445,
-        sBITMarker         = 0x73424954,
-        sCALMarker         = 0x7343414c,
-        sRGBMarker         = 0x73524742,
-        sTERMarker         = 0x73544552,
-        tEXtMarker         = 0x74455874,
-        zTXtMarker         = 0x7A545874,
-        tIMEMarker         = 0x74494d45,
-        tRNSMarker         = 0x74524e53,
-        sPLTMarker         = 0x73504c54,
-    } OVIA_PNG_ChunkMarkers;
-    
-    typedef enum OVIA_PNG_ColorTypes {
-        PNG_Grayscale      = 0,
-        PNG_RGB            = 2,
-        PNG_PalettedRGB    = 3,
-        PNG_GrayAlpha      = 4,
-        PNG_RGBA           = 6,
-    } OVIA_PNG_ColorTypes;
-    
-    typedef enum OVIA_PNG_Filter_Types {
-        NotFiltered   = 0,
-        SubFilter     = 1,
-        UpFilter      = 2,
-        AverageFilter = 3,
-        PaethFilter   = 4,
-    } OVIA_PNG_Filter_Types;
-    
-    enum OVIA_PNG_Interlace_Types {
-        PNGNotInterlaced   = 0,
-        PNGInterlacedAdam7 = 1,
-    };
     
     typedef enum OVIA_FileFormats {
         UnknownFormat         = 0,
@@ -86,14 +42,17 @@ extern "C" {
         PNGFormat             = 7,
     } OVIA_FileFormats;
     
-    static const UTF8 OVIA_PNG_MonthMap[12][4] = {
-        U8("Jan"), U8("Feb"), U8("Mar"), U8("Apr"), U8("May"), U8("Jun"),
-        U8("Jul"), U8("Aug"), U8("Sep"), U8("Oct"), U8("Nov"), U8("Dec"),
-    };
-    
-    static const uint8_t OVIA_PNG_NumChannelsPerColorType[7] = {
-        1, 0, 3, 3, 4, 0, 4
-    };
+    typedef enum OVIA_TagTypes {
+        UnknownTag            = 0,
+        TitleTag              = 1,
+        AuthorTag             = 2,
+        AnnotationTag         = 3,
+        ArtistTag             = 4,
+        AlbumTag              = 5,
+        GenreTag              = 6,
+        ReleaseTag            = 7,
+        CreatingSoftware      = 8,
+    } OVIA_TagTypes;
     
     /*
      OVIA API Design:
@@ -115,9 +74,11 @@ extern "C" {
      The User needs to get the metadata for the file, and put it into OVIA, and the Image/Audio Container.
      */
     
-    typedef struct       AudioContainer AudioContainer;
+    typedef struct       AudioContainer AudioContainer; // Forward declare ContainerIO's tyoes
     
-    typedef struct       ImageContainer ImageContainer;
+    typedef struct       ImageContainer ImageContainer; // Forward declare ContainerIO's tyoes
+    
+    typedef struct       BitBuffer      BitBuffer;      // Forward declare BitIO's types
     
     typedef struct       OVIA OVIA;
     
@@ -160,7 +121,6 @@ extern "C" {
     void                 OVIA_SetTag(OVIA *Ovia, OVIA_TagTypes TagType, UTF8 *Tag);
     void                 OVIA_SetWidth(OVIA *Ovia, int64_t Width);
     void                 OVIA_WriteHeader(OVIA *Ovia, BitBuffer *BitB);
-    
     
     void                 OVIA_SetFormat(OVIA *Ovia, OVIA_FileFormats Format);
     void                 OVIA_Deinit(OVIA *Ovia);
