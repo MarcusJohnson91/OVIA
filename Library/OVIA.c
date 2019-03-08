@@ -21,11 +21,11 @@ extern "C" {
     } PNGTextTypes;
     
     typedef struct iHDRChunk {
-        uint32_t      Width;
-        uint32_t      Height;
-        uint8_t       BitDepth;
-        uint8_t       Compression;
-        uint8_t       FilterMethod;
+        uint32_t            Width;
+        uint32_t            Height;
+        uint8_t             BitDepth;
+        uint8_t             Compression;
+        uint8_t             FilterMethod;
         OVIA_PNG_ColorTypes ColorType;
         bool          Progressive;
         bool          Interlaced;
@@ -249,11 +249,13 @@ extern "C" {
     } AIFOptions;
     
     typedef struct WAVOptions {
+        uint32_t SpeakerMask;
         uint16_t CompressionFormat;
         uint16_t BlockAlignment;
     } WAVOptions;
     
     typedef struct W64Options {
+        uint64_t SpeakerMask;
         uint16_t CompressionFormat;
         uint16_t BlockAlignment;
     } W64Options;
@@ -275,7 +277,7 @@ extern "C" {
         uint64_t  *TrackOffset;         // samples from the beginning of the FLAC file to the first sample of the track
         uint8_t   *TrackNum;            // which track is this again?
         bool      *IsAudio;             // 1 for audio, 0 for data
-        bool      *PreEmphasis;         // 1 for yes 0 for no.
+        bool      *PreEmphasis;         // 1 for true 0 for false.
     } CueSheetTrack;
     
     typedef struct FLACCueSheet {
@@ -283,7 +285,7 @@ extern "C" {
         uint8_t        NumTrackIndexPoints;
         char          *CatalogID;
         uint64_t       LeadIn;              // in samples
-        uint64_t       IndexOffset;         // no idea. must be multiple of CD sector for cd sources
+        uint64_t       IndexOffset;         // false idea. must be multiple of CD sector for cd sources
         size_t         CatalogIDSize;
         uint8_t        NumTracks;           // the number of tracks, CD has a max of 100 (including lead out)
         bool           IsCD;                // 1 if it came from a CD; 0 otherwise
@@ -2012,6 +2014,22 @@ extern "C" {
         }
     }
     
+    void OVIA_WAV_SetSpeakerMask(OVIA *Ovia, uint32_t SpeakerMask) {
+        if (Ovia != NULL) {
+            Ovia->WAVInfo->SpeakerMask = SpeakerMask;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
+    void OVIA_W64_SetSpeakerMask(OVIA *Ovia, uint64_t SpeakerMask) {
+        if (Ovia != NULL) {
+            Ovia->W64Info->SpeakerMask = SpeakerMask;
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
     HuffmanTable *OVIA_PNG_DAT_GetDistanceHuffmanTable(OVIA *Ovia) {
         HuffmanTable *DistanceTree = NULL;
         if (Ovia != NULL) {
@@ -2780,7 +2798,7 @@ extern "C" {
             } else if (Ovia->Format == BMPFormat) {
                 BMPInsertImage(Image, BitB);
             } else if (Ovia->Format == PNGFormat) {
-                OVIA_PNG_Image_Insert(Image, BitB, false, true);
+                OVIA_PNG_Image_Insert(Image, BitB, false);
             }
         } else {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));

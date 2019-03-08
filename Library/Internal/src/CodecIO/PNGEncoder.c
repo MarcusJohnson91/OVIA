@@ -4,7 +4,7 @@
 extern "C" {
 #endif
     
-    void OVIA_PNG_Image_Insert(ImageContainer *Image, BitBuffer *BitB, bool InterlacePNG, bool OptimizePNG) {
+    void OVIA_PNG_Image_Insert(ImageContainer *Image, BitBuffer *BitB, bool OptimizePNG) {
         if (Image != NULL && BitB != NULL) {
             /*
              Loop over the image container, line by line, and try all the filters.

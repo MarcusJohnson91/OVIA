@@ -51,8 +51,6 @@ extern "C" {
         } else if (BitB == NULL) {
             Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
         }
-        
-        
     }
     
     void WAVAppendSamples(AudioContainer *Audio, BitBuffer *BitB) {

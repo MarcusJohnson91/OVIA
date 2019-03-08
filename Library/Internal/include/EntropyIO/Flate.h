@@ -52,10 +52,44 @@ extern "C" {
     } OVIA_Flate_BlockTypes;
     
     typedef struct HuffmanTable {
-        uint16_t  NumSymbols;
         uint16_t *Frequency; // Count
         uint16_t *Symbols;   // HuffmanCode
+        uint16_t  NumSymbols;
     } HuffmanTable;
+    
+    typedef struct HuffmanTree {
+        HuffmanTable *LengthTable;
+        HuffmanTable *DistanceTable;
+    } HuffmanTree;
+    
+    HuffmanTree *HuffmanTree_Init() {
+        HuffmanTree *Tree = calloc(1, sizeof(HuffmanTree));
+        return Tree;
+    }
+    
+    void HuffmanTree_AddLengthTable(HuffmanTree *Tree, HuffmanTable *LengthTable) {
+        if (Tree != NULL) {
+            Tree->LengthTable = LengthTable;
+        }
+    }
+    
+    void HuffmanTree_AddDistanceTable(HuffmanTree *Tree, HuffmanTable *DistanceTable) {
+        if (Tree != NULL) {
+            Tree->DistanceTable = DistanceTable;
+        }
+    }
+    
+    void HuffmanTree_Deinit(HuffmanTree *Tree) {
+        if (Tree != NULL) {
+            free(Tree->LengthTable->Frequency);
+            free(Tree->LengthTable->Symbols);
+            free(Tree->LengthTable);
+            free(Tree->DistanceTable->Frequency);
+            free(Tree->DistanceTable->Symbols);
+            free(Tree->DistanceTable);
+            free(Tree);
+        }
+    }
     
     void OVIA_PNG_DAT_Decode(OVIA *Ovia, BitBuffer *BitB, ImageContainer *Image);
     
@@ -145,9 +179,9 @@ extern "C" {
     
     void OVIA_PNG_Flate_ReadLiteralBlock(OVIA *Ovia, BitBuffer *BitB);
     
-    void OVIA_PNG_Flate_ReadFixedBlock(OVIA *Ovia, BitBuffer *BitB);
+    HuffmanTree *OVIA_PNG_Flate_BuildFixedTree(OVIA *Ovia, BitBuffer *BitB);
     
-    void OVIA_PNG_Flate_ReadTreeDynamic(OVIA *Ovia, BitBuffer *BitB);
+    HuffmanTree *OVIA_PNG_Flate_BuildDynamicTree(OVIA *Ovia, BitBuffer *BitB);
     
     uint64_t ReadHuffman(HuffmanTable *Tree, BitBuffer *BitB);
     
