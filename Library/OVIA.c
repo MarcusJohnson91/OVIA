@@ -1,4 +1,4 @@
-#include "../include/libOVIA.h"
+#include "../include/OVIA.h"
 #include "../include/Private/InternalOVIA.h"
 
 #include "../include/Private/Audio/AIFCommon.h"
@@ -2814,7 +2814,7 @@ extern "C" {
             } else if (Ovia->Format == W64Format) {
                 W64AppendSamples(Audio, BitB);
             } else if (Ovia->Format == FLACFormat) {
-                FLACAppendSamples(Ovia, Audio, BitB);
+                FLACAppendSamples(Ovia, Audio, BitB); // FIXME: Create this function
             }
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
@@ -2840,7 +2840,7 @@ extern "C" {
             } else if (Ovia->Format == WAVFormat) {
                 WAVWriteHeader(Ovia, BitB);
             } else if (Ovia->Format == FLACFormat) {
-                FLACWriteHeader(Ovia, BitB);
+                FLACWriteHeader(Ovia, BitB); // FIXME: Create this function
             }
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));

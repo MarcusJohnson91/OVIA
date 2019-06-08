@@ -2,25 +2,10 @@
 #include <stdint.h>
 
 /* Forward declare StringIO's types */
-#ifndef UTF8
+#ifndef               UTF8
 typedef               unsigned char                        UTF8;
-#endif
-
-#ifndef UTF16
-#ifdef  char16_t
-typedef               char16_t                             UTF16;
-#else
-typedef               uint_least16_t                       UTF16;
-#endif
-#endif
-
-#ifndef UTF32
-#ifdef  char32_t
-typedef               char32_t                             UTF32;
-#else
-typedef               uint_least32_t                       UTF32;
-#endif
-#endif
+#endif /* UTF8 */
+/* Forward declare StringIO's types */
 
 #pragma once
 
