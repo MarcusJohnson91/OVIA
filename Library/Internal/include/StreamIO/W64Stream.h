@@ -1,4 +1,3 @@
-#include "../../OVIA.h"
 #include "../InternalOVIA.h"
 
 #pragma once
@@ -30,6 +29,12 @@ extern "C" {
         WAVTopBackCenter      = 0x10000,
         WAVTopBackRight       = 0x20000,
     };
+    
+    typedef struct W64Options {
+        uint64_t SpeakerMask;
+        uint16_t CompressionFormat;
+        uint16_t BlockAlignment;
+    } W64Options;
     
     static const uint8_t W64_RIFF_GUIDString[] = {
         0x72,0x69,0x66,0x66,0x2D,0x2E,0x91,0x2D,0xCF,0x11,0x2D,0xA5,0xD6,0x2D,0x28,0xDB,0x04,0xC1,0x00,0x00,0x00
@@ -77,11 +82,16 @@ extern "C" {
     
     void            W64ParseMetadata(OVIA *Ovia, BitBuffer *BitB);
     
-    AudioContainer *W64ExtractSamples(OVIA *Ovia, BitBuffer *BitB);
+    Audio2DContainer *W64ExtractSamples(OVIA *Ovia, BitBuffer *BitB);
     
-    void            W64AppendSamples(AudioContainer *Audio, BitBuffer *BitB);
+    void            W64AppendSamples(Audio2DContainer *Audio, BitBuffer *BitB);
     
-    void            W64WriteHeader(AudioContainer *Audio, BitBuffer *BitB);
+    void            W64WriteHeader(Audio2DContainer *Audio, BitBuffer *BitB);
+    
+    uint16_t             OVIA_W64_GetBlockAlignment(OVIA *Ovia);
+    void                 OVIA_W64_SetBlockAlignment(OVIA *Ovia, uint16_t BlockAlignment);
+    void                 OVIA_W64_SetCompressionType(OVIA *Ovia, uint16_t CompressionType);
+    void                 OVIA_W64_SetSpeakerMask(OVIA *Ovia, uint64_t SpeakerMask);
     
 #ifdef __cplusplus
 }

@@ -14,7 +14,7 @@ extern "C" {
         return NumChannels * (BitDepth / 8);
     }
     
-    static void W64WriteFMTChunk(AudioContainer *Audio, BitBuffer *BitB) {
+    static void W64WriteFMTChunk(Audio2DContainer *Audio, BitBuffer *BitB) {
         if (Audio != NULL && BitB != NULL) {
             uint64_t NumChannels = AudioContainer_GetNumSamples(Audio);
             uint64_t SampleRate  = AudioContainer_GetSampleRate(Audio);
@@ -28,13 +28,13 @@ extern "C" {
             BitBuffer_WriteBits(LSByteFirst, LSBitFirst, BitB, 32, BlockAlign);
             BitBuffer_WriteBits(LSByteFirst, LSBitFirst, BitB, 16, BitDepth);
         } else if (Audio == NULL) {
-            Log(Log_ERROR, __func__, U8("AudioContainer Pointer is NULL"));
+            Log(Log_ERROR, __func__, U8("Audio2DContainer Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    void W64WriteHeader(AudioContainer *Audio, BitBuffer *BitB) {
+    void W64WriteHeader(Audio2DContainer *Audio, BitBuffer *BitB) {
         if (Audio != NULL && BitB != NULL) {
             uint64_t NumChannels = AudioContainer_GetNumSamples(Audio);
             uint64_t NumSamples  = AudioContainer_GetNumSamples(Audio);
@@ -51,13 +51,13 @@ extern "C" {
             BitBuffer_WriteGUUID(BitB, GUIDString, W64_DATA_GUIDString);
             BitBuffer_WriteBits(LSByteFirst, LSBitFirst, BitB, 64, NumSamples);
         } else if (Audio == NULL) {
-            Log(Log_ERROR, __func__, U8("AudioContainer Pointer is NULL"));
+            Log(Log_ERROR, __func__, U8("Audio2DContainer Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    void W64AppendSamples(AudioContainer *Audio, BitBuffer *BitB) {
+    void W64AppendSamples(Audio2DContainer *Audio, BitBuffer *BitB) {
         if (Audio != NULL && BitB != NULL) {
             uint64_t NumChannels  = AudioContainer_GetNumSamples(Audio);
             uint64_t BitDepth     = Bits2Bytes(AudioContainer_GetBitDepth(Audio), true);
@@ -107,7 +107,7 @@ extern "C" {
                 }
             }
         } else if (Audio == NULL) {
-            Log(Log_ERROR, __func__, U8("AudioContainer Pointer is NULL"));
+            Log(Log_ERROR, __func__, U8("Audio2DContainer Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
         }

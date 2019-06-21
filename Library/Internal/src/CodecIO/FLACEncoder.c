@@ -4,6 +4,21 @@
 extern "C" {
 #endif
     
+    void OVIA_FLAC_CUE_SetTrack(OVIA *Ovia, uint64_t Offset, bool IsAudio, bool PreEmphasis, UTF8 *ISRC) {
+        if (Ovia != NULL) {
+            Ovia->FLACInfo->CueSheet->NumTracks += 1;
+            
+            uint8_t CurrentTrack = Ovia->FLACInfo->CueSheet->NumTracks - 1;
+            
+            Ovia->FLACInfo->CueSheet->Tracks[CurrentTrack].TrackOffset = Offset;
+            Ovia->FLACInfo->CueSheet->Tracks[CurrentTrack].IsAudio     = IsAudio;
+            Ovia->FLACInfo->CueSheet->Tracks[CurrentTrack].PreEmphasis = PreEmphasis;
+            Ovia->FLACInfo->CueSheet->Tracks[CurrentTrack].ISRC        = UTF8_Clone(ISRC);
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
+        }
+    }
+    
     void   FLACWriteMetadata(OVIA *Ovia, BitBuffer *BitB) {
         if (Ovia != NULL && BitB != NULL) {
             BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, FLACMagic);
@@ -18,7 +33,7 @@ extern "C" {
         }
     }
     
-    void OVIA_FLAC_Encode(OVIA *Ovia, AudioContainer *Audio, BitBuffer *BitB) {
+    void OVIA_FLAC_Encode(OVIA *Ovia, Audio2DContainer *Audio, BitBuffer *BitB) {
         if (Ovia != NULL && Audio && BitB != NULL) {
             if (OVIA_FLAC_GetEncodeSubset(Ovia) == true && OVIA_GetSampleRate(Ovia) <= 48000) {
                 OVIA_FLAC_SetMaxBlockSize(Ovia, 4608);
@@ -32,7 +47,7 @@ extern "C" {
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (Audio == NULL) {
-            Log(Log_ERROR, __func__, U8("AudioContainer Pointer is NULL"));
+            Log(Log_ERROR, __func__, U8("Audio2DContainer Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
         }

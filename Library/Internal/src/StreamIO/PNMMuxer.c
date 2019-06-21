@@ -1,5 +1,3 @@
-#include "../../../../Dependencies/FoundationIO/libFoundationIO/include/StringIO.h"
-#include "../../../../Dependencies/FoundationIO/libFoundationIO/include/Math.h"
 #include "../../../include/Private/Image/PNMCommon.h"
 
 

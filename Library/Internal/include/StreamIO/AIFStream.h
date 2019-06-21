@@ -1,4 +1,3 @@
-#include "../../OVIA.h"
 #include "../InternalOVIA.h"
 
 #pragma once
@@ -46,13 +45,17 @@ extern "C" {
         AIF_SSND              = 0x53534E44,
     } AIFSubChunkIDs;
     
+    typedef struct AIFOptions {
+        
+    } AIFOptions;
+    
     void            AIFSkipPadding(BitBuffer *BitB, uint32_t SubChunkSize);
     
     void            AIFParseMetadata(OVIA *Ovia, BitBuffer *BitB);
     
-    AudioContainer *AIFExtractSamples(OVIA *Ovia, BitBuffer *BitB);
+    Audio2DContainer *AIFExtractSamples(OVIA *Ovia, BitBuffer *BitB);
     
-    void            AIFAppendSamples(OVIA *Ovia, AudioContainer *Audio, BitBuffer *BitB);
+    void            AIFAppendSamples(OVIA *Ovia, Audio2DContainer *Audio, BitBuffer *BitB);
     
     void            AIFWriteHeader(OVIA *Ovia, BitBuffer *BitB);
     

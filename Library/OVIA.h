@@ -1,11 +1,17 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-/* Forward declare StringIO's types */
-#ifndef               UTF8
-typedef               unsigned char                        UTF8;
+#ifndef   FoundationIO_StringType8
+#define   FoundationIO_StringType8 (1)
+#ifdef    UTF8
+#undef    UTF8
 #endif /* UTF8 */
-/* Forward declare StringIO's types */
+#if (defined __STDC_UTF_8__ && defined __CHAR8_TYPE__ && __STDC_VERSION__ >= FoundationIOSTDVersionC2X) && (FoundationIOTargetOS != FoundationIOAppleOS)
+typedef   char8_t        UTF8;
+#else
+typedef   unsigned char  UTF8;
+#endif /* __CHAR8_TYPE__ */
+#endif /* FoundationIO_StringType8 */
 
 #pragma once
 
@@ -16,28 +22,35 @@ typedef               unsigned char                        UTF8;
 extern "C" {
 #endif
     
-    typedef enum OVIA_FileFormats {
-        UnknownFormat         = 0,
-        AIFFormat             = 1,
-        WAVFormat             = 2,
-        W64Format             = 3,
-        FLACFormat            = 4,
-        BMPFormat             = 5,
-        PNMFormat             = 6,
-        PNGFormat             = 7,
-    } OVIA_FileFormats;
-    
-    typedef enum OVIA_TagTypes {
-        UnknownTag            = 0,
-        TitleTag              = 1,
-        AuthorTag             = 2,
-        AnnotationTag         = 3,
-        ArtistTag             = 4,
-        AlbumTag              = 5,
-        GenreTag              = 6,
-        ReleaseTag            = 7,
-        CreatingSoftware      = 8,
-    } OVIA_TagTypes;
+    /*
+     OVIA flow:
+     
+     File is opened by other means.
+     
+     the largest magicid's size is taken as well as the latest magicid offset
+     
+     BiggestMagicID + BiggestMagicIDOffset is taken, that many bytes are read from the file.
+     
+     each MagicID as well as it's offset is used to discover the file's type.
+     
+     if a match is found with one of the codecs in OVIA, we do further processing, otherwise an error code is returned.
+     
+     Let's assume that the input file is discovered to be a BMP file.
+     
+     Well then we need to have a function which calls the BMP decoder and returns an ImageContainer with the decoded data.
+     
+     so what about:
+     
+     ImageContainer *OVIA_DecodeImage(BitBuffer *BitB);
+     
+     OVIA_RegisterDecoders
+     
+     OVIA_RegisterEncoders
+     
+     How does registration work?
+     
+     
+     */
     
     /*
      OVIA API Design:
@@ -59,56 +72,70 @@ extern "C" {
      The User needs to get the metadata for the file, and put it into OVIA, and the Image/Audio Container.
      */
     
-    typedef struct       AudioContainer AudioContainer; // Forward declare ContainerIO's tyoes
+    typedef enum OVIA_CodecIDs {
+        CodecID_Unknown       = 0,
+        CodecID_BMP           = 2,
+        CodecID_PNM           = 4,
+        CodecID_PNG           = 6,
+        CodecID_AIF           = 8,
+        CodecID_WAV           = 10,
+        CodecID_W64           = 12,
+        CodecID_FLAC          = 14,
+        OVIA_NumCodecs        = 7,
+    } OVIA_CodecIDs;
     
-    typedef struct       ImageContainer ImageContainer; // Forward declare ContainerIO's tyoes
+    typedef enum OVIA_MediaTypes {
+        MediaType_Unknown     = 0,
+        MediaType_Audio2D     = 1,
+        MediaType_Audio3D     = 2,
+        MediaType_Image       = 3,
+        MediaType_Video       = 4,
+    } OVIA_MediaTypes;
     
-    typedef struct       BitBuffer      BitBuffer;      // Forward declare BitIO's types
+    typedef enum OVIA_CodecTypes {
+        CodecType_Unknown     = 0,
+        CodecType_Encode      = 1,
+        CodecType_Decode      = 2,
+    } OVIA_CodecTypes;
     
-    typedef struct       OVIA OVIA;
+    typedef enum OVIA_TagTypes {
+        UnknownTag            = 0,
+        TitleTag              = 1,
+        AuthorTag             = 2,
+        AnnotationTag         = 3,
+        ArtistTag             = 4,
+        AlbumTag              = 5,
+        GenreTag              = 6,
+        ReleaseTag            = 7,
+        CreatingSoftware      = 8,
+    } OVIA_TagTypes;
+    
+    typedef struct       Audio2DContainer  Audio2DContainer; // Forward declare ContainerIO's tyoes
+    
+    typedef struct       AudioVector       AudioVector;
+    
+    typedef struct       MetadataContainer MetadataContainer;
+    
+    typedef struct       ImageContainer    ImageContainer; // Forward declare ContainerIO's tyoes
+    
+    typedef struct       BitBuffer         BitBuffer;      // Forward declare BitIO's types
+    
+    typedef struct       OVIA              OVIA;
     
     OVIA                *OVIA_Init(void);
+    void                 OVIA_Identify(OVIA *Ovia, BitBuffer *BitBuffer);
+    void                 OVIA_Deinit(OVIA *Ovia);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
     
-    AudioContainer      *OVIA_ExtractSamples(OVIA *Ovia, BitBuffer *BitB);
-    AudioContainer      *OVIA_GetAudioContainerPointer(OVIA *Ovia);
-    bool                 OVIA_IsThereMoreMetadata(OVIA *Ovia);
-    ImageContainer      *OVIA_ExtractImage(OVIA *Ovia, BitBuffer *BitB);
-    int64_t              OVIA_GetHeight(OVIA *Ovia);
-    int64_t              OVIA_GetWidth(OVIA *Ovia);
-    uint8_t              OVIA_GetBitDepth(OVIA *Ovia);
-    uint64_t             OVIA_GetBlockSize(OVIA *Ovia);
-    uint64_t             OVIA_GetFileSize(OVIA *Ovia);
-    uint64_t             OVIA_GetNumChannels(OVIA *Ovia);
-    uint64_t             OVIA_GetNumSamples(OVIA *Ovia);
-    uint64_t             OVIA_GetNumTags(OVIA *Ovia);
-    uint64_t             OVIA_GetSampleOffset(OVIA *Ovia);
-    uint64_t             OVIA_GetSampleRate(OVIA *Ovia);
-    uint64_t             OVIA_GetTagsIndex(OVIA *Ovia, OVIA_TagTypes TagType);
-    uint64_t             OVIA_GetTagSize(OVIA *Ovia, uint64_t Tag);
-    UTF8                *OVIA_GetTag(OVIA *Ovia, uint64_t Tag);
-    void                 OVIA_AppendSamples(OVIA *Ovia, AudioContainer *Audio, BitBuffer *BitB);
-    void                 OVIA_Audio_ReadMetadata(OVIA *Ovia, AudioContainer *Audio, BitBuffer *BitB);
-    void                 OVIA_Identify(OVIA *Ovia, BitBuffer *BitB);
-    void                 OVIA_Image_ReadMetadata(OVIA *Ovia, ImageContainer *Image, BitBuffer *BitB);
-    void                 OVIA_InsertFrame(OVIA *Ovia, ImageContainer *Image, BitBuffer *BitB);
-    void                 OVIA_InsertImage(OVIA *Ovia, ImageContainer *Image, BitBuffer *BitB);
-    void                 OVIA_ParseMetadata(OVIA *Ovia, BitBuffer *BitB);
-    void                 OVIA_SetAudioContainerPointer(OVIA *Ovia, AudioContainer *Audio);
-    void                 OVIA_SetBitDepth(OVIA *Ovia, uint64_t BitDepth);
-    void                 OVIA_SetBlockSize(OVIA *Ovia, uint64_t BlockSize);
-    void                 OVIA_SetFileSize(OVIA *Ovia, uint64_t FileSize);
-    void                 OVIA_SetHeight(OVIA *Ovia, int64_t Height);
-    void                 OVIA_SetNumChannels(OVIA *Ovia, uint64_t NumChannels);
-    void                 OVIA_SetNumSamples(OVIA *Ovia, uint64_t NumSamples);
-    void                 OVIA_SetNumTags(OVIA *Ovia, uint64_t NumTags);
-    void                 OVIA_SetSampleOffset(OVIA *Ovia, uint64_t SampleOffset);
-    void                 OVIA_SetSampleRate(OVIA *Ovia, uint64_t SampleRate);
-    void                 OVIA_SetTag(OVIA *Ovia, OVIA_TagTypes TagType, UTF8 *Tag);
-    void                 OVIA_SetWidth(OVIA *Ovia, int64_t Width);
-    void                 OVIA_WriteHeader(OVIA *Ovia, BitBuffer *BitB);
+    Audio2DContainer    *OVIA_ExtractSamples(BitBuffer *BitB, uint64_t MaxNumSamples);
+    AudioVector         *OVIA_ExtractVector(BitBuffer *BitB);
+    ImageContainer      *OVIA_ExtractFrame(BitBuffer *BitB); // Used for both image and video formats
+    MetadataContainer   *OVIA_ExtractMetadata(BitBuffer *BitB);
+    void                 OVIA_AppendSamples(Audio2DContainer *Audio, BitBuffer *BitB);
+    void                 OVIA_AppendVector(AudioVector *Vector, BitBuffer *BitB);
+    void                 OVIA_AppendFrame(ImageContainer *Frame, BitBuffer *BitB);
+    void                 OVIA_AppendMetadata(MetadataContainer *Metadata, BitBuffer *BitB);
     
-    void                 OVIA_SetFormat(OVIA *Ovia, OVIA_FileFormats Format);
-    void                 OVIA_Deinit(OVIA *Ovia);
+    void                 OVIA_WriteHeader(BitBuffer *BitB);
     
 #ifdef __cplusplus
 }

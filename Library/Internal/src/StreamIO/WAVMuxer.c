@@ -53,7 +53,7 @@ extern "C" {
         }
     }
     
-    void WAVAppendSamples(AudioContainer *Audio, BitBuffer *BitB) {
+    void WAVAppendSamples(Audio2DContainer *Audio, BitBuffer *BitB) {
         if (Audio != NULL && BitB != NULL) {
             uint64_t NumChannels   = AudioContainer_GetNumSamples(Audio);
             uint64_t BitDepth      = AudioContainer_GetBitDepth(Audio);
@@ -104,7 +104,7 @@ extern "C" {
                 }
             }
         } else if (Audio == NULL) {
-            Log(Log_ERROR, __func__, U8("AudioContainer Pointer is NULL"));
+            Log(Log_ERROR, __func__, U8("Audio2DContainer Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
         }

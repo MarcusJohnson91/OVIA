@@ -286,8 +286,6 @@ extern "C" {
             
             OVIA_PNG_Flate_ReadZlibHeader(Ovia, BitB);
             
-            // Convert PNG color type to ContainerIO ImageMask
-            
             if (Is3D == true) {
                 Mask += ImageMask_3D_L;
                 Mask += ImageMask_3D_R;
@@ -703,6 +701,7 @@ extern "C" {
     
     void OVIA_PNG_ParseChunks(OVIA *Ovia, BitBuffer *BitB) {
         if (Ovia != NULL && BitB != NULL) {
+            ImageContainer *Image    = NULL;
             while (BitBuffer_GetSize(BitB) > 0) {
                 uint32_t ChunkSize   = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
                 uint32_t ChunkID     = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);

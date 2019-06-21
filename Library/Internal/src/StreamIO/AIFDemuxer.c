@@ -82,7 +82,7 @@ extern "C" {
         }
     }
     
-    void AIFParseMetadata(OVIA *Ovia, BitBuffer *BitB) {
+    void AIFParseMetadata(OVIA *Ovia, BitBuffer *BitB) { // void (*AIFParseMetadata)(OVIA*,BitBuffer*)
         if (Ovia != NULL && BitB != NULL) {
             uint32_t FileSize                  = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 32);
             OVIA_SetFileSize(Ovia, FileSize);
@@ -154,8 +154,8 @@ extern "C" {
         }
     }
     
-    AudioContainer *AIFExtractSamples(OVIA *Ovia, BitBuffer *BitB) { // I should change this so that the user manages their own buffer
-        AudioContainer *Audio = NULL;
+    Audio2DContainer *AIFExtractSamples(OVIA *Ovia, BitBuffer *BitB) { // I should change this so that the user manages their own buffer
+        Audio2DContainer *Audio = NULL;
         if (Ovia != NULL && BitB != NULL) {
             uint64_t BitDepth     = OVIA_GetBitDepth(Ovia);
             uint64_t NumChannels  = OVIA_GetNumChannels(Ovia);
@@ -193,6 +193,18 @@ extern "C" {
         }
         return Audio;
     }
+    
+    OVIACodecs OVIACodecList = {
+        .NumMagicIDs[CodecID_AIF   - CodecType_Decode]  = 1,
+        .MagicID[CodecID_AIF       - CodecType_Decode]  = (uint8_t[]) {0x46, 0x4F, 0x52, 0x4D},
+        .MagicIDSize[CodecID_AIF   - CodecType_Decode]  = 4,
+        .MagicIDOffset[CodecID_AIF - CodecType_Decode]  = 0,
+        .MediaTypes[CodecID_AIF    - CodecType_Decode]  = MediaType_Audio2D,
+        .CodecTypes[CodecID_AIF    - CodecType_Decode]  = CodecType_Decode,
+        .ParseFunction[CodecID_AIF - CodecType_Decode]  = AIFParseMetadata,
+        .DecodeAudio2D[CodecID_AIF - CodecType_Decode]  = AIFExtractSamples,
+        .InitFunction[CodecID_AIF  - CodecType_Decode]  = AIFInit,
+    };
     
 #ifdef __cplusplus
 }

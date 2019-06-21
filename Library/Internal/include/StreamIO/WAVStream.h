@@ -1,4 +1,3 @@
-#include "../../OVIA.h"
 #include "../InternalOVIA.h"
 
 #pragma once
@@ -183,13 +182,24 @@ extern "C" {
         WAV_DATA                      = 0x64617461,
     } WAVChunkIDs;
     
+    typedef struct WAVOptions {
+        uint32_t SpeakerMask;
+        uint16_t CompressionFormat;
+        uint16_t BlockAlignment;
+    } WAVOptions;
+    
     void            WAVParseMetadata(OVIA *Ovia, BitBuffer *BitB);
     
-    AudioContainer *WAVExtractSamples(OVIA *Ovia, BitBuffer *BitB);
+    Audio2DContainer *WAVExtractSamples(OVIA *Ovia, BitBuffer *BitB);
     
-    void            WAVAppendSamples(AudioContainer *Audio, BitBuffer *BitB);
+    void            WAVAppendSamples(Audio2DContainer *Audio, BitBuffer *BitB);
     
     void            WAVWriteHeader(OVIA *Ovia, BitBuffer *BitB);
+    
+    uint16_t             OVIA_WAV_GetBlockAlignment(OVIA *Ovia);
+    void                 OVIA_WAV_SetBlockAlignment(OVIA *Ovia, uint16_t BlockAlignment);
+    void                 OVIA_WAV_SetCompressionType(OVIA *Ovia, uint16_t CompressionType);
+    void                 OVIA_WAV_SetSpeakerMask(OVIA *Ovia, uint32_t SpeakerMask);
     
 #ifdef __cplusplus
 }

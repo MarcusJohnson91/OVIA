@@ -1,6 +1,4 @@
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/Log.h"
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/BitIO.h"
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/StringIO.h"
+#include "../../include/Private/InternalOVIA.h"
 #include "../../include/Private/Image/Flate.h"
 
 #ifdef __cplusplus
