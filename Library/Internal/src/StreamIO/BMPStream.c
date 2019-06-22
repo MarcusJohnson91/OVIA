@@ -1,34 +1,14 @@
-#include "../../include/Private/Image/BMPCommon.h"
+#include "../../include/Private/BMPCommon.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
     
-    void OVIA_BMP_SetDIBSize(OVIA *Ovia, uint32_t DIBSize) {
-        if (Ovia != NULL) {
-            Ovia->BMPInfo->DIBSize = DIBSize;
-        } else {
-            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
-        }
-    }
+    /*
+     BitInput contains the size of the file... OVIA itself has no need for that information...
+     */
     
-    void OVIA_BMP_SetFileSize(OVIA *Ovia, uint32_t FileSize) {
-        if (Ovia != NULL) {
-            Ovia->BMPInfo->FileSize = FileSize;
-        } else {
-            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
-        }
-    }
-    
-    void OVIA_BMP_SetOffset(OVIA *Ovia, uint32_t Offset) {
-        if (Ovia != NULL) {
-            Ovia->BMPInfo->Offset = Offset;
-        } else {
-            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
-        }
-    }
-    
-    void OVIA_BMP_SetCompressionType(OVIA *Ovia, uint32_t CompressionType) {
+    void OVIA_BMP_SetCompressionType(uint32_t CompressionType) {
         if (Ovia != NULL) {
             Ovia->BMPInfo->CompressionType = CompressionType;
         } else {
@@ -36,7 +16,7 @@ extern "C" {
         }
     }
     
-    void OVIA_BMP_SetNumBytesUsedBySamples(OVIA *Ovia, uint32_t NumBytesUsedBySamples) {
+    void OVIA_BMP_SetNumBytesUsedBySamples(uint32_t NumBytesUsedBySamples) {
         if (Ovia != NULL) {
             Ovia->BMPInfo->NumBytesUsedBySamples = NumBytesUsedBySamples;
         } else {
@@ -44,7 +24,7 @@ extern "C" {
         }
     }
     
-    void OVIA_BMP_SetWidthInMeters(OVIA *Ovia, uint32_t WidthInMeters) {
+    void OVIA_BMP_SetWidthInMeters(uint32_t WidthInMeters) {
         if (Ovia != NULL) {
             Ovia->BMPInfo->WidthPixelsPerMeter = WidthInMeters;
         } else {
@@ -52,7 +32,7 @@ extern "C" {
         }
     }
     
-    void OVIA_BMP_SetHeightInMeters(OVIA *Ovia, uint32_t HeightInMeters) {
+    void OVIA_BMP_SetHeightInMeters(uint32_t HeightInMeters) {
         if (Ovia != NULL) {
             Ovia->BMPInfo->HeightPixelsPerMeter = HeightInMeters;
         } else {
@@ -60,7 +40,7 @@ extern "C" {
         }
     }
     
-    void OVIA_BMP_SetColorsIndexed(OVIA *Ovia, uint32_t ColorsIndexed) {
+    void OVIA_BMP_SetColorsIndexed(uint32_t ColorsIndexed) {
         if (Ovia != NULL) {
             Ovia->BMPInfo->ColorsIndexed = ColorsIndexed;
         } else {
@@ -68,7 +48,7 @@ extern "C" {
         }
     }
     
-    void OVIA_BMP_SetIndexColorsUsed(OVIA *Ovia, uint32_t IndexColorsUsed) {
+    void OVIA_BMP_SetIndexColorsUsed(uint32_t IndexColorsUsed) {
         if (Ovia != NULL) {
             Ovia->BMPInfo->IndexedColorsUsed = IndexColorsUsed;
         } else {
@@ -76,7 +56,7 @@ extern "C" {
         }
     }
     
-    void OVIA_BMP_SetColorSpaceType(OVIA *Ovia, uint32_t ColorSpaceType) {
+    void OVIA_BMP_SetColorSpaceType(uint32_t ColorSpaceType) {
         if (Ovia != NULL) {
             Ovia->BMPInfo->ColorSpaceType = ColorSpaceType;
         } else {
@@ -84,7 +64,7 @@ extern "C" {
         }
     }
     
-    void OVIA_BMP_SetXCoordinate(OVIA *Ovia, uint32_t XCoordinate) {
+    void OVIA_BMP_SetXCoordinate(uint32_t XCoordinate) {
         if (Ovia != NULL) {
             Ovia->BMPInfo->XCoordinate = XCoordinate;
         } else {
@@ -92,7 +72,7 @@ extern "C" {
         }
     }
     
-    void OVIA_BMP_SetYCoordinate(OVIA *Ovia, uint32_t YCoordinate) {
+    void OVIA_BMP_SetYCoordinate(uint32_t YCoordinate) {
         if (Ovia != NULL) {
             Ovia->BMPInfo->YCoordinate = YCoordinate;
         } else {
@@ -100,7 +80,7 @@ extern "C" {
         }
     }
     
-    void OVIA_BMP_SetZCoordinate(OVIA *Ovia, uint32_t ZCoordinate) {
+    void OVIA_BMP_SetZCoordinate(uint32_t ZCoordinate) {
         if (Ovia != NULL) {
             Ovia->BMPInfo->ZCoordinate = ZCoordinate;
         } else {
@@ -108,7 +88,7 @@ extern "C" {
         }
     }
     
-    void OVIA_BMP_SetRGamma(OVIA *Ovia, uint32_t RGamma) {
+    void OVIA_BMP_SetRGamma(uint32_t RGamma) {
         if (Ovia != NULL) {
             Ovia->BMPInfo->RGamma = RGamma;
         } else {
@@ -116,7 +96,7 @@ extern "C" {
         }
     }
     
-    void OVIA_BMP_SetGGamma(OVIA *Ovia, uint32_t GGamma) {
+    void OVIA_BMP_SetGGamma(uint32_t GGamma) {
         if (Ovia != NULL) {
             Ovia->BMPInfo->GGamma = GGamma;
         } else {
@@ -124,7 +104,7 @@ extern "C" {
         }
     }
     
-    void OVIA_BMP_SetBGamma(OVIA *Ovia, uint32_t BGamma) {
+    void OVIA_BMP_SetBGamma(uint32_t BGamma) {
         if (Ovia != NULL) {
             Ovia->BMPInfo->BGamma = BGamma;
         } else {
@@ -132,7 +112,7 @@ extern "C" {
         }
     }
     
-    void OVIA_BMP_SetICC(OVIA *Ovia, uint32_t ICCIntent, uint32_t ICCSize, uint8_t *ICCPayload) {
+    void OVIA_BMP_SetICC(uint32_t ICCIntent, uint32_t ICCSize, uint8_t *ICCPayload) {
         if (Ovia != NULL) {
             Ovia->BMPInfo->ICCIntent  = ICCIntent;
             Ovia->BMPInfo->ICCSize    = ICCSize;
@@ -142,7 +122,7 @@ extern "C" {
         }
     }
     
-    void OVIA_BMP_SetRMask(OVIA *Ovia, uint32_t RedMask) {
+    void OVIA_BMP_SetRMask(uint32_t RedMask) {
         if (Ovia != NULL) {
             Ovia->BMPInfo->RMask = RedMask;
         } else {
@@ -150,7 +130,7 @@ extern "C" {
         }
     }
     
-    void OVIA_BMP_SetGMask(OVIA *Ovia, uint32_t GreenMask) {
+    void OVIA_BMP_SetGMask(uint32_t GreenMask) {
         if (Ovia != NULL) {
             Ovia->BMPInfo->GMask = GreenMask;
         } else {
@@ -158,7 +138,7 @@ extern "C" {
         }
     }
     
-    void OVIA_BMP_SetBMask(OVIA *Ovia, uint32_t BlueMask) {
+    void OVIA_BMP_SetBMask(uint32_t BlueMask) {
         if (Ovia != NULL) {
             Ovia->BMPInfo->BMask = BlueMask;
         } else {
@@ -166,7 +146,7 @@ extern "C" {
         }
     }
     
-    void OVIA_BMP_SetAMask(OVIA *Ovia, uint32_t AlphaMask) {
+    void OVIA_BMP_SetAMask(uint32_t AlphaMask) {
         if (Ovia != NULL) {
             Ovia->BMPInfo->AMask = AlphaMask;
         } else {

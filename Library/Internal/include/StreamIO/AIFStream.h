@@ -1,4 +1,8 @@
-#include "../InternalOVIA.h"
+#include "../../../Dependencies/FoundationIO/libFoundationIO/include/BitIO.h"
+#include "../../../Dependencies/FoundationIO/libFoundationIO/include/ContainerIO.h"
+#include "../../../Dependencies/FoundationIO/libFoundationIO/include/CryptographyIO.h"
+#include "../../../Dependencies/FoundationIO/libFoundationIO/include/Log.h"
+#include "../../../Dependencies/FoundationIO/libFoundationIO/include/Math.h"
 
 #pragma once
 
@@ -51,13 +55,13 @@ extern "C" {
     
     void            AIFSkipPadding(BitBuffer *BitB, uint32_t SubChunkSize);
     
-    void            AIFParseMetadata(OVIA *Ovia, BitBuffer *BitB);
+    void            AIFParseMetadata(BitBuffer *BitB);
     
-    Audio2DContainer *AIFExtractSamples(OVIA *Ovia, BitBuffer *BitB);
+    Audio2DContainer *AIFExtractSamples(BitBuffer *BitB);
     
-    void            AIFAppendSamples(OVIA *Ovia, Audio2DContainer *Audio, BitBuffer *BitB);
+    void            AIFAppendSamples(Audio2DContainer *Audio, BitBuffer *BitB);
     
-    void            AIFWriteHeader(OVIA *Ovia, BitBuffer *BitB);
+    void            AIFWriteHeader(BitBuffer *BitB);
     
 #ifdef __cplusplus
 }

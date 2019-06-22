@@ -1,18 +1,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#ifndef   FoundationIO_StringType8
-#define   FoundationIO_StringType8 (1)
-#ifdef    UTF8
-#undef    UTF8
-#endif /* UTF8 */
-#if (defined __STDC_UTF_8__ && defined __CHAR8_TYPE__ && __STDC_VERSION__ >= FoundationIOSTDVersionC2X) && (FoundationIOTargetOS != FoundationIOAppleOS)
-typedef   char8_t        UTF8;
-#else
-typedef   unsigned char  UTF8;
-#endif /* __CHAR8_TYPE__ */
-#endif /* FoundationIO_StringType8 */
-
 #pragma once
 
 #ifndef OVIA_libOVIA_H
@@ -123,7 +111,7 @@ extern "C" {
     typedef struct       OVIA              OVIA;
     
     OVIA                *OVIA_Init(void);
-    void                 OVIA_Identify(OVIA *Ovia, BitBuffer *BitBuffer);
+    void                 OVIA_Identify(BitBuffer *BitBuffer);
     void                 OVIA_Deinit(OVIA *Ovia);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
     
     Audio2DContainer    *OVIA_ExtractSamples(BitBuffer *BitB, uint64_t MaxNumSamples);

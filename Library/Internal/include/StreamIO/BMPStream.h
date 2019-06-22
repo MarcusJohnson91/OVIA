@@ -1,4 +1,8 @@
-#include "../InternalOVIA.h"
+#include "../../../Dependencies/FoundationIO/libFoundationIO/include/BitIO.h"
+#include "../../../Dependencies/FoundationIO/libFoundationIO/include/ContainerIO.h"
+#include "../../../Dependencies/FoundationIO/libFoundationIO/include/CryptographyIO.h"
+#include "../../../Dependencies/FoundationIO/libFoundationIO/include/Log.h"
+#include "../../../Dependencies/FoundationIO/libFoundationIO/include/Math.h"
 
 #pragma once
 
@@ -57,13 +61,13 @@ extern "C" {
         uint32_t     AMask;
     } BMPOptions;
     
-    void            BMPParseMetadata(OVIA *Ovia, BitBuffer *BitB);
+    void            BMPParseMetadata(BitBuffer *BitB);
     
-    ImageContainer *BMPExtractImage(OVIA *Ovia, BitBuffer *BitB);
+    ImageContainer *BMPExtractImage(BitBuffer *BitB);
     
     void            BMPInsertImage(ImageContainer *Image, BitBuffer *BitB);
     
-    void            BMPWriteHeader(OVIA *Ovia, BitBuffer *BitB);
+    void            BMPWriteHeader(BitBuffer *BitB);
     
     uint8_t             *OVIA_BMP_GetICCPayload(OVIA *Ovia);
     uint32_t             OVIA_BMP_GetAMask(OVIA *Ovia);
@@ -72,7 +76,6 @@ extern "C" {
     uint32_t             OVIA_BMP_GetColorsIndexed(OVIA *Ovia);
     uint32_t             OVIA_BMP_GetColorSpaceType(OVIA *Ovia);
     uint32_t             OVIA_BMP_GetCompressionType(OVIA *Ovia);
-    uint32_t             OVIA_BMP_GetDIBSize(OVIA *Ovia);
     uint32_t             OVIA_BMP_GetFileSize(OVIA *Ovia);
     uint32_t             OVIA_BMP_GetGGamma(OVIA *Ovia);
     uint32_t             OVIA_BMP_GetGMask(OVIA *Ovia);
@@ -88,27 +91,26 @@ extern "C" {
     uint32_t             OVIA_BMP_GetXCoordinate(OVIA *Ovia);
     uint32_t             OVIA_BMP_GetYCoordinate(OVIA *Ovia);
     uint32_t             OVIA_BMP_GetZCoordinate(OVIA *Ovia);
-    void                 OVIA_BMP_SetAMask(OVIA *Ovia, uint32_t AlphaMask);
-    void                 OVIA_BMP_SetBGamma(OVIA *Ovia, uint32_t BGamma);
-    void                 OVIA_BMP_SetBMask(OVIA *Ovia, uint32_t BlueMask);
-    void                 OVIA_BMP_SetColorsIndexed(OVIA *Ovia, uint32_t ColorsIndexed);
-    void                 OVIA_BMP_SetColorSpaceType(OVIA *Ovia, uint32_t ColorSpaceType);
-    void                 OVIA_BMP_SetCompressionType(OVIA *Ovia, uint32_t CompressionType);
-    void                 OVIA_BMP_SetDIBSize(OVIA *Ovia, uint32_t DIBSize);
-    void                 OVIA_BMP_SetFileSize(OVIA *Ovia, uint32_t FileSize);
-    void                 OVIA_BMP_SetGGamma(OVIA *Ovia, uint32_t GGamma);
-    void                 OVIA_BMP_SetGMask(OVIA *Ovia, uint32_t GreenMask);
-    void                 OVIA_BMP_SetHeightInMeters(OVIA *Ovia, uint32_t HeightInMeters);
-    void                 OVIA_BMP_SetICC(OVIA *Ovia, uint32_t ICCIntent, uint32_t ICCSize, uint8_t *ICCPayload);
-    void                 OVIA_BMP_SetIndexColorsUsed(OVIA *Ovia, uint32_t IndexColorsUsed);
-    void                 OVIA_BMP_SetNumBytesUsedBySamples(OVIA *Ovia, uint32_t NumBytesUsedBySamples);
-    void                 OVIA_BMP_SetOffset(OVIA *Ovia, uint32_t Offset);
-    void                 OVIA_BMP_SetRGamma(OVIA *Ovia, uint32_t RGamma);
-    void                 OVIA_BMP_SetRMask(OVIA *Ovia, uint32_t RedMask);
-    void                 OVIA_BMP_SetWidthInMeters(OVIA *Ovia, uint32_t WidthInMeters);
-    void                 OVIA_BMP_SetXCoordinate(OVIA *Ovia, uint32_t XCoordinate);
-    void                 OVIA_BMP_SetYCoordinate(OVIA *Ovia, uint32_t YCoordinate);
-    void                 OVIA_BMP_SetZCoordinate(OVIA *Ovia, uint32_t ZCoordinate);
+    void                 OVIA_BMP_SetAMask(uint32_t AlphaMask);
+    void                 OVIA_BMP_SetBGamma(uint32_t BGamma);
+    void                 OVIA_BMP_SetBMask(uint32_t BlueMask);
+    void                 OVIA_BMP_SetColorsIndexed(uint32_t ColorsIndexed);
+    void                 OVIA_BMP_SetColorSpaceType(uint32_t ColorSpaceType);
+    void                 OVIA_BMP_SetCompressionType(uint32_t CompressionType);
+    void                 OVIA_BMP_SetFileSize(uint32_t FileSize);
+    void                 OVIA_BMP_SetGGamma(uint32_t GGamma);
+    void                 OVIA_BMP_SetGMask(uint32_t GreenMask);
+    void                 OVIA_BMP_SetHeightInMeters(uint32_t HeightInMeters);
+    void                 OVIA_BMP_SetICC(uint32_t ICCIntent, uint32_t ICCSize, uint8_t *ICCPayload);
+    void                 OVIA_BMP_SetIndexColorsUsed(uint32_t IndexColorsUsed);
+    void                 OVIA_BMP_SetNumBytesUsedBySamples(uint32_t NumBytesUsedBySamples);
+    void                 OVIA_BMP_SetOffset(uint32_t Offset);
+    void                 OVIA_BMP_SetRGamma(uint32_t RGamma);
+    void                 OVIA_BMP_SetRMask(uint32_t RedMask);
+    void                 OVIA_BMP_SetWidthInMeters(uint32_t WidthInMeters);
+    void                 OVIA_BMP_SetXCoordinate(uint32_t XCoordinate);
+    void                 OVIA_BMP_SetYCoordinate(uint32_t YCoordinate);
+    void                 OVIA_BMP_SetZCoordinate(uint32_t ZCoordinate);
     
 #ifdef __cplusplus
 }

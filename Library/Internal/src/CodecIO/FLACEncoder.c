@@ -1,10 +1,10 @@
-#include "../../../include/Private/Audio/FLACCommon.h"
+#include "../../include/Private/FLACCommon.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
     
-    void OVIA_FLAC_CUE_SetTrack(OVIA *Ovia, uint64_t Offset, bool IsAudio, bool PreEmphasis, UTF8 *ISRC) {
+    void OVIA_FLAC_CUE_SetTrack(uint64_t Offset, bool IsAudio, bool PreEmphasis, UTF8 *ISRC) {
         if (Ovia != NULL) {
             Ovia->FLACInfo->CueSheet->NumTracks += 1;
             
@@ -19,13 +19,13 @@ extern "C" {
         }
     }
     
-    void   FLACWriteMetadata(OVIA *Ovia, BitBuffer *BitB) {
+    void   FLACWriteMetadata(BitBuffer *BitB) {
         if (Ovia != NULL && BitB != NULL) {
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, FLACMagic);
+            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, FLACMagic);
             bool IsLastMetadataBlock = false;
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 1, IsLastMetadataBlock);
+            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 1, IsLastMetadataBlock);
             uint8_t MetadataBlockType = 1;
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 7, MetadataBlockType);
+            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 7, MetadataBlockType);
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -33,7 +33,7 @@ extern "C" {
         }
     }
     
-    void OVIA_FLAC_Encode(OVIA *Ovia, Audio2DContainer *Audio, BitBuffer *BitB) {
+    void OVIA_FLAC_Encode(Audio2DContainer *Audio, BitBuffer *BitB) {
         if (Ovia != NULL && Audio && BitB != NULL) {
             if (OVIA_FLAC_GetEncodeSubset(Ovia) == true && OVIA_GetSampleRate(Ovia) <= 48000) {
                 OVIA_FLAC_SetMaxBlockSize(Ovia, 4608);
@@ -53,17 +53,17 @@ extern "C" {
         }
     }
     
-    void   OVIA_FLAC_WriteStreamInfo(OVIA *Ovia, BitBuffer *BitB) {
+    void   OVIA_FLAC_WriteStreamInfo(BitBuffer *BitB) {
         if (Ovia != NULL && BitB != NULL) {
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 24, 34); // StreamInfoSize
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 16, OVIA_FLAC_GetMinBlockSize(Ovia));
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 16, OVIA_FLAC_GetMaxBlockSize(Ovia));
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 24, OVIA_FLAC_GetMinFrameSize(Ovia));
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 24, OVIA_FLAC_GetMaxFrameSize(Ovia));
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 20, OVIA_GetSampleRate(Ovia));
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB,  3, OVIA_GetSampleRate(Ovia) - 1);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB,  5, OVIA_GetBitDepth(Ovia) - 1);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 36, OVIA_GetNumSamples(Ovia));
+            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 24, 34); // StreamInfoSize
+            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 16, OVIA_FLAC_GetMinBlockSize(Ovia));
+            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 16, OVIA_FLAC_GetMaxBlockSize(Ovia));
+            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 24, OVIA_FLAC_GetMinFrameSize(Ovia));
+            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 24, OVIA_FLAC_GetMaxFrameSize(Ovia));
+            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 20, OVIA_GetSampleRate(Ovia));
+            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst,  3, OVIA_GetSampleRate(Ovia) - 1);
+            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst,  5, OVIA_GetBitDepth(Ovia) - 1);
+            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 36, OVIA_GetNumSamples(Ovia));
             BitBuffer_Seek(BitB, 128); // Room for the MD5
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
@@ -72,14 +72,14 @@ extern "C" {
         }
     }
     
-    void   OVIA_FLAC_WriteTags(OVIA *Ovia, BitBuffer *BitB) {
+    void   OVIA_FLAC_WriteTags(BitBuffer *BitB) {
         if (Ovia != NULL && BitB != NULL) {
             UTF8 OVIA_Vendor[] = U8("libOVIA");
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, 7);
+            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, 7);
             for (uint32_t TagByte = 0; TagByte < 7; TagByte++) {
-                BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8, OVIA_Vendor[TagByte]);
+                BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, OVIA_Vendor[TagByte]);
             }
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 32, OVIA_GetNumTags(Ovia));
+            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, OVIA_GetNumTags(Ovia));
             for (uint32_t UserTag = 0; UserTag < OVIA_GetNumTags(Ovia); UserTag++) {
                 BitBuffer_WriteUTF8(Ovia, OVIA_GetTag(Ovia, UserTag));
             }

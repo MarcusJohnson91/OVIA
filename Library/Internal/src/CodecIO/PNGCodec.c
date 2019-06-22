@@ -1,10 +1,43 @@
-#include "../../include/Private/Audio/FLACCommon.h"
+#include "../../include/Private/PNGCommon.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
     
-    void OVIA_PNG_IHDR_SetIHDR(OVIA *Ovia, uint32_t Height, uint32_t Width, uint8_t BitDepth, uint8_t ColorType, const bool Interlace) {
+    HuffmanTree *HuffmanTree_BuildTree(uint16_t *BitLengths, uint64_t NumBitLengths, uint8_t MaxCodeLengthInBits) { // HuffmanTree_makeFromLengths2
+        HuffmanTree *Tree = calloc(1, sizeof(HuffmanTree));
+        if (BitLengths != NULL && Tree != NULL) {
+            // So we do what, exactly?
+            // We need both length and distance codes to make a proper Huffman tree, right?
+            
+            // Create a histogram from the codelengths
+            uint16_t *Histogram  = calloc(NumBitLengths, sizeof(uint16_t));
+            uint32_t *Histogram2 = calloc(NumBitLengths, sizeof(uint32_t));
+            if (Histogram != NULL) {
+                for (uint64_t Index = 0ULL; Index < NumBitLengths; Index++) { // Count the frequency of each bitlength
+                    Histogram[BitLengths[Index]] += 1; // Histogram = blcount.data
+                }
+                for (uint64_t Index = 1ULL; Index < NumBitLengths; Index++) {
+                    Histogram2[Index] = (Histogram2[Index - 1] + Histogram[Index - 1]) << 1;
+                }
+                for (uint64_t Index = 0ULL; Index < NumBitLengths; Index++) { // Generate the symbols
+                    if (BitLengths[Index] != 0) {
+                        Histogram2[BitLengths[Index]] += 1;
+                        Tree->HuffmanSymbol            = Histogram2[BitLengths[Index]];
+                    }
+                }
+            } else {
+                Log(Log_ERROR, __func__, U8("Couldn't allocate Histogram"));
+            }
+        } else if (BitLengths == NULL) {
+            Log(Log_ERROR, __func__, U8("BitLengths array is null"));
+        } else if (Tree == NULL) {
+            Log(Log_ERROR, __func__, U8("Couldn't allocate HuffmanTree"));
+        }
+        return Tree;
+    }
+    
+    void OVIA_PNG_IHDR_SetIHDR(uint32_t Height, uint32_t Width, uint8_t BitDepth, uint8_t ColorType, const bool Interlace) {
         if (Ovia != NULL && Height > 0 && Width > 0 && (BitDepth > 0 || BitDepth > 16) && (ColorType <= 6 && ColorType != 1 && ColorType != 5) && Interlace >= 0 && Interlace <= 1) {
             Ovia->PNGInfo->iHDR->Width      = Width;
             Ovia->PNGInfo->iHDR->Height     = Height;
@@ -38,7 +71,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_ACTL_SetACTL(OVIA *Ovia, const uint32_t NumFrames, const uint32_t Times2Loop) {
+    void OVIA_PNG_ACTL_SetACTL(const uint32_t NumFrames, const uint32_t Times2Loop) {
         if (Ovia != NULL && NumFrames > 0) {
             Ovia->PNGInfo->acTL->NumFrames   = NumFrames;
             Ovia->PNGInfo->acTL->TimesToLoop = Times2Loop;
@@ -49,7 +82,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_FCTL_SetFCTL(OVIA *Ovia, const uint32_t FrameNum, const uint32_t Width, const uint32_t Height, uint32_t XOffset, uint32_t YOffset, uint16_t DelayNumerator, uint16_t DelayDenominator, uint8_t DisposalType, uint8_t BlendType) {
+    void OVIA_PNG_FCTL_SetFCTL(const uint32_t FrameNum, const uint32_t Width, const uint32_t Height, uint32_t XOffset, uint32_t YOffset, uint16_t DelayNumerator, uint16_t DelayDenominator, uint8_t DisposalType, uint8_t BlendType) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->fcTL->FrameNum              = FrameNum;
             Ovia->PNGInfo->fcTL->Width                 = Width;
@@ -65,7 +98,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_SetAnimated(OVIA *Ovia, const bool PNGIsAnimated) {
+    void OVIA_PNG_SetAnimated(const bool PNGIsAnimated) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->IsAnimated = PNGIsAnimated;
         } else {
@@ -73,7 +106,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNM_SetPNMType(OVIA *Ovia, PNMTypes PNMType) {
+    void OVIA_PNM_SetPNMType(PNMTypes PNMType) {
         if (Ovia != NULL) {
             Ovia->PNMInfo->Type = PNMType;
         } else {
@@ -81,7 +114,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNM_SetTupleType(OVIA *Ovia, PNMTupleTypes TupleType) {
+    void OVIA_PNM_SetTupleType(PNMTupleTypes TupleType) {
         if (Ovia != NULL) {
             Ovia->PNMInfo->TupleType = TupleType;
         } else {
@@ -219,7 +252,7 @@ extern "C" {
         return BlendMethod;
     }
     
-    void OVIA_PNG_FCTL_SetFrameNum(OVIA *Ovia, uint32_t FrameNum) {
+    void OVIA_PNG_FCTL_SetFrameNum(uint32_t FrameNum) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->fcTL->FrameNum = FrameNum;
         } else {
@@ -227,7 +260,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_FCTL_SetWidth(OVIA *Ovia, uint32_t Width) {
+    void OVIA_PNG_FCTL_SetWidth(uint32_t Width) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->fcTL->Width = Width;
         } else {
@@ -235,7 +268,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_FCTL_SetHeight(OVIA *Ovia, uint32_t Height) {
+    void OVIA_PNG_FCTL_SetHeight(uint32_t Height) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->fcTL->Height = Height;
         } else {
@@ -243,7 +276,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_FCTL_SetXOffset(OVIA *Ovia, uint32_t XOffset) {
+    void OVIA_PNG_FCTL_SetXOffset(uint32_t XOffset) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->fcTL->XOffset = XOffset;
         } else {
@@ -251,7 +284,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_FCTL_SetYOffset(OVIA *Ovia, uint32_t YOffset) {
+    void OVIA_PNG_FCTL_SetYOffset(uint32_t YOffset) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->fcTL->YOffset = YOffset;
         } else {
@@ -259,7 +292,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_FCTL_SetFrameDelayNumerator(OVIA *Ovia, uint16_t FrameDelayNumerator) {
+    void OVIA_PNG_FCTL_SetFrameDelayNumerator(uint16_t FrameDelayNumerator) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->fcTL->FrameDelayNumerator = FrameDelayNumerator;
         } else {
@@ -267,7 +300,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_FCTL_SetFrameDelayDenominator(OVIA *Ovia, uint16_t FrameDelayDenominator) {
+    void OVIA_PNG_FCTL_SetFrameDelayDenominator(uint16_t FrameDelayDenominator) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->fcTL->FrameDelayDenominator = FrameDelayDenominator;
         } else {
@@ -275,7 +308,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_FCTL_SetDisposeMethod(OVIA *Ovia, uint8_t DisposeMethod) {
+    void OVIA_PNG_FCTL_SetDisposeMethod(uint8_t DisposeMethod) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->fcTL->DisposeMethod = DisposeMethod;
         } else {
@@ -283,7 +316,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_FCTL_SetBlendMethod(OVIA *Ovia, uint8_t BlendMethod) { // Last Set
+    void OVIA_PNG_FCTL_SetBlendMethod(uint8_t BlendMethod) { // Last Set
         if (Ovia != NULL) {
             Ovia->PNGInfo->fcTL->BlendMethod = BlendMethod;
         } else {
@@ -301,7 +334,7 @@ extern "C" {
         return STERType;
     }
     
-    void OVIA_PNG_STER_SetSterType(OVIA *Ovia, uint8_t sTERType) {
+    void OVIA_PNG_STER_SetSterType(uint8_t sTERType) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->sTER->StereoType = sTERType;
         } else {
@@ -309,7 +342,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_IHDR_SetColorType(OVIA *Ovia, uint8_t ColorType) {
+    void OVIA_PNG_IHDR_SetColorType(uint8_t ColorType) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->iHDR->ColorType = ColorType;
         } else {
@@ -337,7 +370,7 @@ extern "C" {
         return PaletteEntry;
     }
     
-    void OVIA_PNG_BKGD_SetBackgroundPaletteEntry(OVIA *Ovia, uint8_t PaletteEntry) {
+    void OVIA_PNG_BKGD_SetBackgroundPaletteEntry(uint8_t PaletteEntry) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->bkGD->BackgroundPaletteEntry = PaletteEntry;
         } else {
@@ -345,7 +378,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_CHRM_SetWhitePoint(OVIA *Ovia, uint32_t WhitePointX, uint32_t WhitePointY) {
+    void OVIA_PNG_CHRM_SetWhitePoint(uint32_t WhitePointX, uint32_t WhitePointY) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->cHRM->WhitePointX = WhitePointX;
             Ovia->PNGInfo->cHRM->WhitePointY = WhitePointY;
@@ -354,7 +387,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_CHRM_SetRed(OVIA *Ovia, uint32_t RedX, uint32_t RedY) {
+    void OVIA_PNG_CHRM_SetRed(uint32_t RedX, uint32_t RedY) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->cHRM->RedX = RedX;
             Ovia->PNGInfo->cHRM->RedY = RedY;
@@ -363,7 +396,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_CHRM_SetGreen(OVIA *Ovia, uint32_t GreenX, uint32_t GreenY) {
+    void OVIA_PNG_CHRM_SetGreen(uint32_t GreenX, uint32_t GreenY) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->cHRM->GreenX = GreenX;
             Ovia->PNGInfo->cHRM->GreenY = GreenY;
@@ -372,7 +405,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_CHRM_SetBlue(OVIA *Ovia, uint32_t BlueX, uint32_t BlueY) {
+    void OVIA_PNG_CHRM_SetBlue(uint32_t BlueX, uint32_t BlueY) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->cHRM->BlueX = BlueX;
             Ovia->PNGInfo->cHRM->BlueY = BlueY;
@@ -461,7 +494,7 @@ extern "C" {
         return BlueY;
     }
     
-    void OVIA_PNG_OFFS_SetXOffset(OVIA *Ovia, int32_t XOffset) {
+    void OVIA_PNG_OFFS_SetXOffset(int32_t XOffset) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->oFFs->XOffset = XOffset;
         } else {
@@ -469,7 +502,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_OFFS_SetYOffset(OVIA *Ovia, int32_t YOffset) {
+    void OVIA_PNG_OFFS_SetYOffset(int32_t YOffset) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->oFFs->YOffset = YOffset;
         } else {
@@ -477,7 +510,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_OFFS_SetSpecifier(OVIA *Ovia, bool Specifier) {
+    void OVIA_PNG_OFFS_SetSpecifier(bool Specifier) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->oFFs->UnitSpecifier = Specifier;
         } else {
@@ -515,7 +548,7 @@ extern "C" {
         return Specifier;
     }
     
-    void OVIA_PNG_ICCP_SetProfileName(OVIA *Ovia, UTF8 *ProfileName) {
+    void OVIA_PNG_ICCP_SetProfileName(UTF8 *ProfileName) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->iCCP->ProfileName = UTF8_Clone(ProfileName);
         } else {
@@ -523,7 +556,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_ICCP_SetCompressionType(OVIA *Ovia, uint8_t CompressionType) {
+    void OVIA_PNG_ICCP_SetCompressionType(uint8_t CompressionType) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->iCCP->CompressionType = CompressionType;
         } else {
@@ -531,7 +564,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_ICCP_SetProfileData(OVIA *Ovia, uint8_t *ProfileData) {
+    void OVIA_PNG_ICCP_SetProfileData(uint8_t *ProfileData) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->iCCP->CompressedICCPProfile = ProfileData;
         } else {
@@ -539,7 +572,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_ICCP_SetProfileDataSize(OVIA *Ovia, uint64_t ProfileSize) {
+    void OVIA_PNG_ICCP_SetProfileDataSize(uint64_t ProfileSize) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->iCCP->CompressedICCPProfileSize = ProfileSize;
         } else {
@@ -587,7 +620,7 @@ extern "C" {
         return ProfileData;
     }
     
-    void OVIA_PNG_SBIT_SetGray(OVIA *Ovia, uint8_t GrayBitDepth) {
+    void OVIA_PNG_SBIT_SetGray(uint8_t GrayBitDepth) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->sBIT->Grayscale = GrayBitDepth;
         } else {
@@ -595,7 +628,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_SBIT_SetRed(OVIA *Ovia, uint8_t RedBitDepth) {
+    void OVIA_PNG_SBIT_SetRed(uint8_t RedBitDepth) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->sBIT->Red = RedBitDepth;
         } else {
@@ -603,7 +636,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_SBIT_SetGreen(OVIA *Ovia, uint8_t GreenBitDepth) {
+    void OVIA_PNG_SBIT_SetGreen(uint8_t GreenBitDepth) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->sBIT->Green = GreenBitDepth;
         } else {
@@ -611,7 +644,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_SBIT_SetBlue(OVIA *Ovia, uint8_t BlueBitDepth) {
+    void OVIA_PNG_SBIT_SetBlue(uint8_t BlueBitDepth) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->sBIT->Blue = BlueBitDepth;
         } else {
@@ -619,7 +652,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_SBIT_SetAlpha(OVIA *Ovia, uint8_t AlphaBitDepth) {
+    void OVIA_PNG_SBIT_SetAlpha(uint8_t AlphaBitDepth) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->sBIT->Alpha = AlphaBitDepth;
         } else {
@@ -677,7 +710,7 @@ extern "C" {
         return AlphaBitDepth;
     }
     
-    void OVIA_PNG_SRGB_SetRenderingIntent(OVIA *Ovia, uint8_t RenderingIntent) {
+    void OVIA_PNG_SRGB_SetRenderingIntent(uint8_t RenderingIntent) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->sRGB->RenderingIntent = RenderingIntent;
         } else {
@@ -695,7 +728,7 @@ extern "C" {
         return RenderingIntent;
     }
     
-    void OVIA_PNG_PCAL_SetCalibrationName(OVIA *Ovia, UTF8 *CalibrationName) {
+    void OVIA_PNG_PCAL_SetCalibrationName(UTF8 *CalibrationName) {
         if (Ovia != NULL && CalibrationName != NULL) {
             Ovia->PNGInfo->pCAL->CalibrationName = UTF8_Clone(CalibrationName);
         } else if (Ovia == NULL) {
@@ -705,7 +738,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_PHYS_SetPixelsPerUnitX(OVIA *Ovia, int32_t PixelsPerUnitX) {
+    void OVIA_PNG_PHYS_SetPixelsPerUnitX(int32_t PixelsPerUnitX) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->pHYs->PixelsPerUnitXAxis = PixelsPerUnitX;
         } else {
@@ -713,7 +746,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_PHYS_SetPixelsPerUnitY(OVIA *Ovia, int32_t PixelsPerUnitY) {
+    void OVIA_PNG_PHYS_SetPixelsPerUnitY(int32_t PixelsPerUnitY) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->pHYs->PixelsPerUnitYAxis = PixelsPerUnitY;
         } else {
@@ -721,7 +754,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_PHYS_SetUnitSpecifier(OVIA *Ovia, bool UnitSpecifier) {
+    void OVIA_PNG_PHYS_SetUnitSpecifier(bool UnitSpecifier) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->pHYs->UnitSpecifier = UnitSpecifier;
         } else {
@@ -759,7 +792,7 @@ extern "C" {
         return UnitSpecifier;
     }
     
-    void OVIA_PNG_PLTE_Init(OVIA *Ovia, uint64_t NumEntries) {
+    void OVIA_PNG_PLTE_Init(uint64_t NumEntries) {
         if (Ovia != NULL) {
             uint8_t NumChannels             = OVIA_GetNumChannels(Ovia);
             uint8_t BitDepth                = OVIA_GetBitDepth(Ovia);
@@ -770,7 +803,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_PLTE_SetPalette(OVIA *Ovia, uint64_t Entry, uint16_t Red, uint16_t Green, uint16_t Blue) {
+    void OVIA_PNG_PLTE_SetPalette(uint64_t Entry, uint16_t Red, uint16_t Green, uint16_t Blue) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->PLTE->Palette[Entry][0] = Red;
             Ovia->PNGInfo->PLTE->Palette[Entry][1] = Green;
@@ -780,7 +813,7 @@ extern "C" {
         }
     }
     
-    uint8_t OVIA_PNG_PLTE_GetPaletteEntryRed(OVIA *Ovia, uint64_t Entry) {
+    uint8_t OVIA_PNG_PLTE_GetPaletteEntryRed(uint64_t Entry) {
         uint8_t Red = 0;
         if (Ovia != NULL) {
             Red = Ovia->PNGInfo->PLTE->Palette[Entry][0];
@@ -790,7 +823,7 @@ extern "C" {
         return Red;
     }
     
-    uint8_t OVIA_PNG_PLTE_GetPaletteEntryGreen(OVIA *Ovia, uint64_t Entry) {
+    uint8_t OVIA_PNG_PLTE_GetPaletteEntryGreen(uint64_t Entry) {
         uint8_t Green = 0;
         if (Ovia != NULL) {
             Green = Ovia->PNGInfo->PLTE->Palette[Entry][1];
@@ -800,7 +833,7 @@ extern "C" {
         return Green;
     }
     
-    uint8_t OVIA_PNG_PLTE_GetPaletteEntryBlue(OVIA *Ovia, uint64_t Entry) {
+    uint8_t OVIA_PNG_PLTE_GetPaletteEntryBlue(uint64_t Entry) {
         uint8_t Blue = 0;
         if (Ovia != NULL) {
             Blue = Ovia->PNGInfo->PLTE->Palette[Entry][2];
@@ -810,7 +843,7 @@ extern "C" {
         return Blue;
     }
     
-    void OVIA_PNG_TRNS_Init(OVIA *Ovia, uint64_t NumEntries) {
+    void OVIA_PNG_TRNS_Init(uint64_t NumEntries) {
         if (Ovia != NULL) {
             uint8_t NumChannels             = OVIA_GetNumChannels(Ovia);
             uint8_t BitDepth                = OVIA_GetBitDepth(Ovia);
@@ -821,7 +854,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_TRNS_SetPalette(OVIA *Ovia, uint64_t Entry, uint8_t Alpha) {
+    void OVIA_PNG_TRNS_SetPalette(uint64_t Entry, uint8_t Alpha) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->tRNS->Palette[Entry] = Alpha;
         } else {
@@ -829,7 +862,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_HIST_SetNumEntries(OVIA *Ovia, uint32_t NumEntries) {
+    void OVIA_PNG_HIST_SetNumEntries(uint32_t NumEntries) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->hIST->Histogram  = calloc(1, NumEntries);
             if (Ovia->PNGInfo->hIST->Histogram != NULL) {
@@ -843,7 +876,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_TIME_SetTime(OVIA *Ovia, uint16_t Year, uint8_t Month, uint8_t Day, uint8_t Hour, uint8_t Minute, uint8_t Second) {
+    void OVIA_PNG_TIME_SetTime(uint16_t Year, uint8_t Month, uint8_t Day, uint8_t Hour, uint8_t Minute, uint8_t Second) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->tIMe->Year   = Year;
             Ovia->PNGInfo->tIMe->Month  = Month;
@@ -916,7 +949,7 @@ extern "C" {
         return Second;
     }
     
-    void OVIA_PNG_DAT_SetCMF(OVIA *Ovia, uint8_t CMF) {
+    void OVIA_PNG_DAT_SetCMF(uint8_t CMF) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->DAT->CMF =  CMF;
         } else {
@@ -924,7 +957,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_DAT_SetFLG(OVIA *Ovia, uint8_t FLG) {
+    void OVIA_PNG_DAT_SetFLG(uint8_t FLG) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->DAT->FLG =  FLG;
         } else {
@@ -952,7 +985,7 @@ extern "C" {
         return CompressionInfo;
     }
     
-    void OVIA_PNG_DAT_SetFCHECK(OVIA *Ovia, uint8_t FCHECK) {
+    void OVIA_PNG_DAT_SetFCHECK(uint8_t FCHECK) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->DAT->FLG  = FCHECK & 0xF8 >> 3;
         } else {
@@ -990,7 +1023,7 @@ extern "C" {
         return FLEVEL;
     }
     
-    void OVIA_PNG_DAT_SetDictID(OVIA *Ovia, uint32_t DictID) {
+    void OVIA_PNG_DAT_SetDictID(uint32_t DictID) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->DAT->DictID = DictID;
         } else {
@@ -1008,7 +1041,7 @@ extern "C" {
         return DictID;
     }
     
-    void OVIA_PNG_DAT_SetArray(OVIA *Ovia, uint8_t *Array) {
+    void OVIA_PNG_DAT_SetArray(uint8_t *Array) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->DAT->ImageArray = Array;
         } else {
@@ -1026,7 +1059,7 @@ extern "C" {
         return Array;
     }
     
-    void OVIA_PNG_DAT_SetArraySize(OVIA *Ovia, uint64_t ArraySize) {
+    void OVIA_PNG_DAT_SetArraySize(uint64_t ArraySize) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->DAT->ImageSize = ArraySize;
         } else {
@@ -1044,7 +1077,7 @@ extern "C" {
         return ArraySize;
     }
     
-    void OVIA_PNG_DAT_SetArrayOffset(OVIA *Ovia, uint64_t ArrayOffset) {
+    void OVIA_PNG_DAT_SetArrayOffset(uint64_t ArrayOffset) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->DAT->ImageOffset = ArrayOffset;
         } else {
@@ -1062,7 +1095,7 @@ extern "C" {
         return ArrayOffset;
     }
     
-    void OVIA_PNG_DAT_SetLengthLiteralHuffmanTable(OVIA *Ovia, HuffmanTable *LengthLiteralTree) {
+    void OVIA_PNG_DAT_SetLengthLiteralHuffmanTable(HuffmanTable *LengthLiteralTree) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->DAT->LengthLiteralTree = LengthLiteralTree;
         } else {
@@ -1080,7 +1113,7 @@ extern "C" {
         return LengthLiteralTree;
     }
     
-    void OVIA_PNG_DAT_SetDistanceHuffmanTable(OVIA *Ovia, HuffmanTable *DistanceTree) {
+    void OVIA_PNG_DAT_SetDistanceHuffmanTable(HuffmanTable *DistanceTree) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->DAT->DistanceTree = DistanceTree;
         } else {
@@ -1098,7 +1131,7 @@ extern "C" {
         return DistanceTree;
     }
     
-    void OVIA_PNG_GAMA_SetGamma(OVIA *Ovia, uint32_t Gamma) {
+    void OVIA_PNG_GAMA_SetGamma(uint32_t Gamma) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->gAMA->Gamma = Gamma;
         } else {
@@ -1106,7 +1139,7 @@ extern "C" {
         }
     }
     
-    void OVIA_PNG_SCAL_SetSCAL(OVIA *Ovia, uint8_t UnitSpecifier, double Width, double Height) {
+    void OVIA_PNG_SCAL_SetSCAL(uint8_t UnitSpecifier, double Width, double Height) {
         if (Ovia != NULL) {
             Ovia->PNGInfo->sCAL->UnitSpecifier = UnitSpecifier;
             Ovia->PNGInfo->sCAL->PixelWidth    = Width;

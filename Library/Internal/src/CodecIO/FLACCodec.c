@@ -1,10 +1,96 @@
-#include "../../include/Private/Audio/FLACCommon.h"
+#include "../../include/Private/FLACCommon.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
     
-    void OVIA_FLAC_SetMinBlockSize(OVIA *Ovia, uint16_t MinBlockSize) {
+    uint32_t OVIA_PNG_Adler32(BitBuffer *BitB, uint64_t Start, uint64_t NumBytes) {
+        uint32_t Adler32 = 0;
+        if (BitB != NULL && Start * 8 < BitBuffer_GetSize(BitB) && (Start + NumBytes) * 8 <= BitBuffer_GetSize(BitB)) {
+            uint16_t A = 1;
+            uint16_t B = 0;
+            
+            for (uint64_t Byte = Start; Byte < NumBytes - 1; Byte++) {
+                uint8_t Value = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+                A = (A + Value) % 65521;
+                B = (B + A)     % 65521;
+            }
+            
+            Adler32 = (B << 16) | A;
+        } else if (BitB == NULL) {
+            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
+        } else if (Start * 8 < BitBuffer_GetSize(BitB)) {
+            Log(Log_ERROR, __func__, U8("Start: %lld is larger than the BitBuffer %lld"), Start * 8, BitBuffer_GetSize(BitB));
+        } else if ((Start + NumBytes) * 8 <= BitBuffer_GetSize(BitB)) {
+            Log(Log_ERROR, __func__, U8("End: %lld is larger than the BitBuffer %lld"), (Start + NumBytes) * 8, BitBuffer_GetSize(BitB));
+        }
+        return Adler32;
+    }
+    
+    uint32_t OVIA_PNG_CRC32(BitBuffer *BitB, uint64_t Start, uint64_t NumBytes) {
+        uint32_t CRC32 = -1;
+        if (BitB != NULL && Start * 8 < BitBuffer_GetSize(BitB) && (Start + NumBytes) * 8 <= BitBuffer_GetSize(BitB)) {
+            for (uint64_t Byte = Start; Byte < NumBytes - 1; Byte++) {
+                uint32_t Polynomial = 0x82608EDB;
+                uint8_t  Data       = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+                
+                CRC32               ^= Data;
+                for (uint8_t Bit = 0; Bit < 8; Bit++) {
+                    if (CRC32 & 1) {
+                        CRC32 = (CRC32 >> 1) ^ Polynomial;
+                    } else {
+                        CRC32 >>= 1;
+                    }
+                }
+            }
+        } else if (BitB == NULL) {
+            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
+        } else if (Start * 8 < BitBuffer_GetSize(BitB)) {
+            Log(Log_ERROR, __func__, U8("Start: %lld is larger than the BitBuffer %lld"), Start * 8, BitBuffer_GetSize(BitB));
+        } else if ((Start + NumBytes) * 8 <= BitBuffer_GetSize(BitB)) {
+            Log(Log_ERROR, __func__, U8("End: %lld is larger than the BitBuffer %lld"), (Start + NumBytes) * 8, BitBuffer_GetSize(BitB));
+        }
+        return ~CRC32;
+    }
+    
+    HuffmanTable *OVIA_PNG_Huffman_BuildTree(uint64_t NumSymbols, const uint16_t *CodeLengths) {
+        HuffmanTable *Tree   = calloc(1, sizeof(HuffmanTable));
+        if (Tree != NULL) {
+            Tree->Symbols    = calloc(NumSymbols, sizeof(uint16_t));
+            Tree->Frequency  = calloc(NumSymbols, sizeof(uint16_t));
+            uint64_t *Offset = calloc(NumSymbols, sizeof(uint64_t));
+            
+            if (Tree->Symbols != NULL && Tree->Frequency != NULL) {
+                for (uint64_t Value = 0ULL; Value < NumSymbols - 1; Value++) {
+                    Tree->Frequency[CodeLengths[Value]] += 1;
+                }
+                
+                if (Tree->Frequency[0] == NumSymbols) {
+                    Log(Log_ERROR, __func__, U8("All frequencies are zero, that doesn't make sense..."));
+                }
+                
+                for (uint64_t Length = 1ULL; Length < MaxBitsPerSymbol; Length++) {
+                    Offset[Length + 1]   = Offset[Length] + Tree->Frequency[Length];
+                }
+                
+                for (uint64_t Symbol = 0ULL; Symbol < NumSymbols; Symbol++) {
+                    if (CodeLengths[Symbol] != 0) {
+                        uint16_t Index       = Offset[CodeLengths[Symbol]] + 1;
+                        Tree->Symbols[Index] = Symbol;
+                    }
+                }
+            } else if (Tree->Frequency == NULL) {
+                Log(Log_ERROR, __func__, U8("Could not allocate Huffman Symbols"));
+            } else if (Tree->Frequency == NULL) {
+                Log(Log_ERROR, __func__, U8("Could not allocate Huffman Frequency"));
+            }
+        } else {
+            Log(Log_ERROR, __func__, U8("Could not allocate Huffman Tree"));
+        }
+        return Tree;
+    }
+    
+    void OVIA_FLAC_SetMinBlockSize(uint16_t MinBlockSize) {
         if (Ovia != NULL) {
             Ovia->FLACInfo->StreamInfo->MinimumBlockSize = MinBlockSize;
         } else {
@@ -12,7 +98,7 @@ extern "C" {
         }
     }
     
-    void OVIA_FLAC_SetMaxBlockSize(OVIA *Ovia, uint16_t MaxBlockSize) {
+    void OVIA_FLAC_SetMaxBlockSize(uint16_t MaxBlockSize) {
         if (Ovia != NULL) {
             Ovia->FLACInfo->StreamInfo->MaximumBlockSize = MaxBlockSize;
         } else {
@@ -20,7 +106,7 @@ extern "C" {
         }
     }
     
-    void OVIA_FLAC_SetMinFrameSize(OVIA *Ovia, uint16_t MinFrameSize) {
+    void OVIA_FLAC_SetMinFrameSize(uint16_t MinFrameSize) {
         if (Ovia != NULL) {
             Ovia->FLACInfo->StreamInfo->MinimumFrameSize = MinFrameSize;
         } else {
@@ -28,7 +114,7 @@ extern "C" {
         }
     }
     
-    void OVIA_FLAC_SetMaxFrameSize(OVIA *Ovia, uint16_t MaxFrameSize) {
+    void OVIA_FLAC_SetMaxFrameSize(uint16_t MaxFrameSize) {
         if (Ovia != NULL) {
             Ovia->FLACInfo->StreamInfo->MaximumFrameSize = MaxFrameSize;
         } else {
@@ -36,7 +122,7 @@ extern "C" {
         }
     }
     
-    void OVIA_FLAC_SetMaxFilterOrder(OVIA *Ovia, uint16_t MaxFilterOrder) {
+    void OVIA_FLAC_SetMaxFilterOrder(uint16_t MaxFilterOrder) {
         if (Ovia != NULL) {
             Ovia->FLACInfo->Frame->Sub->LPCFilterOrder = MaxFilterOrder;
         } else {
@@ -44,7 +130,7 @@ extern "C" {
         }
     }
     
-    void OVIA_FLAC_SetMaxRicePartitionOrder(OVIA *Ovia, uint8_t MaxRICEPartitionOrder) {
+    void OVIA_FLAC_SetMaxRicePartitionOrder(uint8_t MaxRICEPartitionOrder) {
         if (Ovia != NULL) {
             Ovia->FLACInfo->Frame->PartitionOrder = MaxRICEPartitionOrder;
         } else {
@@ -52,7 +138,7 @@ extern "C" {
         }
     }
     
-    void OVIA_FLAC_SetEncodeSubset(OVIA *Ovia, bool EncodeSubset) {
+    void OVIA_FLAC_SetEncodeSubset(bool EncodeSubset) {
         if (Ovia != NULL) {
             Ovia->FLACInfo->EncodeSubset = EncodeSubset;
         } else {
@@ -70,7 +156,7 @@ extern "C" {
         return EncodeSubset;
     }
     
-    void OVIA_FLAC_SetMD5(OVIA *Ovia, uint8_t *MD5) {
+    void OVIA_FLAC_SetMD5(uint8_t *MD5) {
         if (Ovia != NULL) {
             Ovia->FLACInfo->StreamInfo->MD5 = MD5;
         } else {
@@ -88,7 +174,7 @@ extern "C" {
         return MD5;
     }
     
-    void OVIA_FLAC_CUE_SetCatalogID(OVIA *Ovia, char *CatalogID) {
+    void OVIA_FLAC_CUE_SetCatalogID(char *CatalogID) {
         if (Ovia != NULL && CatalogID != NULL) {
             Ovia->FLACInfo->CueSheet->CatalogID = CatalogID;
         } else if (Ovia == NULL) {
@@ -98,7 +184,7 @@ extern "C" {
         }
     }
     
-    void OVIA_FLAC_LPC_SetLPCOrder(OVIA *Ovia, uint8_t LPCOrder) {
+    void OVIA_FLAC_LPC_SetLPCOrder(uint8_t LPCOrder) {
         if (Ovia != NULL) {
             Ovia->FLACInfo->LPC->LPCOrder = LPCOrder;
         } else {
@@ -116,7 +202,7 @@ extern "C" {
         return LPCPrecision;
     }
     
-    void OVIA_FLAC_LPC_SetLPCPrecision(OVIA *Ovia, uint8_t LPCPrecision) {
+    void OVIA_FLAC_LPC_SetLPCPrecision(uint8_t LPCPrecision) {
         if (Ovia != NULL) {
             Ovia->FLACInfo->LPC->LPCPrecision = LPCPrecision;
         } else {
@@ -134,7 +220,7 @@ extern "C" {
         return LPCShift;
     }
     
-    void OVIA_FLAC_LPC_SetLPCShift(OVIA *Ovia, uint8_t LPCShift) {
+    void OVIA_FLAC_LPC_SetLPCShift(uint8_t LPCShift) {
         if (Ovia != NULL) {
             Ovia->FLACInfo->LPC->LPCShift = LPCShift;
         } else {
@@ -152,7 +238,7 @@ extern "C" {
         return NumLPCCoeffs;
     }
     
-    void OVIA_FLAC_LPC_SetNumLPCCoeffs(OVIA *Ovia, uint8_t NumLPCCoeffs) {
+    void OVIA_FLAC_LPC_SetNumLPCCoeffs(uint8_t NumLPCCoeffs) {
         if (Ovia != NULL) {
             Ovia->FLACInfo->LPC->NumLPCCoeffs = NumLPCCoeffs;
         } else {
@@ -160,7 +246,7 @@ extern "C" {
         }
     }
     
-    uint8_t OVIA_FLAC_LPC_GetLPCCoeff(OVIA *Ovia, uint8_t CoeffNum) {
+    uint8_t OVIA_FLAC_LPC_GetLPCCoeff(uint8_t CoeffNum) {
         uint8_t Coeff = 0;
         if (Ovia != NULL) {
             Coeff     = Ovia->FLACInfo->LPC->LPCCoeff[Coeff];
@@ -170,7 +256,7 @@ extern "C" {
         return Coeff;
     }
     
-    void OVIA_FLAC_LPC_SetLPCCoeff(OVIA *Ovia, uint8_t CoeffNum, uint8_t Coeff) {
+    void OVIA_FLAC_LPC_SetLPCCoeff(uint8_t CoeffNum, uint8_t Coeff) {
         if (Ovia != NULL) {
             Ovia->FLACInfo->LPC->LPCCoeff[CoeffNum] = Coeff;
         } else {
@@ -198,7 +284,7 @@ extern "C" {
         return RICEPartitionType;
     }
     
-    void OVIA_FLAC_LPC_SetRICEPartitionType(OVIA *Ovia, uint8_t RICEPartitionType) {
+    void OVIA_FLAC_LPC_SetRICEPartitionType(uint8_t RICEPartitionType) {
         if (Ovia != NULL) {
             Ovia->FLACInfo->LPC->RicePartitionType = RICEPartitionType;
         } else {
@@ -216,7 +302,7 @@ extern "C" {
         return RICEPartitionOrder;
     }
     
-    void OVIA_FLAC_LPC_SetRICEParameter(OVIA *Ovia, uint8_t Partition, uint8_t Parameter) {
+    void OVIA_FLAC_LPC_SetRICEParameter(uint8_t Partition, uint8_t Parameter) {
         if (Ovia != NULL) {
             Ovia->FLACInfo->Rice->RICEParameter[Partition] = Parameter;
         } else {
@@ -224,7 +310,7 @@ extern "C" {
         }
     }
     
-    uint8_t OVIA_FLAC_LPC_GetRICEParameter(OVIA *Ovia, uint8_t Partition) {
+    uint8_t OVIA_FLAC_LPC_GetRICEParameter(uint8_t Partition) {
         uint8_t Parameter = 0;
         if (Ovia != NULL) {
             Parameter     = Ovia->FLACInfo->Rice->RICEParameter[Partition];
@@ -234,7 +320,7 @@ extern "C" {
         return Parameter;
     }
     
-    void OVIA_FLAC_LPC_SetRICEPartitionOrder(OVIA *Ovia, uint8_t RICEPartitionOrder) {
+    void OVIA_FLAC_LPC_SetRICEPartitionOrder(uint8_t RICEPartitionOrder) {
         if (Ovia != NULL) {
             Ovia->FLACInfo->LPC->PartitionOrder = RICEPartitionOrder;
         } else {
@@ -242,7 +328,7 @@ extern "C" {
         }
     }
     
-    void OVIA_FLAC_Seek_SetSeekPoint(OVIA *Ovia, uint32_t SeekPoint, uint64_t Sample, uint64_t Offset, uint16_t FrameSize) {
+    void OVIA_FLAC_Seek_SetSeekPoint(uint32_t SeekPoint, uint64_t Sample, uint64_t Offset, uint16_t FrameSize) {
         if (Ovia != NULL) {
             Ovia->FLACInfo->SeekPoints->NumSeekPoints += 1;
             Ovia->FLACInfo->SeekPoints->SampleInTargetFrame[SeekPoint] = Sample;
@@ -253,7 +339,7 @@ extern "C" {
         }
     }
     
-    void OVIA_FLAC_CUE_SetLeadIn(OVIA *Ovia, uint64_t LeadIn) {
+    void OVIA_FLAC_CUE_SetLeadIn(uint64_t LeadIn) {
         if (Ovia != NULL) {
             Ovia->FLACInfo->CueSheet->LeadIn = LeadIn;
         } else {
@@ -261,7 +347,7 @@ extern "C" {
         }
     }
     
-    void OVIA_FLAC_CUE_SetIsCD(OVIA *Ovia, bool IsCD) {
+    void OVIA_FLAC_CUE_SetIsCD(bool IsCD) {
         if (Ovia != NULL) {
             Ovia->FLACInfo->CueSheet->IsCD = IsCD;
         } else {
@@ -279,7 +365,7 @@ extern "C" {
         return IsCD;
     }
     
-    void OVIA_FLAC_CUE_SetNumTracks(OVIA *Ovia, uint8_t NumTracks) {
+    void OVIA_FLAC_CUE_SetNumTracks(uint8_t NumTracks) {
         if (Ovia != NULL) {
             Ovia->FLACInfo->CueSheet->NumTracks = NumTracks;
         } else {
@@ -287,7 +373,7 @@ extern "C" {
         }
     }
     
-    void OVIA_FLAC_CUE_Track_SetOffset(OVIA *Ovia, uint8_t Track, uint64_t TrackOffset) {
+    void OVIA_FLAC_CUE_Track_SetOffset(uint8_t Track, uint64_t TrackOffset) {
         if (Ovia != NULL) {
             Ovia->FLACInfo->CueSheet->Tracks[Track].TrackOffset[Track] = TrackOffset;
         } else {
@@ -295,7 +381,7 @@ extern "C" {
         }
     }
     
-    void OVIA_FLAC_Frame_SetBlockType(OVIA *Ovia, bool BlockTypeIsFixed) {
+    void OVIA_FLAC_Frame_SetBlockType(bool BlockTypeIsFixed) {
         if (Ovia != NULL) {
             Ovia->FLACInfo->Frame->BlockType = BlockTypeIsFixed;
         } else {
@@ -303,7 +389,7 @@ extern "C" {
         }
     }
     
-    void OVIA_FLAC_Frame_SetCodedBlockSize(OVIA *Ovia, uint8_t CodedBlockSize) {
+    void OVIA_FLAC_Frame_SetCodedBlockSize(uint8_t CodedBlockSize) {
         if (Ovia != NULL) {
             Ovia->FLACInfo->Frame->CodedBlockSize = CodedBlockSize;
         } else {
@@ -311,7 +397,7 @@ extern "C" {
         }
     }
     
-    void OVIA_FLAC_Frame_SetCodedSampleRate(OVIA *Ovia, uint8_t CodedSampleRate) {
+    void OVIA_FLAC_Frame_SetCodedSampleRate(uint8_t CodedSampleRate) {
         if (Ovia != NULL) {
             Ovia->FLACInfo->Frame->CodedSampleRate = CodedSampleRate;
         } else {
@@ -319,7 +405,7 @@ extern "C" {
         }
     }
     
-    void OVIA_FLAC_Frame_SetSampleRate(OVIA *Ovia, uint32_t SampleRate) {
+    void OVIA_FLAC_Frame_SetSampleRate(uint32_t SampleRate) {
         if (Ovia != NULL) {
             Ovia->FLACInfo->Frame->SampleRate = SampleRate;
         } else {
@@ -327,7 +413,7 @@ extern "C" {
         }
     }
     
-    void OVIA_FLAC_Frame_SetChannelLayout(OVIA *Ovia, uint8_t ChannelLayout) {
+    void OVIA_FLAC_Frame_SetChannelLayout(uint8_t ChannelLayout) {
         if (Ovia != NULL) {
             Ovia->FLACInfo->Frame->ChannelLayout = ChannelLayout;
         } else {
@@ -335,7 +421,7 @@ extern "C" {
         }
     }
     
-    void OVIA_FLAC_Frame_SetCodedBitDepth(OVIA *Ovia, uint8_t CodedBitDepth) {
+    void OVIA_FLAC_Frame_SetCodedBitDepth(uint8_t CodedBitDepth) {
         if (Ovia != NULL) {
             Ovia->FLACInfo->Frame->CodedBitDepth = CodedBitDepth;
         } else {
@@ -343,7 +429,7 @@ extern "C" {
         }
     }
     
-    void OVIA_FLAC_Frame_SetFrameNumber(OVIA *Ovia, uint64_t FrameNumber) {
+    void OVIA_FLAC_Frame_SetFrameNumber(uint64_t FrameNumber) {
         if (Ovia != NULL) {
             Ovia->FLACInfo->Frame->FrameNumber = FrameNumber;
         } else {
@@ -351,7 +437,7 @@ extern "C" {
         }
     }
     
-    void OVIA_FLAC_Frame_SetSampleNumber(OVIA *Ovia, uint64_t SampleNumber) {
+    void OVIA_FLAC_Frame_SetSampleNumber(uint64_t SampleNumber) {
         if (Ovia != NULL) {
             Ovia->FLACInfo->Frame->SampleNumber = SampleNumber;
         } else {
@@ -359,7 +445,7 @@ extern "C" {
         }
     }
     
-    void OVIA_FLAC_Frame_SetBlockSize(OVIA *Ovia, uint16_t BlockSize) {
+    void OVIA_FLAC_Frame_SetBlockSize(uint16_t BlockSize) {
         if (Ovia != NULL) {
             Ovia->FLACInfo->Frame->BlockSize = BlockSize;
         } else {
@@ -437,7 +523,7 @@ extern "C" {
         return SampleNumber;
     }
     
-    void OVIA_FLAC_SubFrame_SetType(OVIA *Ovia, uint8_t SubframeType) {
+    void OVIA_FLAC_SubFrame_SetType(uint8_t SubframeType) {
         if (Ovia != NULL) {
             Ovia->FLACInfo->Frame->Sub->SubFrameType   = SubframeType;
             if (SubframeType > 0) {
@@ -448,7 +534,7 @@ extern "C" {
         }
     }
     
-    void OVIA_FLAC_SubFrame_SetWastedBits(OVIA *Ovia, bool WastedBitsFlag, uint8_t NumWastedBits) {
+    void OVIA_FLAC_SubFrame_SetWastedBits(bool WastedBitsFlag, uint8_t NumWastedBits) {
         if (Ovia != NULL) {
             Ovia->FLACInfo->Frame->Sub->WastedBitsFlag = WastedBitsFlag;
             Ovia->FLACInfo->Frame->Sub->WastedBits     = NumWastedBits;

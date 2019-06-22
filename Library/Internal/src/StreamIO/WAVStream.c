@@ -1,10 +1,10 @@
-#include "../../include/Private/Audio/WAVCommon.h"
+#include "../../include/Private/WAVCommon.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
     
-    void OVIA_WAV_SetSpeakerMask(OVIA *Ovia, uint32_t SpeakerMask) {
+    void OVIA_WAV_SetSpeakerMask(uint32_t SpeakerMask) {
         if (Ovia != NULL) {
             Ovia->WAVInfo->SpeakerMask = SpeakerMask;
         } else {
@@ -12,7 +12,7 @@ extern "C" {
         }
     }
     
-    void OVIA_WAV_SetCompressionType(OVIA *Ovia, uint16_t CompressionType) {
+    void OVIA_WAV_SetCompressionType(uint16_t CompressionType) {
         if (Ovia != NULL) {
             Ovia->WAVInfo->CompressionFormat = CompressionType;
         } else {
@@ -20,7 +20,7 @@ extern "C" {
         }
     }
     
-    void OVIA_WAV_SetBlockAlignment(OVIA *Ovia, uint16_t BlockAlignment) {
+    void OVIA_WAV_SetBlockAlignment(uint16_t BlockAlignment) {
         if (Ovia != NULL) {
             Ovia->WAVInfo->BlockAlignment = BlockAlignment;
         } else {

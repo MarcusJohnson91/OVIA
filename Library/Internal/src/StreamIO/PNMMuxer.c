@@ -1,20 +1,20 @@
-#include "../../../include/Private/Image/PNMCommon.h"
+#include "../../include/Private/PNMCommon.h"
 
 
 #ifdef __cplusplus
 extern "C" {
 #endif
     
-    static void PNMWritePAMHeader(OVIA *Ovia, BitBuffer *BitB) {
+    static void PNMWritePAMHeader(BitBuffer *BitB) {
         if (Ovia != NULL && BitB != NULL) {
             BitBuffer_WriteUTF8(BitB, U8("P7"));
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8, 0x0A);
+            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
             
             /* Write the Width */
             UTF8 *Width = UTF8_Integer2String(10, OVIA_GetWidth(Ovia));
             BitBuffer_WriteUTF8(BitB, U8("WIDTH "));
             BitBuffer_WriteUTF8(BitB, Width);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8, 0x0A);
+            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
             free(Width);
             /* Write the Width */
             
@@ -22,7 +22,7 @@ extern "C" {
             UTF8 *Height = UTF8_Integer2String(10, OVIA_GetHeight(Ovia));
             BitBuffer_WriteUTF8(BitB, U8("HEIGHT "));
             BitBuffer_WriteUTF8(BitB, Height);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8, 0x0A);
+            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
             free(Height);
             /* Write the Height */
             
@@ -30,7 +30,7 @@ extern "C" {
             UTF8 *NumChannels = UTF8_Integer2String(10, OVIA_GetNumChannels(Ovia));
             BitBuffer_WriteUTF8(BitB, U8("DEPTH "));
             BitBuffer_WriteUTF8(BitB, NumChannels);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8, 0x0A);
+            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
             free(NumChannels);
             /* Write the NumChannels */
             
@@ -39,7 +39,7 @@ extern "C" {
             UTF8 *BitDepth  = UTF8_Integer2String(10, MaxVal);
             BitBuffer_WriteUTF8(BitB, U8("MAXVAL "));
             BitBuffer_WriteUTF8(BitB, BitDepth);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8, 0x0A);
+            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
             free(BitDepth);
             /* Write the BitDepth */
             
@@ -57,12 +57,12 @@ extern "C" {
             } else if (TupleType == PNM_TUPLE_RGBAlpha) {
                 BitBuffer_WriteUTF8(BitB, U8("RGB_ALPHA"));
             }
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8, 0x0A);
+            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
             /* Write the TUPLTYPE */
             
             /* Write the ENDHDR */
             BitBuffer_WriteUTF8(BitB, U8("ENDHDR"));
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8, 0x0A);
+            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
             /* Write the ENDHDR */
         } else if (Ovia == NULL) {
             Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
@@ -71,19 +71,19 @@ extern "C" {
         }
     }
     
-    static void PNMWriteASCIIPNMHeader(OVIA *Ovia, BitBuffer *BitB) {
+    static void PNMWriteASCIIPNMHeader(BitBuffer *BitB) {
         if (Ovia != NULL && BitB != NULL) {
             /* Write the Width */
             UTF8 *Width = UTF8_Integer2String(10, OVIA_GetWidth(Ovia));
             BitBuffer_WriteUTF8(BitB, Width);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8, 0x0A);
+            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
             free(Width);
             /* Write the Width */
             
             /* Write the Height */
             UTF8 *Height = UTF8_Integer2String(10, OVIA_GetHeight(Ovia));
             BitBuffer_WriteUTF8(BitB, Height);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8, 0x0A);
+            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
             free(Height);
             /* Write the Height */
         } else if (Ovia == NULL) {
@@ -93,19 +93,19 @@ extern "C" {
         }
     }
     
-    static void PNMWriteBinaryPNMHeader(OVIA *Ovia, BitBuffer *BitB) {
+    static void PNMWriteBinaryPNMHeader(BitBuffer *BitB) {
         if (Ovia != NULL && BitB != NULL) {
             /* Write the Width */
             UTF8 *Width = UTF8_Integer2String(10, OVIA_GetWidth(Ovia));
             BitBuffer_WriteUTF8(BitB, Width);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8, 0x0A);
+            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
             free(Width);
             /* Write the Width */
             
             /* Write the Height */
             UTF8 *Height = UTF8_Integer2String(10, OVIA_GetHeight(Ovia));
             BitBuffer_WriteUTF8(BitB, Height);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8, 0x0A);
+            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
             free(Height);
             /* Write the Height */
             
@@ -113,7 +113,7 @@ extern "C" {
             uint64_t MaxVal    = Exponentiate(2, OVIA_GetBitDepth(Ovia)) - 1;
             UTF8    *BitDepth  = UTF8_Integer2String(10, MaxVal);
             BitBuffer_WriteUTF8(BitB, BitDepth);
-            BitBuffer_WriteBits(MSByteFirst, LSBitFirst, BitB, 8, 0x0A);
+            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
             free(BitDepth);
             /* Write the BitDepth */
         } else if (Ovia == NULL) {
@@ -123,7 +123,7 @@ extern "C" {
         }
     }
     
-    void PNMWriteHeader(OVIA *Ovia, BitBuffer *BitB) {
+    void PNMWriteHeader(BitBuffer *BitB) {
         if (Ovia != NULL && BitB != NULL) {
             PNMTypes Type = OVIA_PNM_GetPNMType(Ovia);
             if (Type == UnknownPNM) {
@@ -144,7 +144,7 @@ extern "C" {
         }
     }
     
-    void PNMInsertImage(OVIA *Ovia, ImageContainer *Image, BitBuffer *BitB) {
+    void PNMInsertImage(ImageContainer *Image, BitBuffer *BitB) {
         if (Ovia != NULL && BitB != NULL && Image != NULL) {
             uint64_t ChannelCount = OVIA_GetNumChannels(Ovia);
             uint64_t Width        = ImageContainer_GetWidth(Image);
@@ -155,7 +155,7 @@ extern "C" {
                 for (uint64_t W = 0ULL; W < Width; W++) {
                     for (uint64_t H = 0ULL; H < Height; H++) {
                         for (uint16_t Channel = 0; Channel < ChannelCount; Channel++) {
-                            BitBuffer_WriteBits(MSByteFirst, MSBitFirst, BitB, ChannelCount, Array[W * H * Channel]);
+                            BitBuffer_WriteBits(BitB, MSByteFirst, MSBitFirst, ChannelCount, Array[W * H * Channel]);
                         }
                     }
                 }
@@ -164,7 +164,7 @@ extern "C" {
                 for (uint64_t W = 0ULL; W < Width; W++) {
                     for (uint64_t H = 0ULL; H < Height; H++) {
                         for (uint16_t Channel = 0; Channel < ChannelCount; Channel++) {
-                            BitBuffer_WriteBits(MSByteFirst, MSBitFirst, BitB, ChannelCount, Array[W * H * Channel]);
+                            BitBuffer_WriteBits(BitB, MSByteFirst, MSBitFirst, ChannelCount, Array[W * H * Channel]);
                         }
                     }
                 }

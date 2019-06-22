@@ -1,4 +1,8 @@
-#include "../InternalOVIA.h"
+#include "../../../Dependencies/FoundationIO/libFoundationIO/include/BitIO.h"
+#include "../../../Dependencies/FoundationIO/libFoundationIO/include/ContainerIO.h"
+#include "../../../Dependencies/FoundationIO/libFoundationIO/include/CryptographyIO.h"
+#include "../../../Dependencies/FoundationIO/libFoundationIO/include/Log.h"
+#include "../../../Dependencies/FoundationIO/libFoundationIO/include/Math.h"
 
 #pragma once
 
@@ -217,43 +221,43 @@ extern "C" {
     
     /* OVIA specific functions */
     
-    void        OVIA_FLAC_Frame_Read(OVIA *Ovia, BitBuffer *BitB);
+    void        OVIA_FLAC_Frame_Read(BitBuffer *BitB);
     
-    void        OVIA_FLAC_SubFrame_Read(OVIA *Ovia, BitBuffer *BitB, uint8_t Channel);
+    void        OVIA_FLAC_SubFrame_Read(BitBuffer *BitB, uint8_t Channel);
     
-    void        OVIA_FLAC_SubFrame_Verbatim(OVIA *Ovia, BitBuffer *BitB);
+    void        OVIA_FLAC_SubFrame_Verbatim(BitBuffer *BitB);
     
-    void        OVIA_FLAC_SubFrame_Constant(OVIA *Ovia, BitBuffer *BitB);
+    void        OVIA_FLAC_SubFrame_Constant(BitBuffer *BitB);
     
-    void        OVIA_FLAC_SubFrame_Fixed(OVIA *Ovia, BitBuffer *BitB);
+    void        OVIA_FLAC_SubFrame_Fixed(BitBuffer *BitB);
     
-    void        OVIA_FLAC_SubFrame_LPC(OVIA *Ovia, BitBuffer *BitB, uint8_t Channel);
+    void        OVIA_FLAC_SubFrame_LPC(BitBuffer *BitB, uint8_t Channel);
     
-    void        OVIA_FLAC_Decode_Residual(OVIA *Ovia, BitBuffer *BitB);
+    void        OVIA_FLAC_Decode_Residual(BitBuffer *BitB);
     
-    void        OVIA_FLAC_Decode_RICE1(OVIA *Ovia, BitBuffer *BitB);
+    void        OVIA_FLAC_Decode_RICE1(BitBuffer *BitB);
     
-    void        OVIA_FLAC_Decode_RICE2(OVIA *Ovia, BitBuffer *BitB);
+    void        OVIA_FLAC_Decode_RICE2(BitBuffer *BitB);
     
     uint8_t     GetBlockSizeInSamples(uint8_t BlockSize);
     
-    void        OVIA_FLAC_Stream_Read(OVIA *Ovia, BitBuffer *BitB);
+    void        OVIA_FLAC_Stream_Read(BitBuffer *BitB);
     
-    bool        OVIA_FLAC_Parse_Blocks(OVIA *Ovia, BitBuffer *BitB);
+    bool        OVIA_FLAC_Parse_Blocks(BitBuffer *BitB);
     
-    void        OVIA_FLAC_StreamInfo_Parse(OVIA *Ovia, BitBuffer *BitB);
+    void        OVIA_FLAC_StreamInfo_Parse(BitBuffer *BitB);
     
-    void        OVIA_FLAC_SkipPadding(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize);
+    void        OVIA_FLAC_SkipPadding(BitBuffer *BitB, uint32_t ChunkSize);
     
-    void        OVIA_FLAC_SkipCustom(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize);
+    void        OVIA_FLAC_SkipCustom(BitBuffer *BitB, uint32_t ChunkSize);
     
-    void        OVIA_FLAC_SeekTable_Read(OVIA *Ovia, BitBuffer *BitB, uint32_t ChunkSize);
+    void        OVIA_FLAC_SeekTable_Read(BitBuffer *BitB, uint32_t ChunkSize);
     
-    void        OVIA_FLAC_Vorbis_Parse(OVIA *Ovia, BitBuffer *BitB);
+    void        OVIA_FLAC_Vorbis_Parse(BitBuffer *BitB);
     
-    void        OVIA_FLAC_CUE_Parse(OVIA *Ovia, BitBuffer *BitB);
+    void        OVIA_FLAC_CUE_Parse(BitBuffer *BitB);
     
-    uint8_t    *OVIA_FLAC_Pic_Read(OVIA *Ovia, BitBuffer *BitB);
+    uint8_t    *OVIA_FLAC_Pic_Read(BitBuffer *BitB);
     
     bool                 OVIA_FLAC_CUE_GetIsCD(OVIA *Ovia);
     bool                 OVIA_FLAC_Frame_GetBlockType(OVIA *Ovia);
@@ -263,50 +267,50 @@ extern "C" {
     uint8_t              OVIA_FLAC_Frame_GetCodedBitDepth(OVIA *Ovia);
     uint8_t              OVIA_FLAC_Frame_GetCodedBlockSize(OVIA *Ovia);
     uint8_t              OVIA_FLAC_Frame_GetCodedSampleRate(OVIA *Ovia);
-    uint8_t              OVIA_FLAC_LPC_GetLPCCoeff(OVIA *Ovia, uint8_t CoeffNum);
+    uint8_t              OVIA_FLAC_LPC_GetLPCCoeff(uint8_t CoeffNum);
     uint8_t              OVIA_FLAC_LPC_GetLPCOrder(OVIA *Ovia);
     uint8_t              OVIA_FLAC_LPC_GetLPCPrecision(OVIA *Ovia);
     uint8_t              OVIA_FLAC_LPC_GetLPCShift(OVIA *Ovia);
     uint8_t              OVIA_FLAC_LPC_GetNumLPCCoeffs(OVIA *Ovia);
-    uint8_t              OVIA_FLAC_LPC_GetRICEParameter(OVIA *Ovia, uint8_t Partition);
+    uint8_t              OVIA_FLAC_LPC_GetRICEParameter(uint8_t Partition);
     uint8_t              OVIA_FLAC_LPC_GetRICEPartitionOrder(OVIA *Ovia);
     uint8_t              OVIA_FLAC_LPC_GetRICEPartitionType(OVIA *Ovia);
     uint64_t             OVIA_FLAC_Frame_GetFrameNumber(OVIA *Ovia);
     uint64_t             OVIA_FLAC_Frame_GetSampleNumber(OVIA *Ovia);
-    void                 OVIA_FLAC_CUE_SetCatalogID(OVIA *Ovia, char *CatalogID);
-    void                 OVIA_FLAC_CUE_SetIsCD(OVIA *Ovia, bool IsCD);
-    void                 OVIA_FLAC_CUE_SetLeadIn(OVIA *Ovia, uint64_t LeadIn);
-    void                 OVIA_FLAC_CUE_SetNumTracks(OVIA *Ovia, uint8_t NumTracks);
-    void                 OVIA_FLAC_CUE_SetTrack(OVIA *Ovia, uint64_t Offset, bool IsAudio, bool PreEmphasis, UTF8 *ISRC);
-    void                 OVIA_FLAC_CUE_Track_SetOffset(OVIA *Ovia, uint8_t Track, uint64_t TrackOffset);
-    void                 OVIA_FLAC_Frame_SetBlockSize(OVIA *Ovia, uint16_t BlockSize);
-    void                 OVIA_FLAC_Frame_SetBlockType(OVIA *Ovia, bool BlockTypeIsFixed);
-    void                 OVIA_FLAC_Frame_SetChannelLayout(OVIA *Ovia, uint8_t ChannelLayout);
-    void                 OVIA_FLAC_Frame_SetCodedBitDepth(OVIA *Ovia, uint8_t CodedBitDepth);
-    void                 OVIA_FLAC_Frame_SetCodedBlockSize(OVIA *Ovia, uint8_t CodedBlockSize);
-    void                 OVIA_FLAC_Frame_SetCodedSampleRate(OVIA *Ovia, uint8_t CodedSampleRate);
-    void                 OVIA_FLAC_Frame_SetFrameNumber(OVIA *Ovia, uint64_t FrameNumber);
-    void                 OVIA_FLAC_Frame_SetSampleNumber(OVIA *Ovia, uint64_t SampleNumber);
-    void                 OVIA_FLAC_Frame_SetSampleRate(OVIA *Ovia, uint32_t SampleRate);
-    void                 OVIA_FLAC_LPC_SetLPCCoeff(OVIA *Ovia, uint8_t CoeffNum, uint8_t Coeff);
-    void                 OVIA_FLAC_LPC_SetLPCOrder(OVIA *Ovia, uint8_t LPCOrder);
-    void                 OVIA_FLAC_LPC_SetLPCPrecision(OVIA *Ovia, uint8_t LPCPrecision);
-    void                 OVIA_FLAC_LPC_SetLPCShift(OVIA *Ovia, uint8_t LPCShift);
-    void                 OVIA_FLAC_LPC_SetNumLPCCoeffs(OVIA *Ovia, uint8_t NumLPCCoeffs);
-    void                 OVIA_FLAC_LPC_SetRICEParameter(OVIA *Ovia, uint8_t Partition, uint8_t Parameter);
-    void                 OVIA_FLAC_LPC_SetRICEPartitionOrder(OVIA *Ovia, uint8_t RICEPartitionOrder);
-    void                 OVIA_FLAC_LPC_SetRICEPartitionType(OVIA *Ovia, uint8_t RICEPartitionType);
-    void                 OVIA_FLAC_Seek_SetSeekPoint(OVIA *Ovia, uint32_t SeekPoint, uint64_t Sample, uint64_t Offset, uint16_t FrameSize);
-    void                 OVIA_FLAC_SetEncodeSubset(OVIA *Ovia, bool EncodeSubset);
-    void                 OVIA_FLAC_SetMaxBlockSize(OVIA *Ovia, uint16_t MaxBlockSize);
-    void                 OVIA_FLAC_SetMaxFilterOrder(OVIA *Ovia, uint16_t MaxFilterOrder);
-    void                 OVIA_FLAC_SetMaxFrameSize(OVIA *Ovia, uint16_t MaxFrameSize);
-    void                 OVIA_FLAC_SetMaxRicePartitionOrder(OVIA *Ovia, uint8_t MaxRICEPartitionOrder);
-    void                 OVIA_FLAC_SetMD5(OVIA *Ovia, uint8_t *MD5);
-    void                 OVIA_FLAC_SetMinBlockSize(OVIA *Ovia, uint16_t MinBlockSize);
-    void                 OVIA_FLAC_SetMinFrameSize(OVIA *Ovia, uint16_t MinFrameSize);
-    void                 OVIA_FLAC_SubFrame_SetType(OVIA *Ovia, uint8_t SubframeType);
-    void                 OVIA_FLAC_SubFrame_SetWastedBits(OVIA *Ovia, bool WastedBitsFlag, uint8_t NumWastedBits);
+    void                 OVIA_FLAC_CUE_SetCatalogID(char *CatalogID);
+    void                 OVIA_FLAC_CUE_SetIsCD(bool IsCD);
+    void                 OVIA_FLAC_CUE_SetLeadIn(uint64_t LeadIn);
+    void                 OVIA_FLAC_CUE_SetNumTracks(uint8_t NumTracks);
+    void                 OVIA_FLAC_CUE_SetTrack(uint64_t Offset, bool IsAudio, bool PreEmphasis, UTF8 *ISRC);
+    void                 OVIA_FLAC_CUE_Track_SetOffset(uint8_t Track, uint64_t TrackOffset);
+    void                 OVIA_FLAC_Frame_SetBlockSize(uint16_t BlockSize);
+    void                 OVIA_FLAC_Frame_SetBlockType(bool BlockTypeIsFixed);
+    void                 OVIA_FLAC_Frame_SetChannelLayout(uint8_t ChannelLayout);
+    void                 OVIA_FLAC_Frame_SetCodedBitDepth(uint8_t CodedBitDepth);
+    void                 OVIA_FLAC_Frame_SetCodedBlockSize(uint8_t CodedBlockSize);
+    void                 OVIA_FLAC_Frame_SetCodedSampleRate(uint8_t CodedSampleRate);
+    void                 OVIA_FLAC_Frame_SetFrameNumber(uint64_t FrameNumber);
+    void                 OVIA_FLAC_Frame_SetSampleNumber(uint64_t SampleNumber);
+    void                 OVIA_FLAC_Frame_SetSampleRate(uint32_t SampleRate);
+    void                 OVIA_FLAC_LPC_SetLPCCoeff(uint8_t CoeffNum, uint8_t Coeff);
+    void                 OVIA_FLAC_LPC_SetLPCOrder(uint8_t LPCOrder);
+    void                 OVIA_FLAC_LPC_SetLPCPrecision(uint8_t LPCPrecision);
+    void                 OVIA_FLAC_LPC_SetLPCShift(uint8_t LPCShift);
+    void                 OVIA_FLAC_LPC_SetNumLPCCoeffs(uint8_t NumLPCCoeffs);
+    void                 OVIA_FLAC_LPC_SetRICEParameter(uint8_t Partition, uint8_t Parameter);
+    void                 OVIA_FLAC_LPC_SetRICEPartitionOrder(uint8_t RICEPartitionOrder);
+    void                 OVIA_FLAC_LPC_SetRICEPartitionType(uint8_t RICEPartitionType);
+    void                 OVIA_FLAC_Seek_SetSeekPoint(uint32_t SeekPoint, uint64_t Sample, uint64_t Offset, uint16_t FrameSize);
+    void                 OVIA_FLAC_SetEncodeSubset(bool EncodeSubset);
+    void                 OVIA_FLAC_SetMaxBlockSize(uint16_t MaxBlockSize);
+    void                 OVIA_FLAC_SetMaxFilterOrder(uint16_t MaxFilterOrder);
+    void                 OVIA_FLAC_SetMaxFrameSize(uint16_t MaxFrameSize);
+    void                 OVIA_FLAC_SetMaxRicePartitionOrder(uint8_t MaxRICEPartitionOrder);
+    void                 OVIA_FLAC_SetMD5(uint8_t *MD5);
+    void                 OVIA_FLAC_SetMinBlockSize(uint16_t MinBlockSize);
+    void                 OVIA_FLAC_SetMinFrameSize(uint16_t MinFrameSize);
+    void                 OVIA_FLAC_SubFrame_SetType(uint8_t SubframeType);
+    void                 OVIA_FLAC_SubFrame_SetWastedBits(bool WastedBitsFlag, uint8_t NumWastedBits);
     
 #ifdef __cplusplus
 }
