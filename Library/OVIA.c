@@ -1,10 +1,56 @@
-#include "../include/OVIA.h"
-
-#include "../../Dependencies/FoundationIO/libFoundationIO/include/Log.h"
+#include "../include/Private/OVIACommon.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+    
+    void OVIA_RegisterDecoder(OVIADecoder Decoder) {
+        OVIA_CodecIDs DecoderID                                      = Decoder.DecoderID;
+        GlobalCodecs.Decoders[DecoderID].MediaType                   = Decoder.MediaType;
+        GlobalCodecs.Decoders[DecoderID].Function_Initialize         = Decoder.Function_Initialize;
+        GlobalCodecs.Decoders[DecoderID].Function_Parse              = Decoder.Function_Parse;
+        GlobalCodecs.Decoders[DecoderID].Function_Decode             = Decoder.Function_Decode;
+        GlobalCodecs.Decoders[DecoderID].MagicIDOffset               = Decoder.MagicIDOffset;
+        GlobalCodecs.Decoders[DecoderID].MagicIDSize                 = Decoder.MagicIDSize;
+        GlobalCodecs.Decoders[DecoderID].MagicID                     = Decoder.MagicID;
+    }
+    
+    void OVIA_RegisterEncoder(OVIAEncoder Encoder) {
+        uint64_t EncoderID                                           = Encoder.EncoderID;
+        GlobalCodecs.Encoders[EncoderID].MediaType                   = Encoder.MediaType;
+        GlobalCodecs.Encoders[EncoderID].Function_Initialize         = Encoder.Function_Initialize;
+        GlobalCodecs.Encoders[EncoderID].Function_WriteHeader        = Encoder.Function_WriteHeader;
+        GlobalCodecs.Encoders[EncoderID].Function_Encode             = Encoder.Function_Encode;
+        GlobalCodecs.Encoders[EncoderID].Function_WriteFooter        = Encoder.Function_WriteFooter;
+    }
+    
+    /*
+     OVIA Workflows:
+     
+     Decode: -----------------------------------------
+     
+     Parse command line arguments with CommandLineIO.
+     
+     Open specified file
+     
+     Determine file type
+     
+     Decode with the approperiate decoder.
+     
+     return a Container to the main thread.
+     
+     Encode: ---------------------------------------
+     
+     Take in a Container (Streaming support may be required)
+     
+     the main program needs to be able to tell OVIA which codec to use
+     
+     OVIA calls that encoder with this audio container and breaks it up in such a way that the whole container is able to be written at once without any leftover.
+     
+     After a sample block is encoed it's added to the stream.
+     */
+    
+    //     --------------------------------------------------------------------------------------------------------------
     
     /*
      OVIA API:
@@ -22,56 +68,22 @@ extern "C" {
      Should ICC profiles be a part of OVIA or ContainerIO?
      */
     
-    /*
-     typedef struct OVIACodecs {
-     uint64_t          NumMagicIDs[OVIA_NumCodecs];
-     uint8_t          *MagicID[OVIA_NumCodecs];
-     uint64_t         *MagicIDSize[OVIA_NumCodecs];
-     uint64_t         *MagicIDOffset[OVIA_NumCodecs];
-     OVIA_MediaTypes   MediaTypes[OVIA_NumCodecs];
-     OVIA_CodecTypes   CodecTypes[OVIA_NumCodecs];
-     void            (*InitFunction[OVIA_NumCodecs])(void);
-     void            (*ParseFunction[OVIA_NumCodecs])(OVIA*, BitBuffer*);
-     Audio2DContainer *(*DecodeAudio2D[OVIA_NumCodecs])(OVIA*, BitBuffer*);
-     void            (*EncodeAudio2D[OVIA_NumCodecs])(Audio2DContainer*, BitBuffer*);
-     ImageContainer *(*DecodeImage[OVIA_NumCodecs])(OVIA*, BitBuffer*);
-     void            (*EncodeImage[OVIA_NumCodecs])(ImageContainer*, BitBuffer*);
-     } OVIACodecs;
-     */
-    
-    typedef struct OVIADecoder {
-        uint64_t            NumMagicIDs;
-        uint64_t           *MagicIDSize;   // array containing the size of each magic id
-        uint64_t           *MagicIDOffset; // array containing the offset in bytes for each magic id
-        uint8_t           **MagicIDs;      // array of pointers to arrays of bytes one for each MagicID
-        OVIA_MediaTypes     MediaType;
-        void             *(*Function_Init)(void); // Void pointer to each codecs init function
-        void              (*Function_Parse)(BitBuffer*);
-        Audio2DContainer *(*Function_ReadAudio2D)(BitBuffer*);
-        Audio3DContainer *(*Function_ReadAudio3D)(BitBuffer*);
-        ImageContainer   *(*Function_ReadImage)(BitBuffer*);
-    } OVIADecoder;
-    
-    typedef struct OVIAEncoder {
-        OVIA_MediaTypes     MediaType;
-        void             *(*Function_Init)(void); // Void pointer to each codecs init function
-        void              (*Function_WriteHeader)(BitBuffer*);
-        Audio2DContainer *(*Function_WriteAudio2D)(BitBuffer*);
-        AudioVector      *(*Function_WriteAudio3D)(BitBuffer*);
-        ImageContainer   *(*Function_WriteImage)(BitBuffer*);
-    } OVIAEncoder;
-    
-    typedef struct OVIACodecs {
-        uint64_t     NumCodecs;
-        OVIAEncoder *Encoders;
-        OVIADecoder *Decoders;
-    } OVIACodecs;
-    
-    extern OVIACodecs *OVIACodecList;
-    
     uint64_t OVIACodecs_GetCodecIndex(OVIA_CodecIDs CodecID, OVIA_CodecTypes CodecType) {
-        uint64_t Index = (OVIA_NumCodecs * 2) + 1;
+        uint64_t Index = GlobalCodecs.NumDecoders + GlobalCodecs.NumEncoders + 1;
         if (CodecID != CodecID_Unknown && CodecType != CodecType_Unknown) {
+            if (CodecType == CodecType_Decode) {
+                for (uint64_t Decoder = 0ULL; Decoder < GlobalCodecs.NumDecoders; Decoder++) {
+                    if (GlobalCodecs.Decoders[Decoder].CodecID == CodecID) {
+                        Index = Decoder;
+                    }
+                }
+            } else if (CodecType == CodecType_Encode) {
+                for (uint64_t Encoder = 0ULL; Encoder < GlobalCodecs.NumEncoders; Encoder++) {
+                    if (GlobalCodecs.Encoders[Encoder].CodecID == CodecID) {
+                        Index = Encoder;
+                    }
+                }
+            }
             Index      = CodecID - CodecType;
         } else if (CodecID == CodecID_Unknown) {
             Log(Log_ERROR, __func__, U8("CodecID_Unknown is invalid"));
@@ -81,10 +93,18 @@ extern "C" {
         return Index;
     }
     
-    uint64_t OVIACodecs_GetMagicIDSize(OVIACodecs Codecs, uint64_t CodecIndex) {
-        uint64_t MagicIDSize = (OVIA_NumCodecs * 2) + 1;
-        if (CodecIndex < (OVIA_NumCodecs * 2) + 1) {
-            MagicIDSize      = Codecs.MagicIDSize[CodecIndex];
+    uint64_t OVIACodecs_GetMagicIDSize(OVIACodecs *Codecs, OVIA_CodecIDs CodecID, uint64_t MagicIDIndex) {
+        uint64_t MagicIDSize = 0ULL;
+        if (Codecs != NULL) {
+            for (uint64_t Codec = 0ULL; Codec < Codecs->NumCodecs; Codec++) {
+                if (Codecs->Decoders[Codec].CodecID == CodecID) {
+                    if (Codecs->Decoders[Codec].NumMagicIDs <= MagicIDIndex) {
+                        MagicIDSize = Codecs->Decoders[Codec].MagicIDSize[MagicIDIndex];
+                    }
+                }
+            }
+        } else {
+            Log(Log_ERROR, __func__, U8("OVIACodecs Pointer is NULL"));
         }
         return MagicIDSize;
     }

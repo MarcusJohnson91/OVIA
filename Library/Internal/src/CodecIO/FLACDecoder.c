@@ -54,13 +54,13 @@ extern "C" {
     
     void OVIA_FLAC_Read(BitBuffer *BitB) {
         // Ok so here we start reading the file.
-        if (Ovia != NULL && BitB != NULL) {
-            uint32_t FileMarker = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 32);
+        if (BitB != NULL) {
+            uint32_t FileMarker = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
             if (FileMarker == FLACMagic) {
                 bool IsLastBlock = OVIA_FLAC_Parse_Blocks(Ovia, BitB);
                 if (IsLastBlock) {
                     // Check for the FrameMarker
-                    uint16_t FrameMarker = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 14);
+                    uint16_t FrameMarker = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 14);
                     if (FrameMarker == FLACFrameMagic) {
                         // Start reading the frames.
                         OVIA_FLAC_Stream_Read(Ovia, BitB);
@@ -69,8 +69,6 @@ extern "C" {
             } else {
                 Log(Log_ERROR, __func__, U8("Not a FLAC file"));
             }
-        } else if (Ovia == NULL) {
-            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
         }

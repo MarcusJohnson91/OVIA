@@ -1,8 +1,4 @@
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/BitIO.h"
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/ContainerIO.h"
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/CryptographyIO.h"
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/Log.h"
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/Math.h"
+#include "OVIACommon.h"
 
 #pragma once
 
@@ -192,18 +188,9 @@ extern "C" {
         uint16_t BlockAlignment;
     } WAVOptions;
     
-    void            WAVParseMetadata(BitBuffer *BitB);
+    WAVOptions *WAVOptions_Init(void);
     
-    Audio2DContainer *WAVExtractSamples(BitBuffer *BitB);
-    
-    void            WAVAppendSamples(Audio2DContainer *Audio, BitBuffer *BitB);
-    
-    void            WAVWriteHeader(BitBuffer *BitB);
-    
-    uint16_t             OVIA_WAV_GetBlockAlignment(OVIA *Ovia);
-    void                 OVIA_WAV_SetBlockAlignment(uint16_t BlockAlignment);
-    void                 OVIA_WAV_SetCompressionType(uint16_t CompressionType);
-    void                 OVIA_WAV_SetSpeakerMask(uint32_t SpeakerMask);
+    void WAVOptions_Deinit(WAVOptions *WAV);
     
 #ifdef __cplusplus
 }

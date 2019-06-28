@@ -1,8 +1,4 @@
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/BitIO.h"
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/ContainerIO.h"
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/CryptographyIO.h"
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/Log.h"
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/Math.h"
+#include "OVIACommon.h"
 
 #pragma once
 
@@ -84,18 +80,13 @@ extern "C" {
         0x74,0x73,0x69,0x6C,0x2D,0x91,0x2F,0x2D,0x11,0xCF,0x2D,0xA5,0xD6,0x2D,0x28,0xDB,0x04,0xC1,0x00,0x00,0x00
     };
     
-    void                 W64ParseMetadata(BitBuffer *BitB);
+    W64Options *W64Options_Init(void);
     
-    Audio2DContainer    *W64ExtractSamples(BitBuffer *BitB);
+    static uint64_t CalculateW64ByteRate(uint64_t NumChannels, uint8_t BitDepth, uint64_t SampleRate);
     
-    void                 W64AppendSamples(Audio2DContainer *Audio, BitBuffer *BitB);
+    static uint64_t CalculateW64BlockAlign(uint64_t NumChannels, uint8_t BitDepth);
     
-    void                 W64WriteHeader(Audio2DContainer *Audio, BitBuffer *BitB);
-    
-    uint16_t             OVIA_W64_GetBlockAlignment(OVIA *Ovia);
-    void                 OVIA_W64_SetBlockAlignment(uint16_t BlockAlignment);
-    void                 OVIA_W64_SetCompressionType(uint16_t CompressionType);
-    void                 OVIA_W64_SetSpeakerMask(uint64_t SpeakerMask);
+    void W64Options_Deinit(W64Options *W64);
     
 #ifdef __cplusplus
 }

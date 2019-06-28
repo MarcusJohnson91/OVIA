@@ -60,32 +60,6 @@ extern "C" {
      The User needs to get the metadata for the file, and put it into OVIA, and the Image/Audio Container.
      */
     
-    typedef enum OVIA_CodecIDs {
-        CodecID_Unknown       = 0,
-        CodecID_BMP           = 2,
-        CodecID_PNM           = 4,
-        CodecID_PNG           = 6,
-        CodecID_AIF           = 8,
-        CodecID_WAV           = 10,
-        CodecID_W64           = 12,
-        CodecID_FLAC          = 14,
-        OVIA_NumCodecs        = 7,
-    } OVIA_CodecIDs;
-    
-    typedef enum OVIA_MediaTypes {
-        MediaType_Unknown     = 0,
-        MediaType_Audio2D     = 1,
-        MediaType_Audio3D     = 2,
-        MediaType_Image       = 3,
-        MediaType_Video       = 4,
-    } OVIA_MediaTypes;
-    
-    typedef enum OVIA_CodecTypes {
-        CodecType_Unknown     = 0,
-        CodecType_Encode      = 1,
-        CodecType_Decode      = 2,
-    } OVIA_CodecTypes;
-    
     typedef enum OVIA_TagTypes {
         UnknownTag            = 0,
         TitleTag              = 1,

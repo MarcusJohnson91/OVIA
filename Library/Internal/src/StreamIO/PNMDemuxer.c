@@ -4,7 +4,7 @@
 extern "C" {
 #endif
     
-    static uint64_t PNMCheckForComment(BitBuffer *BitB) { // returns 0 if false comment was found, returns the number of bytes that make up the comment if it was.
+    static uint64_t PNMCheckForComment(BitBuffer *BitB) {
         uint64_t CommentSize = 0;
         if (BitB != NULL) {
             if (BitBuffer_PeekBits(BitB, MSByteFirst, LSBitFirst, 8) == PNMCommentStart) {
@@ -19,14 +19,14 @@ extern "C" {
         return CommentSize;
     }
     
-    static void PNMParsePNMASCIIHeader(BitBuffer *BitB) {
-        if (Ovia != NULL && BitB != NULL) {
+    static void PNMParse_ASCII(PNMOptions *PNM, BitBuffer *BitB) {
+        if (BitB != NULL) {
             uint64_t CommentSizeWidth = PNMCheckForComment(BitB);
             BitBuffer_Seek(BitB, Bytes2Bits(CommentSizeWidth));
             /* Read Width */
             uint64_t WidthStringSize  = BitBuffer_GetUTF8StringSize(BitB);
             UTF8    *WidthString      = BitBuffer_ReadUTF8(BitB, WidthStringSize);
-            OVIA_SetWidth(Ovia, UTF8_String2Integer(10, WidthString));
+            PNM->Width                = UTF8_String2Integer(Base10, WidthString);
             free(WidthString);
             /* Read Width */
             
@@ -36,54 +36,50 @@ extern "C" {
             /* Read Height */
             uint64_t HeightStringSize = BitBuffer_GetUTF8StringSize(BitB);
             UTF8    *HeightString     = BitBuffer_ReadUTF8(BitB, HeightStringSize);
-            OVIA_SetHeight(Ovia, UTF8_String2Integer(10, HeightString));
+            PNM->Height               = UTF8_String2Integer(Base10, HeightString);
             free(HeightString);
             /* Read Height */
-        } else if (Ovia == NULL) {
-            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    static void PNMParsePNMBinaryHeader(BitBuffer *BitB) {
-        if (Ovia != NULL && BitB != NULL) {
+    static void PNMParse_Binary(PNMOptions *PNM, BitBuffer *BitB) {
+        if (BitB != NULL) {
             /* Read Width */
             uint64_t WidthStringSize  = BitBuffer_GetUTF8StringSize(BitB);
             UTF8    *WidthString      = BitBuffer_ReadUTF8(BitB, WidthStringSize);
-            OVIA_SetWidth(Ovia, UTF8_String2Integer(10, WidthString));
+            PNM->Width                = UTF8_String2Integer(Base10, WidthString);
             free(WidthString);
             /* Read Width */
             
             /* Read Height */
             uint64_t HeightStringSize = BitBuffer_GetUTF8StringSize(BitB);
             UTF8    *HeightString     = BitBuffer_ReadUTF8(BitB, HeightStringSize);
-            OVIA_SetHeight(Ovia, UTF8_String2Integer(10, HeightString));
+            PNM->Height               = UTF8_String2Integer(Base10, HeightString);
             free(HeightString);
             /* Read Height */
             
             /* Read MaxVal */
             uint64_t MaxValStringSize = BitBuffer_GetUTF8StringSize(BitB);
             UTF8    *MaxValString     = BitBuffer_ReadUTF8(BitB, MaxValStringSize);
-            OVIA_SetBitDepth(Ovia, Logarithm(2, UTF8_String2Integer(10, MaxValString) + 1));
+            uint64_t MaxVal           = UTF8_String2Integer(Base10, MaxValString);
+            PNM->BitDepth             = Logarithm(2, MaxVal + 1);
             free(MaxValString);
             /* Read MaxVal */
-        } else if (Ovia == NULL) {
-            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    static void PNMParsePAMHeader(BitBuffer *BitB) {
-        if (Ovia != NULL && BitB != NULL) {
+    static void PNMParsePAMHeader(PNMOptions *PNM, BitBuffer *BitB) {
+        if (PNM != NULL && BitB != NULL) {
             /* Read Width */
             BitBuffer_Seek(BitB, 48); // Skip "WIDTH " string
             
             uint64_t WidthStringSize  = BitBuffer_GetUTF8StringSize(BitB);
             UTF8    *WidthString      = BitBuffer_ReadUTF8(BitB, WidthStringSize);
-            
-            OVIA_SetWidth(Ovia, UTF8_String2Integer(10, WidthString));
+            PNM->Width                = UTF8_String2Integer(Base10, WidthString);
             free(WidthString);
             /* Read Width */
             
@@ -92,19 +88,17 @@ extern "C" {
             
             uint64_t HeightStringSize = BitBuffer_GetUTF8StringSize(BitB);
             UTF8    *HeightString     = BitBuffer_ReadUTF8(BitB, HeightStringSize);
-            
-            OVIA_SetHeight(Ovia, UTF8_String2Integer(10, HeightString));
+            PNM->Height               = UTF8_String2Integer(Base10, HeightString);
             free(HeightString);
             /* Read Height */
             
             /* Read NumChannels */
             BitBuffer_Seek(BitB, 48); // Skip "DEPTH " string
             
-            uint64_t DepthStringSize  = BitBuffer_GetUTF8StringSize(BitB);
-            UTF8    *DepthString      = BitBuffer_ReadUTF8(BitB, DepthStringSize);
-            
-            OVIA_SetNumChannels(Ovia, UTF8_String2Integer(10, DepthString));
-            free(DepthString);
+            uint64_t NumChannelsStringSize  = BitBuffer_GetUTF8StringSize(BitB);
+            UTF8    *NumChannelsString      = BitBuffer_ReadUTF8(BitB, NumChannelsStringSize);
+            PNM->NumChannels                = UTF8_String2Integer(Base10, NumChannelsString);
+            free(NumChannelsString);
             /* Read NumChannels */
             
             /* Read MaxVal */
@@ -112,8 +106,8 @@ extern "C" {
             
             uint64_t MaxValStringSize = BitBuffer_GetUTF8StringSize(BitB);
             UTF8    *MaxValString     = BitBuffer_ReadUTF8(BitB, MaxValStringSize);
-            
-            OVIA_SetBitDepth(Ovia, Logarithm(2, UTF8_String2Integer(10, MaxValString) + 1));
+            uint64_t MaxVal           = UTF8_String2Integer(Base10, MaxValString);
+            PNM->BitDepth             = Logarithm(2, MaxVal + 1);
             free(MaxValString);
             /* Read MaxVal */
             
@@ -122,21 +116,21 @@ extern "C" {
             uint64_t TupleTypeSize     = BitBuffer_GetUTF8StringSize(BitB);
             UTF8    *TupleTypeString   = BitBuffer_ReadUTF8(BitB, TupleTypeSize);
             
-            if (UTF8_Compare(TupleTypeString, U8("BLACKANDWHITE")) == true) {
-                OVIA_SetNumChannels(Ovia, 1);
-                OVIA_PNM_SetTupleType(Ovia, PNM_TUPLE_BnW);
-            } else if (UTF8_Compare(TupleTypeString, U8("GRAYSCALE")) == true) {
-                OVIA_SetNumChannels(Ovia, 1);
-                OVIA_PNM_SetTupleType(Ovia, PNM_TUPLE_Gray);
-            } else if (UTF8_Compare(TupleTypeString, U8("GRAYSCALE_ALPHA")) == true) {
-                OVIA_SetNumChannels(Ovia, 2);
-                OVIA_PNM_SetTupleType(Ovia, PNM_TUPLE_GrayAlpha);
-            } else if (UTF8_Compare(TupleTypeString, U8("RGB")) == true) {
-                OVIA_SetNumChannels(Ovia, 3);
-                OVIA_PNM_SetTupleType(Ovia, PNM_TUPLE_RGB);
-            } else if (UTF8_Compare(TupleTypeString, U8("RGB_ALPHA")) == true) {
-                OVIA_SetNumChannels(Ovia, 4);
-                OVIA_PNM_SetTupleType(Ovia, PNM_TUPLE_RGBAlpha);
+            if (UTF8_CompareSubString(TupleTypeString, U8("BLACKANDWHITE"), 0, 0) == true) {
+                PNM->NumChannels       = 1;
+                PNM->TupleType         = PNM_TUPLE_BnW;
+            } else if (UTF8_CompareSubString(TupleTypeString, U8("GRAYSCALE"), 0, 0) == true) {
+                PNM->NumChannels       = 1;
+                PNM->TupleType         = PNM_TUPLE_Gray;
+            } else if (UTF8_CompareSubString(TupleTypeString, U8("GRAYSCALE_ALPHA"), 0, 0) == true) {
+                PNM->NumChannels       = 2;
+                PNM->TupleType         = PNM_TUPLE_GrayAlpha;
+            } else if (UTF8_CompareSubString(TupleTypeString, U8("RGB"), 0, 0) == true) {
+                PNM->NumChannels       = 3;
+                PNM->TupleType         = PNM_TUPLE_RGB;
+            } else if (UTF8_CompareSubString(TupleTypeString, U8("RGB_ALPHA"), 0, 0) == true) {
+                PNM->NumChannels       = 4;
+                PNM->TupleType         = PNM_TUPLE_RGBAlpha;
             } else {
                 Log(Log_ERROR, __func__, U8("Unknown PNM Tuple: %s"), TupleTypeString);
             }
@@ -146,133 +140,160 @@ extern "C" {
             /* Skip ENDHDR */
             BitBuffer_Seek(BitB, 56); // ENDHDR
             /* Skip ENDHDR */
-        } else if (Ovia == NULL) {
-            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    void PNMIdentifyFileType(BitBuffer *BitB) {
-        if (Ovia != NULL && BitB != NULL) {
-            UTF8 PNMMagicID[PNMMagicSize];
-            for (uint8_t PNMMagicByte = 0; PNMMagicByte < PNMMagicSize; PNMMagicByte++) {
-                PNMMagicID[PNMMagicByte] = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
-            }
-            if (UTF8_Compare(PNMMagicID, U8("P1")) == true || UTF8_Compare(PNMMagicID, U8("P2")) == true || UTF8_Compare(PNMMagicID, U8("P3")) == true) {
-                OVIA_PNM_SetPNMType(Ovia, ASCIIPNM);
-            } else if (UTF8_Compare(PNMMagicID, U8("P4")) == true || UTF8_Compare(PNMMagicID, U8("P5")) == true || UTF8_Compare(PNMMagicID, U8("P6")) == true) {
-                OVIA_PNM_SetPNMType(Ovia, BinaryPNM);
-            } else if (UTF8_Compare(PNMMagicID, U8("P7")) == true) {
-                OVIA_PNM_SetPNMType(Ovia, PAMPNM);
-            }
-        } else if (Ovia == NULL) {
-            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
-        } else if (BitB == NULL) {
-            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
-        }
-    }
-    
-    void PNMParseMetadata(BitBuffer *BitB) {
-        if (Ovia != NULL && BitB != NULL) {
-            uint8_t NumFieldsRead = 0;
-            uint8_t Fields2Read = 0;
-            if (OVIA_PNM_GetPNMType(Ovia) == PAMPNM) {
-                Fields2Read = 5;
-            } else if (OVIA_PNM_GetPNMType(Ovia) == ASCIIPNM) {
-                Fields2Read = 2; // there is false MaxVal field
-            } else if (OVIA_PNM_GetPNMType(Ovia) == BinaryPNM) {
-                Fields2Read = 3;
-            }
-            
-            BitBuffer_Seek(BitB, 8); // Skip the LineFeed after the FileType marker
-            // Before each field we need to check for Comments if the file is ASCII.
-            if (OVIA_PNM_GetTupleType(Ovia) == ASCIIPNM) {
-                PNMParsePNMASCIIHeader(Ovia, BitB);
-            } else if (OVIA_PNM_GetTupleType(Ovia) == BinaryPNM) {
-                PNMParsePNMBinaryHeader(Ovia, BitB);
-            } else if (OVIA_PNM_GetTupleType(Ovia) == PAMPNM) {
-                PNMParsePAMHeader(Ovia, BitB);
-            }
-        } else if (Ovia == NULL) {
-            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
-        } else if (BitB == NULL) {
-            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
-        }
-    }
-    
-    ImageContainer *PNMExtractImage(BitBuffer *BitB) {
-        ImageContainer *Image    = NULL;
-        if (Ovia != NULL && BitB != NULL) {
-            uint64_t Width       = OVIA_GetWidth(Ovia);
-            uint64_t Height      = OVIA_GetHeight(Ovia);
-            uint64_t NumChannels = OVIA_GetNumChannels(Ovia);
-            uint8_t  BitDepth    = OVIA_GetBitDepth(Ovia);
-            Image                = ImageContainer_Init(BitDepth <= 8 ? ImageType_Integer8 : ImageType_Integer16, ImageMask_Red | ImageMask_Green | ImageMask_Blue, Width, Height);
-            
-            if (OVIA_PNM_GetPNMType(Ovia) == ASCIIPNM) {
-                if (BitDepth <= 8) {
-                    uint8_t *Array  = (uint8_t*) ImageContainer_GetArray(Image);
-                    
-                    for (uint64_t W = 0; W < Width; W++) {
-                        for (uint64_t H = 0; H < Height; H++) {
-                            for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
-                                uint8_t SubPixelStringSize          = 0;
-                                while (BitBuffer_PeekBits(BitB, MSByteFirst, LSBitFirst, 8) != PNMFieldSeperator || BitBuffer_PeekBits(BitB, MSByteFirst, LSBitFirst, 8) != PNMEndField) {
-                                    SubPixelStringSize             += 1;
-                                }
-                                char *SubPixelString                = calloc(OVIA_GetNumChannels(Ovia), sizeof(char));
-                                for (uint8_t SubPixelByte = 0; SubPixelByte < SubPixelStringSize; SubPixelByte++) {
-                                    SubPixelString[SubPixelByte]    = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
-                                }
-                                Array[1 * Width * Height * Channel] = UTF8_String2Integer(10, SubPixelString);
-                                free(SubPixelString);
-                            }
+    void PNMExtractImage_ASCII(PNMOptions *PNM, BitBuffer *BitB, ImageContainer *Image) {
+        if (PNM->BitDepth <= 8) {
+            uint8_t ****Array        = (uint8_t****) ImageContainer_GetArray(Image);
+            UTF8        Component[4] = {0, 0, 0, 0};
+            for (uint64_t Width = 0; Width < PNM->Width; Width++) {
+                for (uint64_t Height = 0; Height < PNM->Height; Height++) {
+                    for (uint8_t Channel = 0; Channel < PNM->NumChannels; Channel++) {
+                        for (uint8_t SubPixelByte = 0; SubPixelByte < 3; SubPixelByte++) {
+                            Component[SubPixelByte]      = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
                         }
+                        Array[0][Width][Height][Channel] = UTF8_String2Integer(Base10, Component);
                     }
-                } else {
-                    Log(Log_ERROR, __func__, U8("16 bit ASCII PNM is invalid"));
                 }
-            } else if (OVIA_PNM_GetPNMType(Ovia) == BinaryPNM || OVIA_PNM_GetPNMType(Ovia) == PAMPNM) {
-                if (BitDepth <= 8) {
-                    uint8_t *Array  = (uint8_t*) ImageContainer_GetArray(Image);
-                    
-                    for (uint64_t W = 0; W < Width; W++) {
-                        for (uint64_t H = 0; H < Height; H++) {
-                            for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
-                                uint8_t CurrentPixel                = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, BitDepth);
-                                if (OVIA_PNM_GetTupleType(Ovia) == PNM_TUPLE_BnW && OVIA_PNM_GetTupleType(Ovia) != PAMPNM) {
-                                    Array[1 * Width * Height * Channel] = ~CurrentPixel; // 1 = black, 0 = white
-                                } else {
-                                    Array[1 * Width * Height * Channel] = CurrentPixel; // 1 = white, 0 = black
-                                }
-                            }
+            }
+        } else if (PNM->BitDepth <= 16) {
+            uint16_t ****Array       = (uint16_t****) ImageContainer_GetArray(Image);
+            UTF8        Component[6] = {0, 0, 0, 0, 0, 0};
+            for (uint64_t Width = 0; Width < PNM->Width; Width++) {
+                for (uint64_t Height = 0; Height < PNM->Height; Height++) {
+                    for (uint8_t Channel = 0; Channel < PNM->NumChannels; Channel++) {
+                        for (uint8_t SubPixelByte = 0; SubPixelByte < 3; SubPixelByte++) {
+                            Component[SubPixelByte]      = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
                         }
+                        Array[0][Width][Height][Channel] = UTF8_String2Integer(Base10, Component);
                     }
-                } else if (BitDepth <= 16) {
-                    uint16_t *Array  = (uint16_t*) ImageContainer_GetArray(Image);
-                    
-                    for (uint64_t W = 0; W < Width; W++) {
-                        for (uint64_t H = 0; H < Height; H++) {
-                            for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
-                                uint8_t CurrentPixel                = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, BitDepth);
-                                if (OVIA_PNM_GetTupleType(Ovia) == PNM_TUPLE_BnW && OVIA_PNM_GetTupleType(Ovia) != PAMPNM) {
-                                    Array[1 * Width * Height * Channel] = ~CurrentPixel; // 1 = black, 0 = white
-                                } else {
-                                    Array[1 * Width * Height * Channel] = CurrentPixel; // 1 = white, 0 = black
-                                }
-                            }
+                }
+            }
+        } else {
+            Log(Log_ERROR, __func__, U8("16 bit ASCII PNM is invalid"));
+        }
+    }
+    
+    void PNMExtractImage_Binary(PNMOptions *PNM, BitBuffer *BitB, ImageContainer *Image) {
+        if (PNM->BitDepth <= 8) {
+            uint8_t ****Array  = (uint8_t****) ImageContainer_GetArray(Image);
+            
+            for (uint64_t Width = 0; Width < PNM->Width; Width++) {
+                for (uint64_t Height = 0; Height < PNM->Height; Height++) {
+                    for (uint8_t Channel = 0; Channel < PNM->NumChannels; Channel++) {
+                        uint8_t CurrentPixel                 = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, PNM->BitDepth);
+                        if (PNM->TupleType == PNM_TUPLE_BnW) {
+                            Array[0][Width][Height][Channel] = ~CurrentPixel; // 1 = black, 0 = white
+                        } else {
+                            Array[0][Width][Height][Channel] = CurrentPixel; // 1 = white, 0 = black
                         }
                     }
                 }
             }
-        } else if (Ovia == NULL) {
-            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
-        } else if (BitB == NULL) {
-            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
+        } else if (PNM->BitDepth <= 16) {
+            uint16_t ****Array  = (uint16_t****) ImageContainer_GetArray(Image);
+            
+            for (uint64_t Width = 0; Width < PNM->Width; Width++) {
+                for (uint64_t Height = 0; Height < PNM->Height; Height++) {
+                    for (uint8_t Channel = 0; Channel < PNM->NumChannels; Channel++) {
+                        uint16_t CurrentPixel                = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, PNM->BitDepth);
+                        if (PNM->TupleType == PNM_TUPLE_BnW) {
+                            Array[0][Width][Height][Channel] = ~CurrentPixel; // 1 = black, 0 = white
+                        } else {
+                            Array[0][Width][Height][Channel] = CurrentPixel; // 1 = white, 0 = black
+                        }
+                    }
+                }
+            }
         }
-        return Image;
     }
+    
+    OVIADecoder PNMDecoder_BitASCII = {
+        .MagicID               = {0x50, 0x31},
+        .MagicIDSize           = 2,
+        .MagicIDOffset         = 0,
+        .MediaType             = MediaType_Image,
+        .DecoderID             = CodecID_PBM_A,
+        .Function_Initialize   = PNMOptions_Init,
+        .Function_Parse        = PNMParse_ASCII,
+        .Function_Decode       = PNMExtractImage_ASCII,
+        .Function_Deinitialize = PNMOptions_Deinit,
+    };
+    
+    OVIADecoder PNMDecoder_GrayASCII = {
+        .MagicID               = {0x50, 0x32},
+        .MagicIDSize           = 2,
+        .MagicIDOffset         = 0,
+        .MediaType             = MediaType_Image,
+        .DecoderID             = CodecID_PGM_A,
+        .Function_Initialize   = PNMOptions_Init,
+        .Function_Parse        = PNMParse_ASCII,
+        .Function_Decode       = PNMExtractImage_ASCII,
+        .Function_Deinitialize = PNMOptions_Deinit,
+    };
+    
+    OVIADecoder PNMDecoder_PixASCII = {
+        .MagicID               = {0x50, 0x33},
+        .MagicIDSize           = 2,
+        .MagicIDOffset         = 0,
+        .MediaType             = MediaType_Image,
+        .DecoderID             = CodecID_PPM_A,
+        .Function_Initialize   = PNMOptions_Init,
+        .Function_Parse        = PNMParse_ASCII,
+        .Function_Decode       = PNMExtractImage_ASCII,
+        .Function_Deinitialize = PNMOptions_Deinit,
+    };
+    
+    OVIADecoder PNMDecoder_BitBinary = {
+        .MagicID               = {0x50, 0x34},
+        .MagicIDSize           = 2,
+        .MagicIDOffset         = 0,
+        .MediaType             = MediaType_Image,
+        .DecoderID             = CodecID_PBM_B,
+        .Function_Initialize   = PNMOptions_Init,
+        .Function_Parse        = PNMParse_Binary,
+        .Function_Decode       = PNMExtractImage_Binary,
+        .Function_Deinitialize = PNMOptions_Deinit,
+    };
+    
+    OVIADecoder PNMDecoder_GrayBinary = {
+        .MagicID               = {0x50, 0x35},
+        .MagicIDSize           = 2,
+        .MagicIDOffset         = 0,
+        .MediaType             = MediaType_Image,
+        .DecoderID             = CodecID_PGM_B,
+        .Function_Initialize   = PNMOptions_Init,
+        .Function_Parse        = PNMParse_Binary,
+        .Function_Decode       = PNMExtractImage_Binary,
+        .Function_Deinitialize = PNMOptions_Deinit,
+    };
+    
+    OVIADecoder PNMDecoder_PixBinary = {
+        .MagicID               = {0x50, 0x36},
+        .MagicIDSize           = 2,
+        .MagicIDOffset         = 0,
+        .MediaType             = MediaType_Image,
+        .DecoderID             = CodecID_PPM_B,
+        .Function_Initialize   = PNMOptions_Init,
+        .Function_Parse        = PNMParse_Binary,
+        .Function_Decode       = PNMExtractImage_Binary,
+        .Function_Deinitialize = PNMOptions_Deinit,
+    };
+    
+    OVIADecoder PNMDecoder_Any = {
+        .MagicID               = {0x50, 0x37},
+        .MagicIDSize           = 2,
+        .MagicIDOffset         = 0,
+        .MediaType             = MediaType_Image,
+        .DecoderID             = CodecID_PAM,
+        .Function_Initialize   = PNMOptions_Init,
+        .Function_Parse        = PNMParsePAMHeader,
+        .Function_Decode       = PNMExtractImage_Binary,
+        .Function_Deinitialize = PNMOptions_Deinit,
+    };
     
 #ifdef __cplusplus
 }

@@ -4,38 +4,21 @@
 extern "C" {
 #endif
     
-    void OVIA_W64_SetSpeakerMask(uint64_t SpeakerMask) {
-        if (Ovia != NULL) {
-            Ovia->W64Info->SpeakerMask = SpeakerMask;
-        } else {
-            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
-        }
+    W64Options *W64Options_Init(void) {
+        W64Options *W64 = calloc(1, sizeof(W64Options));
+        return W64;
     }
     
-    void OVIA_W64_SetCompressionType(uint16_t CompressionType) {
-        if (Ovia != NULL) {
-            Ovia->W64Info->CompressionFormat = CompressionType;
-        } else {
-            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
-        }
+    static uint64_t CalculateW64ByteRate(uint64_t NumChannels, uint8_t BitDepth, uint64_t SampleRate) {
+        return NumChannels * SampleRate * (BitDepth / 8);
     }
     
-    void OVIA_W64_SetBlockAlignment(uint16_t BlockAlignment) {
-        if (Ovia != NULL) {
-            Ovia->W64Info->BlockAlignment = BlockAlignment;
-        } else {
-            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
-        }
+    static uint64_t CalculateW64BlockAlign(uint64_t NumChannels, uint8_t BitDepth) {
+        return NumChannels * (BitDepth / 8);
     }
     
-    uint16_t OVIA_W64_GetBlockAlignment(OVIA *Ovia) {
-        uint16_t BlockAlignment = 0;
-        if (Ovia != NULL) {
-            BlockAlignment = Ovia->W64Info->BlockAlignment;
-        } else {
-            Log(Log_ERROR, __func__, U8("OVIA Pointer is NULL"));
-        }
-        return BlockAlignment;
+    void W64Options_Deinit(W64Options *W64) {
+        free(W64);
     }
     
 #ifdef __cplusplus

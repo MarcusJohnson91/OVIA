@@ -1,8 +1,4 @@
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/BitIO.h"
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/ContainerIO.h"
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/CryptographyIO.h"
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/Log.h"
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/Math.h"
+#include "OVIACommon.h"
 
 #pragma once
 

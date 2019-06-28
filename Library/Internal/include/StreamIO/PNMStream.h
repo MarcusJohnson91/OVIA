@@ -1,8 +1,5 @@
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/BitIO.h"
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/ContainerIO.h"
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/CryptographyIO.h"
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/Log.h"
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/Math.h"
+#include "OVIACommon.h"
+#include "../../../Dependencies/FoundationIO/libFoundationIO/include/StringIO.h"
 
 #pragma once
 
@@ -39,33 +36,28 @@ extern "C" {
     
     enum PNMMagic {
         PNM_PBMA = 0x5031, // PortableBitMapASCII
-        PNM_PBMB = 0x5034, // PortableBitMapBinary
         PNM_PGMA = 0x5032, // PortableGrayMapASCII
-        PNM_PGMB = 0x5035, // PortableGrayMapBinary
         PNM_PPMA = 0x5033, // PortablePixMapASCII
+        
+        PNM_PBMB = 0x5034, // PortableBitMapBinary
+        PNM_PGMB = 0x5035, // PortableGrayMapBinary
         PNM_PPMB = 0x5036, // PortablePixMapBinary
+        
         PNM_PAMB = 0x5037, // PortableAnyMap
     } PNMMagic;
     
     typedef struct PNMOptions {
+        uint64_t      Height;
+        uint64_t      Width;
+        uint8_t       BitDepth;
+        uint8_t       NumChannels;
         PNMTupleTypes TupleType;
         PNMTypes      Type;
     } PNMOptions;
     
-    void            PNMIdentifyFileType(BitBuffer *BitB);
+    PNMOptions *PNMOptions_Init(void);
     
-    void            PNMParseMetadata(BitBuffer *BitB);
-    
-    ImageContainer *PNMExtractImage(BitBuffer *BitB);
-    
-    void            PNMInsertFrame(ImageContainer *Image, BitBuffer *BitB);
-    
-    void            PNMWriteHeader(BitBuffer *BitB);
-    
-    void                 OVIA_PNM_SetPNMType(PNMTypes PNMType);
-    void                 OVIA_PNM_SetTupleType(PNMTupleTypes TupleType);
-    PNMTupleTypes        OVIA_PNM_GetTupleType(OVIA *Ovia);
-    PNMTypes             OVIA_PNM_GetPNMType(OVIA *Ovia);
+    void PNMOptions_Deinit(PNMOptions *PNM);
     
 #ifdef __cplusplus
 }

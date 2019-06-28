@@ -6,14 +6,6 @@ extern "C" {
     
     // To encode W64 i'll need to read the values from the struct and write it to the file
     
-    static uint64_t CalculateW64ByteRate(uint64_t NumChannels, uint8_t BitDepth, uint64_t SampleRate) {
-        return NumChannels * SampleRate * (BitDepth / 8);
-    }
-    
-    static uint64_t CalculateW64BlockAlign(uint64_t NumChannels, uint8_t BitDepth) {
-        return NumChannels * (BitDepth / 8);
-    }
-    
     static void W64WriteFMTChunk(Audio2DContainer *Audio, BitBuffer *BitB) {
         if (Audio != NULL && BitB != NULL) {
             uint64_t NumChannels = AudioContainer_GetNumSamples(Audio);
@@ -112,6 +104,16 @@ extern "C" {
             Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
+    
+    OVIAEncoder W64Encoder = {
+        .EncoderID             = CodecID_W64,
+        .MediaType             = MediaType_Audio2D,
+        .Function_Initialize   = W64Options_Init,
+        .Function_WriteHeader  = W64WriteHeader,
+        .Function_Encode       = W64AppendSamples,
+        .Function_WriteFooter  = NULL,
+        .Function_Deinitialize = W64Options_Deinit,
+    };
     
 #ifdef __cplusplus
 }

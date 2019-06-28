@@ -1,8 +1,4 @@
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/BitIO.h"
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/ContainerIO.h"
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/CryptographyIO.h"
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/Log.h"
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/Math.h"
+#include "OVIACommon.h"
 
 #pragma once
 
@@ -13,7 +9,7 @@
 extern "C" {
 #endif
     
-    enum AIFSpeakerMask {
+    typedef enum AIFSpeakerMask {
         AIFFrontLeft          = 0x1,
         AIFFrontRight         = 0x2,
         AIFFrontCenter        = 0x4,
@@ -22,11 +18,11 @@ extern "C" {
         AIFSurround           = 0x20,
         AIFLeftCenter         = 0x40,
         AIFRightCenter        = 0x80,
-    };
+    } AIFSpeakerMask;
     
-    enum AIFFTimeStamp {
+    typedef enum AIFTimeStamp {
         AIFFSecondsBeforeUNIX = 2082844800,
-    };
+    } AIFTimeStamp;
     
     typedef enum AIFChunkIDs {
         AIF_FORM              = 0x464F524D,
@@ -50,18 +46,39 @@ extern "C" {
     } AIFSubChunkIDs;
     
     typedef struct AIFOptions {
-        
+        UTF8          *Tags;
+        OVIA_TagTypes *TagTypes;
+        uint64_t       NumTags;
+        uint64_t       SampleRate_Mantissa;
+        uint32_t       FileSize;
+        uint32_t       NumSamples;
+        uint32_t       SampleOffset;
+        uint32_t       BlockSize;
+        uint16_t       SampleRate_Exponent;
+        uint16_t       NumChannels;
+        uint16_t       BitDepth;
     } AIFOptions;
     
-    void            AIFSkipPadding(BitBuffer *BitB, uint32_t SubChunkSize);
+    AIFOptions *AIFOptions_Init(void);
     
-    void            AIFParseMetadata(BitBuffer *BitB);
+    void AIFOptions_Deinit(AIFOptions *AIF);
     
-    Audio2DContainer *AIFExtractSamples(BitBuffer *BitB);
     
-    void            AIFAppendSamples(Audio2DContainer *Audio, BitBuffer *BitB);
     
-    void            AIFWriteHeader(BitBuffer *BitB);
+    
+    
+    
+    
+    
+    void              AIFSkipPadding(BitBuffer *BitB, uint32_t SubChunkSize);
+    
+    void              AIFParseMetadata(AIFOptions *AIF, BitBuffer *BitB);
+    
+    void              AIFExtractSamples(Audio2DContainer *Audio, BitBuffer *BitB);
+    
+    void              AIFAppendSamples(Audio2DContainer *Audio, BitBuffer *BitB);
+    
+    void              AIFWriteHeader(BitBuffer *BitB);
     
 #ifdef __cplusplus
 }

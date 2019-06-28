@@ -178,6 +178,76 @@ extern "C" {
         }
     }
     
+    OVIAEncoder PNMEncoder_BitASCII = {
+        .EncoderID             = CodecID_PBM_A,
+        .MediaType             = MediaType_Audio2D,
+        .Function_Initialize   = PNMOptions_Init,
+        .Function_WriteHeader  = PNMWriteHeader,
+        .Function_Encode       = PNMInsertImage,
+        .Function_WriteFooter  = NULL,
+        .Function_Deinitialize = PNMOptions_Deinit,
+    };
+    
+    OVIAEncoder PNMEncoder_GrayASCII = {
+        .EncoderID             = CodecID_PGM_A,
+        .MediaType             = MediaType_Image,
+        .Function_Initialize   = PNMOptions_Init,
+        .Function_WriteHeader  = PNMWriteHeader,
+        .Function_Encode       = PNMInsertImage,
+        .Function_WriteFooter  = NULL,
+        .Function_Deinitialize = PNMOptions_Deinit,
+    };
+    
+    OVIAEncoder PNMEncoder_PixASCII = {
+        .EncoderID             = CodecID_PPM_A,
+        .MediaType             = MediaType_Image,
+        .Function_Initialize   = PNMOptions_Init,
+        .Function_WriteHeader  = PNMWriteHeader,
+        .Function_Encode       = PNMInsertImage,
+        .Function_WriteFooter  = NULL,
+        .Function_Deinitialize = PNMOptions_Deinit,
+    };
+    
+    OVIAEncoder PNMEncoder_BitBinary = {
+        .EncoderID             = CodecID_PBM_B,
+        .MediaType             = MediaType_Image,
+        .Function_Initialize   = PNMOptions_Init,
+        .Function_WriteHeader  = PNMWriteHeader,
+        .Function_Encode       = PNMInsertImage,
+        .Function_WriteFooter  = NULL,
+        .Function_Deinitialize = PNMOptions_Deinit,
+    };
+    
+    OVIAEncoder PNMEncoder_GrayBinary = {
+        .EncoderID             = CodecID_PGM_B,
+        .MediaType             = MediaType_Image,
+        .Function_Initialize   = PNMOptions_Init,
+        .Function_WriteHeader  = PNMWriteHeader,
+        .Function_Encode       = PNMInsertImage,
+        .Function_WriteFooter  = NULL,
+        .Function_Deinitialize = PNMOptions_Deinit,
+    };
+    
+    OVIAEncoder PNMEncoder_PixBinary = {
+        .EncoderID             = CodecID_PPM_B,
+        .MediaType             = MediaType_Image,
+        .Function_Initialize   = PNMOptions_Init,
+        .Function_WriteHeader  = PNMWriteHeader,
+        .Function_Encode       = PNMInsertImage,
+        .Function_WriteFooter  = NULL,
+        .Function_Deinitialize = PNMOptions_Deinit,
+    };
+    
+    OVIAEncoder PNMEncoder_Any = {
+        .EncoderID             = CodecID_PAM,
+        .MediaType             = MediaType_Image,
+        .Function_Initialize   = PNMOptions_Init,
+        .Function_WriteHeader  = PNMWriteHeader,
+        .Function_Encode       = PNMInsertImage,
+        .Function_WriteFooter  = NULL,
+        .Function_Deinitialize = PNMOptions_Deinit,
+    };
+    
 #ifdef __cplusplus
 }
 #endif

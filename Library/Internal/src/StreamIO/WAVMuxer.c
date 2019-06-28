@@ -110,6 +110,16 @@ extern "C" {
         }
     }
     
+    OVIAEncoder WAVEncoder = {
+        .EncoderID             = CodecID_WAV,
+        .MediaType             = MediaType_Audio2D,
+        .Function_Initialize   = WAVOptions_Init,
+        .Function_WriteHeader  = WAVWriteHeader,
+        .Function_Encode       = WAVAppendSamples,
+        .Function_WriteFooter  = NULL,
+        .Function_Deinitialize = WAVOptions_Deinit,
+    };
+    
 #ifdef __cplusplus
 }
 #endif

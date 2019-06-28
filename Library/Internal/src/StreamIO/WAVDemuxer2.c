@@ -242,6 +242,18 @@ extern "C" {
         return Audio;
     }
     
+    OVIADecoder W64Decoder = {
+        .DecoderID             = CodecID_WAV,
+        .MediaType             = MediaType_Audio2D,
+        .MagicIDOffset         = 0,
+        .MagicIDSize           = 4,
+        .MagicID               = {0x52, 0x49, 0x46, 0x46},
+        .Function_Initialize   = WAVOptions_Init,
+        .Function_Parse        = WAVParseMetadata,
+        .Function_Decode       = WAVExtractSamples,
+        .Function_Deinitialize = WAVOptions_Deinit,
+    };
+    
 #ifdef __cplusplus
 }
 #endif
