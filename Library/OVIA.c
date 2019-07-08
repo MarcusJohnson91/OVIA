@@ -1,28 +1,9 @@
 #include "../include/Private/OVIACommon.h"
+#include "../../Dependencies/FoundationIO/libFoundationIO/include/StringIO.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-    
-    void OVIA_RegisterDecoder(OVIADecoder Decoder) {
-        OVIA_CodecIDs DecoderID                                      = Decoder.DecoderID;
-        GlobalCodecs.Decoders[DecoderID].MediaType                   = Decoder.MediaType;
-        GlobalCodecs.Decoders[DecoderID].Function_Initialize         = Decoder.Function_Initialize;
-        GlobalCodecs.Decoders[DecoderID].Function_Parse              = Decoder.Function_Parse;
-        GlobalCodecs.Decoders[DecoderID].Function_Decode             = Decoder.Function_Decode;
-        GlobalCodecs.Decoders[DecoderID].MagicIDOffset               = Decoder.MagicIDOffset;
-        GlobalCodecs.Decoders[DecoderID].MagicIDSize                 = Decoder.MagicIDSize;
-        GlobalCodecs.Decoders[DecoderID].MagicID                     = Decoder.MagicID;
-    }
-    
-    void OVIA_RegisterEncoder(OVIAEncoder Encoder) {
-        uint64_t EncoderID                                           = Encoder.EncoderID;
-        GlobalCodecs.Encoders[EncoderID].MediaType                   = Encoder.MediaType;
-        GlobalCodecs.Encoders[EncoderID].Function_Initialize         = Encoder.Function_Initialize;
-        GlobalCodecs.Encoders[EncoderID].Function_WriteHeader        = Encoder.Function_WriteHeader;
-        GlobalCodecs.Encoders[EncoderID].Function_Encode             = Encoder.Function_Encode;
-        GlobalCodecs.Encoders[EncoderID].Function_WriteFooter        = Encoder.Function_WriteFooter;
-    }
     
     /*
      OVIA Workflows:
@@ -68,61 +49,91 @@ extern "C" {
      Should ICC profiles be a part of OVIA or ContainerIO?
      */
     
-    uint64_t OVIACodecs_GetCodecIndex(OVIA_CodecIDs CodecID, OVIA_CodecTypes CodecType) {
-        uint64_t Index = GlobalCodecs.NumDecoders + GlobalCodecs.NumEncoders + 1;
-        if (CodecID != CodecID_Unknown && CodecType != CodecType_Unknown) {
-            if (CodecType == CodecType_Decode) {
-                for (uint64_t Decoder = 0ULL; Decoder < GlobalCodecs.NumDecoders; Decoder++) {
-                    if (GlobalCodecs.Decoders[Decoder].CodecID == CodecID) {
-                        Index = Decoder;
-                    }
-                }
-            } else if (CodecType == CodecType_Encode) {
-                for (uint64_t Encoder = 0ULL; Encoder < GlobalCodecs.NumEncoders; Encoder++) {
-                    if (GlobalCodecs.Encoders[Encoder].CodecID == CodecID) {
-                        Index = Encoder;
-                    }
-                }
+    OVIA_CodecIDs UTF8_Extension2CodecID(UTF8 *Extension) {
+        OVIA_CodecIDs CodecID = CodecID_Unknown;
+        if (Extension != NULL) {
+            UTF8 *Normalized  = UTF8_Normalize(Extension, NormalizationForm_KompatibleCompose);
+            UTF8 *CaseFolded  = UTF8_CaseFold(Normalized);
+            if (UTF8_Compare(CaseFolded, U8("aif")) || UTF8_Compare(CaseFolded, U8("aiff")) || UTF8_Compare(CaseFolded, U8("aifc")) == Yes) {
+                CodecID       = CodecID_AIF;
+            } else if (UTF8_Compare(CaseFolded, U8("wav")) == Yes) {
+                CodecID       = CodecID_WAV;
+            } else if (UTF8_Compare(CaseFolded, U8("w64")) == Yes) {
+                CodecID       = CodecID_W64;
+            } else if (UTF8_Compare(CaseFolded, U8("bmp")) == Yes) {
+                CodecID       = CodecID_BMP;
+            } else if (UTF8_Compare(CaseFolded, U8("png")) || UTF8_Compare(CaseFolded, U8("apng")) == Yes) {
+                CodecID       = CodecID_PNG;
+            } else if (UTF8_Compare(CaseFolded, U8("pam")) == Yes) {
+                CodecID       = CodecID_PAM;
+            } else if (UTF8_Compare(CaseFolded, U8("pbm")) == Yes) {
+                CodecID       = CodecID_PBM_B;
+            } else if (UTF8_Compare(CaseFolded, U8("pgm")) == Yes) {
+                CodecID       = CodecID_PGM_B;
+            } else if (UTF8_Compare(CaseFolded, U8("ppm")) == Yes) {
+                CodecID       = CodecID_PPM_B;
+            } else {
+                Log(Log_DEBUG, __func__, U8("Extension \"%s\" is not known"), Extension);
             }
-            Index      = CodecID - CodecType;
-        } else if (CodecID == CodecID_Unknown) {
-            Log(Log_ERROR, __func__, U8("CodecID_Unknown is invalid"));
-        } else if (CodecType == CodecType_Unknown) {
-            Log(Log_ERROR, __func__, U8("CodecType_Unknown is invalid"));
-        }
-        return Index;
-    }
-    
-    uint64_t OVIACodecs_GetMagicIDSize(OVIACodecs *Codecs, OVIA_CodecIDs CodecID, uint64_t MagicIDIndex) {
-        uint64_t MagicIDSize = 0ULL;
-        if (Codecs != NULL) {
-            for (uint64_t Codec = 0ULL; Codec < Codecs->NumCodecs; Codec++) {
-                if (Codecs->Decoders[Codec].CodecID == CodecID) {
-                    if (Codecs->Decoders[Codec].NumMagicIDs <= MagicIDIndex) {
-                        MagicIDSize = Codecs->Decoders[Codec].MagicIDSize[MagicIDIndex];
-                    }
-                }
-            }
+            free(Normalized);
+            free(CaseFolded);
         } else {
-            Log(Log_ERROR, __func__, U8("OVIACodecs Pointer is NULL"));
+            Log(Log_DEBUG, __func__, U8("Extension Pointer is NULL"));
         }
-        return MagicIDSize;
+        return CodecID;
     }
     
-    uint64_t OVIACodecs_GetMagicIDOffset(OVIACodecs Codecs, uint64_t CodecIndex) {
-        uint64_t MagicIDOffset = (OVIA_NumCodecs * 2) + 1;
-        if (CodecIndex < (OVIA_NumCodecs * 2) + 1) {
-            MagicIDOffset      = Codecs.MagicIDOffset[CodecIndex];
+    OVIA_CodecIDs UTF16_Extension2CodecID(UTF16 *Extension) {
+        OVIA_CodecIDs CodecID = CodecID_Unknown;
+        if (Extension != NULL) {
+            UTF16 *Normalized = UTF16_Normalize(Extension, NormalizationForm_KompatibleCompose);
+            UTF16 *CaseFolded = UTF16_CaseFold(Normalized);
+            if (UTF16_Compare(CaseFolded, U16("aif")) || UTF16_Compare(CaseFolded, U16("aiff")) || UTF16_Compare(CaseFolded, U16("aifc")) == Yes) {
+                CodecID       = CodecID_AIF;
+            } else if (UTF16_Compare(CaseFolded, U16("wav")) == Yes) {
+                CodecID       = CodecID_WAV;
+            } else if (UTF16_Compare(CaseFolded, U16("w64")) == Yes) {
+                CodecID       = CodecID_W64;
+            } else if (UTF16_Compare(CaseFolded, U16("bmp")) == Yes) {
+                CodecID       = CodecID_BMP;
+            } else if (UTF16_Compare(CaseFolded, U16("png")) || UTF16_Compare(CaseFolded, U16("apng")) == Yes) {
+                CodecID       = CodecID_PNG;
+            } else if (UTF16_Compare(CaseFolded, U16("pam")) == Yes) {
+                CodecID       = CodecID_PAM;
+            } else if (UTF16_Compare(CaseFolded, U16("pbm")) == Yes) {
+                CodecID       = CodecID_PBM_B;
+            } else if (UTF16_Compare(CaseFolded, U16("pgm")) == Yes) {
+                CodecID       = CodecID_PGM_B;
+            } else if (UTF16_Compare(CaseFolded, U16("ppm")) == Yes) {
+                CodecID       = CodecID_PPM_B;
+            } else {
+                Log(Log_DEBUG, __func__, U8("Extension \"%S\" is not known"), Extension);
+            }
+            free(Normalized);
+            free(CaseFolded);
+        } else {
+            Log(Log_DEBUG, __func__, U8("Extension Pointer is NULL"));
         }
-        return MagicIDOffset;
+        return CodecID;
     }
     
-    uint8_t *OVIACodecs_GetMagicID(OVIACodecs Codecs, uint64_t CodecIndex) {
-        uint8_t *MagicIDOffset = NULL;
-        if (CodecIndex < (OVIA_NumCodecs * 2) + 1) {
-            MagicIDOffset      = Codecs.MagicID[CodecIndex];
+    OVIA_CodecIDs IdentifyFileType(BitBuffer *BitB) {
+        OVIA_CodecIDs Format      = CodecID_Unknown;
+        uint64_t OriginalPosition = BitBuffer_GetPosition(BitB);
+        for (uint64_t Decoder = 0ULL; Decoder < OVIA_NumCodecs; Decoder++) {
+            BitBuffer_Seek(BitB, Bytes2Bits(GlobalCodecs.Decoders[Decoder].MagicIDOffset));
+            for (uint64_t MagicByte = 0ULL; MagicByte < GlobalCodecs.Decoders[Decoder].MagicIDSize; MagicByte++) {
+                uint8_t CurrentByte = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+                if (CurrentByte != GlobalCodecs.Decoders[Decoder].MagicID[MagicByte]) {
+                    break;
+                } else if (CurrentByte == GlobalCodecs.Decoders[Decoder].MagicID[MagicByte] && MagicByte == GlobalCodecs.Decoders[Decoder].MagicIDSize) {
+                    // The MagicID matches
+                    Format = GlobalCodecs.Decoders[Decoder].DecoderID;
+                }
+            }
         }
-        return MagicIDOffset;
+        BitBuffer_SetPosition(BitB, OriginalPosition);
+        return Format;
     }
     
 #ifdef __cplusplus

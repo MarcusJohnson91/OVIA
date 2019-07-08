@@ -9,9 +9,9 @@
 extern "C" {
 #endif
 
-    enum FLACConstants {
+    typedef enum FLACConstants {
         FLACMagic                                                   = 0x664c6143, // fLaC
-        FLACFrameMagic                                              =     0x3FFE,
+        FrameMagic                                                  =     0x3FFE,
         FLACMaxChannels                                             =          8,
         FLACMaxSamplesInBlock                                       =      65535,
         FLACMaxChannelsInBlock                                      =          1,
@@ -31,7 +31,7 @@ extern "C" {
         FLACMediaCatalogNumberSize                                  =        128,
         FLACMaxCoeffs                                               =        882,
         FLACMaxRicePartitions                                       =         16,
-    };
+    } FLACConstants;
 
     typedef enum FLACPicTypes {
         Other                                                       =          0,
@@ -57,7 +57,7 @@ extern "C" {
         PublisherLogo                                               =         20,
     } FLACPicTypes;
 
-    enum FLACSpeakerLayout {
+    typedef enum FLACSpeakerLayout {
         Mono                                                        =          0,
         Left_Right                                                  =          1,
         Left_Right_Center                                           =          2,
@@ -69,48 +69,48 @@ extern "C" {
         Left_Diff                                                   =          8,
         Right_Diff                                                  =          9,
         Average_Diff                                                =         10,
-    };
+    } FLACSpeakerLayout;
 
-    enum FLACPredictionTypes {
+    typedef enum FLACPredictionTypes {
         Verbatim                                                    =          0,
         Constant                                                    =          1,
         FixedLinear                                                 =          2,
         FIRLinear                                                   =          3,
-    };
+    } FLACPredictionTypes;
 
-    enum FLACResidualTypes {
+    typedef enum FLACResidualTypes {
         Simple                                                      =          0,
         Complex                                                     =          1,
-    };
+    } FLACResidualTypes;
 
-    enum FLACMetadataTypes {
-        StreamInfo                                                  =          0, // 0x30 = 0 in ascii, 0x31 = 1, etc.
-        Padding                                                     =          1,
-        Custom                                                      =          2, // Application aka App specific
-        SeekTable                                                   =          3,
-        VorbisComment                                               =          4,
-        Cuesheet                                                    =          5,
-        Picture                                                     =          6,
-    };
+    typedef enum BlockTypes {
+        Block_StreamInfo                                            =          0, // 0x30 = 0 in ascii, 0x31 = 1, etc.
+        Block_Padding                                                     =          1,
+        Block_Custom                                                      =          2, // Application aka App specific
+        Block_SeekTable                                                   =          3,
+        Block_Vorbis                                               =          4,
+        Block_Cuesheet                                                    =          5,
+        Block_Picture                                                     =          6,
+    } BlockTypes;
 
-    enum FLACSubFrameTypes {
+    typedef enum SubFrameTypes {
         Subframe_Constant                                           =          0,
         Subframe_Verbatim                                           =          1,
         Subframe_Fixed                                              =          8,
         Subframe_LPC                                                =         63,
-    };
+    } SubFrameTypes;
 
-    enum FLACBlockType {
+    typedef enum FLACBlockType {
         FixedBlockSize                                              =          0,
         VariableBlockSize                                           =          1,
-    };
+    } FLACBlockType;
 
-    enum FLACRicePartitionType {
+    typedef enum FLACRicePartitionType {
         RICE1                                                       =          0,
         RICE2                                                       =          1,
-    };
+    } FLACRicePartitionType;
     
-    typedef struct FLACStreamInfo {
+    typedef struct StreamInfo {
         uint64_t  SamplesInStream:36; // 36 bits, all the samples in the stream; channel agnostic
         uint32_t MinimumFrameSize:24;
         uint32_t MaximumFrameSize:24;
@@ -120,7 +120,7 @@ extern "C" {
         uint8_t      CodedBitDepth:6; // 5 bits, 4-32 bits per sample
         uint8_t      CodedChannels:4; // 3 bits, add 1 to get the real value
         uint8_t                 *MD5; // MD5
-    } FLACStreamInfo;
+    } StreamInfo;
     
     typedef struct CueSheetTrack {
         UTF8      *ISRC;                // the tracks's ISRC number as a string.
@@ -131,25 +131,29 @@ extern "C" {
     } CueSheetTrack;
     
     typedef struct FLACCueSheet {
-        CueSheetTrack *Tracks;
+        UTF8          *ISRC;
+        uint64_t      *TrackOffset;
+        uint8_t       *TrackNum;
+        bool          *IsAudio;
+        bool          *PreEmphasis;
         uint8_t        NumTrackIndexPoints;
-        char          *CatalogID;
+        UTF8          *CatalogID;
         uint64_t       LeadIn;              // in samples
         uint64_t       IndexOffset;         // false idea. must be multiple of CD sector for cd sources
-        size_t         CatalogIDSize;
+        uint64_t       CatalogIDSize;
         uint8_t        NumTracks;           // the number of tracks, CD has a max of 100 (including lead out)
         bool           IsCD;                // 1 if it came from a CD; 0 otherwise
         uint8_t        IndexPointNum;
     } FLACCueSheet;
     
-    typedef struct FLACSeekTable {
+    typedef struct SeekTable {
         uint32_t      NumSeekPoints;
         uint64_t     *SampleInTargetFrame; // FIXME: Sample in the whole file, or sample in a specific frame?
         uint64_t     *OffsetFrom1stSample; // in bytes
         uint16_t     *TargetFrameSize;
-    } FLACSeekTable;
+    } SeekTable;
     
-    typedef struct FLACPicture {
+    typedef struct Picture {
         uint32_t     *PictureStart; // Pointer to the start of the picture
         uint8_t      *MIMEString;
         uint8_t      *PicDescriptionString;
@@ -161,17 +165,17 @@ extern "C" {
         uint32_t      ColorsUsed; // 0 for not paletted
         uint32_t      PictureSize;
         FLACPicTypes  PicType;
-    } FLACPicture;
+    } Picture;
     
-    typedef struct FLACSubFrame {
+    typedef struct SubFrame {
         uint8_t SubFrameType;
         uint8_t LPCFilterOrder;
         uint8_t WastedBits:6; // Uses unary coding
         bool    WastedBitsFlag:1;
-    } FLACSubFrame;
+    } SubFrame;
     
-    typedef struct FLACFrame {
-        FLACSubFrame *Sub;
+    typedef struct Frame {
+        SubFrame     *Sub;
         uint64_t      SampleNumber:36;
         uint32_t      SampleRate;
         uint32_t      FrameNumber:31;
@@ -185,7 +189,7 @@ extern "C" {
         uint8_t       ChannelLayout:4;
         uint8_t       CodedBitDepth:4;
         bool          BlockType:1;
-    } FLACFrame;
+    } Frame;
     
     typedef struct RICEPartition {
         uint8_t      *RICEParameter;
@@ -204,11 +208,11 @@ extern "C" {
     } FLACLPC;
     
     typedef struct FLACOptions {
-        FLACPicture    **Pictures;
-        FLACStreamInfo  *StreamInfo;
+        Picture        **Pictures;
+        StreamInfo      *StreamInfo;
         FLACCueSheet    *CueSheet;
-        FLACSeekTable   *SeekPoints;
-        FLACFrame       *Frame;
+        SeekTable       *SeekPoints;
+        Frame           *Frame;
         FLACLPC         *LPC;
         RICEPartition   *Rice;
         uint32_t         NumPictures;
@@ -217,96 +221,39 @@ extern "C" {
     
     /* OVIA specific functions */
     
-    void        OVIA_FLAC_Frame_Read(BitBuffer *BitB);
+    void        FLAC_Frame_Read(BitBuffer *BitB);
     
-    void        OVIA_FLAC_SubFrame_Read(BitBuffer *BitB, uint8_t Channel);
+    void        FLAC_SubFrame_Read(BitBuffer *BitB, uint8_t Channel);
     
-    void        OVIA_FLAC_SubFrame_Verbatim(BitBuffer *BitB);
+    void        FLAC_SubFrame_Verbatim(BitBuffer *BitB);
     
-    void        OVIA_FLAC_SubFrame_Constant(BitBuffer *BitB);
+    void        FLAC_SubFrame_Constant(BitBuffer *BitB);
     
-    void        OVIA_FLAC_SubFrame_Fixed(BitBuffer *BitB);
+    void        FLAC_SubFrame_Fixed(BitBuffer *BitB);
     
-    void        OVIA_FLAC_SubFrame_LPC(BitBuffer *BitB, uint8_t Channel);
+    void        FLAC_SubFrame_LPC(BitBuffer *BitB, uint8_t Channel);
     
-    void        OVIA_FLAC_Decode_Residual(BitBuffer *BitB);
+    void        FLAC_Decode_Residual(BitBuffer *BitB);
     
-    void        OVIA_FLAC_Decode_RICE1(BitBuffer *BitB);
+    void        FLAC_Decode_RICE1(BitBuffer *BitB);
     
-    void        OVIA_FLAC_Decode_RICE2(BitBuffer *BitB);
+    void        FLAC_Decode_RICE2(BitBuffer *BitB);
     
     uint8_t     GetBlockSizeInSamples(uint8_t BlockSize);
     
-    void        OVIA_FLAC_Stream_Read(BitBuffer *BitB);
+    void        FLAC_Stream_Read(BitBuffer *BitB);
     
-    bool        OVIA_FLAC_Parse_Blocks(BitBuffer *BitB);
+    bool        FLAC_Parse_Blocks(BitBuffer *BitB);
     
-    void        OVIA_FLAC_StreamInfo_Parse(BitBuffer *BitB);
+    void        FLAC_Parse_StreamInfo(BitBuffer *BitB);
     
-    void        OVIA_FLAC_SkipPadding(BitBuffer *BitB, uint32_t ChunkSize);
+    void        FLAC_Parse_SeekTable(FLACOptions *FLAC, BitBuffer *BitB, uint32_t ChunkSize);
     
-    void        OVIA_FLAC_SkipCustom(BitBuffer *BitB, uint32_t ChunkSize);
+    void        FLAC_Parse_Vorbis(BitBuffer *BitB);
     
-    void        OVIA_FLAC_SeekTable_Read(BitBuffer *BitB, uint32_t ChunkSize);
+    void        FLAC_CUE_Parse(BitBuffer *BitB);
     
-    void        OVIA_FLAC_Vorbis_Parse(BitBuffer *BitB);
-    
-    void        OVIA_FLAC_CUE_Parse(BitBuffer *BitB);
-    
-    uint8_t    *OVIA_FLAC_Pic_Read(BitBuffer *BitB);
-    
-    bool                 OVIA_FLAC_CUE_GetIsCD(OVIA *Ovia);
-    bool                 OVIA_FLAC_Frame_GetBlockType(OVIA *Ovia);
-    bool                 OVIA_FLAC_GetEncodeSubset(OVIA *Ovia);
-    uint8_t             *OVIA_FLAC_GetMD5(OVIA *Ovia);
-    uint8_t              OVIA_FLAC_Frame_GetChannelLayout(OVIA *Ovia);
-    uint8_t              OVIA_FLAC_Frame_GetCodedBitDepth(OVIA *Ovia);
-    uint8_t              OVIA_FLAC_Frame_GetCodedBlockSize(OVIA *Ovia);
-    uint8_t              OVIA_FLAC_Frame_GetCodedSampleRate(OVIA *Ovia);
-    uint8_t              OVIA_FLAC_LPC_GetLPCCoeff(uint8_t CoeffNum);
-    uint8_t              OVIA_FLAC_LPC_GetLPCOrder(OVIA *Ovia);
-    uint8_t              OVIA_FLAC_LPC_GetLPCPrecision(OVIA *Ovia);
-    uint8_t              OVIA_FLAC_LPC_GetLPCShift(OVIA *Ovia);
-    uint8_t              OVIA_FLAC_LPC_GetNumLPCCoeffs(OVIA *Ovia);
-    uint8_t              OVIA_FLAC_LPC_GetRICEParameter(uint8_t Partition);
-    uint8_t              OVIA_FLAC_LPC_GetRICEPartitionOrder(OVIA *Ovia);
-    uint8_t              OVIA_FLAC_LPC_GetRICEPartitionType(OVIA *Ovia);
-    uint64_t             OVIA_FLAC_Frame_GetFrameNumber(OVIA *Ovia);
-    uint64_t             OVIA_FLAC_Frame_GetSampleNumber(OVIA *Ovia);
-    void                 OVIA_FLAC_CUE_SetCatalogID(char *CatalogID);
-    void                 OVIA_FLAC_CUE_SetIsCD(bool IsCD);
-    void                 OVIA_FLAC_CUE_SetLeadIn(uint64_t LeadIn);
-    void                 OVIA_FLAC_CUE_SetNumTracks(uint8_t NumTracks);
-    void                 OVIA_FLAC_CUE_SetTrack(uint64_t Offset, bool IsAudio, bool PreEmphasis, UTF8 *ISRC);
-    void                 OVIA_FLAC_CUE_Track_SetOffset(uint8_t Track, uint64_t TrackOffset);
-    void                 OVIA_FLAC_Frame_SetBlockSize(uint16_t BlockSize);
-    void                 OVIA_FLAC_Frame_SetBlockType(bool BlockTypeIsFixed);
-    void                 OVIA_FLAC_Frame_SetChannelLayout(uint8_t ChannelLayout);
-    void                 OVIA_FLAC_Frame_SetCodedBitDepth(uint8_t CodedBitDepth);
-    void                 OVIA_FLAC_Frame_SetCodedBlockSize(uint8_t CodedBlockSize);
-    void                 OVIA_FLAC_Frame_SetCodedSampleRate(uint8_t CodedSampleRate);
-    void                 OVIA_FLAC_Frame_SetFrameNumber(uint64_t FrameNumber);
-    void                 OVIA_FLAC_Frame_SetSampleNumber(uint64_t SampleNumber);
-    void                 OVIA_FLAC_Frame_SetSampleRate(uint32_t SampleRate);
-    void                 OVIA_FLAC_LPC_SetLPCCoeff(uint8_t CoeffNum, uint8_t Coeff);
-    void                 OVIA_FLAC_LPC_SetLPCOrder(uint8_t LPCOrder);
-    void                 OVIA_FLAC_LPC_SetLPCPrecision(uint8_t LPCPrecision);
-    void                 OVIA_FLAC_LPC_SetLPCShift(uint8_t LPCShift);
-    void                 OVIA_FLAC_LPC_SetNumLPCCoeffs(uint8_t NumLPCCoeffs);
-    void                 OVIA_FLAC_LPC_SetRICEParameter(uint8_t Partition, uint8_t Parameter);
-    void                 OVIA_FLAC_LPC_SetRICEPartitionOrder(uint8_t RICEPartitionOrder);
-    void                 OVIA_FLAC_LPC_SetRICEPartitionType(uint8_t RICEPartitionType);
-    void                 OVIA_FLAC_Seek_SetSeekPoint(uint32_t SeekPoint, uint64_t Sample, uint64_t Offset, uint16_t FrameSize);
-    void                 OVIA_FLAC_SetEncodeSubset(bool EncodeSubset);
-    void                 OVIA_FLAC_SetMaxBlockSize(uint16_t MaxBlockSize);
-    void                 OVIA_FLAC_SetMaxFilterOrder(uint16_t MaxFilterOrder);
-    void                 OVIA_FLAC_SetMaxFrameSize(uint16_t MaxFrameSize);
-    void                 OVIA_FLAC_SetMaxRicePartitionOrder(uint8_t MaxRICEPartitionOrder);
-    void                 OVIA_FLAC_SetMD5(uint8_t *MD5);
-    void                 OVIA_FLAC_SetMinBlockSize(uint16_t MinBlockSize);
-    void                 OVIA_FLAC_SetMinFrameSize(uint16_t MinFrameSize);
-    void                 OVIA_FLAC_SubFrame_SetType(uint8_t SubframeType);
-    void                 OVIA_FLAC_SubFrame_SetWastedBits(bool WastedBitsFlag, uint8_t NumWastedBits);
+    uint8_t    *FLAC_Pic_Read(BitBuffer *BitB);
     
 #ifdef __cplusplus
 }

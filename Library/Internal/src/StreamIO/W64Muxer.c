@@ -20,9 +20,9 @@ extern "C" {
             BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, 32, BlockAlign);
             BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, 16, BitDepth);
         } else if (Audio == NULL) {
-            Log(Log_ERROR, __func__, U8("Audio2DContainer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, U8("Audio2DContainer Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -43,9 +43,9 @@ extern "C" {
             BitBuffer_WriteGUUID(BitB, GUIDString, W64_DATA_GUIDString);
             BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, 64, NumSamples);
         } else if (Audio == NULL) {
-            Log(Log_ERROR, __func__, U8("Audio2DContainer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, U8("Audio2DContainer Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -54,44 +54,44 @@ extern "C" {
             uint64_t NumChannels  = AudioContainer_GetNumSamples(Audio);
             uint64_t BitDepth     = Bits2Bytes(AudioContainer_GetBitDepth(Audio), RoundingType_Up);
             uint64_t NumSamples   = AudioContainer_GetNumSamples(Audio);
-            Audio_Types Type      = AudioContainer_GetType(Audio);
+            Audio_Types Type      = Audio2DContainer_GetType(Audio);
             if (Type == (AudioType_Signed | AudioType_Integer8)) {
-                int8_t **Samples  = (int8_t**)    AudioContainer_GetArray(Audio);
+                int8_t **Samples  = (int8_t**)    Audio2DContainer_GetArray(Audio);
                 for (uint32_t Sample = 0; Sample < NumSamples; Sample++) {
                     for (uint16_t Channel = 0; Channel < NumChannels; Channel++) {
                         BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, BitDepth, Samples[Channel][Sample]);
                     }
                 }
             } else if (Type == (AudioType_Unsigned | AudioType_Integer8)) {
-                uint8_t **Samples = (uint8_t**)   AudioContainer_GetArray(Audio);
+                uint8_t **Samples = (uint8_t**)   Audio2DContainer_GetArray(Audio);
                 for (uint32_t Sample = 0; Sample < NumSamples; Sample++) {
                     for (uint16_t Channel = 0; Channel < NumChannels; Channel++) {
                         BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, BitDepth, Samples[Channel][Sample]);
                     }
                 }
             } else if (Type == (AudioType_Signed | AudioType_Integer16)) {
-                int16_t **Samples = (int16_t**)   AudioContainer_GetArray(Audio);
+                int16_t **Samples = (int16_t**)   Audio2DContainer_GetArray(Audio);
                 for (uint32_t Sample = 0; Sample < NumSamples; Sample++) {
                     for (uint16_t Channel = 0; Channel < NumChannels; Channel++) {
                         BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, BitDepth, Samples[Channel][Sample]);
                     }
                 }
             } else if (Type == (AudioType_Unsigned | AudioType_Integer16)) {
-                uint16_t **Samples = (uint16_t**) AudioContainer_GetArray(Audio);
+                uint16_t **Samples = (uint16_t**) Audio2DContainer_GetArray(Audio);
                 for (uint32_t Sample = 0; Sample < NumSamples; Sample++) {
                     for (uint16_t Channel = 0; Channel < NumChannels; Channel++) {
                         BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, BitDepth, Samples[Channel][Sample]);
                     }
                 }
             } else if (Type == (AudioType_Signed | AudioType_Integer32)) {
-                int32_t  **Samples = (int32_t**)  AudioContainer_GetArray(Audio);
+                int32_t  **Samples = (int32_t**)  Audio2DContainer_GetArray(Audio);
                 for (uint32_t Sample = 0; Sample < NumSamples; Sample++) {
                     for (uint16_t Channel = 0; Channel < NumChannels; Channel++) {
                         BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, BitDepth, Samples[Channel][Sample]);
                     }
                 }
             } else if (Type == (AudioType_Unsigned | AudioType_Integer32)) {
-                uint32_t **Samples = (uint32_t**) AudioContainer_GetArray(Audio);
+                uint32_t **Samples = (uint32_t**) Audio2DContainer_GetArray(Audio);
                 for (uint32_t Sample = 0; Sample < NumSamples; Sample++) {
                     for (uint16_t Channel = 0; Channel < NumChannels; Channel++) {
                         BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, BitDepth, Samples[Channel][Sample]);
@@ -99,9 +99,9 @@ extern "C" {
                 }
             }
         } else if (Audio == NULL) {
-            Log(Log_ERROR, __func__, U8("Audio2DContainer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, U8("Audio2DContainer Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     

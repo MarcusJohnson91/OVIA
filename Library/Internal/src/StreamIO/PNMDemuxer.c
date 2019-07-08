@@ -14,7 +14,7 @@ extern "C" {
                 } while (BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8) != PNMEndField);
             }
         } else {
-            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
         return CommentSize;
     }
@@ -40,7 +40,7 @@ extern "C" {
             free(HeightString);
             /* Read Height */
         } else if (BitB == NULL) {
-            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -68,7 +68,7 @@ extern "C" {
             free(MaxValString);
             /* Read MaxVal */
         } else if (BitB == NULL) {
-            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -132,7 +132,7 @@ extern "C" {
                 PNM->NumChannels       = 4;
                 PNM->TupleType         = PNM_TUPLE_RGBAlpha;
             } else {
-                Log(Log_ERROR, __func__, U8("Unknown PNM Tuple: %s"), TupleTypeString);
+                Log(Log_DEBUG, __func__, U8("Unknown PNM Tuple: %s"), TupleTypeString);
             }
             free(TupleTypeString);
             /* Read TupleType */
@@ -141,7 +141,7 @@ extern "C" {
             BitBuffer_Seek(BitB, 56); // ENDHDR
             /* Skip ENDHDR */
         } else if (BitB == NULL) {
-            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -173,7 +173,7 @@ extern "C" {
                 }
             }
         } else {
-            Log(Log_ERROR, __func__, U8("16 bit ASCII PNM is invalid"));
+            Log(Log_DEBUG, __func__, U8("16 bit ASCII PNM is invalid"));
         }
     }
     

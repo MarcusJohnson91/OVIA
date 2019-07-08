@@ -186,9 +186,18 @@ extern "C" {
         uint32_t SpeakerMask;
         uint16_t CompressionFormat;
         uint16_t BlockAlignment;
+        uint16_t NumChannels;
+        uint32_t SampleRate;
+        uint32_t ByteRate;
+        uint32_t BlockAlign;
+        uint16_t BitDepth;
+        uint16_t ValidBitsPerSample;
+        uint32_t ChannelMask;
     } WAVOptions;
     
     WAVOptions *WAVOptions_Init(void);
+    
+    void WAVSkipPadding(BitBuffer *BitB, uint32_t SubChunkSize);
     
     void WAVOptions_Deinit(WAVOptions *WAV);
     

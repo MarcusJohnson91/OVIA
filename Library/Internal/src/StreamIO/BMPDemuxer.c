@@ -45,7 +45,7 @@ extern "C" {
                                     BMP->ICCPayload[ICCByte] = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 8);
                                 }
                             } else {
-                                Log(Log_ERROR, __func__, U8("Couldn't allocate %d bytes for the ICC payload"), BMP->ICCSize);
+                                Log(Log_DEBUG, __func__, U8("Couldn't allocate %d bytes for the ICC payload"), BMP->ICCSize);
                             }
                             BitBuffer_Seek(BitB, 32); // More Reserved data.
                                                       // Ok so when the Height is positive, the image is upside down, the bottom of the image is at the top of the file.
@@ -64,9 +64,9 @@ extern "C" {
                 BitBuffer_Seek(BitB, Bits2Bytes((BMP->Offset - 14) - BMP->DIBSize, RoundingType_Down));
             }
         } else if (BMP == NULL) {
-            Log(Log_ERROR, __func__, U8("BMPOptions Pointer is NULL"));
+            Log(Log_DEBUG, __func__, U8("BMPOptions Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_ERROR, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -101,15 +101,15 @@ extern "C" {
                         }
                     }
                 } else if (BMP->CompressionType == BMP_RLE_8Bit || BMP->CompressionType == BMP_RLE_4Bit) {
-                    Log(Log_ERROR, __func__, U8("We don't support BMP's encoded with RLE"));
+                    Log(Log_DEBUG, __func__, U8("We don't support BMP's encoded with RLE"));
                 } else if (BMP->CompressionType == BMP_BitFields || BMP->CompressionType == BMP_RGBABitFields) {
-                    Log(Log_ERROR, __func__, U8("We don't support BMP's encoded with BitFields"));
+                    Log(Log_DEBUG, __func__, U8("We don't support BMP's encoded with BitFields"));
                 } else if (BMP->CompressionType == BMP_JPEG) {
-                    Log(Log_ERROR, __func__, U8("BMP Compression Type is JPEG, there's nothing we can do since JPEG is a lossy format"));
+                    Log(Log_DEBUG, __func__, U8("BMP Compression Type is JPEG, there's nothing we can do since JPEG is a lossy format"));
                 } else if (BMP->CompressionType == BMP_PNG) {
-                    Log(Log_ERROR, __func__, U8("BMP Compression Type is PNG, Extract it to a plain PNG and re-run"));
+                    Log(Log_DEBUG, __func__, U8("BMP Compression Type is PNG, Extract it to a plain PNG and re-run"));
                 } else if (BMP->CompressionType == BMP_CMYK || BMP->CompressionType == BMP_CMYK_RLE_8Bit || BMP->CompressionType == BMP_CMYK_RLE_4Bit) {
-                    Log(Log_ERROR, __func__, U8("CMYK Images are unsupported"));
+                    Log(Log_DEBUG, __func__, U8("CMYK Images are unsupported"));
                 }
             }
             if (IsUpsideDown) { // The Image is upside down, so we need to flip it
@@ -117,14 +117,14 @@ extern "C" {
             }
             if (BMP->ColorsIndexed > 0) {
                 // The image is palettized, so we need to go ahead and map the pixel bits to the actual colors.
-                Log(Log_ERROR, __func__, U8("Palettized BMP's are currently unsupported"));
+                Log(Log_DEBUG, __func__, U8("Palettized BMP's are currently unsupported"));
             }
         } else if (BMP == NULL) {
-            Log(Log_ERROR, __func__, U8("BMPOptions Pointer is NULL"));
+            Log(Log_DEBUG, __func__, U8("BMPOptions Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_ERROR, __func__, U8("BitB Pointer is NULL"));
+            Log(Log_DEBUG, __func__, U8("BitB Pointer is NULL"));
         } else if (Image == NULL) {
-            Log(Log_ERROR, __func__, U8("ImageContainer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, U8("ImageContainer Pointer is NULL"));
         }
     }
     

@@ -9,6 +9,12 @@ extern "C" {
         return WAV;
     }
     
+    void WAVSkipPadding(BitBuffer *BitB, uint32_t SubChunkSize) {
+        if (IsOdd(SubChunkSize) == true) {
+            BitBuffer_Seek(BitB, 8);
+        }
+    }
+    
     void WAVOptions_Deinit(WAVOptions *WAV) {
         free(WAV);
     }

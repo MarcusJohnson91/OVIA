@@ -59,9 +59,9 @@ extern "C" {
         uint16_t       BitDepth;
     } AIFOptions;
     
-    AIFOptions *AIFOptions_Init(void);
+    AIFOptions       *AIFOptions_Init(void);
     
-    void AIFOptions_Deinit(AIFOptions *AIF);
+    void              AIFOptions_Deinit(AIFOptions *AIF);
     
     
     
@@ -74,11 +74,11 @@ extern "C" {
     
     void              AIFParseMetadata(AIFOptions *AIF, BitBuffer *BitB);
     
-    void              AIFExtractSamples(Audio2DContainer *Audio, BitBuffer *BitB);
+    void              AIFExtractSamples(AIFOptions *AIF, BitBuffer *BitB, Audio2DContainer *Audio);
     
-    void              AIFAppendSamples(Audio2DContainer *Audio, BitBuffer *BitB);
+    void              AIFAppendSamples(AIFOptions *AIF, BitBuffer *BitB, Audio2DContainer *Audio);
     
-    void              AIFWriteHeader(BitBuffer *BitB);
+    void              AIFWriteHeader(AIFOptions *AIF, BitBuffer *BitB);
     
 #ifdef __cplusplus
 }

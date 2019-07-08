@@ -10,6 +10,22 @@
 extern "C" {
 #endif
     
+#ifndef   FoundationIO_StringType8
+#define   FoundationIO_StringType8 (1)
+#ifdef    UTF8
+#undef    UTF8
+#endif /* UTF8 */
+    typedef   unsigned char  UTF8;
+#endif /* FoundationIO_StringType8 */
+    
+#ifndef   FoundationIO_StringType16
+#define   FoundationIO_StringType16 (2)
+#ifdef    UTF16
+#undef    UTF16
+#endif /* UTF16 */
+    typedef  uint_least16_t  UTF16;
+#endif /* FoundationIO_StringType16 */
+    
     /*
      OVIA flow:
      
@@ -72,13 +88,33 @@ extern "C" {
         CreatingSoftware      = 8,
     } OVIA_TagTypes;
     
+    typedef enum OVIA_CodecIDs {
+        CodecID_Unknown       = 0,
+        CodecID_AIF           = 1,
+        CodecID_WAV           = 2,
+        CodecID_W64           = 3,
+        CodecID_FLAC          = 4,
+        CodecID_BMP           = 5,
+        CodecID_PAM           = 6,
+        CodecID_PNG           = 7,
+        CodecID_PBM_B         = 8,
+        CodecID_PBM_A         = 9,
+        CodecID_PGM_B         = 10,
+        CodecID_PGM_A         = 11,
+        CodecID_PPM_B         = 12,
+        CodecID_PPM_A         = 13,
+        OVIA_NumCodecs        = CodecID_PPM_B,
+    } OVIA_CodecIDs;
+    
     typedef struct       Audio2DContainer  Audio2DContainer; // Forward declare ContainerIO's tyoes
+    
+    typedef struct       Audio3DContainer  Audio3DContainer;
     
     typedef struct       AudioVector       AudioVector;
     
-    typedef struct       MetadataContainer MetadataContainer;
-    
     typedef struct       ImageContainer    ImageContainer; // Forward declare ContainerIO's tyoes
+    
+    typedef struct       MetadataContainer MetadataContainer;
     
     typedef struct       BitBuffer         BitBuffer;      // Forward declare BitIO's types
     
@@ -86,8 +122,8 @@ extern "C" {
     
     OVIA                *OVIA_Init(void);
     void                 OVIA_Identify(BitBuffer *BitBuffer);
-    void                 OVIA_Deinit(OVIA *Ovia);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
-    
+    OVIA_CodecIDs        UTF8_Extension2CodecID(UTF8 *Extension);
+    OVIA_CodecIDs        UTF16_Extension2CodecID(UTF16 *Extension);
     Audio2DContainer    *OVIA_ExtractSamples(BitBuffer *BitB, uint64_t MaxNumSamples);
     AudioVector         *OVIA_ExtractVector(BitBuffer *BitB);
     ImageContainer      *OVIA_ExtractFrame(BitBuffer *BitB); // Used for both image and video formats
@@ -96,8 +132,8 @@ extern "C" {
     void                 OVIA_AppendVector(AudioVector *Vector, BitBuffer *BitB);
     void                 OVIA_AppendFrame(ImageContainer *Frame, BitBuffer *BitB);
     void                 OVIA_AppendMetadata(MetadataContainer *Metadata, BitBuffer *BitB);
-    
     void                 OVIA_WriteHeader(BitBuffer *BitB);
+    void                 OVIA_Deinit(OVIA *Ovia);
     
 #ifdef __cplusplus
 }

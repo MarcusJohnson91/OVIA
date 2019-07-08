@@ -34,6 +34,12 @@ extern "C" {
         uint64_t SpeakerMask;
         uint16_t CompressionFormat;
         uint16_t BlockAlignment;
+        uint16_t NumChannels;
+        uint32_t SampleRate;
+        uint32_t ByteRate;
+        uint32_t BlockAlign;
+        uint16_t BitDepth;
+        uint16_t ValidBitsPerSample;
     } W64Options;
     
     static const uint8_t W64_RIFF_GUIDString[] = {
