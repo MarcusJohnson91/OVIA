@@ -4,7 +4,7 @@
 extern "C" {
 #endif
     
-    W64Options *W64Options_Init(void) {
+    void *W64Options_Init(void) {
         W64Options *W64 = calloc(1, sizeof(W64Options));
         return W64;
     }

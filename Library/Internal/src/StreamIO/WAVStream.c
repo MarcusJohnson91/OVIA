@@ -4,7 +4,7 @@
 extern "C" {
 #endif
     
-    WAVOptions *WAVOptions_Init(void) {
+    void *WAVOptions_Init(void) {
         WAVOptions *WAV = calloc(1, sizeof(WAVOptions));
         return WAV;
     }

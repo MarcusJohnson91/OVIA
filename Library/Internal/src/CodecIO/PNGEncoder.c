@@ -276,7 +276,7 @@ extern "C" {
                 BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, PNG->sBIT->Grayscale);
             } else if (ColorType == PNG_GrayAlpha) {
                 BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, PNG->sBIT->Grayscale);
-                BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, PNG->sBIT->Alpha));
+                BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, PNG->sBIT->Alpha);
             }
         } else if (PNG == NULL) {
             Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));

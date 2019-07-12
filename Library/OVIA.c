@@ -1,5 +1,4 @@
 #include "../include/Private/OVIACommon.h"
-#include "../../Dependencies/FoundationIO/libFoundationIO/include/StringIO.h"
 
 #ifdef __cplusplus
 extern "C" {

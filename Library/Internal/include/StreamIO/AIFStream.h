@@ -49,17 +49,18 @@ extern "C" {
         UTF8          *Tags;
         OVIA_TagTypes *TagTypes;
         uint64_t       NumTags;
+        uint64_t       SampleRate;
         uint64_t       SampleRate_Mantissa;
         uint32_t       FileSize;
         uint32_t       NumSamples;
         uint32_t       SampleOffset;
         uint32_t       BlockSize;
-        uint16_t       SampleRate_Exponent;
+        int16_t        SampleRate_Exponent;
         uint16_t       NumChannels;
         uint16_t       BitDepth;
     } AIFOptions;
     
-    AIFOptions       *AIFOptions_Init(void);
+    void             *AIFOptions_Init(void);
     
     void              AIFOptions_Deinit(AIFOptions *AIF);
     

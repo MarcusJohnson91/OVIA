@@ -4,7 +4,7 @@
 extern "C" {
 #endif
     
-    AIFOptions *AIFOptions_Init(void) {
+    void *AIFOptions_Init(void) {
         AIFOptions *AIF = calloc(1, sizeof(AIFOptions));
         return AIF;
     }

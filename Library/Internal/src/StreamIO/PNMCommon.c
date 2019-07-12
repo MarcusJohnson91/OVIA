@@ -4,7 +4,7 @@
 extern "C" {
 #endif
     
-    PNMOptions *PNMOptions_Init(void) {
+    void *PNMOptions_Init(void) {
         PNMOptions *PNM = calloc(1, sizeof(PNMOptions));
         return PNM;
     }

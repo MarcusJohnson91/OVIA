@@ -4,7 +4,7 @@
 extern "C" {
 #endif
     
-    BMPOptions *BMPOptions_Init(void) {
+    void *BMPOptions_Init(void) {
         BMPOptions *BMP = calloc(1, sizeof(BMPOptions));
         return BMP;
     }
@@ -18,6 +18,7 @@ extern "C" {
     }
     
     void BMPOptions_Deinit(BMPOptions *BMP) {
+        free(BMP->ICCPayload);
         free(BMP);
     }
     

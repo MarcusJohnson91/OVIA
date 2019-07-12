@@ -908,47 +908,47 @@ extern "C" {
                 uint32_t ChunkID     = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
                 
                 if (ChunkID == acTLMarker) {
-                    PNG_ACTL_Parse(PNG, BitB, ChunkSize);
+                    PNG_ACTL_Parse(PNG, BitB);
                 } else if (ChunkID == bKGDMarker) {
-                    PNG_BKGD_Parse(PNG, BitB, ChunkSize);
+                    PNG_BKGD_Parse(PNG, BitB);
                 } else if (ChunkID == cHRMMarker) {
-                    PNG_CHRM_Parse(PNG, BitB, ChunkSize);
+                    PNG_CHRM_Parse(PNG, BitB);
                 } else if (ChunkID == fcTLMarker) {
-                    PNG_FCTL_Parse(PNG, BitB, ChunkSize);
+                    PNG_FCTL_Parse(PNG, BitB);
                 } else if (ChunkID == gAMAMarker) {
-                    PNG_GAMA_Parse(PNG, BitB, ChunkSize);
+                    PNG_GAMA_Parse(PNG, BitB);
                 } else if (ChunkID == hISTMarker) {
-                    PNG_HIST_Parse(PNG, BitB, ChunkSize);
+                    PNG_HIST_Parse(PNG, BitB);
                 } else if (ChunkID == iCCPMarker) {
-                    PNG_OFFS_Parse(PNG, BitB, ChunkSize);
+                    PNG_OFFS_Parse(PNG, BitB);
                 } else if (ChunkID == IDATMarker || ChunkID == fDATMarker) {
-                    PNG_DAT_Parse(PNG, BitB, ChunkSize);
+                    PNG_DAT_Parse(PNG, BitB);
                 } else if (ChunkID == iHDRMarker) {
-                    PNG_IHDR_Parse(PNG, BitB, ChunkSize);
+                    PNG_IHDR_Parse(PNG, BitB);
                 } else if (ChunkID == oFFsMarker) {
-                    PNG_OFFS_Parse(PNG, BitB, ChunkSize);
+                    PNG_OFFS_Parse(PNG, BitB);
                 } else if (ChunkID == pCALMarker) {
-                    PNG_PCAL_Parse(PNG, BitB, ChunkSize);
+                    PNG_PCAL_Parse(PNG, BitB);
                 } else if (ChunkID == pHYsMarker) {
-                    PNG_PHYS_Parse(PNG, BitB, ChunkSize);
+                    PNG_PHYS_Parse(PNG, BitB);
                 } else if (ChunkID == PLTEMarker) {
-                    PNG_PLTE_Parse(PNG, BitB, ChunkSize);
+                    PNG_PLTE_Parse(PNG, BitB);
                 } else if (ChunkID == sBITMarker) {
-                    PNG_SBIT_Parse(PNG, BitB, ChunkSize);
+                    PNG_SBIT_Parse(PNG, BitB);
                 } else if (ChunkID == sRGBMarker) {
-                    PNG_SRGB_Parse(PNG, BitB, ChunkSize);
+                    PNG_SRGB_Parse(PNG, BitB);
                 } else if (ChunkID == sTERMarker) {
-                    PNG_STER_Parse(PNG, BitB, ChunkSize);
+                    PNG_STER_Parse(PNG, BitB);
                 } else if (ChunkID == tEXtMarker || ChunkID == zTXtMarker || ChunkID == iTXtMarker) {
-                    PNG_TEXT_Parse(PNG, BitB, ChunkSize);
+                    PNG_TEXT_Parse(PNG, BitB);
                 } else if (ChunkID == sCALMarker) {
-                    PNG_SCAL_Parse(PNG, BitB, ChunkSize);
+                    PNG_SCAL_Parse(PNG, BitB);
                 } else if (ChunkID == tIMEMarker) {
-                    PNG_TIME_Parse(PNG, BitB, ChunkSize);
+                    PNG_TIME_Parse(PNG, BitB);
                 } else if (ChunkID == tRNSMarker) {
-                    PNG_TRNS_Parse(PNG, BitB, ChunkSize);
+                    PNG_TRNS_Parse(PNG, BitB);
                 } else if (ChunkID == sPLTMarker) {
-                    PNG_SPLT_Parse(PNG, BitB, ChunkSize);
+                    PNG_SPLT_Parse(PNG, BitB);
                 }
             }
         } else if (PNG == NULL) {

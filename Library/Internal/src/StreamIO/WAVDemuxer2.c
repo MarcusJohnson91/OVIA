@@ -4,10 +4,66 @@
 extern "C" {
 #endif
     
+    /*
+     This encoder works for WAVE, BroadcastWAVE, RF64
+     
+     BWF Spcific Chunks:
+     BEXT
+     UBXT
+     
+     BW64 Specific Chunks:
+     BW64
+     DS64
+     JUNK
+     AXML
+     CHNA
+     
+     BW64 is used instead of RIFF
+     DS64 replaces WAVE
+     
+     */
+    
+    void WAVParseChunk_DS64(WAVOptions *WAV, BitBuffer *BitB) {
+        if (WAV != NULL && BitB != NULL) {
+            uint32_t ChunkSize    = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
+            uint32_t SizeLow      = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
+            uint32_t SizeHigh     = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
+            uint32_t DataSizeLow  = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
+            uint32_t DataSizeHigh = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
+            
+        } else if (WAV == NULL) {
+            Log(Log_DEBUG, __func__, U8("WAVOptions Pointer is NULL"));
+        } else if (BitB == NULL) {
+            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+        }
+    }
+    
+    static void ReadINFO_TRCK(WAVOptions *WAV, BitBuffer *BitB) {
+        if (WAV != NULL && BitB != NULL) {
+            uint64_t StringSize            = BitBuffer_GetUTF8StringSize(BitB);
+            WAV->Info->Artist              = BitBuffer_ReadUTF8(BitB, StringSize);
+        } else if (WAV == NULL) {
+            Log(Log_DEBUG, __func__, U8("WAVOptions Pointer is NULL"));
+        } else if (BitB == NULL) {
+            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+        }
+    }
+    
+    static void ReadINFO_IPRT(WAVOptions *WAV, BitBuffer *BitB) {
+        if (WAV != NULL && BitB != NULL) {
+            uint64_t StringSize            = BitBuffer_GetUTF8StringSize(BitB);
+            WAV->Info->Artist              = BitBuffer_ReadUTF8(BitB, StringSize);
+        } else if (WAV == NULL) {
+            Log(Log_DEBUG, __func__, U8("WAVOptions Pointer is NULL"));
+        } else if (BitB == NULL) {
+            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+        }
+    }
+    
     static void ReadINFO_IART(WAVOptions *WAV, BitBuffer *BitB) {
         if (WAV != NULL && BitB != NULL) {
             uint64_t StringSize            = BitBuffer_GetUTF8StringSize(BitB);
-            UTF8    *Artist                = BitBuffer_ReadUTF8(BitB, StringSize);
+            WAV->Info->Artist              = BitBuffer_ReadUTF8(BitB, StringSize);
         } else if (WAV == NULL) {
             Log(Log_DEBUG, __func__, U8("WAVOptions Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -18,7 +74,7 @@ extern "C" {
     static void ReadINFO_ICRD(WAVOptions *WAV, BitBuffer *BitB) {
         if (WAV != NULL && BitB != NULL) {
             uint64_t StringSize            = BitBuffer_GetUTF8StringSize(BitB);
-            UTF8    *ReleaseDate           = BitBuffer_ReadUTF8(BitB, StringSize);
+            WAV->Info->ReleaseDate         = BitBuffer_ReadUTF8(BitB, StringSize);
         } else if (WAV == NULL) {
             Log(Log_DEBUG, __func__, U8("WAVOptions Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -29,7 +85,7 @@ extern "C" {
     static void ReadINFO_IGNR(WAVOptions *WAV, BitBuffer *BitB) {
         if (WAV != NULL && BitB != NULL) {
             uint64_t StringSize            = BitBuffer_GetUTF8StringSize(BitB);
-            UTF8    *Genre                 = BitBuffer_ReadUTF8(BitB, StringSize);
+            WAV->Info->Genre               = BitBuffer_ReadUTF8(BitB, StringSize);
         } else if (WAV == NULL) {
             Log(Log_DEBUG, __func__, U8("WAVOptions Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -40,7 +96,7 @@ extern "C" {
     static void ReadINFO_INAM(WAVOptions *WAV, BitBuffer *BitB) {
         if (WAV != NULL && BitB != NULL) {
             uint64_t StringSize            = BitBuffer_GetUTF8StringSize(BitB);
-            UTF8    *Title                 = BitBuffer_ReadUTF8(BitB, StringSize);
+            WAV->Info->Title               = BitBuffer_ReadUTF8(BitB, StringSize);
         } else if (WAV == NULL) {
             Log(Log_DEBUG, __func__, U8("WAVOptions Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -51,7 +107,7 @@ extern "C" {
     static void ReadINFO_IPRD(WAVOptions *WAV, BitBuffer *BitB) {
         if (WAV != NULL && BitB != NULL) {
             uint64_t StringSize            = BitBuffer_GetUTF8StringSize(BitB);
-            UTF8    *Album                 = BitBuffer_ReadUTF8(BitB, StringSize);
+            WAV->Info->Album               = BitBuffer_ReadUTF8(BitB, StringSize);
         } else if (WAV == NULL) {
             Log(Log_DEBUG, __func__, U8("WAVOptions Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -62,7 +118,7 @@ extern "C" {
     static void ReadINFO_ISFT(WAVOptions *WAV, BitBuffer *BitB) { // Encoder
         if (WAV != NULL && BitB != NULL) {
             uint64_t StringSize            = BitBuffer_GetUTF8StringSize(BitB);
-            UTF8    *CreationSoftware      = BitBuffer_ReadUTF8(BitB, StringSize);
+            WAV->Info->CreationSoftware    = BitBuffer_ReadUTF8(BitB, StringSize);
         } else if (WAV == NULL) {
             Log(Log_DEBUG, __func__, U8("WAVOptions Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -192,7 +248,7 @@ extern "C" {
         }
     }
     
-    OVIADecoder W64Decoder = {
+    OVIADecoder WAVDecoder = {
         .DecoderID             = CodecID_WAV,
         .MediaType             = MediaType_Audio2D,
         .MagicIDOffset         = 0,

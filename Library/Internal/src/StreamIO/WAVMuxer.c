@@ -53,9 +53,9 @@ extern "C" {
     
     void WAVAppendSamples(Audio2DContainer *Audio, BitBuffer *BitB) {
         if (Audio != NULL && BitB != NULL) {
-            uint64_t NumChannels   = AudioContainer_GetNumSamples(Audio);
-            uint64_t BitDepth      = AudioContainer_GetBitDepth(Audio);
-            uint64_t NumSamples    = AudioContainer_GetNumSamples(Audio);
+            uint64_t NumChannels   = Audio2DContainer_GetNumChannels(Audio);
+            uint64_t BitDepth      = Audio2DContainer_GetBitDepth(Audio);
+            uint64_t NumSamples    = Audio2DContainer_GetNumSamples(Audio);
             Audio_Types Type       = Audio2DContainer_GetType(Audio);
             
             if (Type == (AudioType_Unsigned | AudioType_Integer8)) {

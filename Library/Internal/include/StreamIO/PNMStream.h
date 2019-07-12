@@ -1,5 +1,4 @@
 #include "OVIACommon.h"
-#include "../../../Dependencies/FoundationIO/libFoundationIO/include/StringIO.h"
 
 #pragma once
 
@@ -27,13 +26,13 @@ extern "C" {
         PNM_TUPLE_RGBAlpha    = 5,
     } PNMTupleTypes;
     
-    enum PNMCommon {
-        PNMMagicSize          = 2,
+    typedef enum PNMConstants {
         PNMCommentStart       = 0x23,
         PNMFieldSeperator     = 0x20,
         PNMEndField           = 0x0A,
-    } PNMCommon;
+    } PNMConstants;
     
+    /*
     enum PNMMagic {
         PNM_PBMA = 0x5031, // PortableBitMapASCII
         PNM_PGMA = 0x5032, // PortableGrayMapASCII
@@ -45,7 +44,7 @@ extern "C" {
         
         PNM_PAMB = 0x5037, // PortableAnyMap
     } PNMMagic;
-    
+    */
     typedef struct PNMOptions {
         uint64_t      Height;
         uint64_t      Width;
@@ -55,7 +54,7 @@ extern "C" {
         PNMTypes      Type;
     } PNMOptions;
     
-    PNMOptions *PNMOptions_Init(void);
+    void *PNMOptions_Init(void);
     
     void PNMOptions_Deinit(PNMOptions *PNM);
     

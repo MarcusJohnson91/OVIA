@@ -4,7 +4,7 @@
 extern "C" {
 #endif
     
-    PNGOptions *PNGOptions_Init(void) {
+    void *PNGOptions_Init(void) {
         PNGOptions *PNG  = calloc(1, sizeof(PNGOptions));
         if (PNG != NULL) {
             PNG->sPLT[0] = calloc(1, sizeof(sPLTChunk)); // Realloc?
@@ -31,6 +31,7 @@ extern "C" {
         } else {
             Log(Log_DEBUG, __func__, U8("Couldn't allocate PNGOptions"));
         }
+        return PNG;
     }
     
     HuffmanTree *HuffmanTree_BuildTree(uint16_t *BitLengths, uint64_t NumBitLengths, uint8_t MaxCodeLengthInBits) { // HuffmanTree_makeFromLengths2
@@ -52,7 +53,7 @@ extern "C" {
                 for (uint64_t Index = 0ULL; Index < NumBitLengths; Index++) { // Generate the symbols
                     if (BitLengths[Index] != 0) {
                         Histogram2[BitLengths[Index]] += 1;
-                        Tree->HuffmanSymbol            = Histogram2[BitLengths[Index]];
+                        //Tree->HuffmanSymbol            = Histogram2[BitLengths[Index]];
                     }
                 }
             } else {

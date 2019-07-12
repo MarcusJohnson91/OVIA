@@ -8,9 +8,9 @@ extern "C" {
     
     static void W64WriteFMTChunk(Audio2DContainer *Audio, BitBuffer *BitB) {
         if (Audio != NULL && BitB != NULL) {
-            uint64_t NumChannels = AudioContainer_GetNumSamples(Audio);
-            uint64_t SampleRate  = AudioContainer_GetSampleRate(Audio);
-            uint8_t  BitDepth    = Bits2Bytes(AudioContainer_GetBitDepth(Audio), RoundingType_Up);
+            uint64_t NumChannels = Audio2DContainer_GetNumSamples(Audio);
+            uint64_t SampleRate  = Audio2DContainer_GetSampleRate(Audio);
+            uint8_t  BitDepth    = Bits2Bytes(Audio2DContainer_GetBitDepth(Audio), RoundingType_Up);
             uint64_t ByteRate    = CalculateW64ByteRate(NumChannels, BitDepth, SampleRate);
             uint64_t BlockAlign  = CalculateW64BlockAlign(NumChannels, BitDepth);
             BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, 16, 0);
@@ -28,9 +28,9 @@ extern "C" {
     
     void W64WriteHeader(Audio2DContainer *Audio, BitBuffer *BitB) {
         if (Audio != NULL && BitB != NULL) {
-            uint64_t NumChannels = AudioContainer_GetNumSamples(Audio);
-            uint64_t NumSamples  = AudioContainer_GetNumSamples(Audio);
-            uint8_t  BitDepth    = Bits2Bytes(AudioContainer_GetBitDepth(Audio), RoundingType_Up);
+            uint64_t NumChannels = Audio2DContainer_GetNumChannels(Audio);
+            uint64_t NumSamples  = Audio2DContainer_GetNumSamples(Audio);
+            uint8_t  BitDepth    = Bits2Bytes(Audio2DContainer_GetBitDepth(Audio), RoundingType_Up);
             uint64_t W64Size     = (NumSamples * NumChannels * BitDepth);
             uint64_t FMTSize     = 40;
             
@@ -51,9 +51,9 @@ extern "C" {
     
     void W64AppendSamples(Audio2DContainer *Audio, BitBuffer *BitB) {
         if (Audio != NULL && BitB != NULL) {
-            uint64_t NumChannels  = AudioContainer_GetNumSamples(Audio);
-            uint64_t BitDepth     = Bits2Bytes(AudioContainer_GetBitDepth(Audio), RoundingType_Up);
-            uint64_t NumSamples   = AudioContainer_GetNumSamples(Audio);
+            uint64_t NumChannels  = Audio2DContainer_GetNumChannels(Audio);
+            uint64_t BitDepth     = Bits2Bytes(Audio2DContainer_GetBitDepth(Audio), RoundingType_Up);
+            uint64_t NumSamples   = Audio2DContainer_GetNumSamples(Audio);
             Audio_Types Type      = Audio2DContainer_GetType(Audio);
             if (Type == (AudioType_Signed | AudioType_Integer8)) {
                 int8_t **Samples  = (int8_t**)    Audio2DContainer_GetArray(Audio);

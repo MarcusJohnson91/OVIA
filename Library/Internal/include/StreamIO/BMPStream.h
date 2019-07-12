@@ -60,7 +60,7 @@ extern "C" {
         uint32_t     AMask;
     } BMPOptions;
     
-    BMPOptions *BMPOptions_Init(void);
+    void           *BMPOptions_Init(void);
     
     static uint64_t BMPGetRowSize(const uint16_t BitsPerPixel, const uint32_t ImageWidth);
     

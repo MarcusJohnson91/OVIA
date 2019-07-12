@@ -86,11 +86,11 @@ extern "C" {
         0x74,0x73,0x69,0x6C,0x2D,0x91,0x2F,0x2D,0x11,0xCF,0x2D,0xA5,0xD6,0x2D,0x28,0xDB,0x04,0xC1,0x00,0x00,0x00
     };
     
-    W64Options *W64Options_Init(void);
+    void            *W64Options_Init(void);
     
-    static uint64_t CalculateW64ByteRate(uint64_t NumChannels, uint8_t BitDepth, uint64_t SampleRate);
+    uint64_t CalculateW64ByteRate(uint64_t NumChannels, uint8_t BitDepth, uint64_t SampleRate);
     
-    static uint64_t CalculateW64BlockAlign(uint64_t NumChannels, uint8_t BitDepth);
+    uint64_t CalculateW64BlockAlign(uint64_t NumChannels, uint8_t BitDepth);
     
     void W64Options_Deinit(W64Options *W64);
     

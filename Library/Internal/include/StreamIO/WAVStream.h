@@ -31,17 +31,19 @@ extern "C" {
     };
     
     typedef enum WAVCompressionFormats {
-        UnknownCompressionFormat      = 0x0000,
-        Lossless_PCM                  = 0x0001,
-        Lossy_ADPCM                   = 0x0002,
-        Lossy_IEEE_FLOAT              = 0x0003,
-        Lossy_VSELP                   = 0x0004,
-        Lossy_IBM_CVSD                = 0x0005,
-        Lossy_ALAW                    = 0x0006,
-        Lossy_MULAW                   = 0x0007,
-        Lossy_DTS                     = 0x0008,
-        Lossy_OKI_ADPCM               = 0x0010,
-        Lossy_DVI_ADPCM               = 0x0011,
+        CompressionFormat_Unknown     = 0,
+        CompressionFormat_PCM         = 1,
+        CompressionFormat_ADPCM       = 2,
+        CompressionFormat_Float       = 3,
+        CompressionFormat_VSELP       = 4,
+        CompressionFormat_IBM_CVSD    = 5,
+        CompressionFormat_ALAW        = 6,
+        CompressionFormat_MULAW       = 7,
+        CompressionFormat_DTS         = 8,
+        CompressionFormat_OKI_ADPCM   = 9,
+        CompressionFormat_DVI_ADPCM   = 10,
+        CompressionFormat_IMA_ADPCM        = 11,
+        CompressionFormat_MEDIASPACE_ADPCM = 12,
         Lossy_IMA_ADPCM               = 0x0011,
         Lossy_MEDIASPACE_ADPCM        = 0x0012,
         Lossy_SIERRA_ADPCM            = 0x0013,
@@ -163,6 +165,8 @@ extern "C" {
     
     typedef enum WAVChunkIDs { // odd sized chunks have a trailing 0 byte, and strings are null padded, this is for WAV, and W64.
         WAV_RIFF                      = 0x52494646,
+        WAV_BW64                      = 0x42573634, // Literally the same as RIFF, just diff chunk id
+        WAV_DS64                      = 0x64733634,
         WAV_WAVE                      = 0x57415645,
         WAV_FMT                       = 0x666D7420,
         WAV_LIST                      = 0x4C495354,
@@ -180,22 +184,33 @@ extern "C" {
         WAV_YEAR                      = 0x59454152, // Year
         WAV_TRCK                      = 0x5452434b, // Track
         WAV_DATA                      = 0x64617461,
+        WAV_JUNK                      = 0,
     } WAVChunkIDs;
     
+    typedef struct WAVInfo {
+        UTF8 *Title;
+        UTF8 *Artist;
+        UTF8 *Album;
+        UTF8 *ReleaseDate;
+        UTF8 *Genre;
+        UTF8 *CreationSoftware;
+    } WAVInfo;
+    
     typedef struct WAVOptions {
-        uint32_t SpeakerMask;
-        uint16_t CompressionFormat;
-        uint16_t BlockAlignment;
-        uint16_t NumChannels;
+        WAVInfo *Info;
         uint32_t SampleRate;
         uint32_t ByteRate;
         uint32_t BlockAlign;
+        uint32_t SpeakerMask;
+        uint32_t ChannelMask;
+        uint16_t CompressionFormat;
+        uint16_t BlockAlignment;
+        uint16_t NumChannels;
         uint16_t BitDepth;
         uint16_t ValidBitsPerSample;
-        uint32_t ChannelMask;
     } WAVOptions;
     
-    WAVOptions *WAVOptions_Init(void);
+    void *WAVOptions_Init(void);
     
     void WAVSkipPadding(BitBuffer *BitB, uint32_t SubChunkSize);
     
