@@ -15,18 +15,39 @@ extern "C" {
              then the the type n the remaining 7 bits
              then read the size of the block in the following 24 bits.
              */
-            
-            
             bool LastMetadataBlock = No;
             do {
-                LastMetadataBlock  = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 1);
-                uint8_t  BlockType = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 7);
-                uint32_t BlockSize = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 24);
+                LastMetadataBlock  = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 1);  // 0
+                uint8_t  BlockType = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 7);  // 0
+                uint32_t BlockSize = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 24); // 393
+                switch (BlockType) {
+                    case Block_StreamInfo:
+                        FLAC_Parse_StreamInfo(FLAC, BitB);
+                        break;
+                    case Block_SeekTable:
+                        FLAC_Parse_SeekTable(FLAC, BitB, BlockSize);
+                        break;
+                    case Block_Vorbis:
+                        FLAC_Parse_Vorbis(FLAC, BitB);
+                        break;
+                    case Block_Cuesheet:
+                        FLAC_CUE_Parse(FLAC, BitB);
+                        break;
+                    case Block_Picture:
+                        FLAC_Pic_Read(FLAC, BitB);
+                        break;
+                    default:
+                    case Block_Padding:
+                    case Block_Custom:
+                        BitBuffer_Seek(BitB, Bytes2Bits(BlockSize));
+                        break;
+                }
             } while (LastMetadataBlock == No);
             
-            uint16_t Marker        = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 14);
+            uint16_t Marker        = FrameMagic;
             
             do {
+                Marker             = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 14);
                 FLAC_Frame_Read(FLAC, BitB, Audio);
             } while (LastMetadataBlock == Yes && Marker == FrameMagic);
         } else if (FLAC == NULL) {
@@ -43,11 +64,11 @@ extern "C" {
             uint8_t Reserved1                 = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 1); // 0
             if (Reserved1 == 0) {
                 FLAC->Frame->BlockType        = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 1); // 0, Fixed
-                FLAC->Frame->CodedBlockSize   = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 4); // 5
-                FLAC->Frame->CodedSampleRate  = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 4); // 9
+                FLAC->Frame->CodedBlockSize   = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 4); // 0b0110 aka 6
+                FLAC->Frame->CodedSampleRate  = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 4); // 8
                 FLAC->Frame->ChannelLayout    = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 4); // 8
-                FLAC->Frame->CodedBitDepth    = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 3); // 4
-                uint8_t Reserved2             = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 1); // 0
+                FLAC->Frame->CodedBitDepth    = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 3); // 6
+                BitBuffer_Seek(BitB, 1); // Reserved2, should be 0
                 uint8_t Frame_SampleIDSize    = 1 + BitBuffer_ReadUnary(BitB, MSByteFirst, MSBitFirst, CountUnary, 0); // 1
                 BitBuffer_Seek(BitB, -Frame_SampleIDSize);
                 if (FLAC->Frame->BlockType == BlockType_Fixed) {
@@ -263,8 +284,8 @@ extern "C" {
             uint8_t *PictureArray            = NULL;
             // Actual audio data starts at: 1056166
             if (IsLastBlock == false) {
-                BlockTypes BlockType         = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 7);  // 1
-                uint32_t BlockSize           = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 24); // 562
+                BlockTypes BlockType         = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 7);  // 6
+                uint32_t BlockSize           = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 24); // 865,236
                 switch (BlockType) {
                     case Block_StreamInfo:
                         FLAC_Parse_StreamInfo(FLAC, BitB);
@@ -304,16 +325,16 @@ extern "C" {
     
     void FLAC_Parse_StreamInfo(FLACOptions *FLAC, BitBuffer *BitB) {
         if (FLAC != NULL && BitB != NULL) {
-            FLAC->StreamInfo->MinimumBlockSize = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16);
-            FLAC->StreamInfo->MaximumBlockSize = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16);
-            FLAC->StreamInfo->MinimumFrameSize = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16);
-            FLAC->StreamInfo->MaximumFrameSize = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16);
-            FLAC->StreamInfo->CodedSampleRate  = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 20);
-            FLAC->StreamInfo->CodedChannels    = 1 + BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 3);
-            FLAC->StreamInfo->CodedBitDepth    = 1 + BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 5);
-            FLAC->StreamInfo->SamplesInStream  = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 36);
+            FLAC->StreamInfo->MinimumBlockSize = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16); // 4096
+            FLAC->StreamInfo->MaximumBlockSize = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16); // 4096
+            FLAC->StreamInfo->MinimumFrameSize = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 24); // 18
+            FLAC->StreamInfo->MaximumFrameSize = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 24); // 15146
+            FLAC->StreamInfo->CodedSampleRate  = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 20); // 192000
+            FLAC->StreamInfo->CodedChannels    = 1 + BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 3); // 2
+            FLAC->StreamInfo->CodedBitDepth    = 1 + BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 5); // 24
+            FLAC->StreamInfo->SamplesInStream  = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 36);    // 428,342,094
             if (FLAC->StreamInfo->MD5 != NULL) {
-                for (uint8_t MD5Byte = 0; MD5Byte < 16; MD5Byte++) { // 0x32540FAD8218FF34EC06836F389512DB
+                for (uint8_t MD5Byte = 0; MD5Byte < 16; MD5Byte++) { // 0xDC AE 07 EA E9 11 40 C1 F4 43 7B B0 72 18 9D 2E
                     FLAC->StreamInfo->MD5[MD5Byte] = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
                 }
             } else {
@@ -341,14 +362,20 @@ extern "C" {
         }
     }
     
-    void FLAC_Parse_Vorbis(FLACOptions *FLAC, BitBuffer *BitB) { // LITTLE ENDIAN, size = 562
+    void FLAC_Parse_Vorbis(FLACOptions *FLAC, BitBuffer *BitB) { // LITTLE ENDIAN, size = 393
         if (FLAC != NULL && BitB != NULL) {
-            uint32_t VendorTagSize = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32); // 13
-            UTF8    *VendorTag     = BitBuffer_ReadUTF8(BitB, VendorTagSize);
-            uint32_t NumUserTags   = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
+            uint32_t VendorTagSize = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32); // 32
+            UTF8    *VendorTag     = BitBuffer_ReadUTF8(BitB, VendorTagSize); // reference libFLAC 1.3.2 20170101
+            uint32_t NumUserTags   = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32); // 13
             for (uint32_t Comment = 0; Comment < NumUserTags; Comment++) {
                 uint32_t  TagSize                          = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
                 UTF8     *Tag                              = BitBuffer_ReadUTF8(BitB, TagSize);
+                // 14; totaltracks=11
+                // 12; totaldiscs=1
+                // 13; BPM=00283 BPMb
+                // 98; 6954756E 4E4F524D 3D303030 30303146 38203030 30303031 34322030 30303031 43453320 30303030 31344635 20303030 30393241 34203030 30303932 42342030 30303034 31434320 30303030 35314335 20303030 31324339 46203030 30313435 45460F
+                // 15; 6974756E 65736761 706C6573 733D30
+                //
             }
         } else if (FLAC == NULL) {
             Log(Log_DEBUG, __func__, U8("FLACOptions Pointer is NULL"));

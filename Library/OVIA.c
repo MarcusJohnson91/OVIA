@@ -48,6 +48,23 @@ extern "C" {
      Should ICC profiles be a part of OVIA or ContainerIO?
      */
     
+    OVIA *OVIA_Init(void) {
+        OVIA *Ovia            = calloc(1, sizeof(OVIA));
+        if (Ovia != NULL) {
+            Ovia->Encoders    = calloc(OVIA_NumCodecs, sizeof(OVIAEncoder));
+            Ovia->Decoders    = calloc(OVIA_NumCodecs, sizeof(OVIADecoder));
+            Ovia->NumDecoders = OVIA_NumCodecs;
+            Ovia->NumEncoders = OVIA_NumCodecs;
+            /*
+            for (uint8_t Codec = 0; Codec < OVIA_NumCodecs; Codec++) {
+                Registry.Function_RegisterEncoder[Codec](Ovia, Ovia->Encoders);
+                Registry.Function_RegisterDecoder[Codec](Ovia, Ovia->Decoders);
+            }
+             */
+        }
+        return Ovia;
+    }
+    
     OVIA_CodecIDs UTF8_Extension2CodecID(UTF8 *Extension) {
         OVIA_CodecIDs CodecID = CodecID_Unknown;
         if (Extension != NULL) {
@@ -116,23 +133,51 @@ extern "C" {
         return CodecID;
     }
     
-    OVIA_CodecIDs IdentifyFileType(BitBuffer *BitB) {
+    OVIA_CodecIDs OVIA_IdentifyFileType(OVIA *Ovia, BitBuffer *BitB) {
         OVIA_CodecIDs Format      = CodecID_Unknown;
         uint64_t OriginalPosition = BitBuffer_GetPosition(BitB);
-        for (uint64_t Decoder = 0ULL; Decoder < OVIA_NumCodecs; Decoder++) {
-            BitBuffer_Seek(BitB, Bytes2Bits(GlobalCodecs.Decoders[Decoder].MagicIDOffset));
-            for (uint64_t MagicByte = 0ULL; MagicByte < GlobalCodecs.Decoders[Decoder].MagicIDSize; MagicByte++) {
-                uint8_t CurrentByte = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
-                if (CurrentByte != GlobalCodecs.Decoders[Decoder].MagicID[MagicByte]) {
-                    break;
-                } else if (CurrentByte == GlobalCodecs.Decoders[Decoder].MagicID[MagicByte] && MagicByte == GlobalCodecs.Decoders[Decoder].MagicIDSize) {
-                    // The MagicID matches
-                    Format = GlobalCodecs.Decoders[Decoder].DecoderID;
+        
+        for (uint64_t Decoder = 0ULL; Decoder < Ovia->NumDecoders; Decoder++) {
+            for (uint64_t MagicID = 0ULL; MagicID < Ovia->Decoders[Decoder].NumMagicIDs; MagicID++) {
+                BitBuffer_Seek(BitB, Ovia->Decoders[Decoder].MagicIDOffset[MagicID]);
+                for (uint64_t MagicIDByte = 0ULL; MagicIDByte < Ovia->Decoders[Decoder].MagicIDSize[Decoder]; MagicIDByte++) {
+                    uint8_t ExtractedByte = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8); // Should we put a bit order field in the magic id thing?
+                    if (ExtractedByte != Ovia->Decoders[Decoder].MagicID[MagicIDByte]) {
+                        break;
+                    } else if (MagicIDByte + 1 == Ovia->Decoders[Decoder].MagicIDSize[Decoder] && ExtractedByte == Ovia->Decoders[Decoder].MagicID[MagicIDByte]) {
+                        Format = Ovia->Decoders[Decoder].DecoderID;
+                    }
                 }
+                BitBuffer_Seek(BitB, OriginalPosition);
             }
         }
         BitBuffer_SetPosition(BitB, OriginalPosition);
         return Format;
+    }
+    
+    /*
+     We need to create a general purpose function for each decoder that registers each codec.
+     
+     void OVIARegisterDecoder_AIF(OVIADecoder *Decoder) {
+     Decoder.MagicID = AIFMagicID;
+     ... ETC
+     }
+     
+     Then we need OVIA to provide a basic function that will register the  codec by calling a parameter function pointer
+     void (*Function_RegisterDecoder)(OVIACodecs, OVIADecoder*);
+     
+     void OVIARegister_Decoder(void (*Function_RegisterDecoder)(OVIADecoder* Decoder)) {
+     Function_RegisterDecoder(Decoder);
+     }
+     
+     I need a function that will call a function
+     */
+    
+    void OVIA_Deinit(OVIA *Ovia) {
+        if (Ovia != NULL) {
+            free(Ovia->Encoders);
+            free(Ovia->Decoders);
+        }
     }
     
 #ifdef __cplusplus

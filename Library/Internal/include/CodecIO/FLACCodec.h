@@ -85,12 +85,12 @@ extern "C" {
 
     typedef enum BlockTypes {
         Block_StreamInfo                                            =          0, // 0x30 = 0 in ascii, 0x31 = 1, etc.
-        Block_Padding                                                     =          1,
-        Block_Custom                                                      =          2, // Application aka App specific
-        Block_SeekTable                                                   =          3,
-        Block_Vorbis                                               =          4,
-        Block_Cuesheet                                                    =          5,
-        Block_Picture                                                     =          6,
+        Block_Padding                                               =          1,
+        Block_Custom                                                =          2, // Application aka App specific
+        Block_SeekTable                                             =          3,
+        Block_Vorbis                                                =          4,
+        Block_Cuesheet                                              =          5,
+        Block_Picture                                               =          6,
     } BlockTypes;
 
     typedef enum SubFrameTypes {
