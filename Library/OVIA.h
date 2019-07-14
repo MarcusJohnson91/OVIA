@@ -91,7 +91,6 @@ extern "C" {
     typedef enum OVIA_CodecIDs {
         CodecID_Unknown       = 0,
         CodecID_AIF           = 1,
-        CodecID_AIFC          = 2,
         CodecID_WAV           = 3,
         CodecID_W64           = 4,
         CodecID_FLAC          = 5,
