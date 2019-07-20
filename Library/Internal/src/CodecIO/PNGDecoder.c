@@ -4,27 +4,39 @@
 extern "C" {
 #endif
     
-    void PNG_Flate_ReadZlibHeader(PNGOptions *PNG, BitBuffer *BitB) {
+    /*
+     How do we handle DAT blocks?
+     
+     Shit, let the main chunk parser handle it.
+     
+     Each time a i/fDAT chunk appears, we need to decode it then and there.
+     
+     Also, we need to have all the DAT functions take the ImageContainer as a chunk.
+     
+     So, we need our DAT parser, and then we need a Huffman block parser
+     */
+    
+    void PNG_Flate_ReadZlibHeader(PNGOptions *PNG, BitBuffer *BitB) { // This will be the main function for each Zlib block
         if (PNG != NULL && BitB != NULL) {
-            PNG->DAT->CMF  = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
-            PNG->DAT->FLG  = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
-            bool FDICT     = PNG->DAT->FLG & 0x4 >> 2;
-            
-            if (FDICT == Yes) {
-                PNG->DAT->DictID = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            }
-            
-            uint8_t CompressionInfo   = PNG->DAT->CMF & 0xF0 >> 4;
-            uint8_t CompressionMethod = PNG->DAT->CMF & 0x0F;
+            uint8_t  CompressionMethod = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 4);
+            uint8_t  CompressionInfo   = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 4);
+            uint8_t  FCHECK            = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 5);
+            bool     FDICT             = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 1);
+            uint8_t  FLEVEL            = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 2);
+            uint32_t DictID  = 0;
             
             if (CompressionInfo == 7 && CompressionMethod == 8) {
-                uint16_t Check = CompressionInfo << 12;
-                Check         |= CompressionMethod << 8;
-                Check         |= (PNG->DAT->FLG & 0x3) << 6;
-                Check         |= FDICT << 5;
-                Check         |= PNG->DAT->FLG & 0xF8;
-                if (Check % 31 != 0) {
-                    Log(Log_DEBUG, __func__, U8("Invalid Flate Header %d"), Check);
+                uint16_t FCheck = CompressionInfo << 12;
+                FCheck         |= CompressionMethod << 8;
+                FCheck         |= FLEVEL << 6;
+                FCheck         |= FDICT << 5;
+                FCheck         |= FCHECK;
+                if (FCheck % 31 == 0) {
+                    if (FDICT == Yes) {
+                        DictID  = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+                    }
+                } else {
+                    Log(Log_DEBUG, __func__, U8("Invalid Flate Header %d"), FCheck);
                 }
             } else if (CompressionInfo != 7) {
                 Log(Log_DEBUG, __func__, U8("Compresion Info %d is invalid"), CompressionInfo);
@@ -38,123 +50,107 @@ extern "C" {
         }
     }
     
-    void PNG_Flate_ReadLiteralBlock(PNGOptions *PNG, BitBuffer *BitB) {
-        if (PNG != NULL && BitB != NULL) {
-            BitBuffer_Align(BitB, 1); // Skip the remaining 5 bits
-            uint16_t Bytes2Copy    = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16); // 0x4F42 = 20,290
-            uint16_t Bytes2CopyXOR = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16) ^ 0xFFFF; // 0xB0BD = 0x4F42
-            
-            if (Bytes2Copy == Bytes2CopyXOR) {
-                for (uint16_t Byte = 0ULL; Byte < Bytes2Copy; Byte++) {
-                    Array[Byte]    = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 8);
+    void PNG_Flate_ReadDeflateBlock(PNGOptions *PNG, BitBuffer *BitB, ImageContainer *Image) {
+        if (PNG != NULL && BitB != NULL && Image != NULL) {
+            bool    BFINAL        = No;
+            uint8_t BTYPE         = 0;
+            do {
+                BFINAL            = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 1); // Yes
+                BTYPE             = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 2); // 0b10 aka 2 aka BlockType_Dynamic
+                if (BTYPE == BlockType_Literal) {
+                    BitBuffer_Align(BitB, 1);
+                    uint16_t LEN  = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16);
+                    uint16_t NLEN = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16) ^ 0xFFFF;
+                    if (LEN == NLEN) {
+                        // Copy LEN bytes from the stream to the image
+                    } else {
+                        Log(Log_DEBUG, __func__, U8("Literal Block Length and 1's Complement Length do not match"));
+                    }
+                } else if (BTYPE == BlockType_Fixed) {
+                    HuffmanTree *Length        = PNG_Flate_BuildHuffmanTree(FixedLiteralTable, 288);
+                    HuffmanTree *Distance      = PNG_Flate_BuildHuffmanTree(FixedDistanceTable, 32);
+                    PNG_Flate_ReadHuffman(PNG, BitB, Length, Distance, Image);
+                } else if (BTYPE == BlockType_Dynamic) {
+                    uint16_t NumLengthCodes               = 257 + BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 5); // HLIT; 21, 26?
+                    uint8_t  NumDistCodes                 = 1   + BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 5); // HDIST; 17, 9?
+                    uint8_t  NumCodeLengthCodeLengthCodes = 4   + BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 4); // HCLEN; 13,
+                    
+                    if (NumLengthCodes <= MaxLiteralLengthCodes && NumDistCodes <= MaxDistanceCodes) {
+                        uint16_t *CodeLengthCodeLengths   = calloc(NumMetaCodes, sizeof(uint16_t));
+                        
+                        for (uint8_t CodeLengthCodeLengthCode = 0; CodeLengthCodeLengthCode < NumCodeLengthCodeLengthCodes; CodeLengthCodeLengthCode++) {
+                            CodeLengthCodeLengths[MetaCodeLengthOrder[CodeLengthCodeLengthCode]] = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 3);
+                        }
+                        
+                        HuffmanTree *Tree2DecodeTrees     = PNG_Flate_BuildHuffmanTree(CodeLengthCodeLengths, NumMetaCodes);
+                        uint16_t Index = 0;
+                        do {
+                            uint64_t Length2Repeat        = 0; // len
+                            
+                            uint16_t Symbol               = ReadSymbol(BitB, Tree2DecodeTrees);
+                            if (Symbol <= MaxBitsPerSymbol) {
+                                CodeLengthCodeLengths[Index + 1] = Symbol;
+                            } else {
+                                if (Symbol == 16) {
+                                    Length2Repeat         = CodeLengthCodeLengths[Index - 1];
+                                    Symbol                = 3 + BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 2);
+                                } else if (Symbol == 17) {
+                                    Symbol                = 3 + BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 3);
+                                } else {
+                                    Symbol                = 11 + BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 7);
+                                }
+                                while (Symbol -= 1) {
+                                    CodeLengthCodeLengths[Index += 1] = Length2Repeat;
+                                }
+                            }
+                            Index                        += 1;
+                        } while (Index < NumLengthCodes + NumDistCodes);
+                    } else if (NumLengthCodes > MaxLiteralLengthCodes) {
+                        Log(Log_DEBUG, __func__, U8("Too many length codes %d, max is %d"), NumLengthCodes, MaxLiteralLengthCodes);
+                    } else if (NumDistCodes > MaxDistanceCodes) {
+                        Log(Log_DEBUG, __func__, U8("Too many distance codes %d, max is %d"), NumDistCodes, MaxDistanceCodes);
+                    }
+                } else {
+                    Log(Log_DEBUG, __func__, U8("Invalid Block Type in Deflate block"));
                 }
-            } else {
-                Log(Log_DEBUG, __func__, U8("Data Error: Bytes2Copy does not match Bytes2CopyXOR in literal block"));
-            }
+            } while (BFINAL == No);
         } else if (PNG == NULL) {
             Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+        } else if (Image == NULL) {
+            Log(Log_DEBUG, __func__, U8("ImageContainer Pointer is NULL"));
         }
-    }
-    
-    HuffmanTree *PNG_Flate_BuildTree(PNGOptions *PNG, BitBuffer *BitB, HuffmanTreeTypes TreeType) {
-        HuffmanTree *Tree = NULL;
-        if (BitB != NULL && TreeType != TreeType_Unknown) {
-            Tree          = calloc(1, sizeof(HuffmanTree));
-            if (Tree != NULL) {
-                if (TreeType == TreeType_Fixed) {
-                    Tree->LengthTable          = HuffmanBuildTree(288, FixedLiteralTable);
-                    Tree->DistanceTable        = HuffmanBuildTree(32, FixedDistanceTable);
-                    
-                    for (uint64_t Index = 0ULL; Index < 288; Index++) {
-                        uint32_t Length        = 0;
-                        uint32_t Value         = ReadHuffman(Tree->LengthTable, BitB);
-                        if (Value < 16) {
-                            FixedLiteralTable[Index + 1] = Value;
-                        } else {
-                            if (Value == 16) {
-                                Length         = FixedLiteralTable[Index - 1];
-                                Value          = 3  + BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 2);
-                            } else if (Value == 17) {
-                                Value          = 3  + BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 3);
-                            } else {
-                                Value          = 11 + BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 7);
-                            }
-                            for (uint32_t Times2Copy = 0ULL; Times2Copy < Length; Times2Copy++) {
-                                // What is this?
-                            }
-                            for (uint32_t Index = Value; Index > 0; Index--) {
-                                FixedLiteralTable[Index + 1] = Length;
-                            }
-                        }
-                    }
-                } else if (TreeType == TreeType_Dynamic) {
-                    uint16_t NumLengthSymbols   = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 5) + 257;
-                    uint8_t  NumDistanceSymbols = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 5) + 1;
-                    uint8_t  NumMetaCodeLengths = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 4) + 4;
-                    
-                    uint16_t MetaTable[NumMetaCodes];
-                    for (uint8_t MetaCode = 0; MetaCode < NumMetaCodeLengths; MetaCode++) {
-                        MetaTable[MetaCodeLengthOrder[MetaCode]] = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 3);
-                    }
-                    HuffmanTree *MetaTree         = HuffmanBuildTree(19, MetaTable);
-                    uint16_t RealLengths[318]      = {0};
-                    for (uint64_t Index = 0ULL; Index < NumLengthSymbols + NumDistanceSymbols; Index++) {
-                        uint64_t Value             = ReadHuffman(MetaTree, BitB);
-                        if (Value <= 15) {
-                            RealLengths[Index + 1] = Value;
-                        } else {
-                            uint16_t Times2Repeat  = 0;
-                            if (Value == 16) {
-                                Times2Repeat       = RealLengths[Index - 1];
-                                Value              = 3  + BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 2);
-                            } else if (Value == 17) {
-                                Value              = 3  + BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 3);
-                            } else {
-                                Value              = 11 + BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 7);
-                            }
-                            for (uint16_t Index2 = Value; Index2 > 0; Index2--) {
-                                RealLengths[Index2 + 1] = Times2Repeat;
-                            }
-                        }
-                    }
-                    Tree->LengthTable   = HuffmanBuildTree(NumLengthSymbols, RealLengths);
-                    Tree->DistanceTable = HuffmanBuildTree(NumLengthSymbols + NumDistanceSymbols, RealLengths); // Change to Distance table
-                } else {
-                    Log(Log_DEBUG, __func__, U8("Invalid Deflate tyoe"));
-                }
-            } else {
-                Log(Log_DEBUG, __func__, U8("Couldn't allocate HuffmanTree"));
-            }
-        } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
-        } else if (TreeType == TreeType_Unknown) {
-            Log(Log_DEBUG, __func__, U8("TreeType Unknown is invalid"));
-        }
-        return Tree;
     }
     
     void PNG_DAT_Decode(PNGOptions *PNG, BitBuffer *BitB, ImageContainer *Image) {
         if (BitB != NULL && Image != NULL) {
-            uint8_t *ImageArrayBytes               = (uint8_t*) ImageContainer_GetArray(Image);
-            PNG_DAT_SetArray(Ovia, ImageArrayBytes);
+            uint8_t     ****ImageArrayBytes        = (uint8_t****) ImageContainer_GetArray(Image);
+            HuffmanTree     *Tree                  = NULL;
             bool     IsFinalBlock                  = false;
-            
             do {
-                HuffmanTree *Tree                  = NULL;
                 IsFinalBlock                       = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 1); // 0
                 uint8_t BlockType                  = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 2); // 0b00 = 0
                 if (BlockType == BlockType_Literal) {
-                    PNG_Flate_ReadLiteralBlock(PNG, BitB);
+                    BitBuffer_Align(BitB, 1); // Skip the remaining 5 bits
+                    uint16_t Bytes2Copy    = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16); // 0x4F42 = 20,290
+                    uint16_t Bytes2CopyXOR = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16) ^ 0xFFFF; // 0xB0BD = 0x4F42
+                    
+                    if (Bytes2Copy == Bytes2CopyXOR) {
+                        for (uint16_t Byte = 0ULL; Byte < Bytes2Copy; Byte++) {
+                            ImageArrayBytes[0][0][0][Byte] = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 8);
+                        }
+                    } else {
+                        Log(Log_DEBUG, __func__, U8("Data Error: Bytes2Copy does not match Bytes2CopyXOR in literal block"));
+                    }
                 } else if (BlockType == BlockType_Fixed) {
-                    Tree = PNG_Flate_BuildTree(BitB, TreeType_Fixed);
+                    //Tree = PNG_Flate_BuildHuffmanTree();
                 } else if (BlockType == BlockType_Dynamic) {
-                    Tree = PNG_Flate_BuildTree(BitB, TreeType_Dynamic);
-                } else if (BlockType == BlockType_Invalid) {
-                    Log(Log_DEBUG, __func__, U8("Invalid Block"));
+                    //Tree = PNG_Flate_BuildHuffmanTree();
+                } else {
+                    Log(Log_DEBUG, __func__, U8("PNG Invalid DAT Block"));
                 }
-                PNG_Flate_Decode(PNG, BitB); // Actually read the data
+                //PNG_Flate_Decode(PNG, BitB); // Actually read the data
             } while (IsFinalBlock == false);
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
@@ -163,15 +159,20 @@ extern "C" {
         }
     }
     
-    uint64_t ReadHuffman(PNGOptions *PNG, HuffmanTree *Tree, BitBuffer *BitB) { // EQUILIVENT OF DECODE IN PUFF
-        uint64_t Symbol = 0ULL;
-        if (Tree != NULL && BitB != NULL) {
+    uint64_t ReadSymbol(BitBuffer *BitB, HuffmanTree *Tree) { // EQUILIVENT OF DECODE IN PUFF
+        uint64_t Symbol              = 0ULL;
+        uint16_t Count               = 0;
+        uint64_t Index               = 0;
+        uint64_t CodeSize            = 0;
+        uint64_t FirstSymbolOfLength = 0;
+        if (BitB != NULL && Tree != NULL) {
             uint32_t FirstSymbolOfLength = 0;
             for (uint8_t Bit = 1; Bit <= MaxBitsPerSymbol; Bit++) {
-                Symbol <<= 1;
-                Symbol  |= BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 1);
-                if (Symbol - Tree->Frequency[Bit] < FirstSymbolOfLength) {
-                    Symbol = Tree->Symbols[Bit + (Symbol - FirstSymbolOfLength)];
+                Symbol             <<= 1;
+                Symbol              |= BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 1);
+                Count                = Tree->Frequency[Bit];
+                if (Symbol - Count < FirstSymbolOfLength) {
+                    Symbol           = Tree->Symbol[Bit + (Symbol - FirstSymbolOfLength)];
                 }
             }
         } else if (Tree == NULL) {
@@ -182,39 +183,44 @@ extern "C" {
         return Symbol;
     }
     
-    uint16_t PNG_Flate_ReadSymbol(PNGOptions *PNG, HuffmanTree *Tree, BitBuffer *BitB) {
-        uint16_t Symbol                        = 0;
-        if (Tree != NULL && BitB != NULL) {
-            Symbol                             = ReadHuffman(Tree, BitB);
-            /*
-             do {
-             if (Symbol < 256) {
-             Array[Offset]              = Symbol;
-             Offset                    += 1;
-             } else if (Symbol > 256) {
-             uint16_t BaseLength        = LengthBase[Symbol - 257];
-             uint16_t ExtensionLength   = LengthAdditionalBits[Symbol - 257];
-             uint16_t LengthCode        = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, ExtensionLength) + BaseLength;
-             
-             uint16_t DistanceSymbol    = ReadHuffman(Tree->DistanceTable, BitB);
-             uint16_t BaseDistance      = DistanceBase[DistanceSymbol];
-             uint16_t ExtensionDistance = DistanceAdditionalBits[DistanceSymbol];
-             
-             uint16_t DistanceCode      = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, ExtensionDistance) + BaseDistance;
-             
-             for (uint64_t Start = Offset - LengthCode; Start < Offset + DistanceCode; Start++) {
-             Array[Start] = Array[Start - DistanceCode];
-             }
-             Offset += LengthCode;
-             }
-             } while (Symbol != 256);
-             */
-        } else if (Tree == NULL) {
-            Log(Log_DEBUG, __func__, U8("HuffmanTree Pointer is NULL"));
+    void PNG_Flate_ReadHuffman(PNGOptions *PNG, BitBuffer *BitB, HuffmanTree *LengthTree, HuffmanTree *DistanceTree, ImageContainer *Image) { // Codes in Puff
+        if (PNG != NULL && BitB != NULL && LengthTree != NULL && DistanceTree != NULL && Image != NULL) {
+            // Out = ImageContainer array
+            uint64_t Symbol = 0ULL;
+            uint64_t Offset = 0ULL;
+            do {
+                Symbol                              = ReadSymbol(BitB, LengthTree);;
+                if (Symbol > 256) { /* length */
+                    Symbol  -= 257;
+                    uint64_t Length                 = LengthBase[Symbol] + BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, LengthAdditionalBits[Symbol]);
+                    
+                    Symbol                          = ReadSymbol(BitB, DistanceTree);
+                    uint64_t Distance               = DistanceBase[Symbol] + BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, DistanceAdditionalBits[Symbol]);
+                    
+                    uint8_t ****ImageArray          = (uint8_t****) ImageContainer_GetArray(Image);
+                    if (ImageArray != NULL) {
+                        for (uint64_t NumBytes2Copy = 0; NumBytes2Copy < Length; NumBytes2Copy++) {
+                            // Copy NumBytes2Copde from Offset - Distance
+                            
+                            // We need to convert the View, Width, Height, and Channel as well as BitDepth into a byte location.
+                            // This function might also be useful in ContainerIO as well.
+                        }
+                    } else {
+                        Log(Log_DEBUG, __func__, U8("Couldn't get ImageArray"));
+                    }
+                }
+            } while (Symbol != EndOfBlock); /* end of block symbol */
+        } else if (PNG == NULL) {
+            Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+        } else if (LengthTree == NULL) {
+            Log(Log_DEBUG, __func__, U8("LengthTree Pointer is NULL"));
+        } else if (DistanceTree == NULL) {
+            Log(Log_DEBUG, __func__, U8("DistanceTree Pointer is NULL"));
+        } else if (Image == NULL) {
+            Log(Log_DEBUG, __func__, U8("ImageContainer Pointer is NULL"));
         }
-        return Symbol;
     }
     
     uint8_t PaethPredictor(int64_t Left, int64_t Above, int64_t UpperLeft) {
@@ -263,15 +269,13 @@ extern "C" {
                     }
                 }
             }
-        } else if (PNG == NULL) {
-            Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
         } else if (Image == NULL) {
             Log(Log_DEBUG, __func__, U8("ImageContainer Pointer is NULL"));
         }
     }
     
     void PNG_Filter_Up(ImageContainer *Image) {
-        if (PNG != NULL && Image != NULL) {
+        if (Image != NULL) {
             Image_Types Type = ImageContainer_GetType(Image);
             if (Type == ImageType_Integer8) {
                 uint8_t  *ImageArray = (uint8_t*)  ImageContainer_GetArray(Image);
@@ -298,15 +302,13 @@ extern "C" {
                     }
                 }
             }
-        } else if (PNG == NULL) {
-            Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
         } else if (Image == NULL) {
             Log(Log_DEBUG, __func__, U8("ImageContainer Pointer is NULL"));
         }
     }
     
     void PNG_Filter_Average(ImageContainer *Image) {
-        if (PNG != NULL && Image != NULL) {
+        if (Image != NULL) {
             Image_Types Type = ImageContainer_GetType(Image);
             if (Type == ImageType_Integer8) {
                 uint8_t  *ImageArray = (uint8_t*)  ImageContainer_GetArray(Image);
@@ -339,15 +341,13 @@ extern "C" {
                     }
                 }
             }
-        } else if (PNG == NULL) {
-            Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
         } else if (Image == NULL) {
             Log(Log_DEBUG, __func__, U8("ImageContainer Pointer is NULL"));
         }
     }
     
     void PNG_Filter_Paeth(ImageContainer *Image) {
-        if (PNG != NULL && Image != NULL) {
+        if (Image != NULL) {
             Image_Types Type = ImageContainer_GetType(Image);
             if (Type == ImageType_Integer8) {
                 uint8_t  *ImageArray = (uint8_t*)  ImageContainer_GetArray(Image);
@@ -388,8 +388,6 @@ extern "C" {
                     }
                 }
             }
-        } else if (PNG == NULL) {
-            Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
         } else if (Image == NULL) {
             Log(Log_DEBUG, __func__, U8("ImageContainer Pointer is NULL"));
         }
@@ -401,33 +399,33 @@ extern "C" {
     // ALSO keep in mind concurrency.
     
     void PNG_Defilter(ImageContainer *Image) {
-        if (PNG != NULL && Image != NULL) {
+        if (Image != NULL) {
             Image_Types Type = ImageContainer_GetType(Image);
             if (Type == ImageType_Integer8) {
                 // Image8
-                uint8_t  *ImageArray = (uint8_t*) ImageContainer_GetArray(Image);
+                uint8_t  ****ImageArray = (uint8_t****) ImageContainer_GetArray(Image);
                 
                 for (size_t ScanLine = 0; ScanLine < ImageContainer_GetWidth(Image); ScanLine++) {
-                    switch (ImageArray[ScanLine]) {
+                    switch (ImageArray[0][ScanLine][0][0]) {
                         case NotFiltered:
                             // copy the Line except byte 0 (the filter indication byte) to the output buffer.
                             // With the ImageContainer framework the way it is, this is only possible at the end.
                             break;
                         case SubFilter:
                             // SubFilter
-                            PNG_Filter_Sub(Ovia, Image);
+                            PNG_Filter_Sub(Image);
                             break;
                         case UpFilter:
                             // UpFilter
-                            PNG_Filter_Up(Ovia, Image);
+                            PNG_Filter_Up(Image);
                             break;
                         case AverageFilter:
                             // AverageFilter
-                            PNG_Filter_Average(Ovia, Image);
+                            PNG_Filter_Average(Image);
                             break;
                         case PaethFilter:
                             // PaethFilter
-                            PNG_Filter_Paeth(Ovia, Image);
+                            PNG_Filter_Paeth(Image);
                             break;
                         default:
                             Log(Log_DEBUG, __func__, U8("Filter type: %d is invalid"), ImageArray[ScanLine]);
@@ -436,24 +434,24 @@ extern "C" {
                 }
             } else {
                 // Image16
-                uint16_t *ImageArray = (uint16_t*) ImageContainer_GetArray(Image);
+                uint16_t ****ImageArray = (uint16_t****) ImageContainer_GetArray(Image);
                 
                 for (size_t ScanLine = 0; ScanLine < ImageContainer_GetWidth(Image); ScanLine++) {
-                    switch (ImageArray[ScanLine]) {
+                    switch (ImageArray[0][ScanLine][0][0]) {
                         case NotFiltered:
                             // copy the Line except byte 0 (the filter indication byte) to the output buffer.
                             break;
                         case SubFilter:
-                            PNG_Filter_Sub(Ovia, Image);
+                            PNG_Filter_Sub(Image);
                             break;
                         case UpFilter:
-                            PNG_Filter_Up(Ovia, Image);
+                            PNG_Filter_Up(Image);
                             break;
                         case AverageFilter:
-                            PNG_Filter_Average(Ovia, Image);
+                            PNG_Filter_Average(Image);
                             break;
                         case PaethFilter:
-                            PNG_Filter_Paeth(Ovia, Image);
+                            PNG_Filter_Paeth(Image);
                             break;
                         default:
                             Log(Log_DEBUG, __func__, U8("Filter type: %d is invalid"), ImageArray[ScanLine]);
@@ -466,29 +464,14 @@ extern "C" {
         }
     }
     
-    enum DEFLATEBlockTypes {
-        UncompressedBlock   = 0,
-        FixedHuffmanBlock   = 1,
-        DynamicHuffmanBlock = 2,
-    };
-    
-    static const uint8_t PNG_NumChannelsPerColorType[7] = {
-        1, 0, 3, 3, 4, 0, 4
-    };
-    
-    static const UTF8 PNG_MonthMap[12][4] = {
-        u8"Jan", u8"Feb", u8"Mar", u8"Apr", u8"May", u8"Jun",
-        u8"Jul", u8"Aug", u8"Sep", u8"Oct", u8"Nov", u8"Dec",
-    };
-    
-    void PNG_DAT_Parse(BitBuffer *BitB, uint32_t DATSize) {
+    void PNG_DAT_Parse(PNGOptions *PNG, BitBuffer *BitB) {
         if (PNG != NULL && BitB != NULL) {
-            bool     Is3D           = PNG_STER_GetSterType(Ovia);
-            uint8_t  BitDepth       = ImageContainer_GetBitDepth(Image);
-            uint8_t  ColorType      = PNG_iHDR_GetColorType(Ovia);
+            bool     Is3D           = PNG->sTER->StereoType > 0 ? Yes : No;
+            uint8_t  BitDepth       = PNG->iHDR->BitDepth;
+            uint8_t  ColorType      = PNG->iHDR->ColorType;
             uint8_t  NumChannels    = PNG_NumChannelsPerColorType[ColorType];
-            uint64_t Width          = ImageContainer_GetWidth(Image);
-            uint64_t Height         = OVIA_GetHeight(Ovia);
+            uint64_t Width          = PNG->iHDR->Width;
+            uint64_t Height         = PNG->iHDR->Height;
             ImageContainer *Decoded = NULL;
             Image_ChannelMask Mask  = 0;
             
@@ -524,6 +507,7 @@ extern "C" {
             }
             
             PNG_DAT_Decode(PNG, BitB, Decoded);
+            PNG_Flate_ReadDeflateBlock(PNG, BitB, Decoded);
         } else if (PNG == NULL) {
             Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -532,29 +516,25 @@ extern "C" {
     }
     
     void PNG_Adam7_Deinterlace(ImageContainer *Image) {
-        if (PNG != NULL && Image != NULL) {
+        if (Image != NULL) {
             
-        } else if (PNG == NULL) {
-            Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
         } else if (Image == NULL) {
             Log(Log_DEBUG, __func__, U8("ImageContainer Pointer is NULL"));
         }
     }
     
-    void PNG_IHDR_Parse(BitBuffer *BitB, uint32_t ChunkSize) {
+    void PNG_IHDR_Parse(PNGOptions *PNG, BitBuffer *BitB) {
         if (PNG != NULL && BitB != NULL) {
-            uint32_t Width          = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            uint32_t Height         = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            uint8_t  BitDepth       = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
-            uint8_t  ColorType      = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
-            if (ColorType == 1 || ColorType == 5 || ColorType >= 7) {
-                Log(Log_DEBUG, __func__, U8("Invalid color type: %d"), ColorType);
+            PNG->iHDR->Width          = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->iHDR->Height         = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->iHDR->BitDepth       = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+            PNG->iHDR->ColorType      = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+            if (PNG->iHDR->ColorType == 1 || PNG->iHDR->ColorType == 5 || PNG->iHDR->ColorType >= 7) {
+                Log(Log_DEBUG, __func__, U8("Invalid color type: %d"), PNG->iHDR->ColorType);
             }
-            uint8_t Compression    = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
-            uint8_t FilterMethod   = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
-            uint8_t Progressive    = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
-            
-            PNG_IHDR_SetIHDR(Ovia, Height, Width, BitDepth, ColorType, Progressive);
+            PNG->iHDR->Compression    = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+            PNG->iHDR->FilterMethod   = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+            PNG->iHDR->Progressive    = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
         } else if (PNG == NULL) {
             Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -562,25 +542,24 @@ extern "C" {
         }
     }
     
-    void PNG_PLTE_Parse(BitBuffer *BitB, uint32_t ChunkSize) {
-        if (PNG != NULL && BitB != NULL && ChunkSize % 3 == 0) {
-            uint8_t BitDepth = ImageContainer_GetBitDepth(Image);
+    void PNG_PLTE_Parse(PNGOptions *PNG, BitBuffer *BitB, uint32_t ChunkSize) {
+        if (PNG != NULL && BitB != NULL) {
+            uint8_t BitDepth = PNG->iHDR->BitDepth;
             if (BitDepth <= 8) {
-                uint8_t ColorType = PNG_GetColorType(Ovia);
+                uint8_t ColorType = PNG->iHDR->ColorType;
                 if (ColorType == PNG_PalettedRGB || ColorType == PNG_RGB) {
-                    PNG_PLTE_Init(Ovia, ChunkSize / 3);
+                    //PNG_PLTE_Init(Ovia);
                     for (uint32_t Entry = 0UL; Entry < ChunkSize / 3; Entry++) {
-                        uint8_t Red   = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 8);
-                        uint8_t Green = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 8);
-                        uint8_t Blue  = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 8);
-                        PNG_PLTE_SetPalette(Ovia, Entry, Red, Green, Blue);
+                        PNG->PLTE->Palette[0] = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 8);
+                        PNG->PLTE->Palette[1] = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 8);
+                        PNG->PLTE->Palette[2] = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 8);
                     }
                 } else if (ColorType == PNG_RGBA) {
                     for (uint32_t Entry = 0UL; Entry < ChunkSize / 3; Entry++) {
-                        uint8_t Red   = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 8);
-                        uint8_t Green = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 8);
-                        uint8_t Blue  = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 8);
-                        PNG_PLTE_SetPalette(Ovia, Entry, Red, Green, Blue);
+                        PNG->PLTE->Palette[0] = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 8);
+                        PNG->PLTE->Palette[1] = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 8);
+                        PNG->PLTE->Palette[2] = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 8);
+                        PNG->PLTE->Palette[3] = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 8);
                     }
                 }
             } else {
@@ -591,27 +570,25 @@ extern "C" {
             Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
-        } else if (ChunkSize % 3 != 0) {
-            Log(Log_DEBUG, __func__, U8("The ChunkSize MUST be divisible by 3"));
         }
     }
     
-    void PNG_TRNS_Parse(BitBuffer *BitB, uint32_t ChunkSize) { // Transparency
-        if (PNG != NULL && BitB != NULL && ChunkSize  % 3 == 0) {
+    void PNG_TRNS_Parse(PNGOptions *PNG, BitBuffer *BitB, uint32_t ChunkSize) { // Transparency
+        if (PNG != NULL && BitB != NULL) {
             uint32_t NumEntries    = ChunkSize % 3;
             uint16_t **Entries    = NULL;
-            if (PNG_GetColorType(Ovia) == PNG_RGB) {
-                Entries = calloc(3, Bits2Bytes(ImageContainer_GetBitDepth(Image), RoundingType_Up) * sizeof(uint16_t));
-            } else if (PNG_GetColorType(Ovia) == PNG_RGBA) {
-                Entries = calloc(4, Bits2Bytes(ImageContainer_GetBitDepth(Image), RoundingType_Up) * sizeof(uint16_t));
-            } else if (PNG_GetColorType(Ovia) == PNG_Grayscale) {
-                Entries = calloc(1, Bits2Bytes(ImageContainer_GetBitDepth(Image), RoundingType_Up) * sizeof(uint16_t));
-            } else if (PNG_GetColorType(Ovia) == PNG_GrayAlpha) {
-                Entries = calloc(2, Bits2Bytes(ImageContainer_GetBitDepth(Image), RoundingType_Up) * sizeof(uint16_t));
+            if (PNG->iHDR->ColorType == PNG_RGB) {
+                Entries = calloc(3, Bits2Bytes(PNG->iHDR->BitDepth, RoundingType_Up) * sizeof(uint16_t));
+            } else if (PNG->iHDR->ColorType == PNG_RGBA) {
+                Entries = calloc(4, Bits2Bytes(PNG->iHDR->BitDepth, RoundingType_Up) * sizeof(uint16_t));
+            } else if (PNG->iHDR->ColorType == PNG_Grayscale) {
+                Entries = calloc(1, Bits2Bytes(PNG->iHDR->BitDepth, RoundingType_Up) * sizeof(uint16_t));
+            } else if (PNG->iHDR->ColorType == PNG_GrayAlpha) {
+                Entries = calloc(2, Bits2Bytes(PNG->iHDR->BitDepth, RoundingType_Up) * sizeof(uint16_t));
             }
             if (Entries != NULL) {
-                for (uint8_t Color = 0; Color < PNG_NumChannelsPerColorType[PNG_GetColorType(Ovia)]; Color++) {
-                    Entries[Color]    = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, Bits2Bytes(ImageContainer_GetBitDepth(Image), RoundingType_Up));
+                for (uint8_t Color = 0; Color < PNG_NumChannelsPerColorType[PNG->iHDR->ColorType]; Color++) {
+                    Entries[Color]    = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, Bits2Bytes(PNG->iHDR->BitDepth, RoundingType_Up));
                 }
                 //Ovia->tRNS->Palette = Entries;
             } else {
@@ -626,11 +603,10 @@ extern "C" {
         }
     }
     
-    void PNG_BKGD_Parse(BitBuffer *BitB, uint32_t ChunkSize) { // Background
+    void PNG_BKGD_Parse(PNGOptions *PNG, BitBuffer *BitB) { // Background
         if (PNG != NULL && BitB != NULL) {
-            for (uint8_t Entry = 0; Entry < 3; Entry++) {
-                uint8_t BackgroundEntry = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
-                PNG_BKGD_SetBackgroundPaletteEntry(Ovia, BackgroundEntry);
+            for (uint8_t Entry = 0; Entry < PNG_NumChannelsPerColorType[PNG->iHDR->ColorType]; Entry++) {
+                PNG->bkGD->BackgroundPaletteEntry[Entry] = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, PNG->iHDR->BitDepth);
             }
         } else if (PNG == NULL) {
             Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
@@ -639,21 +615,16 @@ extern "C" {
         }
     }
     
-    void PNG_CHRM_Parse(BitBuffer *BitB, uint32_t ChunkSize) { // Chromaticities
+    void PNG_CHRM_Parse(PNGOptions *PNG, BitBuffer *BitB) {
         if (PNG != NULL && BitB != NULL) {
-            uint32_t WhitePointX = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            uint32_t WhitePointY = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            uint32_t RedX        = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            uint32_t RedY        = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            uint32_t GreenX      = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            uint32_t GreenY      = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            uint32_t BlueX       = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            uint32_t BlueY       = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            
-            PNG_CHRM_SetWhitePoint(Ovia, WhitePointX, WhitePointY);
-            PNG_CHRM_SetRed(Ovia, RedX, RedY);
-            PNG_CHRM_SetGreen(Ovia, GreenX, GreenY);
-            PNG_CHRM_SetBlue(Ovia, BlueX, BlueY);
+            PNG->cHRM->WhitePointX = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->cHRM->WhitePointY = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->cHRM->RedX        = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->cHRM->RedY        = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->cHRM->GreenX      = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->cHRM->GreenY      = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->cHRM->BlueX       = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->cHRM->BlueY       = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
         } else if (PNG == NULL) {
             Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -661,11 +632,9 @@ extern "C" {
         }
     }
     
-    void PNG_GAMA_Parse(BitBuffer *BitB, uint32_t ChunkSize) { // Gamma
+    void PNG_GAMA_Parse(PNGOptions *PNG, BitBuffer *BitB) { // Gamma
         if (PNG != NULL && BitB != NULL) {
-            
-            uint32_t Gamma = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            PNG_GAMA_SetGamma(Ovia, Gamma);
+            PNG->gAMA->Gamma = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
         } else if (PNG == NULL) {
             Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -673,11 +642,11 @@ extern "C" {
         }
     }
     
-    void PNG_OFFS_Parse(BitBuffer *BitB, uint32_t ChunkSize) { // Image Offset
+    void PNG_OFFS_Parse(PNGOptions *PNG, BitBuffer *BitB) { // Image Offset
         if (PNG != NULL && BitB != NULL) {
-            PNG_OFFS_SetXOffset(PNG, BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32));
-            PNG_OFFS_SetYOffset(PNG, BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32));
-            PNG_OFFS_SetSpecifier(PNG, BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8));
+            PNG->oFFs->XOffset       = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->oFFs->YOffset       = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->oFFs->UnitSpecifier = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
         } else if (PNG == NULL) {
             Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -685,11 +654,11 @@ extern "C" {
         }
     }
     
-    void PNG_PHYS_Parse(BitBuffer *BitB, uint32_t ChunkSize) { // Aspect ratio, Physical pixel size
+    void PNG_PHYS_Parse(PNGOptions *PNG, BitBuffer *BitB) { // Aspect ratio, Physical pixel size
         if (PNG != NULL && BitB != NULL) {
-            PNG_PHYS_SetPixelsPerUnitX(PNG, BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32));
-            PNG_PHYS_SetPixelsPerUnitY(PNG, BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32));
-            PNG_PHYS_SetUnitSpecifier(PNG, BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8));
+            PNG->pHYs->PixelsPerUnitXAxis = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->pHYs->PixelsPerUnitYAxis = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->pHYs->UnitSpecifier      = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
         } else if (PNG == NULL) {
             Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -697,24 +666,21 @@ extern "C" {
         }
     }
     
-    void PNG_SCAL_Parse(BitBuffer *BitB, uint32_t ChunkSize) { // Physical Scale
+    void PNG_SCAL_Parse(PNGOptions *PNG, BitBuffer *BitB) { // Physical Scale
         if (PNG != NULL && BitB != NULL) {
-            uint8_t UnitSpecifier     = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8); // 1 = Meter, 2 = Radian
+            PNG->sCAL->UnitSpecifier  = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8); // 1 = Meter, 2 = Radian
             
             uint32_t WidthStringSize  = BitBuffer_GetUTF8StringSize(BitB);
-            uint32_t HeightStringSize = ChunkSize - WidthStringSize - 1 - 1; // - 1 for the Unit specifier, and the null terminator for string1
+            uint32_t HeightStringSize = BitBuffer_GetUTF8StringSize(BitB);
             
             UTF8 *WidthString         = BitBuffer_ReadUTF8(BitB, WidthStringSize);
-            BitBuffer_Seek(BitB, 8); // Skip the NULL seperator
             UTF8 *HeightString        = BitBuffer_ReadUTF8(BitB, HeightStringSize);
             
-            double Width              = UTF8_String2Decimal(WidthString);
-            double Height             = UTF8_String2Decimal(HeightString);
+            PNG->sCAL->PixelWidth     = UTF8_String2Decimal(WidthString);
+            PNG->sCAL->PixelHeight    = UTF8_String2Decimal(HeightString);
             
             free(WidthString);
             free(HeightString);
-            
-            PNG_SCAL_SetSCAL(Ovia, UnitSpecifier, Width, Height);
         } else if (PNG == NULL) {
             Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -722,12 +688,25 @@ extern "C" {
         }
     }
     
-    void PNG_PCAL_Parse(BitBuffer *BitB, uint32_t ChunkSize) {
+    void PNG_PCAL_Parse(PNGOptions *PNG, BitBuffer *BitB) {
         if (PNG != NULL && BitB != NULL) {
-            uint8_t CalibrationSize = BitBuffer_GetUTF8StringSize(BitB);
-            UTF8   *Calibration     = BitBuffer_ReadUTF8(BitB, CalibrationSize);
-            
-            PNG_PCAL_SetCalibrationName(Ovia, Calibration);
+            uint8_t CalibrationSize              = BitBuffer_GetUTF8StringSize(BitB);
+            PNG->pCAL->CalibrationName           = BitBuffer_ReadUTF8(BitB, CalibrationSize);
+            PNG->pCAL->OriginalZero              = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->pCAL->OriginalMax               = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->pCAL->EquationType              = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+            PNG->pCAL->NumParams                 = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+            uint8_t UnitNameSize                 = BitBuffer_GetUTF8StringSize(BitB);
+            PNG->pCAL->UnitName                  = BitBuffer_ReadUTF8(BitB, UnitNameSize);
+            BitBuffer_Seek(BitB, 8); // NULL seperator
+            PNG->pCAL->Parameters                = calloc(PNG->pCAL->NumParams, sizeof(double));
+            if (PNG->pCAL->Parameters != NULL) {
+                for (uint8_t Param = 0; Param < PNG->pCAL->NumParams; Param++) {
+                    uint8_t ParameterSize        = BitBuffer_GetUTF8StringSize(BitB);
+                    UTF8   *ParameterString      = BitBuffer_ReadUTF8(BitB, ParameterSize);
+                    PNG->pCAL->Parameters[Param] = UTF8_String2Decimal(ParameterString);
+                }
+            }
         } else if (PNG == NULL) {
             Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -735,11 +714,24 @@ extern "C" {
         }
     }
     
-    void PNG_SBIT_Parse(BitBuffer *BitB, uint32_t ChunkSize) { // Significant bits per sample
+    void PNG_SBIT_Parse(PNGOptions *PNG, BitBuffer *BitB) { // Significant bits per sample
         if (PNG != NULL && BitB != NULL) {
-            PNG_SBIT_SetRed(PNG, BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8));
-            PNG_SBIT_SetGreen(PNG, BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8));
-            PNG_SBIT_SetBlue(PNG, BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8));
+            PNG_ColorTypes ColorType = PNG->iHDR->ColorType;
+            if (ColorType == PNG_Grayscale) {
+                PNG->sBIT->Grayscale = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+            } else if (ColorType == PNG_RGB || ColorType == PNG_PalettedRGB) {
+                PNG->sBIT->Red       = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+                PNG->sBIT->Green     = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+                PNG->sBIT->Blue      = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+            } else if (ColorType == PNG_GrayAlpha) {
+                PNG->sBIT->Grayscale = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+                PNG->sBIT->Alpha     = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+            } else if (ColorType == PNG_RGBA) {
+                PNG->sBIT->Red       = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+                PNG->sBIT->Green     = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+                PNG->sBIT->Blue      = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+                PNG->sBIT->Alpha     = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+            }
         } else if (PNG == NULL) {
             Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -747,9 +739,9 @@ extern "C" {
         }
     }
     
-    void PNG_SRGB_Parse(BitBuffer *BitB, uint32_t ChunkSize) {
+    void PNG_SRGB_Parse(PNGOptions *PNG, BitBuffer *BitB) {
         if (PNG != NULL && BitB != NULL) {
-            PNG_SRGB_SetRenderingIntent(PNG, BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8));
+            PNG->sRGB->RenderingIntent = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
         } else if (PNG == NULL) {
             Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -757,10 +749,9 @@ extern "C" {
         }
     }
     
-    void PNG_STER_Parse(BitBuffer *BitB, uint32_t ChunkSize) {
+    void PNG_STER_Parse(PNGOptions *PNG, BitBuffer *BitB) {
         if (PNG != NULL && BitB != NULL) {
-            PNG_STER_SetSterType(PNG, BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8));
-            
+            PNG->sTER->StereoType = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
             // No matter what StereoType is used, both images are arranged side by side, and the left edge is aligned on a boundary of the 8th column in case interlacing is used.
             // The two sub images must have the same dimensions after padding is removed.
             // CROSS_FUSE_LAYOUT = 0, DIVERGING_FUSE_LAYOUT = 1
@@ -778,18 +769,18 @@ extern "C" {
         }
     }
     
-    void PNG_TEXT_Parse(BitBuffer *BitB, uint32_t ChunkSize) { // Uncompressed, ASCII tEXt
+    void PNG_TEXT_Parse(PNGOptions *PNG, BitBuffer *BitB) { // Uncompressed, ASCII tEXt
         if (PNG != NULL && BitB != NULL) {
-            // Read until you hit a NULL for the name string, then subtract the size of the previous string from the total length to get the number of bytes for the second string
-            uint8_t  KeywordSize = 0UL;
-            uint8_t  CurrentByte = 0; // 1 is BULLshit
+            for (uint32_t TextChunk = 0UL; TextChunk < PNG->NumTextChunks; TextChunk++) {
+                if (PNG->Text[TextChunk]->TextType == tEXt) { // ASCII aka Latin-1
+                    
+                } else if (PNG->Text[TextChunk]->TextType == iTXt) { // Unicode, UTF-8
+                    
+                } else if (PNG->Text[TextChunk]->TextType == zTXt) { // Compressed
+                    
+                }
+            }
             
-            do {
-                CurrentByte  = BitBuffer_PeekBits(BitB, MSByteFirst, LSBitFirst, 8);
-                KeywordSize += 1;
-            } while (CurrentByte != 0);
-            
-            uint32_t CommentSize = ChunkSize - KeywordSize;
             
             //Ovia->NumTextChunks  += 1;
             
@@ -819,7 +810,7 @@ extern "C" {
         }
     }
     
-    void PNG_TIME_Parse(PNGOptions *PNG, BitBuffer *BitB, uint32_t ChunkSize) {
+    void PNG_TIME_Parse(PNGOptions *PNG, BitBuffer *BitB) {
         if (PNG != NULL && BitB != NULL) {
             PNG->tIMe->Year                     = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16);
             PNG->tIMe->Month                    = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
@@ -835,7 +826,7 @@ extern "C" {
     }
     
     /* APNG */
-    void PNG_ACTL_Parse(PNGOptions *PNG, BitBuffer *BitB, uint32_t ChunkSize) { // Animation control, part of APNG
+    void PNG_ACTL_Parse(PNGOptions *PNG, BitBuffer *BitB) { // Animation control, part of APNG
         if (PNG != NULL && BitB != NULL) {
             PNG->acTL->NumFrames             = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
             PNG->acTL->TimesToLoop           = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32); // If 0, loop forever.
@@ -846,7 +837,7 @@ extern "C" {
         }
     }
     
-    void PNG_FCTL_Parse(PNGOptions *PNG, BitBuffer *BitB, uint32_t ChunkSize) { // Frame Control, part of APNG
+    void PNG_FCTL_Parse(PNGOptions *PNG, BitBuffer *BitB) { // Frame Control, part of APNG
         if (PNG != NULL && BitB != NULL) {
             PNG->fcTL->FrameNum              = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
             PNG->fcTL->Width                 = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
@@ -865,7 +856,7 @@ extern "C" {
     }
     /* End APNG */
     
-    void PNG_HIST_Parse(PNGOptions *PNG, BitBuffer *BitB, uint32_t ChunkSize) {
+    void PNG_HIST_Parse(PNGOptions *PNG, BitBuffer *BitB) {
         if (PNG != NULL && BitB != NULL) {
             PNG->hIST->NumColors = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
             for (uint32_t Color = 0; Color < PNG->hIST->NumColors; Color++) {
@@ -878,9 +869,12 @@ extern "C" {
         }
     }
     
-    void PNG_ICCP_Parse(PNGOptions *PNG, BitBuffer *BitB, uint32_t ChunkSize) {
+    void PNG_ICCP_Parse(PNGOptions *PNG, BitBuffer *BitB) {
         if (PNG != NULL && BitB != NULL) {
-            
+            uint8_t ProfileNameSize = BitBuffer_GetUTF8StringSize(BitB);
+            PNG->iCCP->ProfileName  = BitBuffer_ReadUTF8(BitB, ProfileNameSize);
+            PNG->iCCP->CompressionType = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+            // Decompress the data with Zlib
         } else if (PNG == NULL) {
             Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -890,9 +884,18 @@ extern "C" {
         ProfileNameSize = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
     }
     
-    void PNG_SPLT_Parse(PNGOptions *PNG, BitBuffer *BitB, uint32_t ChunkSize) {
+    void PNG_SPLT_Parse(PNGOptions *PNG, BitBuffer *BitB) {
         if (PNG != NULL && BitB != NULL) {
-            
+            PNG_ColorTypes ColorType                 = PNG->iHDR->ColorType;
+            uint8_t BitDepthInBytes                  = Bits2Bytes(PNG->iHDR->BitDepth, RoundingType_Up);
+            uint8_t PaletteNameSize                  = BitBuffer_GetUTF8StringSize(BitB);
+            PNG->sPLT[PNG->NumSPLTChunks - 1]->Name   = BitBuffer_ReadUTF8(BitB, PaletteNameSize);
+            PNG->sPLT[PNG->NumSPLTChunks - 1]->Red    = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, Bytes2Bits(BitDepthInBytes));
+            PNG->sPLT[PNG->NumSPLTChunks - 1]->Green  = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, Bytes2Bits(BitDepthInBytes));
+            PNG->sPLT[PNG->NumSPLTChunks - 1]->Blue   = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, Bytes2Bits(BitDepthInBytes));
+            if (ColorType == PNG_RGBA || ColorType == PNG_GrayAlpha) {
+                PNG->sPLT[PNG->NumSPLTChunks - 1]->Alpha = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, Bytes2Bits(BitDepthInBytes));
+            }
         } else if (PNG == NULL) {
             Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -932,21 +935,31 @@ extern "C" {
                 } else if (ChunkID == pHYsMarker) {
                     PNG_PHYS_Parse(PNG, BitB);
                 } else if (ChunkID == PLTEMarker) {
-                    PNG_PLTE_Parse(PNG, BitB);
+                    PNG_PLTE_Parse(PNG, BitB, ChunkSize);
                 } else if (ChunkID == sBITMarker) {
                     PNG_SBIT_Parse(PNG, BitB);
                 } else if (ChunkID == sRGBMarker) {
                     PNG_SRGB_Parse(PNG, BitB);
                 } else if (ChunkID == sTERMarker) {
                     PNG_STER_Parse(PNG, BitB);
-                } else if (ChunkID == tEXtMarker || ChunkID == zTXtMarker || ChunkID == iTXtMarker) {
+                } else if (ChunkID == tEXtMarker) {
+                    PNG->NumTextChunks += 1;
+                    PNG->Text[PNG->NumTextChunks - 1]->TextType = tEXt;
+                    PNG_TEXT_Parse(PNG, BitB);
+                } else if (ChunkID == zTXtMarker) {
+                    PNG->NumTextChunks += 1;
+                    PNG->Text[PNG->NumTextChunks - 1]->TextType = zTXt;
+                    PNG_TEXT_Parse(PNG, BitB);
+                } else if (ChunkID == iTXtMarker) {
+                    PNG->NumTextChunks += 1;
+                    PNG->Text[PNG->NumTextChunks - 1]->TextType = iTXt;
                     PNG_TEXT_Parse(PNG, BitB);
                 } else if (ChunkID == sCALMarker) {
                     PNG_SCAL_Parse(PNG, BitB);
                 } else if (ChunkID == tIMEMarker) {
                     PNG_TIME_Parse(PNG, BitB);
                 } else if (ChunkID == tRNSMarker) {
-                    PNG_TRNS_Parse(PNG, BitB);
+                    PNG_TRNS_Parse(PNG, BitB, ChunkSize);
                 } else if (ChunkID == sPLTMarker) {
                     PNG_SPLT_Parse(PNG, BitB);
                 }
@@ -970,19 +983,33 @@ extern "C" {
         return Image;
     }
     
-    static const OVIADecoder PNGDecoder = {
-        .DecoderID             = CodecID_PNG,
-        .MediaType             = MediaType_Image,
-        .MagicIDOffset         = 0,
-        .MagicIDSize           = 8,
-        .MagicID               = (uint8_t[8]) {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A},
-        .Function_Initialize   = PNGOptions_Init,
-        .Function_Decode       = PNGExtractImage,
-        .Function_Deinitialize = PNGOptions_Deinit,
-    };
+    /*
+     DAT blocks and zlib blocks have absolutely no relationship.
+     
+     So the DAT parsing needs to be seperate from Zlib block parsing.
+     
+     So, in the zlib blocks we have the precode table, 
+     */
     
-    OVIADemuxer PNGDemuxer = {
-        .Function_ParseChunks  = PNG_ParseChunks,
+    static void RegisterDecoder_PNG(OVIA *Ovia) {
+        Ovia->NumDecoders                                 += 1;
+        uint64_t DecoderIndex                              = Ovia->NumDecoders;
+        Ovia->Decoders                                     = realloc(Ovia->Decoders, sizeof(OVIADecoder) * Ovia->NumDecoders);
+        
+        Ovia->Decoders[DecoderIndex].DecoderID             = CodecID_PNG;
+        Ovia->Decoders[DecoderIndex].MediaType             = MediaType_Image;
+        Ovia->Decoders[DecoderIndex].NumMagicIDs           = 1;
+        Ovia->Decoders[DecoderIndex].MagicIDOffset[0]      = 0;
+        Ovia->Decoders[DecoderIndex].MagicIDSize[0]        = 8;
+        Ovia->Decoders[DecoderIndex].MagicID[0]            = (uint8_t[8]){0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
+        Ovia->Decoders[DecoderIndex].Function_Initialize   = PNGOptions_Init;
+        Ovia->Decoders[DecoderIndex].Function_Parse        = PNG_ParseChunks;
+        Ovia->Decoders[DecoderIndex].Function_Decode       = PNGExtractImage;
+        Ovia->Decoders[DecoderIndex].Function_Deinitialize = PNGOptions_Deinit;
+    }
+    
+    static OVIACodecRegistry Register_FLACDecoder = {
+        .Function_RegisterDecoder[CodecID_PNG]    = RegisterDecoder_PNG,
     };
     
 #ifdef __cplusplus

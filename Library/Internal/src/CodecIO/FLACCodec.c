@@ -80,7 +80,7 @@ extern "C" {
     
     uint16_t FLAC_GetBlockSizeInSamples(FLACOptions *FLAC) {
         uint16_t SamplesInBlock = 0;
-        if (FLAC_GetBlockSizeInSamples == 1) {
+        if (FLAC->StreamInfo->CodedSampleRate == 1) {
             SamplesInBlock = 192;
         } else if (FLAC_GetBlockSizeInSamples >= 2 && FLAC_GetBlockSizeInSamples <= 5) {
             SamplesInBlock = 576 * Exponentiate(2, FLAC->Frame->CodedBlockSize - 2);

@@ -89,22 +89,17 @@ extern "C" {
     } OVIA_TagTypes;
     
     typedef enum OVIA_CodecIDs {
-        CodecID_Unknown       = 0,
-        CodecID_AIF           = 1,
-        CodecID_WAV           = 3,
-        CodecID_W64           = 4,
-        CodecID_FLAC          = 5,
-        CodecID_BMP           = 6,
-        CodecID_PAM           = 7,
-        CodecID_PNG           = 8,
-        CodecID_PBM_B         = 9,
-        CodecID_PBM_A         = 10,
-        CodecID_PGM_B         = 11,
-        CodecID_PGM_A         = 12,
-        CodecID_PPM_B         = 13,
-        CodecID_PPM_A         = 14,
-        OVIA_NumPNM           = 6,
-        OVIA_NumCodecs        = CodecID_PPM_A - OVIA_NumPNM
+        CodecID_AIF           = 0,
+        CodecID_WAV           = 1,
+        CodecID_W64           = 2,
+        CodecID_FLAC          = 3,
+        CodecID_BMP           = 4,
+        CodecID_PNG           = 5,
+        CodecID_PNM_ASCII     = 6,
+        CodecID_PNM_Binary    = 7,
+        CodecID_PAM           = 8,
+        CodecID_Unknown       = 9,
+        OVIA_NumCodecs        = CodecID_Unknown,
     } OVIA_CodecIDs;
     
     typedef struct       Audio2DContainer  Audio2DContainer; // Forward declare ContainerIO's tyoes

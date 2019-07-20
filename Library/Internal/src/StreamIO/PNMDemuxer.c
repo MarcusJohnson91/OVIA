@@ -72,7 +72,7 @@ extern "C" {
         }
     }
     
-    static void PNMParsePAMHeader(PNMOptions *PNM, BitBuffer *BitB) {
+    static void PNMParse_PAM(PNMOptions *PNM, BitBuffer *BitB) {
         if (PNM != NULL && BitB != NULL) {
             /* Read Width */
             BitBuffer_Seek(BitB, 48); // Skip "WIDTH " string
@@ -211,88 +211,79 @@ extern "C" {
         }
     }
     
-    OVIADecoder PNMDecoder_BitASCII = {
-        .MagicID               = {0x50, 0x31},
-        .MagicIDSize           = 2,
-        .MagicIDOffset         = 0,
-        .MediaType             = MediaType_Image,
-        .DecoderID             = CodecID_PBM_A,
-        .Function_Initialize   = PNMOptions_Init,
-        .Function_Parse        = PNMParse_ASCII,
-        .Function_Decode       = PNMExtractImage_ASCII,
-        .Function_Deinitialize = PNMOptions_Deinit,
+    static void RegisterDecoder_PNM_ASCII(OVIA *Ovia) {
+        Ovia->NumDecoders                                 += 1;
+        uint64_t DecoderIndex                              = Ovia->NumDecoders;
+        Ovia->Decoders                                     = realloc(Ovia->Decoders, sizeof(OVIADecoder) * Ovia->NumDecoders);
+        
+        Ovia->Decoders[DecoderIndex].DecoderID             = CodecID_PNM_ASCII;
+        Ovia->Decoders[DecoderIndex].MediaType             = MediaType_Image;
+        Ovia->Decoders[DecoderIndex].NumMagicIDs           = 3;
+        Ovia->Decoders[DecoderIndex].MagicIDOffset[0]      = 0;
+        Ovia->Decoders[DecoderIndex].MagicIDSize[0]        = 2;
+        Ovia->Decoders[DecoderIndex].MagicID[0]            = (uint8_t[2]) {0x50, 0x31};
+        Ovia->Decoders[DecoderIndex].MagicIDOffset[1]      = 0;
+        Ovia->Decoders[DecoderIndex].MagicIDSize[1]        = 2;
+        Ovia->Decoders[DecoderIndex].MagicID[1]            = (uint8_t[2]) {0x50, 0x32};
+        Ovia->Decoders[DecoderIndex].MagicIDOffset[2]      = 0;
+        Ovia->Decoders[DecoderIndex].MagicIDSize[2]        = 2;
+        Ovia->Decoders[DecoderIndex].MagicID[2]            = (uint8_t[2]) {0x50, 0x33};
+        Ovia->Decoders[DecoderIndex].Function_Initialize   = PNMOptions_Init;
+        Ovia->Decoders[DecoderIndex].Function_Parse        = PNMParse_ASCII;
+        Ovia->Decoders[DecoderIndex].Function_Decode       = PNMExtractImage_ASCII;
+        Ovia->Decoders[DecoderIndex].Function_Deinitialize = PNMOptions_Deinit;
+    }
+    
+    static void RegisterDecoder_PNM_Binary(OVIA *Ovia) {
+        Ovia->NumDecoders                                 += 1;
+        uint64_t DecoderIndex                              = Ovia->NumDecoders;
+        Ovia->Decoders                                     = realloc(Ovia->Decoders, sizeof(OVIADecoder) * Ovia->NumDecoders);
+        
+        Ovia->Decoders[DecoderIndex].DecoderID             = CodecID_PNM_Binary;
+        Ovia->Decoders[DecoderIndex].MediaType             = MediaType_Image;
+        Ovia->Decoders[DecoderIndex].NumMagicIDs           = 3;
+        Ovia->Decoders[DecoderIndex].MagicIDOffset[0]      = 0;
+        Ovia->Decoders[DecoderIndex].MagicIDSize[0]        = 2;
+        Ovia->Decoders[DecoderIndex].MagicID[0]            = (uint8_t[2]) {0x50, 0x34};
+        Ovia->Decoders[DecoderIndex].MagicIDOffset[1]      = 0;
+        Ovia->Decoders[DecoderIndex].MagicIDSize[1]        = 2;
+        Ovia->Decoders[DecoderIndex].MagicID[1]            = (uint8_t[2]) {0x50, 0x35};
+        Ovia->Decoders[DecoderIndex].MagicIDOffset[2]      = 0;
+        Ovia->Decoders[DecoderIndex].MagicIDSize[2]        = 2;
+        Ovia->Decoders[DecoderIndex].MagicID[2]            = (uint8_t[2]) {0x50, 0x36};
+        Ovia->Decoders[DecoderIndex].Function_Initialize   = PNMOptions_Init;
+        Ovia->Decoders[DecoderIndex].Function_Parse        = PNMParse_Binary;
+        Ovia->Decoders[DecoderIndex].Function_Decode       = PNMExtractImage_Binary;
+        Ovia->Decoders[DecoderIndex].Function_Deinitialize = PNMOptions_Deinit;
+    }
+    
+    static void RegisterDecoder_PAM(OVIA *Ovia) {
+        Ovia->NumDecoders                                 += 1;
+        uint64_t DecoderIndex                              = Ovia->NumDecoders;
+        Ovia->Decoders                                     = realloc(Ovia->Decoders, sizeof(OVIADecoder) * Ovia->NumDecoders);
+        
+        Ovia->Decoders[DecoderIndex].DecoderID             = CodecID_PAM;
+        Ovia->Decoders[DecoderIndex].MediaType             = MediaType_Image;
+        Ovia->Decoders[DecoderIndex].NumMagicIDs           = 1;
+        Ovia->Decoders[DecoderIndex].MagicIDOffset[0]      = 0;
+        Ovia->Decoders[DecoderIndex].MagicIDSize[0]        = 2;
+        Ovia->Decoders[DecoderIndex].MagicID[0]            = (uint8_t[2]) {0x50, 0x37};
+        Ovia->Decoders[DecoderIndex].Function_Initialize   = PNMOptions_Init;
+        Ovia->Decoders[DecoderIndex].Function_Parse        = PNMParse_PAM;
+        Ovia->Decoders[DecoderIndex].Function_Decode       = PNMExtractImage_Binary;
+        Ovia->Decoders[DecoderIndex].Function_Deinitialize = PNMOptions_Deinit;
+    }
+    
+    static OVIACodecRegistry Register_DecoderPNMASCII = {
+        .Function_RegisterEncoder[CodecID_PNM_ASCII]   = RegisterDecoder_PNM_ASCII,
     };
     
-    OVIADecoder PNMDecoder_GrayASCII = {
-        .MagicID               = {0x50, 0x32},
-        .MagicIDSize           = 2,
-        .MagicIDOffset         = 0,
-        .MediaType             = MediaType_Image,
-        .DecoderID             = CodecID_PGM_A,
-        .Function_Initialize   = PNMOptions_Init,
-        .Function_Parse        = PNMParse_ASCII,
-        .Function_Decode       = PNMExtractImage_ASCII,
-        .Function_Deinitialize = PNMOptions_Deinit,
+    static OVIACodecRegistry Register_DecoderPNMBinary = {
+        .Function_RegisterEncoder[CodecID_PNM_Binary]  = RegisterDecoder_PNM_Binary,
     };
     
-    OVIADecoder PNMDecoder_PixASCII = {
-        .MagicID               = {0x50, 0x33},
-        .MagicIDSize           = 2,
-        .MagicIDOffset         = 0,
-        .MediaType             = MediaType_Image,
-        .DecoderID             = CodecID_PPM_A,
-        .Function_Initialize   = PNMOptions_Init,
-        .Function_Parse        = PNMParse_ASCII,
-        .Function_Decode       = PNMExtractImage_ASCII,
-        .Function_Deinitialize = PNMOptions_Deinit,
-    };
-    
-    OVIADecoder PNMDecoder_BitBinary = {
-        .MagicID               = {0x50, 0x34},
-        .MagicIDSize           = 2,
-        .MagicIDOffset         = 0,
-        .MediaType             = MediaType_Image,
-        .DecoderID             = CodecID_PBM_B,
-        .Function_Initialize   = PNMOptions_Init,
-        .Function_Parse        = PNMParse_Binary,
-        .Function_Decode       = PNMExtractImage_Binary,
-        .Function_Deinitialize = PNMOptions_Deinit,
-    };
-    
-    OVIADecoder PNMDecoder_GrayBinary = {
-        .MagicID               = {0x50, 0x35},
-        .MagicIDSize           = 2,
-        .MagicIDOffset         = 0,
-        .MediaType             = MediaType_Image,
-        .DecoderID             = CodecID_PGM_B,
-        .Function_Initialize   = PNMOptions_Init,
-        .Function_Parse        = PNMParse_Binary,
-        .Function_Decode       = PNMExtractImage_Binary,
-        .Function_Deinitialize = PNMOptions_Deinit,
-    };
-    
-    OVIADecoder PNMDecoder_PixBinary = {
-        .MagicID               = {0x50, 0x36},
-        .MagicIDSize           = 2,
-        .MagicIDOffset         = 0,
-        .MediaType             = MediaType_Image,
-        .DecoderID             = CodecID_PPM_B,
-        .Function_Initialize   = PNMOptions_Init,
-        .Function_Parse        = PNMParse_Binary,
-        .Function_Decode       = PNMExtractImage_Binary,
-        .Function_Deinitialize = PNMOptions_Deinit,
-    };
-    
-    OVIADecoder PNMDecoder_Any = {
-        .MagicID               = {0x50, 0x37},
-        .MagicIDSize           = 2,
-        .MagicIDOffset         = 0,
-        .MediaType             = MediaType_Image,
-        .DecoderID             = CodecID_PAM,
-        .Function_Initialize   = PNMOptions_Init,
-        .Function_Parse        = PNMParsePAMHeader,
-        .Function_Decode       = PNMExtractImage_Binary,
-        .Function_Deinitialize = PNMOptions_Deinit,
+    static OVIACodecRegistry Register_DecoderPAM = {
+        .Function_RegisterDecoder[CodecID_PAM]         = RegisterDecoder_PAM,
     };
     
 #ifdef __cplusplus

@@ -4,16 +4,46 @@
 extern "C" {
 #endif
     
+    /*
+     For now, I'm just going to store the image in Deflate as literals.
+     
+     it will be a valid PNG so for now who cares?
+     */
+    
+    void PNGWriteHeader(PNGOptions *PNG, BitBuffer *BitB) {
+        if (PNG != NULL && BitB != NULL) {
+            // Write the iHDR chunk, and then go through the list of other chunks to find out if other chunks should be written
+        } else if (PNG == NULL) {
+            Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
+        } else if (BitB == NULL) {
+            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+        }
+    }
+    
+    void PNGWriteFooter(PNGOptions *PNG, BitBuffer *BitB) {
+        if (PNG != NULL && BitB != NULL) {
+            uint32_t iENDSize = 0;
+            uint32_t iENDCRC  = 0xAE426082;
+            BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, 32, iENDSize);
+            BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, 32, iENDMarker);
+            BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, 32, iENDCRC);
+        } else if (PNG == NULL) {
+            Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
+        } else if (BitB == NULL) {
+            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+        }
+    }
+    
     void PNG_DAT_WriteZlibHeader(PNGOptions *PNG, BitBuffer *BitB) {
         if (PNG != NULL && BitB != NULL) {
-            bool FDICT                = PNG->DAT->FLG & 0x4 >> 2;
+            bool FDICT                = 0;
             
-            uint8_t CompressionInfo   = PNG->DAT->CMF & 0xF0 >> 4;
-            uint8_t CompressionMethod = PNG->DAT->CMF & 0x0F;
+            uint8_t CompressionInfo   = 7;
+            uint8_t CompressionMethod = 8;
             
             uint16_t FCHECK           = CompressionInfo << 12;
             FCHECK                   |= CompressionMethod << 8;
-            FCHECK                   |= (PNG->DAT->FLG & 0x3) << 6;
+            FCHECK                   |= FDICT << 6;
             FCHECK                   |= FDICT << 5;
             
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 4, CompressionMethod);
@@ -21,7 +51,7 @@ extern "C" {
             
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 5, FCHECK);
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 1, FDICT);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 2, PNG->DAT->FLG & 0x3);
+            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 2, 0); // Huh?
             
             if (FDICT == Yes) {
                 BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, PNG->DAT->DictID);
@@ -120,9 +150,9 @@ extern "C" {
         }
     }
     
-    void WriteFDATChunk(PNGOptions *PNG, BitBuffer *BitB, uint8_t *DeflatedFrameData, uint32_t DeflatedFrameDataSize) {
+    void WriteFDATChunk(PNGOptions *PNG, BitBuffer *BitB) {
         if (PNG != NULL && BitB != NULL) {
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, DeflatedFrameData + 8);
+            // BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, DeflatedFrameData + 8);
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, fDATMarker);
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, PNG->fcTL->FrameNum);
         } else if (PNG == NULL) {
@@ -147,7 +177,7 @@ extern "C" {
     void WriteBKGDChunk(PNGOptions *PNG, BitBuffer *BitB) {
         if (PNG != NULL && BitB != NULL) {
             uint8_t  ColorType     = PNG->iHDR->ColorType;
-            uint8_t  NumChannels   = OVIA_GetNumChannels(Ovia);
+            uint8_t  NumChannels   = PNG_NumChannelsPerColorType[ColorType];
             uint32_t Size          = 0;
             uint8_t  BKGDEntrySize = 0; // in bits
             
@@ -333,6 +363,24 @@ extern "C" {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
+    
+    static void RegisterEncoder_PNG(OVIA *Ovia) {
+        Ovia->NumEncoders                                 += 1;
+        uint64_t EncoderIndex                              = Ovia->NumEncoders;
+        Ovia->Encoders                                     = realloc(Ovia->Encoders, sizeof(OVIAEncoder) * Ovia->NumEncoders);
+        
+        Ovia->Encoders[EncoderIndex].EncoderID             = CodecID_PNG;
+        Ovia->Encoders[EncoderIndex].MediaType             = MediaType_Image;
+        Ovia->Encoders[EncoderIndex].Function_Initialize   = PNGOptions_Init;
+        Ovia->Encoders[EncoderIndex].Function_WriteHeader  = PNGWriteHeader;
+        Ovia->Encoders[EncoderIndex].Function_Encode       = PNG_Image_Insert;
+        Ovia->Encoders[EncoderIndex].Function_WriteFooter  = PNGWriteFooter;
+        Ovia->Encoders[EncoderIndex].Function_Deinitialize = PNGOptions_Deinit;
+    }
+    
+    static OVIACodecRegistry Register_PNGEncoder = {
+        .Function_RegisterEncoder[CodecID_PNG]   = RegisterEncoder_PNG,
+    };
     
 #ifdef __cplusplus
 }

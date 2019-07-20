@@ -248,16 +248,25 @@ extern "C" {
         }
     }
     
-    OVIADecoder WAVDecoder = {
-        .DecoderID             = CodecID_WAV,
-        .MediaType             = MediaType_Audio2D,
-        .MagicIDOffset         = 0,
-        .MagicIDSize           = 4,
-        .MagicID               = {0x52, 0x49, 0x46, 0x46},
-        .Function_Initialize   = WAVOptions_Init,
-        .Function_Parse        = WAVParseMetadata,
-        .Function_Decode       = WAVExtractSamples,
-        .Function_Deinitialize = WAVOptions_Deinit,
+    static void RegisterDecoder_WAV(OVIA *Ovia) {
+        Ovia->NumDecoders                                 += 1;
+        uint64_t DecoderIndex                              = Ovia->NumDecoders;
+        Ovia->Decoders                                     = realloc(Ovia->Decoders, sizeof(OVIADecoder) * Ovia->NumDecoders);
+        
+        Ovia->Decoders[DecoderIndex].DecoderID             = CodecID_WAV;
+        Ovia->Decoders[DecoderIndex].MediaType             = MediaType_Audio2D;
+        Ovia->Decoders[DecoderIndex].NumMagicIDs           = 1;
+        Ovia->Decoders[DecoderIndex].MagicIDOffset[0]      = 0;
+        Ovia->Decoders[DecoderIndex].MagicIDSize[0]        = 2;
+        Ovia->Decoders[DecoderIndex].MagicID[0]            = (uint8_t[2]) {0x50, 0x37};
+        Ovia->Decoders[DecoderIndex].Function_Initialize   = WAVOptions_Init;
+        Ovia->Decoders[DecoderIndex].Function_Parse        = WAVParseMetadata;
+        Ovia->Decoders[DecoderIndex].Function_Decode       = WAVExtractSamples;
+        Ovia->Decoders[DecoderIndex].Function_Deinitialize = WAVOptions_Deinit;
+    }
+    
+    static OVIACodecRegistry Register_DecoderPNMASCII = {
+        .Function_RegisterEncoder[CodecID_WAV]   = RegisterDecoder_WAV,
     };
     
 #ifdef __cplusplus

@@ -83,11 +83,11 @@ extern "C" {
             } else if (UTF8_Compare(CaseFolded, U8("pam")) == Yes) {
                 CodecID       = CodecID_PAM;
             } else if (UTF8_Compare(CaseFolded, U8("pbm")) == Yes) {
-                CodecID       = CodecID_PBM_B;
+                CodecID       = CodecID_PNM_Binary;
             } else if (UTF8_Compare(CaseFolded, U8("pgm")) == Yes) {
-                CodecID       = CodecID_PGM_B;
+                CodecID       = CodecID_PNM_Binary;
             } else if (UTF8_Compare(CaseFolded, U8("ppm")) == Yes) {
-                CodecID       = CodecID_PPM_B;
+                CodecID       = CodecID_PNM_Binary;
             } else {
                 Log(Log_DEBUG, __func__, U8("Extension \"%s\" is not known"), Extension);
             }
@@ -117,11 +117,11 @@ extern "C" {
             } else if (UTF16_Compare(CaseFolded, U16("pam")) == Yes) {
                 CodecID       = CodecID_PAM;
             } else if (UTF16_Compare(CaseFolded, U16("pbm")) == Yes) {
-                CodecID       = CodecID_PBM_B;
+                CodecID       = CodecID_PNM_Binary;
             } else if (UTF16_Compare(CaseFolded, U16("pgm")) == Yes) {
-                CodecID       = CodecID_PGM_B;
+                CodecID       = CodecID_PNM_Binary;
             } else if (UTF16_Compare(CaseFolded, U16("ppm")) == Yes) {
-                CodecID       = CodecID_PPM_B;
+                CodecID       = CodecID_PNM_Binary;
             } else {
                 Log(Log_DEBUG, __func__, U8("Extension \"%S\" is not known"), Extension);
             }

@@ -105,14 +105,22 @@ extern "C" {
         }
     }
     
-    OVIAEncoder W64Encoder = {
-        .EncoderID             = CodecID_W64,
-        .MediaType             = MediaType_Audio2D,
-        .Function_Initialize   = W64Options_Init,
-        .Function_WriteHeader  = W64WriteHeader,
-        .Function_Encode       = W64AppendSamples,
-        .Function_WriteFooter  = NULL,
-        .Function_Deinitialize = W64Options_Deinit,
+    static void RegisterEncoder_W64(OVIA *Ovia) {
+        Ovia->NumEncoders                                 += 1;
+        uint64_t EncoderIndex                              = Ovia->NumEncoders;
+        Ovia->Encoders                                     = realloc(Ovia->Encoders, sizeof(OVIAEncoder) * Ovia->NumEncoders);
+        
+        Ovia->Encoders[EncoderIndex].EncoderID             = CodecID_W64;
+        Ovia->Encoders[EncoderIndex].MediaType             = MediaType_Audio2D;
+        Ovia->Encoders[EncoderIndex].Function_Initialize   = W64Options_Init;
+        Ovia->Encoders[EncoderIndex].Function_WriteHeader  = W64WriteHeader;
+        Ovia->Encoders[EncoderIndex].Function_Encode       = W64AppendSamples;
+        Ovia->Encoders[EncoderIndex].Function_WriteFooter  = NULL;
+        Ovia->Encoders[EncoderIndex].Function_Deinitialize = W64Options_Deinit;
+    }
+    
+    static OVIACodecRegistry Register_W64Encoder = {
+        .Function_RegisterEncoder[CodecID_W64]   = RegisterEncoder_W64,
     };
     
 #ifdef __cplusplus

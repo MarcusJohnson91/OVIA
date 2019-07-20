@@ -128,16 +128,25 @@ extern "C" {
         }
     }
     
-    OVIADecoder BMPDecoder = {
-        .DecoderID             = CodecID_BMP,
-        .MediaType             = MediaType_Image,
-        .MagicIDOffset         = 0,
-        .MagicIDSize           = 2,
-        .MagicID               = {0x42, 0x4D},
-        .Function_Initialize   = BMPOptions_Init,
-        .Function_Parse        = BMPParseMetadata,
-        .Function_Decode       = BMPExtractImage,
-        .Function_Deinitialize = BMPOptions_Deinit,
+    static void RegisterDecoder_BMP(OVIA *Ovia) {
+        Ovia->NumDecoders                                 += 1;
+        uint64_t DecoderIndex                              = Ovia->NumDecoders;
+        Ovia->Decoders                                     = realloc(Ovia->Decoders, sizeof(OVIADecoder) * Ovia->NumDecoders);
+        
+        Ovia->Decoders[DecoderIndex].DecoderID             = CodecID_BMP;
+        Ovia->Decoders[DecoderIndex].MediaType             = MediaType_Image;
+        Ovia->Decoders[DecoderIndex].NumMagicIDs           = 1;
+        Ovia->Decoders[DecoderIndex].MagicIDOffset[0]      = 0;
+        Ovia->Decoders[DecoderIndex].MagicIDSize[0]        = 2;
+        Ovia->Decoders[DecoderIndex].MagicID[0]            = (uint8_t[2]) {0x42, 0x4D};
+        Ovia->Decoders[DecoderIndex].Function_Initialize   = BMPOptions_Init;
+        Ovia->Decoders[DecoderIndex].Function_Parse        = BMPParseMetadata;
+        Ovia->Decoders[DecoderIndex].Function_Decode       = BMPExtractImage;
+        Ovia->Decoders[DecoderIndex].Function_Deinitialize = BMPOptions_Deinit;
+    }
+    
+    static OVIACodecRegistry Register_BMPDecoder = {
+        .Function_RegisterEncoder[CodecID_BMP]   = RegisterDecoder_BMP,
     };
     
 #ifdef __cplusplus

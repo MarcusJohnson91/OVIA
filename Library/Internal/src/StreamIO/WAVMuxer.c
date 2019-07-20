@@ -108,14 +108,22 @@ extern "C" {
         }
     }
     
-    OVIAEncoder WAVEncoder = {
-        .EncoderID             = CodecID_WAV,
-        .MediaType             = MediaType_Audio2D,
-        .Function_Initialize   = WAVOptions_Init,
-        .Function_WriteHeader  = WAVWriteHeader,
-        .Function_Encode       = WAVAppendSamples,
-        .Function_WriteFooter  = NULL,
-        .Function_Deinitialize = WAVOptions_Deinit,
+    static void RegisterEncoder_WAV(OVIA *Ovia) {
+        Ovia->NumEncoders                                 += 1;
+        uint64_t EncoderIndex                              = Ovia->NumEncoders;
+        Ovia->Encoders                                     = realloc(Ovia->Encoders, sizeof(OVIAEncoder) * Ovia->NumEncoders);
+        
+        Ovia->Encoders[EncoderIndex].EncoderID             = CodecID_WAV;
+        Ovia->Encoders[EncoderIndex].MediaType             = MediaType_Audio2D;
+        Ovia->Encoders[EncoderIndex].Function_Initialize   = WAVOptions_Init;
+        Ovia->Encoders[EncoderIndex].Function_WriteHeader  = WAVWriteHeader;
+        Ovia->Encoders[EncoderIndex].Function_Encode       = WAVAppendSamples;
+        Ovia->Encoders[EncoderIndex].Function_WriteFooter  = NULL;
+        Ovia->Encoders[EncoderIndex].Function_Deinitialize = WAVOptions_Deinit;
+    }
+    
+    static OVIACodecRegistry Register_WAVEncoder = {
+        .Function_RegisterEncoder[CodecID_WAV]   = RegisterEncoder_WAV,
     };
     
 #ifdef __cplusplus

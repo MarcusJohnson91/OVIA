@@ -111,16 +111,25 @@ extern "C" {
         }
     }
     
-    OVIADecoder W64Decoder = {
-        .DecoderID             = CodecID_W64,
-        .MediaType             = MediaType_Audio2D,
-        .MagicIDOffset         = 0,
-        .MagicIDSize           = 16,
-        .MagicID               = {0x72, 0x69, 0x66, 0x66, 0x2E, 0x91, 0xCF, 0x11, 0xA5, 0xD6, 0x28, 0xDB, 0x04, 0xC1, 0x00, 0x00},
-        .Function_Initialize   = W64Options_Init,
-        .Function_Parse        = W64ParseMetadata,
-        .Function_Decode       = W64ExtractSamples,
-        .Function_Deinitialize = W64Options_Deinit,
+    static void RegisterDecoder_W64(OVIA *Ovia) {
+        Ovia->NumDecoders                                 += 1;
+        uint64_t DecoderIndex                              = Ovia->NumDecoders;
+        Ovia->Decoders                                     = realloc(Ovia->Decoders, sizeof(OVIADecoder) * Ovia->NumDecoders);
+        
+        Ovia->Decoders[DecoderIndex].DecoderID             = CodecID_W64;
+        Ovia->Decoders[DecoderIndex].MediaType             = MediaType_Audio2D;
+        Ovia->Decoders[DecoderIndex].NumMagicIDs           = 1;
+        Ovia->Decoders[DecoderIndex].MagicIDOffset[0]      = 0;
+        Ovia->Decoders[DecoderIndex].MagicIDSize[0]        = 2;
+        Ovia->Decoders[DecoderIndex].MagicID[0]            = (uint8_t[2]) {0x50, 0x37};
+        Ovia->Decoders[DecoderIndex].Function_Initialize   = W64Options_Init;
+        Ovia->Decoders[DecoderIndex].Function_Parse        = W64ParseMetadata;
+        Ovia->Decoders[DecoderIndex].Function_Decode       = W64ExtractSamples;
+        Ovia->Decoders[DecoderIndex].Function_Deinitialize = W64Options_Deinit;
+    }
+    
+    static OVIACodecRegistry Register_DecoderPNMASCII = {
+        .Function_RegisterEncoder[CodecID_W64]   = RegisterDecoder_W64,
     };
     
 #ifdef __cplusplus
