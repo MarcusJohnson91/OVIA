@@ -162,9 +162,6 @@ extern "C" {
     uint64_t ReadSymbol(BitBuffer *BitB, HuffmanTree *Tree) { // EQUILIVENT OF DECODE IN PUFF
         uint64_t Symbol              = 0ULL;
         uint16_t Count               = 0;
-        uint64_t Index               = 0;
-        uint64_t CodeSize            = 0;
-        uint64_t FirstSymbolOfLength = 0;
         if (BitB != NULL && Tree != NULL) {
             uint32_t FirstSymbolOfLength = 0;
             for (uint8_t Bit = 1; Bit <= MaxBitsPerSymbol; Bit++) {
