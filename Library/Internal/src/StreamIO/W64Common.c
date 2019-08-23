@@ -5,8 +5,8 @@ extern "C" {
 #endif
     
     void *W64Options_Init(void) {
-        W64Options *W64 = calloc(1, sizeof(W64Options));
-        return W64;
+        void *Options = calloc(1, sizeof(W64Options));
+        return Options;
     }
     
     uint64_t CalculateW64ByteRate(uint64_t NumChannels, uint8_t BitDepth, uint64_t SampleRate) {
@@ -59,7 +59,8 @@ extern "C" {
         return AudioMask;
     }
     
-    void W64Options_Deinit(W64Options *W64) {
+    void W64Options_Deinit(void *Options) {
+        W64Options *W64 = Options;
         free(W64);
     }
     

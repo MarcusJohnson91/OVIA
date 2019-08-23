@@ -48,23 +48,6 @@ extern "C" {
      Should ICC profiles be a part of OVIA or ContainerIO?
      */
     
-    OVIA *OVIA_Init(void) {
-        OVIA *Ovia            = calloc(1, sizeof(OVIA));
-        if (Ovia != NULL) {
-            Ovia->Encoders    = calloc(OVIA_NumCodecs, sizeof(OVIAEncoder));
-            Ovia->Decoders    = calloc(OVIA_NumCodecs, sizeof(OVIADecoder));
-            Ovia->NumDecoders = OVIA_NumCodecs;
-            Ovia->NumEncoders = OVIA_NumCodecs;
-            /*
-            for (uint8_t Codec = 0; Codec < OVIA_NumCodecs; Codec++) {
-                Registry.Function_RegisterEncoder[Codec](Ovia, Ovia->Encoders);
-                Registry.Function_RegisterDecoder[Codec](Ovia, Ovia->Decoders);
-            }
-             */
-        }
-        return Ovia;
-    }
-    
     OVIA_CodecIDs UTF8_Extension2CodecID(UTF8 *Extension) {
         OVIA_CodecIDs CodecID = CodecID_Unknown;
         if (Extension != NULL) {
@@ -81,13 +64,13 @@ extern "C" {
             } else if (UTF8_Compare(CaseFolded, U8("png")) || UTF8_Compare(CaseFolded, U8("apng")) == Yes) {
                 CodecID       = CodecID_PNG;
             } else if (UTF8_Compare(CaseFolded, U8("pam")) == Yes) {
-                CodecID       = CodecID_PAM;
+                CodecID       = CodecID_PNM;
             } else if (UTF8_Compare(CaseFolded, U8("pbm")) == Yes) {
-                CodecID       = CodecID_PNM_Binary;
+                CodecID       = CodecID_PNM;
             } else if (UTF8_Compare(CaseFolded, U8("pgm")) == Yes) {
-                CodecID       = CodecID_PNM_Binary;
+                CodecID       = CodecID_PNM;
             } else if (UTF8_Compare(CaseFolded, U8("ppm")) == Yes) {
-                CodecID       = CodecID_PNM_Binary;
+                CodecID       = CodecID_PNM;
             } else {
                 Log(Log_DEBUG, __func__, U8("Extension \"%s\" is not known"), Extension);
             }
@@ -115,13 +98,13 @@ extern "C" {
             } else if (UTF16_Compare(CaseFolded, U16("png")) || UTF16_Compare(CaseFolded, U16("apng")) == Yes) {
                 CodecID       = CodecID_PNG;
             } else if (UTF16_Compare(CaseFolded, U16("pam")) == Yes) {
-                CodecID       = CodecID_PAM;
+                CodecID       = CodecID_PNM;
             } else if (UTF16_Compare(CaseFolded, U16("pbm")) == Yes) {
-                CodecID       = CodecID_PNM_Binary;
+                CodecID       = CodecID_PNM;
             } else if (UTF16_Compare(CaseFolded, U16("pgm")) == Yes) {
-                CodecID       = CodecID_PNM_Binary;
+                CodecID       = CodecID_PNM;
             } else if (UTF16_Compare(CaseFolded, U16("ppm")) == Yes) {
-                CodecID       = CodecID_PNM_Binary;
+                CodecID       = CodecID_PNM;
             } else {
                 Log(Log_DEBUG, __func__, U8("Extension \"%S\" is not known"), Extension);
             }
@@ -178,6 +161,60 @@ extern "C" {
             free(Ovia->Encoders);
             free(Ovia->Decoders);
         }
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    /*
+     static void RegisterEncoder_PNG(OVIA *Ovia) {
+     Ovia->NumEncoders                                 += 1;
+     uint64_t EncoderIndex                              = Ovia->NumEncoders;
+     Ovia->Encoders                                     = realloc(Ovia->Encoders, sizeof(OVIAEncoder) * Ovia->NumEncoders);
+     
+     Ovia->Encoders[EncoderIndex].EncoderID             = CodecID_PNG;
+     Ovia->Encoders[EncoderIndex].MediaType             = MediaType_Image;
+     Ovia->Encoders[EncoderIndex].Function_Initialize   = PNGOptions_Init;
+     Ovia->Encoders[EncoderIndex].Function_WriteHeader  = PNGWriteHeader;
+     Ovia->Encoders[EncoderIndex].Function_Encode       = PNG_Image_Insert;
+     Ovia->Encoders[EncoderIndex].Function_WriteFooter  = PNGWriteFooter;
+     Ovia->Encoders[EncoderIndex].Function_Deinitialize = PNGOptions_Deinit;
+     }
+     
+     static OVIACodecRegistry Register_PNGEncoder = {
+     .Function_RegisterEncoder[CodecID_PNG]   = RegisterEncoder_PNG,
+     };
+     */
+    
+    /*
+     So, RegisterEncoder_PNG get called at runtime by OVIA_Init.
+     
+     RegisterEncoder_PNG gets registered with OVIA through the Global OVIACodecRegistry, which OVIA_Init traverses to get a list of functions to call to register all the codecs.
+     
+     So, we need to have a global variable storing the number of Encoders and the number of Decoders.
+     
+     
+     */
+    
+    OVIA *OVIA_Init(void) {
+        OVIA *Ovia            = calloc(1, sizeof(OVIA));
+        if (Ovia != NULL) {
+            Ovia->Encoders    = calloc(OVIA_NumCodecs, sizeof(OVIAEncoder));
+            Ovia->Decoders    = calloc(OVIA_NumCodecs, sizeof(OVIADecoder));
+            Ovia->NumDecoders = OVIA_NumCodecs;
+            Ovia->NumEncoders = OVIA_NumCodecs;
+            /*
+             for (uint8_t Codec = 0; Codec < OVIA_NumCodecs; Codec++) {
+             Registry.Function_RegisterEncoder[Codec](Ovia, Ovia->Encoders);
+             Registry.Function_RegisterDecoder[Codec](Ovia, Ovia->Decoders);
+             }
+             */
+        }
+        return Ovia;
     }
     
 #ifdef __cplusplus

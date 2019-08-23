@@ -5,8 +5,8 @@ extern "C" {
 #endif
     
     void *WAVOptions_Init(void) {
-        WAVOptions *WAV = calloc(1, sizeof(WAVOptions));
-        return WAV;
+        void *Options = calloc(1, sizeof(WAVOptions));
+        return Options;
     }
     
     void WAVSkipPadding(BitBuffer *BitB, uint32_t SubChunkSize) {
@@ -15,7 +15,8 @@ extern "C" {
         }
     }
     
-    void WAVOptions_Deinit(WAVOptions *WAV) {
+    void WAVOptions_Deinit(void *Options) {
+        WAVOptions *WAV = Options;
         free(WAV);
     }
     

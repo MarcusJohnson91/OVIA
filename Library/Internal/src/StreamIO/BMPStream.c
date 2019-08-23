@@ -17,7 +17,8 @@ extern "C" {
         return RowSize * AbsoluteI(ImageHeight);
     }
     
-    void BMPOptions_Deinit(BMPOptions *BMP) {
+    void BMPOptions_Deinit(void *Options) {
+        BMPOptions *BMP = Options;
         free(BMP->ICCPayload);
         free(BMP);
     }

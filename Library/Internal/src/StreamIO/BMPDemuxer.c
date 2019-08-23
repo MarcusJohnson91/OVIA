@@ -4,8 +4,9 @@
 extern "C" {
 #endif
     
-    void BMPParseMetadata(BMPOptions *BMP, BitBuffer *BitB) {
-        if (BMP != NULL && BitB != NULL) {
+    void BMPParseMetadata(void *Options, BitBuffer *BitB) {
+        if (Options != NULL && BitB != NULL) {
+            BMPOptions *BMP = Options;
             BitBuffer_Seek(BitB, 16);                            // Skip BMPMagic
             BMP->FileSize = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
             BitBuffer_Seek(BitB, 32);                           // 2 16 bit Reserved fields
@@ -63,8 +64,8 @@ extern "C" {
             } else {
                 BitBuffer_Seek(BitB, Bits2Bytes((BMP->Offset - 14) - BMP->DIBSize, RoundingType_Down));
             }
-        } else if (BMP == NULL) {
-            Log(Log_DEBUG, __func__, U8("BMPOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }

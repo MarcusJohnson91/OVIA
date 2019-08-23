@@ -56,7 +56,7 @@ extern "C" {
     
     void *PNMOptions_Init(void);
     
-    void PNMOptions_Deinit(PNMOptions *PNM);
+    void PNMOptions_Deinit(void *Options);
     
 #ifdef __cplusplus
 }

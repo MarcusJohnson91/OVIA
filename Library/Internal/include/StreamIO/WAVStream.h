@@ -187,6 +187,13 @@ extern "C" {
         WAV_JUNK                      = 0,
     } WAVChunkIDs;
     
+    typedef struct BEXTChunk {
+        UTF8 *Description;
+        UTF8 *Originator;
+        UTF8 *OriginatorRef;
+        UTF8 *OriginatorDate;
+    } BEXTChunk;
+    
     typedef struct WAVInfo {
         UTF8 *Title;
         UTF8 *Artist;
@@ -197,24 +204,26 @@ extern "C" {
     } WAVInfo;
     
     typedef struct WAVOptions {
-        WAVInfo *Info;
-        uint32_t SampleRate;
-        uint32_t ByteRate;
-        uint32_t BlockAlign;
-        uint32_t SpeakerMask;
-        uint32_t ChannelMask;
-        uint16_t CompressionFormat;
-        uint16_t BlockAlignment;
-        uint16_t NumChannels;
-        uint16_t BitDepth;
-        uint16_t ValidBitsPerSample;
+        WAVInfo   *Info;
+        BEXTChunk *BEXT;
+        uint64_t   NumSamplesWritten;
+        uint32_t   SampleRate;
+        uint32_t   ByteRate;
+        uint32_t   BlockAlign;
+        uint32_t   SpeakerMask;
+        uint32_t   ChannelMask;
+        uint16_t   CompressionFormat;
+        uint16_t   BlockAlignment;
+        uint16_t   NumChannels;
+        uint16_t   BitDepth;
+        uint16_t   ValidBitsPerSample;
     } WAVOptions;
     
     void *WAVOptions_Init(void);
     
     void WAVSkipPadding(BitBuffer *BitB, uint32_t SubChunkSize);
     
-    void WAVOptions_Deinit(WAVOptions *WAV);
+    void WAVOptions_Deinit(void *Options);
     
 #ifdef __cplusplus
 }

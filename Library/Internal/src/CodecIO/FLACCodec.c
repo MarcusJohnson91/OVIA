@@ -5,10 +5,10 @@ extern "C" {
 #endif
     
     void *FLACOptions_Init(void) {
-        FLACOptions *FLAC = calloc(1, sizeof(FLACOptions));
+        FLACOptions *FLAC     = calloc(1, sizeof(FLACOptions));
         if (FLAC != NULL) {
-            FLAC->StreamInfo = calloc(1, sizeof(StreamInfo));
-            FLAC->CueSheet   = calloc(1, sizeof(FLACCueSheet));
+            FLAC->StreamInfo  = calloc(1, sizeof(StreamInfo));
+            FLAC->CueSheet    = calloc(1, sizeof(FLACCueSheet));
         } else {
             Log(Log_DEBUG, __func__, U8("Couldn't allocate FLACOptions"));
         }
@@ -64,22 +64,24 @@ extern "C" {
         return ~Output;
     }
     
-    uint8_t FLAC_GetNumChannels(FLACOptions *FLAC) {
+    uint8_t FLAC_GetNumChannels(void *Options) {
         uint8_t NumChannels = 0;
-        if (FLAC != NULL) {
+        if (Options != NULL) {
+            FLACOptions *FLAC = Options;
             if (FLAC->Frame->ChannelLayout <= 7) {
                 NumChannels = FLAC->Frame->ChannelLayout + 1;
             } else if (FLAC->Frame->ChannelLayout <= 11) {
                 NumChannels = 2;
             }
         } else {
-            Log(Log_DEBUG, __func__, U8("FLACOptions Pointer is NULL"));
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         }
         return NumChannels;
     }
     
-    uint16_t FLAC_GetBlockSizeInSamples(FLACOptions *FLAC) {
+    uint16_t FLAC_GetBlockSizeInSamples(void *Options) {
         uint16_t SamplesInBlock = 0;
+        FLACOptions *FLAC = Options;
         if (FLAC->StreamInfo->CodedSampleRate == 1) {
             SamplesInBlock = 192;
         } else if (FLAC_GetBlockSizeInSamples >= 2 && FLAC_GetBlockSizeInSamples <= 5) {
@@ -96,7 +98,8 @@ extern "C" {
         return SamplesInBlock;
     }
     
-    void FLACOptions_Deinit(FLACOptions *FLAC) {
+    void FLACOptions_Deinit(void *Options) {
+        FLACOptions *FLAC = Options;
         free(FLAC->StreamInfo);
         free(FLAC->CueSheet);
         free(FLAC);

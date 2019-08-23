@@ -5,11 +5,12 @@ extern "C" {
 #endif
     
     void *PNMOptions_Init(void) {
-        PNMOptions *PNM = calloc(1, sizeof(PNMOptions));
-        return PNM;
+        void *Options = calloc(1, sizeof(PNMOptions));
+        return Options;
     }
     
-    void PNMOptions_Deinit(PNMOptions *PNM) {
+    void PNMOptions_Deinit(void *Options) {
+        PNMOptions *PNM = Options;
         free(PNM);
     }
     

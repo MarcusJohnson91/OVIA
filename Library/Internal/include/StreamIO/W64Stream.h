@@ -92,7 +92,7 @@ extern "C" {
     
     uint64_t CalculateW64BlockAlign(uint64_t NumChannels, uint8_t BitDepth);
     
-    void W64Options_Deinit(W64Options *W64);
+    void W64Options_Deinit(void *Options);
     
 #ifdef __cplusplus
 }

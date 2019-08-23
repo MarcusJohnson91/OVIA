@@ -62,7 +62,7 @@ extern "C" {
     
     void             *AIFOptions_Init(void);
     
-    void              AIFOptions_Deinit(AIFOptions *AIF);
+    void              AIFOptions_Deinit(void *Options);
     
     
     

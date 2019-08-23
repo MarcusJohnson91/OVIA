@@ -226,37 +226,37 @@ extern "C" {
     
     void *FLACOptions_Init(void);
     
-    void        FLAC_Frame_Read(FLACOptions *FLAC, BitBuffer *BitB, Audio2DContainer *Audio);
+    void        FLAC_Frame_Read(void *Options, BitBuffer *BitB, Audio2DContainer *Audio);
     
-    uint8_t FLAC_GetNumChannels(FLACOptions *FLAC);
+    uint8_t FLAC_GetNumChannels(void *Options);
     
-    void        FLAC_SubFrame_Read(FLACOptions *FLAC, BitBuffer *BitB, Audio2DContainer *Audio, uint8_t Channel);
+    void        FLAC_SubFrame_Read(void *Options, BitBuffer *BitB, Audio2DContainer *Audio, uint8_t Channel);
     
-    void        FLAC_SubFrame_Verbatim(FLACOptions *FLAC, BitBuffer *BitB, Audio2DContainer *Audio);
+    void        FLAC_SubFrame_Verbatim(void *Options, BitBuffer *BitB, Audio2DContainer *Audio);
     
-    void        FLAC_SubFrame_Constant(FLACOptions *FLAC, BitBuffer *BitB, Audio2DContainer *Audio);
+    void        FLAC_SubFrame_Constant(void *Options, BitBuffer *BitB, Audio2DContainer *Audio);
     
-    void        FLAC_SubFrame_Fixed(FLACOptions *FLAC, BitBuffer *BitB, Audio2DContainer *Audio);
+    void        FLAC_SubFrame_Fixed(void *Options, BitBuffer *BitB, Audio2DContainer *Audio);
     
-    void        FLAC_SubFrame_LPC(FLACOptions *FLAC, BitBuffer *BitB, Audio2DContainer *Audio, uint8_t Channel);
+    void        FLAC_SubFrame_LPC(void *Options, BitBuffer *BitB, Audio2DContainer *Audio, uint8_t Channel);
     
-    void FLAC_Decode_RICE(FLACOptions *FLAC, BitBuffer *BitB, uint8_t RICEPartitionType);
+    void FLAC_Decode_RICE(void *Options, BitBuffer *BitB, uint8_t RICEPartitionType);
     
-    uint16_t    FLAC_GetBlockSizeInSamples(FLACOptions *FLAC);
+    uint16_t    FLAC_GetBlockSizeInSamples(void *Options);
     
-    bool        FLAC_Parse_Blocks(FLACOptions *FLAC, BitBuffer *BitB);
+    bool        FLAC_Parse_Blocks(void *Options, BitBuffer *BitB);
     
-    void        FLAC_Parse_StreamInfo(FLACOptions *FLAC, BitBuffer *BitB);
+    void        FLAC_Parse_StreamInfo(void *Options, BitBuffer *BitB);
     
-    void        FLAC_Parse_SeekTable(FLACOptions *FLAC, BitBuffer *BitB, uint32_t ChunkSize);
+    void        FLAC_Parse_SeekTable(void *Options, BitBuffer *BitB, uint32_t ChunkSize);
     
-    void        FLAC_Parse_Vorbis(FLACOptions *FLAC, BitBuffer *BitB);
+    void        FLAC_Parse_Vorbis(void *Options, BitBuffer *BitB);
     
-    void        FLAC_CUE_Parse(FLACOptions *FLAC, BitBuffer *BitB);
+    void        FLAC_CUE_Parse(void *Options, BitBuffer *BitB);
     
-    uint8_t    *FLAC_Pic_Read(FLACOptions *FLAC, BitBuffer *BitB);
+    uint8_t    *FLAC_Pic_Read(void *Options, BitBuffer *BitB);
     
-    void        FLACOptions_Deinit(FLACOptions *FLAC);
+    void        FLACOptions_Deinit(void *Options);
     
 #ifdef __cplusplus
 }

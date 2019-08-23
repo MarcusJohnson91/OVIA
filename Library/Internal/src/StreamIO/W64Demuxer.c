@@ -5,8 +5,9 @@ extern "C" {
 #endif
     
     /* Format Decoding */
-    static void W64ParseFMTChunk(W64Options *W64, BitBuffer *BitB) {
-        if (W64 != NULL && BitB != NULL) {
+    static void W64ParseFMTChunk(void *Options, BitBuffer *BitB) {
+        if (Options != NULL && BitB != NULL) {
+            W64Options *W64                  = Options;
             W64->CompressionFormat           = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16);
             W64->NumChannels                 = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16);
             W64->SampleRate                  = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
@@ -14,35 +15,36 @@ extern "C" {
             W64->BlockAlignment              = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16);
             W64->BitDepth                    = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16);
             // Read the SpeakerMask
-        } else if (W64 == NULL) {
-            Log(Log_DEBUG, __func__, U8("W64Options Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    static void W64ParseBEXTChunk(W64Options *W64, BitBuffer *BitB) {
-        if (W64 != NULL && BitB != NULL) {
-            
-        } else if (W64 == NULL) {
-            Log(Log_DEBUG, __func__, U8("W64Options Pointer is NULL"));
+    static void W64ParseBEXTChunk(void *Options, BitBuffer *BitB) {
+        if (Options != NULL && BitB != NULL) {
+            W64Options *W64                  = Options;
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    static void W64ParseLEVLChunk(W64Options *W64, BitBuffer *BitB) { // aka Peak Envelope Chunk
-        if (W64 != NULL && BitB != NULL) {
-            
-        } else if (W64 == NULL) {
-            Log(Log_DEBUG, __func__, U8("W64Options Pointer is NULL"));
+    static void W64ParseLEVLChunk(void *Options, BitBuffer *BitB) { // aka Peak Envelope Chunk
+        if (Options != NULL && BitB != NULL) {
+            W64Options *W64                  = Options;
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    void W64ParseMetadata(W64Options *W64, BitBuffer *BitB) {
-        if (W64 != NULL && BitB != NULL) {
+    void W64ParseMetadata(void *Options, BitBuffer *BitB) {
+        if (Options != NULL && BitB != NULL) {
+            W64Options *W64          = Options;
             uint8_t *ChunkUUIDString = BitBuffer_ReadGUUID(BitB, BinaryGUID);
             uint64_t W64Size         = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 64);
             if (GUUID_Compare(BinaryGUID, ChunkUUIDString, W64_RIFF_GUIDString) == true) {
@@ -68,15 +70,16 @@ extern "C" {
             } else if (GUUID_Compare(BinaryGUID, ChunkUUIDString, W64_LIST_GUIDString) == true) {
                 
             }
-        } else if (W64 == NULL) {
-            Log(Log_DEBUG, __func__, U8("W64Options Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    void W64ExtractSamples(W64Options *W64, BitBuffer *BitB, Audio2DContainer *Audio, uint64_t NumSamples) {
-        if (W64 != NULL && BitB != NULL && Audio != NULL) {
+    void W64ExtractSamples(void *Options, BitBuffer *BitB, Audio2DContainer *Audio, uint64_t NumSamples) {
+        if (Options != NULL && BitB != NULL && Audio != NULL) {
+            W64Options *W64        = Options;
             uint64_t BitDepth      = W64->BitDepth;
             uint64_t NumChannels   = W64->NumChannels;
             uint8_t  BitDepthRound = Bytes2Bits(Bits2Bytes(BitDepth, RoundingType_Up));
@@ -102,8 +105,8 @@ extern "C" {
                     }
                 }
             }
-        } else if (W64 == NULL) {
-            Log(Log_DEBUG, __func__, U8("W64Options Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         } else if (Audio == NULL) {

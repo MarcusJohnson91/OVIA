@@ -16,8 +16,9 @@ extern "C" {
      So, we need our DAT parser, and then we need a Huffman block parser
      */
     
-    void PNG_Flate_ReadZlibHeader(PNGOptions *PNG, BitBuffer *BitB) { // This will be the main function for each Zlib block
-        if (PNG != NULL && BitB != NULL) {
+    void PNG_Flate_ReadZlibHeader(void *Options, BitBuffer *BitB) { // This will be the main function for each Zlib block
+        if (Options != NULL && BitB != NULL) {
+            PNGOptions *PNG            = Options;
             uint8_t  CompressionMethod = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 4);
             uint8_t  CompressionInfo   = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 4);
             uint8_t  FCHECK            = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 5);
@@ -43,15 +44,16 @@ extern "C" {
             } else if (CompressionMethod != 8) {
                 Log(Log_DEBUG, __func__, U8("Compression Method %d is invalid"), CompressionMethod);
             }
-        } else if (PNG == NULL) {
-            Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    void PNG_Flate_ReadDeflateBlock(PNGOptions *PNG, BitBuffer *BitB, ImageContainer *Image) {
-        if (PNG != NULL && BitB != NULL && Image != NULL) {
+    void PNG_Flate_ReadDeflateBlock(void *Options, BitBuffer *BitB, ImageContainer *Image) {
+        if (Options != NULL && BitB != NULL && Image != NULL) {
+            PNGOptions *PNG       = Options;
             bool    BFINAL        = No;
             uint8_t BTYPE         = 0;
             do {
@@ -114,8 +116,8 @@ extern "C" {
                     Log(Log_DEBUG, __func__, U8("Invalid Block Type in Deflate block"));
                 }
             } while (BFINAL == No);
-        } else if (PNG == NULL) {
-            Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         } else if (Image == NULL) {
@@ -123,8 +125,9 @@ extern "C" {
         }
     }
     
-    void PNG_DAT_Decode(PNGOptions *PNG, BitBuffer *BitB, ImageContainer *Image) {
+    void PNG_DAT_Decode(void *Options, BitBuffer *BitB, ImageContainer *Image) {
         if (BitB != NULL && Image != NULL) {
+            PNGOptions *PNG                        = Options;
             uint8_t     ****ImageArrayBytes        = (uint8_t****) ImageContainer_GetArray(Image);
             HuffmanTree     *Tree                  = NULL;
             bool     IsFinalBlock                  = false;
@@ -180,9 +183,10 @@ extern "C" {
         return Symbol;
     }
     
-    void PNG_Flate_ReadHuffman(PNGOptions *PNG, BitBuffer *BitB, HuffmanTree *LengthTree, HuffmanTree *DistanceTree, ImageContainer *Image) { // Codes in Puff
-        if (PNG != NULL && BitB != NULL && LengthTree != NULL && DistanceTree != NULL && Image != NULL) {
+    void PNG_Flate_ReadHuffman(void *Options, BitBuffer *BitB, HuffmanTree *LengthTree, HuffmanTree *DistanceTree, ImageContainer *Image) { // Codes in Puff
+        if (Options != NULL && BitB != NULL && LengthTree != NULL && DistanceTree != NULL && Image != NULL) {
             // Out = ImageContainer array
+            PNGOptions *PNG = Options;
             uint64_t Symbol = 0ULL;
             uint64_t Offset = 0ULL;
             do {
@@ -207,8 +211,8 @@ extern "C" {
                     }
                 }
             } while (Symbol != EndOfBlock); /* end of block symbol */
-        } else if (PNG == NULL) {
-            Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         } else if (LengthTree == NULL) {
@@ -461,8 +465,9 @@ extern "C" {
         }
     }
     
-    void PNG_DAT_Parse(PNGOptions *PNG, BitBuffer *BitB) {
-        if (PNG != NULL && BitB != NULL) {
+    void PNG_DAT_Parse(void *Options, BitBuffer *BitB) {
+        if (Options != NULL && BitB != NULL) {
+            PNGOptions *PNG         = Options;
             bool     Is3D           = PNG->sTER->StereoType > 0 ? Yes : No;
             uint8_t  BitDepth       = PNG->iHDR->BitDepth;
             uint8_t  ColorType      = PNG->iHDR->ColorType;
@@ -505,8 +510,8 @@ extern "C" {
             
             PNG_DAT_Decode(PNG, BitB, Decoded);
             PNG_Flate_ReadDeflateBlock(PNG, BitB, Decoded);
-        } else if (PNG == NULL) {
-            Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
@@ -520,8 +525,9 @@ extern "C" {
         }
     }
     
-    void PNG_IHDR_Parse(PNGOptions *PNG, BitBuffer *BitB) {
-        if (PNG != NULL && BitB != NULL) {
+    void PNG_IHDR_Parse(void *Options, BitBuffer *BitB) {
+        if (Options != NULL && BitB != NULL) {
+            PNGOptions *PNG           = Options;
             PNG->iHDR->Width          = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
             PNG->iHDR->Height         = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
             PNG->iHDR->BitDepth       = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
@@ -532,15 +538,16 @@ extern "C" {
             PNG->iHDR->Compression    = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
             PNG->iHDR->FilterMethod   = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
             PNG->iHDR->Progressive    = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
-        } else if (PNG == NULL) {
-            Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    void PNG_PLTE_Parse(PNGOptions *PNG, BitBuffer *BitB, uint32_t ChunkSize) {
-        if (PNG != NULL && BitB != NULL) {
+    void PNG_PLTE_Parse(void *Options, BitBuffer *BitB, uint32_t ChunkSize) {
+        if (Options != NULL && BitB != NULL) {
+            PNGOptions *PNG  = Options;
             uint8_t BitDepth = PNG->iHDR->BitDepth;
             if (BitDepth <= 8) {
                 uint8_t ColorType = PNG->iHDR->ColorType;
@@ -563,16 +570,17 @@ extern "C" {
                 BitBuffer_Seek(BitB, Bytes2Bits(ChunkSize));
                 Log(Log_DEBUG, __func__, U8("BitDepth %d can't have a palette"), BitDepth);
             }
-        } else if (PNG == NULL) {
-            Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    void PNG_TRNS_Parse(PNGOptions *PNG, BitBuffer *BitB, uint32_t ChunkSize) { // Transparency
-        if (PNG != NULL && BitB != NULL) {
-            uint32_t NumEntries    = ChunkSize % 3;
+    void PNG_TRNS_Parse(void *Options, BitBuffer *BitB, uint32_t ChunkSize) { // Transparency
+        if (Options != NULL && BitB != NULL) {
+            PNGOptions *PNG       = Options;
+            uint32_t NumEntries   = ChunkSize % 3;
             uint16_t **Entries    = NULL;
             if (PNG->iHDR->ColorType == PNG_RGB) {
                 Entries = calloc(3, Bits2Bytes(PNG->iHDR->BitDepth, RoundingType_Up) * sizeof(uint16_t));
@@ -591,8 +599,8 @@ extern "C" {
             } else {
                 Log(Log_DEBUG, __func__, U8("Failed to allocate enough memory for the TRNS Palette"));
             }
-        } else if (PNG == NULL) {
-            Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         } else if (ChunkSize % 3 != 0) {
@@ -600,20 +608,22 @@ extern "C" {
         }
     }
     
-    void PNG_BKGD_Parse(PNGOptions *PNG, BitBuffer *BitB) { // Background
-        if (PNG != NULL && BitB != NULL) {
+    void PNG_BKGD_Parse(void *Options, BitBuffer *BitB) { // Background
+        if (Options != NULL && BitB != NULL) {
+            PNGOptions *PNG = Options;
             for (uint8_t Entry = 0; Entry < PNG_NumChannelsPerColorType[PNG->iHDR->ColorType]; Entry++) {
                 PNG->bkGD->BackgroundPaletteEntry[Entry] = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, PNG->iHDR->BitDepth);
             }
-        } else if (PNG == NULL) {
-            Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    void PNG_CHRM_Parse(PNGOptions *PNG, BitBuffer *BitB) {
-        if (PNG != NULL && BitB != NULL) {
+    void PNG_CHRM_Parse(void *Options, BitBuffer *BitB) {
+        if (Options != NULL && BitB != NULL) {
+            PNGOptions *PNG        = Options;
             PNG->cHRM->WhitePointX = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
             PNG->cHRM->WhitePointY = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
             PNG->cHRM->RedX        = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
@@ -622,49 +632,53 @@ extern "C" {
             PNG->cHRM->GreenY      = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
             PNG->cHRM->BlueX       = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
             PNG->cHRM->BlueY       = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-        } else if (PNG == NULL) {
-            Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    void PNG_GAMA_Parse(PNGOptions *PNG, BitBuffer *BitB) { // Gamma
-        if (PNG != NULL && BitB != NULL) {
+    void PNG_GAMA_Parse(void *Options, BitBuffer *BitB) { // Gamma
+        if (Options != NULL && BitB != NULL) {
+            PNGOptions *PNG  = Options;
             PNG->gAMA->Gamma = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-        } else if (PNG == NULL) {
-            Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    void PNG_OFFS_Parse(PNGOptions *PNG, BitBuffer *BitB) { // Image Offset
-        if (PNG != NULL && BitB != NULL) {
+    void PNG_OFFS_Parse(void *Options, BitBuffer *BitB) { // Image Offset
+        if (Options != NULL && BitB != NULL) {
+            PNGOptions *PNG          = Options;
             PNG->oFFs->XOffset       = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
             PNG->oFFs->YOffset       = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
             PNG->oFFs->UnitSpecifier = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
-        } else if (PNG == NULL) {
-            Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    void PNG_PHYS_Parse(PNGOptions *PNG, BitBuffer *BitB) { // Aspect ratio, Physical pixel size
-        if (PNG != NULL && BitB != NULL) {
+    void PNG_PHYS_Parse(void *Options, BitBuffer *BitB) { // Aspect ratio, Physical pixel size
+        if (Options != NULL && BitB != NULL) {
+            PNGOptions *PNG               = Options;
             PNG->pHYs->PixelsPerUnitXAxis = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
             PNG->pHYs->PixelsPerUnitYAxis = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
             PNG->pHYs->UnitSpecifier      = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
-        } else if (PNG == NULL) {
-            Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    void PNG_SCAL_Parse(PNGOptions *PNG, BitBuffer *BitB) { // Physical Scale
-        if (PNG != NULL && BitB != NULL) {
+    void PNG_SCAL_Parse(void *Options, BitBuffer *BitB) { // Physical Scale
+        if (Options != NULL && BitB != NULL) {
+            PNGOptions *PNG           = Options;
             PNG->sCAL->UnitSpecifier  = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8); // 1 = Meter, 2 = Radian
             
             uint32_t WidthStringSize  = BitBuffer_GetUTF8StringSize(BitB);
@@ -678,15 +692,16 @@ extern "C" {
             
             free(WidthString);
             free(HeightString);
-        } else if (PNG == NULL) {
-            Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    void PNG_PCAL_Parse(PNGOptions *PNG, BitBuffer *BitB) {
-        if (PNG != NULL && BitB != NULL) {
+    void PNG_PCAL_Parse(void *Options, BitBuffer *BitB) {
+        if (Options != NULL && BitB != NULL) {
+            PNGOptions *PNG                      = Options;
             uint8_t CalibrationSize              = BitBuffer_GetUTF8StringSize(BitB);
             PNG->pCAL->CalibrationName           = BitBuffer_ReadUTF8(BitB, CalibrationSize);
             PNG->pCAL->OriginalZero              = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
@@ -704,15 +719,16 @@ extern "C" {
                     PNG->pCAL->Parameters[Param] = UTF8_String2Decimal(ParameterString);
                 }
             }
-        } else if (PNG == NULL) {
-            Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    void PNG_SBIT_Parse(PNGOptions *PNG, BitBuffer *BitB) { // Significant bits per sample
-        if (PNG != NULL && BitB != NULL) {
+    void PNG_SBIT_Parse(void *Options, BitBuffer *BitB) { // Significant bits per sample
+        if (Options != NULL && BitB != NULL) {
+            PNGOptions *PNG          = Options;
             PNG_ColorTypes ColorType = PNG->iHDR->ColorType;
             if (ColorType == PNG_Grayscale) {
                 PNG->sBIT->Grayscale = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
@@ -729,25 +745,27 @@ extern "C" {
                 PNG->sBIT->Blue      = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
                 PNG->sBIT->Alpha     = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
             }
-        } else if (PNG == NULL) {
-            Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    void PNG_SRGB_Parse(PNGOptions *PNG, BitBuffer *BitB) {
-        if (PNG != NULL && BitB != NULL) {
+    void PNG_SRGB_Parse(void *Options, BitBuffer *BitB) {
+        if (Options != NULL && BitB != NULL) {
+            PNGOptions *PNG            = Options;
             PNG->sRGB->RenderingIntent = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
-        } else if (PNG == NULL) {
-            Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    void PNG_STER_Parse(PNGOptions *PNG, BitBuffer *BitB) {
-        if (PNG != NULL && BitB != NULL) {
+    void PNG_STER_Parse(void *Options, BitBuffer *BitB) {
+        if (Options != NULL && BitB != NULL) {
+            PNGOptions *PNG       = Options;
             PNG->sTER->StereoType = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
             // No matter what StereoType is used, both images are arranged side by side, and the left edge is aligned on a boundary of the 8th column in case interlacing is used.
             // The two sub images must have the same dimensions after padding is removed.
@@ -759,15 +777,16 @@ extern "C" {
             // The standard recommends we use CROSS_FUSE_LAYOUT, so I'll probably end up using that.
             // So, let's say we have 2 1080p images, and we want to make a single Stereoscopic PNG from them.
             //
-        } else if (PNG == NULL) {
-            Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    void PNG_TEXT_Parse(PNGOptions *PNG, BitBuffer *BitB) { // Uncompressed, ASCII tEXt
-        if (PNG != NULL && BitB != NULL) {
+    void PNG_TEXT_Parse(void *Options, BitBuffer *BitB) { // Uncompressed, ASCII tEXt
+        if (Options != NULL && BitB != NULL) {
+            PNGOptions *PNG = Options;
             for (uint32_t TextChunk = 0UL; TextChunk < PNG->NumTextChunks; TextChunk++) {
                 if (PNG->Text[TextChunk]->TextType == tEXt) { // ASCII aka Latin-1
                     
@@ -800,42 +819,45 @@ extern "C" {
             // Now, how do we handle multiple text strings?
             // Why not just have a count of the text chunks?
             // Store a variable in OVIA called NumTextChunks, then store a type called Comment or something that stores both the comment type as a string and the actual comment...
-        } else if (PNG == NULL) {
-            Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    void PNG_TIME_Parse(PNGOptions *PNG, BitBuffer *BitB) {
-        if (PNG != NULL && BitB != NULL) {
+    void PNG_TIME_Parse(void *Options, BitBuffer *BitB) {
+        if (Options != NULL && BitB != NULL) {
+            PNGOptions *PNG                     = Options;
             PNG->tIMe->Year                     = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16);
             PNG->tIMe->Month                    = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
             PNG->tIMe->Day                      = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
             PNG->tIMe->Hour                     = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
             PNG->tIMe->Minute                   = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
             PNG->tIMe->Second                   = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
-        } else if (PNG == NULL) {
-            Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
     /* APNG */
-    void PNG_ACTL_Parse(PNGOptions *PNG, BitBuffer *BitB) { // Animation control, part of APNG
-        if (PNG != NULL && BitB != NULL) {
+    void PNG_ACTL_Parse(void *Options, BitBuffer *BitB) { // Animation control, part of APNG
+        if (Options != NULL && BitB != NULL) {
+            PNGOptions *PNG                  = Options;
             PNG->acTL->NumFrames             = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
             PNG->acTL->TimesToLoop           = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32); // If 0, loop forever.
-        } else if (PNG == NULL) {
-            Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    void PNG_FCTL_Parse(PNGOptions *PNG, BitBuffer *BitB) { // Frame Control, part of APNG
-        if (PNG != NULL && BitB != NULL) {
+    void PNG_FCTL_Parse(void *Options, BitBuffer *BitB) { // Frame Control, part of APNG
+        if (Options != NULL && BitB != NULL) {
+            PNGOptions *PNG                  = Options;
             PNG->fcTL->FrameNum              = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
             PNG->fcTL->Width                 = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
             PNG->fcTL->Height                = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
@@ -845,35 +867,37 @@ extern "C" {
             PNG->fcTL->FrameDelayDenominator = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16);
             PNG->fcTL->DisposeMethod         = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
             PNG->fcTL->BlendMethod           = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
-        } else if (PNG == NULL) {
-            Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     /* End APNG */
     
-    void PNG_HIST_Parse(PNGOptions *PNG, BitBuffer *BitB) {
-        if (PNG != NULL && BitB != NULL) {
+    void PNG_HIST_Parse(void *Options, BitBuffer *BitB) {
+        if (Options != NULL && BitB != NULL) {
+            PNGOptions *PNG      = Options;
             PNG->hIST->NumColors = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
             for (uint32_t Color = 0; Color < PNG->hIST->NumColors; Color++) {
                 PNG->hIST->Histogram[Color] = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, PNG->iHDR->BitDepth);
             }
-        } else if (PNG == NULL) {
-            Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    void PNG_ICCP_Parse(PNGOptions *PNG, BitBuffer *BitB) {
-        if (PNG != NULL && BitB != NULL) {
+    void PNG_ICCP_Parse(void *Options, BitBuffer *BitB) {
+        if (Options != NULL && BitB != NULL) {
+            PNGOptions *PNG         = Options;
             uint8_t ProfileNameSize = BitBuffer_GetUTF8StringSize(BitB);
             PNG->iCCP->ProfileName  = BitBuffer_ReadUTF8(BitB, ProfileNameSize);
             PNG->iCCP->CompressionType = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
             // Decompress the data with Zlib
-        } else if (PNG == NULL) {
-            Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
@@ -881,27 +905,29 @@ extern "C" {
         ProfileNameSize = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
     }
     
-    void PNG_SPLT_Parse(PNGOptions *PNG, BitBuffer *BitB) {
-        if (PNG != NULL && BitB != NULL) {
+    void PNG_SPLT_Parse(void *Options, BitBuffer *BitB) {
+        if (Options != NULL && BitB != NULL) {
+            PNGOptions *PNG                          = Options;
             PNG_ColorTypes ColorType                 = PNG->iHDR->ColorType;
             uint8_t BitDepthInBytes                  = Bits2Bytes(PNG->iHDR->BitDepth, RoundingType_Up);
             uint8_t PaletteNameSize                  = BitBuffer_GetUTF8StringSize(BitB);
-            PNG->sPLT[PNG->NumSPLTChunks - 1]->Name   = BitBuffer_ReadUTF8(BitB, PaletteNameSize);
-            PNG->sPLT[PNG->NumSPLTChunks - 1]->Red    = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, Bytes2Bits(BitDepthInBytes));
-            PNG->sPLT[PNG->NumSPLTChunks - 1]->Green  = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, Bytes2Bits(BitDepthInBytes));
-            PNG->sPLT[PNG->NumSPLTChunks - 1]->Blue   = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, Bytes2Bits(BitDepthInBytes));
+            PNG->sPLT[PNG->NumSPLTChunks - 1]->Name  = BitBuffer_ReadUTF8(BitB, PaletteNameSize);
+            PNG->sPLT[PNG->NumSPLTChunks - 1]->Red   = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, Bytes2Bits(BitDepthInBytes));
+            PNG->sPLT[PNG->NumSPLTChunks - 1]->Green = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, Bytes2Bits(BitDepthInBytes));
+            PNG->sPLT[PNG->NumSPLTChunks - 1]->Blue  = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, Bytes2Bits(BitDepthInBytes));
             if (ColorType == PNG_RGBA || ColorType == PNG_GrayAlpha) {
                 PNG->sPLT[PNG->NumSPLTChunks - 1]->Alpha = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, Bytes2Bits(BitDepthInBytes));
             }
-        } else if (PNG == NULL) {
-            Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    void PNG_ParseChunks(PNGOptions *PNG, BitBuffer *BitB) {
-        if (PNG != NULL && BitB != NULL) {
+    void PNG_ParseChunks(void *Options, BitBuffer *BitB) {
+        if (Options != NULL && BitB != NULL) {
+            PNGOptions *PNG          = Options;
             ImageContainer *Image    = NULL;
             while (BitBuffer_GetSize(BitB) > 0) {
                 uint32_t ChunkSize   = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
@@ -961,19 +987,23 @@ extern "C" {
                     PNG_SPLT_Parse(PNG, BitB);
                 }
             }
-        } else if (PNG == NULL) {
-            Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    ImageContainer *PNGExtractImage(PNGOptions *PNG, BitBuffer *BitB) {
+    void PNGDeinterlace(void *Options, ImageContainer *Image, BitBuffer *BitB) {
+        
+    }
+    
+    ImageContainer *PNGExtractImage(void *Options, BitBuffer *BitB) {
         ImageContainer *Image = NULL;
-        if (PNG != NULL && BitB != NULL) {
-            
-        } else if (PNG == NULL) {
-            Log(Log_DEBUG, __func__, U8("PNGOptions Pointer is NULL"));
+        if (Options != NULL && BitB != NULL) {
+            PNGOptions *PNG = Options;
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }

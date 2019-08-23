@@ -35,8 +35,9 @@ extern "C" {
         return PNG;
     }
     
-    void PNGOptions_Deinit(PNGOptions *PNG) {
-        if (PNG != NULL) {
+    void PNGOptions_Deinit(void *Options) {
+        if (Options != NULL) {
+            PNGOptions *PNG = Options;
             free(PNG->LZ77Buffer);
             for (uint8_t SPLTChunk = 0; SPLTChunk < PNG->NumSPLTChunks; SPLTChunk++) {
                 free(PNG->sPLT[SPLTChunk]);

@@ -4,8 +4,8 @@
 extern "C" {
 #endif
     
-    void FLAC_ParseBlocks(FLACOptions *FLAC, BitBuffer *BitB, Audio2DContainer *Audio) {
-        if (FLAC != NULL && BitB != NULL && Audio != NULL) {
+    void FLAC_ParseBlocks(void *Options, BitBuffer *BitB, Audio2DContainer *Audio) {
+        if (Options != NULL && BitB != NULL && Audio != NULL) {
             /*
              Mandatory: FLAC Magic ID, StreamInfo header, FLACDATA.
              We've gotten here after the MAGICID has been parsed bare minimum.
@@ -15,6 +15,7 @@ extern "C" {
              then the the type n the remaining 7 bits
              then read the size of the block in the following 24 bits.
              */
+            FLACOptions *FLAC      = Options;
             bool LastMetadataBlock = No;
             do {
                 LastMetadataBlock  = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 1);  // 0
@@ -50,8 +51,8 @@ extern "C" {
                 Marker             = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 14);
                 FLAC_Frame_Read(FLAC, BitB, Audio);
             } while (LastMetadataBlock == Yes && Marker == FrameMagic);
-        } else if (FLAC == NULL) {
-            Log(Log_DEBUG, __func__, U8("FLACOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         } else if (Audio == NULL) {
@@ -59,8 +60,9 @@ extern "C" {
         }
     }
     
-    void FLAC_Frame_Read(FLACOptions *FLAC, BitBuffer *BitB, Audio2DContainer *Audio) {
-        if (FLAC != NULL && BitB != NULL && Audio != NULL) {
+    void FLAC_Frame_Read(void *Options, BitBuffer *BitB, Audio2DContainer *Audio) {
+        if (Options != NULL && BitB != NULL && Audio != NULL) {
+            FLACOptions *FLAC                 = Options;
             uint8_t Reserved1                 = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 1); // 0
             if (Reserved1 == 0) {
                 FLAC->Frame->BlockType        = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 1); // 0, Fixed
@@ -103,8 +105,8 @@ extern "C" {
             } else {
                 Log(Log_DEBUG, __func__, U8("BlockType %d is invalid"), FLAC->Frame->BlockType);
             }
-        } else if (FLAC == NULL) {
-            Log(Log_DEBUG, __func__, U8("FLACOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         } else if (Audio == NULL) {
@@ -112,8 +114,9 @@ extern "C" {
         }
     }
     
-    void FLAC_SubFrame_Read(FLACOptions *FLAC, BitBuffer *BitB, Audio2DContainer *Audio, uint8_t Channel) { // 2 channels
-        if (FLAC != NULL && BitB != NULL && Audio != NULL) {
+    void FLAC_SubFrame_Read(void *Options, BitBuffer *BitB, Audio2DContainer *Audio, uint8_t Channel) { // 2 channels
+        if (Options != NULL && BitB != NULL && Audio != NULL) {
+            FLACOptions *FLAC                          = Options;
             bool Reserved1                             = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 1); // 0
             if (Reserved1 == 0) {
                 FLAC->Frame->Sub->SubFrameType         = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 6); // 0
@@ -178,8 +181,8 @@ extern "C" {
                     Log(Log_DEBUG, __func__, U8("Invalid Subframe type: %d"), FLAC->Frame->Sub->SubFrameType);
                 }
             }
-        } else if (FLAC == NULL) {
-            Log(Log_DEBUG, __func__, U8("FLACOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         } else if (Audio == NULL) {
@@ -187,8 +190,9 @@ extern "C" {
         }
     }
     
-    void FLAC_Read_Residual(FLACOptions *FLAC, BitBuffer *BitB, Audio2DContainer *Audio) {
-        if (FLAC != NULL && BitB != NULL && Audio != NULL) {
+    void FLAC_Read_Residual(void *Options, BitBuffer *BitB, Audio2DContainer *Audio) {
+        if (Options != NULL && BitB != NULL && Audio != NULL) {
+            FLACOptions *FLAC                 = Options;
             uint8_t  ResiducalCodingMethod    = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 2);
             uint8_t  PartitionOrder           = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 4);
             uint8_t  NumPartitions            = Exponentiate(2, PartitionOrder);
@@ -216,8 +220,8 @@ extern "C" {
             } else {
                 NumSamples                    = (FLAC->Frame->BlockSize / Exponentiate(2, PartitionOrder)) - FLAC->LPC->LPCOrder;
             }
-        } else if (FLAC == NULL) {
-            Log(Log_DEBUG, __func__, U8("FLACOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         } else if (Audio == NULL) {
@@ -225,8 +229,9 @@ extern "C" {
         }
     }
     
-    void FLAC_Decode_RICE(FLACOptions *FLAC, BitBuffer *BitB, uint8_t RICEPartitionType) {
-        if (FLAC != NULL && BitB != NULL) {
+    void FLAC_Decode_RICE(void *Options, BitBuffer *BitB, uint8_t RICEPartitionType) {
+        if (Options != NULL && BitB != NULL) {
+            FLACOptions *FLAC            = Options;
             uint8_t     PartitionOrder   = 0;
             uint16_t    NumPartitions    = 0;
             uint8_t     NumSamplesInPart = 0;
@@ -269,17 +274,17 @@ extern "C" {
             } else {
                 NumSamplesInPart         = (FLAC->Frame->BlockSize / NumPartitions) - PartitionOrder; // Predictor Order
             }
-        } else if (FLAC == NULL) {
-            Log(Log_DEBUG, __func__, U8("FLACOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
     
-    bool FLAC_Parse_Blocks(FLACOptions *FLAC, BitBuffer *BitB) {
+    bool FLAC_Parse_Blocks(void *Options, BitBuffer *BitB) {
         bool IsLastBlock                     = false;
-        if (FLAC != NULL && BitB != NULL) {
+        if (Options != NULL && BitB != NULL) {
             IsLastBlock                      = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 1);  // 1
             uint8_t *PictureArray            = NULL;
             // Actual audio data starts at: 1056166
@@ -315,16 +320,16 @@ extern "C" {
             } else {
                 return IsLastBlock;
             }
-        } else if (FLAC == NULL) {
-            Log(Log_DEBUG, __func__, U8("FLACOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
         return IsLastBlock;
     }
     
-    void FLAC_Parse_StreamInfo(FLACOptions *FLAC, BitBuffer *BitB) {
-        if (FLAC != NULL && BitB != NULL) {
+    void FLAC_Parse_StreamInfo(void *Options, BitBuffer *BitB) {
+        if (Options != NULL && BitB != NULL) {
             FLAC->StreamInfo->MinimumBlockSize = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16); // 4096
             FLAC->StreamInfo->MaximumBlockSize = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16); // 4096
             FLAC->StreamInfo->MinimumFrameSize = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 24); // 18
@@ -340,30 +345,30 @@ extern "C" {
             } else {
                 BitBuffer_Seek(BitB, 128);
             }
-        } else if (FLAC == NULL) {
-            Log(Log_DEBUG, __func__, U8("FLACOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    void FLAC_Parse_SeekTable(FLACOptions *FLAC, BitBuffer *BitB, uint32_t ChunkSize) { // 3528
-        if (FLAC != NULL && BitB != NULL) {
+    void FLAC_Parse_SeekTable(void *Options, BitBuffer *BitB, uint32_t ChunkSize) { // 3528
+        if (Options != NULL && BitB != NULL) {
             FLAC->SeekPoints->NumSeekPoints = ChunkSize / 10;
             for (uint16_t SeekPoint = 0; SeekPoint < FLAC->SeekPoints->NumSeekPoints; SeekPoint++) {
                 FLAC->SeekPoints->SampleInTargetFrame = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 64);
                 FLAC->SeekPoints->OffsetFrom1stSample = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 64);
                 FLAC->SeekPoints->TargetFrameSize     = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16);
             }
-        } else if (FLAC == NULL) {
-            Log(Log_DEBUG, __func__, U8("FLACOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    void FLAC_Parse_Vorbis(FLACOptions *FLAC, BitBuffer *BitB) { // LITTLE ENDIAN, size = 393
-        if (FLAC != NULL && BitB != NULL) {
+    void FLAC_Parse_Vorbis(void *Options, BitBuffer *BitB) { // LITTLE ENDIAN, size = 393
+        if (Options != NULL && BitB != NULL) {
             uint32_t VendorTagSize = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32); // 32
             UTF8    *VendorTag     = BitBuffer_ReadUTF8(BitB, VendorTagSize); // reference libFLAC 1.3.2 20170101
             uint32_t NumUserTags   = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32); // 13
@@ -377,15 +382,15 @@ extern "C" {
                 // 15; 6974756E 65736761 706C6573 733D30
                 //
             }
-        } else if (FLAC == NULL) {
-            Log(Log_DEBUG, __func__, U8("FLACOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    void FLAC_CUE_Parse(FLACOptions *FLAC, BitBuffer *BitB) {
-        if (FLAC != NULL && BitB != NULL) {
+    void FLAC_CUE_Parse(void *Options, BitBuffer *BitB) {
+        if (Options != NULL && BitB != NULL) {
             uint64_t CatalogIDSize    = BitBuffer_GetUTF8StringSize(BitB);
             FLAC->CueSheet->CatalogID = BitBuffer_ReadUTF8(BitB, CatalogIDSize);
             FLAC->CueSheet->LeadIn    = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 64);
@@ -408,16 +413,17 @@ extern "C" {
              FLAC->CueSheet->IndexOffset    = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 64);
              FLAC->CueSheet->IndexPointNum  = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
             BitBuffer_Seek(BitB, 24); // Reserved
-        } else if (FLAC == NULL) {
-            Log(Log_DEBUG, __func__, U8("FLACOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    uint8_t *FLAC_Pic_Read(FLACOptions *FLAC, BitBuffer *BitB) { // 1,047,358
+    uint8_t *FLAC_Pic_Read(void *Options, BitBuffer *BitB) { // 1,047,358
         uint8_t *PictureBuffer = NULL;
-        if (FLAC != NULL && BitB != NULL) {
+        if (Options != NULL && BitB != NULL) {
+            FLACOptions *FLAC           = Options;
             uint32_t PicType            = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32); // 0
             uint32_t MIMESize           = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32); // 9
             UTF8    *MIMEType           = BitBuffer_ReadUTF8(BitB, MIMESize); // image/png
@@ -440,8 +446,8 @@ extern "C" {
             } else {
                 Log(Log_DEBUG, __func__, U8("Couldn't allocate Picture Buffer"));
             }
-        } else if (FLAC == NULL) {
-            Log(Log_DEBUG, __func__, U8("FLACOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }

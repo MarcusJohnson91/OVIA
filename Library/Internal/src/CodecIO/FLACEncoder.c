@@ -4,22 +4,23 @@
 extern "C" {
 #endif
     
-    void   FLACWriteMetadata(FLACOptions *FLAC, BitBuffer *BitB) {
-        if (FLAC != NULL && BitB != NULL) {
+    void   FLACWriteMetadata(void *Options, BitBuffer *BitB) {
+        if (Options != NULL && BitB != NULL) {
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, FLACMagic);
             bool IsLastMetadataBlock = false;
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 1, IsLastMetadataBlock);
             uint8_t MetadataBlockType = 1;
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 7, MetadataBlockType);
-        } else if (FLAC == NULL) {
-            Log(Log_DEBUG, __func__, U8("FLACOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    void FLAC_Encode(FLACOptions *FLAC, Audio2DContainer *Audio, BitBuffer *BitB) {
-        if (FLAC != NULL && Audio && BitB != NULL) {
+    void FLAC_Encode(void *Options, Audio2DContainer *Audio, BitBuffer *BitB) {
+        if (Options != NULL && Audio && BitB != NULL) {
+            FLACOptions *FLAC = Options;
             if (FLAC->EncodeSubset == true && Audio2DContainer_GetSampleRate(Audio) <= 48000) {
                 FLAC->StreamInfo->MaximumBlockSize = 4608;
                 FLAC->Frame->Sub->LPCFilterOrder   = 12;
@@ -29,8 +30,8 @@ extern "C" {
                 FLAC->Frame->Sub->LPCFilterOrder   = 32;
                 FLAC->Frame->PartitionOrder        = 15;
             }
-        } else if (FLAC == NULL) {
-            Log(Log_DEBUG, __func__, U8("FLACOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (Audio == NULL) {
             Log(Log_DEBUG, __func__, U8("Audio2DContainer Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -38,8 +39,9 @@ extern "C" {
         }
     }
     
-    void FLAC_WriteStreamInfo(FLACOptions *FLAC, BitBuffer *BitB) {
-        if (FLAC != NULL && BitB != NULL) {
+    void FLAC_WriteStreamInfo(void *Options, BitBuffer *BitB) {
+        if (Options != NULL && BitB != NULL) {
+            FLACOptions *FLAC = Options;
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 24, 34); // StreamInfoSize
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 16, FLAC->StreamInfo->MinimumBlockSize);
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 16, FLAC->StreamInfo->MaximumBlockSize);
@@ -50,20 +52,20 @@ extern "C" {
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst,  5, FLAC->StreamInfo->CodedBitDepth - 1);
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 36, FLAC->StreamInfo->SamplesInStream);
             BitBuffer_Seek(BitB, 128); // Room for the MD5
-        } else if (FLAC == NULL) {
-            Log(Log_DEBUG, __func__, U8("FLACOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    void FLAC_WriteVorbis(FLACOptions *FLAC, BitBuffer *BitB) {
-        if (FLAC != NULL && BitB != NULL) {
+    void FLAC_WriteVorbis(void *Options, BitBuffer *BitB) {
+        if (Options != NULL && BitB != NULL) {
             BitBuffer_WriteBits(BitB, MSByteFirst, MSBitFirst, 32, 4);
             BitBuffer_WriteUTF8(BitB, U8("OVIA")); // Vendor tag
             
-        } else if (FLAC == NULL) {
-            Log(Log_DEBUG, __func__, U8("FLACOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }

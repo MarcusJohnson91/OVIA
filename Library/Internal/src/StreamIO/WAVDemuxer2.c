@@ -23,146 +23,174 @@ extern "C" {
      
      */
     
-    void WAVParseChunk_DS64(WAVOptions *WAV, BitBuffer *BitB) {
-        if (WAV != NULL && BitB != NULL) {
+    void WAVParseChunk_DS64(void *Options, BitBuffer *BitB) {
+        if (Options != NULL && BitB != NULL) {
+            WAVOptions *WAV       = Options;
             uint32_t ChunkSize    = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
             uint32_t SizeLow      = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
             uint32_t SizeHigh     = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
             uint32_t DataSizeLow  = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
             uint32_t DataSizeHigh = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
             
-        } else if (WAV == NULL) {
-            Log(Log_DEBUG, __func__, U8("WAVOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    static void ReadINFO_TRCK(WAVOptions *WAV, BitBuffer *BitB) {
-        if (WAV != NULL && BitB != NULL) {
+    void WAVParseChunk_BEXT(void *Options, BitBuffer *BitB) {
+        if (Options != NULL && BitB != NULL) {
+            WAVOptions *WAV                = Options;
+            uint64_t DescriptionStringSize = BitBuffer_GetUTF8StringSize(BitB);
+            WAV->BEXT->Description         = BitBuffer_ReadUTF8(BitB, DescriptionStringSize);
+            uint64_t OriginatorStringSize  = BitBuffer_GetUTF8StringSize(BitB);
+            WAV->BEXT->Originator          = BitBuffer_ReadUTF8(BitB, OriginatorStringSize);
+            uint64_t OriginatorRefSize     = BitBuffer_GetUTF8StringSize(BitB);
+            WAV->BEXT->OriginatorRef       = BitBuffer_ReadUTF8(BitB, OriginatorRefSize);
+            uint64_t OriginatorDateSize    = BitBuffer_GetUTF8StringSize(BitB);
+            WAV->BEXT->OriginatorDate      = BitBuffer_ReadUTF8(BitB, OriginatorDateSize);
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+        } else if (BitB == NULL) {
+            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+        }
+    }
+    
+    static void ReadINFO_TRCK(void *Options, BitBuffer *BitB) {
+        if (Options != NULL && BitB != NULL) {
+            WAVOptions *WAV                = Options;
             uint64_t StringSize            = BitBuffer_GetUTF8StringSize(BitB);
             WAV->Info->Artist              = BitBuffer_ReadUTF8(BitB, StringSize);
-        } else if (WAV == NULL) {
-            Log(Log_DEBUG, __func__, U8("WAVOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    static void ReadINFO_IPRT(WAVOptions *WAV, BitBuffer *BitB) {
-        if (WAV != NULL && BitB != NULL) {
+    static void ReadINFO_IPRT(void *Options, BitBuffer *BitB) {
+        if (Options != NULL && BitB != NULL) {
+            WAVOptions *WAV                = Options;
             uint64_t StringSize            = BitBuffer_GetUTF8StringSize(BitB);
             WAV->Info->Artist              = BitBuffer_ReadUTF8(BitB, StringSize);
-        } else if (WAV == NULL) {
-            Log(Log_DEBUG, __func__, U8("WAVOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    static void ReadINFO_IART(WAVOptions *WAV, BitBuffer *BitB) {
-        if (WAV != NULL && BitB != NULL) {
+    static void ReadINFO_IART(void *Options, BitBuffer *BitB) {
+        if (Options != NULL && BitB != NULL) {
+            WAVOptions *WAV                = Options;
             uint64_t StringSize            = BitBuffer_GetUTF8StringSize(BitB);
             WAV->Info->Artist              = BitBuffer_ReadUTF8(BitB, StringSize);
-        } else if (WAV == NULL) {
-            Log(Log_DEBUG, __func__, U8("WAVOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    static void ReadINFO_ICRD(WAVOptions *WAV, BitBuffer *BitB) {
-        if (WAV != NULL && BitB != NULL) {
+    static void ReadINFO_ICRD(void *Options, BitBuffer *BitB) {
+        if (Options != NULL && BitB != NULL) {
+            WAVOptions *WAV                = Options;
             uint64_t StringSize            = BitBuffer_GetUTF8StringSize(BitB);
             WAV->Info->ReleaseDate         = BitBuffer_ReadUTF8(BitB, StringSize);
-        } else if (WAV == NULL) {
-            Log(Log_DEBUG, __func__, U8("WAVOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    static void ReadINFO_IGNR(WAVOptions *WAV, BitBuffer *BitB) {
-        if (WAV != NULL && BitB != NULL) {
+    static void ReadINFO_IGNR(void *Options, BitBuffer *BitB) {
+        if (Options != NULL && BitB != NULL) {
+            WAVOptions *WAV                = Options;
             uint64_t StringSize            = BitBuffer_GetUTF8StringSize(BitB);
             WAV->Info->Genre               = BitBuffer_ReadUTF8(BitB, StringSize);
-        } else if (WAV == NULL) {
-            Log(Log_DEBUG, __func__, U8("WAVOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    static void ReadINFO_INAM(WAVOptions *WAV, BitBuffer *BitB) {
-        if (WAV != NULL && BitB != NULL) {
+    static void ReadINFO_INAM(void *Options, BitBuffer *BitB) {
+        if (Options != NULL && BitB != NULL) {
+            WAVOptions *WAV                = Options;
             uint64_t StringSize            = BitBuffer_GetUTF8StringSize(BitB);
             WAV->Info->Title               = BitBuffer_ReadUTF8(BitB, StringSize);
-        } else if (WAV == NULL) {
-            Log(Log_DEBUG, __func__, U8("WAVOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    static void ReadINFO_IPRD(WAVOptions *WAV, BitBuffer *BitB) {
-        if (WAV != NULL && BitB != NULL) {
+    static void ReadINFO_IPRD(void *Options, BitBuffer *BitB) {
+        if (Options != NULL && BitB != NULL) {
+            WAVOptions *WAV                = Options;
             uint64_t StringSize            = BitBuffer_GetUTF8StringSize(BitB);
             WAV->Info->Album               = BitBuffer_ReadUTF8(BitB, StringSize);
-        } else if (WAV == NULL) {
-            Log(Log_DEBUG, __func__, U8("WAVOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    static void ReadINFO_ISFT(WAVOptions *WAV, BitBuffer *BitB) { // Encoder
-        if (WAV != NULL && BitB != NULL) {
+    static void ReadINFO_ISFT(void *Options, BitBuffer *BitB) { // Encoder
+        if (Options != NULL && BitB != NULL) {
+            WAVOptions *WAV                = Options;
             uint64_t StringSize            = BitBuffer_GetUTF8StringSize(BitB);
             WAV->Info->CreationSoftware    = BitBuffer_ReadUTF8(BitB, StringSize);
-        } else if (WAV == NULL) {
-            Log(Log_DEBUG, __func__, U8("WAVOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    static void WAVParseLISTChunk(WAVOptions *WAV, BitBuffer *BitB) {
-        if (WAV != NULL && BitB != NULL) {
+    static void WAVParseLISTChunk(void *Options, BitBuffer *BitB) {
+        if (Options != NULL && BitB != NULL) {
             uint32_t SubChunkID   = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
             uint32_t SubChunkSize = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
             
             switch (SubChunkID) {
                 case WAV_IART: // Artist
-                    ReadINFO_IART(WAV, BitB);
+                    ReadINFO_IART(Options, BitB);
                     break;
                 case WAV_ICRD: // Release date
-                    ReadINFO_ICRD(WAV, BitB);
+                    ReadINFO_ICRD(Options, BitB);
                     break;
                 case WAV_IGNR: // Genre
-                    ReadINFO_IGNR(WAV, BitB);
+                    ReadINFO_IGNR(Options, BitB);
                     break;
                 case WAV_INAM: // Title
-                    ReadINFO_INAM(WAV, BitB);
+                    ReadINFO_INAM(Options, BitB);
                     break;
                 case WAV_IPRD: // Album
-                    ReadINFO_IPRD(WAV, BitB);
+                    ReadINFO_IPRD(Options, BitB);
                     break;
                 case WAV_ISFT: // Encoder
-                    ReadINFO_ISFT(WAV, BitB);
+                    ReadINFO_ISFT(Options, BitB);
                     break;
                 default:
                     Log(Log_DEBUG, __func__, U8("Unknown LIST Chunk: 0x%X"), SubChunkID);
                     break;
             }
-        } else if (WAV == NULL) {
-            Log(Log_DEBUG, __func__, U8("WAVOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    static void WAVParseFMTChunk(WAVOptions *WAV, BitBuffer *BitB) {
-        if (WAV != NULL && BitB != NULL) {
+    static void WAVParseFMTChunk(void *Options, BitBuffer *BitB) {
+        if (Options != NULL && BitB != NULL) {
+            WAVOptions *WAV        = Options;
             uint32_t ChunkSize     = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
             WAV->CompressionFormat = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16);
             WAV->NumChannels       = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16);
@@ -181,15 +209,16 @@ extern "C" {
                 uint8_t  *BinaryGUIDFormat  = BitBuffer_ReadGUUID(BitB, BinaryGUID);
                 BitBuffer_Seek(BitB, Bytes2Bits(CBSize - 22));
             }
-        } else if (WAV == NULL) {
-            Log(Log_DEBUG, __func__, U8("WAVOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    void WAVParseMetadata(WAVOptions *WAV, BitBuffer *BitB) {
-        if (WAV != NULL && BitB != NULL) {
+    void WAVParseMetadata(void *Options, BitBuffer *BitB) {
+        if (Options != NULL && BitB != NULL) {
+            WAVOptions *WAV    = Options;
             uint32_t ChunkID   = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
             uint32_t ChunkSize = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
             
@@ -197,7 +226,7 @@ extern "C" {
                 case WAV_LIST:
                     break;
                 case WAV_FMT:
-                    WAVParseFMTChunk(WAV, BitB);
+                    WAVParseFMTChunk(Options, BitB);
                     break;
                 case WAV_WAVE:
                     BitBuffer_Seek(BitB, 32);
@@ -206,15 +235,16 @@ extern "C" {
                     Log(Log_DEBUG, __func__, U8("Invalid ChunkID: 0x%X"), ChunkID);
                     break;
             }
-        } else if (WAV == NULL) {
-            Log(Log_DEBUG, __func__, U8("WAVOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         }
     }
     
-    void WAVExtractSamples(WAVOptions *WAV, BitBuffer *BitB, Audio2DContainer *Audio) {
-        if (WAV != NULL && BitB != NULL && Audio != NULL) {
+    void WAVExtractSamples(void *Options, BitBuffer *BitB, Audio2DContainer *Audio) {
+        if (Options != NULL && BitB != NULL && Audio != NULL) {
+            WAVOptions *WAV            = Options;
             uint64_t NumSamples        = Audio2DContainer_GetNumSamples(Audio);
             uint8_t  SampleSizeRounded = (uint8_t) Bytes2Bits(Bits2Bytes(WAV->BitDepth, RoundingType_Up));
             if (WAV->BitDepth <= 8) {
@@ -239,8 +269,8 @@ extern "C" {
                     }
                 }
             }
-        } else if (WAV == NULL) {
-            Log(Log_DEBUG, __func__, U8("WAVOptions Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
         } else if (Audio == NULL) {

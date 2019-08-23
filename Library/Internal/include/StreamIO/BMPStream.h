@@ -66,7 +66,7 @@ extern "C" {
     
     static uint64_t BMPGetPixelArraySize(const uint64_t RowSize, const int32_t ImageHeight);
     
-    void BMPOptions_Deinit(BMPOptions *BMP);
+    void BMPOptions_Deinit(void *Options);
     
 #ifdef __cplusplus
 }
