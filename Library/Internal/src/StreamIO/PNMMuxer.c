@@ -213,73 +213,55 @@ extern "C" {
         
         /* MagicID 0 */
         Ovia->Encoders[EncoderIndex].Function_Initialize[0]   = PNMOptions_Init;
-        Ovia->Encoders[EncoderIndex].Function_Parse[0]        = PNMParse_ASCII;
-        Ovia->Encoders[EncoderIndex].Function_Encode[0]       = PNMExtractImage_ASCII;
+        Ovia->Encoders[EncoderIndex].Function_WriteHeader[0]  = PNMWriteHeader_ASCII;
+        Ovia->Encoders[EncoderIndex].Function_Encode[0]       = PNMInsertImage;
         Ovia->Encoders[EncoderIndex].Function_Deinitialize[0] = PNMOptions_Deinit;
         /* MagicID 0 */
         
         /* MagicID 1 */
-        Ovia->Encoders[EncoderIndex].MagicIDOffset[1]         = 0;
-        Ovia->Encoders[EncoderIndex].MagicIDSize[1]           = 2;
-        Ovia->Encoders[EncoderIndex].MagicID[1]               = (uint8_t[2]) {0x50, 0x32};
         Ovia->Encoders[EncoderIndex].Function_Initialize[1]   = PNMOptions_Init;
-        Ovia->Encoders[EncoderIndex].Function_Parse[1]        = PNMParse_ASCII;
-        Ovia->Encoders[EncoderIndex].Function_Decode[1]       = PNMExtractImage_ASCII;
+        Ovia->Encoders[EncoderIndex].Function_WriteHeader[1]  = PNMWriteHeader_ASCII;
+        Ovia->Encoders[EncoderIndex].Function_Encode[1]       = PNMInsertImage;
         Ovia->Encoders[EncoderIndex].Function_Deinitialize[1] = PNMOptions_Deinit;
         /* MagicID 1 */
         
         /* MagicID 2 */
-        Ovia->Encoders[EncoderIndex].MagicIDOffset[2]         = 0;
-        Ovia->Encoders[EncoderIndex].MagicIDSize[2]           = 2;
-        Ovia->Encoders[EncoderIndex].MagicID[2]               = (uint8_t[2]) {0x50, 0x33};
         Ovia->Encoders[EncoderIndex].Function_Initialize[2]   = PNMOptions_Init;
-        Ovia->Encoders[EncoderIndex].Function_Parse[2]        = PNMParse_ASCII;
-        Ovia->Encoders[EncoderIndex].Function_Decode[2]       = PNMExtractImage_ASCII;
+        Ovia->Encoders[EncoderIndex].Function_WriteHeader[2]  = PNMWriteHeader_ASCII;
+        Ovia->Encoders[EncoderIndex].Function_Encode[2]       = PNMInsertImage;
         Ovia->Encoders[EncoderIndex].Function_Deinitialize[2] = PNMOptions_Deinit;
         /* MagicID 2 */ // Last ASCII
         
         /* MagicID 3 */
-        Ovia->Encoders[EncoderIndex].MagicIDOffset[3]         = 0;
-        Ovia->Encoders[EncoderIndex].MagicIDSize[3]           = 2;
-        Ovia->Encoders[EncoderIndex].MagicID[3]               = (uint8_t[2]) {0x50, 0x34};
         Ovia->Encoders[EncoderIndex].Function_Initialize[3]   = PNMOptions_Init;
-        Ovia->Encoders[EncoderIndex].Function_Parse[3]        = PNMParse_Binary;
-        Ovia->Encoders[EncoderIndex].Function_Decode[3]       = PNMExtractImage_Binary;
+        Ovia->Encoders[EncoderIndex].Function_WriteHeader[3]  = PNMWriteHeader_Binary;
+        Ovia->Encoders[EncoderIndex].Function_Encode[3]       = PNMInsertImage;
         Ovia->Encoders[EncoderIndex].Function_Deinitialize[3] = PNMOptions_Deinit;
         /* MagicID 3 */
         
         /* MagicID 4 */
-        Ovia->Encoders[EncoderIndex].MagicIDOffset[4]         = 0;
-        Ovia->Encoders[EncoderIndex].MagicIDSize[4]           = 2;
-        Ovia->Encoders[EncoderIndex].MagicID[4]               = (uint8_t[2]) {0x50, 0x35};
         Ovia->Encoders[EncoderIndex].Function_Initialize[4]   = PNMOptions_Init;
-        Ovia->Encoders[EncoderIndex].Function_Parse[4]        = PNMParse_Binary;
-        Ovia->Encoders[EncoderIndex].Function_Decode[4]       = PNMExtractImage_Binary;
+        Ovia->Encoders[EncoderIndex].Function_WriteHeader[4]  = PNMWriteHeader_Binary;
+        Ovia->Encoders[EncoderIndex].Function_Encode[4]       = PNMInsertImage;
         Ovia->Encoders[EncoderIndex].Function_Deinitialize[4] = PNMOptions_Deinit;
         /* MagicID 4 */
         
         /* MagicID 5 */
-        Ovia->Encoders[EncoderIndex].MagicIDOffset[5]         = 0;
-        Ovia->Encoders[EncoderIndex].MagicIDSize[5]           = 2;
-        Ovia->Encoders[EncoderIndex].MagicID[5]               = (uint8_t[2]) {0x50, 0x36};
         Ovia->Encoders[EncoderIndex].Function_Initialize[5]   = PNMOptions_Init;
-        Ovia->Encoders[EncoderIndex].Function_Parse[5]        = PNMParse_Binary;
-        Ovia->Encoders[EncoderIndex].Function_Decode[5]       = PNMExtractImage_Binary;
+        Ovia->Encoders[EncoderIndex].Function_WriteHeader[5]  = PNMWriteHeader_Binary;
+        Ovia->Encoders[EncoderIndex].Function_Encode[5]       = PNMInsertImage;
         Ovia->Encoders[EncoderIndex].Function_Deinitialize[5] = PNMOptions_Deinit;
         /* MagicID 5 */
         
         /* MagicID 6 */
-        Ovia->Encoders[EncoderIndex].MagicIDOffset[6]         = 0;
-        Ovia->Encoders[EncoderIndex].MagicIDSize[6]           = 2;
-        Ovia->Encoders[EncoderIndex].MagicID[6]               = (uint8_t[2]) {0x50, 0x37};
         Ovia->Encoders[EncoderIndex].Function_Initialize[6]   = PNMOptions_Init;
-        Ovia->Encoders[EncoderIndex].Function_Parse[6]        = PNMParse_PAM;
-        Ovia->Encoders[EncoderIndex].Function_Decode[6]       = PNMExtractImage_Binary;
+        Ovia->Encoders[EncoderIndex].Function_WriteHeader[6]  = PNMWriteHeader_PAM;
+        Ovia->Encoders[EncoderIndex].Function_Encode[6]       = PNMInsertImage;
         Ovia->Encoders[EncoderIndex].Function_Deinitialize[6] = PNMOptions_Deinit;
         /* MagicID 6 */
     }
     
-    static OVIACodecRegistry RegisterPNMEncoder = {
+    static OVIACodecRegistry Register_PNMEncoder = {
         .Function_RegisterEncoder[CodecID_PNM - 1] = RegisterEncoder_PNM,
     };
     

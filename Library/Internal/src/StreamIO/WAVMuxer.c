@@ -150,7 +150,7 @@ extern "C" {
     }
     
     static OVIACodecRegistry Register_WAVEncoder = {
-        .Function_RegisterEncoder[CodecID_WAV]   = RegisterEncoder_WAV,
+        .Function_RegisterEncoder[CodecID_WAV - 1]   = RegisterEncoder_WAV,
     };
     
 #ifdef __cplusplus

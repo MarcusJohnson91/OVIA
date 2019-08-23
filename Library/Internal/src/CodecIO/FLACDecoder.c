@@ -283,6 +283,7 @@ extern "C" {
     
     
     bool FLAC_Parse_Blocks(void *Options, BitBuffer *BitB) {
+        FLACOptions *FLAC                    = Options;
         bool IsLastBlock                     = false;
         if (Options != NULL && BitB != NULL) {
             IsLastBlock                      = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 1);  // 1
@@ -330,6 +331,7 @@ extern "C" {
     
     void FLAC_Parse_StreamInfo(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
+            FLACOptions *FLAC                  = Options;
             FLAC->StreamInfo->MinimumBlockSize = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16); // 4096
             FLAC->StreamInfo->MaximumBlockSize = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16); // 4096
             FLAC->StreamInfo->MinimumFrameSize = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 24); // 18
@@ -354,7 +356,8 @@ extern "C" {
     
     void FLAC_Parse_SeekTable(void *Options, BitBuffer *BitB, uint32_t ChunkSize) { // 3528
         if (Options != NULL && BitB != NULL) {
-            FLAC->SeekPoints->NumSeekPoints = ChunkSize / 10;
+            FLACOptions *FLAC                         = Options;
+            FLAC->SeekPoints->NumSeekPoints           = ChunkSize / 10;
             for (uint16_t SeekPoint = 0; SeekPoint < FLAC->SeekPoints->NumSeekPoints; SeekPoint++) {
                 FLAC->SeekPoints->SampleInTargetFrame = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 64);
                 FLAC->SeekPoints->OffsetFrom1stSample = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 64);
@@ -391,6 +394,7 @@ extern "C" {
     
     void FLAC_CUE_Parse(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
+            FLACOptions *FLAC         = Options;
             uint64_t CatalogIDSize    = BitBuffer_GetUTF8StringSize(BitB);
             FLAC->CueSheet->CatalogID = BitBuffer_ReadUTF8(BitB, CatalogIDSize);
             FLAC->CueSheet->LeadIn    = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 64);
@@ -472,7 +476,7 @@ extern "C" {
     }
     
     static OVIACodecRegistry Register_FLACDecoder = {
-        .Function_RegisterEncoder[CodecID_FLAC]   = RegisterDecoder_FLAC,
+        .Function_RegisterEncoder[CodecID_FLAC - 1]   = RegisterDecoder_FLAC,
     };
     
 #ifdef __cplusplus

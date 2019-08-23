@@ -120,7 +120,7 @@ extern "C" {
     }
     
     static OVIACodecRegistry Register_W64Encoder = {
-        .Function_RegisterEncoder[CodecID_W64]   = RegisterEncoder_W64,
+        .Function_RegisterEncoder[CodecID_W64 - 1]   = RegisterEncoder_W64,
     };
     
 #ifdef __cplusplus

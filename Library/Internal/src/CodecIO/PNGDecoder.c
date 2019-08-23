@@ -1035,7 +1035,7 @@ extern "C" {
         Ovia->Decoders[DecoderIndex].Function_Deinitialize = PNGOptions_Deinit;
     }
     
-    static OVIACodecRegistry Register_FLACDecoder = {
+    static OVIACodecRegistry Register_PNGDecoder = {
         .Function_RegisterDecoder[CodecID_PNG]    = RegisterDecoder_PNG,
     };
     

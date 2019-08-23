@@ -406,9 +406,8 @@ extern "C" {
         Ovia->Encoders[EncoderIndex].Function_Deinitialize = PNGOptions_Deinit;
     }
     
-    static OVIACodecRegistry Register_PNGEncoder[CodecID_PNG] = {
-        
-        .Function_RegisterEncoder[CodecID_PNG]   = RegisterEncoder_PNG,
+    static OVIACodecRegistry Register_PNGEncoder = {
+        .Function_RegisterEncoder[CodecID_PNG - 1]   = RegisterEncoder_PNG,
     };
     
 #ifdef __cplusplus

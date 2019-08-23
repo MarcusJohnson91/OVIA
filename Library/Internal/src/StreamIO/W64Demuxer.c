@@ -131,8 +131,8 @@ extern "C" {
         Ovia->Decoders[DecoderIndex].Function_Deinitialize = W64Options_Deinit;
     }
     
-    static OVIACodecRegistry Register_DecoderPNMASCII = {
-        .Function_RegisterEncoder[CodecID_W64]   = RegisterDecoder_W64,
+    static OVIACodecRegistry Register_W64Decoder = {
+        .Function_RegisterEncoder[CodecID_W64 - 1]   = RegisterDecoder_W64,
     };
     
 #ifdef __cplusplus

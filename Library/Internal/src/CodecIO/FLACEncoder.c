@@ -86,7 +86,7 @@ extern "C" {
     }
     
     static OVIACodecRegistry Register_FLACEncoder = {
-        .Function_RegisterEncoder[CodecID_FLAC]   = RegisterEncoder_FLAC,
+        .Function_RegisterEncoder[CodecID_FLAC - 1]   = RegisterEncoder_FLAC,
     };
     
 #ifdef __cplusplus

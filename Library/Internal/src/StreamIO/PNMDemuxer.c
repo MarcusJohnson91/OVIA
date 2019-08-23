@@ -316,7 +316,7 @@ extern "C" {
         /* MagicID 6 */
     }
     
-    static OVIACodecRegistry RegisterPNMDecoder = {
+    static OVIACodecRegistry Register_PNMDecoder = {
         .Function_RegisterDecoder[CodecID_PNM - 1] = RegisterDecoder_PNM,
     };
     

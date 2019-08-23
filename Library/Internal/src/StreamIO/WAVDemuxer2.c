@@ -295,8 +295,8 @@ extern "C" {
         Ovia->Decoders[DecoderIndex].Function_Deinitialize = WAVOptions_Deinit;
     }
     
-    static OVIACodecRegistry Register_DecoderPNMASCII = {
-        .Function_RegisterEncoder[CodecID_WAV]   = RegisterDecoder_WAV,
+    static OVIACodecRegistry Register_WAVDecoder = {
+        .Function_RegisterEncoder[CodecID_WAV - 1]   = RegisterDecoder_WAV,
     };
     
 #ifdef __cplusplus
