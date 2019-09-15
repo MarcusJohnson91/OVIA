@@ -9,14 +9,14 @@ extern "C" {
         if (Options != NULL && BitB != NULL) {
             PNMOptions *PNM = Options;
             /* Write the Width */
-            UTF8 *Width = UTF8_Integer2String(Base10, PNM->Width);
+            UTF8 *Width = UTF8_Integer2String(Base_Decimal_Radix10, PNM->Width);
             BitBuffer_WriteUTF8(BitB, Width);
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, PNMEndField);
             free(Width);
             /* Write the Width */
             
             /* Write the Height */
-            UTF8 *Height = UTF8_Integer2String(Base10, PNM->Height);
+            UTF8 *Height = UTF8_Integer2String(Base_Decimal_Radix10, PNM->Height);
             BitBuffer_WriteUTF8(BitB, Height);
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, PNMEndField);
             free(Height);
@@ -32,14 +32,14 @@ extern "C" {
         if (Options != NULL && BitB != NULL) {
             PNMOptions *PNM = Options;
             /* Write the Width */
-            UTF8 *Width = UTF8_Integer2String(Base10, PNM->Width);
+            UTF8 *Width = UTF8_Integer2String(Base_Decimal_Radix10, PNM->Width);
             BitBuffer_WriteUTF8(BitB, Width);
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
             free(Width);
             /* Write the Width */
             
             /* Write the Height */
-            UTF8 *Height = UTF8_Integer2String(Base10, PNM->Height);
+            UTF8 *Height = UTF8_Integer2String(Base_Decimal_Radix10, PNM->Height);
             BitBuffer_WriteUTF8(BitB, Height);
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
             free(Height);
@@ -47,7 +47,7 @@ extern "C" {
             
             /* Write the BitDepth */
             uint64_t MaxVal    = Exponentiate(2, PNM->BitDepth) - 1;
-            UTF8    *BitDepth  = UTF8_Integer2String(Base10, MaxVal);
+            UTF8    *BitDepth  = UTF8_Integer2String(Base_Decimal_Radix10, MaxVal);
             BitBuffer_WriteUTF8(BitB, BitDepth);
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
             free(BitDepth);
@@ -66,7 +66,7 @@ extern "C" {
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
             
             /* Write the Width */
-            UTF8 *Width         = UTF8_Integer2String(Base10, PNM->Width);
+            UTF8 *Width         = UTF8_Integer2String(Base_Decimal_Radix10, PNM->Width);
             BitBuffer_WriteUTF8(BitB, U8("WIDTH "));
             BitBuffer_WriteUTF8(BitB, Width);
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
@@ -74,7 +74,7 @@ extern "C" {
             /* Write the Width */
             
             /* Write the Height */
-            UTF8 *Height = UTF8_Integer2String(Base10, PNM->Height);
+            UTF8 *Height = UTF8_Integer2String(Base_Decimal_Radix10, PNM->Height);
             BitBuffer_WriteUTF8(BitB, U8("HEIGHT "));
             BitBuffer_WriteUTF8(BitB, Height);
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
@@ -82,7 +82,7 @@ extern "C" {
             /* Write the Height */
             
             /* Write the NumChannels */
-            UTF8 *NumChannels = UTF8_Integer2String(Base10, PNM->NumChannels);
+            UTF8 *NumChannels = UTF8_Integer2String(Base_Decimal_Radix10, PNM->NumChannels);
             BitBuffer_WriteUTF8(BitB, U8("DEPTH "));
             BitBuffer_WriteUTF8(BitB, NumChannels);
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
@@ -91,7 +91,7 @@ extern "C" {
             
             /* Write the BitDepth */
             uint64_t MaxVal = Exponentiate(2, PNM->BitDepth) - 1;
-            UTF8 *BitDepth  = UTF8_Integer2String(Base10, MaxVal);
+            UTF8 *BitDepth  = UTF8_Integer2String(Base_Decimal_Radix10, MaxVal);
             BitBuffer_WriteUTF8(BitB, U8("MAXVAL "));
             BitBuffer_WriteUTF8(BitB, BitDepth);
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);

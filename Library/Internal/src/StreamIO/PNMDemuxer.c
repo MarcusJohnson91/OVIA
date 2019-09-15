@@ -27,7 +27,7 @@ extern "C" {
             /* Read Width */
             uint64_t WidthStringSize  = BitBuffer_GetUTF8StringSize(BitB);
             UTF8    *WidthString      = BitBuffer_ReadUTF8(BitB, WidthStringSize);
-            PNM->Width                = UTF8_String2Integer(Base10, WidthString);
+            PNM->Width                = UTF8_String2Integer(Base_Decimal_Radix10, WidthString);
             free(WidthString);
             /* Read Width */
             
@@ -37,7 +37,7 @@ extern "C" {
             /* Read Height */
             uint64_t HeightStringSize = BitBuffer_GetUTF8StringSize(BitB);
             UTF8    *HeightString     = BitBuffer_ReadUTF8(BitB, HeightStringSize);
-            PNM->Height               = UTF8_String2Integer(Base10, HeightString);
+            PNM->Height               = UTF8_String2Integer(Base_Decimal_Radix10, HeightString);
             free(HeightString);
             /* Read Height */
         } else if (Options == NULL) {
@@ -53,21 +53,21 @@ extern "C" {
             /* Read Width */
             uint64_t WidthStringSize  = BitBuffer_GetUTF8StringSize(BitB);
             UTF8    *WidthString      = BitBuffer_ReadUTF8(BitB, WidthStringSize);
-            PNM->Width                = UTF8_String2Integer(Base10, WidthString);
+            PNM->Width                = UTF8_String2Integer(Base_Decimal_Radix10, WidthString);
             free(WidthString);
             /* Read Width */
             
             /* Read Height */
             uint64_t HeightStringSize = BitBuffer_GetUTF8StringSize(BitB);
             UTF8    *HeightString     = BitBuffer_ReadUTF8(BitB, HeightStringSize);
-            PNM->Height               = UTF8_String2Integer(Base10, HeightString);
+            PNM->Height               = UTF8_String2Integer(Base_Decimal_Radix10, HeightString);
             free(HeightString);
             /* Read Height */
             
             /* Read MaxVal */
             uint64_t MaxValStringSize = BitBuffer_GetUTF8StringSize(BitB);
             UTF8    *MaxValString     = BitBuffer_ReadUTF8(BitB, MaxValStringSize);
-            uint64_t MaxVal           = UTF8_String2Integer(Base10, MaxValString);
+            uint64_t MaxVal           = UTF8_String2Integer(Base_Decimal_Radix10, MaxValString);
             PNM->BitDepth             = Logarithm(2, MaxVal + 1);
             free(MaxValString);
             /* Read MaxVal */
@@ -86,7 +86,7 @@ extern "C" {
             
             uint64_t WidthStringSize  = BitBuffer_GetUTF8StringSize(BitB);
             UTF8    *WidthString      = BitBuffer_ReadUTF8(BitB, WidthStringSize);
-            PNM->Width                = UTF8_String2Integer(Base10, WidthString);
+            PNM->Width                = UTF8_String2Integer(Base_Decimal_Radix10, WidthString);
             free(WidthString);
             /* Read Width */
             
@@ -95,7 +95,7 @@ extern "C" {
             
             uint64_t HeightStringSize = BitBuffer_GetUTF8StringSize(BitB);
             UTF8    *HeightString     = BitBuffer_ReadUTF8(BitB, HeightStringSize);
-            PNM->Height               = UTF8_String2Integer(Base10, HeightString);
+            PNM->Height               = UTF8_String2Integer(Base_Decimal_Radix10, HeightString);
             free(HeightString);
             /* Read Height */
             
@@ -104,7 +104,7 @@ extern "C" {
             
             uint64_t NumChannelsStringSize  = BitBuffer_GetUTF8StringSize(BitB);
             UTF8    *NumChannelsString      = BitBuffer_ReadUTF8(BitB, NumChannelsStringSize);
-            PNM->NumChannels                = UTF8_String2Integer(Base10, NumChannelsString);
+            PNM->NumChannels                = UTF8_String2Integer(Base_Decimal_Radix10, NumChannelsString);
             free(NumChannelsString);
             /* Read NumChannels */
             
@@ -113,7 +113,7 @@ extern "C" {
             
             uint64_t MaxValStringSize = BitBuffer_GetUTF8StringSize(BitB);
             UTF8    *MaxValString     = BitBuffer_ReadUTF8(BitB, MaxValStringSize);
-            uint64_t MaxVal           = UTF8_String2Integer(Base10, MaxValString);
+            uint64_t MaxVal           = UTF8_String2Integer(Base_Decimal_Radix10, MaxValString);
             PNM->BitDepth             = Logarithm(2, MaxVal + 1);
             free(MaxValString);
             /* Read MaxVal */
@@ -164,7 +164,7 @@ extern "C" {
                             for (uint8_t SubPixelByte = 0; SubPixelByte < 3; SubPixelByte++) {
                                 Component[SubPixelByte]      = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
                             }
-                            Array[0][Width][Height][Channel] = UTF8_String2Integer(Base10, Component);
+                            Array[0][Width][Height][Channel] = UTF8_String2Integer(Base_Decimal_Radix10, Component);
                         }
                     }
                 }
@@ -177,7 +177,7 @@ extern "C" {
                             for (uint8_t SubPixelByte = 0; SubPixelByte < 3; SubPixelByte++) {
                                 Component[SubPixelByte]      = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
                             }
-                            Array[0][Width][Height][Channel] = UTF8_String2Integer(Base10, Component);
+                            Array[0][Width][Height][Channel] = UTF8_String2Integer(Base_Decimal_Radix10, Component);
                         }
                     }
                 }

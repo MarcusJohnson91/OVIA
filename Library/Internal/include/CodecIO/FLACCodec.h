@@ -224,7 +224,7 @@ extern "C" {
     
     /* OVIA specific functions */
     
-    void *FLACOptions_Init(void);
+    void       *FLACOptions_Init(void);
     
     void        FLAC_Frame_Read(void *Options, BitBuffer *BitB, Audio2DContainer *Audio);
     
