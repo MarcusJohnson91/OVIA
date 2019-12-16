@@ -47,6 +47,53 @@ extern "C" {
      
      Should ICC profiles be a part of OVIA or ContainerIO?
      */
+
+#if   (FoundationIOCompiler == FoundationIOCompilerIsMSVC)
+#pragma section(".CRT$XCU",read)
+#define INITIALIZER2_(f,p) \
+        static void f(void); \
+        __declspec(allocate(".CRT$XCU")) void (*f##_)(void) = f; \
+        __pragma(comment(linker,"/include:" p #f "_")) \
+        static void f(void)
+#ifdef _WIN64
+#define INITIALIZER(f) INITIALIZER2_(f,"")
+#else
+#define INITIALIZER(f) INITIALIZER2_(f,"_")
+#endif
+#else /* Clang/gcc */
+#if (__cplusplus)
+#define INITIALIZER(f) \
+        static void f(void); \
+        struct f##_t_ { f##_t_(void) { f(); } }; static f##_t_ f##_; \
+        static void f(void)
+#else
+#define INITIALIZER(f) \
+        static void f(void) __attribute__((constructor)); \
+        static void f(void)
+#endif
+#endif
+
+	INITIALIZER(OVIA_Register)
+
+
+#if   (FoundationIOTargetOS == FoundationIOAppleOS || FoundationIOTargetOS == FoundationIOPOSIXOS)
+	void OVIA_Register(void) __attribute__((constructor)) {
+		OVIA_RegisterCodecs();
+	}
+
+	void OVIA_Deregister(void) __attribute__((destructor)) {
+		OVIA_DeregisterCodecs();
+	}
+#elif (FoundationIOTargetOS == FoundationIOWindowsOS)
+	BOOL WINAPI OVIAMain(_In_ HINSTANCE DLLPointer, _In_ DWORD Type, _In_ LPVOID Reserved) {
+		if (Type == DLL_PROCESS_ATTACH) {
+			OVIA_RegisterCodecs();
+		} else if (Type == DLL_PROCESS_DETACH) {
+			OVIA_DeregisterCodecs();
+		}
+	}
+#endif
+	
     
     OVIA_CodecIDs UTF8_Extension2CodecID(UTF8 *Extension) {
         OVIA_CodecIDs CodecID = CodecID_Unknown;

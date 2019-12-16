@@ -445,7 +445,7 @@ extern "C" {
             PictureBuffer               = calloc(PicSize, sizeof(uint8_t));
             if (PictureBuffer != NULL) {
                 for (uint32_t Byte = 0; Byte < PicSize - 1; Byte++) {
-                    PictureBuffer[Byte] = BitBuffer_ReadBits(MSByteFirst, MSByteFirst, BitB, 8);
+                    PictureBuffer[Byte] = BitBuffer_ReadBits(BitB, MSByteFirst, MSByteFirst, 8);
                 }
             } else {
                 Log(Log_DEBUG, __func__, U8("Couldn't allocate Picture Buffer"));

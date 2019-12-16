@@ -687,8 +687,8 @@ extern "C" {
             UTF8 *WidthString         = BitBuffer_ReadUTF8(BitB, WidthStringSize);
             UTF8 *HeightString        = BitBuffer_ReadUTF8(BitB, HeightStringSize);
             
-            PNG->sCAL->PixelWidth     = UTF8_String2Decimal(WidthString);
-            PNG->sCAL->PixelHeight    = UTF8_String2Decimal(HeightString);
+            PNG->sCAL->PixelWidth     = UTF8_String2Decimal(Base_Decimal_Radix10, WidthString);
+            PNG->sCAL->PixelHeight    = UTF8_String2Decimal(Base_Decimal_Radix10, HeightString);
             
             free(WidthString);
             free(HeightString);
@@ -716,7 +716,7 @@ extern "C" {
                 for (uint8_t Param = 0; Param < PNG->pCAL->NumParams; Param++) {
                     uint8_t ParameterSize        = BitBuffer_GetUTF8StringSize(BitB);
                     UTF8   *ParameterString      = BitBuffer_ReadUTF8(BitB, ParameterSize);
-                    PNG->pCAL->Parameters[Param] = UTF8_String2Decimal(ParameterString);
+                    PNG->pCAL->Parameters[Param] = UTF8_String2Decimal(Base_Decimal_Radix10, ParameterString);
                 }
             }
         } else if (Options == NULL) {

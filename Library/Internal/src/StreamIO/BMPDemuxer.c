@@ -3,11 +3,19 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+	/*
+	Why don't I go ahead and set the registration functions up so that 
+
+
+
+	why can't I set up the system so that it will take X
+	*/
     
     void BMPParseMetadata(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             BMPOptions *BMP = Options;
-            BitBuffer_Seek(BitB, 16);                            // Skip BMPMagic
+            BitBuffer_Seek(BitB, 16);                           // Skip BMPMagic
             BMP->FileSize = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
             BitBuffer_Seek(BitB, 32);                           // 2 16 bit Reserved fields
             BMP->Offset                                      = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
@@ -76,7 +84,7 @@ extern "C" {
             uint16_t BitDepth        = BMP->BitDepth;
             uint32_t Width           = BMP->Width;
             bool     IsUpsideDown    = (BMP->Height & 0x80000000) >> 31;
-            uint32_t Height          = Absolute(BMP->Height);
+            uint32_t Height          = AbsoluteI(BMP->Height);
             
             if (BMP->CompressionType == BMP_RGB) {
                 if (BitDepth <= 8) {
@@ -138,7 +146,7 @@ extern "C" {
         Ovia->Decoders[DecoderIndex].MediaType             = MediaType_Image;
         Ovia->Decoders[DecoderIndex].NumMagicIDs           = 1;
         Ovia->Decoders[DecoderIndex].MagicIDOffset[0]      = 0;
-        Ovia->Decoders[DecoderIndex].MagicIDSize[0]        = 2;
+        Ovia->Decoders[DecoderIndex].MagicIDSize[0]        = 16;
         Ovia->Decoders[DecoderIndex].MagicID[0]            = (uint8_t[2]) {0x42, 0x4D};
         Ovia->Decoders[DecoderIndex].Function_Initialize   = BMPOptions_Init;
         Ovia->Decoders[DecoderIndex].Function_Parse        = BMPParseMetadata;
@@ -147,7 +155,7 @@ extern "C" {
     }
     
     static OVIACodecRegistry Register_BMPDecoder = {
-        .Function_RegisterEncoder[CodecID_BMP - 1]   = RegisterDecoder_BMP,
+        .Function_RegisterEncoder[CodecID_BMP - 1]         = &RegisterDecoder_BMP,
     };
     
 #ifdef __cplusplus
