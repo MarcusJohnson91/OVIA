@@ -98,12 +98,13 @@ extern "C" {
         CodecID_BMP           = 5,
         CodecID_PNG           = 6,
         CodecID_PNM           = 7,
+        CodecID_JPEG          = 8,
         /*
         CodecID_PNM_ASCII     = 6,
         CodecID_PNM_Binary    = 7,
         CodecID_PAM           = 8,
          */
-        OVIA_NumCodecs        = CodecID_PNM,
+        OVIA_NumCodecs        = CodecID_JPEG,
     } OVIA_CodecIDs;
     
     typedef struct       Audio2DContainer  Audio2DContainer; // Forward declare ContainerIO's tyoes
