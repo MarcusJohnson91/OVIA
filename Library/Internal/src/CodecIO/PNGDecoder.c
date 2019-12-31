@@ -37,17 +37,17 @@ extern "C" {
                         DictID  = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
                     }
                 } else {
-                    Log(Log_DEBUG, __func__, U8("Invalid Flate Header %d"), FCheck);
+                    Log(Log_DEBUG, __func__, UTF8String("Invalid Flate Header %d"), FCheck);
                 }
             } else if (CompressionInfo != 7) {
-                Log(Log_DEBUG, __func__, U8("Compresion Info %d is invalid"), CompressionInfo);
+                Log(Log_DEBUG, __func__, UTF8String("Compresion Info %d is invalid"), CompressionInfo);
             } else if (CompressionMethod != 8) {
-                Log(Log_DEBUG, __func__, U8("Compression Method %d is invalid"), CompressionMethod);
+                Log(Log_DEBUG, __func__, UTF8String("Compression Method %d is invalid"), CompressionMethod);
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -66,7 +66,7 @@ extern "C" {
                     if (LEN == NLEN) {
                         // Copy LEN bytes from the stream to the image
                     } else {
-                        Log(Log_DEBUG, __func__, U8("Literal Block Length and 1's Complement Length do not match"));
+                        Log(Log_DEBUG, __func__, UTF8String("Literal Block Length and 1's Complement Length do not match"));
                     }
                 } else if (BTYPE == BlockType_Fixed) {
                     HuffmanTree *Length        = PNG_Flate_BuildHuffmanTree(FixedLiteralTable, 288);
@@ -108,20 +108,20 @@ extern "C" {
                             Index                        += 1;
                         } while (Index < NumLengthCodes + NumDistCodes);
                     } else if (NumLengthCodes > MaxLiteralLengthCodes) {
-                        Log(Log_DEBUG, __func__, U8("Too many length codes %d, max is %d"), NumLengthCodes, MaxLiteralLengthCodes);
+                        Log(Log_DEBUG, __func__, UTF8String("Too many length codes %d, max is %d"), NumLengthCodes, MaxLiteralLengthCodes);
                     } else if (NumDistCodes > MaxDistanceCodes) {
-                        Log(Log_DEBUG, __func__, U8("Too many distance codes %d, max is %d"), NumDistCodes, MaxDistanceCodes);
+                        Log(Log_DEBUG, __func__, UTF8String("Too many distance codes %d, max is %d"), NumDistCodes, MaxDistanceCodes);
                     }
                 } else {
-                    Log(Log_DEBUG, __func__, U8("Invalid Block Type in Deflate block"));
+                    Log(Log_DEBUG, __func__, UTF8String("Invalid Block Type in Deflate block"));
                 }
             } while (BFINAL == No);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         } else if (Image == NULL) {
-            Log(Log_DEBUG, __func__, U8("ImageContainer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("ImageContainer Pointer is NULL"));
         }
     }
     
@@ -144,21 +144,21 @@ extern "C" {
                             ImageArrayBytes[0][0][0][Byte] = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 8);
                         }
                     } else {
-                        Log(Log_DEBUG, __func__, U8("Data Error: Bytes2Copy does not match Bytes2CopyXOR in literal block"));
+                        Log(Log_DEBUG, __func__, UTF8String("Data Error: Bytes2Copy does not match Bytes2CopyXOR in literal block"));
                     }
                 } else if (BlockType == BlockType_Fixed) {
                     //Tree = PNG_Flate_BuildHuffmanTree();
                 } else if (BlockType == BlockType_Dynamic) {
                     //Tree = PNG_Flate_BuildHuffmanTree();
                 } else {
-                    Log(Log_DEBUG, __func__, U8("PNG Invalid DAT Block"));
+                    Log(Log_DEBUG, __func__, UTF8String("PNG Invalid DAT Block"));
                 }
                 //PNG_Flate_Decode(PNG, BitB); // Actually read the data
             } while (IsFinalBlock == false);
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         } else if (Image == NULL) {
-            Log(Log_DEBUG, __func__, U8("ImageContainer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("ImageContainer Pointer is NULL"));
         }
     }
     
@@ -176,9 +176,9 @@ extern "C" {
                 }
             }
         } else if (Tree == NULL) {
-            Log(Log_DEBUG, __func__, U8("HuffmanTree Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("HuffmanTree Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
         return Symbol;
     }
@@ -207,20 +207,20 @@ extern "C" {
                             // This function might also be useful in ContainerIO as well.
                         }
                     } else {
-                        Log(Log_DEBUG, __func__, U8("Couldn't get ImageArray"));
+                        Log(Log_DEBUG, __func__, UTF8String("Couldn't get ImageArray"));
                     }
                 }
             } while (Symbol != EndOfBlock); /* end of block symbol */
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         } else if (LengthTree == NULL) {
-            Log(Log_DEBUG, __func__, U8("LengthTree Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("LengthTree Pointer is NULL"));
         } else if (DistanceTree == NULL) {
-            Log(Log_DEBUG, __func__, U8("DistanceTree Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("DistanceTree Pointer is NULL"));
         } else if (Image == NULL) {
-            Log(Log_DEBUG, __func__, U8("ImageContainer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("ImageContainer Pointer is NULL"));
         }
     }
     
@@ -271,7 +271,7 @@ extern "C" {
                 }
             }
         } else if (Image == NULL) {
-            Log(Log_DEBUG, __func__, U8("ImageContainer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("ImageContainer Pointer is NULL"));
         }
     }
     
@@ -304,7 +304,7 @@ extern "C" {
                 }
             }
         } else if (Image == NULL) {
-            Log(Log_DEBUG, __func__, U8("ImageContainer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("ImageContainer Pointer is NULL"));
         }
     }
     
@@ -343,7 +343,7 @@ extern "C" {
                 }
             }
         } else if (Image == NULL) {
-            Log(Log_DEBUG, __func__, U8("ImageContainer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("ImageContainer Pointer is NULL"));
         }
     }
     
@@ -390,7 +390,7 @@ extern "C" {
                 }
             }
         } else if (Image == NULL) {
-            Log(Log_DEBUG, __func__, U8("ImageContainer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("ImageContainer Pointer is NULL"));
         }
     }
     
@@ -429,7 +429,7 @@ extern "C" {
                             PNG_Filter_Paeth(Image);
                             break;
                         default:
-                            Log(Log_DEBUG, __func__, U8("Filter type: %d is invalid"), ImageArray[ScanLine]);
+                            Log(Log_DEBUG, __func__, UTF8String("Filter type: %d is invalid"), ImageArray[ScanLine]);
                             break;
                     }
                 }
@@ -455,13 +455,13 @@ extern "C" {
                             PNG_Filter_Paeth(Image);
                             break;
                         default:
-                            Log(Log_DEBUG, __func__, U8("Filter type: %d is invalid"), ImageArray[ScanLine]);
+                            Log(Log_DEBUG, __func__, UTF8String("Filter type: %d is invalid"), ImageArray[ScanLine]);
                             break;
                     }
                 }
             }
         } else {
-            Log(Log_DEBUG, __func__, U8("ImageContainer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("ImageContainer Pointer is NULL"));
         }
     }
     
@@ -505,15 +505,15 @@ extern "C" {
             } else if (BitDepth <= 16) {
                 Decoded = ImageContainer_Init(ImageType_Integer16, Mask, Width, Height);
             } else {
-                Log(Log_DEBUG, __func__, U8("BitDepth %d is invalid"), BitDepth);
+                Log(Log_DEBUG, __func__, UTF8String("BitDepth %d is invalid"), BitDepth);
             }
             
             PNG_DAT_Decode(PNG, BitB, Decoded);
             PNG_Flate_ReadDeflateBlock(PNG, BitB, Decoded);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -521,7 +521,7 @@ extern "C" {
         if (Image != NULL) {
             
         } else if (Image == NULL) {
-            Log(Log_DEBUG, __func__, U8("ImageContainer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("ImageContainer Pointer is NULL"));
         }
     }
     
@@ -533,15 +533,15 @@ extern "C" {
             PNG->iHDR->BitDepth       = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
             PNG->iHDR->ColorType      = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
             if (PNG->iHDR->ColorType == 1 || PNG->iHDR->ColorType == 5 || PNG->iHDR->ColorType >= 7) {
-                Log(Log_DEBUG, __func__, U8("Invalid color type: %d"), PNG->iHDR->ColorType);
+                Log(Log_DEBUG, __func__, UTF8String("Invalid color type: %d"), PNG->iHDR->ColorType);
             }
             PNG->iHDR->Compression    = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
             PNG->iHDR->FilterMethod   = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
             PNG->iHDR->Progressive    = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -568,12 +568,12 @@ extern "C" {
                 }
             } else {
                 BitBuffer_Seek(BitB, Bytes2Bits(ChunkSize));
-                Log(Log_DEBUG, __func__, U8("BitDepth %d can't have a palette"), BitDepth);
+                Log(Log_DEBUG, __func__, UTF8String("BitDepth %d can't have a palette"), BitDepth);
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -597,14 +597,14 @@ extern "C" {
                 }
                 //Ovia->tRNS->Palette = Entries;
             } else {
-                Log(Log_DEBUG, __func__, U8("Failed to allocate enough memory for the TRNS Palette"));
+                Log(Log_DEBUG, __func__, UTF8String("Failed to allocate enough memory for the TRNS Palette"));
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         } else if (ChunkSize % 3 != 0) {
-            Log(Log_DEBUG, __func__, U8("The ChunkSize MUST be divisible by 3"));
+            Log(Log_DEBUG, __func__, UTF8String("The ChunkSize MUST be divisible by 3"));
         }
     }
     
@@ -615,9 +615,9 @@ extern "C" {
                 PNG->bkGD->BackgroundPaletteEntry[Entry] = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, PNG->iHDR->BitDepth);
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -633,9 +633,9 @@ extern "C" {
             PNG->cHRM->BlueX       = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
             PNG->cHRM->BlueY       = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -644,9 +644,9 @@ extern "C" {
             PNGOptions *PNG  = Options;
             PNG->gAMA->Gamma = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -657,9 +657,9 @@ extern "C" {
             PNG->oFFs->YOffset       = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
             PNG->oFFs->UnitSpecifier = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -670,9 +670,9 @@ extern "C" {
             PNG->pHYs->PixelsPerUnitYAxis = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
             PNG->pHYs->UnitSpecifier      = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -693,9 +693,9 @@ extern "C" {
             free(WidthString);
             free(HeightString);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -720,9 +720,9 @@ extern "C" {
                 }
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -746,9 +746,9 @@ extern "C" {
                 PNG->sBIT->Alpha     = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -757,9 +757,9 @@ extern "C" {
             PNGOptions *PNG            = Options;
             PNG->sRGB->RenderingIntent = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -778,9 +778,9 @@ extern "C" {
             // So, let's say we have 2 1080p images, and we want to make a single Stereoscopic PNG from them.
             //
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -820,9 +820,9 @@ extern "C" {
             // Why not just have a count of the text chunks?
             // Store a variable in OVIA called NumTextChunks, then store a type called Comment or something that stores both the comment type as a string and the actual comment...
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -836,9 +836,9 @@ extern "C" {
             PNG->tIMe->Minute                   = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
             PNG->tIMe->Second                   = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -849,9 +849,9 @@ extern "C" {
             PNG->acTL->NumFrames             = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
             PNG->acTL->TimesToLoop           = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32); // If 0, loop forever.
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -868,9 +868,9 @@ extern "C" {
             PNG->fcTL->DisposeMethod         = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
             PNG->fcTL->BlendMethod           = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     /* End APNG */
@@ -883,9 +883,9 @@ extern "C" {
                 PNG->hIST->Histogram[Color] = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, PNG->iHDR->BitDepth);
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -897,9 +897,9 @@ extern "C" {
             PNG->iCCP->CompressionType = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
             // Decompress the data with Zlib
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
         uint8_t ProfileNameSize = 0;
         ProfileNameSize = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
@@ -919,9 +919,9 @@ extern "C" {
                 PNG->sPLT[PNG->NumSPLTChunks - 1]->Alpha = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, Bytes2Bits(BitDepthInBytes));
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -988,9 +988,9 @@ extern "C" {
                 }
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -1003,9 +1003,9 @@ extern "C" {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG = Options;
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
         return Image;
     }

@@ -10,21 +10,21 @@ extern "C" {
             PNMOptions *PNM = Options;
             /* Write the Width */
             UTF8 *Width = UTF8_Integer2String(Base_Decimal_Radix10, PNM->Width);
-            BitBuffer_WriteUTF8(BitB, Width);
+            BitBuffer_WriteUTF8(BitB, Width, WriteType_Sized);
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, PNMEndField);
             free(Width);
             /* Write the Width */
             
             /* Write the Height */
             UTF8 *Height = UTF8_Integer2String(Base_Decimal_Radix10, PNM->Height);
-            BitBuffer_WriteUTF8(BitB, Height);
+            BitBuffer_WriteUTF8(BitB, Height, WriteType_Sized);
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, PNMEndField);
             free(Height);
             /* Write the Height */
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -33,14 +33,14 @@ extern "C" {
             PNMOptions *PNM = Options;
             /* Write the Width */
             UTF8 *Width = UTF8_Integer2String(Base_Decimal_Radix10, PNM->Width);
-            BitBuffer_WriteUTF8(BitB, Width);
+            BitBuffer_WriteUTF8(BitB, Width, WriteType_Sized);
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
             free(Width);
             /* Write the Width */
             
             /* Write the Height */
             UTF8 *Height = UTF8_Integer2String(Base_Decimal_Radix10, PNM->Height);
-            BitBuffer_WriteUTF8(BitB, Height);
+            BitBuffer_WriteUTF8(BitB, Height, WriteType_Sized);
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
             free(Height);
             /* Write the Height */
@@ -48,43 +48,43 @@ extern "C" {
             /* Write the BitDepth */
             uint64_t MaxVal    = Exponentiate(2, PNM->BitDepth) - 1;
             UTF8    *BitDepth  = UTF8_Integer2String(Base_Decimal_Radix10, MaxVal);
-            BitBuffer_WriteUTF8(BitB, BitDepth);
+            BitBuffer_WriteUTF8(BitB, BitDepth, WriteType_Sized);
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
             free(BitDepth);
             /* Write the BitDepth */
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
     static void PNMWriteHeader_PAM(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNMOptions *PNM = Options;
-            BitBuffer_WriteUTF8(BitB, U8("P7"));
+            BitBuffer_WriteUTF8(BitB, UTF8String("P7"), WriteType_Sized);
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
             
             /* Write the Width */
             UTF8 *Width         = UTF8_Integer2String(Base_Decimal_Radix10, PNM->Width);
-            BitBuffer_WriteUTF8(BitB, U8("WIDTH "));
-            BitBuffer_WriteUTF8(BitB, Width);
+            BitBuffer_WriteUTF8(BitB, UTF8String("WIDTH "), WriteType_Sized);
+            BitBuffer_WriteUTF8(BitB, Width, WriteType_Sized);
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
             free(Width);
             /* Write the Width */
             
             /* Write the Height */
             UTF8 *Height = UTF8_Integer2String(Base_Decimal_Radix10, PNM->Height);
-            BitBuffer_WriteUTF8(BitB, U8("HEIGHT "));
-            BitBuffer_WriteUTF8(BitB, Height);
+            BitBuffer_WriteUTF8(BitB, UTF8String("HEIGHT "), WriteType_Sized);
+            BitBuffer_WriteUTF8(BitB, Height, WriteType_Sized);
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
             free(Height);
             /* Write the Height */
             
             /* Write the NumChannels */
             UTF8 *NumChannels = UTF8_Integer2String(Base_Decimal_Radix10, PNM->NumChannels);
-            BitBuffer_WriteUTF8(BitB, U8("DEPTH "));
-            BitBuffer_WriteUTF8(BitB, NumChannels);
+            BitBuffer_WriteUTF8(BitB, UTF8String("DEPTH "), WriteType_Sized);
+            BitBuffer_WriteUTF8(BitB, NumChannels, WriteType_Sized);
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
             free(NumChannels);
             /* Write the NumChannels */
@@ -92,37 +92,37 @@ extern "C" {
             /* Write the BitDepth */
             uint64_t MaxVal = Exponentiate(2, PNM->BitDepth) - 1;
             UTF8 *BitDepth  = UTF8_Integer2String(Base_Decimal_Radix10, MaxVal);
-            BitBuffer_WriteUTF8(BitB, U8("MAXVAL "));
-            BitBuffer_WriteUTF8(BitB, BitDepth);
+            BitBuffer_WriteUTF8(BitB, UTF8String("MAXVAL "), WriteType_Sized);
+            BitBuffer_WriteUTF8(BitB, BitDepth, WriteType_Sized);
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
             free(BitDepth);
             /* Write the BitDepth */
             
             /* Write the TUPLTYPE */
-            BitBuffer_WriteUTF8(BitB, U8("TUPLTYPE "));
+            BitBuffer_WriteUTF8(BitB, UTF8String("TUPLTYPE "), WriteType_Sized);
             PNMTupleTypes TupleType = PNM->TupleType;
             if (TupleType == PNM_TUPLE_BnW) {
-                BitBuffer_WriteUTF8(BitB, U8("BLACKANDWHITE"));
+                BitBuffer_WriteUTF8(BitB, UTF8String("BLACKANDWHITE"), WriteType_Sized);
             } else if (TupleType == PNM_TUPLE_Gray) {
-                BitBuffer_WriteUTF8(BitB, U8("GRAYSCALE"));
+                BitBuffer_WriteUTF8(BitB, UTF8String("GRAYSCALE"), WriteType_Sized);
             } else if (TupleType == PNM_TUPLE_GrayAlpha) {
-                BitBuffer_WriteUTF8(BitB, U8("GRAYSCALE_ALPHA"));
+                BitBuffer_WriteUTF8(BitB, UTF8String("GRAYSCALE_ALPHA"), WriteType_Sized);
             } else if (TupleType == PNM_TUPLE_RGB) {
-                BitBuffer_WriteUTF8(BitB, U8("RGB"));
+                BitBuffer_WriteUTF8(BitB, UTF8String("RGB"), WriteType_Sized);
             } else if (TupleType == PNM_TUPLE_RGBAlpha) {
-                BitBuffer_WriteUTF8(BitB, U8("RGB_ALPHA"));
+                BitBuffer_WriteUTF8(BitB, UTF8String("RGB_ALPHA"), WriteType_Sized);
             }
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
             /* Write the TUPLTYPE */
             
             /* Write the ENDHDR */
-            BitBuffer_WriteUTF8(BitB, U8("ENDHDR"));
+            BitBuffer_WriteUTF8(BitB, UTF8String("ENDHDR"), WriteType_Sized);
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
             /* Write the ENDHDR */
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -153,11 +153,11 @@ extern "C" {
                 }
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         } else if (Image == NULL) {
-            Log(Log_DEBUG, __func__, U8("Pixels2Write Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Pixels2Write Pointer is NULL"));
         }
     }
     

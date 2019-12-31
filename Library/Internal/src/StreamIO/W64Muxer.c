@@ -20,9 +20,9 @@ extern "C" {
             BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, 32, BlockAlign);
             BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, 16, BitDepth);
         } else if (Audio == NULL) {
-            Log(Log_DEBUG, __func__, U8("Audio2DContainer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Audio2DContainer Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -43,9 +43,9 @@ extern "C" {
             BitBuffer_WriteGUUID(BitB, GUIDString, W64_DATA_GUIDString);
             BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, 64, NumSamples);
         } else if (Audio == NULL) {
-            Log(Log_DEBUG, __func__, U8("Audio2DContainer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Audio2DContainer Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -99,9 +99,9 @@ extern "C" {
                 }
             }
         } else if (Audio == NULL) {
-            Log(Log_DEBUG, __func__, U8("Audio2DContainer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Audio2DContainer Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     

@@ -52,11 +52,11 @@ extern "C" {
                 FLAC_Frame_Read(FLAC, BitB, Audio);
             } while (LastMetadataBlock == Yes && Marker == FrameMagic);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         } else if (Audio == NULL) {
-            Log(Log_DEBUG, __func__, U8("Audio2DContainer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Audio2DContainer Pointer is NULL"));
         }
     }
     
@@ -103,14 +103,14 @@ extern "C" {
                 
                 uint16_t FrameCRC16             = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 16);
             } else {
-                Log(Log_DEBUG, __func__, U8("BlockType %d is invalid"), FLAC->Frame->BlockType);
+                Log(Log_DEBUG, __func__, UTF8String("BlockType %d is invalid"), FLAC->Frame->BlockType);
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         } else if (Audio == NULL) {
-            Log(Log_DEBUG, __func__, U8("Audio2DContainer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Audio2DContainer Pointer is NULL"));
         }
     }
     
@@ -178,15 +178,15 @@ extern "C" {
                         
                     }
                 } else {
-                    Log(Log_DEBUG, __func__, U8("Invalid Subframe type: %d"), FLAC->Frame->Sub->SubFrameType);
+                    Log(Log_DEBUG, __func__, UTF8String("Invalid Subframe type: %d"), FLAC->Frame->Sub->SubFrameType);
                 }
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         } else if (Audio == NULL) {
-            Log(Log_DEBUG, __func__, U8("Audio2DContainer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Audio2DContainer Pointer is NULL"));
         }
     }
     
@@ -210,7 +210,7 @@ extern "C" {
                     Partition                 = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 5);
                 }
             } else {
-                Log(Log_DEBUG, __func__, U8("Invalid Residual Coding Method %d"), ResiducalCodingMethod);
+                Log(Log_DEBUG, __func__, UTF8String("Invalid Residual Coding Method %d"), ResiducalCodingMethod);
             }
             
             if (PartitionOrder == 0) {
@@ -221,11 +221,11 @@ extern "C" {
                 NumSamples                    = (FLAC->Frame->BlockSize / Exponentiate(2, PartitionOrder)) - FLAC->LPC->LPCOrder;
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         } else if (Audio == NULL) {
-            Log(Log_DEBUG, __func__, U8("Audio2DContainer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Audio2DContainer Pointer is NULL"));
         }
     }
     
@@ -275,9 +275,9 @@ extern "C" {
                 NumSamplesInPart         = (FLAC->Frame->BlockSize / NumPartitions) - PartitionOrder; // Predictor Order
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -315,16 +315,16 @@ extern "C" {
                         PictureArray = FLAC_Pic_Read(FLAC, BitB);
                         break;
                     default:
-                        Log(Log_DEBUG, __func__, U8("Invalid Block Type: %d\n"), BlockType);
+                        Log(Log_DEBUG, __func__, UTF8String("Invalid Block Type: %d\n"), BlockType);
                         break;
                 }
             } else {
                 return IsLastBlock;
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
         return IsLastBlock;
     }
@@ -348,9 +348,9 @@ extern "C" {
                 BitBuffer_Seek(BitB, 128);
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -364,9 +364,9 @@ extern "C" {
                 FLAC->SeekPoints->TargetFrameSize     = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16);
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -386,9 +386,9 @@ extern "C" {
                 //
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -418,9 +418,9 @@ extern "C" {
              FLAC->CueSheet->IndexPointNum  = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
             BitBuffer_Seek(BitB, 24); // Reserved
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -448,12 +448,12 @@ extern "C" {
                     PictureBuffer[Byte] = BitBuffer_ReadBits(BitB, MSByteFirst, MSByteFirst, 8);
                 }
             } else {
-                Log(Log_DEBUG, __func__, U8("Couldn't allocate Picture Buffer"));
+                Log(Log_DEBUG, __func__, UTF8String("Couldn't allocate Picture Buffer"));
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
         return PictureBuffer;
     }

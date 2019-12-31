@@ -14,7 +14,7 @@ extern "C" {
                 } while (BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8) != PNMEndField);
             }
         } else {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
         return CommentSize;
     }
@@ -41,9 +41,9 @@ extern "C" {
             free(HeightString);
             /* Read Height */
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -72,9 +72,9 @@ extern "C" {
             free(MaxValString);
             /* Read MaxVal */
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -123,23 +123,23 @@ extern "C" {
             uint64_t TupleTypeSize     = BitBuffer_GetUTF8StringSize(BitB);
             UTF8    *TupleTypeString   = BitBuffer_ReadUTF8(BitB, TupleTypeSize);
             
-            if (UTF8_CompareSubString(TupleTypeString, U8("BLACKANDWHITE"), 0, 0) == true) {
+            if (UTF8_CompareSubString(TupleTypeString, UTF8String("BLACKANDWHITE"), 0, 0) == true) {
                 PNM->NumChannels       = 1;
                 PNM->TupleType         = PNM_TUPLE_BnW;
-            } else if (UTF8_CompareSubString(TupleTypeString, U8("GRAYSCALE"), 0, 0) == true) {
+            } else if (UTF8_CompareSubString(TupleTypeString, UTF8String("GRAYSCALE"), 0, 0) == true) {
                 PNM->NumChannels       = 1;
                 PNM->TupleType         = PNM_TUPLE_Gray;
-            } else if (UTF8_CompareSubString(TupleTypeString, U8("GRAYSCALE_ALPHA"), 0, 0) == true) {
+            } else if (UTF8_CompareSubString(TupleTypeString, UTF8String("GRAYSCALE_ALPHA"), 0, 0) == true) {
                 PNM->NumChannels       = 2;
                 PNM->TupleType         = PNM_TUPLE_GrayAlpha;
-            } else if (UTF8_CompareSubString(TupleTypeString, U8("RGB"), 0, 0) == true) {
+            } else if (UTF8_CompareSubString(TupleTypeString, UTF8String("RGB"), 0, 0) == true) {
                 PNM->NumChannels       = 3;
                 PNM->TupleType         = PNM_TUPLE_RGB;
-            } else if (UTF8_CompareSubString(TupleTypeString, U8("RGB_ALPHA"), 0, 0) == true) {
+            } else if (UTF8_CompareSubString(TupleTypeString, UTF8String("RGB_ALPHA"), 0, 0) == true) {
                 PNM->NumChannels       = 4;
                 PNM->TupleType         = PNM_TUPLE_RGBAlpha;
             } else {
-                Log(Log_DEBUG, __func__, U8("Unknown PNM Tuple: %s"), TupleTypeString);
+                Log(Log_DEBUG, __func__, UTF8String("Unknown PNM Tuple: %s"), TupleTypeString);
             }
             free(TupleTypeString);
             /* Read TupleType */
@@ -148,7 +148,7 @@ extern "C" {
             BitBuffer_Seek(BitB, 56); // ENDHDR
             /* Skip ENDHDR */
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -182,14 +182,14 @@ extern "C" {
                     }
                 }
             } else {
-                Log(Log_DEBUG, __func__, U8("16 bit ASCII PNM is invalid"));
+                Log(Log_DEBUG, __func__, UTF8String("16 bit ASCII PNM is invalid"));
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         } else if (Image == NULL) {
-            Log(Log_DEBUG, __func__, U8("ImageContainer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("ImageContainer Pointer is NULL"));
         }
     }
     
@@ -228,11 +228,11 @@ extern "C" {
                 }
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         } else if (Image == NULL) {
-            Log(Log_DEBUG, __func__, U8("ImageContainer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("ImageContainer Pointer is NULL"));
         }
     }
     

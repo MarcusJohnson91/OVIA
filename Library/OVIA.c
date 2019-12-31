@@ -48,48 +48,21 @@ extern "C" {
      Should ICC profiles be a part of OVIA or ContainerIO?
      */
 
-#if   (FoundationIOCompiler == FoundationIOCompilerIsMSVC)
-#pragma section(".CRT$XCU",read)
-#define INITIALIZER2_(f,p) \
-        static void f(void); \
-        __declspec(allocate(".CRT$XCU")) void (*f##_)(void) = f; \
-        __pragma(comment(linker,"/include:" p #f "_")) \
-        static void f(void)
-#ifdef _WIN64
-#define INITIALIZER(f) INITIALIZER2_(f,"")
-#else
-#define INITIALIZER(f) INITIALIZER2_(f,"_")
-#endif
-#else /* Clang/gcc */
-#if (__cplusplus)
-#define INITIALIZER(f) \
-        static void f(void); \
-        struct f##_t_ { f##_t_(void) { f(); } }; static f##_t_ f##_; \
-        static void f(void)
-#else
-#define INITIALIZER(f) \
-        static void f(void) __attribute__((constructor)); \
-        static void f(void)
-#endif
-#endif
-
-	INITIALIZER(OVIA_Register)
-
 
 #if   (FoundationIOTargetOS == FoundationIOAppleOS || FoundationIOTargetOS == FoundationIOPOSIXOS)
 	void OVIA_Register(void) __attribute__((constructor)) {
-		OVIA_RegisterCodecs();
+		//OVIA_RegisterCodecs();
 	}
 
 	void OVIA_Deregister(void) __attribute__((destructor)) {
-		OVIA_DeregisterCodecs();
+		//OVIA_DeregisterCodecs();
 	}
 #elif (FoundationIOTargetOS == FoundationIOWindowsOS)
 	BOOL WINAPI OVIAMain(_In_ HINSTANCE DLLPointer, _In_ DWORD Type, _In_ LPVOID Reserved) {
 		if (Type == DLL_PROCESS_ATTACH) {
-			OVIA_RegisterCodecs();
+			//OVIA_RegisterCodecs();
 		} else if (Type == DLL_PROCESS_DETACH) {
-			OVIA_DeregisterCodecs();
+			//OVIA_DeregisterCodecs();
 		}
 	}
 #endif
@@ -100,31 +73,31 @@ extern "C" {
         if (Extension != NULL) {
             UTF8 *Normalized  = UTF8_Normalize(Extension, NormalizationForm_KompatibleCompose);
             UTF8 *CaseFolded  = UTF8_CaseFold(Normalized);
-            if (UTF8_Compare(CaseFolded, U8("aif")) || UTF8_Compare(CaseFolded, U8("aiff")) || UTF8_Compare(CaseFolded, U8("aifc")) == Yes) {
+            if (UTF8_Compare(CaseFolded, UTF8String("aif")) || UTF8_Compare(CaseFolded, UTF8String("aiff")) || UTF8_Compare(CaseFolded, UTF8String("aifc")) == Yes) {
                 CodecID       = CodecID_AIF;
-            } else if (UTF8_Compare(CaseFolded, U8("wav")) == Yes) {
+            } else if (UTF8_Compare(CaseFolded, UTF8String("wav")) == Yes) {
                 CodecID       = CodecID_WAV;
-            } else if (UTF8_Compare(CaseFolded, U8("w64")) == Yes) {
+            } else if (UTF8_Compare(CaseFolded, UTF8String("w64")) == Yes) {
                 CodecID       = CodecID_W64;
-            } else if (UTF8_Compare(CaseFolded, U8("bmp")) == Yes) {
+            } else if (UTF8_Compare(CaseFolded, UTF8String("bmp")) == Yes) {
                 CodecID       = CodecID_BMP;
-            } else if (UTF8_Compare(CaseFolded, U8("png")) || UTF8_Compare(CaseFolded, U8("apng")) == Yes) {
+            } else if (UTF8_Compare(CaseFolded, UTF8String("png")) || UTF8_Compare(CaseFolded, UTF8String("apng")) == Yes) {
                 CodecID       = CodecID_PNG;
-            } else if (UTF8_Compare(CaseFolded, U8("pam")) == Yes) {
+            } else if (UTF8_Compare(CaseFolded, UTF8String("pam")) == Yes) {
                 CodecID       = CodecID_PNM;
-            } else if (UTF8_Compare(CaseFolded, U8("pbm")) == Yes) {
+            } else if (UTF8_Compare(CaseFolded, UTF8String("pbm")) == Yes) {
                 CodecID       = CodecID_PNM;
-            } else if (UTF8_Compare(CaseFolded, U8("pgm")) == Yes) {
+            } else if (UTF8_Compare(CaseFolded, UTF8String("pgm")) == Yes) {
                 CodecID       = CodecID_PNM;
-            } else if (UTF8_Compare(CaseFolded, U8("ppm")) == Yes) {
+            } else if (UTF8_Compare(CaseFolded, UTF8String("ppm")) == Yes) {
                 CodecID       = CodecID_PNM;
             } else {
-                Log(Log_DEBUG, __func__, U8("Extension \"%s\" is not known"), Extension);
+                Log(Log_DEBUG, __func__, UTF8String("Extension \"%s\" is not known"), Extension);
             }
             free(Normalized);
             free(CaseFolded);
         } else {
-            Log(Log_DEBUG, __func__, U8("Extension Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Extension Pointer is NULL"));
         }
         return CodecID;
     }
@@ -134,31 +107,31 @@ extern "C" {
         if (Extension != NULL) {
             UTF16 *Normalized = UTF16_Normalize(Extension, NormalizationForm_KompatibleCompose);
             UTF16 *CaseFolded = UTF16_CaseFold(Normalized);
-            if (UTF16_Compare(CaseFolded, U16("aif")) || UTF16_Compare(CaseFolded, U16("aiff")) || UTF16_Compare(CaseFolded, U16("aifc")) == Yes) {
+            if (UTF16_Compare(CaseFolded, UTF16String("aif")) || UTF16_Compare(CaseFolded, UTF16String("aiff")) || UTF16_Compare(CaseFolded, UTF16String("aifc")) == Yes) {
                 CodecID       = CodecID_AIF;
-            } else if (UTF16_Compare(CaseFolded, U16("wav")) == Yes) {
+            } else if (UTF16_Compare(CaseFolded, UTF16String("wav")) == Yes) {
                 CodecID       = CodecID_WAV;
-            } else if (UTF16_Compare(CaseFolded, U16("w64")) == Yes) {
+            } else if (UTF16_Compare(CaseFolded, UTF16String("w64")) == Yes) {
                 CodecID       = CodecID_W64;
-            } else if (UTF16_Compare(CaseFolded, U16("bmp")) == Yes) {
+            } else if (UTF16_Compare(CaseFolded, UTF16String("bmp")) == Yes) {
                 CodecID       = CodecID_BMP;
-            } else if (UTF16_Compare(CaseFolded, U16("png")) || UTF16_Compare(CaseFolded, U16("apng")) == Yes) {
+            } else if (UTF16_Compare(CaseFolded, UTF16String("png")) || UTF16_Compare(CaseFolded, UTF16String("apng")) == Yes) {
                 CodecID       = CodecID_PNG;
-            } else if (UTF16_Compare(CaseFolded, U16("pam")) == Yes) {
+            } else if (UTF16_Compare(CaseFolded, UTF16String("pam")) == Yes) {
                 CodecID       = CodecID_PNM;
-            } else if (UTF16_Compare(CaseFolded, U16("pbm")) == Yes) {
+            } else if (UTF16_Compare(CaseFolded, UTF16String("pbm")) == Yes) {
                 CodecID       = CodecID_PNM;
-            } else if (UTF16_Compare(CaseFolded, U16("pgm")) == Yes) {
+            } else if (UTF16_Compare(CaseFolded, UTF16String("pgm")) == Yes) {
                 CodecID       = CodecID_PNM;
-            } else if (UTF16_Compare(CaseFolded, U16("ppm")) == Yes) {
+            } else if (UTF16_Compare(CaseFolded, UTF16String("ppm")) == Yes) {
                 CodecID       = CodecID_PNM;
             } else {
-                Log(Log_DEBUG, __func__, U8("Extension \"%S\" is not known"), Extension);
+                Log(Log_DEBUG, __func__, UTF8String("Extension \"%S\" is not known"), Extension);
             }
             free(Normalized);
             free(CaseFolded);
         } else {
-            Log(Log_DEBUG, __func__, U8("Extension Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Extension Pointer is NULL"));
         }
         return CodecID;
     }

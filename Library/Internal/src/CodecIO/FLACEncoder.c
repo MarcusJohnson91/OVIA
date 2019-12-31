@@ -1,4 +1,5 @@
 #include "../../include/Private/FLACCommon.h"
+#include "../../../Dependencies/FoundationIO/Library/include/UnicodeIO/FormatIO.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -12,9 +13,9 @@ extern "C" {
             uint8_t MetadataBlockType = 1;
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 7, MetadataBlockType);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -31,11 +32,11 @@ extern "C" {
                 FLAC->Frame->PartitionOrder        = 15;
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (Audio == NULL) {
-            Log(Log_DEBUG, __func__, U8("Audio2DContainer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Audio2DContainer Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -53,21 +54,21 @@ extern "C" {
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 36, FLAC->StreamInfo->SamplesInStream);
             BitBuffer_Seek(BitB, 128); // Room for the MD5
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
     void FLAC_WriteVorbis(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             BitBuffer_WriteBits(BitB, MSByteFirst, MSBitFirst, 32, 4);
-            BitBuffer_WriteUTF8(BitB, U8("OVIA")); // Vendor tag
-            
+            UTF8 *OVIAVersion = UTF8_Format(UTF8String("OVIA"));
+            BitBuffer_WriteUTF8(BitB, OVIAVersion, WriteType_Sized);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, U8("Options Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     

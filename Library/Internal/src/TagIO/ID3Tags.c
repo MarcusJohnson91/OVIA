@@ -8,9 +8,9 @@ extern "C" {
         if (ID3 != NULL && BitB != NULL) { // We assume the "TAG" marker has already been consumed
             
         } else if (ID3 == NULL) {
-            Log(Log_DEBUG, __func__, U8("ID3 Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("ID3 Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -18,9 +18,9 @@ extern "C" {
         if (ID3 != NULL && BitB != NULL) { // We assume the "ID3" marker has already been consumed
             // Read the Version variable
         } else if (ID3 == NULL) {
-            Log(Log_DEBUG, __func__, U8("ID3 Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("ID3 Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, U8("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
