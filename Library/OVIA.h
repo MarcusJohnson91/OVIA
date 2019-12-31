@@ -1,5 +1,6 @@
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h> /* Included for Calloc */
 
 #pragma once
 
