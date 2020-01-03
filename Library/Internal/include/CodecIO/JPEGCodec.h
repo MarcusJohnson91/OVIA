@@ -61,6 +61,7 @@ extern "C" {
         uint8_t   BitLengths[16];
         uint8_t   TableClass;
         uint8_t   TableID;
+        uint16_t  EndOfBlockCode;
     } HuffmanTable;
     
     typedef struct ArithmeticTable {

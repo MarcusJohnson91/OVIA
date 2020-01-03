@@ -4,7 +4,29 @@
 extern "C" {
 #endif
     
-    void StartOfFrame_Parse(void *Options, BitBuffer *BitB) {
+    /*
+     
+     ParseSegment_
+     
+     
+     */
+    
+    void BuildHuffmanVales(void *Options) {
+        JPEGOptions *JPEG = Options;
+        /*
+         
+         So we basically take the value, and the bitlength, if the bit length is longer than the number of bits the value takes up, prepend it with 0's
+         
+         that's real god damn easy then.
+         
+         so now I basically just need to read bits until I hit the stop bit, the number of bits read says the array element to search for the values.
+         
+         
+         
+         */
+    }
+    
+    void ParseSegment_StartOfFrame(void *Options, BitBuffer *BitB) {
         JPEGOptions *JPEG                           = Options;
         JPEG->BitDepth                              = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);      // 12
         JPEG->Height                                = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16);     // 4864, Height
@@ -18,7 +40,19 @@ extern "C" {
         }
     }
     
-    void DefineHuffmanTable_Parse(void *Options, BitBuffer *BitB) { // JPEG DHT
+    void ParseSegment_JFIF(void *Options, BitBuffer *BitB) { // 14 bytes
+        JPEGOptions *JPEG                           = Options;
+        
+        
+    }
+    
+    void ParseSegment_Extension7(void *Options, BitBuffer *BitB) { // JPEG-LS, 15 bytes
+        JPEGOptions *JPEG                           = Options;
+        
+        // 0810 E01E 0003 0111 0002 1100 0311 00
+    }
+    
+    void ParseSegment_DefineHuffmanTable(void *Options, BitBuffer *BitB) { // JPEG DHT
         JPEGOptions *JPEG                          = Options;
         JPEG->Huffman->TableClass                  = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 4); // 0
         JPEG->Huffman->TableID                     = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 4); // 0
@@ -85,7 +119,7 @@ extern "C" {
         }
     }
     
-    void DefineArithmeticTable_Parse(void *Options, BitBuffer *BitB) {
+    void ParseSegment_DefineArithmeticTable(void *Options, BitBuffer *BitB) {
         JPEGOptions *JPEG                     = Options;
         JPEG->Arithmetic->CodeLength          = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16);
         JPEG->Arithmetic->TableClass          = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 4);
@@ -93,29 +127,29 @@ extern "C" {
         JPEG->Arithmetic->CodeValue           = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 8);
     }
     
-    void DefineRestartInterval_Parse(void *Options, BitBuffer *BitB) {
+    void ParseSegment_DefineRestartInterval(void *Options, BitBuffer *BitB) {
         JPEGOptions *JPEG                     = Options;
         JPEG->RestartInterval                 = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16);
     }
     
-    void DefineNumberOfLines_Parse(void *Options, BitBuffer *BitB) {
+    void ParseSegment_DefineNumberOfLines(void *Options, BitBuffer *BitB) {
         JPEGOptions *JPEG                     = Options;
         JPEG->Height                          = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16);
     }
     
-    void Comment_Parse(void *Options, BitBuffer *BitB) {
+    void ParseSegment_Comment(void *Options, BitBuffer *BitB) {
         JPEGOptions *JPEG                     = Options;
         uint16_t CommentSize                  = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16);
         BitBuffer_Seek(BitB, CommentSize);
     }
     
-    void ApplicationData_Parse(void *Options, BitBuffer *BitB) {
+    void ParseSegment_ApplicationData(void *Options, BitBuffer *BitB) {
         JPEGOptions *JPEG                     = Options;
         uint16_t AppDataSize                  = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16);
         BitBuffer_Seek(BitB, AppDataSize);
     }
     
-    void StartOfScan_Parse(void *Options, BitBuffer *BitB) {
+    void ParseSegment_StartOfScan(void *Options, BitBuffer *BitB) {
         JPEGOptions *JPEG                     = Options;
         uint8_t  NumberOfComponents           = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);  // 1
         uint8_t  ComponentSelector            = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);  // 1
@@ -126,18 +160,23 @@ extern "C" {
             Components[Component].Horizontal  = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 4); // 0
             Components[Component].Vertical    = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 4); // 0
         }
-        // Entropy coded data, 0xFF bytes are padded with 0's to make sure that no invalid marker is incorrectly found seen
-        // Now we need to while loop to make sure we don't hit a Huffman End of Block symbol, and check if a byte starts with 0xFF00 aka 65280, if it does read another byte and OR it with the first.
         
-        // 0b1111 1111 10 = 10 bits, 0x3FE; read 11 bits for the value: FFBF FC 6F Data: 0xFFFFFFFF & 0x3FFFFF = 0x3FFC6F
-        // first 6 bits = 0b111111
-        // last 5 bits = 0b11111
-        // MSByteMSBit = 0b11111111111 = 0x7FF = 2047
-        // MSByteLSBit = 0x46F = 1135, signed so negative = -912?
-        //
+        
+        
+        /*
+        Entropy coded data, 0xFF bytes are padded with 0's to make sure that no invalid marker is incorrectly found seen
+        Now we need to while loop to make sure we don't hit a Huffman End of Block symbol, and check if a byte starts with 0xFF00 aka 65280, if it does read another byte and OR it with the first.
+        
+        0b1111 1111 10 = 10 bits, 0x3FE; read 11 bits for the value: FFBF FC 6F Data: 0xFFFFFFFF & 0x3FFFFF = 0x3FFC6F
+        first 6 bits = 0b111111
+        last 5 bits = 0b11111
+        MSByteMSBit = 0b11111111111 = 0x7FF = 2047
+        MSByteLSBit = 0x46F = 1135, signed so negative = -912?
+        Leading 0 = negativem leading 1 = positive.
+         */
     }
     
-    static void SkipUnsupportedChunks(BitBuffer *BitB, uint16_t ChunkMarker) {
+    static void SkipUnsupportedSegments(BitBuffer *BitB, uint16_t ChunkMarker) {
         uint16_t Length = 0;
         
         switch (ChunkMarker) {
@@ -163,7 +202,7 @@ extern "C" {
         }
     }
     
-    void JPEG_Parse(void *Options, BitBuffer *BitB) {
+    void ReadSegments(void *Options, BitBuffer *BitB) {
         JPEGOptions *JPEG                     = Options;
         uint16_t     Marker                   = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16);
         switch (Marker) {
@@ -171,22 +210,22 @@ extern "C" {
             case Marker_StartOfFrameLossless2: // Huffman, Differential
             case Marker_StartOfFrameLossless3: // Arithmetic, non-Differential
             case Marker_StartOfFrameLossless4: // Arithmetic, Differential
-                StartOfFrame_Parse(Options, BitB);
+                ParseSegment_StartOfFrame(Options, BitB);
                 break;
             case Marker_DefineHuffmanTable:
-                DefineHuffmanTable_Parse(Options, BitB);
+                ParseSegment_DefineHuffmanTable(Options, BitB);
                 break;
             case Marker_DefineArthimeticTable:
-                DefineArithmeticTable_Parse(Options, BitB);
+                ParseSegment_DefineArithmeticTable(Options, BitB);
                 break;
             case Marker_StartOfScan:
-                StartOfScan_Parse(Options, BitB);
+                ParseSegment_StartOfScan(Options, BitB);
                 break;
             case Marker_NumberOfLines:
-                DefineNumberOfLines_Parse(Options, BitB);
+                ParseSegment_DefineNumberOfLines(Options, BitB);
                 break;
             case Marker_RestartInterval:
-                DefineRestartInterval_Parse(Options, BitB);
+                ParseSegment_DefineRestartInterval(Options, BitB);
             case Marker_Restart0:
             case Marker_Restart1:
             case Marker_Restart2:
@@ -196,12 +235,12 @@ extern "C" {
             case Marker_Restart6:
             case Marker_Restart7:
                 if (JPEG->EntropyCoder == EntropyCoder_Huffman) {
-                    DefineHuffmanTable_Parse(Options, BitB);
+                    ParseSegment_DefineHuffmanTable(Options, BitB);
                 } else if (JPEG->EntropyCoder == EntropyCoder_Arithmetic) {
-                    DefineArithmeticTable_Parse(Options, BitB);
+                    ParseSegment_DefineArithmeticTable(Options, BitB);
                 }
             default:
-                SkipUnsupportedChunks(BitB, Marker);
+                SkipUnsupportedSegments(BitB, Marker);
                 break;
         }
     }
