@@ -76,9 +76,11 @@ extern "C" {
                 if (FLAC->Frame->BlockType == BlockType_Fixed) {
                     UTF8 *FrameNumberString   = BitBuffer_ReadUTF8(BitB, Frame_SampleIDSize); // 1 byte
                     FLAC->Frame->FrameNumber  = UTF8_Decode(FrameNumberString); // Value = 0
+                    free(FrameNumberString);
                 } else if (FLAC->Frame->BlockType == BlockType_Variable) {
                     UTF8 *SampleNumberString  = BitBuffer_ReadUTF8(BitB, Frame_SampleIDSize);
                     FLAC->Frame->SampleNumber = UTF8_Decode(SampleNumberString);
+                    free(SampleNumberString);
                 }
                 
                 if (FLAC->Frame->CodedBlockSize == 6) {
