@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef OVIA_libOVIA_H
-#define OVIA_libOVIA_H
+#ifndef OVIA_OVIA_H
+#define OVIA_OVIA_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -140,4 +140,4 @@ extern "C" {
 }
 #endif
 
-#endif /* OVIA_libOVIA_H */
+#endif /* OVIA_OVIA_H */
