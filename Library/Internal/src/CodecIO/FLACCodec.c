@@ -15,7 +15,7 @@ extern "C" {
         return FLAC;
     }
     
-    uint32_t Adker32(BitBuffer *BitB, uint64_t Start, uint64_t NumBytes) {
+    uint32_t Adler32(BitBuffer *BitB, uint64_t Start, uint64_t NumBytes) {
         uint32_t Output = 0;
         if (BitB != NULL && Start * 8 < BitBuffer_GetSize(BitB) && (Start + NumBytes) * 8 <= BitBuffer_GetSize(BitB)) {
             uint16_t A = 1;
