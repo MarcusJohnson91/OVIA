@@ -1,3 +1,11 @@
+/*!
+ @header              JPEGCommon.h
+ @author              Marcus Johnson
+ @copyright           2020+
+ @version             1.0.0
+ @brief               This header contains code for reading and writing lossless JPEG image files
+ */
+
 #include "OVIACommon.h"
 
 #pragma once
@@ -12,7 +20,7 @@ extern "C" {
     /* !!!ONLY LOSSLESS JPEG CODECS WILL EVER BE SUPPORTED!!! */
     
     typedef enum JPEG_Markers {
-        Marker_StartOfImage           = 0xFFD8, // SOI, Magic
+        Marker_StartOfImage           = 0xFFD8, // SOI, Magic; No SIZE
         Marker_StartOfFrameLossless1  = 0xFFC3, // SOF3, Start of Frame, Lossless, non-differential, Huffman
         Marker_StartOfFrameLossless2  = 0xFFC7, // SOF7, Start of Frame, Lossless, Differential, Huffman
         Marker_StartOfFrameLossless3  = 0xFFCB, // SOF11, Start of Frame, Lossless, non-differential, Arithmetic
@@ -36,7 +44,7 @@ extern "C" {
         Marker_Restart5               = 0xFFD5, // RST5
         Marker_Restart6               = 0xFFD6, // RST6
         Marker_Restart7               = 0xFFD7, // RST7
-        Marker_EndOfImage             = 0xFFD9, // EOI
+        Marker_EndOfImage             = 0xFFD9, // EOI; No SIZE
     } JPEG_Markers;
     
     typedef enum JPEG_Predictors {
@@ -58,9 +66,8 @@ extern "C" {
     
     typedef struct HuffmanTable {
         uint8_t  *NumBits; // Values[1..3] = 4, 5, 6
+        uint8_t   TableID; // 0 = Luma, 1 = Chroma
         uint8_t   BitLengths[16];
-        uint8_t   TableClass;
-        uint8_t   TableID;
         uint16_t  EndOfBlockCode;
     } HuffmanTable;
     
@@ -88,7 +95,7 @@ extern "C" {
     
     typedef struct JPEGOptions {
         ComponentParameters *Components;
-        HuffmanTable        *Huffman;
+        HuffmanTable       **Huffman;
         ArithmeticTable     *Arithmetic;
         uint16_t             Width;
         uint16_t             Height;

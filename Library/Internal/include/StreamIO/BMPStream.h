@@ -1,3 +1,11 @@
+/*!
+ @header              BMPCommon.h
+ @author              Marcus Johnson
+ @copyright           2017+
+ @version             1.0.0
+ @brief               This header contains code for reading and writing lossless BMP image files
+ */
+
 #include "OVIACommon.h"
 
 #pragma once

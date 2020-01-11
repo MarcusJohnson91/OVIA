@@ -1019,24 +1019,24 @@ extern "C" {
      */
     
     static void RegisterDecoder_PNG(OVIA *Ovia) {
-        Ovia->NumDecoders                                 += 1;
-        uint64_t DecoderIndex                              = Ovia->NumDecoders;
-        Ovia->Decoders                                     = realloc(Ovia->Decoders, sizeof(OVIADecoder) * Ovia->NumDecoders);
+        Ovia->NumDecoders                                    += 1;
+        uint64_t DecoderIndex                                 = Ovia->NumDecoders;
+        Ovia->Decoders                                        = realloc(Ovia->Decoders, sizeof(OVIADecoder) * Ovia->NumDecoders);
         
-        Ovia->Decoders[DecoderIndex].DecoderID             = CodecID_PNG;
-        Ovia->Decoders[DecoderIndex].MediaType             = MediaType_Image;
-        Ovia->Decoders[DecoderIndex].NumMagicIDs           = 1;
-        Ovia->Decoders[DecoderIndex].MagicIDOffset[0]      = 0;
-        Ovia->Decoders[DecoderIndex].MagicIDSize[0]        = 8;
-        Ovia->Decoders[DecoderIndex].MagicID[0]            = (uint8_t[8]){0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
-        Ovia->Decoders[DecoderIndex].Function_Initialize   = PNGOptions_Init;
-        Ovia->Decoders[DecoderIndex].Function_Parse        = PNG_ParseChunks;
-        Ovia->Decoders[DecoderIndex].Function_Decode       = PNGExtractImage;
-        Ovia->Decoders[DecoderIndex].Function_Deinitialize = PNGOptions_Deinit;
+        Ovia->Decoders[DecoderIndex].DecoderID                = CodecID_PNG;
+        Ovia->Decoders[DecoderIndex].MediaType                = MediaType_Image;
+        Ovia->Decoders[DecoderIndex].NumMagicIDs              = 1;
+        Ovia->Decoders[DecoderIndex].MagicIDOffset[0]         = 0;
+        Ovia->Decoders[DecoderIndex].MagicIDSize[0]           = 8;
+        Ovia->Decoders[DecoderIndex].MagicID[0]               = (uint8_t[8]){0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
+        Ovia->Decoders[DecoderIndex].Function_Initialize[0]   = PNGOptions_Init;
+        Ovia->Decoders[DecoderIndex].Function_Parse[0]        = PNG_ParseChunks;
+        Ovia->Decoders[DecoderIndex].Function_Decode[0]       = PNGExtractImage;
+        Ovia->Decoders[DecoderIndex].Function_Deinitialize[0] = PNGOptions_Deinit;
     }
     
     static OVIACodecRegistry Register_PNGDecoder = {
-        .Function_RegisterDecoder[CodecID_PNG]    = RegisterDecoder_PNG,
+        .Function_RegisterDecoder[CodecID_PNG - 1]            = RegisterDecoder_PNG,
     };
     
 #ifdef __cplusplus
