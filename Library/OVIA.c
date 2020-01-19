@@ -126,7 +126,7 @@ extern "C" {
             } else if (UTF16_Compare(CaseFolded, UTF16String("ppm")) == Yes) {
                 CodecID       = CodecID_PNM;
             } else {
-                Log(Log_DEBUG, __func__, UTF8String("Extension \"%S\" is not known"), Extension);
+                Log(Log_DEBUG, __func__, UTF8String("Extension \"%us\" is not known"), Extension);
             }
             free(Normalized);
             free(CaseFolded);

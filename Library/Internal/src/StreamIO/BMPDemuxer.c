@@ -12,7 +12,7 @@ extern "C" {
 	why can't I set up the system so that it will take X
 	*/
     
-    void BMPParseMetadata(void *Options, BitBuffer *BitB) {
+    void BMPReadMetadata(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             BMPOptions *BMP = Options;
             BitBuffer_Seek(BitB, 16);                           // Skip BMPMagic
@@ -149,7 +149,7 @@ extern "C" {
         Ovia->Decoders[DecoderIndex].MagicIDSize[0]           = 16;
         Ovia->Decoders[DecoderIndex].MagicID[0]               = (uint8_t[2]) {0x42, 0x4D};
         Ovia->Decoders[DecoderIndex].Function_Initialize[0]   = BMPOptions_Init;
-        Ovia->Decoders[DecoderIndex].Function_Parse[0]        = BMPParseMetadata;
+        Ovia->Decoders[DecoderIndex].Function_Read[0]         = BMPReadMetadata;
         Ovia->Decoders[DecoderIndex].Function_Decode[0]       = BMPExtractImage;
         Ovia->Decoders[DecoderIndex].Function_Deinitialize[0] = BMPOptions_Deinit;
     }

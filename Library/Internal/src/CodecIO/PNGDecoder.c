@@ -465,7 +465,7 @@ extern "C" {
         }
     }
     
-    void PNG_DAT_Parse(void *Options, BitBuffer *BitB) {
+    void PNG_DAT_Read(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG         = Options;
             bool     Is3D           = PNG->sTER->StereoType > 0 ? Yes : No;
@@ -525,7 +525,7 @@ extern "C" {
         }
     }
     
-    void PNG_IHDR_Parse(void *Options, BitBuffer *BitB) {
+    void PNG_IHDR_Read(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG           = Options;
             PNG->iHDR->Width          = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
@@ -545,7 +545,7 @@ extern "C" {
         }
     }
     
-    void PNG_PLTE_Parse(void *Options, BitBuffer *BitB, uint32_t ChunkSize) {
+    void PNG_PLTE_Read(void *Options, BitBuffer *BitB, uint32_t ChunkSize) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG  = Options;
             uint8_t BitDepth = PNG->iHDR->BitDepth;
@@ -577,7 +577,7 @@ extern "C" {
         }
     }
     
-    void PNG_TRNS_Parse(void *Options, BitBuffer *BitB, uint32_t ChunkSize) { // Transparency
+    void PNG_TRNS_Read(void *Options, BitBuffer *BitB, uint32_t ChunkSize) { // Transparency
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG       = Options;
             uint32_t NumEntries   = ChunkSize % 3;
@@ -608,7 +608,7 @@ extern "C" {
         }
     }
     
-    void PNG_BKGD_Parse(void *Options, BitBuffer *BitB) { // Background
+    void PNG_BKGD_Read(void *Options, BitBuffer *BitB) { // Background
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG = Options;
             for (uint8_t Entry = 0; Entry < PNG_NumChannelsPerColorType[PNG->iHDR->ColorType]; Entry++) {
@@ -621,7 +621,7 @@ extern "C" {
         }
     }
     
-    void PNG_CHRM_Parse(void *Options, BitBuffer *BitB) {
+    void PNG_CHRM_Read(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG        = Options;
             PNG->cHRM->WhitePointX = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
@@ -639,7 +639,7 @@ extern "C" {
         }
     }
     
-    void PNG_GAMA_Parse(void *Options, BitBuffer *BitB) { // Gamma
+    void PNG_GAMA_Read(void *Options, BitBuffer *BitB) { // Gamma
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG  = Options;
             PNG->gAMA->Gamma = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
@@ -650,7 +650,7 @@ extern "C" {
         }
     }
     
-    void PNG_OFFS_Parse(void *Options, BitBuffer *BitB) { // Image Offset
+    void PNG_OFFS_Read(void *Options, BitBuffer *BitB) { // Image Offset
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG          = Options;
             PNG->oFFs->XOffset       = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
@@ -663,7 +663,7 @@ extern "C" {
         }
     }
     
-    void PNG_PHYS_Parse(void *Options, BitBuffer *BitB) { // Aspect ratio, Physical pixel size
+    void PNG_PHYS_Read(void *Options, BitBuffer *BitB) { // Aspect ratio, Physical pixel size
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG               = Options;
             PNG->pHYs->PixelsPerUnitXAxis = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
@@ -676,7 +676,7 @@ extern "C" {
         }
     }
     
-    void PNG_SCAL_Parse(void *Options, BitBuffer *BitB) { // Physical Scale
+    void PNG_SCAL_Read(void *Options, BitBuffer *BitB) { // Physical Scale
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG           = Options;
             PNG->sCAL->UnitSpecifier  = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8); // 1 = Meter, 2 = Radian
@@ -699,7 +699,7 @@ extern "C" {
         }
     }
     
-    void PNG_PCAL_Parse(void *Options, BitBuffer *BitB) {
+    void PNG_PCAL_Read(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG                      = Options;
             uint8_t CalibrationSize              = BitBuffer_GetUTF8StringSize(BitB);
@@ -726,7 +726,7 @@ extern "C" {
         }
     }
     
-    void PNG_SBIT_Parse(void *Options, BitBuffer *BitB) { // Significant bits per sample
+    void PNG_SBIT_Read(void *Options, BitBuffer *BitB) { // Significant bits per sample
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG          = Options;
             PNG_ColorTypes ColorType = PNG->iHDR->ColorType;
@@ -752,7 +752,7 @@ extern "C" {
         }
     }
     
-    void PNG_SRGB_Parse(void *Options, BitBuffer *BitB) {
+    void PNG_SRGB_Read(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG            = Options;
             PNG->sRGB->RenderingIntent = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
@@ -763,7 +763,7 @@ extern "C" {
         }
     }
     
-    void PNG_STER_Parse(void *Options, BitBuffer *BitB) {
+    void PNG_STER_Read(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG       = Options;
             PNG->sTER->StereoType = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
@@ -784,7 +784,7 @@ extern "C" {
         }
     }
     
-    void PNG_TEXT_Parse(void *Options, BitBuffer *BitB) { // Uncompressed, ASCII tEXt
+    void PNG_TEXT_Read(void *Options, BitBuffer *BitB) { // Uncompressed, ASCII tEXt
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG = Options;
             for (uint32_t TextChunk = 0UL; TextChunk < PNG->NumTextChunks; TextChunk++) {
@@ -826,7 +826,7 @@ extern "C" {
         }
     }
     
-    void PNG_TIME_Parse(void *Options, BitBuffer *BitB) {
+    void PNG_TIME_Read(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG                     = Options;
             PNG->tIMe->Year                     = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16);
@@ -843,7 +843,7 @@ extern "C" {
     }
     
     /* APNG */
-    void PNG_ACTL_Parse(void *Options, BitBuffer *BitB) { // Animation control, part of APNG
+    void PNG_ACTL_Read(void *Options, BitBuffer *BitB) { // Animation control, part of APNG
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG                  = Options;
             PNG->acTL->NumFrames             = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
@@ -855,7 +855,7 @@ extern "C" {
         }
     }
     
-    void PNG_FCTL_Parse(void *Options, BitBuffer *BitB) { // Frame Control, part of APNG
+    void PNG_FCTL_Read(void *Options, BitBuffer *BitB) { // Frame Control, part of APNG
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG                  = Options;
             PNG->fcTL->FrameNum              = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
@@ -875,7 +875,7 @@ extern "C" {
     }
     /* End APNG */
     
-    void PNG_HIST_Parse(void *Options, BitBuffer *BitB) {
+    void PNG_HIST_Read(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG      = Options;
             PNG->hIST->NumColors = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
@@ -889,7 +889,7 @@ extern "C" {
         }
     }
     
-    void PNG_ICCP_Parse(void *Options, BitBuffer *BitB) {
+    void PNG_ICCP_Read(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG         = Options;
             uint8_t ProfileNameSize = BitBuffer_GetUTF8StringSize(BitB);
@@ -905,7 +905,7 @@ extern "C" {
         ProfileNameSize = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
     }
     
-    void PNG_SPLT_Parse(void *Options, BitBuffer *BitB) {
+    void PNG_SPLT_Read(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG                          = Options;
             PNG_ColorTypes ColorType                 = PNG->iHDR->ColorType;
@@ -925,7 +925,7 @@ extern "C" {
         }
     }
     
-    void PNG_ParseChunks(void *Options, BitBuffer *BitB) {
+    void PNG_ReadChunks(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG          = Options;
             ImageContainer *Image    = NULL;
@@ -934,57 +934,57 @@ extern "C" {
                 uint32_t ChunkID     = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
                 
                 if (ChunkID == acTLMarker) {
-                    PNG_ACTL_Parse(PNG, BitB);
+                    PNG_ACTL_Read(PNG, BitB);
                 } else if (ChunkID == bKGDMarker) {
-                    PNG_BKGD_Parse(PNG, BitB);
+                    PNG_BKGD_Read(PNG, BitB);
                 } else if (ChunkID == cHRMMarker) {
-                    PNG_CHRM_Parse(PNG, BitB);
+                    PNG_CHRM_Read(PNG, BitB);
                 } else if (ChunkID == fcTLMarker) {
-                    PNG_FCTL_Parse(PNG, BitB);
+                    PNG_FCTL_Read(PNG, BitB);
                 } else if (ChunkID == gAMAMarker) {
-                    PNG_GAMA_Parse(PNG, BitB);
+                    PNG_GAMA_Read(PNG, BitB);
                 } else if (ChunkID == hISTMarker) {
-                    PNG_HIST_Parse(PNG, BitB);
+                    PNG_HIST_Read(PNG, BitB);
                 } else if (ChunkID == iCCPMarker) {
-                    PNG_OFFS_Parse(PNG, BitB);
+                    PNG_OFFS_Read(PNG, BitB);
                 } else if (ChunkID == IDATMarker || ChunkID == fDATMarker) {
-                    PNG_DAT_Parse(PNG, BitB);
+                    PNG_DAT_Read(PNG, BitB);
                 } else if (ChunkID == iHDRMarker) {
-                    PNG_IHDR_Parse(PNG, BitB);
+                    PNG_IHDR_Read(PNG, BitB);
                 } else if (ChunkID == oFFsMarker) {
-                    PNG_OFFS_Parse(PNG, BitB);
+                    PNG_OFFS_Read(PNG, BitB);
                 } else if (ChunkID == pCALMarker) {
-                    PNG_PCAL_Parse(PNG, BitB);
+                    PNG_PCAL_Read(PNG, BitB);
                 } else if (ChunkID == pHYsMarker) {
-                    PNG_PHYS_Parse(PNG, BitB);
+                    PNG_PHYS_Read(PNG, BitB);
                 } else if (ChunkID == PLTEMarker) {
-                    PNG_PLTE_Parse(PNG, BitB, ChunkSize);
+                    PNG_PLTE_Read(PNG, BitB, ChunkSize);
                 } else if (ChunkID == sBITMarker) {
-                    PNG_SBIT_Parse(PNG, BitB);
+                    PNG_SBIT_Read(PNG, BitB);
                 } else if (ChunkID == sRGBMarker) {
-                    PNG_SRGB_Parse(PNG, BitB);
+                    PNG_SRGB_Read(PNG, BitB);
                 } else if (ChunkID == sTERMarker) {
-                    PNG_STER_Parse(PNG, BitB);
+                    PNG_STER_Read(PNG, BitB);
                 } else if (ChunkID == tEXtMarker) {
                     PNG->NumTextChunks += 1;
                     PNG->Text[PNG->NumTextChunks - 1]->TextType = tEXt;
-                    PNG_TEXT_Parse(PNG, BitB);
+                    PNG_TEXT_Read(PNG, BitB);
                 } else if (ChunkID == zTXtMarker) {
                     PNG->NumTextChunks += 1;
                     PNG->Text[PNG->NumTextChunks - 1]->TextType = zTXt;
-                    PNG_TEXT_Parse(PNG, BitB);
+                    PNG_TEXT_Read(PNG, BitB);
                 } else if (ChunkID == iTXtMarker) {
                     PNG->NumTextChunks += 1;
                     PNG->Text[PNG->NumTextChunks - 1]->TextType = iTXt;
-                    PNG_TEXT_Parse(PNG, BitB);
+                    PNG_TEXT_Read(PNG, BitB);
                 } else if (ChunkID == sCALMarker) {
-                    PNG_SCAL_Parse(PNG, BitB);
+                    PNG_SCAL_Read(PNG, BitB);
                 } else if (ChunkID == tIMEMarker) {
-                    PNG_TIME_Parse(PNG, BitB);
+                    PNG_TIME_Read(PNG, BitB);
                 } else if (ChunkID == tRNSMarker) {
-                    PNG_TRNS_Parse(PNG, BitB, ChunkSize);
+                    PNG_TRNS_Read(PNG, BitB, ChunkSize);
                 } else if (ChunkID == sPLTMarker) {
-                    PNG_SPLT_Parse(PNG, BitB);
+                    PNG_SPLT_Read(PNG, BitB);
                 }
             }
         } else if (Options == NULL) {
@@ -1030,7 +1030,7 @@ extern "C" {
         Ovia->Decoders[DecoderIndex].MagicIDSize[0]           = 8;
         Ovia->Decoders[DecoderIndex].MagicID[0]               = (uint8_t[8]){0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
         Ovia->Decoders[DecoderIndex].Function_Initialize[0]   = PNGOptions_Init;
-        Ovia->Decoders[DecoderIndex].Function_Parse[0]        = PNG_ParseChunks;
+        Ovia->Decoders[DecoderIndex].Function_Read[0]         = PNG_ReadChunks;
         Ovia->Decoders[DecoderIndex].Function_Decode[0]       = PNGExtractImage;
         Ovia->Decoders[DecoderIndex].Function_Deinitialize[0] = PNGOptions_Deinit;
     }

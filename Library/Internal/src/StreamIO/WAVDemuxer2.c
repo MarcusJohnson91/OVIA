@@ -23,7 +23,7 @@ extern "C" {
      
      */
     
-    void WAVParseChunk_DS64(void *Options, BitBuffer *BitB) {
+    void WAVReadChunk_DS64(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             WAVOptions *WAV       = Options;
             uint32_t ChunkSize    = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
@@ -39,7 +39,7 @@ extern "C" {
         }
     }
     
-    void WAVParseChunk_BEXT(void *Options, BitBuffer *BitB) {
+    void WAVReadChunk_BEXT(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             WAVOptions *WAV                = Options;
             uint64_t DescriptionStringSize = BitBuffer_GetUTF8StringSize(BitB);
@@ -153,7 +153,7 @@ extern "C" {
         }
     }
     
-    static void WAVParseLISTChunk(void *Options, BitBuffer *BitB) {
+    static void WAVReadLISTChunk(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             uint32_t SubChunkID   = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
             uint32_t SubChunkSize = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
@@ -188,7 +188,7 @@ extern "C" {
         }
     }
     
-    static void WAVParseFMTChunk(void *Options, BitBuffer *BitB) {
+    static void WAVReadFMTChunk(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             WAVOptions *WAV        = Options;
             uint32_t ChunkSize     = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
@@ -216,7 +216,7 @@ extern "C" {
         }
     }
     
-    void WAVParseMetadata(void *Options, BitBuffer *BitB) {
+    void WAVReadMetadata(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             WAVOptions *WAV    = Options;
             uint32_t ChunkID   = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
@@ -226,7 +226,7 @@ extern "C" {
                 case WAV_LIST:
                     break;
                 case WAV_FMT:
-                    WAVParseFMTChunk(Options, BitB);
+                    WAVReadFMTChunk(Options, BitB);
                     break;
                 case WAV_WAVE:
                     BitBuffer_Seek(BitB, 32);
@@ -290,7 +290,7 @@ extern "C" {
         Ovia->Decoders[DecoderIndex].MagicIDSize[0]        = 2;
         Ovia->Decoders[DecoderIndex].MagicID[0]            = (uint8_t[2]) {0x50, 0x37};
         Ovia->Decoders[DecoderIndex].Function_Initialize   = WAVOptions_Init;
-        Ovia->Decoders[DecoderIndex].Function_Parse        = WAVParseMetadata;
+        Ovia->Decoders[DecoderIndex].Function_Read         = WAVReadMetadata;
         Ovia->Decoders[DecoderIndex].Function_Decode       = WAVExtractSamples;
         Ovia->Decoders[DecoderIndex].Function_Deinitialize = WAVOptions_Deinit;
     }

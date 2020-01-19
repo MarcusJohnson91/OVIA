@@ -4,7 +4,7 @@
 extern "C" {
 #endif
     
-    void FLAC_ParseBlocks(void *Options, BitBuffer *BitB, Audio2DContainer *Audio) {
+    void FLAC_ReadBlocks(void *Options, BitBuffer *BitB, Audio2DContainer *Audio) {
         if (Options != NULL && BitB != NULL && Audio != NULL) {
             /*
              Mandatory: FLAC Magic ID, StreamInfo header, FLACDATA.
@@ -23,16 +23,16 @@ extern "C" {
                 uint32_t BlockSize = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 24); // 393
                 switch (BlockType) {
                     case Block_StreamInfo:
-                        FLAC_Parse_StreamInfo(FLAC, BitB);
+                        FLAC_Read_StreamInfo(FLAC, BitB);
                         break;
                     case Block_SeekTable:
-                        FLAC_Parse_SeekTable(FLAC, BitB, BlockSize);
+                        FLAC_Read_SeekTable(FLAC, BitB, BlockSize);
                         break;
                     case Block_Vorbis:
-                        FLAC_Parse_Vorbis(FLAC, BitB);
+                        FLAC_Read_Vorbis(FLAC, BitB);
                         break;
                     case Block_Cuesheet:
-                        FLAC_CUE_Parse(FLAC, BitB);
+                        FLAC_CUE_Read(FLAC, BitB);
                         break;
                     case Block_Picture:
                         FLAC_Pic_Read(FLAC, BitB);
@@ -284,7 +284,7 @@ extern "C" {
     }
     
     
-    bool FLAC_Parse_Blocks(void *Options, BitBuffer *BitB) {
+    bool FLAC_Read_Blocks(void *Options, BitBuffer *BitB) {
         FLACOptions *FLAC                    = Options;
         bool IsLastBlock                     = false;
         if (Options != NULL && BitB != NULL) {
@@ -296,7 +296,7 @@ extern "C" {
                 uint32_t BlockSize           = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 24); // 865,236
                 switch (BlockType) {
                     case Block_StreamInfo:
-                        FLAC_Parse_StreamInfo(FLAC, BitB);
+                        FLAC_Read_StreamInfo(FLAC, BitB);
                         break;
                     case Block_Padding:
                         BitBuffer_Seek(BitB, Bytes2Bits(BlockSize));
@@ -305,13 +305,13 @@ extern "C" {
                         BitBuffer_Seek(BitB, Bytes2Bits(BlockSize));
                         break;
                     case Block_SeekTable:
-                        FLAC_Parse_SeekTable(FLAC, BitB, BlockSize);
+                        FLAC_Read_SeekTable(FLAC, BitB, BlockSize);
                         break;
                     case Block_Vorbis:
-                        FLAC_Parse_Vorbis(FLAC, BitB);
+                        FLAC_Read_Vorbis(FLAC, BitB);
                         break;
                     case Block_Cuesheet:
-                        FLAC_CUE_Parse(FLAC, BitB);
+                        FLAC_CUE_Read(FLAC, BitB);
                         break;
                     case Block_Picture:
                         PictureArray = FLAC_Pic_Read(FLAC, BitB);
@@ -331,7 +331,7 @@ extern "C" {
         return IsLastBlock;
     }
     
-    void FLAC_Parse_StreamInfo(void *Options, BitBuffer *BitB) {
+    void FLAC_Read_StreamInfo(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             FLACOptions *FLAC                  = Options;
             FLAC->StreamInfo->MinimumBlockSize = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16); // 4096
@@ -356,7 +356,7 @@ extern "C" {
         }
     }
     
-    void FLAC_Parse_SeekTable(void *Options, BitBuffer *BitB, uint32_t ChunkSize) { // 3528
+    void FLAC_Read_SeekTable(void *Options, BitBuffer *BitB, uint32_t ChunkSize) { // 3528
         if (Options != NULL && BitB != NULL) {
             FLACOptions *FLAC                         = Options;
             FLAC->SeekPoints->NumSeekPoints           = ChunkSize / 10;
@@ -372,7 +372,7 @@ extern "C" {
         }
     }
     
-    void FLAC_Parse_Vorbis(void *Options, BitBuffer *BitB) { // LITTLE ENDIAN, size = 393
+    void FLAC_Read_Vorbis(void *Options, BitBuffer *BitB) { // LITTLE ENDIAN, size = 393
         if (Options != NULL && BitB != NULL) {
             uint32_t VendorTagSize = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32); // 32
             UTF8    *VendorTag     = BitBuffer_ReadUTF8(BitB, VendorTagSize); // reference libFLAC 1.3.2 20170101
@@ -394,7 +394,7 @@ extern "C" {
         }
     }
     
-    void FLAC_CUE_Parse(void *Options, BitBuffer *BitB) {
+    void FLAC_CUE_Read(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             FLACOptions *FLAC         = Options;
             uint64_t CatalogIDSize    = BitBuffer_GetUTF8StringSize(BitB);
@@ -472,7 +472,7 @@ extern "C" {
         Ovia->Decoders[DecoderIndex].MagicIDSize[0]           = 4;
         Ovia->Decoders[DecoderIndex].MagicID[0]               = (uint8_t[4]) {0x66, 0x4C, 0x61, 0x43};
         Ovia->Decoders[DecoderIndex].Function_Initialize[0]   = FLACOptions_Init;
-        Ovia->Decoders[DecoderIndex].Function_Parse[0]        = FLAC_Parse_Blocks;
+        Ovia->Decoders[DecoderIndex].Function_Read[0]         = FLAC_Read_Blocks;
         Ovia->Decoders[DecoderIndex].Function_Decode[0]       = NULL;
         Ovia->Decoders[DecoderIndex].Function_Deinitialize[0] = FLACOptions_Deinit;
     }

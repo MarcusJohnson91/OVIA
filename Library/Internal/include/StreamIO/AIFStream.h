@@ -81,7 +81,7 @@ extern "C" {
     
     void              AIFSkipPadding(BitBuffer *BitB, uint32_t SubChunkSize);
     
-    void              AIFParseMetadata(AIFOptions *AIF, BitBuffer *BitB);
+    void              AIFReadMetadata(AIFOptions *AIF, BitBuffer *BitB);
     
     void              AIFExtractSamples(AIFOptions *AIF, BitBuffer *BitB, Audio2DContainer *Audio);
     

@@ -252,15 +252,15 @@ extern "C" {
     
     uint16_t    FLAC_GetBlockSizeInSamples(void *Options);
     
-    bool        FLAC_Parse_Blocks(void *Options, BitBuffer *BitB);
+    bool        FLAC_Read_Blocks(void *Options, BitBuffer *BitB);
     
-    void        FLAC_Parse_StreamInfo(void *Options, BitBuffer *BitB);
+    void        FLAC_Read_StreamInfo(void *Options, BitBuffer *BitB);
     
-    void        FLAC_Parse_SeekTable(void *Options, BitBuffer *BitB, uint32_t ChunkSize);
+    void        FLAC_Read_SeekTable(void *Options, BitBuffer *BitB, uint32_t ChunkSize);
     
-    void        FLAC_Parse_Vorbis(void *Options, BitBuffer *BitB);
+    void        FLAC_Read_Vorbis(void *Options, BitBuffer *BitB);
     
-    void        FLAC_CUE_Parse(void *Options, BitBuffer *BitB);
+    void        FLAC_CUE_Read(void *Options, BitBuffer *BitB);
     
     uint8_t    *FLAC_Pic_Read(void *Options, BitBuffer *BitB);
     

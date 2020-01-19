@@ -5,7 +5,7 @@ extern "C" {
 #endif
     
     /* Format Decoding */
-    static void W64ParseFMTChunk(void *Options, BitBuffer *BitB) {
+    static void W64ReadFMTChunk(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             W64Options *W64                  = Options;
             W64->CompressionFormat           = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16);
@@ -22,7 +22,7 @@ extern "C" {
         }
     }
     
-    static void W64ParseBEXTChunk(void *Options, BitBuffer *BitB) {
+    static void W64ReadBEXTChunk(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             W64Options *W64                  = Options;
         } else if (Options == NULL) {
@@ -32,7 +32,7 @@ extern "C" {
         }
     }
     
-    static void W64ParseLEVLChunk(void *Options, BitBuffer *BitB) { // aka Peak Envelope Chunk
+    static void W64ReadLEVLChunk(void *Options, BitBuffer *BitB) { // aka Peak Envelope Chunk
         if (Options != NULL && BitB != NULL) {
             W64Options *W64                  = Options;
         } else if (Options == NULL) {
@@ -42,7 +42,7 @@ extern "C" {
         }
     }
     
-    void W64ParseMetadata(void *Options, BitBuffer *BitB) {
+    void W64ReadMetadata(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             W64Options *W64          = Options;
             uint8_t *ChunkUUIDString = BitBuffer_ReadGUUID(BitB, BinaryGUID);
@@ -52,13 +52,13 @@ extern "C" {
             } else if (GUUID_Compare(BinaryGUID, ChunkUUIDString, W64_WAVE_GUIDString) == true) {
                 
             } else if (GUUID_Compare(BinaryGUID, ChunkUUIDString, W64_FMT_GUIDString) == true) {
-                W64ParseFMTChunk(W64, BitB);
+                W64ReadFMTChunk(W64, BitB);
             } else if (GUUID_Compare(BinaryGUID, ChunkUUIDString, W64_DATA_GUIDString) == true) {
                 
             } else if (GUUID_Compare(BinaryGUID, ChunkUUIDString, W64_LEVL_GUIDString) == true) {
                 
             } else if (GUUID_Compare(BinaryGUID, ChunkUUIDString, W64_BEXT_GUIDString) == true) {
-                W64ParseBEXTChunk(W64, BitB);
+                W64ReadBEXTChunk(W64, BitB);
             } else if (GUUID_Compare(BinaryGUID, ChunkUUIDString, W64_FACT_GUIDString) == true) {
                 
             } else if (GUUID_Compare(BinaryGUID, ChunkUUIDString, W64_JUNK_GUIDString) == true) {
@@ -126,7 +126,7 @@ extern "C" {
         Ovia->Decoders[DecoderIndex].MagicIDSize[0]        = 2;
         Ovia->Decoders[DecoderIndex].MagicID[0]            = (uint8_t[2]) {0x50, 0x37};
         Ovia->Decoders[DecoderIndex].Function_Initialize   = W64Options_Init;
-        Ovia->Decoders[DecoderIndex].Function_Parse        = W64ParseMetadata;
+        Ovia->Decoders[DecoderIndex].Function_Read         = W64ReadMetadata;
         Ovia->Decoders[DecoderIndex].Function_Decode       = W64ExtractSamples;
         Ovia->Decoders[DecoderIndex].Function_Deinitialize = W64Options_Deinit;
     }

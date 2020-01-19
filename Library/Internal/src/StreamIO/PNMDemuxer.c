@@ -19,7 +19,7 @@ extern "C" {
         return CommentSize;
     }
     
-    static void PNMParse_ASCII(void *Options, BitBuffer *BitB) {
+    static void PNMRead_ASCII(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNMOptions *PNM           = Options; // Cast the void pointer Options to PNMOptions so that the warnings in the registration functions disappear
             uint64_t CommentSizeWidth = PNMCheckForComment(BitB);
@@ -47,7 +47,7 @@ extern "C" {
         }
     }
     
-    static void PNMParse_Binary(void *Options, BitBuffer *BitB) {
+    static void PNMRead_Binary(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNMOptions *PNM           = Options; // Cast the void pointer Options to PNMOptions so that the warnings in the registration functions disappear
             /* Read Width */
@@ -78,7 +78,7 @@ extern "C" {
         }
     }
     
-    static void PNMParse_PAM(void *Options, BitBuffer *BitB) {
+    static void PNMRead_PAM(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNMOptions *PNM           = Options;  // Cast the void pointer Options to PNMOptions so that the warnings in the registration functions disappear
             /* Read Width */
@@ -250,7 +250,7 @@ extern "C" {
         Ovia->Decoders[DecoderIndex].MagicIDSize[0]           = 2;
         Ovia->Decoders[DecoderIndex].MagicID[0]               = (uint8_t[2]) {0x50, 0x31};
         Ovia->Decoders[DecoderIndex].Function_Initialize[0]   = PNMOptions_Init;
-        Ovia->Decoders[DecoderIndex].Function_Parse[0]        = PNMParse_ASCII;
+        Ovia->Decoders[DecoderIndex].Function_Read[0]         = PNMRead_ASCII;
         Ovia->Decoders[DecoderIndex].Function_Decode[0]       = PNMExtractImage_ASCII;
         Ovia->Decoders[DecoderIndex].Function_Deinitialize[0] = PNMOptions_Deinit;
         /* MagicID 0 */
@@ -260,7 +260,7 @@ extern "C" {
         Ovia->Decoders[DecoderIndex].MagicIDSize[1]           = 2;
         Ovia->Decoders[DecoderIndex].MagicID[1]               = (uint8_t[2]) {0x50, 0x32};
         Ovia->Decoders[DecoderIndex].Function_Initialize[1]   = PNMOptions_Init;
-        Ovia->Decoders[DecoderIndex].Function_Parse[1]        = PNMParse_ASCII;
+        Ovia->Decoders[DecoderIndex].Function_Read[1]         = PNMRead_ASCII;
         Ovia->Decoders[DecoderIndex].Function_Decode[1]       = PNMExtractImage_ASCII;
         Ovia->Decoders[DecoderIndex].Function_Deinitialize[1] = PNMOptions_Deinit;
         /* MagicID 1 */
@@ -270,7 +270,7 @@ extern "C" {
         Ovia->Decoders[DecoderIndex].MagicIDSize[2]           = 2;
         Ovia->Decoders[DecoderIndex].MagicID[2]               = (uint8_t[2]) {0x50, 0x33};
         Ovia->Decoders[DecoderIndex].Function_Initialize[2]   = PNMOptions_Init;
-        Ovia->Decoders[DecoderIndex].Function_Parse[2]        = PNMParse_ASCII;
+        Ovia->Decoders[DecoderIndex].Function_Read[2]         = PNMRead_ASCII;
         Ovia->Decoders[DecoderIndex].Function_Decode[2]       = PNMExtractImage_ASCII;
         Ovia->Decoders[DecoderIndex].Function_Deinitialize[2] = PNMOptions_Deinit;
         /* MagicID 2 */ // Last ASCII
@@ -280,7 +280,7 @@ extern "C" {
         Ovia->Decoders[DecoderIndex].MagicIDSize[3]           = 2;
         Ovia->Decoders[DecoderIndex].MagicID[3]               = (uint8_t[2]) {0x50, 0x34};
         Ovia->Decoders[DecoderIndex].Function_Initialize[3]   = PNMOptions_Init;
-        Ovia->Decoders[DecoderIndex].Function_Parse[3]        = PNMParse_Binary;
+        Ovia->Decoders[DecoderIndex].Function_Read[3]         = PNMRead_Binary;
         Ovia->Decoders[DecoderIndex].Function_Decode[3]       = PNMExtractImage_Binary;
         Ovia->Decoders[DecoderIndex].Function_Deinitialize[3] = PNMOptions_Deinit;
         /* MagicID 3 */
@@ -290,7 +290,7 @@ extern "C" {
         Ovia->Decoders[DecoderIndex].MagicIDSize[4]           = 2;
         Ovia->Decoders[DecoderIndex].MagicID[4]               = (uint8_t[2]) {0x50, 0x35};
         Ovia->Decoders[DecoderIndex].Function_Initialize[4]   = PNMOptions_Init;
-        Ovia->Decoders[DecoderIndex].Function_Parse[4]        = PNMParse_Binary;
+        Ovia->Decoders[DecoderIndex].Function_Read[4]         = PNMRead_Binary;
         Ovia->Decoders[DecoderIndex].Function_Decode[4]       = PNMExtractImage_Binary;
         Ovia->Decoders[DecoderIndex].Function_Deinitialize[4] = PNMOptions_Deinit;
         /* MagicID 4 */
@@ -300,7 +300,7 @@ extern "C" {
         Ovia->Decoders[DecoderIndex].MagicIDSize[5]           = 2;
         Ovia->Decoders[DecoderIndex].MagicID[5]               = (uint8_t[2]) {0x50, 0x36};
         Ovia->Decoders[DecoderIndex].Function_Initialize[5]   = PNMOptions_Init;
-        Ovia->Decoders[DecoderIndex].Function_Parse[5]        = PNMParse_Binary;
+        Ovia->Decoders[DecoderIndex].Function_Read[5]         = PNMRead_Binary;
         Ovia->Decoders[DecoderIndex].Function_Decode[5]       = PNMExtractImage_Binary;
         Ovia->Decoders[DecoderIndex].Function_Deinitialize[5] = PNMOptions_Deinit;
         /* MagicID 5 */
@@ -310,7 +310,7 @@ extern "C" {
         Ovia->Decoders[DecoderIndex].MagicIDSize[6]           = 2;
         Ovia->Decoders[DecoderIndex].MagicID[6]               = (uint8_t[2]) {0x50, 0x37};
         Ovia->Decoders[DecoderIndex].Function_Initialize[6]   = PNMOptions_Init;
-        Ovia->Decoders[DecoderIndex].Function_Parse[6]        = PNMParse_PAM;
+        Ovia->Decoders[DecoderIndex].Function_Read[6]         = PNMRead_PAM;
         Ovia->Decoders[DecoderIndex].Function_Decode[6]       = PNMExtractImage_Binary;
         Ovia->Decoders[DecoderIndex].Function_Deinitialize[6] = PNMOptions_Deinit;
         /* MagicID 6 */
