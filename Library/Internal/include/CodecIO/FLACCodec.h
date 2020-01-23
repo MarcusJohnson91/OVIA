@@ -139,7 +139,7 @@ extern "C" {
     } CueSheetTrack;
     
     typedef struct FLACCueSheet {
-        UTF8          *ISRC;
+        UTF8         **ISRC;
         uint64_t      *Offset;
         uint8_t       *Num;
         bool          *IsAudio;
@@ -252,7 +252,7 @@ extern "C" {
     
     uint16_t    FLAC_GetBlockSizeInSamples(void *Options);
     
-    bool        FLAC_Read_Blocks(void *Options, BitBuffer *BitB);
+    void        FLAC_Read_Blocks(void *Options, BitBuffer *BitB);
     
     void        FLAC_Read_StreamInfo(void *Options, BitBuffer *BitB);
     

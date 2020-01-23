@@ -8,12 +8,12 @@ extern "C" {
     static void W64ReadFMTChunk(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             W64Options *W64                  = Options;
-            W64->CompressionFormat           = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16);
-            W64->NumChannels                 = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16);
-            W64->SampleRate                  = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
-            W64->BlockAlign                  = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
-            W64->BlockAlignment              = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16);
-            W64->BitDepth                    = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16);
+            W64->CompressionFormat           = (uint16_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16);
+            W64->NumChannels                 = (uint16_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16);
+            W64->SampleRate                  = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
+            W64->BlockAlign                  = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
+            W64->BlockAlignment              = (uint16_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16);
+            W64->BitDepth                    = (uint16_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16);
             // Read the SpeakerMask
         } else if (Options == NULL) {
             Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
@@ -77,31 +77,33 @@ extern "C" {
         }
     }
     
-    void W64ExtractSamples(void *Options, BitBuffer *BitB, Audio2DContainer *Audio, uint64_t NumSamples) {
-        if (Options != NULL && BitB != NULL && Audio != NULL) {
+    void *W64ExtractSamples(void *Options, BitBuffer *BitB) {
+        Audio2DContainer *Audio = NULL;
+        if (Options != NULL && BitB != NULL) {
             W64Options *W64        = Options;
             uint64_t BitDepth      = W64->BitDepth;
             uint64_t NumChannels   = W64->NumChannels;
             uint8_t  BitDepthRound = Bytes2Bits(Bits2Bytes(BitDepth, RoundingType_Up));
+            uint8_t  NumSamples    = 3; // FIXME: This is complete bullshit
             if (BitDepth <= 8) {
                 uint8_t **Samples = (uint8_t**) Audio2DContainer_GetArray(Audio);
                 for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                     for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
-                        Samples[Channel][Sample] = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, BitDepthRound);
+                        Samples[Channel][Sample] = (uint8_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, BitDepthRound);
                     }
                 }
             } else if (BitDepth <= 16) {
                 uint16_t **Samples = (uint16_t**) Audio2DContainer_GetArray(Audio);
                 for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                     for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
-                        Samples[Channel][Sample] = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, BitDepthRound);
+                        Samples[Channel][Sample] = (uint16_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, BitDepthRound);
                     }
                 }
             } else if (BitDepth <= 32) {
                  uint32_t **Samples = (uint32_t**) Audio2DContainer_GetArray(Audio);
                 for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                     for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
-                        Samples[Channel][Sample] = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, BitDepthRound);
+                        Samples[Channel][Sample] = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, BitDepthRound);
                     }
                 }
             }
@@ -112,23 +114,24 @@ extern "C" {
         } else if (Audio == NULL) {
             Log(Log_DEBUG, __func__, UTF8String("Audio2DContainer is NULL"));
         }
+        return Audio;
     }
     
     static void RegisterDecoder_W64(OVIA *Ovia) {
-        Ovia->NumDecoders                                 += 1;
-        uint64_t DecoderIndex                              = Ovia->NumDecoders;
-        Ovia->Decoders                                     = realloc(Ovia->Decoders, sizeof(OVIADecoder) * Ovia->NumDecoders);
+        Ovia->NumDecoders                                    += 1;
+        uint64_t DecoderIndex                                 = Ovia->NumDecoders;
+        Ovia->Decoders                                        = realloc(Ovia->Decoders, sizeof(OVIADecoder) * Ovia->NumDecoders);
         
-        Ovia->Decoders[DecoderIndex].DecoderID             = CodecID_W64;
-        Ovia->Decoders[DecoderIndex].MediaType             = MediaType_Audio2D;
-        Ovia->Decoders[DecoderIndex].NumMagicIDs           = 1;
-        Ovia->Decoders[DecoderIndex].MagicIDOffset[0]      = 0;
-        Ovia->Decoders[DecoderIndex].MagicIDSize[0]        = 2;
-        Ovia->Decoders[DecoderIndex].MagicID[0]            = (uint8_t[2]) {0x50, 0x37};
-        Ovia->Decoders[DecoderIndex].Function_Initialize   = W64Options_Init;
-        Ovia->Decoders[DecoderIndex].Function_Read         = W64ReadMetadata;
-        Ovia->Decoders[DecoderIndex].Function_Decode       = W64ExtractSamples;
-        Ovia->Decoders[DecoderIndex].Function_Deinitialize = W64Options_Deinit;
+        Ovia->Decoders[DecoderIndex].DecoderID                = CodecID_W64;
+        Ovia->Decoders[DecoderIndex].MediaType                = MediaType_Audio2D;
+        Ovia->Decoders[DecoderIndex].NumMagicIDs              = 1;
+        Ovia->Decoders[DecoderIndex].MagicIDOffset[0]         = 0;
+        Ovia->Decoders[DecoderIndex].MagicIDSize[0]           = 2;
+        Ovia->Decoders[DecoderIndex].MagicID[0]               = (uint8_t[2]) {0x50, 0x37};
+        Ovia->Decoders[DecoderIndex].Function_Initialize[0]   = W64Options_Init;
+        Ovia->Decoders[DecoderIndex].Function_Read[0]         = W64ReadMetadata;
+        Ovia->Decoders[DecoderIndex].Function_Decode[0]       = W64ExtractSamples;
+        Ovia->Decoders[DecoderIndex].Function_Deinitialize[0] = W64Options_Deinit;
     }
     
     static OVIACodecRegistry Register_W64Decoder = {

@@ -99,13 +99,15 @@ extern "C" {
         CodecID_PNG           = 6,
         CodecID_PNM           = 7,
         CodecID_JPEG          = 8,
-        /*
-        CodecID_PNM_ASCII     = 6,
-        CodecID_PNM_Binary    = 7,
-        CodecID_PAM           = 8,
-         */
         OVIA_NumCodecs        = CodecID_JPEG,
     } OVIA_CodecIDs;
+    
+    typedef enum OVIA_ColorTransforms {
+        ColorTransform_Unknown = 0,
+        ColorTransform_RCT     = 1, // JPEG-2000 Reversible Color Transform
+        ColorTransform_YCoCgR  = 2, // AVC, HEVC Lossless Transform
+        OVIA_NumTransforms     = ColorTransform_YCoCgR,
+    } OVIA_ColorTransforms;
     
     typedef struct       Audio2DContainer  Audio2DContainer; // Forward declare ContainerIO's tyoes
     

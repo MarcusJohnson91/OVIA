@@ -26,11 +26,11 @@ extern "C" {
     void WAVReadChunk_DS64(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             WAVOptions *WAV       = Options;
-            uint32_t ChunkSize    = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
-            uint32_t SizeLow      = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
-            uint32_t SizeHigh     = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
-            uint32_t DataSizeLow  = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
-            uint32_t DataSizeHigh = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
+            uint32_t ChunkSize    = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
+            uint32_t SizeLow      = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
+            uint32_t SizeHigh     = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
+            uint32_t DataSizeLow  = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
+            uint32_t DataSizeHigh = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
             
         } else if (Options == NULL) {
             Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
@@ -155,8 +155,8 @@ extern "C" {
     
     static void WAVReadLISTChunk(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
-            uint32_t SubChunkID   = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
-            uint32_t SubChunkSize = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
+            uint32_t SubChunkID   = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
+            uint32_t SubChunkSize = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
             
             switch (SubChunkID) {
                 case WAV_IART: // Artist
@@ -191,12 +191,12 @@ extern "C" {
     static void WAVReadFMTChunk(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             WAVOptions *WAV        = Options;
-            uint32_t ChunkSize     = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
+            uint32_t ChunkSize     = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
             WAV->CompressionFormat = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16);
             WAV->NumChannels       = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16);
-            WAV->SampleRate        = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
-            WAV->ByteRate          = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
-            WAV->BlockAlign        = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16);
+            WAV->SampleRate        = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
+            WAV->ByteRate          = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
+            WAV->BlockAlign        = (uint16_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16);
             WAV->BitDepth          = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16);
             if (ChunkSize == 18) {
                 uint16_t CBSize             = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16);
@@ -205,7 +205,7 @@ extern "C" {
                 uint16_t CBSize             = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16);
                 WAV->ValidBitsPerSample     = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16);
                 
-                WAV->SpeakerMask            = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
+                WAV->SpeakerMask            = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
                 uint8_t  *BinaryGUIDFormat  = BitBuffer_ReadGUUID(BitB, BinaryGUID);
                 BitBuffer_Seek(BitB, Bytes2Bits(CBSize - 22));
             }
@@ -219,8 +219,8 @@ extern "C" {
     void WAVReadMetadata(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             WAVOptions *WAV    = Options;
-            uint32_t ChunkID   = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            uint32_t ChunkSize = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
+            uint32_t ChunkID   = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            uint32_t ChunkSize = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
             
             switch (ChunkID) {
                 case WAV_LIST:
@@ -242,8 +242,9 @@ extern "C" {
         }
     }
     
-    void WAVExtractSamples(void *Options, BitBuffer *BitB, Audio2DContainer *Audio) {
-        if (Options != NULL && BitB != NULL && Audio != NULL) {
+    void *WAVExtractSamples(void *Options, BitBuffer *BitB) {
+        Audio2DContainer *Audio        = NULL;
+        if (Options != NULL && BitB != NULL) {
             WAVOptions *WAV            = Options;
             uint64_t NumSamples        = Audio2DContainer_GetNumSamples(Audio);
             uint8_t  SampleSizeRounded = (uint8_t) Bytes2Bits(Bits2Bytes(WAV->BitDepth, RoundingType_Up));
@@ -251,21 +252,21 @@ extern "C" {
                 uint8_t **Samples = (uint8_t**) Audio2DContainer_GetArray(Audio);
                 for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                     for (uint64_t Channel = 0; Channel < WAV->NumChannels; Channel++) {
-                        Samples[Channel][Sample] = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, SampleSizeRounded);
+                        Samples[Channel][Sample] = (uint8_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, SampleSizeRounded);
                     }
                 }
             } else if (WAV->BitDepth <= 16) {
                 uint16_t **Samples = (uint16_t**) Audio2DContainer_GetArray(Audio);
                 for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                     for (uint64_t Channel = 0; Channel < WAV->NumChannels; Channel++) {
-                        Samples[Channel][Sample] = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, SampleSizeRounded);
+                        Samples[Channel][Sample] = (uint16_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, SampleSizeRounded);
                     }
                 }
             } else if (WAV->BitDepth <= 32) {
                 uint32_t **Samples = (uint32_t**) Audio2DContainer_GetArray(Audio);
                 for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                     for (uint64_t Channel = 0; Channel < WAV->NumChannels; Channel++) {
-                        Samples[Channel][Sample] = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, SampleSizeRounded);
+                        Samples[Channel][Sample] = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, SampleSizeRounded);
                     }
                 }
             }
@@ -273,26 +274,25 @@ extern "C" {
             Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
-        } else if (Audio == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Audio2DContainer Pointer is NULL"));
         }
+        return Audio;
     }
     
     static void RegisterDecoder_WAV(OVIA *Ovia) {
-        Ovia->NumDecoders                                 += 1;
-        uint64_t DecoderIndex                              = Ovia->NumDecoders;
-        Ovia->Decoders                                     = realloc(Ovia->Decoders, sizeof(OVIADecoder) * Ovia->NumDecoders);
+        Ovia->NumDecoders                                    += 1;
+        uint64_t DecoderIndex                                 = Ovia->NumDecoders;
+        Ovia->Decoders                                        = realloc(Ovia->Decoders, sizeof(OVIADecoder) * Ovia->NumDecoders);
         
-        Ovia->Decoders[DecoderIndex].DecoderID             = CodecID_WAV;
-        Ovia->Decoders[DecoderIndex].MediaType             = MediaType_Audio2D;
-        Ovia->Decoders[DecoderIndex].NumMagicIDs           = 1;
-        Ovia->Decoders[DecoderIndex].MagicIDOffset[0]      = 0;
-        Ovia->Decoders[DecoderIndex].MagicIDSize[0]        = 2;
-        Ovia->Decoders[DecoderIndex].MagicID[0]            = (uint8_t[2]) {0x50, 0x37};
-        Ovia->Decoders[DecoderIndex].Function_Initialize   = WAVOptions_Init;
-        Ovia->Decoders[DecoderIndex].Function_Read         = WAVReadMetadata;
-        Ovia->Decoders[DecoderIndex].Function_Decode       = WAVExtractSamples;
-        Ovia->Decoders[DecoderIndex].Function_Deinitialize = WAVOptions_Deinit;
+        Ovia->Decoders[DecoderIndex].DecoderID                = CodecID_WAV;
+        Ovia->Decoders[DecoderIndex].MediaType                = MediaType_Audio2D;
+        Ovia->Decoders[DecoderIndex].NumMagicIDs              = 1;
+        Ovia->Decoders[DecoderIndex].MagicIDOffset[0]         = 0;
+        Ovia->Decoders[DecoderIndex].MagicIDSize[0]           = 2;
+        Ovia->Decoders[DecoderIndex].MagicID[0]               = (uint8_t[2]) {0x50, 0x37};
+        Ovia->Decoders[DecoderIndex].Function_Initialize[0]   = WAVOptions_Init;
+        Ovia->Decoders[DecoderIndex].Function_Read[0]         = WAVReadMetadata;
+        Ovia->Decoders[DecoderIndex].Function_Decode[0]       = WAVExtractSamples;
+        Ovia->Decoders[DecoderIndex].Function_Deinitialize[0] = WAVOptions_Deinit;
     }
     
     static OVIACodecRegistry Register_WAVDecoder = {

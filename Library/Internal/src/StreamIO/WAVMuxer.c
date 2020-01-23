@@ -57,12 +57,14 @@ extern "C" {
         }
     }
     
-    void WAVAppendSamples(Audio2DContainer *Audio, BitBuffer *BitB) {
-        if (Audio != NULL && BitB != NULL) {
-            uint64_t NumChannels   = Audio2DContainer_GetNumChannels(Audio);
-            uint64_t BitDepth      = Audio2DContainer_GetBitDepth(Audio);
-            uint64_t NumSamples    = Audio2DContainer_GetNumSamples(Audio);
-            Audio_Types Type       = Audio2DContainer_GetType(Audio);
+    void WAVAppendSamples(void *Options, void *Contanier, BitBuffer *BitB) { // void *Options, void *Contanier, BitBuffer *BitB
+        if (Options != NULL && Contanier != NULL && BitB != NULL) {
+            WAVOptions *WAV         = Options;
+            Audio2DContainer *Audio = Contanier;
+            uint64_t NumChannels    = Audio2DContainer_GetNumChannels(Audio);
+            uint64_t BitDepth       = Audio2DContainer_GetBitDepth(Audio);
+            uint64_t NumSamples     = Audio2DContainer_GetNumSamples(Audio);
+            Audio_Types Type        = Audio2DContainer_GetType(Audio);
             
             if (Type == (AudioType_Unsigned | AudioType_Integer8)) {
                 uint8_t **Samples  = (uint8_t**) Audio2DContainer_GetArray(Audio);
@@ -107,8 +109,10 @@ extern "C" {
                     }
                 }
             }
-        } else if (Audio == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Audio2DContainer Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+        } else if (Contanier == NULL) {
+            Log(Log_DEBUG, __func__, UTF8String("Contanier Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
@@ -136,17 +140,17 @@ extern "C" {
     }
     
     static void RegisterEncoder_WAV(OVIA *Ovia) {
-        Ovia->NumEncoders                                 += 1;
-        uint64_t EncoderIndex                              = Ovia->NumEncoders;
-        Ovia->Encoders                                     = realloc(Ovia->Encoders, sizeof(OVIAEncoder) * Ovia->NumEncoders);
+        Ovia->NumEncoders                                    += 1;
+        uint64_t EncoderIndex                                 = Ovia->NumEncoders;
+        Ovia->Encoders                                        = realloc(Ovia->Encoders, sizeof(OVIAEncoder) * Ovia->NumEncoders);
         
-        Ovia->Encoders[EncoderIndex].EncoderID             = CodecID_WAV;
-        Ovia->Encoders[EncoderIndex].MediaType             = MediaType_Audio2D;
-        Ovia->Encoders[EncoderIndex].Function_Initialize   = WAVOptions_Init;
-        Ovia->Encoders[EncoderIndex].Function_WriteHeader  = WAVWriteHeader;
-        Ovia->Encoders[EncoderIndex].Function_Encode       = WAVAppendSamples;
-        Ovia->Encoders[EncoderIndex].Function_WriteFooter  = NULL;
-        Ovia->Encoders[EncoderIndex].Function_Deinitialize = WAVOptions_Deinit;
+        Ovia->Encoders[EncoderIndex].EncoderID                = CodecID_WAV;
+        Ovia->Encoders[EncoderIndex].MediaType                = MediaType_Audio2D;
+        Ovia->Encoders[EncoderIndex].Function_Initialize[0]   = WAVOptions_Init;
+        Ovia->Encoders[EncoderIndex].Function_WriteHeader[0]  = WAVWriteHeader;
+        Ovia->Encoders[EncoderIndex].Function_Encode[0]       = WAVAppendSamples;
+        Ovia->Encoders[EncoderIndex].Function_WriteFooter[0]  = NULL;
+        Ovia->Encoders[EncoderIndex].Function_Deinitialize[0] = WAVOptions_Deinit;
     }
     
     static OVIACodecRegistry Register_WAVEncoder = {

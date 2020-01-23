@@ -92,13 +92,15 @@ extern "C" {
         }
     }
     
-    void PNG_Image_Insert(ImageContainer *Image, BitBuffer *BitB, bool OptimizePNG) {
-        if (Image != NULL && BitB != NULL) {
+    void PNG_Image_Insert(void *Options, void *Container, BitBuffer *BitB) {
+        if (Options != NULL && Container != NULL && BitB != NULL) {
             /*
              Loop over the image container, line by line, and try all the filters.
              */
-        } else if (Image == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("ImageContainer Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+        } else if (Container == NULL) {
+            Log(Log_DEBUG, __func__, UTF8String("Container Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
@@ -393,21 +395,21 @@ extern "C" {
     }
     
     static void RegisterEncoder_PNG(OVIA *Ovia) {
-        Ovia->NumEncoders                                 += 1;
-        uint64_t EncoderIndex                              = Ovia->NumEncoders;
-        Ovia->Encoders                                     = realloc(Ovia->Encoders, sizeof(OVIAEncoder) * Ovia->NumEncoders);
+        Ovia->NumEncoders                                    += 1;
+        uint64_t EncoderIndex                                 = Ovia->NumEncoders;
+        Ovia->Encoders                                        = realloc(Ovia->Encoders, sizeof(OVIAEncoder) * Ovia->NumEncoders);
         
-        Ovia->Encoders[EncoderIndex].EncoderID             = CodecID_PNG;
-        Ovia->Encoders[EncoderIndex].MediaType             = MediaType_Image;
-        Ovia->Encoders[EncoderIndex].Function_Initialize   = PNGOptions_Init;
-        Ovia->Encoders[EncoderIndex].Function_WriteHeader  = PNGWriteHeader;
-        Ovia->Encoders[EncoderIndex].Function_Encode       = PNG_Image_Insert;
-        Ovia->Encoders[EncoderIndex].Function_WriteFooter  = PNGWriteFooter;
-        Ovia->Encoders[EncoderIndex].Function_Deinitialize = PNGOptions_Deinit;
+        Ovia->Encoders[EncoderIndex].EncoderID                = CodecID_PNG;
+        Ovia->Encoders[EncoderIndex].MediaType                = MediaType_Image;
+        Ovia->Encoders[EncoderIndex].Function_Initialize[0]   = PNGOptions_Init;
+        Ovia->Encoders[EncoderIndex].Function_WriteHeader[0]  = PNGWriteHeader;
+        Ovia->Encoders[EncoderIndex].Function_Encode[0]       = PNG_Image_Insert;
+        Ovia->Encoders[EncoderIndex].Function_WriteFooter[0]  = PNGWriteFooter;
+        Ovia->Encoders[EncoderIndex].Function_Deinitialize[0] = PNGOptions_Deinit;
     }
     
     static OVIACodecRegistry Register_PNGEncoder = {
-        .Function_RegisterEncoder[CodecID_PNG - 1]   = RegisterEncoder_PNG,
+        .Function_RegisterEncoder[CodecID_PNG - 1]            = RegisterEncoder_PNG,
     };
     
 #ifdef __cplusplus

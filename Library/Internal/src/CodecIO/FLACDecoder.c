@@ -74,12 +74,12 @@ extern "C" {
                 uint8_t Frame_SampleIDSize    = 1 + BitBuffer_ReadUnary(BitB, MSByteFirst, MSBitFirst, CountUnary, 0); // 1
                 BitBuffer_Seek(BitB, -Frame_SampleIDSize);
                 if (FLAC->Frame->BlockType == BlockType_Fixed) {
-                    UTF8 *FrameNumberString   = BitBuffer_ReadUTF8(BitB, Frame_SampleIDSize); // 1 byte
-                    FLAC->Frame->FrameNumber  = UTF8_Decode(FrameNumberString); // Value = 0
+                    UTF8  *FrameNumberString  = BitBuffer_ReadUTF8(BitB, Frame_SampleIDSize); // 1 byte
+                    FLAC->Frame->FrameNumber  = (uint32_t) UTF8_String2Integer(10, FrameNumberString);
                     free(FrameNumberString);
                 } else if (FLAC->Frame->BlockType == BlockType_Variable) {
                     UTF8 *SampleNumberString  = BitBuffer_ReadUTF8(BitB, Frame_SampleIDSize);
-                    FLAC->Frame->SampleNumber = UTF8_Decode(SampleNumberString);
+                    FLAC->Frame->SampleNumber = UTF8_String2Integer(10, SampleNumberString);
                     free(SampleNumberString);
                 }
                 
@@ -149,7 +149,7 @@ extern "C" {
                     int32_t  **Array                   = (int32_t**) Audio2DContainer_GetArray(Audio);
                     
                     if (FLAC->Frame->Sub->SubFrameType == Subframe_Constant) {
-                        int32_t Constant               = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, FLAC->Frame->BitDepth);
+                        int32_t Constant               = (int32_t) BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, FLAC->Frame->BitDepth);
                         for (uint8_t Channel = 0; Channel < FLAC_GetNumChannels(FLAC); Channel++) {
                             for (uint16_t Sample = 0; Sample < FLAC_GetBlockSizeInSamples(FLAC); Sample++) {
                                 Array[Channel][Sample] = Constant;
@@ -158,7 +158,7 @@ extern "C" {
                     } else if (FLAC->Frame->Sub->SubFrameType == Subframe_Verbatim) {
                         for (uint8_t Channel = 0; Channel < FLAC_GetNumChannels(FLAC); Channel++) {
                             for (uint16_t Sample = 0; Sample < FLAC_GetBlockSizeInSamples(FLAC); Sample++) {
-                                Array[Channel][Sample] = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, FLAC->Frame->BitDepth);
+                                Array[Channel][Sample] = (int32_t) BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, FLAC->Frame->BitDepth);
                             }
                         }
                     } else if (FLAC->Frame->Sub->SubFrameType >= 8 && FLAC->Frame->Sub->SubFrameType <= 15) { // Fixed
@@ -284,16 +284,15 @@ extern "C" {
     }
     
     
-    bool FLAC_Read_Blocks(void *Options, BitBuffer *BitB) {
-        FLACOptions *FLAC                    = Options;
-        bool IsLastBlock                     = false;
+    void FLAC_Read_Blocks(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
-            IsLastBlock                      = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 1);  // 1
+            FLACOptions *FLAC                = Options;
+            bool IsLastBlock                 = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 1);  // 1
             uint8_t *PictureArray            = NULL;
             // Actual audio data starts at: 1056166
-            if (IsLastBlock == false) {
+            while (IsLastBlock == false) {
                 BlockTypes BlockType         = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 7);  // 6
-                uint32_t BlockSize           = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 24); // 865,236
+                uint32_t   BlockSize         = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 24); // 865,236
                 switch (BlockType) {
                     case Block_StreamInfo:
                         FLAC_Read_StreamInfo(FLAC, BitB);
@@ -320,25 +319,22 @@ extern "C" {
                         Log(Log_DEBUG, __func__, UTF8String("Invalid Block Type: %d\n"), BlockType);
                         break;
                 }
-            } else {
-                return IsLastBlock;
             }
         } else if (Options == NULL) {
             Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
-        return IsLastBlock;
     }
     
     void FLAC_Read_StreamInfo(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             FLACOptions *FLAC                  = Options;
-            FLAC->StreamInfo->MinimumBlockSize = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16); // 4096
-            FLAC->StreamInfo->MaximumBlockSize = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16); // 4096
-            FLAC->StreamInfo->MinimumFrameSize = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 24); // 18
-            FLAC->StreamInfo->MaximumFrameSize = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 24); // 15146
-            FLAC->StreamInfo->CodedSampleRate  = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 20); // 192000
+            FLAC->StreamInfo->MinimumBlockSize = (uint16_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16); // 4096
+            FLAC->StreamInfo->MaximumBlockSize = (uint16_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16); // 4096
+            FLAC->StreamInfo->MinimumFrameSize = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 24); // 18
+            FLAC->StreamInfo->MaximumFrameSize = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 24); // 15146
+            FLAC->StreamInfo->CodedSampleRate  = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 20); // 192000
             FLAC->StreamInfo->CodedChannels    = 1 + BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 3); // 2
             FLAC->StreamInfo->CodedBitDepth    = 1 + BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 5); // 24
             FLAC->StreamInfo->SamplesInStream  = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 36);    // 428,342,094
@@ -361,9 +357,9 @@ extern "C" {
             FLACOptions *FLAC                         = Options;
             FLAC->SeekPoints->NumSeekPoints           = ChunkSize / 10;
             for (uint16_t SeekPoint = 0; SeekPoint < FLAC->SeekPoints->NumSeekPoints; SeekPoint++) {
-                FLAC->SeekPoints->SampleInTargetFrame = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 64);
-                FLAC->SeekPoints->OffsetFrom1stSample = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 64);
-                FLAC->SeekPoints->TargetFrameSize     = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16);
+                FLAC->SeekPoints->SampleInTargetFrame[SeekPoint] = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 64);
+                FLAC->SeekPoints->OffsetFrom1stSample[SeekPoint] = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 64);
+                FLAC->SeekPoints->TargetFrameSize[SeekPoint]     = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16);
             }
         } else if (Options == NULL) {
             Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
@@ -374,11 +370,11 @@ extern "C" {
     
     void FLAC_Read_Vorbis(void *Options, BitBuffer *BitB) { // LITTLE ENDIAN, size = 393
         if (Options != NULL && BitB != NULL) {
-            uint32_t VendorTagSize = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32); // 32
+            uint32_t VendorTagSize = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32); // 32
             UTF8    *VendorTag     = BitBuffer_ReadUTF8(BitB, VendorTagSize); // reference libFLAC 1.3.2 20170101
-            uint32_t NumUserTags   = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32); // 13
+            uint32_t NumUserTags   = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32); // 13
             for (uint32_t Comment = 0; Comment < NumUserTags; Comment++) {
-                uint32_t  TagSize                          = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
+                uint32_t  TagSize                          = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
                 UTF8     *Tag                              = BitBuffer_ReadUTF8(BitB, TagSize);
                 // 14; totaltracks=11
                 // 12; totaldiscs=1
@@ -406,18 +402,18 @@ extern "C" {
             FLAC->CueSheet->NumTracks = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 8);
             
             for (uint8_t Track = 0; Track < FLAC->CueSheet->NumTracks; Track++) {
-                FLAC->CueSheet->Offset[Track] = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 64);
-                uint8_t   ISRCSize            = BitBuffer_GetUTF8StringSize(BitB);
-                FLAC->CueSheet->ISRC          = BitBuffer_ReadUTF8(BitB, ISRCSize);
-                FLAC->CueSheet->IsAudio       = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 1);
-                FLAC->CueSheet->PreEmphasis   = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 1);
+                FLAC->CueSheet->Offset[Track]      = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 64);
+                uint8_t   ISRCSize                 = BitBuffer_GetUTF8StringSize(BitB);
+                FLAC->CueSheet->ISRC[Track]        = BitBuffer_ReadUTF8(BitB, ISRCSize);
+                FLAC->CueSheet->IsAudio[Track]     = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 1);
+                FLAC->CueSheet->PreEmphasis[Track] = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 1);
                 
                 BitBuffer_Seek(BitB, 152); // Reserved, all 0
                 BitBuffer_Seek(BitB, 8); // NumIndexPoints
             }
             
              FLAC->CueSheet->IndexOffset    = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 64);
-             FLAC->CueSheet->IndexPointNum  = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+             FLAC->CueSheet->IndexPointNum  = (uint8_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
             BitBuffer_Seek(BitB, 24); // Reserved
         } else if (Options == NULL) {
             Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
@@ -430,24 +426,24 @@ extern "C" {
         uint8_t *PictureBuffer = NULL;
         if (Options != NULL && BitB != NULL) {
             FLACOptions *FLAC           = Options;
-            uint32_t PicType            = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32); // 0
-            uint32_t MIMESize           = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32); // 9
+            uint32_t PicType            = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32); // 0
+            uint32_t MIMESize           = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32); // 9
             UTF8    *MIMEType           = BitBuffer_ReadUTF8(BitB, MIMESize); // image/png
             
-            uint32_t PicDescriptionSize = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32); // 0
+            uint32_t PicDescriptionSize = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32); // 0
             UTF8    *PicDescription     = BitBuffer_ReadUTF8(BitB, PicDescriptionSize); //
             
-            uint32_t Width              = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32); // 1200
-            uint32_t Height             = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32); // 1200
-            uint32_t BitDepth           = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32); // 24
-            uint32_t ColorsUsed         = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32); // 0
-            uint32_t PicSize            = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32); // 000FFB15 aka 1,047,317
+            uint32_t Width              = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32); // 1200
+            uint32_t Height             = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32); // 1200
+            uint32_t BitDepth           = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32); // 24
+            uint32_t ColorsUsed         = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32); // 0
+            uint32_t PicSize            = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32); // 000FFB15 aka 1,047,317
                                                                                                  // Pop in the address of the start of the data, and skip over the data instead of buffering it.
                                                                                                  // Ok so allocate a buffer
             PictureBuffer               = calloc(PicSize, sizeof(uint8_t));
             if (PictureBuffer != NULL) {
                 for (uint32_t Byte = 0; Byte < PicSize - 1; Byte++) {
-                    PictureBuffer[Byte] = BitBuffer_ReadBits(BitB, MSByteFirst, MSByteFirst, 8);
+                    PictureBuffer[Byte] = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
                 }
             } else {
                 Log(Log_DEBUG, __func__, UTF8String("Couldn't allocate Picture Buffer"));

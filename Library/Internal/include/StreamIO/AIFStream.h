@@ -70,24 +70,17 @@ extern "C" {
     
     void             *AIFOptions_Init(void);
     
-    void              AIFOptions_Deinit(void *Options);
-    
-    
-    
-    
-    
-    
-    
-    
     void              AIFSkipPadding(BitBuffer *BitB, uint32_t SubChunkSize);
     
-    void              AIFReadMetadata(AIFOptions *AIF, BitBuffer *BitB);
+    void              AIFReadMetadata(void *Options, BitBuffer *BitB);
     
-    void              AIFExtractSamples(AIFOptions *AIF, BitBuffer *BitB, Audio2DContainer *Audio);
+    void             *AIFExtractSamples(void *Options, BitBuffer *BitB);
     
-    void              AIFAppendSamples(AIFOptions *AIF, BitBuffer *BitB, Audio2DContainer *Audio);
+    void              AIFAppendSamples(void *Options, void *Container, BitBuffer *BitB);
     
-    void              AIFWriteHeader(AIFOptions *AIF, BitBuffer *BitB);
+    void              AIFWriteHeader(void *Options, BitBuffer *BitB);
+    
+    void              AIFOptions_Deinit(void *Options);
     
 #ifdef __cplusplus
 }

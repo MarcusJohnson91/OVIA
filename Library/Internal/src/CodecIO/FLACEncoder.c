@@ -19,9 +19,10 @@ extern "C" {
         }
     }
     
-    void FLAC_Encode(void *Options, Audio2DContainer *Audio, BitBuffer *BitB) {
-        if (Options != NULL && Audio && BitB != NULL) {
-            FLACOptions *FLAC = Options;
+    void FLAC_Encode(void *Options, void *Container, BitBuffer *BitB) {
+        if (Options != NULL && Container != NULL && BitB != NULL) {
+            FLACOptions *FLAC       = Options;
+            Audio2DContainer *Audio = Container;
             if (FLAC->EncodeSubset == true && Audio2DContainer_GetSampleRate(Audio) <= 48000) {
                 FLAC->StreamInfo->MaximumBlockSize = 4608;
                 FLAC->Frame->Sub->LPCFilterOrder   = 12;
@@ -33,7 +34,7 @@ extern "C" {
             }
         } else if (Options == NULL) {
             Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
-        } else if (Audio == NULL) {
+        } else if (Container == NULL) {
             Log(Log_DEBUG, __func__, UTF8String("Audio2DContainer Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
@@ -73,17 +74,17 @@ extern "C" {
     }
     
     static void RegisterEncoder_FLAC(OVIA *Ovia) {
-        Ovia->NumEncoders                                 += 1;
-        uint64_t EncoderIndex                              = Ovia->NumEncoders;
-        Ovia->Encoders                                     = realloc(Ovia->Encoders, sizeof(OVIAEncoder) * Ovia->NumEncoders);
+        Ovia->NumEncoders                                    += 1;
+        uint64_t EncoderIndex                                 = Ovia->NumEncoders;
+        Ovia->Encoders                                        = realloc(Ovia->Encoders, sizeof(OVIAEncoder) * Ovia->NumEncoders);
         
-        Ovia->Encoders[EncoderIndex].EncoderID             = CodecID_FLAC;
-        Ovia->Encoders[EncoderIndex].MediaType             = MediaType_Audio2D;
-        Ovia->Encoders[EncoderIndex].Function_Initialize   = FLACOptions_Init;
-        Ovia->Encoders[EncoderIndex].Function_WriteHeader  = FLAC_WriteStreamInfo; // Make a new function that wrap up all this stuff called WriteHeader
-        Ovia->Encoders[EncoderIndex].Function_Encode       = FLAC_Encode;
-        Ovia->Encoders[EncoderIndex].Function_WriteFooter  = NULL;
-        Ovia->Encoders[EncoderIndex].Function_Deinitialize = FLACOptions_Deinit;
+        Ovia->Encoders[EncoderIndex].EncoderID                = CodecID_FLAC;
+        Ovia->Encoders[EncoderIndex].MediaType                = MediaType_Audio2D;
+        Ovia->Encoders[EncoderIndex].Function_Initialize[0]   = FLACOptions_Init;
+        Ovia->Encoders[EncoderIndex].Function_WriteHeader[0]  = FLAC_WriteStreamInfo; // Make a new function that wrap up all this stuff called WriteHeader
+        Ovia->Encoders[EncoderIndex].Function_Encode[0]       = FLAC_Encode;
+        Ovia->Encoders[EncoderIndex].Function_WriteFooter[0]  = NULL;
+        Ovia->Encoders[EncoderIndex].Function_Deinitialize[0] = FLACOptions_Deinit;
     }
     
     static OVIACodecRegistry Register_FLACEncoder = {

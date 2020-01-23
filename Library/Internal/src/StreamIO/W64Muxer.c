@@ -26,11 +26,12 @@ extern "C" {
         }
     }
     
-    void W64WriteHeader(Audio2DContainer *Audio, BitBuffer *BitB) {
-        if (Audio != NULL && BitB != NULL) {
-            uint64_t NumChannels = Audio2DContainer_GetNumChannels(Audio);
-            uint64_t NumSamples  = Audio2DContainer_GetNumSamples(Audio);
-            uint8_t  BitDepth    = Bits2Bytes(Audio2DContainer_GetBitDepth(Audio), RoundingType_Up);
+    void W64WriteHeader(void *Options, BitBuffer *BitB) {
+        if (Options != NULL && BitB != NULL) {
+            W64Options *W64      = Options;
+            uint64_t NumChannels = W64->NumChannels;
+            uint64_t NumSamples  = W64->CompressionFormat; // FIXME:
+            uint8_t  BitDepth    = Bits2Bytes(W64->BitDepth, RoundingType_Up);
             uint64_t W64Size     = (NumSamples * NumChannels * BitDepth);
             uint64_t FMTSize     = 40;
             
@@ -39,22 +40,24 @@ extern "C" {
             BitBuffer_WriteGUUID(BitB, GUIDString, W64_WAVE_GUIDString);
             BitBuffer_WriteGUUID(BitB, GUIDString, W64_FMT_GUIDString);
             BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, 64, FMTSize);
-            W64WriteFMTChunk(Audio, BitB);
+            W64WriteFMTChunk(W64, BitB);
             BitBuffer_WriteGUUID(BitB, GUIDString, W64_DATA_GUIDString);
             BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, 64, NumSamples);
-        } else if (Audio == NULL) {
+        } else if (Options == NULL) {
             Log(Log_DEBUG, __func__, UTF8String("Audio2DContainer Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
-    void W64AppendSamples(Audio2DContainer *Audio, BitBuffer *BitB) {
-        if (Audio != NULL && BitB != NULL) {
-            uint64_t NumChannels  = Audio2DContainer_GetNumChannels(Audio);
-            uint64_t BitDepth     = Bits2Bytes(Audio2DContainer_GetBitDepth(Audio), RoundingType_Up);
-            uint64_t NumSamples   = Audio2DContainer_GetNumSamples(Audio);
-            Audio_Types Type      = Audio2DContainer_GetType(Audio);
+    void W64AppendSamples(void *Options, void *Contanier, BitBuffer *BitB) {
+        if (Options != NULL && Contanier != NULL && BitB != NULL) {
+            W64Options *W64         = Options;
+            Audio2DContainer *Audio = Contanier;
+            uint64_t NumChannels    = Audio2DContainer_GetNumChannels(Audio);
+            uint64_t BitDepth       = Bits2Bytes(Audio2DContainer_GetBitDepth(Audio), RoundingType_Up);
+            uint64_t NumSamples     = Audio2DContainer_GetNumSamples(Audio);
+            Audio_Types Type        = Audio2DContainer_GetType(Audio);
             if (Type == (AudioType_Signed | AudioType_Integer8)) {
                 int8_t **Samples  = (int8_t**)    Audio2DContainer_GetArray(Audio);
                 for (uint32_t Sample = 0; Sample < NumSamples; Sample++) {
@@ -98,29 +101,31 @@ extern "C" {
                     }
                 }
             }
-        } else if (Audio == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Audio2DContainer Pointer is NULL"));
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+        } else if (Contanier == NULL) {
+            Log(Log_DEBUG, __func__, UTF8String("Container Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
     static void RegisterEncoder_W64(OVIA *Ovia) {
-        Ovia->NumEncoders                                 += 1;
-        uint64_t EncoderIndex                              = Ovia->NumEncoders;
-        Ovia->Encoders                                     = realloc(Ovia->Encoders, sizeof(OVIAEncoder) * Ovia->NumEncoders);
+        Ovia->NumEncoders                                    += 1;
+        uint64_t EncoderIndex                                 = Ovia->NumEncoders;
+        Ovia->Encoders                                        = realloc(Ovia->Encoders, sizeof(OVIAEncoder) * Ovia->NumEncoders);
         
-        Ovia->Encoders[EncoderIndex].EncoderID             = CodecID_W64;
-        Ovia->Encoders[EncoderIndex].MediaType             = MediaType_Audio2D;
-        Ovia->Encoders[EncoderIndex].Function_Initialize   = W64Options_Init;
-        Ovia->Encoders[EncoderIndex].Function_WriteHeader  = W64WriteHeader;
-        Ovia->Encoders[EncoderIndex].Function_Encode       = W64AppendSamples;
-        Ovia->Encoders[EncoderIndex].Function_WriteFooter  = NULL;
-        Ovia->Encoders[EncoderIndex].Function_Deinitialize = W64Options_Deinit;
+        Ovia->Encoders[EncoderIndex].EncoderID                = CodecID_W64;
+        Ovia->Encoders[EncoderIndex].MediaType                = MediaType_Audio2D;
+        Ovia->Encoders[EncoderIndex].Function_Initialize[0]   = W64Options_Init;
+        Ovia->Encoders[EncoderIndex].Function_WriteHeader[0]  = W64WriteHeader;
+        Ovia->Encoders[EncoderIndex].Function_Encode[0]       = W64AppendSamples;
+        Ovia->Encoders[EncoderIndex].Function_WriteFooter[0]  = NULL;
+        Ovia->Encoders[EncoderIndex].Function_Deinitialize[0] = W64Options_Deinit;
     }
     
     static OVIACodecRegistry Register_W64Encoder = {
-        .Function_RegisterEncoder[CodecID_W64 - 1]   = RegisterEncoder_W64,
+        .Function_RegisterEncoder[CodecID_W64 - 1]            = RegisterEncoder_W64,
     };
     
 #ifdef __cplusplus

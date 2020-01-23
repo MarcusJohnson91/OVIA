@@ -126,9 +126,10 @@ extern "C" {
         }
     }
     
-    void PNMInsertImage(void *Options, BitBuffer *BitB, ImageContainer *Image) {
-        if (Options != NULL && BitB != NULL && Image != NULL) {
+    void PNMInsertImage(void *Options, void *Container, BitBuffer *BitB) { // void *Options, void *Contanier, BitBuffer *BitB
+        if (Options != NULL && Container != NULL && BitB != NULL) {
             PNMOptions *PNM       = Options;
+            ImageContainer *Image = Container;
             uint64_t ChannelCount = PNM->NumChannels;
             uint64_t Width        = ImageContainer_GetWidth(Image);
             uint64_t Height       = ImageContainer_GetHeight(Image);
@@ -154,53 +155,11 @@ extern "C" {
             }
         } else if (Options == NULL) {
             Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+        } else if (Container == NULL) {
+            Log(Log_DEBUG, __func__, UTF8String("Container Pointer is NULL"));
         } else if (BitB == NULL) {
             Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
-        } else if (Image == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Pixels2Write Pointer is NULL"));
         }
-    }
-    
-    static void RegisterEncoder_PNM_ASCII(OVIA *Ovia) {
-        Ovia->NumEncoders                                 += 1;
-        uint64_t EncoderIndex                              = Ovia->NumEncoders;
-        Ovia->Encoders                                     = realloc(Ovia->Encoders, sizeof(OVIAEncoder) * Ovia->NumEncoders);
-        
-        Ovia->Encoders[EncoderIndex].EncoderID             = CodecID_PNM;
-        Ovia->Encoders[EncoderIndex].MediaType             = MediaType_Image;
-        Ovia->Encoders[EncoderIndex].Function_Initialize   = PNMOptions_Init;
-        Ovia->Encoders[EncoderIndex].Function_WriteHeader  = PNMWriteHeader_ASCII;
-        Ovia->Encoders[EncoderIndex].Function_Encode       = PNMInsertImage;
-        Ovia->Encoders[EncoderIndex].Function_WriteFooter  = NULL;
-        Ovia->Encoders[EncoderIndex].Function_Deinitialize = PNMOptions_Deinit;
-    }
-    
-    static void RegisterEncoder_PNM_Binary(OVIA *Ovia) {
-        Ovia->NumEncoders                                 += 1;
-        uint64_t EncoderIndex                              = Ovia->NumEncoders;
-        Ovia->Encoders                                     = realloc(Ovia->Encoders, sizeof(OVIAEncoder) * Ovia->NumEncoders);
-        
-        Ovia->Encoders[EncoderIndex].EncoderID             = CodecID_PNM;
-        Ovia->Encoders[EncoderIndex].MediaType             = MediaType_Image;
-        Ovia->Encoders[EncoderIndex].Function_Initialize   = PNMOptions_Init;
-        Ovia->Encoders[EncoderIndex].Function_WriteHeader  = PNMWriteHeader_Binary;
-        Ovia->Encoders[EncoderIndex].Function_Encode       = PNMInsertImage;
-        Ovia->Encoders[EncoderIndex].Function_WriteFooter  = NULL;
-        Ovia->Encoders[EncoderIndex].Function_Deinitialize = PNMOptions_Deinit;
-    }
-    
-    static void RegisterEncoder_PAM(OVIA *Ovia) {
-        Ovia->NumEncoders                                 += 1;
-        uint64_t EncoderIndex                              = Ovia->NumEncoders;
-        Ovia->Encoders                                     = realloc(Ovia->Encoders, sizeof(OVIAEncoder) * Ovia->NumEncoders);
-        
-        Ovia->Encoders[EncoderIndex].EncoderID             = CodecID_PNM;
-        Ovia->Encoders[EncoderIndex].MediaType             = MediaType_Image;
-        Ovia->Encoders[EncoderIndex].Function_Initialize   = PNMOptions_Init;
-        Ovia->Encoders[EncoderIndex].Function_WriteHeader  = PNMWriteHeader_PAM;
-        Ovia->Encoders[EncoderIndex].Function_Encode       = PNMInsertImage;
-        Ovia->Encoders[EncoderIndex].Function_WriteFooter  = NULL;
-        Ovia->Encoders[EncoderIndex].Function_Deinitialize = PNMOptions_Deinit;
     }
     
     static void RegisterEncoder_PNM(OVIA *Ovia) {
@@ -262,7 +221,7 @@ extern "C" {
     }
     
     static OVIACodecRegistry Register_PNMEncoder = {
-        .Function_RegisterEncoder[CodecID_PNM - 1] = RegisterEncoder_PNM,
+        .Function_RegisterEncoder[CodecID_PNM - 1]            = RegisterEncoder_PNM,
     };
     
 #ifdef __cplusplus

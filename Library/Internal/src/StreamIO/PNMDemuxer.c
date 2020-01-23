@@ -152,7 +152,8 @@ extern "C" {
         }
     }
     
-    void PNMExtractImage_ASCII(void *Options, BitBuffer *BitB, ImageContainer *Image) {
+    void *PNMExtractImage_ASCII(void *Options, BitBuffer *BitB) {
+        ImageContainer *Image = NULL;
         if (Options != NULL && BitB != NULL && Image != NULL) {
             PNMOptions *PNM              = Options;
             if (PNM->BitDepth <= 8) {
@@ -191,9 +192,11 @@ extern "C" {
         } else if (Image == NULL) {
             Log(Log_DEBUG, __func__, UTF8String("ImageContainer Pointer is NULL"));
         }
+        return Image;
     }
     
-    void PNMExtractImage_Binary(void *Options, BitBuffer *BitB, ImageContainer *Image) {
+    void *PNMExtractImage_Binary(void *Options, BitBuffer *BitB) {
+        ImageContainer *Image = NULL;
         if (Options != NULL && BitB != NULL && Image != NULL) {
             PNMOptions *PNM        = Options; 
             if (PNM->BitDepth <= 8) {
@@ -234,6 +237,7 @@ extern "C" {
         } else if (Image == NULL) {
             Log(Log_DEBUG, __func__, UTF8String("ImageContainer Pointer is NULL"));
         }
+        return Image;
     }
     
     static void RegisterDecoder_PNM(OVIA *Ovia) {

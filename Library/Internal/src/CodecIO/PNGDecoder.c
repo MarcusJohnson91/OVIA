@@ -34,7 +34,7 @@ extern "C" {
                 FCheck         |= FCHECK;
                 if (FCheck % 31 == 0) {
                     if (FDICT == Yes) {
-                        DictID  = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+                        DictID  = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
                     }
                 } else {
                     Log(Log_DEBUG, __func__, UTF8String("Invalid Flate Header %d"), FCheck);
@@ -127,17 +127,16 @@ extern "C" {
     
     void PNG_DAT_Decode(void *Options, BitBuffer *BitB, ImageContainer *Image) {
         if (BitB != NULL && Image != NULL) {
-            PNGOptions *PNG                        = Options;
             uint8_t     ****ImageArrayBytes        = (uint8_t****) ImageContainer_GetArray(Image);
             HuffmanTree     *Tree                  = NULL;
-            bool     IsFinalBlock                  = false;
+            bool             IsFinalBlock          = false;
             do {
                 IsFinalBlock                       = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 1); // 0
                 uint8_t BlockType                  = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 2); // 0b00 = 0
                 if (BlockType == BlockType_Literal) {
                     BitBuffer_Align(BitB, 1); // Skip the remaining 5 bits
-                    uint16_t Bytes2Copy    = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16); // 0x4F42 = 20,290
-                    uint16_t Bytes2CopyXOR = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16) ^ 0xFFFF; // 0xB0BD = 0x4F42
+                    uint16_t Bytes2Copy            = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16); // 0x4F42 = 20,290
+                    uint16_t Bytes2CopyXOR         = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16) ^ 0xFFFF; // 0xB0BD = 0x4F42
                     
                     if (Bytes2Copy == Bytes2CopyXOR) {
                         for (uint16_t Byte = 0ULL; Byte < Bytes2Copy; Byte++) {
@@ -186,7 +185,6 @@ extern "C" {
     void PNG_Flate_ReadHuffman(void *Options, BitBuffer *BitB, HuffmanTree *LengthTree, HuffmanTree *DistanceTree, ImageContainer *Image) { // Codes in Puff
         if (Options != NULL && BitB != NULL && LengthTree != NULL && DistanceTree != NULL && Image != NULL) {
             // Out = ImageContainer array
-            PNGOptions *PNG = Options;
             uint64_t Symbol = 0ULL;
             uint64_t Offset = 0ULL;
             do {
@@ -245,10 +243,12 @@ extern "C" {
     void PNG_Filter_Sub(ImageContainer *Image) {
         if (Image != NULL) {
             Image_Types Type = ImageContainer_GetType(Image);
+            ImageChannelMap *Map = ImageContainer_GetChannelMap(Image);
+            uint8_t     NumViews = ImageChannelMap_GetNumViews(Map);
             if (Type == ImageType_Integer8) {
                 uint8_t  *ImageArray = (uint8_t*)  ImageContainer_GetArray(Image);
                 
-                for (uint8_t StereoView = 0; StereoView < ImageContainer_GetNumViews(Image); StereoView++) {
+                for (uint8_t StereoView = 0; StereoView < NumViews; StereoView++) {
                     for (uint32_t Height = 0UL; Height < ImageContainer_GetHeight(Image); Height++) {
                         for (uint32_t Width = 0UL; Width < ImageContainer_GetWidth(Image); Width++) {
                             for (uint32_t Byte = 0UL; Byte < Bits2Bytes(ImageContainer_GetBitDepth(Image), RoundingType_Up); Byte++) {
@@ -260,7 +260,7 @@ extern "C" {
             } else {
                 uint16_t *ImageArray = (uint16_t*) ImageContainer_GetArray(Image);
                 
-                for (uint8_t StereoView = 0; StereoView < ImageContainer_GetNumViews(Image); StereoView++) {
+                for (uint8_t StereoView = 0; StereoView < NumViews; StereoView++) {
                     for (uint32_t Height = 0UL; Height < ImageContainer_GetHeight(Image); Height++) {
                         for (uint32_t Width = 0UL; Width < ImageContainer_GetWidth(Image); Width++) {
                             for (uint32_t Byte = 0UL; Byte < Bits2Bytes(ImageContainer_GetBitDepth(Image), RoundingType_Up); Byte++) {
@@ -278,10 +278,12 @@ extern "C" {
     void PNG_Filter_Up(ImageContainer *Image) {
         if (Image != NULL) {
             Image_Types Type = ImageContainer_GetType(Image);
+            ImageChannelMap *Map = ImageContainer_GetChannelMap(Image);
+            uint8_t     NumViews = ImageChannelMap_GetNumViews(Map);
             if (Type == ImageType_Integer8) {
                 uint8_t  *ImageArray = (uint8_t*)  ImageContainer_GetArray(Image);
                 
-                for (uint8_t StereoView = 0; StereoView < ImageContainer_GetNumViews(Image); StereoView++) {
+                for (uint8_t StereoView = 0; StereoView < NumViews; StereoView++) {
                     for (uint32_t Height = 0UL; Height < ImageContainer_GetHeight(Image); Height++) {
                         for (uint32_t Width = 0UL; Width < ImageContainer_GetWidth(Image); Width++) {
                             for (uint32_t Byte = 0UL; Byte < Bits2Bytes(ImageContainer_GetBitDepth(Image), RoundingType_Up); Byte++) {
@@ -293,7 +295,7 @@ extern "C" {
             } else {
                 uint16_t *ImageArray = (uint16_t*) ImageContainer_GetArray(Image);
                 
-                for (uint8_t StereoView = 0; StereoView < ImageContainer_GetNumViews(Image); StereoView++) {
+                for (uint8_t StereoView = 0; StereoView < NumViews; StereoView++) {
                     for (uint32_t Height = 0UL; Height < ImageContainer_GetHeight(Image); Height++) {
                         for (uint32_t Width = 0UL; Width < ImageContainer_GetWidth(Image); Width++) {
                             for (uint32_t Byte = 0UL; Byte < Bits2Bytes(ImageContainer_GetBitDepth(Image), RoundingType_Up); Byte++) {
@@ -311,10 +313,12 @@ extern "C" {
     void PNG_Filter_Average(ImageContainer *Image) {
         if (Image != NULL) {
             Image_Types Type = ImageContainer_GetType(Image);
+            ImageChannelMap *Map = ImageContainer_GetChannelMap(Image);
+            uint8_t     NumViews = ImageChannelMap_GetNumViews(Map);
             if (Type == ImageType_Integer8) {
                 uint8_t  *ImageArray = (uint8_t*)  ImageContainer_GetArray(Image);
                 
-                for (uint8_t StereoView = 0; StereoView < ImageContainer_GetNumViews(Image); StereoView++) {
+                for (uint8_t StereoView = 0; StereoView < NumViews; StereoView++) {
                     for (uint32_t Height = 0UL; Height < ImageContainer_GetHeight(Image); Height++) {
                         for (uint32_t Width = 0UL; Width < ImageContainer_GetWidth(Image); Width++) {
                             for (uint32_t Byte = 0UL; Byte < Bits2Bytes(ImageContainer_GetBitDepth(Image), RoundingType_Up); Byte++) {
@@ -329,7 +333,7 @@ extern "C" {
             } else {
                 uint16_t *ImageArray = (uint16_t*) ImageContainer_GetArray(Image);
                 
-                for (uint8_t StereoView = 0; StereoView < ImageContainer_GetNumViews(Image); StereoView++) {
+                for (uint8_t StereoView = 0; StereoView < NumViews; StereoView++) {
                     for (uint32_t Height = 0UL; Height < ImageContainer_GetHeight(Image); Height++) {
                         for (uint32_t Width = 0UL; Width < ImageContainer_GetWidth(Image); Width++) {
                             for (uint32_t Byte = 0UL; Byte < Bits2Bytes(ImageContainer_GetBitDepth(Image), RoundingType_Up); Byte++) {
@@ -350,10 +354,12 @@ extern "C" {
     void PNG_Filter_Paeth(ImageContainer *Image) {
         if (Image != NULL) {
             Image_Types Type = ImageContainer_GetType(Image);
+            ImageChannelMap *Map = ImageContainer_GetChannelMap(Image);
+            uint8_t     NumViews = ImageChannelMap_GetNumViews(Map);
             if (Type == ImageType_Integer8) {
                 uint8_t  *ImageArray = (uint8_t*)  ImageContainer_GetArray(Image);
                 
-                for (uint8_t StereoView = 0; StereoView < ImageContainer_GetNumViews(Image); StereoView++) {
+                for (uint8_t StereoView = 0; StereoView < NumViews; StereoView++) {
                     for (uint32_t Height = 0UL; Height < ImageContainer_GetHeight(Image); Height++) {
                         for (uint32_t Width = 0UL; Width < ImageContainer_GetWidth(Image); Width++) {
                             for (uint32_t Byte = 0UL; Byte < Bits2Bytes(ImageContainer_GetBitDepth(Image), RoundingType_Up); Byte++) {
@@ -372,7 +378,7 @@ extern "C" {
             } else {
                 uint16_t *ImageArray = (uint16_t*) ImageContainer_GetArray(Image);
                 
-                for (uint8_t StereoView = 0; StereoView < ImageContainer_GetNumViews(Image); StereoView++) {
+                for (uint8_t StereoView = 0; StereoView < NumViews; StereoView++) {
                     for (uint32_t Height = 0UL; Height < ImageContainer_GetHeight(Image); Height++) {
                         for (uint32_t Width = 0UL; Width < ImageContainer_GetWidth(Image); Width++) {
                             for (uint32_t Byte = 0UL; Byte < Bits2Bytes(ImageContainer_GetBitDepth(Image), RoundingType_Up); Byte++) {
@@ -429,7 +435,7 @@ extern "C" {
                             PNG_Filter_Paeth(Image);
                             break;
                         default:
-                            Log(Log_DEBUG, __func__, UTF8String("Filter type: %d is invalid"), ImageArray[ScanLine]);
+                            Log(Log_DEBUG, __func__, UTF8String("Filter type: %d is invalid"), ImageArray[0][ScanLine][0][0]);
                             break;
                     }
                 }
@@ -455,7 +461,7 @@ extern "C" {
                             PNG_Filter_Paeth(Image);
                             break;
                         default:
-                            Log(Log_DEBUG, __func__, UTF8String("Filter type: %d is invalid"), ImageArray[ScanLine]);
+                            Log(Log_DEBUG, __func__, UTF8String("Filter type: %d is invalid"), ImageArray[0][ScanLine][0][0]);
                             break;
                     }
                 }
@@ -475,7 +481,7 @@ extern "C" {
             uint64_t Width          = PNG->iHDR->Width;
             uint64_t Height         = PNG->iHDR->Height;
             ImageContainer *Decoded = NULL;
-            Image_ChannelMask Mask  = 0;
+            ImageChannelMask  Mask  = 0;
             
             PNG_Flate_ReadZlibHeader(PNG, BitB);
             
@@ -528,8 +534,8 @@ extern "C" {
     void PNG_IHDR_Read(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG           = Options;
-            PNG->iHDR->Width          = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            PNG->iHDR->Height         = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->iHDR->Width          = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->iHDR->Height         = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
             PNG->iHDR->BitDepth       = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
             PNG->iHDR->ColorType      = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
             if (PNG->iHDR->ColorType == 1 || PNG->iHDR->ColorType == 5 || PNG->iHDR->ColorType >= 7) {
@@ -580,8 +586,8 @@ extern "C" {
     void PNG_TRNS_Read(void *Options, BitBuffer *BitB, uint32_t ChunkSize) { // Transparency
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG       = Options;
-            uint32_t NumEntries   = ChunkSize % 3;
-            uint16_t **Entries    = NULL;
+            uint32_t   NumEntries = ChunkSize % 3;
+            uint16_t  *Entries    = NULL;
             if (PNG->iHDR->ColorType == PNG_RGB) {
                 Entries = calloc(3, Bits2Bytes(PNG->iHDR->BitDepth, RoundingType_Up) * sizeof(uint16_t));
             } else if (PNG->iHDR->ColorType == PNG_RGBA) {
@@ -624,14 +630,14 @@ extern "C" {
     void PNG_CHRM_Read(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG        = Options;
-            PNG->cHRM->WhitePointX = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            PNG->cHRM->WhitePointY = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            PNG->cHRM->RedX        = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            PNG->cHRM->RedY        = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            PNG->cHRM->GreenX      = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            PNG->cHRM->GreenY      = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            PNG->cHRM->BlueX       = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            PNG->cHRM->BlueY       = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->cHRM->WhitePointX = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->cHRM->WhitePointY = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->cHRM->RedX        = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->cHRM->RedY        = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->cHRM->GreenX      = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->cHRM->GreenY      = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->cHRM->BlueX       = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->cHRM->BlueY       = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
         } else if (Options == NULL) {
             Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -642,7 +648,7 @@ extern "C" {
     void PNG_GAMA_Read(void *Options, BitBuffer *BitB) { // Gamma
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG  = Options;
-            PNG->gAMA->Gamma = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->gAMA->Gamma = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
         } else if (Options == NULL) {
             Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -653,8 +659,8 @@ extern "C" {
     void PNG_OFFS_Read(void *Options, BitBuffer *BitB) { // Image Offset
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG          = Options;
-            PNG->oFFs->XOffset       = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            PNG->oFFs->YOffset       = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->oFFs->XOffset       = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->oFFs->YOffset       = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
             PNG->oFFs->UnitSpecifier = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
         } else if (Options == NULL) {
             Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
@@ -666,8 +672,8 @@ extern "C" {
     void PNG_PHYS_Read(void *Options, BitBuffer *BitB) { // Aspect ratio, Physical pixel size
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG               = Options;
-            PNG->pHYs->PixelsPerUnitXAxis = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            PNG->pHYs->PixelsPerUnitYAxis = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->pHYs->PixelsPerUnitXAxis = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->pHYs->PixelsPerUnitYAxis = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
             PNG->pHYs->UnitSpecifier      = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
         } else if (Options == NULL) {
             Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
@@ -681,8 +687,8 @@ extern "C" {
             PNGOptions *PNG           = Options;
             PNG->sCAL->UnitSpecifier  = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8); // 1 = Meter, 2 = Radian
             
-            uint32_t WidthStringSize  = BitBuffer_GetUTF8StringSize(BitB);
-            uint32_t HeightStringSize = BitBuffer_GetUTF8StringSize(BitB);
+            uint32_t WidthStringSize  = (uint32_t) BitBuffer_GetUTF8StringSize(BitB);
+            uint32_t HeightStringSize = (uint32_t) BitBuffer_GetUTF8StringSize(BitB);
             
             UTF8 *WidthString         = BitBuffer_ReadUTF8(BitB, WidthStringSize);
             UTF8 *HeightString        = BitBuffer_ReadUTF8(BitB, HeightStringSize);
@@ -704,8 +710,8 @@ extern "C" {
             PNGOptions *PNG                      = Options;
             uint8_t CalibrationSize              = BitBuffer_GetUTF8StringSize(BitB);
             PNG->pCAL->CalibrationName           = BitBuffer_ReadUTF8(BitB, CalibrationSize);
-            PNG->pCAL->OriginalZero              = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            PNG->pCAL->OriginalMax               = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->pCAL->OriginalZero              = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->pCAL->OriginalMax               = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
             PNG->pCAL->EquationType              = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
             PNG->pCAL->NumParams                 = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
             uint8_t UnitNameSize                 = BitBuffer_GetUTF8StringSize(BitB);
@@ -846,8 +852,8 @@ extern "C" {
     void PNG_ACTL_Read(void *Options, BitBuffer *BitB) { // Animation control, part of APNG
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG                  = Options;
-            PNG->acTL->NumFrames             = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            PNG->acTL->TimesToLoop           = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32); // If 0, loop forever.
+            PNG->acTL->NumFrames             = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->acTL->TimesToLoop           = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32); // If 0, loop forever.
         } else if (Options == NULL) {
             Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -858,11 +864,11 @@ extern "C" {
     void PNG_FCTL_Read(void *Options, BitBuffer *BitB) { // Frame Control, part of APNG
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG                  = Options;
-            PNG->fcTL->FrameNum              = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            PNG->fcTL->Width                 = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            PNG->fcTL->Height                = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            PNG->fcTL->XOffset               = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            PNG->fcTL->YOffset               = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->fcTL->FrameNum              = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->fcTL->Width                 = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->fcTL->Height                = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->fcTL->XOffset               = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->fcTL->YOffset               = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
             PNG->fcTL->FrameDelayNumerator   = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16);
             PNG->fcTL->FrameDelayDenominator = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16);
             PNG->fcTL->DisposeMethod         = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
@@ -878,7 +884,7 @@ extern "C" {
     void PNG_HIST_Read(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG      = Options;
-            PNG->hIST->NumColors = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->hIST->NumColors = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
             for (uint32_t Color = 0; Color < PNG->hIST->NumColors; Color++) {
                 PNG->hIST->Histogram[Color] = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, PNG->iHDR->BitDepth);
             }
@@ -912,11 +918,11 @@ extern "C" {
             uint8_t BitDepthInBytes                  = Bits2Bytes(PNG->iHDR->BitDepth, RoundingType_Up);
             uint8_t PaletteNameSize                  = BitBuffer_GetUTF8StringSize(BitB);
             PNG->sPLT[PNG->NumSPLTChunks - 1]->Name  = BitBuffer_ReadUTF8(BitB, PaletteNameSize);
-            PNG->sPLT[PNG->NumSPLTChunks - 1]->Red   = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, Bytes2Bits(BitDepthInBytes));
-            PNG->sPLT[PNG->NumSPLTChunks - 1]->Green = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, Bytes2Bits(BitDepthInBytes));
-            PNG->sPLT[PNG->NumSPLTChunks - 1]->Blue  = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, Bytes2Bits(BitDepthInBytes));
+            PNG->sPLT[PNG->NumSPLTChunks - 1]->Red   = (uint16_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, Bytes2Bits(BitDepthInBytes));
+            PNG->sPLT[PNG->NumSPLTChunks - 1]->Green = (uint16_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, Bytes2Bits(BitDepthInBytes));
+            PNG->sPLT[PNG->NumSPLTChunks - 1]->Blue  = (uint16_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, Bytes2Bits(BitDepthInBytes));
             if (ColorType == PNG_RGBA || ColorType == PNG_GrayAlpha) {
-                PNG->sPLT[PNG->NumSPLTChunks - 1]->Alpha = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, Bytes2Bits(BitDepthInBytes));
+                PNG->sPLT[PNG->NumSPLTChunks - 1]->Alpha = (uint16_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, Bytes2Bits(BitDepthInBytes));
             }
         } else if (Options == NULL) {
             Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
@@ -930,8 +936,8 @@ extern "C" {
             PNGOptions *PNG          = Options;
             ImageContainer *Image    = NULL;
             while (BitBuffer_GetSize(BitB) > 0) {
-                uint32_t ChunkSize   = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-                uint32_t ChunkID     = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+                uint32_t ChunkSize   = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+                uint32_t ChunkID     = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
                 
                 if (ChunkID == acTLMarker) {
                     PNG_ACTL_Read(PNG, BitB);
@@ -998,7 +1004,7 @@ extern "C" {
         
     }
     
-    ImageContainer *PNGExtractImage(void *Options, BitBuffer *BitB) {
+    void *PNGExtractImage(void *Options, BitBuffer *BitB) {
         ImageContainer *Image = NULL;
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG = Options;
