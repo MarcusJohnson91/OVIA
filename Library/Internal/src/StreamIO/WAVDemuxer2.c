@@ -286,8 +286,8 @@ extern "C" {
         Ovia->Decoders[DecoderIndex].DecoderID                = CodecID_WAV;
         Ovia->Decoders[DecoderIndex].MediaType                = MediaType_Audio2D;
         Ovia->Decoders[DecoderIndex].NumMagicIDs              = 1;
-        Ovia->Decoders[DecoderIndex].MagicIDOffset[0]         = 0;
-        Ovia->Decoders[DecoderIndex].MagicIDSize[0]           = 2;
+        Ovia->Decoders[DecoderIndex].MagicIDOffsetInBits[0]   = 0;
+        Ovia->Decoders[DecoderIndex].MagicIDSizeInBits[0]     = 16;
         Ovia->Decoders[DecoderIndex].MagicID[0]               = (uint8_t[2]) {0x50, 0x37};
         Ovia->Decoders[DecoderIndex].Function_Initialize[0]   = WAVOptions_Init;
         Ovia->Decoders[DecoderIndex].Function_Read[0]         = WAVReadMetadata;

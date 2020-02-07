@@ -143,11 +143,11 @@ extern "C" {
         for (uint64_t Decoder = 0ULL; Decoder < Ovia->NumDecoders; Decoder++) {
             for (uint64_t MagicID = 0ULL; MagicID < Ovia->Decoders[Decoder].NumMagicIDs; MagicID++) {
                 BitBuffer_Seek(BitB, Ovia->Decoders[Decoder].MagicIDOffset[MagicID]);
-                for (uint64_t MagicIDByte = 0ULL; MagicIDByte < Ovia->Decoders[Decoder].MagicIDSize[Decoder]; MagicIDByte++) {
+                for (uint64_t MagicIDByte = 0ULL; MagicIDByte < Ovia->Decoders[Decoder].MagicIDSizeInBits[Decoder]; MagicIDByte++) {
                     uint8_t ExtractedByte = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8); // Should we put a bit order field in the magic id thing?
                     if (ExtractedByte != Ovia->Decoders[Decoder].MagicID[MagicIDByte]) {
                         break;
-                    } else if (MagicIDByte + 1 == Ovia->Decoders[Decoder].MagicIDSize[Decoder] && ExtractedByte == Ovia->Decoders[Decoder].MagicID[MagicIDByte]) {
+                    } else if (MagicIDByte + 1 == Ovia->Decoders[Decoder].MagicIDSizeInBits[Decoder] && ExtractedByte == Ovia->Decoders[Decoder].MagicID[MagicIDByte]) {
                         Format = Ovia->Decoders[Decoder].DecoderID;
                     }
                 }

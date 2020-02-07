@@ -210,22 +210,22 @@ extern "C" {
             case Marker_StartOfFrameLossless2: // Huffman, Differential
             case Marker_StartOfFrameLossless3: // Arithmetic, non-Differential
             case Marker_StartOfFrameLossless4: // Arithmetic, Differential
-                ParseSegment_StartOfFrame(Options, BitB);
+                ReadSegment_StartOfFrame(Options, BitB);
                 break;
             case Marker_DefineHuffmanTable:
-                ParseSegment_DefineHuffmanTable(Options, BitB);
+                ReadSegment_DefineHuffmanTable(Options, BitB);
                 break;
             case Marker_DefineArthimeticTable:
-                ParseSegment_DefineArithmeticTable(Options, BitB);
+                ReadSegment_DefineArithmeticTable(Options, BitB);
                 break;
             case Marker_StartOfScan:
-                ParseSegment_StartOfScan(Options, BitB);
+                ReadSegment_StartOfScan(Options, BitB);
                 break;
             case Marker_NumberOfLines:
-                ParseSegment_DefineNumberOfLines(Options, BitB);
+                ReadSegment_DefineNumberOfLines(Options, BitB);
                 break;
             case Marker_RestartInterval:
-                ParseSegment_DefineRestartInterval(Options, BitB);
+                ReadSegment_DefineRestartInterval(Options, BitB);
             case Marker_Restart0:
             case Marker_Restart1:
             case Marker_Restart2:
@@ -253,12 +253,12 @@ extern "C" {
         Ovia->Decoders[DecoderIndex].DecoderID                = CodecID_JPEG;
         Ovia->Decoders[DecoderIndex].MediaType                = MediaType_Image;
         Ovia->Decoders[DecoderIndex].NumMagicIDs              = 1;
-        Ovia->Decoders[DecoderIndex].MagicIDOffset[0]         = 0;
-        Ovia->Decoders[DecoderIndex].MagicIDSize[0]           = 2;
+        Ovia->Decoders[DecoderIndex].MagicIDOffsetInBits[0]   = 0;
+        Ovia->Decoders[DecoderIndex].MagicIDSizeInBits[0]     = 16;
         Ovia->Decoders[DecoderIndex].MagicID[0]               = calloc(2, sizeof(uint8_t));
         Ovia->Decoders[DecoderIndex].MagicID[0]               = (uint8_t[2]) {0xFF, 0xD8};
         Ovia->Decoders[DecoderIndex].Function_Initialize[0]   = JPEGOptions_Init;
-        Ovia->Decoders[DecoderIndex].Function_Parse[0]        = JPEG_Parse;
+        Ovia->Decoders[DecoderIndex].Function_Read[0]         = JPEG_Read;
         Ovia->Decoders[DecoderIndex].Function_Decode[0]       = JPEG_Extract;
         Ovia->Decoders[DecoderIndex].Function_Deinitialize[0] = JPEGOptions_Deinit;
     }

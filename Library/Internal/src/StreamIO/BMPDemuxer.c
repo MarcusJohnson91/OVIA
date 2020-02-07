@@ -153,8 +153,8 @@ extern "C" {
         Ovia->Decoders[DecoderIndex].DecoderID                = CodecID_BMP;
         Ovia->Decoders[DecoderIndex].MediaType                = MediaType_Image;
         Ovia->Decoders[DecoderIndex].NumMagicIDs              = 1;
-        Ovia->Decoders[DecoderIndex].MagicIDOffset[0]         = 0;
-        Ovia->Decoders[DecoderIndex].MagicIDSize[0]           = 16;
+        Ovia->Decoders[DecoderIndex].MagicIDOffsetInBits[0]   = 0;
+        Ovia->Decoders[DecoderIndex].MagicIDSizeInBits[0]     = 16;
         Ovia->Decoders[DecoderIndex].MagicID[0]               = (uint8_t[2]) {0x42, 0x4D};
         Ovia->Decoders[DecoderIndex].Function_Initialize[0]   = BMPOptions_Init;
         Ovia->Decoders[DecoderIndex].Function_Read[0]         = BMPReadMetadata;

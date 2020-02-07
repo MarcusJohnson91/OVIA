@@ -250,8 +250,8 @@ extern "C" {
         Ovia->Decoders[DecoderIndex].NumMagicIDs              = 6;
         
         /* MagicID 0 */
-        Ovia->Decoders[DecoderIndex].MagicIDOffset[0]         = 0;
-        Ovia->Decoders[DecoderIndex].MagicIDSize[0]           = 2;
+        Ovia->Decoders[DecoderIndex].MagicIDOffsetInBits[0]   = 0;
+        Ovia->Decoders[DecoderIndex].MagicIDSizeInBits[0]     = 16;
         Ovia->Decoders[DecoderIndex].MagicID[0]               = (uint8_t[2]) {0x50, 0x31};
         Ovia->Decoders[DecoderIndex].Function_Initialize[0]   = PNMOptions_Init;
         Ovia->Decoders[DecoderIndex].Function_Read[0]         = PNMRead_ASCII;
@@ -260,8 +260,8 @@ extern "C" {
         /* MagicID 0 */
         
         /* MagicID 1 */
-        Ovia->Decoders[DecoderIndex].MagicIDOffset[1]         = 0;
-        Ovia->Decoders[DecoderIndex].MagicIDSize[1]           = 2;
+        Ovia->Decoders[DecoderIndex].MagicIDOffsetInBits[1]   = 0;
+        Ovia->Decoders[DecoderIndex].MagicIDSizeInBits[1]     = 16;
         Ovia->Decoders[DecoderIndex].MagicID[1]               = (uint8_t[2]) {0x50, 0x32};
         Ovia->Decoders[DecoderIndex].Function_Initialize[1]   = PNMOptions_Init;
         Ovia->Decoders[DecoderIndex].Function_Read[1]         = PNMRead_ASCII;
@@ -270,8 +270,8 @@ extern "C" {
         /* MagicID 1 */
         
         /* MagicID 2 */
-        Ovia->Decoders[DecoderIndex].MagicIDOffset[2]         = 0;
-        Ovia->Decoders[DecoderIndex].MagicIDSize[2]           = 2;
+        Ovia->Decoders[DecoderIndex].MagicIDOffsetInBits[2]   = 0;
+        Ovia->Decoders[DecoderIndex].MagicIDSizeInBits[2]     = 16;
         Ovia->Decoders[DecoderIndex].MagicID[2]               = (uint8_t[2]) {0x50, 0x33};
         Ovia->Decoders[DecoderIndex].Function_Initialize[2]   = PNMOptions_Init;
         Ovia->Decoders[DecoderIndex].Function_Read[2]         = PNMRead_ASCII;
@@ -280,8 +280,8 @@ extern "C" {
         /* MagicID 2 */ // Last ASCII
         
         /* MagicID 3 */
-        Ovia->Decoders[DecoderIndex].MagicIDOffset[3]         = 0;
-        Ovia->Decoders[DecoderIndex].MagicIDSize[3]           = 2;
+        Ovia->Decoders[DecoderIndex].MagicIDOffsetInBits[3]   = 0;
+        Ovia->Decoders[DecoderIndex].MagicIDSizeInBits[3]     = 16;
         Ovia->Decoders[DecoderIndex].MagicID[3]               = (uint8_t[2]) {0x50, 0x34};
         Ovia->Decoders[DecoderIndex].Function_Initialize[3]   = PNMOptions_Init;
         Ovia->Decoders[DecoderIndex].Function_Read[3]         = PNMRead_Binary;
@@ -290,8 +290,8 @@ extern "C" {
         /* MagicID 3 */
         
         /* MagicID 4 */
-        Ovia->Decoders[DecoderIndex].MagicIDOffset[4]         = 0;
-        Ovia->Decoders[DecoderIndex].MagicIDSize[4]           = 2;
+        Ovia->Decoders[DecoderIndex].MagicIDOffsetInBits[4]   = 0;
+        Ovia->Decoders[DecoderIndex].MagicIDSizeInBits[4]     = 16;
         Ovia->Decoders[DecoderIndex].MagicID[4]               = (uint8_t[2]) {0x50, 0x35};
         Ovia->Decoders[DecoderIndex].Function_Initialize[4]   = PNMOptions_Init;
         Ovia->Decoders[DecoderIndex].Function_Read[4]         = PNMRead_Binary;
@@ -300,8 +300,8 @@ extern "C" {
         /* MagicID 4 */
         
         /* MagicID 5 */
-        Ovia->Decoders[DecoderIndex].MagicIDOffset[5]         = 0;
-        Ovia->Decoders[DecoderIndex].MagicIDSize[5]           = 2;
+        Ovia->Decoders[DecoderIndex].MagicIDOffsetInBits[5]   = 0;
+        Ovia->Decoders[DecoderIndex].MagicIDSizeInBits[5]     = 16;
         Ovia->Decoders[DecoderIndex].MagicID[5]               = (uint8_t[2]) {0x50, 0x36};
         Ovia->Decoders[DecoderIndex].Function_Initialize[5]   = PNMOptions_Init;
         Ovia->Decoders[DecoderIndex].Function_Read[5]         = PNMRead_Binary;
@@ -310,8 +310,8 @@ extern "C" {
         /* MagicID 5 */
         
         /* MagicID 6 */
-        Ovia->Decoders[DecoderIndex].MagicIDOffset[6]         = 0;
-        Ovia->Decoders[DecoderIndex].MagicIDSize[6]           = 2;
+        Ovia->Decoders[DecoderIndex].MagicIDOffsetInBits[6]   = 0;
+        Ovia->Decoders[DecoderIndex].MagicIDSizeInBits[6]     = 16;
         Ovia->Decoders[DecoderIndex].MagicID[6]               = (uint8_t[2]) {0x50, 0x37};
         Ovia->Decoders[DecoderIndex].Function_Initialize[6]   = PNMOptions_Init;
         Ovia->Decoders[DecoderIndex].Function_Read[6]         = PNMRead_PAM;

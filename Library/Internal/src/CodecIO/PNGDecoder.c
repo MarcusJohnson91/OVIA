@@ -1032,8 +1032,8 @@ extern "C" {
         Ovia->Decoders[DecoderIndex].DecoderID                = CodecID_PNG;
         Ovia->Decoders[DecoderIndex].MediaType                = MediaType_Image;
         Ovia->Decoders[DecoderIndex].NumMagicIDs              = 1;
-        Ovia->Decoders[DecoderIndex].MagicIDOffset[0]         = 0;
-        Ovia->Decoders[DecoderIndex].MagicIDSize[0]           = 8;
+        Ovia->Decoders[DecoderIndex].MagicIDOffsetInBits[0]   = 0;
+        Ovia->Decoders[DecoderIndex].MagicIDSizeInBits[0]     = 64;
         Ovia->Decoders[DecoderIndex].MagicID[0]               = (uint8_t[8]){0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
         Ovia->Decoders[DecoderIndex].Function_Initialize[0]   = PNGOptions_Init;
         Ovia->Decoders[DecoderIndex].Function_Read[0]         = PNG_ReadChunks;

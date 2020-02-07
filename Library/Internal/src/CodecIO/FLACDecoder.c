@@ -464,8 +464,8 @@ extern "C" {
         Ovia->Decoders[DecoderIndex].DecoderID                = CodecID_FLAC;
         Ovia->Decoders[DecoderIndex].MediaType                = MediaType_Audio2D;
         Ovia->Decoders[DecoderIndex].NumMagicIDs              = 1;
-        Ovia->Decoders[DecoderIndex].MagicIDOffset[0]         = 0;
-        Ovia->Decoders[DecoderIndex].MagicIDSize[0]           = 4;
+        Ovia->Decoders[DecoderIndex].MagicIDOffsetInBits[0]   = 0;
+        Ovia->Decoders[DecoderIndex].MagicIDSizeInBits[0]     = 32;
         Ovia->Decoders[DecoderIndex].MagicID[0]               = (uint8_t[4]) {0x66, 0x4C, 0x61, 0x43};
         Ovia->Decoders[DecoderIndex].Function_Initialize[0]   = FLACOptions_Init;
         Ovia->Decoders[DecoderIndex].Function_Read[0]         = FLAC_Read_Blocks;
