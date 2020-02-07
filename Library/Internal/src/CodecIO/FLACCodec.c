@@ -10,7 +10,7 @@ extern "C" {
             FLAC->StreamInfo  = calloc(1, sizeof(StreamInfo));
             FLAC->CueSheet    = calloc(1, sizeof(FLACCueSheet));
         } else {
-            Log(Log_DEBUG, __func__, UTF8String("Couldn't allocate FLACOptions"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Couldn't allocate FLACOptions"));
         }
         return FLAC;
     }
@@ -29,11 +29,11 @@ extern "C" {
             
             Output = (B << 16) | A;
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         } else if (Start * 8 < BitBuffer_GetSize(BitB)) {
-            Log(Log_DEBUG, __func__, UTF8String("Start: %lld is larger than the BitBuffer %lld"), Start * 8, BitBuffer_GetSize(BitB));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Start: %lld is larger than the BitBuffer %lld"), Start * 8, BitBuffer_GetSize(BitB));
         } else if ((Start + NumBytes) * 8 <= BitBuffer_GetSize(BitB)) {
-            Log(Log_DEBUG, __func__, UTF8String("End: %lld is larger than the BitBuffer %lld"), (Start + NumBytes) * 8, BitBuffer_GetSize(BitB));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("End: %lld is larger than the BitBuffer %lld"), (Start + NumBytes) * 8, BitBuffer_GetSize(BitB));
         }
         return Output;
     }
@@ -55,11 +55,11 @@ extern "C" {
                 }
             }
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         } else if (Start * 8 < BitBuffer_GetSize(BitB)) {
-            Log(Log_DEBUG, __func__, UTF8String("Start: %lld is larger than the BitBuffer %lld"), Start * 8, BitBuffer_GetSize(BitB));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Start: %lld is larger than the BitBuffer %lld"), Start * 8, BitBuffer_GetSize(BitB));
         } else if ((Start + NumBytes) * 8 <= BitBuffer_GetSize(BitB)) {
-            Log(Log_DEBUG, __func__, UTF8String("End: %lld is larger than the BitBuffer %lld"), (Start + NumBytes) * 8, BitBuffer_GetSize(BitB));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("End: %lld is larger than the BitBuffer %lld"), (Start + NumBytes) * 8, BitBuffer_GetSize(BitB));
         }
         return ~Output;
     }
@@ -74,7 +74,7 @@ extern "C" {
                 NumChannels = 2;
             }
         } else {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         }
         return NumChannels;
     }

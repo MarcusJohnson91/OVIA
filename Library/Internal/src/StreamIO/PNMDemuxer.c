@@ -14,7 +14,7 @@ extern "C" {
                 } while (BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8) != PNMEndField);
             }
         } else {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
         return CommentSize;
     }
@@ -41,9 +41,9 @@ extern "C" {
             free(HeightString);
             /* Read Height */
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -72,9 +72,9 @@ extern "C" {
             free(MaxValString);
             /* Read MaxVal */
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -139,7 +139,7 @@ extern "C" {
                 PNM->NumChannels       = 4;
                 PNM->TupleType         = PNM_TUPLE_RGBAlpha;
             } else {
-                Log(Log_DEBUG, __func__, UTF8String("Unknown PNM Tuple: %s"), TupleTypeString);
+                Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Unknown PNM Tuple: %s"), TupleTypeString);
             }
             free(TupleTypeString);
             /* Read TupleType */
@@ -148,7 +148,7 @@ extern "C" {
             BitBuffer_Seek(BitB, 56); // ENDHDR
             /* Skip ENDHDR */
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -183,14 +183,14 @@ extern "C" {
                     }
                 }
             } else {
-                Log(Log_DEBUG, __func__, UTF8String("16 bit ASCII PNM is invalid"));
+                Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("16 bit ASCII PNM is invalid"));
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         } else if (Image == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("ImageContainer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("ImageContainer Pointer is NULL"));
         }
         return Image;
     }
@@ -231,11 +231,11 @@ extern "C" {
                 }
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         } else if (Image == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("ImageContainer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("ImageContainer Pointer is NULL"));
         }
         return Image;
     }

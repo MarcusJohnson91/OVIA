@@ -13,9 +13,9 @@ extern "C" {
             uint8_t MetadataBlockType = 1;
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 7, MetadataBlockType);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -33,11 +33,11 @@ extern "C" {
                 FLAC->Frame->PartitionOrder        = 15;
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (Container == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Audio2DContainer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Audio2DContainer Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -55,9 +55,9 @@ extern "C" {
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 36, FLAC->StreamInfo->SamplesInStream);
             BitBuffer_Seek(BitB, 128); // Room for the MD5
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -67,9 +67,9 @@ extern "C" {
             UTF8 *OVIAVersion = UTF8_Format(UTF8String("OVIA"));
             BitBuffer_WriteUTF8(BitB, OVIAVersion, WriteType_Sized);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     

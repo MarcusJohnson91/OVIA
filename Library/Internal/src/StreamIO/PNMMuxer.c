@@ -22,9 +22,9 @@ extern "C" {
             free(Height);
             /* Write the Height */
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -53,9 +53,9 @@ extern "C" {
             free(BitDepth);
             /* Write the BitDepth */
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -120,9 +120,9 @@ extern "C" {
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
             /* Write the ENDHDR */
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -154,11 +154,11 @@ extern "C" {
                 }
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (Container == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Container Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Container Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     

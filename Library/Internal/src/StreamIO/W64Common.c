@@ -61,7 +61,7 @@ extern "C" {
                 AudioChannelMap_AddMask(Map, AudioChannelMap_GetLowestUnusedIndex(Map), AudioMask_FrontLeft);
             }
         } else {
-            Log(Log_DEBUG, __func__, UTF8String("Couldn't allocate AudioChannelMap"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Couldn't allocate AudioChannelMap"));
         }
         return Map;
     }

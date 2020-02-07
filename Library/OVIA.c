@@ -92,12 +92,12 @@ extern "C" {
             } else if (UTF8_Compare(CaseFolded, UTF8String("ppm")) == Yes) {
                 CodecID       = CodecID_PNM;
             } else {
-                Log(Log_DEBUG, __func__, UTF8String("Extension \"%s\" is not known"), Extension);
+                Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Extension \"%s\" is not known"), Extension);
             }
             free(Normalized);
             free(CaseFolded);
         } else {
-            Log(Log_DEBUG, __func__, UTF8String("Extension Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Extension Pointer is NULL"));
         }
         return CodecID;
     }
@@ -126,12 +126,12 @@ extern "C" {
             } else if (UTF16_Compare(CaseFolded, UTF16String("ppm")) == Yes) {
                 CodecID       = CodecID_PNM;
             } else {
-                Log(Log_DEBUG, __func__, UTF8String("Extension \"%S\" is not known"), (wchar_t*) Extension);
+                Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Extension \"%S\" is not known"), (wchar_t*) Extension);
             }
             free(Normalized);
             free(CaseFolded);
         } else {
-            Log(Log_DEBUG, __func__, UTF8String("Extension Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Extension Pointer is NULL"));
         }
         return CodecID;
     }

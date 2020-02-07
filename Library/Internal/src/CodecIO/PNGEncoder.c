@@ -14,9 +14,9 @@ extern "C" {
         if (Options != NULL && BitB != NULL) {
             // Write the iHDR chunk, and then go through the list of other chunks to find out if other chunks should be written
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -28,9 +28,9 @@ extern "C" {
             BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, 32, iENDMarker);
             BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, 32, iENDCRC);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -58,9 +58,9 @@ extern "C" {
                 BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, PNG->DAT->DictID);
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -86,9 +86,9 @@ extern "C" {
             
             
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -98,11 +98,11 @@ extern "C" {
              Loop over the image container, line by line, and try all the filters.
              */
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (Container == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Container Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Container Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -110,7 +110,7 @@ extern "C" {
         if (Image != NULL) {
             // Try each filter on each line, get the best by counting the diff between the symbols to decide which to use.
         } else if (Image == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Image Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Image Pointer is NULL"));
         }
     }
     
@@ -127,9 +127,9 @@ extern "C" {
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8,  PNG->iHDR->FilterMethod);
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8,  PNG->iHDR->Interlaced);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -141,9 +141,9 @@ extern "C" {
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, PNG->acTL->NumFrames);
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, PNG->acTL->TimesToLoop);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -162,9 +162,9 @@ extern "C" {
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8,  PNG->fcTL->DisposeMethod);
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8,  PNG->fcTL->BlendMethod);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -175,9 +175,9 @@ extern "C" {
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, fDATMarker);
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, PNG->fcTL->FrameNum);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -188,9 +188,9 @@ extern "C" {
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, sTERMarker);
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8,  PNG->sTER->StereoType);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -226,9 +226,9 @@ extern "C" {
                 }
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -246,9 +246,9 @@ extern "C" {
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, PNG->cHRM->BlueX);
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, PNG->cHRM->BlueY);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -259,9 +259,9 @@ extern "C" {
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, gAMAMarker);
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, PNG->gAMA->Gamma);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -274,9 +274,9 @@ extern "C" {
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, PNG->oFFs->YOffset);
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8,  PNG->oFFs->UnitSpecifier);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -295,9 +295,9 @@ extern "C" {
                 BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, PNG->iCCP->CompressedICCPProfile[Byte]);
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -335,9 +335,9 @@ extern "C" {
                 BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, PNG->sBIT->Alpha);
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -348,9 +348,9 @@ extern "C" {
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, sRGBMarker);
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, PNG->sRGB->RenderingIntent);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -364,9 +364,9 @@ extern "C" {
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, PNG->pHYs->PixelsPerUnitYAxis);
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8,  PNG->pHYs->UnitSpecifier);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -377,9 +377,9 @@ extern "C" {
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, ChunkSize);
             BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, pCALMarker);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -388,9 +388,9 @@ extern "C" {
             PNGOptions *PNG    = Options;
             uint32_t ChunkSize = 0;
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     

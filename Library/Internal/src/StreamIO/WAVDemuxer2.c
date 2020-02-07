@@ -33,9 +33,9 @@ extern "C" {
             uint32_t DataSizeHigh = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
             
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -51,9 +51,9 @@ extern "C" {
             uint64_t OriginatorDateSize    = BitBuffer_GetUTF8StringSize(BitB);
             WAV->BEXT->OriginatorDate      = BitBuffer_ReadUTF8(BitB, OriginatorDateSize);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -63,9 +63,9 @@ extern "C" {
             uint64_t StringSize            = BitBuffer_GetUTF8StringSize(BitB);
             WAV->Info->Artist              = BitBuffer_ReadUTF8(BitB, StringSize);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -75,9 +75,9 @@ extern "C" {
             uint64_t StringSize            = BitBuffer_GetUTF8StringSize(BitB);
             WAV->Info->Artist              = BitBuffer_ReadUTF8(BitB, StringSize);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -87,9 +87,9 @@ extern "C" {
             uint64_t StringSize            = BitBuffer_GetUTF8StringSize(BitB);
             WAV->Info->Artist              = BitBuffer_ReadUTF8(BitB, StringSize);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -99,9 +99,9 @@ extern "C" {
             uint64_t StringSize            = BitBuffer_GetUTF8StringSize(BitB);
             WAV->Info->ReleaseDate         = BitBuffer_ReadUTF8(BitB, StringSize);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -111,9 +111,9 @@ extern "C" {
             uint64_t StringSize            = BitBuffer_GetUTF8StringSize(BitB);
             WAV->Info->Genre               = BitBuffer_ReadUTF8(BitB, StringSize);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -123,9 +123,9 @@ extern "C" {
             uint64_t StringSize            = BitBuffer_GetUTF8StringSize(BitB);
             WAV->Info->Title               = BitBuffer_ReadUTF8(BitB, StringSize);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -135,9 +135,9 @@ extern "C" {
             uint64_t StringSize            = BitBuffer_GetUTF8StringSize(BitB);
             WAV->Info->Album               = BitBuffer_ReadUTF8(BitB, StringSize);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -147,9 +147,9 @@ extern "C" {
             uint64_t StringSize            = BitBuffer_GetUTF8StringSize(BitB);
             WAV->Info->CreationSoftware    = BitBuffer_ReadUTF8(BitB, StringSize);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -178,13 +178,13 @@ extern "C" {
                     ReadINFO_ISFT(Options, BitB);
                     break;
                 default:
-                    Log(Log_DEBUG, __func__, UTF8String("Unknown LIST Chunk: 0x%X"), SubChunkID);
+                    Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Unknown LIST Chunk: 0x%X"), SubChunkID);
                     break;
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -210,9 +210,9 @@ extern "C" {
                 BitBuffer_Seek(BitB, Bytes2Bits(CBSize - 22));
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -232,13 +232,13 @@ extern "C" {
                     BitBuffer_Seek(BitB, 32);
                     break;
                 default:
-                    Log(Log_DEBUG, __func__, UTF8String("Invalid ChunkID: 0x%X"), ChunkID);
+                    Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Invalid ChunkID: 0x%X"), ChunkID);
                     break;
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -271,9 +271,9 @@ extern "C" {
                 }
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("Options Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, __func__, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
         return Audio;
     }
