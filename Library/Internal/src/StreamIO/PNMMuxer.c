@@ -5,120 +5,104 @@
 extern "C" {
 #endif
     
-    static void PNMWriteHeader_ASCII(void *Options, BitBuffer *BitB) {
+    void PNMWriteHeader(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNMOptions *PNM = Options;
-            /* Write the Width */
-            UTF8 *Width = UTF8_Integer2String(Base_Decimal_Radix10, PNM->Width);
-            BitBuffer_WriteUTF8(BitB, Width, WriteType_Sized);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, PNMEndField);
-            free(Width);
-            /* Write the Width */
-            
-            /* Write the Height */
-            UTF8 *Height = UTF8_Integer2String(Base_Decimal_Radix10, PNM->Height);
-            BitBuffer_WriteUTF8(BitB, Height, WriteType_Sized);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, PNMEndField);
-            free(Height);
-            /* Write the Height */
-        } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
-        } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
-        }
-    }
-    
-    static void PNMWriteHeader_Binary(void *Options, BitBuffer *BitB) {
-        if (Options != NULL && BitB != NULL) {
-            PNMOptions *PNM = Options;
-            /* Write the Width */
-            UTF8 *Width = UTF8_Integer2String(Base_Decimal_Radix10, PNM->Width);
-            BitBuffer_WriteUTF8(BitB, Width, WriteType_Sized);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
-            free(Width);
-            /* Write the Width */
-            
-            /* Write the Height */
-            UTF8 *Height = UTF8_Integer2String(Base_Decimal_Radix10, PNM->Height);
-            BitBuffer_WriteUTF8(BitB, Height, WriteType_Sized);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
-            free(Height);
-            /* Write the Height */
-            
-            /* Write the BitDepth */
-            uint64_t MaxVal    = Exponentiate(2, PNM->BitDepth) - 1;
-            UTF8    *BitDepth  = UTF8_Integer2String(Base_Decimal_Radix10, MaxVal);
-            BitBuffer_WriteUTF8(BitB, BitDepth, WriteType_Sized);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
-            free(BitDepth);
-            /* Write the BitDepth */
-        } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
-        } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
-        }
-    }
-    
-    static void PNMWriteHeader_PAM(void *Options, BitBuffer *BitB) {
-        if (Options != NULL && BitB != NULL) {
-            PNMOptions *PNM = Options;
-            BitBuffer_WriteUTF8(BitB, UTF8String("P7"), WriteType_Sized);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
-            
-            /* Write the Width */
-            UTF8 *Width         = UTF8_Integer2String(Base_Decimal_Radix10, PNM->Width);
-            BitBuffer_WriteUTF8(BitB, UTF8String("WIDTH "), WriteType_Sized);
-            BitBuffer_WriteUTF8(BitB, Width, WriteType_Sized);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
-            free(Width);
-            /* Write the Width */
-            
-            /* Write the Height */
-            UTF8 *Height = UTF8_Integer2String(Base_Decimal_Radix10, PNM->Height);
-            BitBuffer_WriteUTF8(BitB, UTF8String("HEIGHT "), WriteType_Sized);
-            BitBuffer_WriteUTF8(BitB, Height, WriteType_Sized);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
-            free(Height);
-            /* Write the Height */
-            
-            /* Write the NumChannels */
-            UTF8 *NumChannels = UTF8_Integer2String(Base_Decimal_Radix10, PNM->NumChannels);
-            BitBuffer_WriteUTF8(BitB, UTF8String("DEPTH "), WriteType_Sized);
-            BitBuffer_WriteUTF8(BitB, NumChannels, WriteType_Sized);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
-            free(NumChannels);
-            /* Write the NumChannels */
-            
-            /* Write the BitDepth */
-            uint64_t MaxVal = Exponentiate(2, PNM->BitDepth) - 1;
-            UTF8 *BitDepth  = UTF8_Integer2String(Base_Decimal_Radix10, MaxVal);
-            BitBuffer_WriteUTF8(BitB, UTF8String("MAXVAL "), WriteType_Sized);
-            BitBuffer_WriteUTF8(BitB, BitDepth, WriteType_Sized);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
-            free(BitDepth);
-            /* Write the BitDepth */
-            
-            /* Write the TUPLTYPE */
-            BitBuffer_WriteUTF8(BitB, UTF8String("TUPLTYPE "), WriteType_Sized);
-            PNMTupleTypes TupleType = PNM->TupleType;
-            if (TupleType == PNM_TUPLE_BnW) {
-                BitBuffer_WriteUTF8(BitB, UTF8String("BLACKANDWHITE"), WriteType_Sized);
-            } else if (TupleType == PNM_TUPLE_Gray) {
-                BitBuffer_WriteUTF8(BitB, UTF8String("GRAYSCALE"), WriteType_Sized);
-            } else if (TupleType == PNM_TUPLE_GrayAlpha) {
-                BitBuffer_WriteUTF8(BitB, UTF8String("GRAYSCALE_ALPHA"), WriteType_Sized);
-            } else if (TupleType == PNM_TUPLE_RGB) {
-                BitBuffer_WriteUTF8(BitB, UTF8String("RGB"), WriteType_Sized);
-            } else if (TupleType == PNM_TUPLE_RGBAlpha) {
-                BitBuffer_WriteUTF8(BitB, UTF8String("RGB_ALPHA"), WriteType_Sized);
+            if (PNM->Type == ASCIIPNM) {
+                /* Write the Width */
+                UTF8 *Width = UTF8_Integer2String(Base_Decimal_Radix10, PNM->Width);
+                BitBuffer_WriteUTF8(BitB, Width, WriteType_Sized);
+                BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, PNMEndField);
+                free(Width);
+                /* Write the Width */
+                
+                /* Write the Height */
+                UTF8 *Height = UTF8_Integer2String(Base_Decimal_Radix10, PNM->Height);
+                BitBuffer_WriteUTF8(BitB, Height, WriteType_Sized);
+                BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, PNMEndField);
+                free(Height);
+                /* Write the Height */
+            } else if (PNM->Type == BinaryPNM) {
+                /* Write the Width */
+                UTF8 *Width = UTF8_Integer2String(Base_Decimal_Radix10, PNM->Width);
+                BitBuffer_WriteUTF8(BitB, Width, WriteType_Sized);
+                BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
+                free(Width);
+                /* Write the Width */
+                
+                /* Write the Height */
+                UTF8 *Height = UTF8_Integer2String(Base_Decimal_Radix10, PNM->Height);
+                BitBuffer_WriteUTF8(BitB, Height, WriteType_Sized);
+                BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
+                free(Height);
+                /* Write the Height */
+                
+                /* Write the BitDepth */
+                uint64_t MaxVal    = Exponentiate(2, PNM->BitDepth) - 1;
+                UTF8    *BitDepth  = UTF8_Integer2String(Base_Decimal_Radix10, MaxVal);
+                BitBuffer_WriteUTF8(BitB, BitDepth, WriteType_Sized);
+                BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
+                free(BitDepth);
+                /* Write the BitDepth */
+            } else if (PNM->Type == PAMPNM) {
+                BitBuffer_WriteUTF8(BitB, UTF8String("P7"), WriteType_Sized);
+                BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
+                
+                /* Write the Width */
+                UTF8 *Width         = UTF8_Integer2String(Base_Decimal_Radix10, PNM->Width);
+                BitBuffer_WriteUTF8(BitB, UTF8String("WIDTH "), WriteType_Sized);
+                BitBuffer_WriteUTF8(BitB, Width, WriteType_Sized);
+                BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
+                free(Width);
+                /* Write the Width */
+                
+                /* Write the Height */
+                UTF8 *Height = UTF8_Integer2String(Base_Decimal_Radix10, PNM->Height);
+                BitBuffer_WriteUTF8(BitB, UTF8String("HEIGHT "), WriteType_Sized);
+                BitBuffer_WriteUTF8(BitB, Height, WriteType_Sized);
+                BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
+                free(Height);
+                /* Write the Height */
+                
+                /* Write the NumChannels */
+                UTF8 *NumChannels = UTF8_Integer2String(Base_Decimal_Radix10, PNM->NumChannels);
+                BitBuffer_WriteUTF8(BitB, UTF8String("DEPTH "), WriteType_Sized);
+                BitBuffer_WriteUTF8(BitB, NumChannels, WriteType_Sized);
+                BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
+                free(NumChannels);
+                /* Write the NumChannels */
+                
+                /* Write the BitDepth */
+                uint64_t MaxVal = Exponentiate(2, PNM->BitDepth) - 1;
+                UTF8 *BitDepth  = UTF8_Integer2String(Base_Decimal_Radix10, MaxVal);
+                BitBuffer_WriteUTF8(BitB, UTF8String("MAXVAL "), WriteType_Sized);
+                BitBuffer_WriteUTF8(BitB, BitDepth, WriteType_Sized);
+                BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
+                free(BitDepth);
+                /* Write the BitDepth */
+                
+                /* Write the TUPLTYPE */
+                BitBuffer_WriteUTF8(BitB, UTF8String("TUPLTYPE "), WriteType_Sized);
+                PNMTupleTypes TupleType = PNM->TupleType;
+                if (TupleType == PNM_TUPLE_BnW) {
+                    BitBuffer_WriteUTF8(BitB, UTF8String("BLACKANDWHITE"), WriteType_Sized);
+                } else if (TupleType == PNM_TUPLE_Gray) {
+                    BitBuffer_WriteUTF8(BitB, UTF8String("GRAYSCALE"), WriteType_Sized);
+                } else if (TupleType == PNM_TUPLE_GrayAlpha) {
+                    BitBuffer_WriteUTF8(BitB, UTF8String("GRAYSCALE_ALPHA"), WriteType_Sized);
+                } else if (TupleType == PNM_TUPLE_RGB) {
+                    BitBuffer_WriteUTF8(BitB, UTF8String("RGB"), WriteType_Sized);
+                } else if (TupleType == PNM_TUPLE_RGBAlpha) {
+                    BitBuffer_WriteUTF8(BitB, UTF8String("RGB_ALPHA"), WriteType_Sized);
+                }
+                BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
+                /* Write the TUPLTYPE */
+                
+                /* Write the ENDHDR */
+                BitBuffer_WriteUTF8(BitB, UTF8String("ENDHDR"), WriteType_Sized);
+                BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
+                /* Write the ENDHDR */
             }
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
-            /* Write the TUPLTYPE */
-            
-            /* Write the ENDHDR */
-            BitBuffer_WriteUTF8(BitB, UTF8String("ENDHDR"), WriteType_Sized);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 0x0A);
-            /* Write the ENDHDR */
         } else if (Options == NULL) {
             Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -126,7 +110,7 @@ extern "C" {
         }
     }
     
-    void PNMInsertImage(void *Options, void *Container, BitBuffer *BitB) { // void *Options, void *Contanier, BitBuffer *BitB
+    void PNMInsertImage(void *Options, void *Container, BitBuffer *BitB) {
         if (Options != NULL && Container != NULL && BitB != NULL) {
             PNMOptions *PNM       = Options;
             ImageContainer *Image = Container;
@@ -162,66 +146,39 @@ extern "C" {
         }
     }
     
-    static void RegisterEncoder_PNM(OVIA *Ovia) {
-        Ovia->NumEncoders                                    += 1;
-        uint64_t EncoderIndex                                 = Ovia->NumDecoders - 1;
-        Ovia->Encoders                                        = realloc(Ovia->Encoders, sizeof(OVIAEncoder) * Ovia->NumEncoders);
-        
-        Ovia->Encoders[EncoderIndex].EncoderID                = CodecID_PNM;
-        Ovia->Encoders[EncoderIndex].MediaType                = MediaType_Image;
-        
-        /* MagicID 0 */
-        Ovia->Encoders[EncoderIndex].Function_Initialize[0]   = PNMOptions_Init;
-        Ovia->Encoders[EncoderIndex].Function_WriteHeader[0]  = PNMWriteHeader_ASCII;
-        Ovia->Encoders[EncoderIndex].Function_Encode[0]       = PNMInsertImage;
-        Ovia->Encoders[EncoderIndex].Function_Deinitialize[0] = PNMOptions_Deinit;
-        /* MagicID 0 */
-        
-        /* MagicID 1 */
-        Ovia->Encoders[EncoderIndex].Function_Initialize[1]   = PNMOptions_Init;
-        Ovia->Encoders[EncoderIndex].Function_WriteHeader[1]  = PNMWriteHeader_ASCII;
-        Ovia->Encoders[EncoderIndex].Function_Encode[1]       = PNMInsertImage;
-        Ovia->Encoders[EncoderIndex].Function_Deinitialize[1] = PNMOptions_Deinit;
-        /* MagicID 1 */
-        
-        /* MagicID 2 */
-        Ovia->Encoders[EncoderIndex].Function_Initialize[2]   = PNMOptions_Init;
-        Ovia->Encoders[EncoderIndex].Function_WriteHeader[2]  = PNMWriteHeader_ASCII;
-        Ovia->Encoders[EncoderIndex].Function_Encode[2]       = PNMInsertImage;
-        Ovia->Encoders[EncoderIndex].Function_Deinitialize[2] = PNMOptions_Deinit;
-        /* MagicID 2 */ // Last ASCII
-        
-        /* MagicID 3 */
-        Ovia->Encoders[EncoderIndex].Function_Initialize[3]   = PNMOptions_Init;
-        Ovia->Encoders[EncoderIndex].Function_WriteHeader[3]  = PNMWriteHeader_Binary;
-        Ovia->Encoders[EncoderIndex].Function_Encode[3]       = PNMInsertImage;
-        Ovia->Encoders[EncoderIndex].Function_Deinitialize[3] = PNMOptions_Deinit;
-        /* MagicID 3 */
-        
-        /* MagicID 4 */
-        Ovia->Encoders[EncoderIndex].Function_Initialize[4]   = PNMOptions_Init;
-        Ovia->Encoders[EncoderIndex].Function_WriteHeader[4]  = PNMWriteHeader_Binary;
-        Ovia->Encoders[EncoderIndex].Function_Encode[4]       = PNMInsertImage;
-        Ovia->Encoders[EncoderIndex].Function_Deinitialize[4] = PNMOptions_Deinit;
-        /* MagicID 4 */
-        
-        /* MagicID 5 */
-        Ovia->Encoders[EncoderIndex].Function_Initialize[5]   = PNMOptions_Init;
-        Ovia->Encoders[EncoderIndex].Function_WriteHeader[5]  = PNMWriteHeader_Binary;
-        Ovia->Encoders[EncoderIndex].Function_Encode[5]       = PNMInsertImage;
-        Ovia->Encoders[EncoderIndex].Function_Deinitialize[5] = PNMOptions_Deinit;
-        /* MagicID 5 */
-        
-        /* MagicID 6 */
-        Ovia->Encoders[EncoderIndex].Function_Initialize[6]   = PNMOptions_Init;
-        Ovia->Encoders[EncoderIndex].Function_WriteHeader[6]  = PNMWriteHeader_PAM;
-        Ovia->Encoders[EncoderIndex].Function_Encode[6]       = PNMInsertImage;
-        Ovia->Encoders[EncoderIndex].Function_Deinitialize[6] = PNMOptions_Deinit;
-        /* MagicID 6 */
+    void PNMWriteFooter(void *Options, BitBuffer *BitB) {
+        if (Options != NULL && BitB != NULL) {
+            PNMOptions *PNM = Options;
+            if (PNM->Type == PAMPNM) {
+                BitBuffer_WriteUTF8(BitB, UTF8String("ENDHDR"), WriteType_Sized);
+            }
+        } else if (Options == NULL) {
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+        } else if (BitB == NULL) {
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+        }
     }
     
-    static OVIACodecRegistry Register_PNMEncoder = {
-        .Function_RegisterEncoder[CodecID_PNM - 1]            = RegisterEncoder_PNM,
+#define PNMNumExtensions 5
+    
+    static const UTF32 *PNMExtensions[PNMNumExtensions] = {
+        [0] = UTF32String("pbm"),
+        [1] = UTF32String("pgm"),
+        [2] = UTF32String("ppm"),
+        [3] = UTF32String("pnm"),
+        [4] = UTF32String("pam"),
+    };
+    
+    static const OVIAEncoder PNMEncoder = {
+        .EncoderID             = CodecID_PNM,
+        .MediaType             = MediaType_Image,
+        .NumExtensions         = PNMNumExtensions,
+        .Extensions            = PNMExtensions,
+        .Function_Initialize   = PNMOptions_Init,
+        .Function_WriteHeader  = PNMWriteHeader,
+        .Function_Encode       = PNMInsertImage,
+        .Function_WriteFooter  = PNMWriteFooter,
+        .Function_Deinitialize = PNMOptions_Deinit,
     };
     
 #ifdef __cplusplus

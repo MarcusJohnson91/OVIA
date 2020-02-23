@@ -73,22 +73,21 @@ extern "C" {
         }
     }
     
-    static void RegisterEncoder_FLAC(OVIA *Ovia) {
-        Ovia->NumEncoders                                    += 1;
-        uint64_t EncoderIndex                                 = Ovia->NumEncoders;
-        Ovia->Encoders                                        = realloc(Ovia->Encoders, sizeof(OVIAEncoder) * Ovia->NumEncoders);
-        
-        Ovia->Encoders[EncoderIndex].EncoderID                = CodecID_FLAC;
-        Ovia->Encoders[EncoderIndex].MediaType                = MediaType_Audio2D;
-        Ovia->Encoders[EncoderIndex].Function_Initialize[0]   = FLACOptions_Init;
-        Ovia->Encoders[EncoderIndex].Function_WriteHeader[0]  = FLAC_WriteStreamInfo; // Make a new function that wrap up all this stuff called WriteHeader
-        Ovia->Encoders[EncoderIndex].Function_Encode[0]       = FLAC_Encode;
-        Ovia->Encoders[EncoderIndex].Function_WriteFooter[0]  = NULL;
-        Ovia->Encoders[EncoderIndex].Function_Deinitialize[0] = FLACOptions_Deinit;
-    }
+#define NumFLACExtensions 1
     
-    static OVIACodecRegistry Register_FLACEncoder = {
-        .Function_RegisterEncoder[CodecID_FLAC - 1]   = RegisterEncoder_FLAC,
+    static const UTF32 *FLACExtensions[NumFLACExtensions] = {
+        [0] = UTF32String("flac"),
+    };
+    
+    static const OVIAEncoder FLACEncoder = {
+        .EncoderID             = CodecID_FLAC,
+        .MediaType             = MediaType_Audio2D,
+        .NumExtensions         = NumFLACExtensions,
+        .Extensions            = FLACExtensions,
+        .Function_Initialize   = FLACOptions_Init,
+        .Function_WriteHeader  = FLAC_WriteStreamInfo,
+        .Function_Encode       = FLAC_Encode,
+        .Function_Deinitialize = FLACOptions_Deinit,
     };
     
 #ifdef __cplusplus

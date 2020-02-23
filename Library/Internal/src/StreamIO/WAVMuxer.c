@@ -139,22 +139,23 @@ extern "C" {
         }
     }
     
-    static void RegisterEncoder_WAV(OVIA *Ovia) {
-        Ovia->NumEncoders                                    += 1;
-        uint64_t EncoderIndex                                 = Ovia->NumEncoders;
-        Ovia->Encoders                                        = realloc(Ovia->Encoders, sizeof(OVIAEncoder) * Ovia->NumEncoders);
-        
-        Ovia->Encoders[EncoderIndex].EncoderID                = CodecID_WAV;
-        Ovia->Encoders[EncoderIndex].MediaType                = MediaType_Audio2D;
-        Ovia->Encoders[EncoderIndex].Function_Initialize[0]   = WAVOptions_Init;
-        Ovia->Encoders[EncoderIndex].Function_WriteHeader[0]  = WAVWriteHeader;
-        Ovia->Encoders[EncoderIndex].Function_Encode[0]       = WAVAppendSamples;
-        Ovia->Encoders[EncoderIndex].Function_WriteFooter[0]  = NULL;
-        Ovia->Encoders[EncoderIndex].Function_Deinitialize[0] = WAVOptions_Deinit;
-    }
+#define WAVNumExtensions 2
     
-    static OVIACodecRegistry Register_WAVEncoder = {
-        .Function_RegisterEncoder[CodecID_WAV - 1]   = RegisterEncoder_WAV,
+    static const UTF32 *WAVExtensions[WAVNumExtensions] = {
+        [0] = UTF32String("wav"),
+        [1] = UTF32String("wave"),
+    };
+    
+    static const OVIAEncoder WAVEncoder = {
+        .EncoderID             = CodecID_WAV,
+        .MediaType             = MediaType_Audio2D,
+        .NumExtensions         = WAVNumExtensions,
+        .Extensions            = WAVExtensions,
+        .Function_Initialize   = WAVOptions_Init,
+        .Function_WriteHeader  = WAVWriteHeader,
+        .Function_Encode       = WAVAppendSamples,
+        .Function_WriteFooter  = NULL,
+        .Function_Deinitialize = WAVOptions_Deinit,
     };
     
 #ifdef __cplusplus

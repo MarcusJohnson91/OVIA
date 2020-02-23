@@ -40,19 +40,6 @@ extern "C" {
         PNMEndField           = 0x0A,
     } PNMConstants;
     
-    /*
-    enum PNMMagic {
-        PNM_PBMA = 0x5031, // PortableBitMapASCII
-        PNM_PGMA = 0x5032, // PortableGrayMapASCII
-        PNM_PPMA = 0x5033, // PortablePixMapASCII
-        
-        PNM_PBMB = 0x5034, // PortableBitMapBinary
-        PNM_PGMB = 0x5035, // PortableGrayMapBinary
-        PNM_PPMB = 0x5036, // PortablePixMapBinary
-        
-        PNM_PAMB = 0x5037, // PortableAnyMap
-    } PNMMagic;
-    */
     typedef struct PNMOptions {
         uint64_t      Height;
         uint64_t      Width;
@@ -63,6 +50,16 @@ extern "C" {
     } PNMOptions;
     
     void *PNMOptions_Init(void);
+    
+    void PNMReadHeader(void *Options, BitBuffer *BitB);
+    
+    void *PNMExtractImage(void *Options, BitBuffer *BitB);
+    
+    void PNMWriteHeader(void *Options, BitBuffer *BitB);
+    
+    void PNMInsertImage(void *Options, void *Container, BitBuffer *BitB);
+    
+    void PNMWriteFooter(void *Options, BitBuffer *BitB);
     
     void PNMOptions_Deinit(void *Options);
     

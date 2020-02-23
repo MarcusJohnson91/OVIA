@@ -99,7 +99,8 @@ extern "C" {
         CodecID_PNG           = 6,
         CodecID_PNM           = 7,
         CodecID_JPEG          = 8,
-        OVIA_NumCodecs        = CodecID_JPEG,
+        CodecID_LastCodec     = CodecID_JPEG,
+        OVIA_NumCodecs        = CodecID_LastCodec,
     } OVIA_CodecIDs;
     
     typedef enum OVIA_ColorTransforms {

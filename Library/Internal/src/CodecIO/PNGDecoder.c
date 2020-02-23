@@ -1016,33 +1016,49 @@ extern "C" {
         return Image;
     }
     
-    /*
-     DAT blocks and zlib blocks have absolutely no relationship.
-     
-     So the DAT parsing needs to be seperate from Zlib block parsing.
-     
-     So, in the zlib blocks we have the precode table, 
-     */
+#define NumPNGMagicIDs 3
     
-    static void RegisterDecoder_PNG(OVIA *Ovia) {
-        Ovia->NumDecoders                                    += 1;
-        uint64_t DecoderIndex                                 = Ovia->NumDecoders;
-        Ovia->Decoders                                        = realloc(Ovia->Decoders, sizeof(OVIADecoder) * Ovia->NumDecoders);
-        
-        Ovia->Decoders[DecoderIndex].DecoderID                = CodecID_PNG;
-        Ovia->Decoders[DecoderIndex].MediaType                = MediaType_Image;
-        Ovia->Decoders[DecoderIndex].NumMagicIDs              = 1;
-        Ovia->Decoders[DecoderIndex].MagicIDOffsetInBits[0]   = 0;
-        Ovia->Decoders[DecoderIndex].MagicIDSizeInBits[0]     = 64;
-        Ovia->Decoders[DecoderIndex].MagicID[0]               = (uint8_t[8]){0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
-        Ovia->Decoders[DecoderIndex].Function_Initialize[0]   = PNGOptions_Init;
-        Ovia->Decoders[DecoderIndex].Function_Read[0]         = PNG_ReadChunks;
-        Ovia->Decoders[DecoderIndex].Function_Decode[0]       = PNGExtractImage;
-        Ovia->Decoders[DecoderIndex].Function_Deinitialize[0] = PNGOptions_Deinit;
-    }
+    static const MagicIDSizes PNGMagicIDSize = {
+        .NumSizes              = NumPNGMagicIDs,
+        .Sizes                 = {
+            [0]                = 8,
+            [1]                = 8,
+            [2]                = 8,
+        },
+    };
     
-    static OVIACodecRegistry Register_PNGDecoder = {
-        .Function_RegisterDecoder[CodecID_PNG - 1]            = RegisterDecoder_PNG,
+    static const MagicIDOffsets PNGMagicIDOffset = {
+        .NumOffsets            = NumPNGMagicIDs,
+        .Offsets               = {
+            [0]                = 0,
+            [1]                = 0,
+            [2]                = 0,
+        },
+    };
+    
+    static const MagicIDNumbers PNGMagicIDNumber = {
+        .NumMagicIDs           = NumPNGMagicIDs,
+        .MagicNumbers          = {
+            [0]                = (uint8_t[8]){0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A},
+            [1]                = (uint8_t[8]){0x8A, 0x4D, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A},
+            [2]                = (uint8_t[8]){0x8B, 0x4A, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A},
+        },
+    };
+    
+    static const MagicIDs PNGMagicIDs = {
+        .Sizes                 = &PNGMagicIDSize,
+        .Offsets               = &PNGMagicIDOffset,
+        .Number                = &PNGMagicIDNumber,
+    };
+    
+    static const OVIADecoder PNGDecoder = {
+        .Function_Initialize   = PNGOptions_Init,
+        .Function_Decode       = PNGExtractImage,
+        .Function_Read         = PNG_ReadChunks,
+        .Function_Deinitialize = PNGOptions_Deinit,
+        .MagicID               = &PNGMagicIDs,
+        .MediaType             = MediaType_Image,
+        .DecoderID             = CodecID_PNG,
     };
     
 #ifdef __cplusplus

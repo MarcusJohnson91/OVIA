@@ -227,9 +227,17 @@ extern "C" {
     
     void *WAVOptions_Init(void);
     
-    void WAVSkipPadding(BitBuffer *BitB, uint32_t SubChunkSize);
+    void  WAVSkipPadding(BitBuffer *BitB, uint32_t SubChunkSize);
     
-    void WAVOptions_Deinit(void *Options);
+    void WAVReadMetadata(void *Options, BitBuffer *BitB);
+    
+    void *WAVExtractSamples(void *Options, BitBuffer *BitB);
+    
+    void WAVWriteHeader(void *Options, BitBuffer *BitB);
+    
+    void WAVAppendSamples(void *Options, void *Contanier, BitBuffer *BitB);
+    
+    void  WAVOptions_Deinit(void *Options);
     
 #ifdef __cplusplus
 }

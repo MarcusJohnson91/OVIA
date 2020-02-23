@@ -266,6 +266,18 @@ extern "C" {
     
     void        FLACOptions_Deinit(void *Options);
     
+#define NumFLACMIMETypes 1
+    
+    static const UTF32 *FLACMIMETypes[NumFLACMIMETypes] = {
+        [0] = UTF32String("audio/flac"),
+    };
+    
+#define NumFLACUniformTypeIDs 1
+    
+    static const UTF32 *FLACUniformTypeIDs[NumFLACUniformTypeIDs] = {
+        [0] = UTF32String("org.xiph.flac"),
+    };
+    
 #ifdef __cplusplus
 }
 #endif

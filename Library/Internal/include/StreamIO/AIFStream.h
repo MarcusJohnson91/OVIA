@@ -82,6 +82,21 @@ extern "C" {
     
     void              AIFOptions_Deinit(void *Options);
     
+#define NumAIFMIMETypes 2
+    
+    static const UTF32 *AIFMIMETypes[NumAIFMIMETypes] = {
+        [0] = UTF32String("audio/aiff"),
+        [1] = UTF32String("audio/x-aiff"),
+    };
+    
+#define NumAIFUniformTypeIDs 2
+    
+    static const UTF32 *AIFUniformTypeIDs[NumAIFUniformTypeIDs] = {
+        [0] = UTF32String("public.aiff-audio"),
+        [1] = UTF32String("public.aifc-audio"),
+    };
+    
+    
 #ifdef __cplusplus
 }
 #endif

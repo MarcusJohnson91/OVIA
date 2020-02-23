@@ -110,22 +110,21 @@ extern "C" {
         }
     }
     
-    static void RegisterEncoder_W64(OVIA *Ovia) {
-        Ovia->NumEncoders                                    += 1;
-        uint64_t EncoderIndex                                 = Ovia->NumEncoders;
-        Ovia->Encoders                                        = realloc(Ovia->Encoders, sizeof(OVIAEncoder) * Ovia->NumEncoders);
-        
-        Ovia->Encoders[EncoderIndex].EncoderID                = CodecID_W64;
-        Ovia->Encoders[EncoderIndex].MediaType                = MediaType_Audio2D;
-        Ovia->Encoders[EncoderIndex].Function_Initialize[0]   = W64Options_Init;
-        Ovia->Encoders[EncoderIndex].Function_WriteHeader[0]  = W64WriteHeader;
-        Ovia->Encoders[EncoderIndex].Function_Encode[0]       = W64AppendSamples;
-        Ovia->Encoders[EncoderIndex].Function_WriteFooter[0]  = NULL;
-        Ovia->Encoders[EncoderIndex].Function_Deinitialize[0] = W64Options_Deinit;
-    }
+#define NumW64Extensions 1
     
-    static OVIACodecRegistry Register_W64Encoder = {
-        .Function_RegisterEncoder[CodecID_W64 - 1]            = RegisterEncoder_W64,
+    static const UTF32 *W64Extensions[NumW64Extensions] = {
+        [0] = UTF32String("w64"),
+    };
+    
+    static const OVIAEncoder W64Encoder = {
+        .EncoderID             = CodecID_W64,
+        .MediaType             = MediaType_Audio2D,
+        .NumExtensions         = NumW64Extensions,
+        .Extensions            = W64Extensions,
+        .Function_Initialize   = W64Options_Init,
+        .Function_WriteHeader  = W64WriteHeader,
+        .Function_Encode       = W64AppendSamples,
+        .Function_Deinitialize = W64Options_Deinit,
     };
     
 #ifdef __cplusplus

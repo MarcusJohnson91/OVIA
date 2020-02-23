@@ -394,22 +394,25 @@ extern "C" {
         }
     }
     
-    static void RegisterEncoder_PNG(OVIA *Ovia) {
-        Ovia->NumEncoders                                    += 1;
-        uint64_t EncoderIndex                                 = Ovia->NumEncoders;
-        Ovia->Encoders                                        = realloc(Ovia->Encoders, sizeof(OVIAEncoder) * Ovia->NumEncoders);
-        
-        Ovia->Encoders[EncoderIndex].EncoderID                = CodecID_PNG;
-        Ovia->Encoders[EncoderIndex].MediaType                = MediaType_Image;
-        Ovia->Encoders[EncoderIndex].Function_Initialize[0]   = PNGOptions_Init;
-        Ovia->Encoders[EncoderIndex].Function_WriteHeader[0]  = PNGWriteHeader;
-        Ovia->Encoders[EncoderIndex].Function_Encode[0]       = PNG_Image_Insert;
-        Ovia->Encoders[EncoderIndex].Function_WriteFooter[0]  = PNGWriteFooter;
-        Ovia->Encoders[EncoderIndex].Function_Deinitialize[0] = PNGOptions_Deinit;
-    }
+#define NumPNGExtensions 4
     
-    static OVIACodecRegistry Register_PNGEncoder = {
-        .Function_RegisterEncoder[CodecID_PNG - 1]            = RegisterEncoder_PNG,
+    static const UTF32 *PNGExtensions[NumPNGExtensions] = {
+        [0] = UTF32String("png"),
+        [1] = UTF32String("apng"),
+        [2] = UTF32String("mng"),
+        [3] = UTF32String("jng"),
+    };
+    
+    static const OVIAEncoder PNGEncoder = {
+        .EncoderID             = CodecID_PNG,
+        .MediaType             = MediaType_Image,
+        .NumExtensions         = NumPNGExtensions,
+        .Extensions            = PNGExtensions,
+        .Function_Initialize   = PNGOptions_Init,
+        .Function_WriteHeader  = PNGWriteHeader,
+        .Function_Encode       = PNG_Image_Insert,
+        .Function_WriteFooter  = PNGWriteFooter,
+        .Function_Deinitialize = PNGOptions_Deinit,
     };
     
 #ifdef __cplusplus

@@ -142,7 +142,7 @@ extern "C" {
         
         for (uint64_t Decoder = 0ULL; Decoder < Ovia->NumDecoders; Decoder++) {
             for (uint64_t MagicID = 0ULL; MagicID < Ovia->Decoders[Decoder].NumMagicIDs; MagicID++) {
-                BitBuffer_Seek(BitB, Ovia->Decoders[Decoder].MagicIDOffset[MagicID]);
+                BitBuffer_Seek(BitB, Ovia->Decoders[Decoder].MagicIDOffsetInBits[MagicID]);
                 for (uint64_t MagicIDByte = 0ULL; MagicIDByte < Ovia->Decoders[Decoder].MagicIDSizeInBits[Decoder]; MagicIDByte++) {
                     uint8_t ExtractedByte = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8); // Should we put a bit order field in the magic id thing?
                     if (ExtractedByte != Ovia->Decoders[Decoder].MagicID[MagicIDByte]) {
@@ -183,43 +183,6 @@ extern "C" {
         }
     }
     
-    
-    
-    
-    
-    
-    
-    
-    /*
-     static void RegisterEncoder_PNG(OVIA *Ovia) {
-     Ovia->NumEncoders                                 += 1;
-     uint64_t EncoderIndex                              = Ovia->NumEncoders;
-     Ovia->Encoders                                     = realloc(Ovia->Encoders, sizeof(OVIAEncoder) * Ovia->NumEncoders);
-     
-     Ovia->Encoders[EncoderIndex].EncoderID             = CodecID_PNG;
-     Ovia->Encoders[EncoderIndex].MediaType             = MediaType_Image;
-     Ovia->Encoders[EncoderIndex].Function_Initialize   = PNGOptions_Init;
-     Ovia->Encoders[EncoderIndex].Function_WriteHeader  = PNGWriteHeader;
-     Ovia->Encoders[EncoderIndex].Function_Encode       = PNG_Image_Insert;
-     Ovia->Encoders[EncoderIndex].Function_WriteFooter  = PNGWriteFooter;
-     Ovia->Encoders[EncoderIndex].Function_Deinitialize = PNGOptions_Deinit;
-     }
-     
-     static OVIACodecRegistry Register_PNGEncoder = {
-     .Function_RegisterEncoder[CodecID_PNG]   = RegisterEncoder_PNG,
-     };
-     */
-    
-    /*
-     So, RegisterEncoder_PNG get called at runtime by OVIA_Init.
-     
-     RegisterEncoder_PNG gets registered with OVIA through the Global OVIACodecRegistry, which OVIA_Init traverses to get a list of functions to call to register all the codecs.
-     
-     So, we need to have a global variable storing the number of Encoders and the number of Decoders.
-     
-     
-     */
-    
     OVIA *OVIA_Init(void) {
         OVIA *Ovia            = calloc(1, sizeof(OVIA));
         if (Ovia != NULL) {
@@ -227,12 +190,8 @@ extern "C" {
             Ovia->Decoders    = calloc(OVIA_NumCodecs, sizeof(OVIADecoder));
             Ovia->NumDecoders = OVIA_NumCodecs;
             Ovia->NumEncoders = OVIA_NumCodecs;
-            /*
-             for (uint8_t Codec = 0; Codec < OVIA_NumCodecs; Codec++) {
-             Registry.Function_RegisterEncoder[Codec](Ovia, Ovia->Encoders);
-             Registry.Function_RegisterDecoder[Codec](Ovia, Ovia->Decoders);
-             }
-             */
+        } else {
+            OVIA_Deinit(Ovia);
         }
         return Ovia;
     }

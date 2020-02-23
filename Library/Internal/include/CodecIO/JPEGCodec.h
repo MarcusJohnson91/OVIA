@@ -19,8 +19,13 @@ extern "C" {
     
     /* !!!ONLY LOSSLESS JPEG CODECS WILL EVER BE SUPPORTED!!! */
     
+    typedef enum JPEGCommon {
+        NumBitCounts = 16,
+    } JPEGCommon;
+    
     typedef enum JPEG_Markers {
-        Marker_StartOfImage           = 0xFFD8, // SOI, Magic; No SIZE
+        // Size-less markers: StartOfImage, EndOfImage, Restart0..7
+        Marker_StartOfImage           = 0xFFD8, // SOI, Magic
         Marker_StartOfFrameLossless1  = 0xFFC3, // SOF3, Start of Frame, Lossless, non-differential, Huffman
         Marker_StartOfFrameLossless2  = 0xFFC7, // SOF7, Start of Frame, Lossless, Differential, Huffman
         Marker_StartOfFrameLossless3  = 0xFFCB, // SOF11, Start of Frame, Lossless, non-differential, Arithmetic
@@ -44,18 +49,19 @@ extern "C" {
         Marker_Restart5               = 0xFFD5, // RST5
         Marker_Restart6               = 0xFFD6, // RST6
         Marker_Restart7               = 0xFFD7, // RST7
-        Marker_EndOfImage             = 0xFFD9, // EOI; No SIZE
+        Marker_EndOfImage             = 0xFFD9, // EOI
     } JPEG_Markers;
     
     typedef enum JPEG_Predictors {
         Predictor_Unknown = 0,
-        Predictor_1       = 1, // PredictedX = RA
-        Predictor_2       = 2, // PredictedX = RB
-        Predictor_3       = 3, // PredictedX = RC
-        Predictor_4       = 4, // PredictedX = RA + RB - RC
-        Predictor_5       = 5, // PredictedX = Ra + ((Rb – Rc)/2)>>A)
-        Predictor_6       = 6, // PredictedX = Rb + ((Ra – Rc)/2)>>A)
-        Predictor_7       = 7, // PredictedX = (Ra+Rb) / 2
+        Predictor_0       = 1, // No Prediction
+        Predictor_1       = 2, // PredictedX = RA
+        Predictor_2       = 3, // PredictedX = RB
+        Predictor_3       = 4, // PredictedX = RC
+        Predictor_4       = 5, // PredictedX = RA + RB - RC
+        Predictor_5       = 6, // PredictedX = Ra + ((Rb – Rc)/2)>>A)
+        Predictor_6       = 7, // PredictedX = Rb + ((Ra – Rc)/2)>>A)
+        Predictor_7       = 8, // PredictedX = (Ra+Rb) / 2
     } JPEG_Predictors;
     
     typedef struct ComponentParameters {
@@ -65,11 +71,43 @@ extern "C" {
     } ComponentParameters;
     
     typedef struct HuffmanTable {
-        uint8_t  *NumBits; // Values[1..3] = 4, 5, 6
-        uint8_t   TableID; // 0 = Luma, 1 = Chroma
-        uint8_t   BitLengths[16];
+        uint16_t **CodeValue; // Codes are the Huffman value in the stream, Values are their meanings
+        uint16_t   NumCodes;
+        uint8_t  *NumBits;      // Values[1..3] = 4, 5, 6
+        uint8_t   TableID;      // 0 = Luma, 1 = Chroma
         uint16_t  EndOfBlockCode;
     } HuffmanTable;
+    
+    typedef struct HuffmanKey {
+        uint16_t Symbol; // The actual Huffman code written
+        uint8_t  Value;  // The number the Huffman symbol represents
+    } HuffmanKey;
+    
+    typedef struct HuffmanTable2 {
+        //uint8_t      NumBitLengthCounts; // Always 16
+        uint8_t      TableClass;
+        uint8_t      TableID;
+        HuffmanKey **Keys; // Keys[0][X], 0 = BitLength1, X = Key Number
+        /*
+         
+         Table[BitLength] = [BitLength]{}
+         
+         BitLength[2] = 3 Keys
+         
+         How do we store an array of keys tho, NULL terminated array of Arrays?
+         
+         
+         
+         */
+    } HuffmanTable2;
+    
+    typedef struct HuffmanTable3 {
+        // Just the Code and the Value
+        uint8_t  *BitLengthCounts;
+        uint16_t *Codes;
+        uint8_t  *Values;
+        uint8_t   TableID;
+    } HuffmanTable3;
     
     typedef struct ArithmeticTable {
         uint16_t CodeLength;
@@ -78,14 +116,11 @@ extern "C" {
         uint8_t  CodeValue;
     } ArithmeticTable;
     
-    typedef struct HuffmanNode {
-        
-    } HuffmanNode;
-    
-    typedef struct HuffmanTree {
-        HuffmanNode *Left;  // 0
-        HuffmanNode *Right; // 1
-    } HuffmanTree;
+    typedef enum JPEG_CompressionModes {
+        CompressionMode_Unknown  = 0,
+        CompressionMode_Lossy    = 1, // Unsupported
+        CompressionMode_Lossless = 2,
+    } JPEG_CompressionModes;
     
     typedef enum JPEG_EntropyCoders {
         EntropyCoder_Unknown    = 0,
@@ -94,15 +129,23 @@ extern "C" {
     } JPEG_EntropyCoders;
     
     typedef struct JPEGOptions {
-        ComponentParameters *Components;
-        HuffmanTable       **Huffman;
-        ArithmeticTable     *Arithmetic;
-        uint16_t             Width;
-        uint16_t             Height;
-        uint16_t             RestartInterval; // in Minimum Coding Units
-        uint8_t              BitDepth;
-        uint8_t              NumChannels;
-        JPEG_EntropyCoders   EntropyCoder; //
+        ComponentParameters  *Components;
+        HuffmanTable3       **Huffman;
+        //HuffmanKey         **Keys;
+        //HuffmanTable       **Huffman;
+        ArithmeticTable      *Arithmetic;
+        uint16_t              Width;
+        uint16_t              Height;
+        uint16_t              RestartInterval; // in Minimum Coding Units
+        uint16_t              SamplesPerLine;
+        uint8_t               HuffmanTableCount;
+        uint8_t               BitDepth;
+        uint8_t               NumChannels;
+        uint8_t               Predictor;
+        uint8_t               ComponentSelector;
+        uint8_t               PointTransform;
+        JPEG_EntropyCoders    EntropyCoder;
+        JPEG_CompressionModes Mode;
     } JPEGOptions;
     
     /*
@@ -128,9 +171,17 @@ extern "C" {
     
     void           *JPEGOptions_Init(void);
     
-    void            JPEG_Parse(void *Options, BitBuffer *BitB);
+    void            JPEG_ReadSegments(void *Options, BitBuffer *BitB);
     
-    ImageContainer *JPEG_Extract(void *Options, BitBuffer *BitB);
+    void           *JPEG_Extract(void *Options, BitBuffer *BitB);
+    
+    void            JPEG_BuildTable(JPEGOptions *JPEG, uint8_t TableID, uint8_t *BitLengthCounts, uint8_t NumValues, uint8_t *Values);
+    
+    void            JPEGWriteHeader(void *Options, BitBuffer *BitB);
+    
+    void            JPEGWriteImage(void *Options, void *Container, BitBuffer *BitB);
+    
+    void            JPEGWriteFooter(void *Options, BitBuffer *BitB);
     
     void            JPEGOptions_Deinit(void *Options);
     

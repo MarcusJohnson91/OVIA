@@ -278,25 +278,59 @@ extern "C" {
         return Audio;
     }
     
-    static void RegisterDecoder_WAV(OVIA *Ovia) {
-        Ovia->NumDecoders                                    += 1;
-        uint64_t DecoderIndex                                 = Ovia->NumDecoders;
-        Ovia->Decoders                                        = realloc(Ovia->Decoders, sizeof(OVIADecoder) * Ovia->NumDecoders);
-        
-        Ovia->Decoders[DecoderIndex].DecoderID                = CodecID_WAV;
-        Ovia->Decoders[DecoderIndex].MediaType                = MediaType_Audio2D;
-        Ovia->Decoders[DecoderIndex].NumMagicIDs              = 1;
-        Ovia->Decoders[DecoderIndex].MagicIDOffsetInBits[0]   = 0;
-        Ovia->Decoders[DecoderIndex].MagicIDSizeInBits[0]     = 16;
-        Ovia->Decoders[DecoderIndex].MagicID[0]               = (uint8_t[2]) {0x50, 0x37};
-        Ovia->Decoders[DecoderIndex].Function_Initialize[0]   = WAVOptions_Init;
-        Ovia->Decoders[DecoderIndex].Function_Read[0]         = WAVReadMetadata;
-        Ovia->Decoders[DecoderIndex].Function_Decode[0]       = WAVExtractSamples;
-        Ovia->Decoders[DecoderIndex].Function_Deinitialize[0] = WAVOptions_Deinit;
-    }
+    static const MagicIDSizes WAVMagicIDSize = {
+        .NumSizes = 3,
+        .Sizes    = {
+            [0]   = 2,
+            [1]   = 2,
+            [2]   = 2,
+            [3]   = 2,
+            [4]   = 2,
+            [5]   = 2,
+            [6]   = 2,
+        },
+    };
     
-    static OVIACodecRegistry Register_WAVDecoder = {
-        .Function_RegisterEncoder[CodecID_WAV - 1]   = RegisterDecoder_WAV,
+    static const MagicIDOffsets WAVMagicIDOffset = {
+        .NumOffsets = 3,
+        .Offsets    = {
+            [0]     = 0,
+            [1]     = 0,
+            [2]     = 0,
+            [3]     = 0,
+            [4]     = 0,
+            [5]     = 0,
+            [6]     = 0,
+        },
+    };
+    
+    static const MagicIDNumbers WAVMagicIDNumber = {
+        .NumMagicIDs  = 7,
+        .MagicNumbers = {
+            [0]       = (uint8_t[2]){0x50, 0x31},
+            [1]       = (uint8_t[2]){0x50, 0x32},
+            [2]       = (uint8_t[2]){0x50, 0x33},
+            [3]       = (uint8_t[2]){0x50, 0x34},
+            [4]       = (uint8_t[2]){0x50, 0x35},
+            [5]       = (uint8_t[2]){0x50, 0x36},
+            [6]       = (uint8_t[2]){0x50, 0x37},
+        },
+    };
+    
+    static const MagicIDs WAVMagicIDs = {
+        .Sizes                 = &WAVMagicIDSize,
+        .Offsets               = &WAVMagicIDOffset,
+        .Number                = &WAVMagicIDNumber,
+    };
+    
+    static const OVIADecoder WAVDecoder = {
+        .Function_Initialize   = WAVOptions_Init,
+        .Function_Decode       = WAVExtractSamples,
+        .Function_Read         = WAVReadMetadata,
+        .Function_Deinitialize = WAVOptions_Deinit,
+        .MagicID               = &WAVMagicIDs,
+        .MediaType             = MediaType_Audio2D,
+        .DecoderID             = CodecID_WAV,
     };
     
 #ifdef __cplusplus

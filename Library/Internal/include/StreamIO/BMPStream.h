@@ -76,6 +76,19 @@ extern "C" {
     
     void            BMPOptions_Deinit(void *Options);
     
+#define NumBMPMIMETypes 2
+    
+    static const UTF32 *BMPMIMETypes[NumBMPMIMETypes] = {
+        [0] = UTF32String("image/bmp"),
+        [1] = UTF32String("image/x-bmp"),
+    };
+    
+#define NumBMPUniformTypeIDs 1
+    
+    static const UTF32 *BMPUniformTypeIDs[NumBMPUniformTypeIDs] = {
+        [0] = UTF32String("com.microsoft.bmp"),
+    };
+    
 #ifdef __cplusplus
 }
 #endif

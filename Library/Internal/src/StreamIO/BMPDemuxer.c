@@ -145,25 +145,37 @@ extern "C" {
         return Image;
     }
     
-    static void RegisterDecoder_BMP(OVIA *Ovia) {
-        Ovia->NumDecoders                                    += 1;
-        uint64_t DecoderIndex                                 = Ovia->NumDecoders;
-        Ovia->Decoders                                        = realloc(Ovia->Decoders, sizeof(OVIADecoder) * Ovia->NumDecoders);
-        
-        Ovia->Decoders[DecoderIndex].DecoderID                = CodecID_BMP;
-        Ovia->Decoders[DecoderIndex].MediaType                = MediaType_Image;
-        Ovia->Decoders[DecoderIndex].NumMagicIDs              = 1;
-        Ovia->Decoders[DecoderIndex].MagicIDOffsetInBits[0]   = 0;
-        Ovia->Decoders[DecoderIndex].MagicIDSizeInBits[0]     = 16;
-        Ovia->Decoders[DecoderIndex].MagicID[0]               = (uint8_t[2]) {0x42, 0x4D};
-        Ovia->Decoders[DecoderIndex].Function_Initialize[0]   = BMPOptions_Init;
-        Ovia->Decoders[DecoderIndex].Function_Read[0]         = BMPReadMetadata;
-        Ovia->Decoders[DecoderIndex].Function_Decode[0]       = BMPExtractImage;
-        Ovia->Decoders[DecoderIndex].Function_Deinitialize[0] = BMPOptions_Deinit;
-    }
+#define BMPNumMagicIDs 1
     
-    static OVIACodecRegistry Register_BMPDecoder = {
-        .Function_RegisterEncoder[CodecID_BMP - 1]            = &RegisterDecoder_BMP,
+    static const MagicIDSizes BMPMagicIDSize = {
+        .NumSizes              = BMPNumMagicIDs,
+        .Sizes                 = {[0] = 2},
+    };
+    
+    static const MagicIDOffsets BMPMagicIDOffset = {
+        .NumOffsets            = BMPNumMagicIDs,
+        .Offsets               = {[0] = 0},
+    };
+    
+    static const MagicIDNumbers BMPMagicIDNumber = {
+        .NumMagicIDs           = BMPNumMagicIDs,
+        .MagicNumbers          = {[0] = (uint8_t[2]){0x42, 0x4D}},
+    };
+    
+    static const MagicIDs BMPMagicIDs = {
+        .Sizes                 = &BMPMagicIDSize,
+        .Offsets               = &BMPMagicIDOffset,
+        .Number                = &BMPMagicIDNumber,
+    };
+    
+    static const OVIADecoder BMPDecoder = {
+        .Function_Initialize   = BMPOptions_Init,
+        .Function_Decode       = BMPExtractImage,
+        .Function_Read         = BMPReadMetadata,
+        .Function_Deinitialize = BMPOptions_Deinit,
+        .MagicID               = &BMPMagicIDs,
+        .MediaType             = MediaType_Image,
+        .DecoderID             = CodecID_BMP,
     };
     
 #ifdef __cplusplus
