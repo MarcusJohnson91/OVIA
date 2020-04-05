@@ -139,11 +139,12 @@ extern "C" {
         }
     }
     
-#define WAVNumExtensions 2
+#define WAVNumExtensions 3
     
     static const UTF32 *WAVExtensions[WAVNumExtensions] = {
         [0] = UTF32String("wav"),
         [1] = UTF32String("wave"),
+        [2] = UTF32String("bwf"),
     };
     
     static const OVIAEncoder WAVEncoder = {

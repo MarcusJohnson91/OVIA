@@ -91,9 +91,8 @@ extern "C" {
     
     typedef enum OVIA_CodecIDs {
         CodecID_Unknown       = 0,
-        CodecID_AIF           = 1,
-        CodecID_WAV           = 2,
-        CodecID_W64           = 3,
+        CodecID_PCMAudio      = 1,
+        CodecID_PCMImage      = 2,
         CodecID_FLAC          = 4,
         CodecID_BMP           = 5,
         CodecID_PNG           = 6,
@@ -102,6 +101,12 @@ extern "C" {
         CodecID_LastCodec     = CodecID_JPEG,
         OVIA_NumCodecs        = CodecID_LastCodec,
     } OVIA_CodecIDs;
+    
+    typedef enum OVIA_ContainerIDs {
+        ContainerID_Unknown = 0,
+        ContainerID_RIFF    = 1,
+        ContainerID_AIF     = 2,
+    } OVIA_ContainerIDs;
     
     typedef enum OVIA_ColorTransforms {
         ColorTransform_Unknown = 0,

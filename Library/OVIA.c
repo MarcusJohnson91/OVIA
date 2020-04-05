@@ -135,10 +135,12 @@ extern "C" {
         }
         return CodecID;
     }
-    
+    /*
     OVIA_CodecIDs OVIA_IdentifyFileType(OVIA *Ovia, BitBuffer *BitB) {
         OVIA_CodecIDs Format      = CodecID_Unknown;
         uint64_t OriginalPosition = BitBuffer_GetPosition(BitB);
+        
+        // We need to generatte the header containing the enabled components
         
         for (uint64_t Decoder = 0ULL; Decoder < Ovia->NumDecoders; Decoder++) {
             for (uint64_t MagicID = 0ULL; MagicID < Ovia->Decoders[Decoder].NumMagicIDs; MagicID++) {
@@ -157,7 +159,7 @@ extern "C" {
         BitBuffer_SetPosition(BitB, OriginalPosition);
         return Format;
     }
-    
+    */
     /*
      We need to create a general purpose function for each decoder that registers each codec.
      
