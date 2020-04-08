@@ -15,55 +15,6 @@ extern "C" {
         return FLAC;
     }
     
-    uint32_t Adler32(BitBuffer *BitB, uint64_t Start, uint64_t NumBytes) {
-        uint32_t Output = 0;
-        if (BitB != NULL && Start * 8 < BitBuffer_GetSize(BitB) && (Start + NumBytes) * 8 <= BitBuffer_GetSize(BitB)) {
-            uint16_t A = 1;
-            uint16_t B = 0;
-            
-            for (uint64_t Byte = Start; Byte < NumBytes - 1; Byte++) {
-                uint8_t Value = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
-                A = (A + Value) % 65521;
-                B = (B + A)     % 65521;
-            }
-            
-            Output = (B << 16) | A;
-        } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
-        } else if (Start * 8 < BitBuffer_GetSize(BitB)) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Start: %lld is larger than the BitBuffer %lld"), Start * 8, BitBuffer_GetSize(BitB));
-        } else if ((Start + NumBytes) * 8 <= BitBuffer_GetSize(BitB)) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("End: %lld is larger than the BitBuffer %lld"), (Start + NumBytes) * 8, BitBuffer_GetSize(BitB));
-        }
-        return Output;
-    }
-    
-    uint32_t CRC32(BitBuffer *BitB, uint64_t Start, uint64_t NumBytes) {
-        uint32_t Output = -1;
-        if (BitB != NULL && Start * 8 < BitBuffer_GetSize(BitB) && (Start + NumBytes) * 8 <= BitBuffer_GetSize(BitB)) {
-            for (uint64_t Byte = Start; Byte < NumBytes - 1; Byte++) {
-                uint32_t Polynomial = 0x82608EDB;
-                uint8_t  Data       = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
-                
-                Output               ^= Data;
-                for (uint8_t Bit = 0; Bit < 8; Bit++) {
-                    if (Output & 1) {
-                        Output = (Output >> 1) ^ Polynomial;
-                    } else {
-                        Output >>= 1;
-                    }
-                }
-            }
-        } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
-        } else if (Start * 8 < BitBuffer_GetSize(BitB)) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Start: %lld is larger than the BitBuffer %lld"), Start * 8, BitBuffer_GetSize(BitB));
-        } else if ((Start + NumBytes) * 8 <= BitBuffer_GetSize(BitB)) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("End: %lld is larger than the BitBuffer %lld"), (Start + NumBytes) * 8, BitBuffer_GetSize(BitB));
-        }
-        return ~Output;
-    }
-    
     uint8_t FLAC_GetNumChannels(void *Options) {
         uint8_t NumChannels = 0;
         if (Options != NULL) {
@@ -79,19 +30,19 @@ extern "C" {
         return NumChannels;
     }
     
-    uint16_t FLAC_GetBlockSizeInSamples(void *Options) {
+    uint16_t FLAC_GetBlockSizeInSamples(void *Options, uint8_t CodedBlockSize, uint16_t EndOfHeaderBlockSize) {
         uint16_t SamplesInBlock = 0;
         FLACOptions *FLAC = Options;
-        if (FLAC->StreamInfo->CodedSampleRate == 1) {
+        if (CodedBlockSize == 1) {
             SamplesInBlock = 192;
-        } else if (FLAC->StreamInfo->CodedSampleRate >= 2 && FLAC->StreamInfo->CodedSampleRate <= 5) {
-            SamplesInBlock = 576 * Exponentiate(2, FLAC->Frame->CodedBlockSize - 2);
-        } else if (FLAC->StreamInfo->CodedSampleRate == 6) {
-            // get 8 bit block from the end of the header
-        } else if (FLAC->StreamInfo->CodedSampleRate == 7) {
-            // get 16 bit block from the end of the header
-        } else if (FLAC->StreamInfo->CodedSampleRate >= 8 && FLAC->StreamInfo->CodedSampleRate <= 15) {
-            SamplesInBlock = 256 * Exponentiate(2, FLAC->Frame->CodedBlockSize - 8);
+        } else if (CodedBlockSize >= 2 && CodedBlockSize <= 5) {
+            SamplesInBlock = 576 * Exponentiate(2, CodedBlockSize - 2);
+        } else if (CodedBlockSize == 6) {
+            SamplesInBlock = EndOfHeaderBlockSize;
+        } else if (CodedBlockSize == 7) {
+            SamplesInBlock = EndOfHeaderBlockSize;
+        } else if (CodedBlockSize >= 8 && CodedBlockSize <= 15) {
+            SamplesInBlock = 256 * Exponentiate(2, CodedBlockSize - 8);
         } else {
             // Reserved
         }

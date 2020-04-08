@@ -120,12 +120,12 @@ extern "C" {
     
     typedef struct StreamInfo {
         uint64_t  SamplesInStream:36; // 36 bits, all the samples in the stream; channel agnostic
-        uint32_t MinimumFrameSize:24;
-        uint32_t MaximumFrameSize:24;
-        uint16_t MinimumBlockSize:16; // in samples; must be at least 16
-        uint16_t MaximumBlockSize:16; // If these match than it's fixed blocksize format
-        uint8_t      CodedSampleRate; // 4 bits
-        uint8_t      CodedBitDepth:6; // 5 bits, 4-32 bits per sample
+        uint32_t  BitDepth;
+        uint32_t  SampleRate;
+        uint32_t  MinimumFrameSize:24;
+        uint32_t  MaximumFrameSize:24;
+        uint16_t  MinimumBlockSize:16; // in samples; must be at least 16
+        uint16_t  MaximumBlockSize:16; // If these match than it's fixed blocksize format
         uint8_t      CodedChannels:4; // 3 bits, add 1 to get the real value
         uint8_t                 *MD5; // MD5
     } StreamInfo;
@@ -176,30 +176,35 @@ extern "C" {
     } Picture;
     
     typedef struct SubFrame {
+        uint8_t  Coeffs[32];
+        uint8_t  NumCoeffs;
         uint8_t  SubFrameType;
         uint8_t  LPCFilterOrder;
         uint8_t  LPCPrecision;
         uint8_t  LPCShift;
-        uint64_t Coeff;
-        uint8_t  WastedBits:6; // Uses unary coding
-        bool     WastedBitsFlag:1;
+        uint8_t  WastedBits; // Uses unary coding
+        uint8_t  ResidualCoder;
+        uint8_t  PartitionOrder;
+        uint8_t  RICEParameter;
+        bool     WastedBitsFlag;
     } SubFrame;
     
     typedef struct Frame {
         SubFrame     *Sub;
         uint64_t      SampleNumber:36;
         uint32_t      SampleRate;
-        uint32_t      FrameNumber:31;
+        uint32_t      FrameNumber;
         uint16_t      BlockSize; // SamplesInBlock
         uint8_t       BitDepth;
         uint8_t       PartitionOrder;
         uint8_t       CurrentPartition;
         uint8_t       SamplesInPartition;
         uint8_t       CodedBlockSize;
-        uint8_t       CodedSampleRate:5;
-        uint8_t       ChannelLayout:4;
-        uint8_t       CodedBitDepth:4;
-        bool          BlockType:1;
+        uint8_t       CodedBitDepth;
+        uint8_t       CodedSampleRate;
+        uint8_t       CodedChannelLayout;
+        uint8_t       NumChannels;
+        bool          BlockType;
     } Frame;
     
     typedef struct RICEPartition {

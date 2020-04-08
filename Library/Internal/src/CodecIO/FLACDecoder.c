@@ -60,50 +60,153 @@ extern "C" {
         }
     }
     
+    static uint8_t FLAC_GetChannelLayoutFromFrame(uint8_t CodedChannelLayout) {
+        return CodedChannelLayout + 1;
+    }
+    
+    static uint8_t FLAC_GetSampleRateFromFrame(void *Options, uint8_t CodedSampleRate, uint16_t EndOfHeaderBits) {
+        uint8_t SampleRate = 0; // Invalid
+        if (Options != NULL) {
+            if (CodedSampleRate == 0) {
+                FLACOptions *FLAC = Options;
+                SampleRate        = FLAC->StreamInfo->SampleRate;
+            } else if (CodedSampleRate == 1) {
+                SampleRate = 88200;
+            } else if (CodedSampleRate == 2) {
+                SampleRate = 176400;
+            } else if (CodedSampleRate == 3) {
+                SampleRate = 192000;
+            } else if (CodedSampleRate == 4) {
+                SampleRate = 8000;
+            } else if (CodedSampleRate == 5) {
+                SampleRate = 16000;
+            } else if (CodedSampleRate == 6) {
+                SampleRate = 22050;
+            } else if (CodedSampleRate == 7) {
+                SampleRate = 24000;
+            } else if (CodedSampleRate == 8) {
+                SampleRate = 32000;
+            } else if (CodedSampleRate == 9) {
+                SampleRate = 44100;
+            } else if (CodedSampleRate == 10) {
+                SampleRate = 48000;
+            } else if (CodedSampleRate == 11) {
+                SampleRate = 96000;
+            } else if (CodedSampleRate == 12) {
+                SampleRate = EndOfHeaderBits * 1000;
+            } else if (CodedSampleRate == 13) {
+                SampleRate = EndOfHeaderBits;
+            } else if (CodedSampleRate == 14) {
+                SampleRate = EndOfHeaderBits * 10;
+            }
+        } else {
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("FLACOptions Pointer is NULL"));
+        }
+        return BitDepth;
+    }
+    
+    static uint8_t FLAC_GetBitDepthFromFrame(void *Options, uint8_t CodedBitDepth) {
+        uint8_t BitDepth = 0; // Invalid
+        if (Options != NULL) {
+            FLACOptions *FLAC = Options;
+            if (CodedBitDepth == 0) {
+                FLACOptions *FLAC = Options;
+                BitDepth          = FLAC->StreamInfo->BitDepth;
+            } else if (CodedBitDepth == 1) {
+                BitDepth = 8;
+            } else if (CodedBitDepth == 2) {
+                BitDepth = 12;
+            } else if (CodedBitDepth == 4) {
+                BitDepth = 16;
+            } else if (CodedBitDepth == 5) {
+                BitDepth = 20;
+            } else if (CodedBitDepth == 6) {
+                BitDepth = 24;
+            }
+        } else {
+            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("FLACOptions Pointer is NULL"));
+        }
+        return BitDepth;
+    }
+    
+    static uint64_t FLAC_GetCodedNumber(BitBuffer *BitB, uint8_t CodedNumberSize) {
+        uint64_t Value = 0ULL;
+        if (BitB != NULL) {
+            /*
+             CodedNumberSize = 1: 7 bits;  0b0XXXXXXX
+             CodedNumberSize = 2: 11 bits; 0b110XXXXX, 0b10XXXXXX
+             CodedNumberSize = 3: 16 bits; 0b1110XXXX, 0b10XXXXXX, 0b10XXXXXX
+             CodedNumberSize = 4: 21 bits; 0b11110XXX, 0b10XXXXXX, 0b10XXXXXX, 0b10XXXXXX
+             CodedNumberSize = 5: 26 bits; 0b111110XX, 0b10XXXXXX, 0b10XXXXXX, 0b10XXXXXX, 0b10XXXXXX
+             CodedNumberSize = 6: 31 bits; 0b1111110X, 0b10XXXXXX, 0b10XXXXXX, 0b10XXXXXX, 0b10XXXXXX, 0b10XXXXXX
+             CodedNumberSize = 7: 36 bits; 0b11111110, 0b10XXXXXX, 0b10XXXXXX, 0b10XXXXXX, 0b10XXXXXX, 0b10XXXXXX, 0b10XXXXXX
+             */
+            if (CodedNumberSize == 1) {
+                Value             = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 7);
+            } else {
+                uint8_t Bits2Read = CodedNumberSize + 1;
+                BitBuffer_Seek(BitB, Bits2Read);
+                Value             = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 8 - Bits2Read);
+                Value            << 8 - Bits2Read;
+                for (uint8_t Byte = 1; Byte < CodedNumberSize - 1; Byte++) {
+                    BitBuffer_Seek(BitB, 2);
+                    Value << 6;
+                    Value |= BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 6);
+                }
+            }
+        }
+        return Value + 1;
+    }
+    
     void FLAC_Frame_Read(void *Options, BitBuffer *BitB, Audio2DContainer *Audio) {
         if (Options != NULL && BitB != NULL && Audio != NULL) {
-            FLACOptions *FLAC                 = Options;
-            uint8_t Reserved1                 = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 1); // 0
+            FLACOptions *FLAC                      = Options;
+            uint8_t Reserved1                      = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 1); // 0
             if (Reserved1 == 0) {
-                FLAC->Frame->BlockType        = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 1); // 0, Fixed
-                FLAC->Frame->CodedBlockSize   = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 4); // 0b0110 aka 6
-                FLAC->Frame->CodedSampleRate  = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 4); // 8
-                FLAC->Frame->ChannelLayout    = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 4); // 8
-                FLAC->Frame->CodedBitDepth    = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 3); // 6
-                BitBuffer_Seek(BitB, 1); // Reserved2, should be 0
-                uint8_t Frame_SampleIDSize    = 1 + BitBuffer_ReadUnary(BitB, MSByteFirst, MSBitFirst, CountUnary, 0); // 1
-                BitBuffer_Seek(BitB, -Frame_SampleIDSize);
-                if (FLAC->Frame->BlockType == BlockType_Fixed) {
-                    UTF8  *FrameNumberString  = BitBuffer_ReadUTF8(BitB, Frame_SampleIDSize); // 1 byte
-                    FLAC->Frame->FrameNumber  = (uint32_t) UTF8_String2Integer(10, FrameNumberString);
-                    free(FrameNumberString);
-                } else if (FLAC->Frame->BlockType == BlockType_Variable) {
-                    UTF8 *SampleNumberString  = BitBuffer_ReadUTF8(BitB, Frame_SampleIDSize);
-                    FLAC->Frame->SampleNumber = UTF8_String2Integer(10, SampleNumberString);
-                    free(SampleNumberString);
+                FLAC->Frame->BlockType             = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 1); // 0, Fixed
+                FLAC->Frame->CodedBlockSize        = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 4); // 0b1100 aka 12
+                FLAC->Frame->CodedSampleRate       = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 4); // 0b0011 aka 3
+                FLAC->Frame->CodedChannelLayout    = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 4); // 0b0000 aka 0
+                FLAC->Frame->NumChannels           = FLAC_GetChannelLayoutFromFrame(FLAC->Frame->CodedChannelLayout); // 0b0000 aka 1 channel
+                FLAC->Frame->CodedBitDepth         = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 3); // 1
+                FLAC->Frame->BitDepth              = FLAC_GetBitDepthFromFrame(Options, FLAC->Frame->CodedBitDepth); //  8 bits
+                uint8_t Reserved2                  = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 1); // 0
+                if (Reserved2 == 0) {
+                    uint8_t  CodedNumberSize       = BitBuffer_ReadUnary(BitB, MSByteFirst, MSBitFirst, CountUnary, StopBit_Zero) + 1;
+                    uint64_t CodedNumber           = FLAC_GetCodedNumber(BitB, CodedNumberSize);
+                    
+                    uint16_t EndOfHeaderBlockSize  = 0;
+                    if (CodedBlockSize == 6) {
+                        EndOfHeaderBlockSize       = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 8);
+                    } else if (CodedBlockSize == 7) {
+                        EndOfHeaderBlockSize       = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 16);
+                    }
+                    FLAC->Frame->BlockSize         = FLAC_GetBlockSizeInSamples(Options, FLAC->Frame->CodedBlockSize, EndOfHeaderBlockSize); // 4096
+                    
+                    if (FLAC->Frame->BlockType == BlockType_Fixed) {
+                        FLAC->Frame->FrameNumber   = (uint32_t) CodedNumber * FLAC->Frame->BlockSize; // Framenumber * BlockSize
+                    } else if (FLAC->Frame->BlockType == BlockType_Variable) {
+                        FLAC->Frame->SampleNumber  = CodedNumber;
+                    }
+                    
+                    uint16_t EndOfHeaderSampleRate = 0;
+                    if (CodedSampleRate == 12) {
+                        EndOfHeaderSampleRate      = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 8);
+                    } else if (CodedSampleRate >= 13 && CodedSampleRate <= 14) {
+                        EndOfHeaderSampleRate      = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 16);
+                    }
+                    FLAC->Frame->SampleRate        = FLAC_GetSampleRateFromFrame(Options, FLAC->Frame->CodedSampleRate, EndOfHeaderSampleRate); // 192,000
+                    
+                    uint8_t FrameHeaderCRC8        = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 8); // 0x90
+                    
+                    for (uint8_t Channel = 0; Channel < FLAC->Frame->NumChannels; Channel++) { // 2 channels
+                        FLAC_SubFrame_Read(FLAC, BitB, Audio, Channel); // Channel 0 Coeff = 12
+                    }
+                    
+                    uint16_t FrameCRC16            = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 16);
+                } else {
+                    Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Reserved2 value is invalid"));
                 }
-                
-                if (FLAC->Frame->CodedBlockSize == 6) {
-                    FLAC->Frame->BlockSize    = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 8);
-                } else if (FLAC->Frame->CodedBlockSize == 7) {
-                    FLAC->Frame->BlockSize    = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16);
-                }
-                
-                if (FLAC->Frame->CodedSampleRate == 12) {
-                    FLAC->Frame->SampleRate   = 1000 * BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
-                } else if (FLAC->Frame->CodedSampleRate == 13) {
-                    FLAC->Frame->SampleRate   = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 16);
-                } else if (FLAC->Frame->CodedSampleRate == 14) {
-                    FLAC->Frame->SampleRate   = 10 * BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 16);
-                }
-                
-                uint8_t FrameHeaderCRC8       = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 8); // 0x8A
-                
-                for (uint8_t Channel = 0; Channel < FLAC->Frame->ChannelLayout; Channel++) { // 2 channels
-                    FLAC_SubFrame_Read(FLAC, BitB, Audio, Channel); // Channel 0 Coeff = 12
-                }
-                
-                uint16_t FrameCRC16             = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 16);
             } else {
                 Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BlockType %d is invalid"), FLAC->Frame->BlockType);
             }
@@ -116,71 +219,232 @@ extern "C" {
         }
     }
     
-    void FLAC_SubFrame_Read(void *Options, BitBuffer *BitB, Audio2DContainer *Audio, uint8_t Channel) { // 2 channels
+    static uint32_t FLAC_GetNumSamplesInPartition(uint8_t PartitionOrder, uint8_t PredictorOrder, uint16_t BlockSize) {
+        uint32_t NumSamples = 0;
+        if (PartitionOrder == 0) {
+            NumSamples      = BlockSize - PredictorOrder;
+        } else if (PartitionOrder > 0) {
+            NumSamples      = (BlockSize / Exponentiate(2, PartitionOrder));
+        } else {
+            NumSamples      = (BlockSize / Exponentiate(2, PartitionOrder)) - PredictorOrder;
+        }
+        return NumSamples;
+    }
+    
+    void FLAC_SubFrame_Read(void *Options, BitBuffer *BitB, Audio2DContainer *Audio, uint8_t Channel) { // 1 channels
         if (Options != NULL && BitB != NULL && Audio != NULL) {
             FLACOptions *FLAC                          = Options;
             bool Reserved1                             = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 1); // 0
             if (Reserved1 == 0) {
-                FLAC->Frame->Sub->SubFrameType         = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 6); // 0
+                FLAC->Frame->Sub->SubFrameType         = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 6); // 0b100111 = 39
                 bool WastedBitsFlag                    = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 1); // 0
                 if (WastedBitsFlag == Yes) {
                     FLAC->Frame->Sub->WastedBits       = 1 + BitBuffer_ReadUnary(BitB, MSByteFirst, MSBitFirst, TruncatedCountUnary, StopBit_One);
                 }
                 
-                uint8_t  NumChannels                   = FLAC_GetNumChannels(FLAC); // 2
+                uint8_t  NumChannels                   = FLAC->Frame->NumChannels;
                 uint32_t NumSamples                    = FLAC->Frame->SamplesInPartition;
                 
-                if (Audio2DContainer_GetType(Audio) == (AudioType_Unsigned | AudioType_Integer8)) {
-                    uint8_t **Array                    = (uint8_t**) Audio2DContainer_GetArray(Audio);
-                    
-                } else if (Audio2DContainer_GetType(Audio) == (AudioType_Signed | AudioType_Integer8)) {
-                    int8_t  **Array                    = (int8_t**) Audio2DContainer_GetArray(Audio);
-                    
-                } else if (Audio2DContainer_GetType(Audio) == (AudioType_Unsigned | AudioType_Integer16)) {
-                    uint16_t **Array                   = (uint16_t**) Audio2DContainer_GetArray(Audio);
-                    
-                } else if (Audio2DContainer_GetType(Audio) == (AudioType_Signed | AudioType_Integer16)) {
-                    int16_t  **Array                   = (int16_t**) Audio2DContainer_GetArray(Audio);
-                    
-                } else if (Audio2DContainer_GetType(Audio) == (AudioType_Unsigned | AudioType_Integer32)) {
-                    uint32_t **Array                   = (uint32_t**) Audio2DContainer_GetArray(Audio);
-                    
-                } else if (Audio2DContainer_GetType(Audio) == (AudioType_Signed | AudioType_Integer32)) {
-                    int32_t  **Array                   = (int32_t**) Audio2DContainer_GetArray(Audio);
-                    
-                    if (FLAC->Frame->Sub->SubFrameType == Subframe_Constant) {
-                        int32_t Constant               = (int32_t) BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, FLAC->Frame->BitDepth);
-                        for (uint8_t Channel = 0; Channel < FLAC_GetNumChannels(FLAC); Channel++) {
-                            for (uint16_t Sample = 0; Sample < FLAC_GetBlockSizeInSamples(FLAC); Sample++) {
+                if (FLAC->Frame->Sub->SubFrameType == Subframe_Constant) {
+                    if ((Audio2DContainer_GetType(Audio) & AudioType_Integer8) == AudioType_Integer8) {
+                        uint8_t **Array                = (uint8_t**) Audio2DContainer_GetArray(Audio);
+                        
+                        uint8_t Constant               = (uint8_t) BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, FLAC->Frame->BitDepth);
+                        for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
+                            for (uint16_t Sample = 0; Sample < FLAC->Frame->BlockSize; Sample++) {
                                 Array[Channel][Sample] = Constant;
                             }
                         }
-                    } else if (FLAC->Frame->Sub->SubFrameType == Subframe_Verbatim) {
-                        for (uint8_t Channel = 0; Channel < FLAC_GetNumChannels(FLAC); Channel++) {
-                            for (uint16_t Sample = 0; Sample < FLAC_GetBlockSizeInSamples(FLAC); Sample++) {
-                                Array[Channel][Sample] = (int32_t) BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, FLAC->Frame->BitDepth);
-                            }
-                        }
-                    } else if (FLAC->Frame->Sub->SubFrameType >= 8 && FLAC->Frame->Sub->SubFrameType <= 15) { // Fixed
-                        FLAC->Frame->Sub->LPCFilterOrder = FLAC->Frame->Sub->SubFrameType & 0x7;
-                        uint16_t NumWarmUpSamples        = FLAC->Frame->CodedBitDepth * FLAC->Frame->Sub->LPCFilterOrder;
-                        uint8_t  RICEPartitionType       = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 2);
-                        FLAC_Decode_RICE(FLAC, BitB, RICEPartitionType);
-                        for (uint8_t Channel = 0; Channel < FLAC_GetNumChannels(FLAC); Channel++) {
-                            for (uint16_t Sample = 0; Sample < FLAC_GetBlockSizeInSamples(FLAC); Sample++) {
-                                Array[Channel][Sample]   = Constant;
-                            }
-                        }
-                    } else if (FLAC->Frame->Sub->SubFrameType >= 32 && FLAC->Frame->Sub->SubFrameType <= 63) { // LPC
-                        FLAC->Frame->Sub->LPCFilterOrder = FLAC->Frame->Sub->SubFrameType & 0x1F; // 7
-                        uint16_t NumWarmUpSamples        = FLAC->Frame->CodedBitDepth * FLAC->Frame->Sub->LPCFilterOrder; // 4 * 7 = 28
-                        FLAC->Frame->Sub->LPCPrecision   = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 4) + 1; // 0 + 1?
-                        FLAC->Frame->Sub->LPCShift       = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 5); // 0
-                        FLAC->Frame->Sub->Coeff          = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, FLAC->Frame->Sub->LPCPrecision * FLAC->Frame->Sub->LPCFilterOrder); // 7 bits in the current byte, read 7 bits! value = 12
+                    } else if ((Audio2DContainer_GetType(Audio) & AudioType_Integer16) == AudioType_Integer16) {
+                        uint16_t **Array                = (uint16_t**) Audio2DContainer_GetArray(Audio);
                         
+                        uint16_t Constant               = (uint16_t) BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, FLAC->Frame->BitDepth);
+                        for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
+                            for (uint16_t Sample = 0; Sample < FLAC->Frame->BlockSize; Sample++) {
+                                Array[Channel][Sample] = Constant;
+                            }
+                        }
+                    } else if ((Audio2DContainer_GetType(Audio) & AudioType_Integer32) == AudioType_Integer32) {
+                        uint32_t **Array                = (uint32_t**) Audio2DContainer_GetArray(Audio);
+                        
+                        uint32_t Constant               = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, FLAC->Frame->BitDepth);
+                        for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
+                            for (uint16_t Sample = 0; Sample < FLAC->Frame->BlockSize; Sample++) {
+                                Array[Channel][Sample] = Constant;
+                            }
+                        }
                     }
-                } else {
-                    Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Invalid Subframe type: %d"), FLAC->Frame->Sub->SubFrameType);
+                } else if (FLAC->Frame->Sub->SubFrameType == Subframe_Verbatim) {
+                    if ((Audio2DContainer_GetType(Audio) & AudioType_Integer8) == AudioType_Integer8) {
+                        uint8_t **Array                = (uint8_t**) Audio2DContainer_GetArray(Audio);
+                        
+                        for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
+                            for (uint16_t Sample = 0; Sample < FLAC->Frame->BlockSize; Sample++) {
+                                Array[Channel][Sample] = (uint8_t) BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, FLAC->Frame->BitDepth);
+                            }
+                        }
+                    } else if ((Audio2DContainer_GetType(Audio) & AudioType_Integer16) == AudioType_Integer16) {
+                        uint16_t **Array                = (uint16_t**) Audio2DContainer_GetArray(Audio);
+                        
+                        for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
+                            for (uint16_t Sample = 0; Sample < FLAC->Frame->BlockSize; Sample++) {
+                                Array[Channel][Sample] = (uint16_t) BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, FLAC->Frame->BitDepth);
+                            }
+                        }
+                    } else if ((Audio2DContainer_GetType(Audio) & AudioType_Integer32) == AudioType_Integer32) {
+                        uint32_t **Array                = (uint32_t**) Audio2DContainer_GetArray(Audio);
+                        
+                        for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
+                            for (uint16_t Sample = 0; Sample < FLAC->Frame->BlockSize; Sample++) {
+                                Array[Channel][Sample] = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, FLAC->Frame->BitDepth);
+                            }
+                        }
+                    }
+                } else if (FLAC->Frame->Sub->SubFrameType >= 8 && FLAC->Frame->Sub->SubFrameType <= 15) { // Fixed
+                    FLAC->Frame->Sub->LPCFilterOrder = FLAC->Frame->Sub->SubFrameType & 0x7;
+                    uint16_t NumWarmUpSamples        = FLAC->Frame->CodedBitDepth * FLAC->Frame->Sub->LPCFilterOrder;
+                    uint8_t  RICEPartitionType       = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 2);
+                    
+                    if ((Audio2DContainer_GetType(Audio) & AudioType_Integer8) == AudioType_Integer8) {
+                        uint8_t **Array                = (uint8_t**) Audio2DContainer_GetArray(Audio);
+                        
+                        for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
+                            for (uint16_t Sample = 0; Sample < FLAC->Frame->BlockSize; Sample++) {
+                                Array[Channel][Sample] = (uint8_t) BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, FLAC->Frame->BitDepth);
+                            }
+                        }
+                    } else if ((Audio2DContainer_GetType(Audio) & AudioType_Integer16) == AudioType_Integer16) {
+                        uint16_t **Array                = (uint16_t**) Audio2DContainer_GetArray(Audio);
+                        
+                        for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
+                            for (uint16_t Sample = 0; Sample < FLAC->Frame->BlockSize; Sample++) {
+                                Array[Channel][Sample] = (uint16_t) BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, FLAC->Frame->BitDepth);
+                            }
+                        }
+                    } else if ((Audio2DContainer_GetType(Audio) & AudioType_Integer32) == AudioType_Integer32) {
+                        uint32_t **Array                = (uint32_t**) Audio2DContainer_GetArray(Audio);
+                        
+                        for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
+                            for (uint16_t Sample = 0; Sample < FLAC->Frame->BlockSize; Sample++) {
+                                Array[Channel][Sample] = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, FLAC->Frame->BitDepth);
+                            }
+                        }
+                    }
+                } else if (FLAC->Frame->Sub->SubFrameType >= 32 && FLAC->Frame->Sub->SubFrameType <= 63) { // LPC
+                    FLAC->Frame->Sub->LPCFilterOrder         = (FLAC->Frame->Sub->SubFrameType & 0x1F) + 1; // 8
+                    
+                    if ((Audio2DContainer_GetType(Audio) & AudioType_Integer8) == AudioType_Integer8) { // Warmup Samples
+                        uint8_t  **Array                     = (uint8_t**) Audio2DContainer_GetArray(Audio);
+                        
+                        for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
+                            for (uint8_t WarmupSample = 0; WarmupSample < FLAC->Frame->Sub->LPCFilterOrder; WarmupSample++) {
+                                Array[Channel][WarmupSample] = (uint8_t) BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, FLAC->Frame->BitDepth);
+                                // C2, CD, B6, C4, 7A, 81, 80, 80
+                            }
+                        }
+                    } else if ((Audio2DContainer_GetType(Audio) & AudioType_Integer16) == AudioType_Integer16) {
+                        uint16_t **Array                     = (uint16_t**) Audio2DContainer_GetArray(Audio);
+                        
+                        for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
+                            for (uint8_t WarmupSample = 0; WarmupSample < FLAC->Frame->Sub->LPCFilterOrder; WarmupSample++) {
+                                Array[Channel][WarmupSample] = (uint16_t) BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, FLAC->Frame->BitDepth);
+                            }
+                        }
+                    } else if ((Audio2DContainer_GetType(Audio) & AudioType_Integer32) == AudioType_Integer32) {
+                        uint32_t **Array                     = (uint32_t**) Audio2DContainer_GetArray(Audio);
+                        
+                        for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
+                            for (uint8_t WarmupSample = 0; WarmupSample < FLAC->Frame->Sub->LPCFilterOrder; WarmupSample++) {
+                                Array[Channel][WarmupSample] = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, FLAC->Frame->BitDepth);
+                            }
+                        }
+                    }
+                    
+                    FLAC->Frame->Sub->LPCPrecision   = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 4) + 1; // 6
+                    FLAC->Frame->Sub->LPCShift       = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 5); // 4 , 1 bit used from next byte
+                    FLAC->Frame->Sub->NumCoeffs      = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, FLAC->Frame->Sub->LPCFilterOrder); // Read 8 Coeffs
+                    
+                    // 11, 0, 30, 53, 13, 15, 56, 47, with 0b10 remaining
+                    
+                    if (FLAC->Frame->Sub->NumCoeffs <= 32) {
+                        for (uint8_t Coeff = 0; Coeff < FLAC->Frame->Sub->NumCoeffs; Coeff++) {
+                            FLAC->Frame->Sub->Coeffs[Coeff] = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, FLAC->Frame->Sub->LPCPrecision);
+                        }
+                    } else {
+                        Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("NumCoeffs: %u is invalid"), FLAC->Frame->Sub->NumCoeffs);
+                    }
+                    
+                    FLAC->Frame->Sub->ResidualCoder  = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 2); // 0b10 aka 2 aka RICE2
+                    FLAC->Frame->Sub->PartitionOrder = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 4); // 0
+                    FLAC->Frame->Sub->NumSamples     = FLAC_GetNumSamplesInPartition(FLAC->Frame->Sub->PartitionOrder, FLAC->Frame->LPCOrder, FLAC->Frame->BlockSize);
+                    uint8_t  NumPartitions           = Exponentiate(2, FLAC->Frame->Sub->PartitionOrder);
+                    
+                    
+                    if (FLAC->Frame->Sub->ResidualCoder == RICE1) {
+                        FLAC->Frame->Sub->RICEParameter = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 4);
+                        
+                        if (FLAC->Frame->Sub->RICEParameter == 0xF) { // RAW samples
+                            Partition                 = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 5);
+                        } else {
+                            
+                        }
+                    } else if (FLAC->Frame->Sub->ResidualCoder == RICE2) {
+                        FLAC->Frame->Sub->RICEParameter = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 5);
+                        if (FLAC->Frame->Sub->RICEParameter == 0x1F) { // RAW samples
+                            Partition                 = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 5);
+                        } else {
+                            
+                        }
+                    } else {
+                        Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("ResidualCoder Coder: %u is invalid"), FLAC->Frame->Sub->ResidualCoder);
+                    }
+                    // FLAC_Read_Residual
+                    
+                    
+                    
+                    if ((Audio2DContainer_GetType(Audio) & AudioType_Integer8) == AudioType_Integer8) {
+                        uint8_t **Array                = (uint8_t**) Audio2DContainer_GetArray(Audio);
+                        
+                        for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
+                            for (uint16_t Sample = 0; Sample < FLAC->Frame->Sub->LPCFilterOrder; Sample++) {
+                                Array[Channel][Sample] = (uint8_t) BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, FLAC->Frame->BitDepth);
+                            }
+                        }
+                        
+                        for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
+                            for (uint16_t Sample = 0; Sample < FLAC->Frame->BlockSize; Sample++) {
+                                Array[Channel][Sample] = (uint8_t) BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, FLAC->Frame->BitDepth);
+                            }
+                        }
+                    } else if ((Audio2DContainer_GetType(Audio) & AudioType_Integer16) == AudioType_Integer16) {
+                        uint16_t **Array                = (uint16_t**) Audio2DContainer_GetArray(Audio);
+                        
+                        for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
+                            for (uint16_t Sample = 0; Sample < FLAC->Frame->Sub->LPCFilterOrder; Sample++) {
+                                Array[Channel][Sample] = (uint8_t) BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, FLAC->Frame->BitDepth);
+                            }
+                        }
+                        
+                        for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
+                            for (uint16_t Sample = 0; Sample < FLAC->Frame->BlockSize; Sample++) {
+                                Array[Channel][Sample] = (uint16_t) BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, FLAC->Frame->BitDepth);
+                            }
+                        }
+                    } else if ((Audio2DContainer_GetType(Audio) & AudioType_Integer32) == AudioType_Integer32) {
+                        uint32_t **Array                = (uint32_t**) Audio2DContainer_GetArray(Audio);
+                        
+                        for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
+                            for (uint16_t Sample = 0; Sample < FLAC->Frame->Sub->LPCFilterOrder; Sample++) {
+                                Array[Channel][Sample] = (uint8_t) BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, FLAC->Frame->BitDepth);
+                            }
+                        }
+                        
+                        for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
+                            for (uint16_t Sample = 0; Sample < FLAC->Frame->BlockSize; Sample++) {
+                                Array[Channel][Sample] = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, FLAC->Frame->BitDepth);
+                            }
+                        }
+                    }
                 }
             }
         } else if (Options == NULL) {
@@ -283,50 +547,6 @@ extern "C" {
         }
     }
     
-    
-    void FLAC_Read_Blocks(void *Options, BitBuffer *BitB) {
-        if (Options != NULL && BitB != NULL) {
-            FLACOptions *FLAC                = Options;
-            bool IsLastBlock                 = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 1);  // 1
-            uint8_t *PictureArray            = NULL;
-            // Actual audio data starts at: 1056166
-            while (IsLastBlock == false) {
-                BlockTypes BlockType         = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 7);  // 6
-                uint32_t   BlockSize         = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 24); // 865,236
-                switch (BlockType) {
-                    case Block_StreamInfo:
-                        FLAC_Read_StreamInfo(FLAC, BitB);
-                        break;
-                    case Block_Padding:
-                        BitBuffer_Seek(BitB, Bytes2Bits(BlockSize));
-                        break;
-                    case Block_Custom:
-                        BitBuffer_Seek(BitB, Bytes2Bits(BlockSize));
-                        break;
-                    case Block_SeekTable:
-                        FLAC_Read_SeekTable(FLAC, BitB, BlockSize);
-                        break;
-                    case Block_Vorbis:
-                        FLAC_Read_Vorbis(FLAC, BitB);
-                        break;
-                    case Block_Cuesheet:
-                        FLAC_CUE_Read(FLAC, BitB);
-                        break;
-                    case Block_Picture:
-                        PictureArray = FLAC_Pic_Read(FLAC, BitB);
-                        break;
-                    default:
-                        Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Invalid Block Type: %d\n"), BlockType);
-                        break;
-                }
-            }
-        } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
-        } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
-        }
-    }
-    
     void FLAC_Read_StreamInfo(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             FLACOptions *FLAC                  = Options;
@@ -334,9 +554,9 @@ extern "C" {
             FLAC->StreamInfo->MaximumBlockSize = (uint16_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16); // 4096
             FLAC->StreamInfo->MinimumFrameSize = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 24); // 18
             FLAC->StreamInfo->MaximumFrameSize = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 24); // 15146
-            FLAC->StreamInfo->CodedSampleRate  = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 20); // 192000
-            FLAC->StreamInfo->CodedChannels    = 1 + BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 3); // 2
-            FLAC->StreamInfo->CodedBitDepth    = 1 + BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 5); // 24
+            FLAC->StreamInfo->SampleRate       = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 20); // 192000
+            FLAC->StreamInfo->CodedChannels    = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 3) + 1; // 2
+            FLAC->StreamInfo->BitDepth         = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 5) + 1; // 24
             FLAC->StreamInfo->SamplesInStream  = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 36);    // 428,342,094
             if (FLAC->StreamInfo->MD5 != NULL) {
                 for (uint8_t MD5Byte = 0; MD5Byte < 16; MD5Byte++) { // 0xDC AE 07 EA E9 11 40 C1 F4 43 7B B0 72 18 9D 2E
