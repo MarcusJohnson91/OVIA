@@ -170,21 +170,22 @@ extern "C" {
     
     void ReadSegment_StartOfScan(void *Options, BitBuffer *BitB) { // Size = 12
         JPEGOptions *JPEG                               = (JPEGOptions*) Options;
-        uint16_t Length                                 = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16) - 2;
-        uint8_t  NumberOfComponents                     = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);  // 3
+        uint16_t Length                                 = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 16) - 2;
+        uint8_t  NumberOfComponents                     = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 8);  // 3
         if (Length == ((NumberOfComponents * 2) + 4) && NumberOfComponents >= 1 && NumberOfComponents <= 4) {
-            JPEG->ComponentSelector                     = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);  // 0x52
-            JPEG->SamplesPerLine                        = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);  // 0x00
+            JPEG->ComponentSelector                     = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 8);  // 0x52
+            JPEG->SamplesPerLine                        = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 8);  // 0x00
             JPEG->Components                            = calloc(NumberOfComponents, sizeof(ComponentParameters));
             for (uint8_t Component = 0; Component < NumberOfComponents; Component++) {
-                JPEG->Components[Component].ComponentID = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8); // 0x52, 0, 0
-                JPEG->Components[Component].Horizontal  = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 4); // 0, 0, 0
-                JPEG->Components[Component].Vertical    = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 4); // 0, 1, 0
+                JPEG->Components[Component].ComponentID = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 8); // 0x52, 0, 0
+                JPEG->Components[Component].Horizontal  = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 4); // 0, 0, 0
+                JPEG->Components[Component].Vertical    = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 4); // 0, 1, 0
             }
-            JPEG->Predictor                             = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8); // 3
-            BitBuffer_Seek(BitB, 8); // Meaningless, should be 0
-            BitBuffer_Seek(BitB, 4); // Meaningless, should be 0
-            JPEG->PointTransform                        = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 4); // 0
+            JPEG->Predictor                             = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 8); // 3
+            JPEG->SS                                    = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 8);
+            JPEG->SE                                    = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 8);
+            JPEG->Ah                                    = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 4);
+            JPEG->Al                                    = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 4);
         } else if (Length != ((NumberOfComponents * 2) + 4)) {
             Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("StartOfScan Size: %hu is invalid"), Length);
         } else if (NumberOfComponents < 1 || NumberOfComponents > 4) {
