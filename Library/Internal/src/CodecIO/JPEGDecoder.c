@@ -24,8 +24,11 @@ extern "C" {
      
      */
     
-    void BuildHuffmanVales(void *Options) {
+    void BuildHuffmanVales(void *Options, uint8_t *BitLengths, uint8_t *Values, uint8_t Count) {
         JPEGOptions *JPEG = Options;
+        if (JPEG != NULL && BitLengths != NULL && Values != NULL && Count > 0) {
+
+        }
         /*
          
          So we basically take the value, and the bitlength, if the bit length is longer than the number of bits the value takes up, prepend it with 0's
@@ -41,16 +44,16 @@ extern "C" {
     
     void ReadSegment_StartOfFrame(void *Options, BitBuffer *BitB) { // Size = 17
         JPEGOptions *JPEG                           = Options;
-        uint16_t     TableSize                      = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16) - 2; // 26
-        JPEG->BitDepth                              = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);      // 8
-        JPEG->Height                                = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16);     // 4096, Height
-        JPEG->Width                                 = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16);     // 4096, Width
-        JPEG->NumChannels                           = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);      // 3, Components
+        uint16_t     TableSize                      = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 16) - 2; // 26
+        JPEG->BitDepth                              = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 8);      // 8
+        JPEG->Height                                = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 16);     // 4096, Height
+        JPEG->Width                                 = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 16);     // 4096, Width
+        JPEG->NumChannels                           = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 8);      // 3, Components
         JPEG->Components                            = calloc(JPEG->NumChannels, sizeof(ComponentParameters));
         for (uint8_t Component = 0; Component < JPEG->NumChannels; Component++) {
-            JPEG->Components[Component].ComponentID = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8); // 82, 71, 66,
-            JPEG->Components[Component].Horizontal  = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8); // 17, 17, 17,
-            JPEG->Components[Component].Vertical    = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8); //  0,  0,  0,
+            JPEG->Components[Component].ComponentID = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 8); // 82, 71, 66,
+            JPEG->Components[Component].Horizontal  = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 8); // 17, 17, 17,
+            JPEG->Components[Component].Vertical    = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 8); //  0,  0,  0,
         }
     }
     
@@ -62,33 +65,33 @@ extern "C" {
     
     void ReadSegment_Extension7(void *Options, BitBuffer *BitB) { // JPEG-LS, 15 bytes
         JPEGOptions *JPEG                           = Options;
-        uint16_t     TableSize                      = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16) - 2; // 26
+        uint16_t     TableSize                      = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 16) - 2; // 26
         
         // 0810 E01E 0003 0111 0002 1100 0311 00
     }
     
     void ReadSegment_DefineHuffmanTable(void *Options, BitBuffer *BitB) { // JPEG DHT
         JPEGOptions *JPEG                                    = Options;
-        uint16_t     TableSize                               = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16) - 2; // 26
+        uint16_t     TableSize                               = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 16) - 2; // 26
         uint16_t     BytesRemaining                          = TableSize;
         while (BytesRemaining > 0) {
             JPEG->HuffmanTableCount                         += 1;
             uint8_t TableCount                               = JPEG->HuffmanTableCount - 1;
-            uint8_t TableClass                               = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 4); // 0
-            uint8_t TableID                                  = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 4); // 0, 0-3 possible
+            uint8_t TableClass                               = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 4); // 0
+            uint8_t TableID                                  = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 4); // 0, 0-3 possible
             if (TableClass == 0 && TableID <= 3) {
                 uint16_t NumValues                           = 0;
                 uint8_t *BitCounts                           = calloc(NumBitCounts, sizeof(uint8_t)); // BITS
                 
                 for (uint8_t Count = 0; Count < NumBitCounts; Count++) {
-                    BitCounts[Count]                         = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+                    BitCounts[Count]                         = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 8);
                     NumValues                               += BitCounts[Count]; // 9
                 }
                 
                 uint8_t *Values                              = calloc(NumValues, sizeof(uint8_t));
                 
                 for (uint8_t Value = 0; Value < NumValues; Value++) {
-                    Values[Value]                            = (uint8_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+                    Values[Value]                            = (uint8_t) BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 8);
                 }
                 
                 /*
@@ -142,29 +145,29 @@ extern "C" {
     
     void ReadSegment_DefineArithmeticTable(void *Options, BitBuffer *BitB) {
         JPEGOptions *JPEG                     = Options;
-        JPEG->Arithmetic->CodeLength          = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16);
-        JPEG->Arithmetic->TableClass          = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 4);
-        JPEG->Arithmetic->TableDestination    = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 4);
-        JPEG->Arithmetic->CodeValue           = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 8);
+        JPEG->Arithmetic->CodeLength          = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 16);
+        JPEG->Arithmetic->TableClass          = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 4);
+        JPEG->Arithmetic->TableDestination    = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 4);
+        JPEG->Arithmetic->CodeValue           = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 8);
     }
     
     void ReadSegment_DefineRestartInterval(void *Options, BitBuffer *BitB) {
         JPEGOptions *JPEG                     = Options;
-        JPEG->RestartInterval                 = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16);
+        JPEG->RestartInterval                 = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 16);
     }
     
     void ReadSegment_DefineNumberOfLines(void *Options, BitBuffer *BitB) {
         JPEGOptions *JPEG                     = Options;
-        JPEG->Height                          = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16);
+        JPEG->Height                          = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 16);
     }
     
     void ReadSegment_Comment(void *Options, BitBuffer *BitB) {
-        uint16_t CommentSize                  = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16);
+        uint16_t CommentSize                  = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 16);
         BitBuffer_Seek(BitB, CommentSize);
     }
     
     void ReadSegment_ApplicationData(void *Options, BitBuffer *BitB) {
-        uint16_t AppDataSize                  = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16);
+        uint16_t AppDataSize                  = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 16);
         BitBuffer_Seek(BitB, AppDataSize);
     }
     
@@ -181,8 +184,7 @@ extern "C" {
                 JPEG->Components[Component].Horizontal  = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 4); // 0, 0, 0
                 JPEG->Components[Component].Vertical    = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 4); // 0, 1, 0
             }
-            JPEG->Predictor                             = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 8); // 3
-            JPEG->SS                                    = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 8);
+            JPEG->Predictor                             = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 8); // called SS in the standard, Predictor 1
             JPEG->SE                                    = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 8);
             JPEG->Ah                                    = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 4);
             JPEG->Al                                    = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 4);
@@ -209,7 +211,7 @@ extern "C" {
             case 0xFFDB: // Quantization Table, Lossy.
             case 0xFFDE: // Define Hierarchical Progression, Lossy?
             case 0xFFDF: // Expand Reference Component, Lossy?
-                Length = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16) - 2;
+                Length = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 16) - 2;
                 BitBuffer_Seek(BitB, Bytes2Bits(Length));
                 Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Lossy JPEG is not supported"));
                 break;
@@ -221,7 +223,7 @@ extern "C" {
     
     void JPEG_ReadSegments(void *Options, BitBuffer *BitB) {
         JPEGOptions *JPEG                     = Options;
-        uint16_t     Marker                   = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16);
+        uint16_t     Marker                   = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 16);
         switch (Marker) {
             case Marker_StartOfFrameLossless1: // Huffman, non-Differential
             case Marker_StartOfFrameLossless2: // Huffman, Differential
