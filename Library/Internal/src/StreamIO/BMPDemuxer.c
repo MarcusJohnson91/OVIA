@@ -1,6 +1,6 @@
 #include "../../include/Private/BMPCommon.h"
 
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
 
@@ -16,45 +16,45 @@ extern "C" {
         if (Options != NULL && BitB != NULL) {
             BMPOptions *BMP = Options;
             BitBuffer_Seek(BitB, 16);                           // Skip BMPMagic
-            BMP->FileSize                                    = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
+            BMP->FileSize                                    = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 32);
             BitBuffer_Seek(BitB, 32);                           // 2 16 bit Reserved fields
-            BMP->Offset                                      = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
+            BMP->Offset                                      = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 32);
             if (BMP->Offset > 14) { // DIB Header
-                BMP->DIBSize                                 = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
+                BMP->DIBSize                                 = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 32);
                 if (BMP->DIBSize >= 40) {
-                    BMP->Width                               = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
-                    BMP->Height                              = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
+                    BMP->Width                               = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 32);
+                    BMP->Height                              = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 32);
                 } else if (BMP->DIBSize == 12) {
-                    BMP->Width                               = (uint16_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16);
-                    BMP->Height                              = (uint16_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16);
+                    BMP->Width                               = (uint16_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 16);
+                    BMP->Height                              = (uint16_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 16);
                 }
                 BitBuffer_Seek(BitB, 16);                       // NumPlanes, always 1
-                BMP->BitDepth                                = (uint16_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16);
-                BMP->CompressionType                         = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
-                BMP->NumBytesUsedBySamples                   = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
-                BMP->WidthPixelsPerMeter                     = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
-                BMP->HeightPixelsPerMeter                    = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
-                BMP->ColorsIndexed                           = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
-                BMP->IndexedColorsUsed                       = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
+                BMP->BitDepth                                = (uint16_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 16);
+                BMP->CompressionType                         = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 32);
+                BMP->NumBytesUsedBySamples                   = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 32);
+                BMP->WidthPixelsPerMeter                     = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 32);
+                BMP->HeightPixelsPerMeter                    = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 32);
+                BMP->ColorsIndexed                           = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 32);
+                BMP->IndexedColorsUsed                       = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 32);
                 if (BMP->DIBSize >= 56) {
-                    BMP->ColorSpaceType                      = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
+                    BMP->ColorSpaceType                      = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 32);
                     if (BMP->DIBSize >= 108) {
-                        BMP->XCoordinate                     = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
-                        BMP->YCoordinate                     = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
-                        BMP->ZCoordinate                     = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
-                        BMP->RGamma                          = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
-                        BMP->GGamma                          = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
-                        BMP->BGamma                          = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
+                        BMP->XCoordinate                     = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 32);
+                        BMP->YCoordinate                     = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 32);
+                        BMP->ZCoordinate                     = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 32);
+                        BMP->RGamma                          = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 32);
+                        BMP->GGamma                          = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 32);
+                        BMP->BGamma                          = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 32);
                         if (BMP->DIBSize >= 124) {
-                            BMP->ICCIntent                   = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
-                            BMP->ICCSize                     = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 32);
+                            BMP->ICCIntent                   = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 32);
+                            BMP->ICCSize                     = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 32);
                             BMP->ICCPayload                  = calloc(BMP->ICCSize, sizeof(uint8_t));
                             if (BMP->ICCPayload != NULL) {
                                 for (uint32_t ICCByte = 0; ICCByte < BMP->ICCSize; ICCByte++) {
-                                    BMP->ICCPayload[ICCByte] = (uint8_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 8);
+                                    BMP->ICCPayload[ICCByte] = (uint8_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 8);
                                 }
                             } else {
-                                Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Couldn't allocate %d bytes for the ICC payload"), BMP->ICCSize);
+                                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Couldn't allocate %d bytes for the ICC payload"), BMP->ICCSize);
                             }
                             BitBuffer_Seek(BitB, 32); // More Reserved data.
                                                       // Ok so when the Height is positive, the image is upside down, the bottom of the image is at the top of the file.
@@ -63,19 +63,19 @@ extern "C" {
                 }
                 BitBuffer_Seek(BitB, BMP->DIBSize - BitBuffer_GetPosition(BitB)); // Skip the remaining bits.
             } else if (BMP->DIBSize == 40 && (BMP->CompressionType == BMP_BitFields || BMP->CompressionType == BMP_RGBABitFields)) {
-                BMP->RMask     = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, BMP->BitDepth);
-                BMP->GMask     = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, BMP->BitDepth);
-                BMP->BMask     = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, BMP->BitDepth);
+                BMP->RMask     = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, BMP->BitDepth);
+                BMP->GMask     = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, BMP->BitDepth);
+                BMP->BMask     = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, BMP->BitDepth);
                 if (BMP->CompressionType == BMP_RGBABitFields) {
-                    BMP->AMask = (uint32_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, BMP->BitDepth);
+                    BMP->AMask = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, BMP->BitDepth);
                 }
             } else {
                 BitBuffer_Seek(BitB, Bits2Bytes((BMP->Offset - 14) - BMP->DIBSize, RoundingType_Down));
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -100,7 +100,7 @@ extern "C" {
                         for (uint64_t W = 0ULL; W < Width; W++) {
                             for (uint64_t H = 0ULL; H < Height; H++) {
                                 for (uint64_t Channel = 0ULL; Channel < 3; Channel++) {
-                                    Array[View][W][H][Channel] = (uint8_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, Bits2Bytes(BitDepth, RoundingType_Up));
+                                    Array[View][W][H][Channel] = (uint8_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, Bits2Bytes(BitDepth, RoundingType_Up));
                                 }
                             }
                         }
@@ -111,21 +111,21 @@ extern "C" {
                         for (uint64_t W = 0ULL; W < Width; W++) {
                             for (uint64_t H = 0ULL; H < Height; H++) {
                                 for (uint64_t Channel = 0ULL; Channel < 3; Channel++) {
-                                    Array[View][W][H][Channel] = (uint8_t) BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, Bits2Bytes(BitDepth, RoundingType_Up));
+                                    Array[View][W][H][Channel] = (uint8_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, Bits2Bytes(BitDepth, RoundingType_Up));
                                 }
                             }
                         }
                     }
                 } else if (BMP->CompressionType == BMP_RLE_8Bit || BMP->CompressionType == BMP_RLE_4Bit) {
-                    Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("We don't support BMP's encoded with RLE"));
+                    Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("We don't support BMP's encoded with RLE"));
                 } else if (BMP->CompressionType == BMP_BitFields || BMP->CompressionType == BMP_RGBABitFields) {
-                    Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("We don't support BMP's encoded with BitFields"));
+                    Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("We don't support BMP's encoded with BitFields"));
                 } else if (BMP->CompressionType == BMP_JPEG) {
-                    Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BMP Compression Type is JPEG, there's nothing we can do since JPEG is a lossy format"));
+                    Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BMP Compression Type is JPEG, there's nothing we can do since JPEG is a lossy format"));
                 } else if (BMP->CompressionType == BMP_PNG) {
-                    Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BMP Compression Type is PNG, Extract it to a plain PNG and re-run"));
+                    Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BMP Compression Type is PNG, Extract it to a plain PNG and re-run"));
                 } else if (BMP->CompressionType == BMP_CMYK || BMP->CompressionType == BMP_CMYK_RLE_8Bit || BMP->CompressionType == BMP_CMYK_RLE_4Bit) {
-                    Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("CMYK Images are unsupported"));
+                    Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("CMYK Images are unsupported"));
                 }
             }
             if (IsUpsideDown) { // The Image is upside down, so we need to flip it
@@ -133,14 +133,14 @@ extern "C" {
             }
             if (BMP->ColorsIndexed > 0) {
                 // The image is palettized, so we need to go ahead and map the pixel bits to the actual colors.
-                Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Palettized BMP's are currently unsupported"));
+                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Palettized BMP's are currently unsupported"));
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BMPOptions Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BMPOptions Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitB Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitB Pointer is NULL"));
         } else if (Image == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("ImageContainer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
         }
         return Image;
     }
@@ -178,6 +178,6 @@ extern "C" {
         .DecoderID             = CodecID_BMP,
     };
     
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif

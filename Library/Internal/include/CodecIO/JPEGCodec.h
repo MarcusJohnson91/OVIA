@@ -13,7 +13,7 @@
 #ifndef OVIA_JPEGCommon_H
 #define OVIA_JPEGCommon_H
 
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
     
@@ -185,7 +185,7 @@ extern "C" {
     
     void            JPEGOptions_Deinit(void *Options);
     
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif
 

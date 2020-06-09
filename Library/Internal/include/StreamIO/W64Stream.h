@@ -13,7 +13,7 @@
 #ifndef OVIA_W64Common_H
 #define OVIA_W64Common_H
 
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
     
@@ -233,7 +233,7 @@ extern "C" {
         Codec_DVM                     = 0x2000,
     } W64CompressionFormats;
     
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif
 

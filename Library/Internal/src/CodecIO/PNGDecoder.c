@@ -1,6 +1,6 @@
 #include "../../include/Private/PNGCommon.h"
 
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
     
@@ -19,11 +19,11 @@ extern "C" {
     void PNG_Flate_ReadZlibHeader(void *Options, BitBuffer *BitB) { // This will be the main function for each Zlib block
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG            = Options;
-            uint8_t  CompressionMethod = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 4);
-            uint8_t  CompressionInfo   = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 4);
-            uint8_t  FCHECK            = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 5);
-            bool     FDICT             = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 1);
-            uint8_t  FLEVEL            = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 2);
+            uint8_t  CompressionMethod = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 4);
+            uint8_t  CompressionInfo   = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 4);
+            uint8_t  FCHECK            = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 5);
+            bool     FDICT             = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 1);
+            uint8_t  FLEVEL            = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 2);
             uint32_t DictID  = 0;
             
             if (CompressionInfo == 7 && CompressionMethod == 8) {
@@ -34,20 +34,20 @@ extern "C" {
                 FCheck         |= FCHECK;
                 if (FCheck % 31 == 0) {
                     if (FDICT == Yes) {
-                        DictID  = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+                        DictID  = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32);
                     }
                 } else {
-                    Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Invalid Flate Header %d"), FCheck);
+                    Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Invalid Flate Header %d"), FCheck);
                 }
             } else if (CompressionInfo != 7) {
-                Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Compresion Info %d is invalid"), CompressionInfo);
+                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Compresion Info %d is invalid"), CompressionInfo);
             } else if (CompressionMethod != 8) {
-                Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Compression Method %d is invalid"), CompressionMethod);
+                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Compression Method %d is invalid"), CompressionMethod);
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -57,31 +57,31 @@ extern "C" {
             bool    BFINAL        = No;
             uint8_t BTYPE         = 0;
             do {
-                BFINAL            = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 1); // Yes
-                BTYPE             = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 2); // 0b10 aka 2 aka BlockType_Dynamic
+                BFINAL            = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 1); // Yes
+                BTYPE             = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 2); // 0b10 aka 2 aka BlockType_Dynamic
                 if (BTYPE == BlockType_Literal) {
                     BitBuffer_Align(BitB, 1);
-                    uint16_t LEN  = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16);
-                    uint16_t NLEN = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16) ^ 0xFFFF;
+                    uint16_t LEN  = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 16);
+                    uint16_t NLEN = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 16) ^ 0xFFFF;
                     if (LEN == NLEN) {
                         // Copy LEN bytes from the stream to the image
                     } else {
-                        Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Literal Block Length and 1's Complement Length do not match"));
+                        Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Literal Block Length and 1's Complement Length do not match"));
                     }
                 } else if (BTYPE == BlockType_Fixed) {
                     HuffmanTree *Length        = PNG_Flate_BuildHuffmanTree(FixedLiteralTable, 288);
                     HuffmanTree *Distance      = PNG_Flate_BuildHuffmanTree(FixedDistanceTable, 32);
                     PNG_Flate_ReadHuffman(PNG, BitB, Length, Distance, Image);
                 } else if (BTYPE == BlockType_Dynamic) {
-                    uint16_t NumLengthCodes               = 257 + BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 5); // HLIT; 21, 26?
-                    uint8_t  NumDistCodes                 = 1   + BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 5); // HDIST; 17, 9?
-                    uint8_t  NumCodeLengthCodeLengthCodes = 4   + BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 4); // HCLEN; 13,
+                    uint16_t NumLengthCodes               = 257 + BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 5); // HLIT; 21, 26?
+                    uint8_t  NumDistCodes                 = 1   + BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 5); // HDIST; 17, 9?
+                    uint8_t  NumCodeLengthCodeLengthCodes = 4   + BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 4); // HCLEN; 13,
                     
                     if (NumLengthCodes <= MaxLiteralLengthCodes && NumDistCodes <= MaxDistanceCodes) {
                         uint16_t *CodeLengthCodeLengths   = calloc(NumMetaCodes, sizeof(uint16_t));
                         
                         for (uint8_t CodeLengthCodeLengthCode = 0; CodeLengthCodeLengthCode < NumCodeLengthCodeLengthCodes; CodeLengthCodeLengthCode++) {
-                            CodeLengthCodeLengths[MetaCodeLengthOrder[CodeLengthCodeLengthCode]] = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 3);
+                            CodeLengthCodeLengths[MetaCodeLengthOrder[CodeLengthCodeLengthCode]] = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 3);
                         }
                         
                         HuffmanTree *Tree2DecodeTrees     = PNG_Flate_BuildHuffmanTree(CodeLengthCodeLengths, NumMetaCodes);
@@ -95,11 +95,11 @@ extern "C" {
                             } else {
                                 if (Symbol == 16) {
                                     Length2Repeat         = CodeLengthCodeLengths[Index - 1];
-                                    Symbol                = 3 + BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 2);
+                                    Symbol                = 3 + BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 2);
                                 } else if (Symbol == 17) {
-                                    Symbol                = 3 + BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 3);
+                                    Symbol                = 3 + BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 3);
                                 } else {
-                                    Symbol                = 11 + BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 7);
+                                    Symbol                = 11 + BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 7);
                                 }
                                 while (Symbol -= 1) {
                                     CodeLengthCodeLengths[Index += 1] = Length2Repeat;
@@ -108,20 +108,20 @@ extern "C" {
                             Index                        += 1;
                         } while (Index < NumLengthCodes + NumDistCodes);
                     } else if (NumLengthCodes > MaxLiteralLengthCodes) {
-                        Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Too many length codes %d, max is %d"), NumLengthCodes, MaxLiteralLengthCodes);
+                        Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Too many length codes %d, max is %d"), NumLengthCodes, MaxLiteralLengthCodes);
                     } else if (NumDistCodes > MaxDistanceCodes) {
-                        Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Too many distance codes %d, max is %d"), NumDistCodes, MaxDistanceCodes);
+                        Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Too many distance codes %d, max is %d"), NumDistCodes, MaxDistanceCodes);
                     }
                 } else {
-                    Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Invalid Block Type in Deflate block"));
+                    Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Invalid Block Type in Deflate block"));
                 }
             } while (BFINAL == No);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         } else if (Image == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("ImageContainer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
         }
     }
     
@@ -131,33 +131,33 @@ extern "C" {
             HuffmanTree     *Tree                  = NULL;
             bool             IsFinalBlock          = false;
             do {
-                IsFinalBlock                       = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 1); // 0
-                uint8_t BlockType                  = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 2); // 0b00 = 0
+                IsFinalBlock                       = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 1); // 0
+                uint8_t BlockType                  = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 2); // 0b00 = 0
                 if (BlockType == BlockType_Literal) {
                     BitBuffer_Align(BitB, 1); // Skip the remaining 5 bits
-                    uint16_t Bytes2Copy            = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16); // 0x4F42 = 20,290
-                    uint16_t Bytes2CopyXOR         = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 16) ^ 0xFFFF; // 0xB0BD = 0x4F42
+                    uint16_t Bytes2Copy            = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 16); // 0x4F42 = 20,290
+                    uint16_t Bytes2CopyXOR         = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 16) ^ 0xFFFF; // 0xB0BD = 0x4F42
                     
                     if (Bytes2Copy == Bytes2CopyXOR) {
                         for (uint16_t Byte = 0ULL; Byte < Bytes2Copy; Byte++) {
-                            ImageArrayBytes[0][0][0][Byte] = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 8);
+                            ImageArrayBytes[0][0][0][Byte] = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 8);
                         }
                     } else {
-                        Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Data Error: Bytes2Copy does not match Bytes2CopyXOR in literal block"));
+                        Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Data Error: Bytes2Copy does not match Bytes2CopyXOR in literal block"));
                     }
                 } else if (BlockType == BlockType_Fixed) {
                     //Tree = PNG_Flate_BuildHuffmanTree();
                 } else if (BlockType == BlockType_Dynamic) {
                     //Tree = PNG_Flate_BuildHuffmanTree();
                 } else {
-                    Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("PNG Invalid DAT Block"));
+                    Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("PNG Invalid DAT Block"));
                 }
                 //PNG_Flate_Decode(PNG, BitB); // Actually read the data
             } while (IsFinalBlock == false);
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         } else if (Image == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("ImageContainer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
         }
     }
     
@@ -168,16 +168,16 @@ extern "C" {
             uint32_t FirstSymbolOfLength = 0;
             for (uint8_t Bit = 1; Bit <= MaxBitsPerSymbol; Bit++) {
                 Symbol             <<= 1;
-                Symbol              |= BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 1);
+                Symbol              |= BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 1);
                 Count                = Tree->Frequency[Bit];
                 if (Symbol - Count < FirstSymbolOfLength) {
                     Symbol           = Tree->Symbol[Bit + (Symbol - FirstSymbolOfLength)];
                 }
             }
         } else if (Tree == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("HuffmanTree Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("HuffmanTree Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
         return Symbol;
     }
@@ -191,10 +191,10 @@ extern "C" {
                 Symbol                              = ReadSymbol(BitB, LengthTree);;
                 if (Symbol > 256) { /* length */
                     Symbol  -= 257;
-                    uint64_t Length                 = LengthBase[Symbol] + BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, LengthAdditionalBits[Symbol]);
+                    uint64_t Length                 = LengthBase[Symbol] + BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, LengthAdditionalBits[Symbol]);
                     
                     Symbol                          = ReadSymbol(BitB, DistanceTree);
-                    uint64_t Distance               = DistanceBase[Symbol] + BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, DistanceAdditionalBits[Symbol]);
+                    uint64_t Distance               = DistanceBase[Symbol] + BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, DistanceAdditionalBits[Symbol]);
                     
                     uint8_t ****ImageArray          = (uint8_t****) ImageContainer_GetArray(Image);
                     if (ImageArray != NULL) {
@@ -205,20 +205,20 @@ extern "C" {
                             // This function might also be useful in ContainerIO as well.
                         }
                     } else {
-                        Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Couldn't get ImageArray"));
+                        Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Couldn't get ImageArray"));
                     }
                 }
             } while (Symbol != EndOfBlock); /* end of block symbol */
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         } else if (LengthTree == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("LengthTree Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("LengthTree Pointer is NULL"));
         } else if (DistanceTree == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("DistanceTree Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("DistanceTree Pointer is NULL"));
         } else if (Image == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("ImageContainer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
         }
     }
     
@@ -242,7 +242,7 @@ extern "C" {
     
     void PNG_Filter_Sub(ImageContainer *Image) {
         if (Image != NULL) {
-            Image_Types Type = ImageContainer_GetType(Image);
+            ContainerIO_ImageTypes Type = ImageContainer_GetType(Image);
             ImageChannelMap *Map = ImageContainer_GetChannelMap(Image);
             uint8_t     NumViews = ImageChannelMap_GetNumViews(Map);
             if (Type == ImageType_Integer8) {
@@ -271,13 +271,13 @@ extern "C" {
                 }
             }
         } else if (Image == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("ImageContainer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
         }
     }
     
     void PNG_Filter_Up(ImageContainer *Image) {
         if (Image != NULL) {
-            Image_Types Type = ImageContainer_GetType(Image);
+            ContainerIO_ImageTypes Type = ImageContainer_GetType(Image);
             ImageChannelMap *Map = ImageContainer_GetChannelMap(Image);
             uint8_t     NumViews = ImageChannelMap_GetNumViews(Map);
             if (Type == ImageType_Integer8) {
@@ -306,13 +306,13 @@ extern "C" {
                 }
             }
         } else if (Image == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("ImageContainer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
         }
     }
     
     void PNG_Filter_Average(ImageContainer *Image) {
         if (Image != NULL) {
-            Image_Types Type = ImageContainer_GetType(Image);
+            ContainerIO_ImageTypes Type = ImageContainer_GetType(Image);
             ImageChannelMap *Map = ImageContainer_GetChannelMap(Image);
             uint8_t     NumViews = ImageChannelMap_GetNumViews(Map);
             if (Type == ImageType_Integer8) {
@@ -347,13 +347,13 @@ extern "C" {
                 }
             }
         } else if (Image == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("ImageContainer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
         }
     }
     
     void PNG_Filter_Paeth(ImageContainer *Image) {
         if (Image != NULL) {
-            Image_Types Type = ImageContainer_GetType(Image);
+            ContainerIO_ImageTypes Type = ImageContainer_GetType(Image);
             ImageChannelMap *Map = ImageContainer_GetChannelMap(Image);
             uint8_t     NumViews = ImageChannelMap_GetNumViews(Map);
             if (Type == ImageType_Integer8) {
@@ -396,7 +396,7 @@ extern "C" {
                 }
             }
         } else if (Image == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("ImageContainer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
         }
     }
     
@@ -407,7 +407,7 @@ extern "C" {
     
     void PNG_Defilter(ImageContainer *Image) {
         if (Image != NULL) {
-            Image_Types Type = ImageContainer_GetType(Image);
+            ContainerIO_ImageTypes Type = ImageContainer_GetType(Image);
             if (Type == ImageType_Integer8) {
                 // Image8
                 uint8_t  ****ImageArray = (uint8_t****) ImageContainer_GetArray(Image);
@@ -435,7 +435,7 @@ extern "C" {
                             PNG_Filter_Paeth(Image);
                             break;
                         default:
-                            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Filter type: %d is invalid"), ImageArray[0][ScanLine][0][0]);
+                            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Filter type: %d is invalid"), ImageArray[0][ScanLine][0][0]);
                             break;
                     }
                 }
@@ -461,13 +461,13 @@ extern "C" {
                             PNG_Filter_Paeth(Image);
                             break;
                         default:
-                            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Filter type: %d is invalid"), ImageArray[0][ScanLine][0][0]);
+                            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Filter type: %d is invalid"), ImageArray[0][ScanLine][0][0]);
                             break;
                     }
                 }
             }
         } else {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("ImageContainer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
         }
     }
     
@@ -481,7 +481,7 @@ extern "C" {
             uint64_t Width          = PNG->iHDR->Width;
             uint64_t Height         = PNG->iHDR->Height;
             ImageContainer *Decoded = NULL;
-            ImageChannelMask  Mask  = 0;
+            ContainerIO_ImageChannelMask  Mask  = 0;
             
             PNG_Flate_ReadZlibHeader(PNG, BitB);
             
@@ -511,15 +511,15 @@ extern "C" {
             } else if (BitDepth <= 16) {
                 Decoded = ImageContainer_Init(ImageType_Integer16, Mask, Width, Height);
             } else {
-                Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitDepth %d is invalid"), BitDepth);
+                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitDepth %d is invalid"), BitDepth);
             }
             
             PNG_DAT_Decode(PNG, BitB, Decoded);
             PNG_Flate_ReadDeflateBlock(PNG, BitB, Decoded);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -527,27 +527,27 @@ extern "C" {
         if (Image != NULL) {
             
         } else if (Image == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("ImageContainer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
         }
     }
     
     void PNG_IHDR_Read(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG           = Options;
-            PNG->iHDR->Width          = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            PNG->iHDR->Height         = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            PNG->iHDR->BitDepth       = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
-            PNG->iHDR->ColorType      = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+            PNG->iHDR->Width          = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32);
+            PNG->iHDR->Height         = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32);
+            PNG->iHDR->BitDepth       = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8);
+            PNG->iHDR->ColorType      = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8);
             if (PNG->iHDR->ColorType == 1 || PNG->iHDR->ColorType == 5 || PNG->iHDR->ColorType >= 7) {
-                Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Invalid color type: %d"), PNG->iHDR->ColorType);
+                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Invalid color type: %d"), PNG->iHDR->ColorType);
             }
-            PNG->iHDR->Compression    = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
-            PNG->iHDR->FilterMethod   = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
-            PNG->iHDR->Progressive    = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+            PNG->iHDR->Compression    = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8);
+            PNG->iHDR->FilterMethod   = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8);
+            PNG->iHDR->Progressive    = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -560,26 +560,26 @@ extern "C" {
                 if (ColorType == PNG_PalettedRGB || ColorType == PNG_RGB) {
                     //PNG_PLTE_Init(Ovia);
                     for (uint32_t Entry = 0UL; Entry < ChunkSize / 3; Entry++) {
-                        PNG->PLTE->Palette[0] = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 8);
-                        PNG->PLTE->Palette[1] = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 8);
-                        PNG->PLTE->Palette[2] = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 8);
+                        PNG->PLTE->Palette[0] = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 8);
+                        PNG->PLTE->Palette[1] = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 8);
+                        PNG->PLTE->Palette[2] = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 8);
                     }
                 } else if (ColorType == PNG_RGBA) {
                     for (uint32_t Entry = 0UL; Entry < ChunkSize / 3; Entry++) {
-                        PNG->PLTE->Palette[0] = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 8);
-                        PNG->PLTE->Palette[1] = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 8);
-                        PNG->PLTE->Palette[2] = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 8);
-                        PNG->PLTE->Palette[3] = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, 8);
+                        PNG->PLTE->Palette[0] = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 8);
+                        PNG->PLTE->Palette[1] = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 8);
+                        PNG->PLTE->Palette[2] = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 8);
+                        PNG->PLTE->Palette[3] = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 8);
                     }
                 }
             } else {
                 BitBuffer_Seek(BitB, Bytes2Bits(ChunkSize));
-                Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitDepth %d can't have a palette"), BitDepth);
+                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitDepth %d can't have a palette"), BitDepth);
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -599,18 +599,18 @@ extern "C" {
             }
             if (Entries != NULL) {
                 for (uint8_t Color = 0; Color < PNG_NumChannelsPerColorType[PNG->iHDR->ColorType]; Color++) {
-                    Entries[Color]    = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, Bits2Bytes(PNG->iHDR->BitDepth, RoundingType_Up));
+                    Entries[Color]    = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, Bits2Bytes(PNG->iHDR->BitDepth, RoundingType_Up));
                 }
                 //Ovia->tRNS->Palette = Entries;
             } else {
-                Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Failed to allocate enough memory for the TRNS Palette"));
+                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Failed to allocate enough memory for the TRNS Palette"));
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         } else if (ChunkSize % 3 != 0) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("The ChunkSize MUST be divisible by 3"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("The ChunkSize MUST be divisible by 3"));
         }
     }
     
@@ -618,74 +618,74 @@ extern "C" {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG = Options;
             for (uint8_t Entry = 0; Entry < PNG_NumChannelsPerColorType[PNG->iHDR->ColorType]; Entry++) {
-                PNG->bkGD->BackgroundPaletteEntry[Entry] = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, PNG->iHDR->BitDepth);
+                PNG->bkGD->BackgroundPaletteEntry[Entry] = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, PNG->iHDR->BitDepth);
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
     void PNG_CHRM_Read(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG        = Options;
-            PNG->cHRM->WhitePointX = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            PNG->cHRM->WhitePointY = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            PNG->cHRM->RedX        = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            PNG->cHRM->RedY        = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            PNG->cHRM->GreenX      = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            PNG->cHRM->GreenY      = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            PNG->cHRM->BlueX       = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            PNG->cHRM->BlueY       = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->cHRM->WhitePointX = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32);
+            PNG->cHRM->WhitePointY = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32);
+            PNG->cHRM->RedX        = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32);
+            PNG->cHRM->RedY        = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32);
+            PNG->cHRM->GreenX      = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32);
+            PNG->cHRM->GreenY      = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32);
+            PNG->cHRM->BlueX       = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32);
+            PNG->cHRM->BlueY       = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
     void PNG_GAMA_Read(void *Options, BitBuffer *BitB) { // Gamma
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG  = Options;
-            PNG->gAMA->Gamma = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->gAMA->Gamma = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
     void PNG_OFFS_Read(void *Options, BitBuffer *BitB) { // Image Offset
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG          = Options;
-            PNG->oFFs->XOffset       = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            PNG->oFFs->YOffset       = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            PNG->oFFs->UnitSpecifier = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+            PNG->oFFs->XOffset       = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32);
+            PNG->oFFs->YOffset       = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32);
+            PNG->oFFs->UnitSpecifier = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
     void PNG_PHYS_Read(void *Options, BitBuffer *BitB) { // Aspect ratio, Physical pixel size
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG               = Options;
-            PNG->pHYs->PixelsPerUnitXAxis = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            PNG->pHYs->PixelsPerUnitYAxis = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            PNG->pHYs->UnitSpecifier      = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+            PNG->pHYs->PixelsPerUnitXAxis = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32);
+            PNG->pHYs->PixelsPerUnitYAxis = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32);
+            PNG->pHYs->UnitSpecifier      = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
     void PNG_SCAL_Read(void *Options, BitBuffer *BitB) { // Physical Scale
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG           = Options;
-            PNG->sCAL->UnitSpecifier  = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8); // 1 = Meter, 2 = Radian
+            PNG->sCAL->UnitSpecifier  = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8); // 1 = Meter, 2 = Radian
             
             uint32_t WidthStringSize  = (uint32_t) BitBuffer_GetUTF8StringSize(BitB);
             uint32_t HeightStringSize = (uint32_t) BitBuffer_GetUTF8StringSize(BitB);
@@ -693,15 +693,15 @@ extern "C" {
             UTF8 *WidthString         = BitBuffer_ReadUTF8(BitB, WidthStringSize);
             UTF8 *HeightString        = BitBuffer_ReadUTF8(BitB, HeightStringSize);
             
-            PNG->sCAL->PixelWidth     = UTF8_String2Decimal(Base_Decimal_Radix10, WidthString);
-            PNG->sCAL->PixelHeight    = UTF8_String2Decimal(Base_Decimal_Radix10, HeightString);
+            PNG->sCAL->PixelWidth     = UTF8_String2Decimal(WidthString, Base_Decimal | Base_Radix10);
+            PNG->sCAL->PixelHeight    = UTF8_String2Decimal(HeightString, Base_Decimal | Base_Radix10);
             
             free(WidthString);
             free(HeightString);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -710,10 +710,10 @@ extern "C" {
             PNGOptions *PNG                      = Options;
             uint8_t CalibrationSize              = BitBuffer_GetUTF8StringSize(BitB);
             PNG->pCAL->CalibrationName           = BitBuffer_ReadUTF8(BitB, CalibrationSize);
-            PNG->pCAL->OriginalZero              = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            PNG->pCAL->OriginalMax               = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            PNG->pCAL->EquationType              = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
-            PNG->pCAL->NumParams                 = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+            PNG->pCAL->OriginalZero              = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32);
+            PNG->pCAL->OriginalMax               = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32);
+            PNG->pCAL->EquationType              = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8);
+            PNG->pCAL->NumParams                 = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8);
             uint8_t UnitNameSize                 = BitBuffer_GetUTF8StringSize(BitB);
             PNG->pCAL->UnitName                  = BitBuffer_ReadUTF8(BitB, UnitNameSize);
             BitBuffer_Seek(BitB, 8); // NULL seperator
@@ -722,13 +722,13 @@ extern "C" {
                 for (uint8_t Param = 0; Param < PNG->pCAL->NumParams; Param++) {
                     uint8_t ParameterSize        = BitBuffer_GetUTF8StringSize(BitB);
                     UTF8   *ParameterString      = BitBuffer_ReadUTF8(BitB, ParameterSize);
-                    PNG->pCAL->Parameters[Param] = UTF8_String2Decimal(Base_Decimal_Radix10, ParameterString);
+                    PNG->pCAL->Parameters[Param] = UTF8_String2Decimal(ParameterString, Base_Decimal | Base_Radix10);
                 }
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -737,42 +737,42 @@ extern "C" {
             PNGOptions *PNG          = Options;
             PNG_ColorTypes ColorType = PNG->iHDR->ColorType;
             if (ColorType == PNG_Grayscale) {
-                PNG->sBIT->Grayscale = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+                PNG->sBIT->Grayscale = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8);
             } else if (ColorType == PNG_RGB || ColorType == PNG_PalettedRGB) {
-                PNG->sBIT->Red       = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
-                PNG->sBIT->Green     = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
-                PNG->sBIT->Blue      = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+                PNG->sBIT->Red       = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8);
+                PNG->sBIT->Green     = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8);
+                PNG->sBIT->Blue      = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8);
             } else if (ColorType == PNG_GrayAlpha) {
-                PNG->sBIT->Grayscale = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
-                PNG->sBIT->Alpha     = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+                PNG->sBIT->Grayscale = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8);
+                PNG->sBIT->Alpha     = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8);
             } else if (ColorType == PNG_RGBA) {
-                PNG->sBIT->Red       = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
-                PNG->sBIT->Green     = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
-                PNG->sBIT->Blue      = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
-                PNG->sBIT->Alpha     = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+                PNG->sBIT->Red       = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8);
+                PNG->sBIT->Green     = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8);
+                PNG->sBIT->Blue      = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8);
+                PNG->sBIT->Alpha     = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8);
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
     void PNG_SRGB_Read(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG            = Options;
-            PNG->sRGB->RenderingIntent = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+            PNG->sRGB->RenderingIntent = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
     void PNG_STER_Read(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG       = Options;
-            PNG->sTER->StereoType = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+            PNG->sTER->StereoType = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8);
             // No matter what StereoType is used, both images are arranged side by side, and the left edge is aligned on a boundary of the 8th column in case interlacing is used.
             // The two sub images must have the same dimensions after padding is removed.
             // CROSS_FUSE_LAYOUT = 0, DIVERGING_FUSE_LAYOUT = 1
@@ -784,9 +784,9 @@ extern "C" {
             // So, let's say we have 2 1080p images, and we want to make a single Stereoscopic PNG from them.
             //
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -826,25 +826,25 @@ extern "C" {
             // Why not just have a count of the text chunks?
             // Store a variable in OVIA called NumTextChunks, then store a type called Comment or something that stores both the comment type as a string and the actual comment...
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
     void PNG_TIME_Read(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG                     = Options;
-            PNG->tIMe->Year                     = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16);
-            PNG->tIMe->Month                    = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
-            PNG->tIMe->Day                      = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
-            PNG->tIMe->Hour                     = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
-            PNG->tIMe->Minute                   = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
-            PNG->tIMe->Second                   = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+            PNG->tIMe->Year                     = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 16);
+            PNG->tIMe->Month                    = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8);
+            PNG->tIMe->Day                      = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8);
+            PNG->tIMe->Hour                     = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8);
+            PNG->tIMe->Minute                   = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8);
+            PNG->tIMe->Second                   = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -852,31 +852,31 @@ extern "C" {
     void PNG_ACTL_Read(void *Options, BitBuffer *BitB) { // Animation control, part of APNG
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG                  = Options;
-            PNG->acTL->NumFrames             = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            PNG->acTL->TimesToLoop           = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32); // If 0, loop forever.
+            PNG->acTL->NumFrames             = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32);
+            PNG->acTL->TimesToLoop           = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32); // If 0, loop forever.
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
     void PNG_FCTL_Read(void *Options, BitBuffer *BitB) { // Frame Control, part of APNG
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG                  = Options;
-            PNG->fcTL->FrameNum              = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            PNG->fcTL->Width                 = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            PNG->fcTL->Height                = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            PNG->fcTL->XOffset               = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            PNG->fcTL->YOffset               = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-            PNG->fcTL->FrameDelayNumerator   = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16);
-            PNG->fcTL->FrameDelayDenominator = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 16);
-            PNG->fcTL->DisposeMethod         = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
-            PNG->fcTL->BlendMethod           = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+            PNG->fcTL->FrameNum              = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32);
+            PNG->fcTL->Width                 = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32);
+            PNG->fcTL->Height                = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32);
+            PNG->fcTL->XOffset               = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32);
+            PNG->fcTL->YOffset               = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32);
+            PNG->fcTL->FrameDelayNumerator   = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 16);
+            PNG->fcTL->FrameDelayDenominator = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 16);
+            PNG->fcTL->DisposeMethod         = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8);
+            PNG->fcTL->BlendMethod           = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     /* End APNG */
@@ -884,14 +884,14 @@ extern "C" {
     void PNG_HIST_Read(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG      = Options;
-            PNG->hIST->NumColors = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+            PNG->hIST->NumColors = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32);
             for (uint32_t Color = 0; Color < PNG->hIST->NumColors; Color++) {
-                PNG->hIST->Histogram[Color] = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, PNG->iHDR->BitDepth);
+                PNG->hIST->Histogram[Color] = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, PNG->iHDR->BitDepth);
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -900,15 +900,15 @@ extern "C" {
             PNGOptions *PNG         = Options;
             uint8_t ProfileNameSize = BitBuffer_GetUTF8StringSize(BitB);
             PNG->iCCP->ProfileName  = BitBuffer_ReadUTF8(BitB, ProfileNameSize);
-            PNG->iCCP->CompressionType = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+            PNG->iCCP->CompressionType = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8);
             // Decompress the data with Zlib
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
         uint8_t ProfileNameSize = 0;
-        ProfileNameSize = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+        ProfileNameSize = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8);
     }
     
     void PNG_SPLT_Read(void *Options, BitBuffer *BitB) {
@@ -918,16 +918,16 @@ extern "C" {
             uint8_t BitDepthInBytes                  = Bits2Bytes(PNG->iHDR->BitDepth, RoundingType_Up);
             uint8_t PaletteNameSize                  = BitBuffer_GetUTF8StringSize(BitB);
             PNG->sPLT[PNG->NumSPLTChunks - 1]->Name  = BitBuffer_ReadUTF8(BitB, PaletteNameSize);
-            PNG->sPLT[PNG->NumSPLTChunks - 1]->Red   = (uint16_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, Bytes2Bits(BitDepthInBytes));
-            PNG->sPLT[PNG->NumSPLTChunks - 1]->Green = (uint16_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, Bytes2Bits(BitDepthInBytes));
-            PNG->sPLT[PNG->NumSPLTChunks - 1]->Blue  = (uint16_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, Bytes2Bits(BitDepthInBytes));
+            PNG->sPLT[PNG->NumSPLTChunks - 1]->Red   = (uint16_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, Bytes2Bits(BitDepthInBytes));
+            PNG->sPLT[PNG->NumSPLTChunks - 1]->Green = (uint16_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, Bytes2Bits(BitDepthInBytes));
+            PNG->sPLT[PNG->NumSPLTChunks - 1]->Blue  = (uint16_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, Bytes2Bits(BitDepthInBytes));
             if (ColorType == PNG_RGBA || ColorType == PNG_GrayAlpha) {
-                PNG->sPLT[PNG->NumSPLTChunks - 1]->Alpha = (uint16_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, Bytes2Bits(BitDepthInBytes));
+                PNG->sPLT[PNG->NumSPLTChunks - 1]->Alpha = (uint16_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, Bytes2Bits(BitDepthInBytes));
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -936,8 +936,8 @@ extern "C" {
             PNGOptions *PNG          = Options;
             ImageContainer *Image    = NULL;
             while (BitBuffer_GetSize(BitB) > 0) {
-                uint32_t ChunkSize   = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
-                uint32_t ChunkID     = (uint32_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 32);
+                uint32_t ChunkSize   = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32);
+                uint32_t ChunkID     = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32);
                 
                 if (ChunkID == acTLMarker) {
                     PNG_ACTL_Read(PNG, BitB);
@@ -994,9 +994,9 @@ extern "C" {
                 }
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -1009,9 +1009,9 @@ extern "C" {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG = Options;
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
         return Image;
     }
@@ -1061,6 +1061,6 @@ extern "C" {
         .DecoderID             = CodecID_PNG,
     };
     
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif

@@ -1,6 +1,6 @@
 #include "../../include/Private/PNGCommon.h"
 
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
     
@@ -14,9 +14,9 @@ extern "C" {
         if (Options != NULL && BitB != NULL) {
             // Write the iHDR chunk, and then go through the list of other chunks to find out if other chunks should be written
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -24,13 +24,13 @@ extern "C" {
         if (Options != NULL && BitB != NULL) {
             uint32_t iENDSize = 0;
             uint32_t iENDCRC  = 0xAE426082;
-            BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, 32, iENDSize);
-            BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, 32, iENDMarker);
-            BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, 32, iENDCRC);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 32, iENDSize);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 32, iENDMarker);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 32, iENDCRC);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -47,20 +47,20 @@ extern "C" {
             FCHECK                   |= FDICT << 6;
             FCHECK                   |= FDICT << 5;
             
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 4, CompressionMethod);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 4, CompressionInfo);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 4, CompressionMethod);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 4, CompressionInfo);
             
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 5, FCHECK);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 1, FDICT);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 2, 0); // Huh?
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 5, FCHECK);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 1, FDICT);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 2, 0); // Huh?
             
             if (FDICT == Yes) {
-                BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, PNG->DAT->DictID);
+                BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, PNG->DAT->DictID);
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -72,8 +72,8 @@ extern "C" {
             uint16_t Bytes2Copy  = 0;
             uint16_t Bytes2Copy2 = Bytes2Copy ^ 0xFFFF;
             
-            BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, 16, Bytes2Copy);
-            BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, 16, Bytes2Copy2);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 16, Bytes2Copy);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 16, Bytes2Copy2);
             
             // Now we simply copy bytes from the image container to the BitBuffer; the max num bytes is 65536
             
@@ -86,9 +86,9 @@ extern "C" {
             
             
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -98,11 +98,11 @@ extern "C" {
              Loop over the image container, line by line, and try all the filters.
              */
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (Container == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Container Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Container Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -110,87 +110,87 @@ extern "C" {
         if (Image != NULL) {
             // Try each filter on each line, get the best by counting the diff between the symbols to decide which to use.
         } else if (Image == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Image Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Image Pointer is NULL"));
         }
     }
     
     void WriteIHDRChunk(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG           = Options;
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, 13);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, iHDRMarker);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, PNG->iHDR->Width);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, PNG->iHDR->Height);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8,  PNG->iHDR->BitDepth);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8,  PNG->iHDR->ColorType);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8,  PNG->iHDR->Compression);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8,  PNG->iHDR->FilterMethod);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8,  PNG->iHDR->Interlaced);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, 13);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, iHDRMarker);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, PNG->iHDR->Width);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, PNG->iHDR->Height);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8,  PNG->iHDR->BitDepth);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8,  PNG->iHDR->ColorType);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8,  PNG->iHDR->Compression);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8,  PNG->iHDR->FilterMethod);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8,  PNG->iHDR->Interlaced);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
     void WriteACTLChunk(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG           = Options;
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, 8);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, acTLMarker);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, PNG->acTL->NumFrames);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, PNG->acTL->TimesToLoop);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, 8);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, acTLMarker);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, PNG->acTL->NumFrames);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, PNG->acTL->TimesToLoop);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
     void WriteFCTLChunk(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG           = Options;
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, 29);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, fcTLMarker);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, PNG->fcTL->FrameNum);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, PNG->fcTL->Width);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, PNG->fcTL->Height);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, PNG->fcTL->XOffset);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, PNG->fcTL->YOffset);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 16, PNG->fcTL->FrameDelayNumerator);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 16, PNG->fcTL->FrameDelayDenominator);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8,  PNG->fcTL->DisposeMethod);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8,  PNG->fcTL->BlendMethod);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, 29);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, fcTLMarker);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, PNG->fcTL->FrameNum);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, PNG->fcTL->Width);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, PNG->fcTL->Height);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, PNG->fcTL->XOffset);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, PNG->fcTL->YOffset);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 16, PNG->fcTL->FrameDelayNumerator);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 16, PNG->fcTL->FrameDelayDenominator);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8,  PNG->fcTL->DisposeMethod);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8,  PNG->fcTL->BlendMethod);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
     void WriteFDATChunk(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG           = Options;
-            // BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, DeflatedFrameData + 8);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, fDATMarker);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, PNG->fcTL->FrameNum);
+            // BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, DeflatedFrameData + 8);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, fDATMarker);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, PNG->fcTL->FrameNum);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
     void WriteSTERChunk(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG           = Options;
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, 1);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, sTERMarker);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8,  PNG->sTER->StereoType);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, 1);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, sTERMarker);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8,  PNG->sTER->StereoType);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -213,70 +213,70 @@ extern "C" {
                 BKGDEntrySize = Bytes2Bits(NumChannels * 2);
             }
             
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, Size);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, bKGDMarker);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, Size);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, bKGDMarker);
             
             if (ColorType == PNG_PalettedRGB || ColorType == PNG_Grayscale || ColorType == PNG_GrayAlpha) {
                 for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
-                    BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, BKGDEntrySize, PNG->bkGD->BackgroundPaletteEntry[Channel]);
+                    BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, BKGDEntrySize, PNG->bkGD->BackgroundPaletteEntry[Channel]);
                 }
             } else if (ColorType == PNG_RGB || ColorType == PNG_RGBA) {
                 for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
-                    BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, NumChannels * 16, PNG->bkGD->BackgroundPaletteEntry[Channel]);
+                    BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, NumChannels * 16, PNG->bkGD->BackgroundPaletteEntry[Channel]);
                 }
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
     void WriteCHRMChunk(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG           = Options;
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, 32);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, cHRMMarker);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, PNG->cHRM->WhitePointX);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, PNG->cHRM->WhitePointY);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, PNG->cHRM->RedX);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, PNG->cHRM->RedY);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, PNG->cHRM->GreenX);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, PNG->cHRM->GreenY);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, PNG->cHRM->BlueX);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, PNG->cHRM->BlueY);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, 32);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, cHRMMarker);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, PNG->cHRM->WhitePointX);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, PNG->cHRM->WhitePointY);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, PNG->cHRM->RedX);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, PNG->cHRM->RedY);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, PNG->cHRM->GreenX);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, PNG->cHRM->GreenY);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, PNG->cHRM->BlueX);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, PNG->cHRM->BlueY);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
     void WriteGAMAChunk(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG           = Options;
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, 4);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, gAMAMarker);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, PNG->gAMA->Gamma);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, 4);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, gAMAMarker);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, PNG->gAMA->Gamma);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
     void WriteOFFSChunk(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG           = Options;
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, 9);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, oFFsMarker);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, PNG->oFFs->XOffset);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, PNG->oFFs->YOffset);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8,  PNG->oFFs->UnitSpecifier);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, 9);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, oFFsMarker);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, PNG->oFFs->XOffset);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, PNG->oFFs->YOffset);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8,  PNG->oFFs->UnitSpecifier);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -287,17 +287,17 @@ extern "C" {
             uint64_t  ProfileNameSize       = UTF8_GetStringSizeInCodeUnits(ProfileName);
             uint64_t  CompressedProfileSize = PNG->iCCP->CompressedICCPProfileSize;
             
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, 8 + CompressedProfileSize + ProfileNameSize);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, iCCPMarker);
-            BitBuffer_WriteUTF8(BitB, ProfileName, WriteType_NULLTerminator);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, PNG->iCCP->CompressionType);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, 8 + CompressedProfileSize + ProfileNameSize);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, iCCPMarker);
+            BitBuffer_WriteUTF8(BitB, ProfileName, StringTerminator_NULL);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8, PNG->iCCP->CompressionType);
             for (uint64_t Byte = 0ULL; Byte < PNG->iCCP->CompressedICCPProfileSize; Byte++) {
-                BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, PNG->iCCP->CompressedICCPProfile[Byte]);
+                BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8, PNG->iCCP->CompressedICCPProfile[Byte]);
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -316,57 +316,57 @@ extern "C" {
                 ChunkSize = 4;
             }
             
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, ChunkSize);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, sBITMarker);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, ChunkSize);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, sBITMarker);
             
             if (ColorType == PNG_RGB || ColorType == PNG_PalettedRGB) {
-                BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, PNG->sBIT->Red);
-                BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, PNG->sBIT->Green);
-                BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, PNG->sBIT->Blue);
+                BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8, PNG->sBIT->Red);
+                BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8, PNG->sBIT->Green);
+                BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8, PNG->sBIT->Blue);
             } else if (ColorType == PNG_RGBA) {
-                BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, PNG->sBIT->Red);
-                BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, PNG->sBIT->Green);
-                BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, PNG->sBIT->Blue);
-                BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, PNG->sBIT->Alpha);
+                BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8, PNG->sBIT->Red);
+                BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8, PNG->sBIT->Green);
+                BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8, PNG->sBIT->Blue);
+                BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8, PNG->sBIT->Alpha);
             } else if (ColorType == PNG_Grayscale) {
-                BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, PNG->sBIT->Grayscale);
+                BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8, PNG->sBIT->Grayscale);
             } else if (ColorType == PNG_GrayAlpha) {
-                BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, PNG->sBIT->Grayscale);
-                BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, PNG->sBIT->Alpha);
+                BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8, PNG->sBIT->Grayscale);
+                BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8, PNG->sBIT->Alpha);
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
     void WriteSRGBChunk(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG           = Options;
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 1);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, sRGBMarker);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, PNG->sRGB->RenderingIntent);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8, 1);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, sRGBMarker);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8, PNG->sRGB->RenderingIntent);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
     void WritePHYSChunk(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG           = Options;
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, 9);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, pHYsMarker);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8, 9);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, pHYsMarker);
             
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, PNG->pHYs->PixelsPerUnitXAxis);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, PNG->pHYs->PixelsPerUnitYAxis);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8,  PNG->pHYs->UnitSpecifier);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, PNG->pHYs->PixelsPerUnitXAxis);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, PNG->pHYs->PixelsPerUnitYAxis);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8,  PNG->pHYs->UnitSpecifier);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -374,12 +374,12 @@ extern "C" {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG    = Options;
             uint32_t ChunkSize = 0;
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, ChunkSize);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 32, pCALMarker);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, ChunkSize);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32, pCALMarker);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -388,9 +388,9 @@ extern "C" {
             PNGOptions *PNG    = Options;
             uint32_t ChunkSize = 0;
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -415,6 +415,6 @@ extern "C" {
         .Function_Deinitialize = PNGOptions_Deinit,
     };
     
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif

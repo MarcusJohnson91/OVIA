@@ -1,6 +1,6 @@
 #include "../../include/Private/WAVCommon.h"
 
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
     
@@ -20,6 +20,6 @@ extern "C" {
         free(WAV);
     }
     
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif

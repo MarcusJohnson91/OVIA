@@ -1,6 +1,6 @@
 #include "../../include/Private/FLACCommon.h"
 
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
     
@@ -10,7 +10,7 @@ extern "C" {
             FLAC->StreamInfo  = calloc(1, sizeof(StreamInfo));
             FLAC->CueSheet    = calloc(1, sizeof(FLACCueSheet));
         } else {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Couldn't allocate FLACOptions"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Couldn't allocate FLACOptions"));
         }
         return FLAC;
     }
@@ -19,13 +19,13 @@ extern "C" {
         uint8_t NumChannels = 0;
         if (Options != NULL) {
             FLACOptions *FLAC = Options;
-            if (FLAC->Frame->ChannelLayout <= 7) {
-                NumChannels = FLAC->Frame->ChannelLayout + 1;
-            } else if (FLAC->Frame->ChannelLayout <= 11) {
+            if (FLAC->Frame->NumChannels <= 7) {
+                NumChannels = FLAC->Frame->NumChannels + 1;
+            } else if (FLAC->Frame->NumChannels <= 11) {
                 NumChannels = 2;
             }
         } else {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         }
         return NumChannels;
     }
@@ -56,6 +56,6 @@ extern "C" {
         free(FLAC);
     }
     
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif

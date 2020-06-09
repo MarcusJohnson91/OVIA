@@ -13,7 +13,7 @@
 #ifndef OVIA_W64Common_H
 #define OVIA_W64Common_H
 
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
     
@@ -239,7 +239,7 @@ extern "C" {
     
     void  WAVOptions_Deinit(void *Options);
     
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif
 

@@ -5,7 +5,7 @@
 #ifndef OVIA_ID3Common_H
 #define OVIA_ID3Common_H
 
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
     
@@ -15,7 +15,7 @@ extern "C" {
         UTF32 *Album;
     } ID3;
     
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif
 

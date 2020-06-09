@@ -13,7 +13,7 @@
 #ifndef OVIA_FLACCommon_H
 #define OVIA_FLACCommon_H
 
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
 
@@ -283,7 +283,7 @@ extern "C" {
         [0] = UTF32String("org.xiph.flac"),
     };
     
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif
 

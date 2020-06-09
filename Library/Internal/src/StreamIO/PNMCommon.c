@@ -1,6 +1,6 @@
 #include "../../include/Private/PNMCommon.h"
 
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
     
@@ -14,6 +14,6 @@ extern "C" {
         free(PNM);
     }
     
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif

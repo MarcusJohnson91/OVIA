@@ -1,20 +1,20 @@
 #include "../../include/Private/PNMCommon.h"
 
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
     
     static uint64_t PNMCheckForComment(BitBuffer *BitB) {
         uint64_t CommentSize = 0;
         if (BitB != NULL) {
-            if (BitBuffer_PeekBits(BitB, MSByteFirst, LSBitFirst, 8) == PNMCommentStart) {
+            if (BitBuffer_PeekBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8) == PNMCommentStart) {
                 BitBuffer_Seek(BitB, 8);
                 do {
                     CommentSize += 1;
-                } while (BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8) != PNMEndField);
+                } while (BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8) != PNMEndField);
             }
         } else {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
         return CommentSize;
     }
@@ -24,7 +24,7 @@ extern "C" {
             PNMOptions *PNM           = Options;
             // Read the Marker, store it in PNMOptions
             BitBuffer_Seek(BitB, 8);
-            uint8_t Type = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+            uint8_t Type = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8);
             switch (Type) {
                 case '1':
                 case '2':
@@ -46,7 +46,7 @@ extern "C" {
                 /* Read Width */
                 uint64_t WidthStringSize  = BitBuffer_GetUTF8StringSize(BitB);
                 UTF8    *WidthString      = BitBuffer_ReadUTF8(BitB, WidthStringSize);
-                PNM->Width                = UTF8_String2Integer(Base_Integer_Radix10, WidthString);
+                PNM->Width                = UTF8_String2Integer(WidthString, Base_Integer | Base_Radix10);
                 free(WidthString);
                 /* Read Width */
                 
@@ -56,28 +56,28 @@ extern "C" {
                 /* Read Height */
                 uint64_t HeightStringSize = BitBuffer_GetUTF8StringSize(BitB);
                 UTF8    *HeightString     = BitBuffer_ReadUTF8(BitB, HeightStringSize);
-                PNM->Height               = UTF8_String2Integer(Base_Integer_Radix10, HeightString);
+                PNM->Height               = UTF8_String2Integer(HeightString, Base_Integer | Base_Radix10);
                 free(HeightString);
                 /* Read Height */
             } else if (PNM->Type == BinaryPNM) {
                 /* Read Width */
                 uint64_t WidthStringSize  = BitBuffer_GetUTF8StringSize(BitB);
                 UTF8    *WidthString      = BitBuffer_ReadUTF8(BitB, WidthStringSize);
-                PNM->Width                = UTF8_String2Integer(Base_Integer_Radix10, WidthString);
+                PNM->Width                = UTF8_String2Integer(WidthString, Base_Integer | Base_Radix10);
                 free(WidthString);
                 /* Read Width */
                 
                 /* Read Height */
                 uint64_t HeightStringSize = BitBuffer_GetUTF8StringSize(BitB);
                 UTF8    *HeightString     = BitBuffer_ReadUTF8(BitB, HeightStringSize);
-                PNM->Height               = UTF8_String2Integer(Base_Integer_Radix10, HeightString);
+                PNM->Height               = UTF8_String2Integer(HeightString, Base_Integer | Base_Radix10);
                 free(HeightString);
                 /* Read Height */
                 
                 /* Read MaxVal */
                 uint64_t MaxValStringSize = BitBuffer_GetUTF8StringSize(BitB);
                 UTF8    *MaxValString     = BitBuffer_ReadUTF8(BitB, MaxValStringSize);
-                uint64_t MaxVal           = UTF8_String2Integer(Base_Integer_Radix10, MaxValString);
+                uint64_t MaxVal           = UTF8_String2Integer(MaxValString, Base_Integer | Base_Radix10);
                 PNM->BitDepth             = Logarithm(2, MaxVal + 1);
                 free(MaxValString);
                 /* Read MaxVal */
@@ -87,7 +87,7 @@ extern "C" {
                 
                 uint64_t WidthStringSize  = BitBuffer_GetUTF8StringSize(BitB);
                 UTF8    *WidthString      = BitBuffer_ReadUTF8(BitB, WidthStringSize);
-                PNM->Width                = UTF8_String2Integer(Base_Integer_Radix10, WidthString);
+                PNM->Width                = UTF8_String2Integer(WidthString, Base_Integer | Base_Radix10);
                 free(WidthString);
                 /* Read Width */
                 
@@ -96,7 +96,7 @@ extern "C" {
                 
                 uint64_t HeightStringSize = BitBuffer_GetUTF8StringSize(BitB);
                 UTF8    *HeightString     = BitBuffer_ReadUTF8(BitB, HeightStringSize);
-                PNM->Height               = UTF8_String2Integer(Base_Integer_Radix10, HeightString);
+                PNM->Height               = UTF8_String2Integer(HeightString, Base_Integer | Base_Radix10);
                 free(HeightString);
                 /* Read Height */
                 
@@ -105,7 +105,7 @@ extern "C" {
                 
                 uint64_t NumChannelsStringSize  = BitBuffer_GetUTF8StringSize(BitB);
                 UTF8    *NumChannelsString      = BitBuffer_ReadUTF8(BitB, NumChannelsStringSize);
-                PNM->NumChannels                = UTF8_String2Integer(Base_Integer_Radix10, NumChannelsString);
+                PNM->NumChannels                = UTF8_String2Integer(NumChannelsString, Base_Integer | Base_Radix10);
                 free(NumChannelsString);
                 /* Read NumChannels */
                 
@@ -114,7 +114,7 @@ extern "C" {
                 
                 uint64_t MaxValStringSize = BitBuffer_GetUTF8StringSize(BitB);
                 UTF8    *MaxValString     = BitBuffer_ReadUTF8(BitB, MaxValStringSize);
-                uint64_t MaxVal           = UTF8_String2Integer(Base_Integer_Radix10, MaxValString);
+                uint64_t MaxVal           = UTF8_String2Integer(MaxValString, Base_Integer | Base_Radix10);
                 PNM->BitDepth             = Logarithm(2, MaxVal + 1);
                 free(MaxValString);
                 /* Read MaxVal */
@@ -140,7 +140,7 @@ extern "C" {
                     PNM->NumChannels       = 4;
                     PNM->TupleType         = PNM_TUPLE_RGBAlpha;
                 } else {
-                    Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Unknown PNM Tuple: %s"), TupleTypeString);
+                    Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Unknown PNM Tuple: %s"), TupleTypeString);
                 }
                 free(TupleTypeString);
                 /* Read TupleType */
@@ -150,9 +150,9 @@ extern "C" {
                 /* Skip ENDHDR */
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -178,9 +178,9 @@ extern "C" {
                         for (uint64_t Height = 0; Height < PNM->Height; Height++) {
                             for (uint8_t Channel = 0; Channel < PNM->NumChannels; Channel++) {
                                 for (uint8_t SubPixelByte = 0; SubPixelByte < 3; SubPixelByte++) {
-                                    Component[SubPixelByte]      = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+                                    Component[SubPixelByte]      = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8);
                                 }
-                                Array[0][Width][Height][Channel] = UTF8_String2Integer(Base_Integer_Radix10, Component);
+                                Array[0][Width][Height][Channel] = UTF8_String2Integer(Component, Base_Integer | Base_Radix10);
                             }
                         }
                     }
@@ -191,14 +191,14 @@ extern "C" {
                         for (uint64_t Height = 0; Height < PNM->Height; Height++) {
                             for (uint8_t Channel = 0; Channel < PNM->NumChannels; Channel++) {
                                 for (uint8_t SubPixelByte = 0; SubPixelByte < 3; SubPixelByte++) {
-                                    Component[SubPixelByte]      = BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, 8);
+                                    Component[SubPixelByte]      = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8);
                                 }
-                                Array[0][Width][Height][Channel] = UTF8_String2Integer(Base_Integer_Radix10, Component);
+                                Array[0][Width][Height][Channel] = UTF8_String2Integer(Component, Base_Integer | Base_Radix10);
                             }
                         }
                     }
                 } else {
-                    Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("16 bit ASCII PNM is invalid"));
+                    Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("16 bit ASCII PNM is invalid"));
                 }
             } else if (PNM->Type == BinaryPNM || PNM->Type == PAMPNM) {
                 if (PNM->BitDepth <= 8) {
@@ -207,7 +207,7 @@ extern "C" {
                     for (uint64_t Width = 0; Width < PNM->Width; Width++) {
                         for (uint64_t Height = 0; Height < PNM->Height; Height++) {
                             for (uint8_t Channel = 0; Channel < PNM->NumChannels; Channel++) {
-                                uint8_t CurrentPixel                 = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, PNM->BitDepth);
+                                uint8_t CurrentPixel                 = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, PNM->BitDepth);
                                 if (PNM->TupleType == PNM_TUPLE_BnW) {
                                     Array[0][Width][Height][Channel] = ~CurrentPixel; // 1 = black, 0 = white
                                 } else {
@@ -222,7 +222,7 @@ extern "C" {
                     for (uint64_t Width = 0; Width < PNM->Width; Width++) {
                         for (uint64_t Height = 0; Height < PNM->Height; Height++) {
                             for (uint8_t Channel = 0; Channel < PNM->NumChannels; Channel++) {
-                                uint16_t CurrentPixel                = BitBuffer_ReadBits(BitB, LSByteFirst, LSBitFirst, PNM->BitDepth);
+                                uint16_t CurrentPixel                = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, PNM->BitDepth);
                                 if (PNM->TupleType == PNM_TUPLE_BnW) {
                                     Array[0][Width][Height][Channel] = ~CurrentPixel; // 1 = black, 0 = white
                                 } else {
@@ -234,12 +234,13 @@ extern "C" {
                 }
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         } else if (Image == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("ImageContainer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
         }
+        return Image;
     }
     
 #define PNMNumSubCodecs 7
@@ -299,6 +300,6 @@ extern "C" {
         .DecoderID             = CodecID_PNG,
     };
     
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif

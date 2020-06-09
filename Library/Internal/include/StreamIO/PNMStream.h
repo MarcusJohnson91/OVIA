@@ -13,7 +13,7 @@
 #ifndef OVIA_PNMCommon_H
 #define OVIA_PNMCommon_H
 
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
     
@@ -63,7 +63,7 @@ extern "C" {
     
     void PNMOptions_Deinit(void *Options);
     
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif
 

@@ -1,6 +1,6 @@
 #include "../../include/Private/WAVCommon.h"
 
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
     
@@ -14,9 +14,9 @@ extern "C" {
              So, that means that we also need to use the WriteFooter function pointer to create a function that checks the size, and if the number of samples times the number of channels times the bitdepth is greater than the 4GB barried, we renae the JUNK chunk to ds64.
              */
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -28,21 +28,21 @@ extern "C" {
             uint64_t BitDepth    = WAV->BitDepth;
             uint8_t CBSize = 46;
             
-            BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, 32, 40); // ChunkSize
-            BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, 16, 0xFFFE); // WaveFormatExtensible
-            BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, 16, NumChannels);
-            BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, 32, SampleRate);
-            BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, 32, SampleRate * NumChannels * BitDepth);
-            BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, 32, WAV->BlockAlign);
-            BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, 16, BitDepth);
-            BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, 16, CBSize);
-            BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, 16, BitDepth); // ValidBitsPerSample
-            BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, 32, WAV->ChannelMask);
-            BitBuffer_WriteGUUID(BitB, BinaryGUID, WAVNULLBinaryGUID);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 32, 40); // ChunkSize
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 16, 0xFFFE); // WaveFormatExtensible
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 16, NumChannels);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 32, SampleRate);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 32, SampleRate * NumChannels * BitDepth);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 32, WAV->BlockAlign);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 16, BitDepth);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 16, CBSize);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 16, BitDepth); // ValidBitsPerSample
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 32, WAV->ChannelMask);
+            BitBuffer_WriteGUUID(BitB, GUUIDType_BinaryGUID, WAVNULLBinaryGUID);
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -51,9 +51,9 @@ extern "C" {
              WAVOptions *WAV      = Options;
             // Write the tags
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -64,57 +64,57 @@ extern "C" {
             uint64_t NumChannels    = Audio2DContainer_GetNumChannels(Audio);
             uint64_t BitDepth       = Audio2DContainer_GetBitDepth(Audio);
             uint64_t NumSamples     = Audio2DContainer_GetNumSamples(Audio);
-            Audio_Types Type        = Audio2DContainer_GetType(Audio);
+            ContainerIO_AudioTypes Type        = Audio2DContainer_GetType(Audio);
             
             if (Type == (AudioType_Unsigned | AudioType_Integer8)) {
                 uint8_t **Samples  = (uint8_t**) Audio2DContainer_GetArray(Audio);
                 for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                     for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
-                        BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, BitDepth, Samples[Channel][Sample]);
+                        BitBuffer_WriteBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, BitDepth, Samples[Channel][Sample]);
                     }
                 }
             } else if (Type == (AudioType_Signed | AudioType_Integer8)) {
                 int8_t **Samples   = (int8_t**) Audio2DContainer_GetArray(Audio);
                 for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                     for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
-                        BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, BitDepth, Samples[Channel][Sample]);
+                        BitBuffer_WriteBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, BitDepth, Samples[Channel][Sample]);
                     }
                 }
             } else if (Type == (AudioType_Unsigned | AudioType_Integer16)) {
                 uint16_t **Samples = (uint16_t**) Audio2DContainer_GetArray(Audio);
                 for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                     for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
-                        BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, BitDepth, Samples[Channel][Sample]);
+                        BitBuffer_WriteBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, BitDepth, Samples[Channel][Sample]);
                     }
                 }
             } else if (Type == (AudioType_Signed | AudioType_Integer16)) {
                 int16_t **Samples  = (int16_t**) Audio2DContainer_GetArray(Audio);
                 for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                     for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
-                        BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, BitDepth, Samples[Channel][Sample]);
+                        BitBuffer_WriteBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, BitDepth, Samples[Channel][Sample]);
                     }
                 }
             } else if (Type == (AudioType_Unsigned | AudioType_Integer32)) {
                 uint32_t **Samples = (uint32_t**) Audio2DContainer_GetArray(Audio);
                 for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                     for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
-                        BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, BitDepth, Samples[Channel][Sample]);
+                        BitBuffer_WriteBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, BitDepth, Samples[Channel][Sample]);
                     }
                 }
             } else if (Type == (AudioType_Signed | AudioType_Integer32)) {
                 int32_t **Samples  = (int32_t**) Audio2DContainer_GetArray(Audio);
                 for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                     for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
-                        BitBuffer_WriteBits(BitB, LSByteFirst, LSBitFirst, BitDepth, Samples[Channel][Sample]);
+                        BitBuffer_WriteBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, BitDepth, Samples[Channel][Sample]);
                     }
                 }
             }
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (Contanier == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Contanier Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Contanier Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -133,9 +133,9 @@ extern "C" {
             }
             // Now check the size of the samples.
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -148,7 +148,7 @@ extern "C" {
     };
     
     static const OVIAEncoder WAVEncoder = {
-        .EncoderID             = CodecID_WAV,
+        .EncoderID             = CodecID_PCMAudio,
         .MediaType             = MediaType_Audio2D,
         .NumExtensions         = WAVNumExtensions,
         .Extensions            = WAVExtensions,
@@ -159,6 +159,6 @@ extern "C" {
         .Function_Deinitialize = WAVOptions_Deinit,
     };
     
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif

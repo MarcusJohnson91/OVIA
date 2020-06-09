@@ -1,6 +1,6 @@
 #include "../../include/Private/BMPCommon.h"
 
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
     
@@ -23,6 +23,6 @@ extern "C" {
         free(BMP);
     }
     
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif

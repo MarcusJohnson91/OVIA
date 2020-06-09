@@ -1,6 +1,6 @@
 #include "../../include/Private/W64Common.h"
 
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
     
@@ -61,7 +61,7 @@ extern "C" {
                 AudioChannelMap_AddMask(Map, AudioChannelMap_GetLowestUnusedIndex(Map), AudioMask_FrontLeft);
             }
         } else {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Couldn't allocate AudioChannelMap"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Couldn't allocate AudioChannelMap"));
         }
         return Map;
     }
@@ -71,6 +71,6 @@ extern "C" {
         free(W64);
     }
     
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif

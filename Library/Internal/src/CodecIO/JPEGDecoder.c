@@ -1,6 +1,6 @@
 #include "../../include/Private/JPEGCommon.h"
 
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
     
@@ -44,16 +44,16 @@ extern "C" {
     
     void ReadSegment_StartOfFrame(void *Options, BitBuffer *BitB) { // Size = 17
         JPEGOptions *JPEG                           = Options;
-        uint16_t     TableSize                      = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 16) - 2; // 26
-        JPEG->BitDepth                              = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 8);      // 8
-        JPEG->Height                                = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 16);     // 4096, Height
-        JPEG->Width                                 = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 16);     // 4096, Width
-        JPEG->NumChannels                           = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 8);      // 3, Components
+        uint16_t     TableSize                      = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 16) - 2; // 26
+        JPEG->BitDepth                              = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 8);      // 14
+        JPEG->Height                                = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 16);     // 3528
+        JPEG->Width                                 = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 16);     // 2640
+        JPEG->NumChannels                           = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 8);      // 2???
         JPEG->Components                            = calloc(JPEG->NumChannels, sizeof(ComponentParameters));
         for (uint8_t Component = 0; Component < JPEG->NumChannels; Component++) {
-            JPEG->Components[Component].ComponentID = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 8); // 82, 71, 66,
-            JPEG->Components[Component].Horizontal  = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 8); // 17, 17, 17,
-            JPEG->Components[Component].Vertical    = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 8); //  0,  0,  0,
+            JPEG->Components[Component].ComponentID = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 8); // 1, 2,
+            JPEG->Components[Component].Horizontal  = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 8); // 17, 17.
+            JPEG->Components[Component].Vertical    = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 8); // 0, 0
         }
     }
     
@@ -65,33 +65,33 @@ extern "C" {
     
     void ReadSegment_Extension7(void *Options, BitBuffer *BitB) { // JPEG-LS, 15 bytes
         JPEGOptions *JPEG                           = Options;
-        uint16_t     TableSize                      = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 16) - 2; // 26
+        uint16_t     TableSize                      = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 16) - 2; // 26
         
         // 0810 E01E 0003 0111 0002 1100 0311 00
     }
     
     void ReadSegment_DefineHuffmanTable(void *Options, BitBuffer *BitB) { // JPEG DHT
         JPEGOptions *JPEG                                    = Options;
-        uint16_t     TableSize                               = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 16) - 2; // 26
+        uint16_t     TableSize                               = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 16) - 2; // 26
         uint16_t     BytesRemaining                          = TableSize;
         while (BytesRemaining > 0) {
             JPEG->HuffmanTableCount                         += 1;
             uint8_t TableCount                               = JPEG->HuffmanTableCount - 1;
-            uint8_t TableClass                               = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 4); // 0
-            uint8_t TableID                                  = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 4); // 0, 0-3 possible
+            uint8_t TableClass                               = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 4); // 0
+            uint8_t TableID                                  = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 4); // 0, 0-3 possible
             if (TableClass == 0 && TableID <= 3) {
                 uint16_t NumValues                           = 0;
                 uint8_t *BitCounts                           = calloc(NumBitCounts, sizeof(uint8_t)); // BITS
                 
                 for (uint8_t Count = 0; Count < NumBitCounts; Count++) {
-                    BitCounts[Count]                         = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 8);
+                    BitCounts[Count]                         = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 8);
                     NumValues                               += BitCounts[Count]; // 9
                 }
                 
                 uint8_t *Values                              = calloc(NumValues, sizeof(uint8_t));
                 
                 for (uint8_t Value = 0; Value < NumValues; Value++) {
-                    Values[Value]                            = (uint8_t) BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 8);
+                    Values[Value]                            = (uint8_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 8);
                 }
                 
                 /*
@@ -136,62 +136,62 @@ extern "C" {
                 uint16_t LastK           = Index;
                 /* HUFFSIZE aka C.1 */
             } else if (TableClass > 0) {
-                Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("TableClass: %u is invalid for Lossless JPEG"), TableClass);
+                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("TableClass: %u is invalid for Lossless JPEG"), TableClass);
             } else if (JPEG->Huffman[TableCount]->TableID > 3) {
-                Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("TableID %u is invalid"), JPEG->Huffman[TableCount]->TableID);
+                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("TableID %u is invalid"), JPEG->Huffman[TableCount]->TableID);
             }
         }
     }
     
     void ReadSegment_DefineArithmeticTable(void *Options, BitBuffer *BitB) {
         JPEGOptions *JPEG                     = Options;
-        JPEG->Arithmetic->CodeLength          = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 16);
-        JPEG->Arithmetic->TableClass          = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 4);
-        JPEG->Arithmetic->TableDestination    = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 4);
-        JPEG->Arithmetic->CodeValue           = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 8);
+        JPEG->Arithmetic->CodeLength          = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 16);
+        JPEG->Arithmetic->TableClass          = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 4);
+        JPEG->Arithmetic->TableDestination    = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 4);
+        JPEG->Arithmetic->CodeValue           = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 8);
     }
     
     void ReadSegment_DefineRestartInterval(void *Options, BitBuffer *BitB) {
         JPEGOptions *JPEG                     = Options;
-        JPEG->RestartInterval                 = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 16);
+        JPEG->RestartInterval                 = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 16);
     }
     
     void ReadSegment_DefineNumberOfLines(void *Options, BitBuffer *BitB) {
         JPEGOptions *JPEG                     = Options;
-        JPEG->Height                          = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 16);
+        JPEG->Height                          = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 16);
     }
     
     void ReadSegment_Comment(void *Options, BitBuffer *BitB) {
-        uint16_t CommentSize                  = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 16);
+        uint16_t CommentSize                  = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 16);
         BitBuffer_Seek(BitB, CommentSize);
     }
     
     void ReadSegment_ApplicationData(void *Options, BitBuffer *BitB) {
-        uint16_t AppDataSize                  = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 16);
+        uint16_t AppDataSize                  = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 16);
         BitBuffer_Seek(BitB, AppDataSize);
     }
     
     void ReadSegment_StartOfScan(void *Options, BitBuffer *BitB) { // Size = 12
         JPEGOptions *JPEG                               = (JPEGOptions*) Options;
-        uint16_t Length                                 = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 16) - 2;
-        uint8_t  NumberOfComponents                     = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 8);  // 3
+        uint16_t Length                                 = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 16) - 2;
+        uint8_t  NumberOfComponents                     = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 8);  // 3
         if (Length == ((NumberOfComponents * 2) + 4) && NumberOfComponents >= 1 && NumberOfComponents <= 4) {
-            JPEG->ComponentSelector                     = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 8);  // 0x52
-            JPEG->SamplesPerLine                        = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 8);  // 0x00
+            JPEG->ComponentSelector                     = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 8);  // 0x52
+            JPEG->SamplesPerLine                        = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 8);  // 0x00
             JPEG->Components                            = calloc(NumberOfComponents, sizeof(ComponentParameters));
             for (uint8_t Component = 0; Component < NumberOfComponents; Component++) {
-                JPEG->Components[Component].ComponentID = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 8); // 0x52, 0, 0
-                JPEG->Components[Component].Horizontal  = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 4); // 0, 0, 0
-                JPEG->Components[Component].Vertical    = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 4); // 0, 1, 0
+                JPEG->Components[Component].ComponentID = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 8); // 0x52, 0, 0
+                JPEG->Components[Component].Horizontal  = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 4); // 0, 0, 0
+                JPEG->Components[Component].Vertical    = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 4); // 0, 1, 0
             }
-            JPEG->Predictor                             = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 8); // called SS in the standard, Predictor 1
-            JPEG->SE                                    = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 8);
-            JPEG->Ah                                    = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 4);
-            JPEG->Al                                    = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 4);
+            JPEG->Predictor                             = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 8); // called SS in the standard, Predictor 1
+            JPEG->SE                                    = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 8);
+            JPEG->Ah                                    = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 4);
+            JPEG->Al                                    = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 4);
         } else if (Length != ((NumberOfComponents * 2) + 4)) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("StartOfScan Size: %hu is invalid"), Length);
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("StartOfScan Size: %hu is invalid"), Length);
         } else if (NumberOfComponents < 1 || NumberOfComponents > 4) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Number of Channels: %hhu is invalid"), NumberOfComponents);
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Number of Channels: %hhu is invalid"), NumberOfComponents);
         }
     }
     
@@ -211,19 +211,19 @@ extern "C" {
             case 0xFFDB: // Quantization Table, Lossy.
             case 0xFFDE: // Define Hierarchical Progression, Lossy?
             case 0xFFDF: // Expand Reference Component, Lossy?
-                Length = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 16) - 2;
+                Length = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 16) - 2;
                 BitBuffer_Seek(BitB, Bytes2Bits(Length));
-                Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Lossy JPEG is not supported"));
+                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Lossy JPEG is not supported"));
                 break;
             default:
-                Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Marker 0x%X is unknown"), ChunkMarker);
+                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Marker 0x%X is unknown"), ChunkMarker);
                 break;
         }
     }
     
     void JPEG_ReadSegments(void *Options, BitBuffer *BitB) {
         JPEGOptions *JPEG                     = Options;
-        uint16_t     Marker                   = BitBuffer_ReadBits(BitB, MSByteFirst, MSBitFirst, 16);
+        uint16_t     Marker                   = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 16);
         switch (Marker) {
             case Marker_StartOfFrameLossless1: // Huffman, non-Differential
             case Marker_StartOfFrameLossless2: // Huffman, Differential
@@ -298,6 +298,6 @@ extern "C" {
         .DecoderID             = CodecID_JPEG,
     };
     
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif

@@ -1,6 +1,6 @@
 #include "../../include/Private/JPEGCommon.h"
 
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
     
@@ -167,8 +167,8 @@ extern "C" {
     
     
     
-    static Image_Types JPEG_GetImageType(JPEGOptions *JPEG) {
-        Image_Types Type = ImageType_Unknown;
+    static ContainerIO_ImageTypes JPEG_GetImageType(JPEGOptions *JPEG) {
+        ContainerIO_ImageTypes Type = ImageType_Unknown;
         if (JPEG->BitDepth <= 8) {
             Type          = ImageType_Integer8;
         } else {
@@ -177,8 +177,8 @@ extern "C" {
         return Type;
     }
     
-    static ImageChannelMask JPEG_GetChannelMask(JPEGOptions *JPEG) {
-        ImageChannelMask Mask = ImageMask_Unknown;
+    static ContainerIO_ImageChannelMask JPEG_GetChannelMask(JPEGOptions *JPEG) {
+        ContainerIO_ImageChannelMask Mask = ImageMask_Unknown;
         if (JPEG->NumChannels == 3) {
             Mask               = ImageMask_2D | ImageMask_Red | ImageMask_Green | ImageMask_Blue;
         } else if (JPEG->NumChannels == 1) { // Todo: Actually find the channels encoded instead of assuming this basic shit
@@ -356,11 +356,11 @@ extern "C" {
              */
             /* F.16 */
         } else if (JPEG == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("JPEGOptions Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("JPEGOptions Pointer is NULL"));
         } else if (BitLengthCounts == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitLengthCounts Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitLengthCounts Pointer is NULL"));
         } else if (Values == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Values Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Values Pointer is NULL"));
         }
     }
     
@@ -380,7 +380,7 @@ extern "C" {
             while (Symbol != JPEG->Huffman->EndOfBlockCode && (Symbol < Marker_Restart0 || Symbol > Marker_Restart7)) {
                 // What do I do now? Read a Unary code until we find a stop bit effictively
                 // Yes, read until you find a zerom it's effictively a RICE code.
-                Symbol               = BitBuffer_ReadUnary(BitB, MSByteFirst, LSBitFirst, WholeUnary, 0);
+                Symbol               = BitBuffer_ReadUnary(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, WholeUnary, 0);
                 // Count the number of bits set in Symbol, go to that index in the Huffman code table and loop over all possible values there, until you find a matching code, then read that number of bits
                 uint8_t SymbolSize   = CountBitsSet(Symbol);
                 uint8_t NumBits2Read = 0;
@@ -389,11 +389,11 @@ extern "C" {
                         NumBits2Read = JPEG->Huffman->NumBits[NumBits2Read];
                     }
                 }
-                Symbol               = (int16_t) BitBuffer_ReadBits(BitB, MSByteFirst, LSBitFirst, SymbolSize);
+                Symbol               = (int16_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, SymbolSize);
             }
              */
         } else {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Couldn't allocate ImageContainer"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Couldn't allocate ImageContainer"));
         }
         return Container;
     }
@@ -406,6 +406,6 @@ extern "C" {
         free(JPEG);
     }
     
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif

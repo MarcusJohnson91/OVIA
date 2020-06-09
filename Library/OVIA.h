@@ -1,13 +1,11 @@
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdlib.h> /* Included for Calloc */
+#include "../../Dependencies/FoundationIO/Library/include/PlatformIO.h"
 
 #pragma once
 
 #ifndef OVIA_OVIA_H
 #define OVIA_OVIA_H
 
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
     
@@ -144,7 +142,7 @@ extern "C" {
     void                 OVIA_WriteHeader(BitBuffer *BitB);
     void                 OVIA_Deinit(OVIA *Ovia);
     
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif
 

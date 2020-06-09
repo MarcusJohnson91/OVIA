@@ -1,14 +1,14 @@
 #include "../../include/Private/JPEGCommon.h"
 
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
     
     void WriteSegment_StartOfImage(BitBuffer *BitB) {
         if (BitB != NULL) {
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 16, Marker_StartOfImage);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 16, Marker_StartOfImage);
         } else {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -19,42 +19,42 @@ extern "C" {
                 StartOfFrameMarker == Marker_StartOfFrameLossless3 ||
                 StartOfFrameMarker == Marker_StartOfFrameLossless4) {
                 uint16_t SegmentSize = 8 + (JPEG->NumChannels * 3);
-                BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 16, StartOfFrameMarker);
-                BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 16, SegmentSize);
-                BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, JPEG->BitDepth);
-                BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 16, JPEG->Height);
-                BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 16, JPEG->Width);
-                BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, JPEG->NumChannels);
+                BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 16, StartOfFrameMarker);
+                BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 16, SegmentSize);
+                BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8, JPEG->BitDepth);
+                BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 16, JPEG->Height);
+                BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 16, JPEG->Width);
+                BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8, JPEG->NumChannels);
                 for (uint8_t Component = 0; Component < JPEG->NumChannels; Component++) {
-                    BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, JPEG->Components[Component].ComponentID);
-                    BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, JPEG->Components[Component].Horizontal);
-                    BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 8, JPEG->Components[Component].Vertical);
+                    BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8, JPEG->Components[Component].ComponentID);
+                    BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8, JPEG->Components[Component].Horizontal);
+                    BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8, JPEG->Components[Component].Vertical);
                 }
             } else {
-                Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("StartOfFrameMarker %hu isn't a Lossless SOF Marker"), StartOfFrameMarker);
+                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("StartOfFrameMarker %hu isn't a Lossless SOF Marker"), StartOfFrameMarker);
             }
         } else {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
     void WriteSegment_Comment(BitBuffer *BitB, UTF8 *CommentString) {
         if (BitB != NULL) {
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 16, Marker_Comment);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 16, Marker_Comment);
             uint16_t StringSize = UTF8_GetStringSizeInCodeUnits(CommentString);
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 16, StringSize + 2);
-            BitBuffer_WriteUTF8(BitB, CommentString, WriteType_NULLTerminator);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 16, StringSize + 2);
+            BitBuffer_WriteUTF8(BitB, CommentString, StringTerminator_NULL);
         } else {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
     void WriteSegment_ICCProfile(BitBuffer *BitB) {
         if (BitB != NULL) {
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 16, Marker_ICCProfile);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 16, Marker_ICCProfile);
             
         } else {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -66,19 +66,19 @@ extern "C" {
              
              */
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
     void JPEGWriteFooter(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
-            BitBuffer_WriteBits(BitB, MSByteFirst, LSBitFirst, 16, Marker_EndOfImage);
+            BitBuffer_WriteBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 16, Marker_EndOfImage);
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -90,11 +90,11 @@ extern "C" {
              
              */
         } else if (Options == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (Container == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("Container Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Container Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Log_DEBUG, FoundationIOFunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -121,6 +121,6 @@ extern "C" {
         .Function_Deinitialize = JPEGOptions_Deinit,
     };
     
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif
