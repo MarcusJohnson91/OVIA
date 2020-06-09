@@ -242,7 +242,7 @@ extern "C" {
     
     void PNG_Filter_Sub(ImageContainer *Image) {
         if (Image != NULL) {
-            ContainerIO_ImageTypes Type = ImageContainer_GetType(Image);
+            MediaIO_ImageTypes Type = ImageContainer_GetType(Image);
             ImageChannelMap *Map = ImageContainer_GetChannelMap(Image);
             uint8_t     NumViews = ImageChannelMap_GetNumViews(Map);
             if (Type == ImageType_Integer8) {
@@ -277,7 +277,7 @@ extern "C" {
     
     void PNG_Filter_Up(ImageContainer *Image) {
         if (Image != NULL) {
-            ContainerIO_ImageTypes Type = ImageContainer_GetType(Image);
+            MediaIO_ImageTypes Type = ImageContainer_GetType(Image);
             ImageChannelMap *Map = ImageContainer_GetChannelMap(Image);
             uint8_t     NumViews = ImageChannelMap_GetNumViews(Map);
             if (Type == ImageType_Integer8) {
@@ -312,7 +312,7 @@ extern "C" {
     
     void PNG_Filter_Average(ImageContainer *Image) {
         if (Image != NULL) {
-            ContainerIO_ImageTypes Type = ImageContainer_GetType(Image);
+            MediaIO_ImageTypes Type = ImageContainer_GetType(Image);
             ImageChannelMap *Map = ImageContainer_GetChannelMap(Image);
             uint8_t     NumViews = ImageChannelMap_GetNumViews(Map);
             if (Type == ImageType_Integer8) {
@@ -353,7 +353,7 @@ extern "C" {
     
     void PNG_Filter_Paeth(ImageContainer *Image) {
         if (Image != NULL) {
-            ContainerIO_ImageTypes Type = ImageContainer_GetType(Image);
+            MediaIO_ImageTypes Type = ImageContainer_GetType(Image);
             ImageChannelMap *Map = ImageContainer_GetChannelMap(Image);
             uint8_t     NumViews = ImageChannelMap_GetNumViews(Map);
             if (Type == ImageType_Integer8) {
@@ -407,7 +407,7 @@ extern "C" {
     
     void PNG_Defilter(ImageContainer *Image) {
         if (Image != NULL) {
-            ContainerIO_ImageTypes Type = ImageContainer_GetType(Image);
+            MediaIO_ImageTypes Type = ImageContainer_GetType(Image);
             if (Type == ImageType_Integer8) {
                 // Image8
                 uint8_t  ****ImageArray = (uint8_t****) ImageContainer_GetArray(Image);
@@ -481,7 +481,7 @@ extern "C" {
             uint64_t Width          = PNG->iHDR->Width;
             uint64_t Height         = PNG->iHDR->Height;
             ImageContainer *Decoded = NULL;
-            ContainerIO_ImageChannelMask  Mask  = 0;
+            MediaIO_ImageChannelMask  Mask  = 0;
             
             PNG_Flate_ReadZlibHeader(PNG, BitB);
             

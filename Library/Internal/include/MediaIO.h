@@ -1,25 +1,25 @@
 /*!
- @header              ContainerIO.h
+ @header              MediaIO.h
  @author              Marcus Johnson
  @copyright           2018+
  @version             1.1.0
- @brief               This header contains code for containers (type generic arrays)
+ @brief               This header contains code for media (type generic arrays)
  */
 
-#include "PlatformIO.h" /* Included for Platform Independence macros */
+#include "../../../Dependencies/FoundationIO/Library/include/PlatformIO.h" /* Included for Platform Independence macros */
 
 #pragma  once
 
-#ifndef  FoundationIO_ContainerIO_H
-#define  FoundationIO_ContainerIO_H
+#ifndef OVIA_MediaIO_H
+#define OVIA_MediaIO_H
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
     
     /*!
-     @enum         ContainerIO_AudioChannelMask
-     @abstract                                      Defines the ContainerIO_AudioTypes values, OR-able.
+     @enum         MediaIO_AudioChannelMask
+     @abstract                                      Defines the MediaIO_AudioTypes values, OR-able.
      @constant     AudioMask_Unknown                Invalid AudioMask, exists solely to tell when it hasn't been set.
      @constant     AudioMask_FrontLeft              The channel's location is the front left.
      @constant     AudioMask_FrontRight             The channel's location is the front right.
@@ -43,7 +43,7 @@ extern "C" {
      @constant     AudioMask_StereoLeft             RF64 Extension, Stereo Downmix, Left.
      @constant     AudioMask_StereoRight            RF64 Extension, Stereo Downmix, Right.
      */
-    typedef enum ContainerIO_AudioChannelMask {
+    typedef enum MediaIO_AudioChannelMask {
                    AudioMask_Unknown                = 0,
                    AudioMask_FrontLeft              = 1,
                    AudioMask_FrontRight             = 2,
@@ -66,11 +66,11 @@ extern "C" {
                    AudioMask_TopRearCenter          = 262144,
                    AudioMask_StereoLeft             = 524288,
                    AudioMask_StereoRight            = 1048576,
-    } ContainerIO_AudioChannelMask;
+    } MediaIO_AudioChannelMask;
     
     /*!
-     @enum         ContainerIO_AudioTypes
-     @abstract                                      Defines the ContainerIO_AudioTypes values, OR-able.
+     @enum         MediaIO_AudioTypes
+     @abstract                                      Defines the MediaIO_AudioTypes values, OR-able.
      @constant     AudioType_Unknown                Invalid AudioType, exists solely to tell when it hasn't been set.
      @constant     AudioType_Unsigned               The samples are unsigned.
      @constant     AudioType_Signed                 The samples are signed.
@@ -78,17 +78,17 @@ extern "C" {
      @constant     AudioType_Integer16              The samples values are between 0 and 65535      for Unsigned, -32768      and 32767      for Signed.
      @constant     AudioType_Integer32              The samples values are between 0 and 4294967295 for Unsigned, -2147483648 and 2147483647 for Signed.
      */
-    typedef enum ContainerIO_AudioTypes {
+    typedef enum MediaIO_AudioTypes {
                    AudioType_Unknown                = 0,
                    AudioType_Unsigned               = 1,
                    AudioType_Signed                 = 2,
                    AudioType_Integer8               = 4,
                    AudioType_Integer16              = 8,
                    AudioType_Integer32              = 16,
-    } ContainerIO_AudioTypes;
+    } MediaIO_AudioTypes;
     
     /*!
-     @enum         ContainerIO_ImageChannelMask
+     @enum         MediaIO_ImageChannelMask
      @abstract                                      Defines the ChannelMask values.
      @constant     ImageMask_Unknown                Invalid ImageMask, exists solely to tell when it hasn't been set.
      @constant     ImageMask_2D                     The image has two dimensions.
@@ -104,7 +104,7 @@ extern "C" {
      @constant     ImageMask_Blue                   The channel contains the Blue   color information.
      @constant     ImageMask_Green2                 The channel contains the Green2 color information, for Bayer filtered images.
      */
-    typedef enum ContainerIO_ImageChannelMask {
+    typedef enum MediaIO_ImageChannelMask {
                    ImageMask_Unknown                = 0,
                    ImageMask_2D                     = 1,
                    ImageMask_Luma                   = 2,
@@ -118,48 +118,48 @@ extern "C" {
                    ImageMask_Green                  = 512,
                    ImageMask_Blue                   = 1024,
                    ImageMask_Green2                 = 2048,
-    } ContainerIO_ImageChannelMask;
+    } MediaIO_ImageChannelMask;
     
     /*!
-     @enum         ContainerIO_ImageTypes
+     @enum         MediaIO_ImageTypes
      @abstract                                      Defines the type of image.
      @constant     ImageType_Unknown                Invalid ImageType, exists solely to tell when it hasn't been set.
      @constant     ImageType_Integer8               The pixels are unsigned 8  bit integers.
      @constant     ImageType_Integer16              The pixels are unsigned 16 bit integers.
      */
-    typedef enum ContainerIO_ImageTypes {
+    typedef enum MediaIO_ImageTypes {
                    ImageType_Unknown                = 0,
                    ImageType_Integer8               = 1,
                    ImageType_Integer16              = 2,
-    } ContainerIO_ImageTypes;
+    } MediaIO_ImageTypes;
     
     /*!
-     @enum         ContainerIO_FlipTypes
+     @enum         MediaIO_FlipTypes
      @abstract                                      Defines the type of flipping.
      @constant     FlipType_Unknown                 Invalid ImageType, exists solely to tell when it hasn't been set.
      @constant     FlipType_Vertical                Flip the imge vertically, up and down.
      @constant     FlipType_Horizontal              Flip the image horizontally, side to side.
      @constant     FlipType_VerticalAndHorizontal   Flip the image in both ways.
      */
-    typedef enum ContainerIO_FlipTypes {
+    typedef enum MediaIO_FlipTypes {
                    FlipType_Unknown                 = 0,
                    FlipType_Vertical                = 1,
                    FlipType_Horizontal              = 2,
                    FlipType_VerticalAndHorizontal   = 3,
-    } ContainerIO_FlipTypes;
+    } MediaIO_FlipTypes;
     
     /*!
-     @enum         ContainerIO_SortTypes
+     @enum         MediaIO_SortTypes
      @abstract                                      Defines the type of sorting.
      @constant     SortType_Unknown                 Invalid SortType, exists solely to tell when it hasn't been set.
      @constant     SortType_Ascending               Index 0 contains the most common value.
      @constant     SortType_Descending              Index 0 contains the least common value.
      */
-    typedef enum ContainerIO_SortTypes {
+    typedef enum MediaIO_SortTypes {
                    SortType_Unknown                 = 0,
                    SortType_Ascending               = 1,
                    SortType_Descending              = 2,
-    } ContainerIO_SortTypes;
+    } MediaIO_SortTypes;
     
     typedef struct Audio2DContainer                 Audio2DContainer;
     
@@ -181,12 +181,12 @@ extern "C" {
     
     /*!
      @abstract                                      Creates an empty Audio2DContainer.
-     @param                 Type                    A type from ContainerIO_AudioTypes.
+     @param                 Type                    A type from MediaIO_AudioTypes.
      @param                 ChannelMap              Array of ChannelMasks, one array entry for each channel.
      @param                 SampleRate              The number of samples in one second of audio.
      @param                 NumSamples              NumSamples is the number of channel independent samples, e.g. X samples is BitDepth * NumChannels * X.
      */
-    Audio2DContainer       *Audio2DContainer_Init(ContainerIO_AudioTypes Type, AudioChannelMap *ChannelMap, uint64_t SampleRate, uint64_t NumSamples);
+    Audio2DContainer       *Audio2DContainer_Init(MediaIO_AudioTypes Type, AudioChannelMap *ChannelMap, uint64_t SampleRate, uint64_t NumSamples);
     
     /*!
      @abstract                                      Returns the number of channel-agnostic samples in one second.
@@ -210,7 +210,7 @@ extern "C" {
      @abstract                                      Gets the type of the array contained by the Audio2DContainer.
      @param                 Audio                   A pointer to the instance of an Audio2DContainer in question.
      */
-    ContainerIO_AudioTypes  Audio2DContainer_GetType(Audio2DContainer *Audio);
+    MediaIO_AudioTypes  Audio2DContainer_GetType(Audio2DContainer *Audio);
     
     /*!
      @abstract                                      Gets a pointer to the array of samples.
@@ -287,7 +287,7 @@ extern "C" {
      @param                 Histogram               A pointer to the Audio2DHistogram in question.
      @param                 Sort                    The kind of sorting to do.
      */
-    void                    Audio2DHistogram_Sort(Audio2DHistogram *Histogram, ContainerIO_SortTypes Sort);
+    void                    Audio2DHistogram_Sort(Audio2DHistogram *Histogram, MediaIO_SortTypes Sort);
     
     /*!
      @abstract                                      Securely erases an Audio2DContainer.
@@ -324,19 +324,19 @@ extern "C" {
     uint64_t                Audio2DContainer_GetNumChannels(Audio2DContainer *Audio);
     
     /*!
-     @abstract                                      Adds a ContainerIO_AudioChannelMask at the specified Index to the ChannelMap.
+     @abstract                                      Adds a MediaIO_AudioChannelMask at the specified Index to the ChannelMap.
      @param                 ChannelMap              The number of channels.
      @param                 Index                   The index in the ChannelMap to add the mask.
      @param                 Mask                    The ChannelMask for the index.
      */
-    void                    AudioChannelMap_AddMask(AudioChannelMap *ChannelMap, uint64_t Index, ContainerIO_AudioChannelMask Mask);
+    void                    AudioChannelMap_AddMask(AudioChannelMap *ChannelMap, uint64_t Index, MediaIO_AudioChannelMask Mask);
     
     /*!
      @abstract                                      Returns the ChannelMask for Index.
      @param                 ChannelMap              Audio2DContainer Pointer.
      @param                 Index                   The channel index to get the mask for.
      */
-    ContainerIO_AudioChannelMask        AudioChannelMap_GetMask(AudioChannelMap *ChannelMap, uint64_t Index);
+    MediaIO_AudioChannelMask        AudioChannelMap_GetMask(AudioChannelMap *ChannelMap, uint64_t Index);
     
     /*!
      @abstract                                       Finds the lowest index in the ChannelMap that is unused.
@@ -383,7 +383,7 @@ extern "C" {
      @param                 ChannelMap              The ChannelMap to create the downmix with.
      @param                 Type                    The type of the audio, should this be gleaned from the 3D audio?
      */
-    Audio2DContainer       *Audio3DContainer_Mix2Audio2DContainer(Audio3DContainer *Audio3D, AudioChannelMap *ChannelMap, ContainerIO_AudioTypes Type, uint64_t SampleRate);
+    Audio2DContainer       *Audio3DContainer_Mix2Audio2DContainer(Audio3DContainer *Audio3D, AudioChannelMap *ChannelMap, MediaIO_AudioTypes Type, uint64_t SampleRate);
     
     
     /*!
@@ -464,7 +464,7 @@ extern "C" {
      @param                 Histogram               A pointer to the AudioVectorHistogram in question.
      @param                 Sort                    The kind of sorting to do.
      */
-    void                    AudioVectorHistogram_Sort(AudioVectorHistogram *Histogram, ContainerIO_SortTypes Sort);
+    void                    AudioVectorHistogram_Sort(AudioVectorHistogram *Histogram, MediaIO_SortTypes Sort);
     
     /*!
      @abstract                                      Zeros an AudioVectorHistogram.
@@ -506,7 +506,7 @@ extern "C" {
      @param                 Mask                    The color you want to find the index of.
      @return                                        Returns the Index.
      */
-    uint8_t                 ImageChannelMap_GetChannelsIndex(ImageChannelMap *ChannelMap, ContainerIO_ImageChannelMask Mask);
+    uint8_t                 ImageChannelMap_GetChannelsIndex(ImageChannelMap *ChannelMap, MediaIO_ImageChannelMask Mask);
     
     /*!
      @abstract                                      Sets a ChannelMap.
@@ -514,7 +514,7 @@ extern "C" {
      @param                 Index                   The index of the channel.
      @param                 Mask                    The ChannelMask for the Index
      */
-    void                    ImageChannelMap_AddMask(ImageChannelMap *ChannelMap, uint8_t Index, ContainerIO_ImageChannelMask Mask);
+    void                    ImageChannelMap_AddMask(ImageChannelMap *ChannelMap, uint8_t Index, MediaIO_ImageChannelMask Mask);
     
     /*!
      @abstract                                      Destroys an AudioVectorHistogram.
@@ -530,7 +530,7 @@ extern "C" {
      @param                 Width                   The number of pixels making up one row.
      @param                 Height                  The number of pixels making up one column.
      */
-    ImageContainer         *ImageContainer_Init(ContainerIO_ImageTypes Type, ImageChannelMap *ChannelMap, uint64_t Width, uint64_t Height);
+    ImageContainer         *ImageContainer_Init(MediaIO_ImageTypes Type, ImageChannelMap *ChannelMap, uint64_t Width, uint64_t Height);
     
     /*!
      @abstract                                      Returns the number of pixels in one row of this image.
@@ -567,7 +567,7 @@ extern "C" {
      @abstract                                      Gets the type of the array contained by the ImageContainer.
      @param                 Image                   A pointer to the instance of an ImageContainer in question.
      */
-    ContainerIO_ImageTypes             ImageContainer_GetType(ImageContainer *Image);
+    MediaIO_ImageTypes             ImageContainer_GetType(ImageContainer *Image);
     
     /*!
      @abstract                                      Gets a pointer to the array of pixels.
@@ -612,7 +612,7 @@ extern "C" {
      @param                 Image                   A pointer to the instance of an ImageContainer in question.
      @param                 FlipType                The type of flipping to use.
      */
-    void                    ImageContainer_Flip(ImageContainer *Image, ContainerIO_FlipTypes FlipType);
+    void                    ImageContainer_Flip(ImageContainer *Image, MediaIO_FlipTypes FlipType);
     
     /*!
      @abstract                                      Resizes an Image.
@@ -680,7 +680,7 @@ extern "C" {
      @param                 Histogram               A pointer to the ImageHistogram in question.
      @param                 Sort                    The kind of sorting to do.
      */
-    void                    ImageHistogram_Sort(ImageHistogram *Histogram, ContainerIO_SortTypes Sort);
+    void                    ImageHistogram_Sort(ImageHistogram *Histogram, MediaIO_SortTypes Sort);
     
     /*!
      @abstract                                      Securely erases an ImageHistogram.
@@ -707,4 +707,4 @@ extern "C" {
 }
 #endif
 
-#endif   /* FoundationIO_CommandLineIO_H */
+#endif /* OVIA_MediaIO_H */

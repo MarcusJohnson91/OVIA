@@ -117,7 +117,7 @@ extern "C" {
             uint64_t ChannelCount = PNM->NumChannels;
             uint64_t Width        = ImageContainer_GetWidth(Image);
             uint64_t Height       = ImageContainer_GetHeight(Image);
-            ContainerIO_ImageTypes Type      = ImageContainer_GetType(Image);
+            MediaIO_ImageTypes Type      = ImageContainer_GetType(Image);
             if (Type == ImageType_Integer8) {
                 uint8_t *Array  = (uint8_t*) ImageContainer_GetArray(Image);
                 for (uint64_t W = 0ULL; W < Width; W++) {

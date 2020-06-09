@@ -1,28 +1,28 @@
-#include "../include/ContainerIO.h"     /* Included for our declarations */
-#include "../include/MathIO.h"          /* Included for Absolute, Max/Min */
-#include "../include/UnicodeIO/LogIO.h" /* Included for error reporting */
+#include "../include/Private/MediaIO.h"                                      /* Included for our declarations */
+#include "../../Dependencies/FoundationIO/Library/include/MathIO.h"          /* Included for Absolute, Max/Min */
+#include "../../Dependencies/FoundationIO/Library/include/UnicodeIO/LogIO.h" /* Included for error reporting */
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
     
     typedef struct AudioChannelMap {
-        ContainerIO_AudioChannelMask  *Map;
-        uint64_t                       NumChannels;
+        MediaIO_AudioChannelMask  *Map;
+        uint64_t                   NumChannels;
     } AudioChannelMap;
     
     AudioChannelMap *AudioChannelMap_Init(uint64_t NumChannels) {
         AudioChannelMap *ChannelMap = (AudioChannelMap*) calloc(1, sizeof(AudioChannelMap));
         if (ChannelMap != NULL) {
             ChannelMap->NumChannels = NumChannels;
-            ChannelMap->Map         = (ContainerIO_AudioChannelMask*) calloc(NumChannels, sizeof(ContainerIO_AudioChannelMask));
+            ChannelMap->Map         = (MediaIO_AudioChannelMask*) calloc(NumChannels, sizeof(MediaIO_AudioChannelMask));
         } else {
             Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Couldn't allocate AudioChannelMap"));
         }
         return ChannelMap;
     }
     
-    void AudioChannelMap_AddMask(AudioChannelMap *ChannelMap, uint64_t Index, ContainerIO_AudioChannelMask Mask) {
+    void AudioChannelMap_AddMask(AudioChannelMap *ChannelMap, uint64_t Index, MediaIO_AudioChannelMask Mask) {
         if (ChannelMap != NULL && Index < ChannelMap->NumChannels) {
             ChannelMap->Map[Index] = Mask;
         } else if (ChannelMap == NULL) {
@@ -32,8 +32,8 @@ extern "C" {
         }
     }
     
-    ContainerIO_AudioChannelMask AudioChannelMap_GetMask(AudioChannelMap *ChannelMap, uint64_t Index) {
-        ContainerIO_AudioChannelMask ChannelMask = AudioMask_Unknown;
+    MediaIO_AudioChannelMask AudioChannelMap_GetMask(AudioChannelMap *ChannelMap, uint64_t Index) {
+        MediaIO_AudioChannelMask ChannelMask = AudioMask_Unknown;
         if (ChannelMap != NULL && Index < ChannelMap->NumChannels) {
             ChannelMask = ChannelMap->Map[Index];
         } else if (ChannelMap == NULL) {
@@ -79,10 +79,10 @@ extern "C" {
         uint64_t               NumSamples;
         uint64_t               SampleRate;
         uint64_t               Offset;
-        ContainerIO_AudioTypes Type;
+        MediaIO_AudioTypes Type;
     } Audio2DContainer;
     
-    Audio2DContainer *Audio2DContainer_Init(ContainerIO_AudioTypes Type, AudioChannelMap *ChannelMap, uint64_t SampleRate, uint64_t NumSamples) {
+    Audio2DContainer *Audio2DContainer_Init(MediaIO_AudioTypes Type, AudioChannelMap *ChannelMap, uint64_t SampleRate, uint64_t NumSamples) {
         Audio2DContainer *Audio    = NULL;
         if (NumSamples > 0) {
             Audio                  = (Audio2DContainer*) calloc(1, sizeof(Audio2DContainer));
@@ -163,8 +163,8 @@ extern "C" {
         return NumSamples;
     }
     
-    ContainerIO_AudioTypes Audio2DContainer_GetType(Audio2DContainer *Audio) {
-        ContainerIO_AudioTypes Type = AudioType_Unknown;
+    MediaIO_AudioTypes Audio2DContainer_GetType(Audio2DContainer *Audio) {
+        MediaIO_AudioTypes Type = AudioType_Unknown;
         if (Audio != NULL) {
             Type = Audio->Type;
         } else {
@@ -451,15 +451,15 @@ extern "C" {
      
      Since we're making Audio_ChannelMap a real thing, let's NULL terminate the array and drop the num channels variable from the init functions
      
-     ContainerIO_AudioChannelMask
+     MediaIO_AudioChannelMask
      */
     
     typedef struct Audio2DHistogram {
         void                         *Array;
-        ContainerIO_AudioChannelMask *ChannelMap;
+        MediaIO_AudioChannelMask *ChannelMap;
         uint64_t                      NumEntries;
         uint64_t                      NumChannels;
-        ContainerIO_AudioTypes        Type;
+        MediaIO_AudioTypes        Type;
     } Audio2DHistogram;
     
     Audio2DHistogram *Audio2DHistogram_Init(Audio2DContainer *Audio) {
@@ -558,7 +558,7 @@ extern "C" {
         return Histogram;
     }
     
-    void Audio2DHistogram_Sort(Audio2DHistogram *Histogram, ContainerIO_SortTypes Sort) {
+    void Audio2DHistogram_Sort(Audio2DHistogram *Histogram, MediaIO_SortTypes Sort) {
         if (Histogram != NULL) {
             if (Sort == SortType_Ascending) { // Top to bottom
                 if (Histogram->Type == (AudioType_Integer8 | AudioType_Unsigned)) {
@@ -754,7 +754,7 @@ extern "C" {
         uint64_t               NumSamples;
         uint64_t               NumDirections;
         uint64_t               DirectionOffset;
-        ContainerIO_AudioTypes Type;
+        MediaIO_AudioTypes Type;
     } AudioVector;
     
     AudioVector *AudioVector_Init(void) {
@@ -832,7 +832,7 @@ extern "C" {
     typedef struct AudioVectorHistogram {
         uint64_t              *Histogram;
         uint64_t               NumSamples;
-        ContainerIO_AudioTypes Type; // for the BitDepth, there will be 2^BitDepth values in the Histogram array
+        MediaIO_AudioTypes Type; // for the BitDepth, there will be 2^BitDepth values in the Histogram array
     } AudioVectorHistogram;
     
     AudioVectorHistogram *AudioVectorHistogram_Init(AudioVector *Vector) {
@@ -909,7 +909,7 @@ extern "C" {
         return Histogram;
     }
     
-    void AudioVectorHistogram_Sort(AudioVectorHistogram *Histogram, ContainerIO_SortTypes Sort) {
+    void AudioVectorHistogram_Sort(AudioVectorHistogram *Histogram, MediaIO_SortTypes Sort) {
         if (Sort == SortType_Ascending) { // Top to bottom
             if (Histogram->Type == (AudioType_Integer8 | AudioType_Unsigned)) {
                 uint8_t *Audio = (uint8_t*) AudioVectorHistogram_GetArray(Histogram);
@@ -1047,7 +1047,7 @@ extern "C" {
         return NumSamples;
     }
     
-    Audio2DContainer *Audio3DContainer_Mix2Audio2DContainer(Audio3DContainer *Audio3D, AudioChannelMap *ChannelMap, ContainerIO_AudioTypes Type, uint64_t SampleRate) {
+    Audio2DContainer *Audio3DContainer_Mix2Audio2DContainer(Audio3DContainer *Audio3D, AudioChannelMap *ChannelMap, MediaIO_AudioTypes Type, uint64_t SampleRate) {
         Audio2DContainer *Audio2D = NULL;
         if (Audio3D != NULL && ChannelMap != NULL) {
             uint64_t NumSamples   = Audio3DContainer_GetTotalNumSamples(Audio3D);
@@ -1105,17 +1105,17 @@ extern "C" {
     
     /* ImageContainer */
     typedef struct ImageChannelMap {
-        ContainerIO_ImageChannelMask **Map;
+        MediaIO_ImageChannelMask **Map;
         uint8_t                        NumChannels;
         uint8_t                        NumViews;
     } ImageChannelMap;
     
     ImageChannelMap *ImageChannelMap_Init(uint8_t NumViews, uint8_t NumChannels) {
-        ImageChannelMap *ChannelMap = (ImageChannelMap*) calloc(1, sizeof(ContainerIO_ImageChannelMask));
+        ImageChannelMap *ChannelMap = (ImageChannelMap*) calloc(1, sizeof(MediaIO_ImageChannelMask));
         if (ChannelMap != NULL) {
             ChannelMap->NumViews    = NumViews;
             ChannelMap->NumChannels = NumChannels;
-            ChannelMap->Map         = (ContainerIO_ImageChannelMask**) calloc(NumViews * NumChannels, sizeof(ContainerIO_ImageChannelMask**));
+            ChannelMap->Map         = (MediaIO_ImageChannelMask**) calloc(NumViews * NumChannels, sizeof(MediaIO_ImageChannelMask**));
         } else {
             Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Couldn't allocate ImageChannelMap"));
         }
@@ -1142,7 +1142,7 @@ extern "C" {
         return NumViews;
     }
     
-    uint8_t ImageChannelMap_GetChannelsIndex(ImageChannelMap *ChannelMap, ContainerIO_ImageChannelMask Mask) {
+    uint8_t ImageChannelMap_GetChannelsIndex(ImageChannelMap *ChannelMap, MediaIO_ImageChannelMask Mask) {
         uint8_t Index = 0xFF;
         if (ChannelMap != NULL && Mask != ImageMask_Unknown) {
             Index     = ChannelMap->NumChannels;
@@ -1160,7 +1160,7 @@ extern "C" {
         return Index;
     }
     
-    void ImageChannelMap_AddMask(ImageChannelMap *ChannelMap, uint8_t Index, ContainerIO_ImageChannelMask Mask) {
+    void ImageChannelMap_AddMask(ImageChannelMap *ChannelMap, uint8_t Index, MediaIO_ImageChannelMask Mask) {
         if (ChannelMap != NULL && Index < ChannelMap->NumChannels) {
             for (uint8_t View = 0; View < ChannelMap->NumViews; View++) {
                 ChannelMap->Map[View][Index] = Mask;
@@ -1186,10 +1186,10 @@ extern "C" {
         ImageChannelMap       *ChannelMap;
         uint64_t               Width;
         uint64_t               Height;
-        ContainerIO_ImageTypes Type;
+        MediaIO_ImageTypes Type;
     } ImageContainer;
     
-    ImageContainer *ImageContainer_Init(ContainerIO_ImageTypes Type, ImageChannelMap *ChannelMap, uint64_t Width, uint64_t Height) {
+    ImageContainer *ImageContainer_Init(MediaIO_ImageTypes Type, ImageChannelMap *ChannelMap, uint64_t Width, uint64_t Height) {
         ImageContainer *Image         = NULL;
         if (Width > 0 && Height > 0) {
             Image                     = (ImageContainer*) calloc(1, sizeof(ImageContainer));
@@ -1271,8 +1271,8 @@ extern "C" {
         }
     }
     
-    ContainerIO_ImageTypes ImageContainer_GetType(ImageContainer *Image) {
-        ContainerIO_ImageTypes Type = ImageType_Unknown;
+    MediaIO_ImageTypes ImageContainer_GetType(ImageContainer *Image) {
+        MediaIO_ImageTypes Type = ImageType_Unknown;
         if (Image != NULL) {
             Type = Image->Type;
         } else {
@@ -1430,7 +1430,7 @@ extern "C" {
         return Minimum;
     }
     
-    void ImageContainer_Flip(ImageContainer *Image, ContainerIO_FlipTypes FlipType) {
+    void ImageContainer_Flip(ImageContainer *Image, MediaIO_FlipTypes FlipType) {
         if (Image != NULL) {
             ImageChannelMap *Map         = ImageContainer_GetChannelMap(Image);
             uint8_t          NumViews    = ImageChannelMap_GetNumViews(Map);
@@ -1521,7 +1521,7 @@ extern "C" {
             uint8_t          NumChannels = ImageChannelMap_GetNumChannels(Map);
             uint64_t         Height      = ImageContainer_GetHeight(Image);
             uint64_t         Width       = ImageContainer_GetWidth(Image);
-            ContainerIO_ImageTypes      Type        = ImageContainer_GetType(Image);
+            MediaIO_ImageTypes      Type        = ImageContainer_GetType(Image);
             
             int64_t NewWidth  = 0;
             int64_t NewHeight = 0;
@@ -1581,8 +1581,8 @@ extern "C" {
     ImageContainer *ImageContainer_Compare(ImageContainer *Reference, ImageContainer *Compare) {
         ImageContainer *Difference       = NULL;
         if (Reference != NULL && Compare != NULL) {
-            ContainerIO_ImageTypes      RefType     = ImageContainer_GetType(Reference);
-            ContainerIO_ImageTypes      ComType     = ImageContainer_GetType(Compare);
+            MediaIO_ImageTypes      RefType     = ImageContainer_GetType(Reference);
+            MediaIO_ImageTypes      ComType     = ImageContainer_GetType(Compare);
             ImageChannelMap *RefMap      = ImageContainer_GetChannelMap(Reference);
             ImageChannelMap *ComMap      = ImageContainer_GetChannelMap(Compare);
             uint8_t          RefNumChans = ImageChannelMap_GetNumChannels(RefMap);
@@ -1700,7 +1700,7 @@ extern "C" {
         ImageChannelMap       *ChannelMap;
         uint64_t               Width;
         uint64_t               Height;
-        ContainerIO_ImageTypes Type;
+        MediaIO_ImageTypes Type;
     } ImageHistogram;
     
     ImageHistogram *ImageHistogram_Init(ImageContainer *Image) {
@@ -1819,7 +1819,7 @@ extern "C" {
         return Histogram;
     }
     
-    void ImageHistogram_Sort(ImageHistogram *Histogram, ContainerIO_SortTypes Sort) {
+    void ImageHistogram_Sort(ImageHistogram *Histogram, MediaIO_SortTypes Sort) {
         if (Histogram != NULL) {
             ImageChannelMap *ChannelMap  = ImageHistogram_GetChannelMap(Histogram);
             uint8_t          NumChannels = ChannelMap->NumChannels;

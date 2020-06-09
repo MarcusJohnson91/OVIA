@@ -57,7 +57,7 @@ extern "C" {
             uint64_t NumChannels    = Audio2DContainer_GetNumChannels(Audio);
             uint64_t BitDepth       = Bits2Bytes(Audio2DContainer_GetBitDepth(Audio), RoundingType_Up);
             uint64_t NumSamples     = Audio2DContainer_GetNumSamples(Audio);
-            ContainerIO_AudioTypes Type = Audio2DContainer_GetType(Audio);
+            MediaIO_AudioTypes Type = Audio2DContainer_GetType(Audio);
             if (Type == (AudioType_Signed | AudioType_Integer8)) {
                 int8_t **Samples  = (int8_t**)    Audio2DContainer_GetArray(Audio);
                 for (uint32_t Sample = 0; Sample < NumSamples; Sample++) {

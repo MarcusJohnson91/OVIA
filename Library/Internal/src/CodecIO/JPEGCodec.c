@@ -167,8 +167,8 @@ extern "C" {
     
     
     
-    static ContainerIO_ImageTypes JPEG_GetImageType(JPEGOptions *JPEG) {
-        ContainerIO_ImageTypes Type = ImageType_Unknown;
+    static MediaIO_ImageTypes JPEG_GetImageType(JPEGOptions *JPEG) {
+        MediaIO_ImageTypes Type = ImageType_Unknown;
         if (JPEG->BitDepth <= 8) {
             Type          = ImageType_Integer8;
         } else {
@@ -177,8 +177,8 @@ extern "C" {
         return Type;
     }
     
-    static ContainerIO_ImageChannelMask JPEG_GetChannelMask(JPEGOptions *JPEG) {
-        ContainerIO_ImageChannelMask Mask = ImageMask_Unknown;
+    static MediaIO_ImageChannelMask JPEG_GetChannelMask(JPEGOptions *JPEG) {
+        MediaIO_ImageChannelMask Mask = ImageMask_Unknown;
         if (JPEG->NumChannels == 3) {
             Mask               = ImageMask_2D | ImageMask_Red | ImageMask_Green | ImageMask_Blue;
         } else if (JPEG->NumChannels == 1) { // Todo: Actually find the channels encoded instead of assuming this basic shit
