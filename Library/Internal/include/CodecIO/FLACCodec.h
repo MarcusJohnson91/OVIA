@@ -255,7 +255,7 @@ extern "C" {
     
     void FLAC_Decode_RICE(void *Options, BitBuffer *BitB, uint8_t RICEPartitionType);
     
-    uint16_t    FLAC_GetBlockSizeInSamples(void *Options);
+    uint16_t    FLAC_GetBlockSizeInSamples(void *Options, uint16_t HeaderBlockSize);
     
     void        FLAC_Read_Blocks(void *Options, BitBuffer *BitB);
     

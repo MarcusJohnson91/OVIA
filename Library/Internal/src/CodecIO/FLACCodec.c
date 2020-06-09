@@ -30,19 +30,19 @@ extern "C" {
         return NumChannels;
     }
     
-    uint16_t FLAC_GetBlockSizeInSamples(void *Options, uint8_t CodedBlockSize, uint16_t EndOfHeaderBlockSize) {
+    uint16_t FLAC_GetBlockSizeInSamples(void *Options, uint16_t HeaderBlockSize) {
         uint16_t SamplesInBlock = 0;
         FLACOptions *FLAC = Options;
-        if (CodedBlockSize == 1) {
+        if (FLAC->Frame->CodedBlockSize == 1) {
             SamplesInBlock = 192;
-        } else if (CodedBlockSize >= 2 && CodedBlockSize <= 5) {
-            SamplesInBlock = 576 * Exponentiate(2, CodedBlockSize - 2);
-        } else if (CodedBlockSize == 6) {
-            SamplesInBlock = EndOfHeaderBlockSize;
-        } else if (CodedBlockSize == 7) {
-            SamplesInBlock = EndOfHeaderBlockSize;
-        } else if (CodedBlockSize >= 8 && CodedBlockSize <= 15) {
-            SamplesInBlock = 256 * Exponentiate(2, CodedBlockSize - 8);
+        } else if (FLAC->Frame->CodedBlockSize >= 2 && FLAC->Frame->CodedBlockSize <= 5) {
+            SamplesInBlock = 576 * Exponentiate(2, FLAC->Frame->CodedBlockSize - 2);
+        } else if (FLAC->Frame->CodedBlockSize == 6) {
+            SamplesInBlock = HeaderBlockSize;
+        } else if (FLAC->Frame->CodedBlockSize == 7) {
+            SamplesInBlock = HeaderBlockSize;
+        } else if (FLAC->Frame->CodedBlockSize >= 8 && FLAC->Frame->CodedBlockSize <= 15) {
+            SamplesInBlock = 256 * Exponentiate(2, FLAC->Frame->CodedBlockSize - 8);
         } else {
             // Reserved
         }

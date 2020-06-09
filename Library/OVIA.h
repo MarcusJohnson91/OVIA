@@ -1,4 +1,5 @@
 #include "../../Dependencies/FoundationIO/Library/include/PlatformIO.h"
+#include "../../Dependencies/FoundationIO/Library/include/UnicodeIO/UnicodeIOTypes.h"
 
 #pragma once
 
@@ -8,22 +9,6 @@
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
-    
-#ifndef   FoundationIO_StringType8
-#define   FoundationIO_StringType8 (1)
-#ifdef    UTF8
-#undef    UTF8
-#endif /* UTF8 */
-    typedef   unsigned char  UTF8;
-#endif /* FoundationIO_StringType8 */
-    
-#ifndef   FoundationIO_StringType16
-#define   FoundationIO_StringType16 (2)
-#ifdef    UTF16
-#undef    UTF16
-#endif /* UTF16 */
-    typedef  uint_least16_t  UTF16;
-#endif /* FoundationIO_StringType16 */
     
     /*
      OVIA flow:

@@ -64,8 +64,8 @@ extern "C" {
         return CodedChannelLayout + 1;
     }
     
-    static uint8_t FLAC_GetSampleRateFromFrame(void *Options, uint8_t CodedSampleRate, uint16_t EndOfHeaderBits) {
-        uint8_t SampleRate = 0; // Invalid
+    static uint32_t FLAC_GetSampleRateFromFrame(void *Options, uint8_t CodedSampleRate, uint16_t EndOfHeaderBits) {
+        uint32_t SampleRate = 0; // Invalid
         if (Options != NULL) {
             if (CodedSampleRate == 0) {
                 FLACOptions *FLAC = Options;
@@ -102,7 +102,7 @@ extern "C" {
         } else {
             Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("FLACOptions Pointer is NULL"));
         }
-        return BitDepth;
+        return SampleRate;
     }
     
     static uint8_t FLAC_GetBitDepthFromFrame(void *Options, uint8_t CodedBitDepth) {
@@ -175,13 +175,13 @@ extern "C" {
                     uint8_t  CodedNumberSize       = BitBuffer_ReadUnary(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, UnaryType_Count, UnaryTerminator_Zero) + 1;
                     uint64_t CodedNumber           = FLAC_GetCodedNumber(BitB, CodedNumberSize);
                     
-                    uint16_t EndOfHeaderBlockSize  = 0;
-                    if (CodedBlockSize == 6) {
-                        EndOfHeaderBlockSize       = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 8);
-                    } else if (CodedBlockSize == 7) {
-                        EndOfHeaderBlockSize       = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 16);
+                    uint16_t HeaderBlockSize       = 0;
+                    if (FLAC->Frame->CodedBlockSize == 6) {
+                        HeaderBlockSize            = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 8);
+                    } else if (FLAC->Frame->CodedBlockSize == 7) {
+                        HeaderBlockSize            = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 16);
                     }
-                    FLAC->Frame->BlockSize         = FLAC_GetBlockSizeInSamples(Options); // 4096
+                    FLAC->Frame->BlockSize         = FLAC_GetBlockSizeInSamples(Options, HeaderBlockSize); // 4096
                     
                     if (FLAC->Frame->BlockType == BlockType_Fixed) {
                         FLAC->Frame->FrameNumber   = (uint32_t) CodedNumber * FLAC->Frame->BlockSize; // Framenumber * BlockSize
@@ -190,9 +190,9 @@ extern "C" {
                     }
                     
                     uint16_t EndOfHeaderSampleRate = 0;
-                    if (CodedSampleRate == 12) {
+                    if (FLAC->Frame->CodedSampleRate == 12) {
                         EndOfHeaderSampleRate      = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 8);
-                    } else if (CodedSampleRate >= 13 && CodedSampleRate <= 14) {
+                    } else if (FLAC->Frame->CodedSampleRate >= 13 && FLAC->Frame->CodedSampleRate <= 14) {
                         EndOfHeaderSampleRate      = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 16);
                     }
                     FLAC->Frame->SampleRate        = FLAC_GetSampleRateFromFrame(Options, FLAC->Frame->CodedSampleRate, EndOfHeaderSampleRate); // 192,000
@@ -376,9 +376,9 @@ extern "C" {
                     
                     FLAC->Frame->Sub->ResidualCoder  = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 2); // 0b10 aka 2 aka RICE2
                     FLAC->Frame->Sub->PartitionOrder = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 4); // 0
-                    FLAC->Frame->Sub->NumSamples     = FLAC_GetNumSamplesInPartition(FLAC->Frame->Sub->PartitionOrder, FLAC->Frame->LPCOrder, FLAC->Frame->BlockSize);
+                    NumSamples                       = FLAC_GetNumSamplesInPartition(FLAC->Frame->Sub->PartitionOrder, FLAC->LPC->LPCOrder, FLAC->Frame->BlockSize);
                     uint8_t  NumPartitions           = Exponentiate(2, FLAC->Frame->Sub->PartitionOrder);
-                    
+                    uint8_t  Partition               = 0;
                     
                     if (FLAC->Frame->Sub->ResidualCoder == RICE1) {
                         FLAC->Frame->Sub->RICEParameter = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_MSBit, 4);

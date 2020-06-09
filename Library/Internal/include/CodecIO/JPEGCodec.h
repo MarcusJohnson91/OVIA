@@ -142,6 +142,9 @@ extern "C" {
         uint8_t               BitDepth;
         uint8_t               NumChannels;
         uint8_t               Predictor;
+        uint8_t               SE; // Not sure
+        uint8_t               Ah; // Not sure
+        uint8_t               Al; // Not sure
         uint8_t               ComponentSelector;
         uint8_t               PointTransform;
         JPEG_EntropyCoders    EntropyCoder;
