@@ -265,35 +265,12 @@ extern "C" {
         }
     }
     
-#define JPEGNumMagicIDs 1
-    
-    static const MagicIDSizes JPEGMagicIDSize = {
-        .NumSizes              = JPEGNumMagicIDs,
-        .Sizes                 = {[0] = 2},
-    };
-    
-    static const MagicIDOffsets JPEGMagicIDOffset = {
-        .NumOffsets            = JPEGNumMagicIDs,
-        .Offsets               = {[0] = 0},
-    };
-    
-    static const MagicIDNumbers JPEGMagicIDNumber = {
-        .NumMagicIDs           = JPEGNumMagicIDs,
-        .MagicNumbers          = {[0] = (uint8_t[2]){0xFF, 0xD8}},
-    };
-    
-    static const MagicIDs JPEGMagicIDs = {
-        .Sizes                 = &JPEGMagicIDSize,
-        .Offsets               = &JPEGMagicIDOffset,
-        .Number                = &JPEGMagicIDNumber,
-    };
-    
     static const OVIADecoder JPEGDecoder = {
         .Function_Initialize   = JPEGOptions_Init,
         .Function_Decode       = JPEG_Extract,
         .Function_Read         = JPEG_ReadSegments,
         .Function_Deinitialize = JPEGOptions_Deinit,
-        .MagicID               = &JPEGMagicIDs,
+        .MagicIDs              = &JPEGMagicIDs,
         .MediaType             = MediaType_Image,
         .DecoderID             = CodecID_JPEG,
     };

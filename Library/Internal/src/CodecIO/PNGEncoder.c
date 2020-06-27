@@ -394,19 +394,9 @@ extern "C" {
         }
     }
     
-#define NumPNGExtensions 4
-    
-    static const UTF32 *PNGExtensions[NumPNGExtensions] = {
-        [0] = UTF32String("png"),
-        [1] = UTF32String("apng"),
-        [2] = UTF32String("mng"),
-        [3] = UTF32String("jng"),
-    };
-    
     static const OVIAEncoder PNGEncoder = {
         .EncoderID             = CodecID_PNG,
         .MediaType             = MediaType_Image,
-        .NumExtensions         = NumPNGExtensions,
         .Extensions            = PNGExtensions,
         .Function_Initialize   = PNGOptions_Init,
         .Function_WriteHeader  = PNGWriteHeader,

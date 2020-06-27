@@ -159,20 +159,9 @@ extern "C" {
         }
     }
     
-#define PNMNumExtensions 5
-    
-    static const UTF32 *PNMExtensions[PNMNumExtensions] = {
-        [0] = UTF32String("pbm"),
-        [1] = UTF32String("pgm"),
-        [2] = UTF32String("ppm"),
-        [3] = UTF32String("pnm"),
-        [4] = UTF32String("pam"),
-    };
-    
     static const OVIAEncoder PNMEncoder = {
         .EncoderID             = CodecID_PNM,
         .MediaType             = MediaType_Image,
-        .NumExtensions         = PNMNumExtensions,
         .Extensions            = PNMExtensions,
         .Function_Initialize   = PNMOptions_Init,
         .Function_WriteHeader  = PNMWriteHeader,

@@ -1182,6 +1182,7 @@ extern "C" {
     }
     
     typedef struct ImageContainer {
+        // We need to add support for Planar formats as well.
         void               ****Pixels;
         ImageChannelMap       *ChannelMap;
         uint64_t               Width;
@@ -1700,7 +1701,7 @@ extern "C" {
         ImageChannelMap       *ChannelMap;
         uint64_t               Width;
         uint64_t               Height;
-        MediaIO_ImageTypes Type;
+        MediaIO_ImageTypes     Type;
     } ImageHistogram;
     
     ImageHistogram *ImageHistogram_Init(ImageContainer *Image) {

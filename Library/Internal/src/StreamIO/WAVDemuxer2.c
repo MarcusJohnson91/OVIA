@@ -278,57 +278,12 @@ extern "C" {
         return Audio;
     }
     
-    static const MagicIDSizes WAVMagicIDSize = {
-        .NumSizes = 3,
-        .Sizes    = {
-            [0]   = 2,
-            [1]   = 2,
-            [2]   = 2,
-            [3]   = 2,
-            [4]   = 2,
-            [5]   = 2,
-            [6]   = 2,
-        },
-    };
-    
-    static const MagicIDOffsets WAVMagicIDOffset = {
-        .NumOffsets = 3,
-        .Offsets    = {
-            [0]     = 0,
-            [1]     = 0,
-            [2]     = 0,
-            [3]     = 0,
-            [4]     = 0,
-            [5]     = 0,
-            [6]     = 0,
-        },
-    };
-    
-    static const MagicIDNumbers WAVMagicIDNumber = {
-        .NumMagicIDs  = 7,
-        .MagicNumbers = {
-            [0]       = (uint8_t[2]){0x50, 0x31},
-            [1]       = (uint8_t[2]){0x50, 0x32},
-            [2]       = (uint8_t[2]){0x50, 0x33},
-            [3]       = (uint8_t[2]){0x50, 0x34},
-            [4]       = (uint8_t[2]){0x50, 0x35},
-            [5]       = (uint8_t[2]){0x50, 0x36},
-            [6]       = (uint8_t[2]){0x50, 0x37},
-        },
-    };
-    
-    static const MagicIDs WAVMagicIDs = {
-        .Sizes                 = &WAVMagicIDSize,
-        .Offsets               = &WAVMagicIDOffset,
-        .Number                = &WAVMagicIDNumber,
-    };
-    
     static const OVIADecoder WAVDecoder = {
         .Function_Initialize   = WAVOptions_Init,
         .Function_Decode       = WAVExtractSamples,
         .Function_Read         = WAVReadMetadata,
         .Function_Deinitialize = WAVOptions_Deinit,
-        .MagicID               = &WAVMagicIDs,
+        .MagicIDs              = &WAVMagicIDs,
         .MediaType             = MediaType_Audio2D,
         .DecoderID             = CodecID_PCMAudio,
     };

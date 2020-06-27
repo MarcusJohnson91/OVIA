@@ -7,6 +7,7 @@
  */
 
 #include "OVIACommon.h"
+#include "StreamIO.h"
 
 #pragma once
 
@@ -81,19 +82,31 @@ extern "C" {
     void              AIFWriteHeader(void *Options, BitBuffer *BitB);
     
     void              AIFOptions_Deinit(void *Options);
-    
-#define NumAIFMIMETypes 2
-    
-    static const UTF32 *AIFMIMETypes[NumAIFMIMETypes] = {
-        [0] = UTF32String("audio/aiff"),
-        [1] = UTF32String("audio/x-aiff"),
+
+    static const OVIA_Extensions AIFExtensions = {
+        .NumExtensions = 3,
+        .Extensions    = {
+            [0]        = UTF32String("aifc"),
+            [1]        = UTF32String("aiff"),
+            [2]        = UTF32String("aif"),
+        },
     };
-    
-#define NumAIFUniformTypeIDs 2
-    
-    static const UTF32 *AIFUniformTypeIDs[NumAIFUniformTypeIDs] = {
-        [0] = UTF32String("public.aiff-audio"),
-        [1] = UTF32String("public.aifc-audio"),
+
+    static const OVIA_MIMETypes AIFMIMETypes = {
+        .NumMIMETypes = 2,
+        .MIMETypes    = {
+            [0]       = UTF32String("audio/aiff"),
+            [1]       = UTF32String("audio/x-aiff"),
+        },
+    };
+
+    static const OVIA_MagicIDs AIFMagicIDs = {
+        .NumMagicIDs         = 1,
+        .MagicIDOffsetInBits = 0,
+        .MagicIDSizeInBits   = 32,
+        .MagicIDNumber = {
+            [0] = (uint8_t[4]){0x46, 0x4F, 0x52, 0x4D},
+        },
     };
     
     

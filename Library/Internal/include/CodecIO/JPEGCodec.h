@@ -7,6 +7,7 @@
  */
 
 #include "OVIACommon.h"
+#include "StreamIO.h"
 
 #pragma once
 
@@ -108,6 +109,17 @@ extern "C" {
         uint8_t  *Values;
         uint8_t   TableID;
     } HuffmanTable3;
+
+    typedef struct HuffmanNode {
+        uint16_t BinaryCode;     // The value to actually match in the stream
+        uint8_t  Value;          // The meaning of the BinaryCode
+        uint8_t  BinaryCodeSize; // The number of bits actually used in this code.
+    } HuffmanNode;
+
+    typedef struct HuffmanTable4 {
+        HuffmanNode **Nodes;
+        uint8_t       NumTables;
+    } HuffmanTable4;
     
     typedef struct ArithmeticTable {
         uint16_t CodeLength;
@@ -130,7 +142,7 @@ extern "C" {
     
     typedef struct JPEGOptions {
         ComponentParameters  *Components;
-        HuffmanTable3       **Huffman;
+        HuffmanTable3        *Huffman;
         //HuffmanKey         **Keys;
         //HuffmanTable       **Huffman;
         ArithmeticTable      *Arithmetic;
@@ -187,6 +199,43 @@ extern "C" {
     void            JPEGWriteFooter(void *Options, BitBuffer *BitB);
     
     void            JPEGOptions_Deinit(void *Options);
+
+    static const OVIA_Extensions JPEGExtensions = {
+        .NumExtensions = 11,
+        .Extensions    = {
+            [0]        = UTF32String("jpeg"),
+            [1]        = UTF32String("jpg"),
+            [2]        = UTF32String("jpe"),
+            [3]        = UTF32String("jfif"),
+            [4]        = UTF32String("jif"),
+            [5]        = UTF32String("jfi"),
+            [6]        = UTF32String("exif"),
+            [7]        = UTF32String("jps"),
+            [8]        = UTF32String("mpo"),
+            [9]        = UTF32String("mjpeg"),
+            [10]       = UTF32String("mjpg"),
+        },
+    };
+
+    static const OVIA_MIMETypes JPEGMIMETypes = {
+        .NumMIMETypes = 5,
+        .MIMETypes    = {
+            [0]       = UTF32String("image/jpeg"),
+            [1]       = UTF32String("image/jpg"),
+            [2]       = UTF32String("image/pjpeg"),
+            [3]       = UTF32String("image/x-jps"),
+            [4]       = UTF32String("video/x-motion-jpeg"),
+        },
+    };
+
+    static const OVIA_MagicIDs JPEGMagicIDs = {
+        .NumMagicIDs         = 1,
+        .MagicIDOffsetInBits = 0,
+        .MagicIDSizeInBits   = 16,
+        .MagicIDNumber = {
+            [0]        = (uint8_t[2]){0xFF, 0xD8},
+        },
+    };
     
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }

@@ -117,57 +117,12 @@ extern "C" {
         return Audio;
     }
     
-    static const MagicIDSizes W64MagicIDSize = {
-        .NumSizes = 3,
-        .Sizes    = {
-            [0]   = 2,
-            [1]   = 2,
-            [2]   = 2,
-            [3]   = 2,
-            [4]   = 2,
-            [5]   = 2,
-            [6]   = 2,
-        },
-    };
-    
-    static const MagicIDOffsets W64MagicIDOffset = {
-        .NumOffsets = 3,
-        .Offsets    = {
-            [0]     = 0,
-            [1]     = 0,
-            [2]     = 0,
-            [3]     = 0,
-            [4]     = 0,
-            [5]     = 0,
-            [6]     = 0,
-        },
-    };
-    
-    static const MagicIDNumbers W64MagicIDNumber = {
-        .NumMagicIDs  = 7,
-        .MagicNumbers = {
-            [0]       = (uint8_t[2]){0x50, 0x31},
-            [1]       = (uint8_t[2]){0x50, 0x32},
-            [2]       = (uint8_t[2]){0x50, 0x33},
-            [3]       = (uint8_t[2]){0x50, 0x34},
-            [4]       = (uint8_t[2]){0x50, 0x35},
-            [5]       = (uint8_t[2]){0x50, 0x36},
-            [6]       = (uint8_t[2]){0x50, 0x37},
-        },
-    };
-    
-    static const MagicIDs W64MagicIDs = {
-        .Sizes                 = &W64MagicIDSize,
-        .Offsets               = &W64MagicIDOffset,
-        .Number                = &W64MagicIDNumber,
-    };
-    
     static const OVIADecoder W64Decoder = {
         .Function_Initialize   = W64Options_Init,
         .Function_Decode       = W64ExtractSamples,
         .Function_Read         = W64ReadMetadata,
         .Function_Deinitialize = W64Options_Deinit,
-        .MagicID               = &W64MagicIDs,
+        .MagicIDs              = &W64MagicIDs,
         .MediaType             = MediaType_Audio2D,
         .DecoderID             = CodecID_PCMAudio,
     };

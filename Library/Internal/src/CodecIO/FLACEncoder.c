@@ -73,17 +73,10 @@ extern "C" {
         }
     }
     
-#define NumFLACExtensions 1
-    
-    static const UTF32 *FLACExtensions[NumFLACExtensions] = {
-        [0] = UTF32String("flac"),
-    };
-    
     static const OVIAEncoder FLACEncoder = {
         .EncoderID             = CodecID_FLAC,
         .MediaType             = MediaType_Audio2D,
-        .NumExtensions         = NumFLACExtensions,
-        .Extensions            = FLACExtensions,
+        .Extensions            = &FLACExtensions,
         .Function_Initialize   = FLACOptions_Init,
         .Function_WriteHeader  = FLAC_WriteStreamInfo,
         .Function_Encode       = FLAC_Encode,

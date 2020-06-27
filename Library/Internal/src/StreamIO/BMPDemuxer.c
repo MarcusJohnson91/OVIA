@@ -145,35 +145,12 @@ extern "C" {
         return Image;
     }
     
-#define BMPNumMagicIDs 1
-    
-    static const MagicIDSizes BMPMagicIDSize = {
-        .NumSizes              = BMPNumMagicIDs,
-        .Sizes                 = {[0] = 2},
-    };
-    
-    static const MagicIDOffsets BMPMagicIDOffset = {
-        .NumOffsets            = BMPNumMagicIDs,
-        .Offsets               = {[0] = 0},
-    };
-    
-    static const MagicIDNumbers BMPMagicIDNumber = {
-        .NumMagicIDs           = BMPNumMagicIDs,
-        .MagicNumbers          = {[0] = (uint8_t[2]){0x42, 0x4D}},
-    };
-    
-    static const MagicIDs BMPMagicIDs = {
-        .Sizes                 = &BMPMagicIDSize,
-        .Offsets               = &BMPMagicIDOffset,
-        .Number                = &BMPMagicIDNumber,
-    };
-    
     static const OVIADecoder BMPDecoder = {
         .Function_Initialize   = BMPOptions_Init,
         .Function_Decode       = BMPExtractImage,
         .Function_Read         = BMPReadMetadata,
         .Function_Deinitialize = BMPOptions_Deinit,
-        .MagicID               = &BMPMagicIDs,
+        .MagicIDs              = &BMPMagicIDs,
         .MediaType             = MediaType_Image,
         .DecoderID             = CodecID_BMP,
     };

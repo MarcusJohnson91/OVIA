@@ -7,6 +7,7 @@
  */
 
 #include "OVIACommon.h"
+#include "StreamIO.h"
 
 #pragma once
 
@@ -232,6 +233,24 @@ extern "C" {
         Codec_SOUNDSPACE_MUSICOMPRESS = 0x1500,
         Codec_DVM                     = 0x2000,
     } W64CompressionFormats;
+
+    static const OVIA_Extensions W64Extensions = {
+        .NumExtensions = 1,
+        .Extensions    = {
+            [0] = UTF32String("w64"),
+        },
+    };
+
+    static const OVIA_MagicIDs W64MagicIDs = {
+        .NumMagicIDs         = 1,
+        .MagicIDOffsetInBits = 192,
+        .MagicIDSizeInBits   = 128,
+        .MagicIDNumber = {
+            [0] = (uint8_t[16]){0x77, 0x61, 0x76, 0x65, 0xF3, 0xAC, 0xD3, 0x11, 0x8C, 0xD1, 0x00, 0xC0, 0x4F, 0x8E, 0xDB, 0x8A},
+        },
+    };
+
+    
     
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }

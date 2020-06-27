@@ -110,17 +110,10 @@ extern "C" {
         }
     }
     
-#define NumW64Extensions 1
-    
-    static const UTF32 *W64Extensions[NumW64Extensions] = {
-        [0] = UTF32String("w64"),
-    };
-    
     static const OVIAEncoder W64Encoder = {
         .EncoderID             = CodecID_PCMAudio,
         .MediaType             = MediaType_Audio2D,
-        .NumExtensions         = NumW64Extensions,
-        .Extensions            = W64Extensions,
+        .Extensions            = &W64Extensions,
         .Function_Initialize   = W64Options_Init,
         .Function_WriteHeader  = W64WriteHeader,
         .Function_Encode       = W64AppendSamples,

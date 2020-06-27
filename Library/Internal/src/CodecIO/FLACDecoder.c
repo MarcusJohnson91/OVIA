@@ -646,7 +646,7 @@ extern "C" {
         uint8_t *PictureBuffer = NULL;
         if (Options != NULL && BitB != NULL) {
             FLACOptions *FLAC           = Options;
-            uint32_t PicType            = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32); // 0
+            uint32_t PicType            = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32); // 0
             uint32_t MIMESize           = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32); // 9
             UTF8    *MIMEType           = BitBuffer_ReadUTF8(BitB, MIMESize); // image/png
             
@@ -676,47 +676,12 @@ extern "C" {
         return PictureBuffer;
     }
     
-#define NumFLACMagicIDs 3
-    
-    static const MagicIDSizes FLACMagicIDSize = {
-        .NumSizes              = NumFLACMagicIDs,
-        .Sizes                 = {
-            [0]                = 8,
-            [1]                = 8,
-            [2]                = 8,
-        },
-    };
-    
-    static const MagicIDOffsets FLACMagicIDOffset = {
-        .NumOffsets            = NumFLACMagicIDs,
-        .Offsets               = {
-            [0]                = 0,
-            [1]                = 0,
-            [2]                = 0,
-        },
-    };
-    
-    static const MagicIDNumbers FLACMagicIDNumber = {
-        .NumMagicIDs           = NumFLACMagicIDs,
-        .MagicNumbers          = {
-            [0]                = (uint8_t[8]){0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A},
-            [1]                = (uint8_t[8]){0x8A, 0x4D, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A},
-            [2]                = (uint8_t[8]){0x8B, 0x4A, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A},
-        },
-    };
-    
-    static const MagicIDs FLACMagicIDs = {
-        .Sizes                 = &FLACMagicIDSize,
-        .Offsets               = &FLACMagicIDOffset,
-        .Number                = &FLACMagicIDNumber,
-    };
-    
     static const OVIADecoder FLACDecoder = {
         .Function_Initialize   = FLACOptions_Init,
         .Function_Decode       = FLAC_Frame_Read,
         .Function_Read         = FLAC_ReadBlocks,
         .Function_Deinitialize = FLACOptions_Deinit,
-        .MagicID               = &FLACMagicIDs,
+        .MagicIDs              = &FLACMagicIDs,
         .MediaType             = MediaType_Audio2D,
         .DecoderID             = CodecID_FLAC,
     };

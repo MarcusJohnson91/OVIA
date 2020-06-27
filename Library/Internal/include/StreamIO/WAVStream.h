@@ -7,6 +7,7 @@
  */
 
 #include "OVIACommon.h"
+#include "StreamIO.h"
 
 #pragma once
 
@@ -224,6 +225,25 @@ extern "C" {
         uint16_t   BitDepth;
         uint16_t   ValidBitsPerSample;
     } WAVOptions;
+
+    static const OVIA_Extensions WAVExtensions = {
+        .NumExtensions = 3,
+        .Extensions    = {
+            [0] = UTF32String("wave"),
+            [1] = UTF32String("wav"),
+            [2] = UTF32String("bwf"),
+            [3] = UTF32String("rf64"),
+        },
+    };
+
+    static const OVIA_MagicIDs WAVMagicIDs = {
+        .NumMagicIDs         = 1,
+        .MagicIDOffsetInBits = 64,
+        .MagicIDSizeInBits   = 32,
+        .MagicIDNumber = {
+            [0] = (uint8_t[4]){0x57, 0x41, 0x56, 0x45},
+        },
+    };
     
     void *WAVOptions_Init(void);
     

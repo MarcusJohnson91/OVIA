@@ -7,6 +7,7 @@
  */
 
 #include "OVIACommon.h"
+#include "StreamIO.h"
 
 #pragma once
 
@@ -75,18 +76,30 @@ extern "C" {
     static uint64_t BMPGetPixelArraySize(const uint64_t RowSize, const int32_t ImageHeight);
     
     void            BMPOptions_Deinit(void *Options);
-    
-#define NumBMPMIMETypes 2
-    
-    static const UTF32 *BMPMIMETypes[NumBMPMIMETypes] = {
-        [0] = UTF32String("image/bmp"),
-        [1] = UTF32String("image/x-bmp"),
+
+    static const OVIA_Extensions BMPExtensions = {
+        .NumExtensions = 2,
+        .Extensions    = {
+            [0]        = UTF32String("bmp"),
+            [1]        = UTF32String("dib"),
+        },
     };
-    
-#define NumBMPUniformTypeIDs 1
-    
-    static const UTF32 *BMPUniformTypeIDs[NumBMPUniformTypeIDs] = {
-        [0] = UTF32String("com.microsoft.bmp"),
+
+    static const OVIA_MIMETypes BMPMIMETypes = {
+        .NumMIMETypes = 2,
+        .MIMETypes    = {
+            [0]       = UTF32String("image/bmp"),
+            [1]       = UTF32String("image/x-bmp"),
+        },
+    };
+
+    static const OVIA_MagicIDs BMPMagicIDs = {
+        .NumMagicIDs         = 1,
+        .MagicIDOffsetInBits = 0,
+        .MagicIDSizeInBits   = 16,
+        .MagicIDNumber = {
+            [0] = (uint8_t[2]){0x42, 0x4D},
+        },
     };
     
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)

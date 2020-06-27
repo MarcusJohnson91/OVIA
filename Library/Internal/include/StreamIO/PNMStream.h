@@ -7,6 +7,7 @@
  */
 
 #include "OVIACommon.h"
+#include "StreamIO.h"
 
 #pragma once
 
@@ -62,6 +63,45 @@ extern "C" {
     void PNMWriteFooter(void *Options, BitBuffer *BitB);
     
     void PNMOptions_Deinit(void *Options);
+
+    static const OVIA_Extensions PNMExtensions = {
+        .NumExtensions = 5,
+        .Extensions    = {
+            [0] = UTF32String("pam"),
+            [1] = UTF32String("pbm"),
+            [2] = UTF32String("pgm"),
+            [3] = UTF32String("ppm"),
+            [4] = UTF32String("pnm"),
+        },
+    };
+
+    static const OVIA_MIMETypes PNMMIMETypes = {
+        .NumMIMETypes = 6,
+        .MIMETypes    = {
+            [0]       = UTF32String("application/x-portable-anymap"), // pam, pnm
+            [1]       = UTF32String("image/x-portable-anymap"), // pam, pnm
+            [2]       = UTF32String("image/x-portable-bitmap"), // pbm
+            [3]       = UTF32String("image/x-portable-graymap"), // pgm
+            [4]       = UTF32String("image/x-portable-greymap"), // pgm
+            [5]       = UTF32String("image/x-portable-pixmap"),  // ppm
+
+        },
+    };
+
+    static const OVIA_MagicIDs PNMMagicIDs = {
+        .NumMagicIDs         = 7,
+        .MagicIDOffsetInBits = 0,
+        .MagicIDSizeInBits   = 16,
+        .MagicIDNumber = {
+            [0] = (uint8_t[2]){0x50, 0x31},
+            [1] = (uint8_t[2]){0x50, 0x32},
+            [2] = (uint8_t[2]){0x50, 0x33},
+            [3] = (uint8_t[2]){0x50, 0x34},
+            [4] = (uint8_t[2]){0x50, 0x35},
+            [5] = (uint8_t[2]){0x50, 0x36},
+            [6] = (uint8_t[2]){0x50, 0x37},
+        },
+    };
     
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }

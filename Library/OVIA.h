@@ -11,6 +11,41 @@ extern "C" {
 #endif
     
     /*
+     OVIA Refactor:
+     
+     I want OVIA to be better modularized and simplified by making it more table based.
+     
+     So codecs and streams (mux/demuxer) all deal with MagicIDs, chunk ids, with byte order/bit order as well as alignment issues; they're very similar in that regard so that stuff can be easily dealth with using the same code over and over and it should be too.
+     
+     Also should I move FoundationIO's ContainerIO to OVIA, and should I rename ContainerIO to MediaIO?
+     
+     ContainerIO really has nothing to do with FoundationIO.
+     
+     It's not used by anything else in FoundationIO, and it doesn't really rely on anything in FoundationIO except for basic PlatformIO and MathIO.
+     
+     Oh and Logging, all of which is used with OVIA so it really doesn't effect anything here.
+     
+     The only reason ContainerIO was part of FoundationIO was so it could be common to the seperate projects that made up OVIA; libPCM, ModernFLAC, and ModernPNG.
+     
+     As for renaming ContainerIO, what does ContainerIO really provide? ContainerIO abstracts the representation of various PCM multimmedia types and functions to operate on those types.
+     
+     Maybe ContainerIO should be a first class citizen of OVIA?
+     
+     What about MediaIO as a new name for ContainerIO? it makes sense but the theme is too FoundationIO-esque.
+     
+     as for the new compoments of OVIA, Codecs and Streams, we could go for CodecIO and StreamIO, but again i think it's too FoundationIO-esque.
+     
+     so the CodecIO and StreamIO and MediaIO could be the headers for the internal library, with the OVIA header exposing the public interface and those 3 exposing the private interface.
+     
+     But what would we name the actual stream and codec implementations?
+     
+     and if I do copy over ContainerIO I should just do a basic move, no history rewrite.
+     
+     Oh and a header, MetaIO.h which would be for Metadata conversion as well, for like tagging.
+     
+     */
+    
+    /*
      OVIA flow:
      
      File is opened by other means.

@@ -243,59 +243,12 @@ extern "C" {
         return Image;
     }
     
-#define PNMNumSubCodecs 7
-    
-    static const MagicIDSizes PNMMagicIDSize = {
-        .NumSizes = PNMNumSubCodecs,
-        .Sizes    = {
-            [0]   = 2,
-            [1]   = 2,
-            [2]   = 2,
-            [3]   = 2,
-            [4]   = 2,
-            [5]   = 2,
-            [6]   = 2,
-        },
-    };
-    
-    static const MagicIDOffsets PNMMagicIDOffset = {
-        .NumOffsets = PNMNumSubCodecs,
-        .Offsets    = {
-            [0]     = 0,
-            [1]     = 0,
-            [2]     = 0,
-            [3]     = 0,
-            [4]     = 0,
-            [5]     = 0,
-            [6]     = 0,
-        },
-    };
-    
-    static const MagicIDNumbers PNMMagicIDNumber = {
-        .NumMagicIDs  = PNMNumSubCodecs,
-        .MagicNumbers = {
-            [0]       = (uint8_t[2]){0x50, 0x31},
-            [1]       = (uint8_t[2]){0x50, 0x32},
-            [2]       = (uint8_t[2]){0x50, 0x33},
-            [3]       = (uint8_t[2]){0x50, 0x34},
-            [4]       = (uint8_t[2]){0x50, 0x35},
-            [5]       = (uint8_t[2]){0x50, 0x36},
-            [6]       = (uint8_t[2]){0x50, 0x37},
-        },
-    };
-    
-    static const MagicIDs PNMMagicIDs = {
-        .Sizes                 = &PNMMagicIDSize,
-        .Offsets               = &PNMMagicIDOffset,
-        .Number                = &PNMMagicIDNumber,
-    };
-    
     static const OVIADecoder PNMDecoder = {
         .Function_Initialize   = PNMOptions_Init,
         .Function_Decode       = PNMExtractImage,
         .Function_Read         = PNMReadHeader,
         .Function_Deinitialize = PNMOptions_Deinit,
-        .MagicID               = &PNMMagicIDs,
+        .MagicIDs              = &PNMMagicIDs,
         .MediaType             = MediaType_Image,
         .DecoderID             = CodecID_PNG,
     };

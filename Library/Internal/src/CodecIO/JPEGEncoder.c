@@ -98,22 +98,10 @@ extern "C" {
         }
     }
     
-#define NumJPEGExtensions 6
-    
-    static const UTF32 *JPEGExtensions[NumJPEGExtensions] = {
-        [0] = UTF32String("jpg"),
-        [1] = UTF32String("jpe"),
-        [2] = UTF32String("jif"),
-        [3] = UTF32String("jfi"),
-        [4] = UTF32String("jfif"),
-        [5] = UTF32String("jpeg"),
-    };
-    
     static const OVIAEncoder JPEGEncoder = {
         .EncoderID             = CodecID_JPEG,
         .MediaType             = MediaType_Image,
-        .NumExtensions         = NumJPEGExtensions,
-        .Extensions            = JPEGExtensions,
+        .Extensions            = &JPEGExtensions,
         .Function_Initialize   = JPEGOptions_Init,
         .Function_WriteHeader  = JPEGWriteHeader,
         .Function_Encode       = JPEGWriteImage,

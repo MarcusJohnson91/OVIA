@@ -7,6 +7,7 @@
  */
 
 #include "OVIACommon.h"
+#include "StreamIO.h"
 
 #pragma once
 
@@ -270,17 +271,28 @@ extern "C" {
     uint8_t    *FLAC_Pic_Read(void *Options, BitBuffer *BitB);
     
     void        FLACOptions_Deinit(void *Options);
-    
-#define NumFLACMIMETypes 1
-    
-    static const UTF32 *FLACMIMETypes[NumFLACMIMETypes] = {
-        [0] = UTF32String("audio/flac"),
+
+    static const OVIA_Extensions FLACExtensions = {
+        .NumExtensions = 1,
+        .Extensions    = {
+            [0]        = UTF32String("flac"),
+        },
+    };
+
+    static const OVIA_MIMETypes FLACMIMETypes = {
+        .NumMIMETypes = 1,
+        .MIMETypes    = {
+            [0]       = UTF32String("audio/flac"),
+        },
     };
     
-#define NumFLACUniformTypeIDs 1
-    
-    static const UTF32 *FLACUniformTypeIDs[NumFLACUniformTypeIDs] = {
-        [0] = UTF32String("org.xiph.flac"),
+    static const OVIA_MagicIDs FLACMagicIDs = {
+        .NumMagicIDs         = 1,
+        .MagicIDOffsetInBits = 0,
+        .MagicIDSizeInBits   = 32,
+        .MagicIDNumber = {
+            [0] = (uint8_t[4]){0x66, 0x4C, 0x61, 0x43},
+        },
     };
     
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)

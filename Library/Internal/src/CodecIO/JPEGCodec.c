@@ -210,9 +210,22 @@ extern "C" {
      Lᵢ                  = Bits[i]
      Lᵢ(t) = Table[t][i] = Bits[i]
      Vᵢ,ⱼ =  Value where i is the bit length, and j is the index of the bitlength
-     
-     
      */
+
+    // How many Nodes are there? BitLengthCounts
+
+    void JPEG_InitHuffman(JPEGOptions *JPEG, uint16_t NumNodes, uint8_t NumTables) {
+        if (JPEG != NULL && NumNodes > 0) {
+            JPEG->Huffman        = calloc(1, sizeof(HuffmanTable3));
+            JPEG->Huffman->Nodes = calloc(NumNodes, sizeof(HuffmanNode));
+        } else if (JPEG == NULL) {
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("JPEG pointer is invalid"), NumNodes);
+        } else if (NumNodes == 0) {
+            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("NumNodes: %u is invalid"), NumNodes);
+        }
+    }
+
+
     
     void JPEG_BuildTable(JPEGOptions *JPEG, uint8_t TableID, uint8_t *BitLengthCounts, uint8_t NumValues, uint8_t *Values) {
         if (JPEG != NULL && BitLengthCounts != NULL && Values != NULL) {
@@ -221,14 +234,43 @@ extern "C" {
             // Values          = 0, 1, 2, 3, 4, 5, 6, 7, 8
             
             // Fuck NULL terminated arrays of arrays, let's just put the BitLengthCounts array in the table too.
+
+            // We should know if the image is grayscale or color before we allocate the tables, grayscale requires 2 tables, color requires 4.
             
             JPEG->Huffman[TableID]->BitLengthCounts            = calloc(NumBitCounts, sizeof(uint8_t));
             JPEG->Huffman[TableID]->Codes                      = calloc(NumValues, sizeof(uint16_t));
             JPEG->Huffman[TableID]->Values                     = calloc(NumValues, sizeof(uint8_t));
             
             uint16_t PreviousCode                              = 0;
+
+            /*
+             JPEG->Huffman[TableID]->Node[X].BitLength  = 4;
+             JPEG->Huffman[TableID]->Node[X].Value      = 'e';
+             JPEG->Huffman[TableID]->Node[X].BinaryCode = 0b1110;
+             */
+
+            /*
+             HuffmanTable[BitLength]
+
+             BitLength[4] = {BinaryCode, Symbol}
+
+             So a Huffman table is a 2D array that also needs to store the bit length or a 3D table
+             [BitLength][BinaryCode][Symbol]
+
+             or we could do it as 2 2D tables?
+
+             [Array of BitLengths] = {4, 5, 6, 7, 8};
+
+             [ArrayOfBitlengths=4] = Pointer to 2D array
+
+
+             */
             
             for (uint8_t Index = 0; Index < NumBitCounts; Index++) {
+                for (uint8_t Count = 0; Count < BitLengthCounts[Count]; Count++) {
+                    // Map = 2D array, first index is the binary code, seond is the
+                    JPEG->Huffman[TableID]->
+                }
                 JPEG->Huffman[TableID]->BitLengthCounts[Index] = BitLengthCounts[Index];
             }
             

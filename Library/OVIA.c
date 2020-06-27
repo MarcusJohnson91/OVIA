@@ -47,7 +47,6 @@ extern "C" {
      
      Should ICC profiles be a part of OVIA or ContainerIO?
      */
-	
     
     OVIA_CodecIDs UTF8_Extension2CodecID(UTF8 *Extension) {
         OVIA_CodecIDs CodecID = CodecID_Unknown;
