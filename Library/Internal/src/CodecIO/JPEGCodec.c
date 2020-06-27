@@ -422,7 +422,7 @@ extern "C" {
             while (Symbol != JPEG->Huffman->EndOfBlockCode && (Symbol < Marker_Restart0 || Symbol > Marker_Restart7)) {
                 // What do I do now? Read a Unary code until we find a stop bit effictively
                 // Yes, read until you find a zerom it's effictively a RICE code.
-                Symbol               = BitBuffer_ReadUnary(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, WholeUnary, 0);
+                Symbol               = BitBuffer_ReadUnary(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, WholeUnary, 0);
                 // Count the number of bits set in Symbol, go to that index in the Huffman code table and loop over all possible values there, until you find a matching code, then read that number of bits
                 uint8_t SymbolSize   = CountBitsSet(Symbol);
                 uint8_t NumBits2Read = 0;
@@ -431,7 +431,7 @@ extern "C" {
                         NumBits2Read = JPEG->Huffman->NumBits[NumBits2Read];
                     }
                 }
-                Symbol               = (int16_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, SymbolSize);
+                Symbol               = (int16_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, SymbolSize);
             }
              */
         } else {

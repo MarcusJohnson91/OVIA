@@ -126,7 +126,7 @@ extern "C" {
             for (uint64_t MagicID = 0ULL; MagicID < Ovia->Decoders[Decoder].NumMagicIDs; MagicID++) {
                 BitBuffer_Seek(BitB, Ovia->Decoders[Decoder].MagicIDOffsetInBits[MagicID]);
                 for (uint64_t MagicIDByte = 0ULL; MagicIDByte < Ovia->Decoders[Decoder].MagicIDSizeInBits[Decoder]; MagicIDByte++) {
-                    uint8_t ExtractedByte = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 8); // Should we put a bit order field in the magic id thing?
+                    uint8_t ExtractedByte = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 8); // Should we put a bit order field in the magic id thing?
                     if (ExtractedByte != Ovia->Decoders[Decoder].MagicID[MagicIDByte]) {
                         break;
                     } else if (MagicIDByte + 1 == Ovia->Decoders[Decoder].MagicIDSizeInBits[Decoder] && ExtractedByte == Ovia->Decoders[Decoder].MagicID[MagicIDByte]) {

@@ -64,7 +64,7 @@ extern "C" {
         .MagicID           = &NativeFLACMagicID,
         .OffsetInBits      = 1,
         .FieldSizeInBits   = 7,
-        .ByteOrder         = BitIO_ByteOrder_MSByte,
+        .ByteOrder         = ByteOrder_LSByteIsFarthest,
         .BitOrder          = BitIO_BitOrder_MSBit,
     };
 

@@ -26,11 +26,11 @@ extern "C" {
     void WAVReadChunk_DS64(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             WAVOptions *WAV       = Options;
-            uint32_t ChunkSize    = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 32);
-            uint32_t SizeLow      = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 32);
-            uint32_t SizeHigh     = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 32);
-            uint32_t DataSizeLow  = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 32);
-            uint32_t DataSizeHigh = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 32);
+            uint32_t ChunkSize    = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 32);
+            uint32_t SizeLow      = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 32);
+            uint32_t SizeHigh     = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 32);
+            uint32_t DataSizeLow  = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 32);
+            uint32_t DataSizeHigh = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 32);
             
         } else if (Options == NULL) {
             Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
@@ -155,8 +155,8 @@ extern "C" {
     
     static void WAVReadLISTChunk(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
-            uint32_t SubChunkID   = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 32);
-            uint32_t SubChunkSize = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 32);
+            uint32_t SubChunkID   = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 32);
+            uint32_t SubChunkSize = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 32);
             
             switch (SubChunkID) {
                 case WAV_IART: // Artist
@@ -191,21 +191,21 @@ extern "C" {
     static void WAVReadFMTChunk(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             WAVOptions *WAV        = Options;
-            uint32_t ChunkSize     = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 32);
-            WAV->CompressionFormat = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 16);
-            WAV->NumChannels       = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 16);
-            WAV->SampleRate        = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 32);
-            WAV->ByteRate          = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 32);
-            WAV->BlockAlign        = (uint16_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 16);
-            WAV->BitDepth          = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 16);
+            uint32_t ChunkSize     = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 32);
+            WAV->CompressionFormat = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 16);
+            WAV->NumChannels       = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 16);
+            WAV->SampleRate        = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 32);
+            WAV->ByteRate          = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 32);
+            WAV->BlockAlign        = (uint16_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 16);
+            WAV->BitDepth          = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 16);
             if (ChunkSize == 18) {
-                uint16_t CBSize             = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 16);
+                uint16_t CBSize             = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 16);
                 BitBuffer_Seek(BitB, Bytes2Bits(CBSize - 16));
             } else if (ChunkSize == 40) {
-                uint16_t CBSize             = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 16);
-                WAV->ValidBitsPerSample     = BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 16);
+                uint16_t CBSize             = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 16);
+                WAV->ValidBitsPerSample     = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 16);
                 
-                WAV->SpeakerMask            = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 32);
+                WAV->SpeakerMask            = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 32);
                 uint8_t  *BinaryGUIDFormat  = BitBuffer_ReadGUUID(BitB, GUUIDType_BinaryGUID);
                 BitBuffer_Seek(BitB, Bytes2Bits(CBSize - 22));
             }
@@ -219,8 +219,8 @@ extern "C" {
     void WAVReadMetadata(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             WAVOptions *WAV    = Options;
-            uint32_t ChunkID   = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_MSByte, BitIO_BitOrder_LSBit, 32);
-            uint32_t ChunkSize = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, 32);
+            uint32_t ChunkID   = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32);
+            uint32_t ChunkSize = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 32);
             
             switch (ChunkID) {
                 case WAV_LIST:
@@ -252,21 +252,21 @@ extern "C" {
                 uint8_t **Samples = (uint8_t**) Audio2DContainer_GetArray(Audio);
                 for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                     for (uint64_t Channel = 0; Channel < WAV->NumChannels; Channel++) {
-                        Samples[Channel][Sample] = (uint8_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, SampleSizeRounded);
+                        Samples[Channel][Sample] = (uint8_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, SampleSizeRounded);
                     }
                 }
             } else if (WAV->BitDepth <= 16) {
                 uint16_t **Samples = (uint16_t**) Audio2DContainer_GetArray(Audio);
                 for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                     for (uint64_t Channel = 0; Channel < WAV->NumChannels; Channel++) {
-                        Samples[Channel][Sample] = (uint16_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, SampleSizeRounded);
+                        Samples[Channel][Sample] = (uint16_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, SampleSizeRounded);
                     }
                 }
             } else if (WAV->BitDepth <= 32) {
                 uint32_t **Samples = (uint32_t**) Audio2DContainer_GetArray(Audio);
                 for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                     for (uint64_t Channel = 0; Channel < WAV->NumChannels; Channel++) {
-                        Samples[Channel][Sample] = (uint32_t) BitBuffer_ReadBits(BitB, BitIO_ByteOrder_LSByte, BitIO_BitOrder_LSBit, SampleSizeRounded);
+                        Samples[Channel][Sample] = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, SampleSizeRounded);
                     }
                 }
             }
