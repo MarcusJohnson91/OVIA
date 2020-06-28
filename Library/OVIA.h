@@ -9,7 +9,97 @@
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
-    
+
+    /*
+     OVIA Interface: User Perspective
+     Read the command line arguments
+     Open input and output streams
+     identify the input file
+     identify the requested action (encoding/muxing) to which codec/container.
+     look through the registered decoders and encoders to find if we can fulfill the request.
+     if we can, start doing it.
+
+     OVIA Interface: External Developer Perspective: What is an External dev trying to do? Use OVIA to acomplish a task.
+     Identify the input data and decide if we can reencode or remux it.
+     Also, substream identification and extraction.
+     (2 types of stream identification, sync code based which is just a few large constants, and actual IDs which are predefined integer constants, the is basically a list of values)
+
+     OVIA Interface: Internal Developer Perspective:
+     How do I add suport for MY codec, it's weird.
+     Well, you use the various components of OVIA's internal skeleton to build your codec, you register your decoder/encoder as well as the frameing parameters for bot decoding, encoding, as well as muxing.
+     and then you write the pieces you need with whats available, theres MD5, CRC32, Adler32, functions as well as generic entropy coders available for use.
+     and if none of the generic stuff works you can just write your own with the same performance as the built in ones.
+
+     So we need Audio and Image Containers, a Tag container, a Subtitle/Caption Container, as well as Entropy codecs, and most importantly I need a good representation of how the to abstract file/network sources, as well as how to abstract the actual data contained within.
+     */
+
+    /*
+     The main problem with a Packet based architecture is that it doesn't fit into the stream architecture I'm trying to create.
+
+     But what if we reverse it?
+
+     Files get converted into frames, and network packets get accumulated into a frame it's self?
+
+     How would that fit in with Container format encapsulation as well as codec substreams?
+
+     Well, lets say theres a video codec with substreams, H.264 SVC video for example with 2 substreams, one 1080p and the other 480p.
+
+     Then the H.264 video is interlaced with DTS-HD MA audio in 3 languages, English, Swedish, and German.
+
+     and theres 3 subtitle formats as well, for the same languages.
+
+     and all of this content is encoded in a MPEG Media Transport stream.
+
+     We need to be able to parse the MMT header to find what is contained in the Payload as well as where the Payload is.
+
+     and we'd need to be able to extract the payload into a buffer of fixed or growable? size.
+
+     
+     */
+
+    /*
+     Subtitles are a type of metadata or tag, they're just text linked to certain start and stop times.
+     How does "bitstream filtering" (aka muxing/frame extraction/concatenation) fit in?
+     Encoding and decoding both have two points of entry, the encoded form and the Container form.
+
+
+     */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     /*
      OVIA Refactor:
      

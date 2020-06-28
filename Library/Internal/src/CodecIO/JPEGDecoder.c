@@ -114,7 +114,7 @@ extern "C" {
                  So, keep track of the previous value used to build the table in a variable, PreviousCode
                  */
                 
-                JPEG_BuildTable(JPEG, TableID, BitCounts, NumValues, Values);
+                //JPEG_BuildTable(JPEG, TableID, BitCounts, NumValues, Values);
                 
                 free(BitCounts);
                 free(Values);
@@ -137,9 +137,12 @@ extern "C" {
                 /* HUFFSIZE aka C.1 */
             } else if (TableClass > 0) {
                 Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("TableClass: %u is invalid for Lossless JPEG"), TableClass);
-            } else if (JPEG->Huffman[TableCount]->TableID > 3) {
+            }
+            /*
+            else if (JPEG->Huffman[TableCount]->TableID > 3) {
                 Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("TableID %u is invalid"), JPEG->Huffman[TableCount]->TableID);
             }
+             */
         }
     }
     

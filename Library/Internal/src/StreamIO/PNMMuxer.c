@@ -162,7 +162,7 @@ extern "C" {
     static const OVIAEncoder PNMEncoder = {
         .EncoderID             = CodecID_PNM,
         .MediaType             = MediaType_Image,
-        .Extensions            = PNMExtensions,
+        .Extensions            = &PNMExtensions,
         .Function_Initialize   = PNMOptions_Init,
         .Function_WriteHeader  = PNMWriteHeader,
         .Function_Encode       = PNMInsertImage,

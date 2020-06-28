@@ -397,7 +397,7 @@ extern "C" {
     static const OVIAEncoder PNGEncoder = {
         .EncoderID             = CodecID_PNG,
         .MediaType             = MediaType_Image,
-        .Extensions            = PNGExtensions,
+        .Extensions            = &PNGExtensions,
         .Function_Initialize   = PNGOptions_Init,
         .Function_WriteHeader  = PNGWriteHeader,
         .Function_Encode       = PNG_Image_Insert,
