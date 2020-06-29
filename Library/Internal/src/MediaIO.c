@@ -1187,7 +1187,7 @@ extern "C" {
         ImageChannelMap       *ChannelMap;
         uint64_t               Width;
         uint64_t               Height;
-        MediaIO_ImageTypes Type;
+        MediaIO_ImageTypes     Type;
     } ImageContainer;
     
     ImageContainer *ImageContainer_Init(MediaIO_ImageTypes Type, ImageChannelMap *ChannelMap, uint64_t Width, uint64_t Height) {

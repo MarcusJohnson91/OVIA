@@ -131,6 +131,7 @@ extern "C" {
                    ImageType_Unknown                = 0,
                    ImageType_Integer8               = 1,
                    ImageType_Integer16              = 2,
+                   ImageType_Integer32              = 4,
     } MediaIO_ImageTypes;
     
     /*!

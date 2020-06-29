@@ -7,17 +7,11 @@
 extern "C" {
 #endif
 
-    void ForwardTransform_RCT(ImageContainer *Image) {
+    void RCT_Encode(ImageContainer *Image) {
         if (Image != NULL) {
             ImageChannelMap *Map  = ImageContainer_GetChannelMap(Image);
             uint8_t NumChannels  = ImageChannelMap_GetNumChannels(Map);
-            if (NumChannels < 2 || NumChannels > 4) {
-                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("NumChannels %u must be 3 or 4"), NumChannels);
-            } else {
-                //ImageChannelMask RGBMask                         = ImageMask_Red | ImageMask_Green | ImageMask_Blue;
-                //ImageChannelMask RGBAMask                        = ImageMask_Red | ImageMask_Green | ImageMask_Blue | ImageMask_Alpha;
-
-                //if (Mask == RGBMask || Mask == RGBAMask) {
+            if (NumChannels >= 3 && NumChannels <= 4) {
                 uint8_t  RedIndex                             = ImageChannelMap_GetChannelsIndex(Image, ImageMask_Red);
                 uint8_t  GreenIndex                           = ImageChannelMap_GetChannelsIndex(Image, ImageMask_Green);
                 uint8_t  BlueIndex                            = ImageChannelMap_GetChannelsIndex(Image, ImageMask_Blue);
@@ -76,29 +70,19 @@ extern "C" {
                 ImageChannelMap_AddMask(NewMap, GreenIndex, ImageMask_Luma);
                 ImageChannelMap_AddMask(NewMap, BlueIndex, ImageMask_Chroma2);
                 ImageContainer_SetChannelMap(Image, NewMap);
-                /*
-                 } else {
-                 Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Unsupported Channel Mask %u"), Mask);
-                 }
-                 */
+            } else {
+                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("NumChannels %u must be 3 or 4"), NumChannels);
             }
         } else {
             Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
         }
     }
 
-    void ForwardTransform_YCoCgR(ImageContainer *Image) {
+    void YCoCgR_Encode(ImageContainer *Image) {
         if (Image != NULL) {
             ImageChannelMap *Map  = ImageContainer_GetChannelMap(Image);
             uint8_t  NumChannels  = ImageChannelMap_GetNumChannels(Map);
-
             if (NumChannels >= 3 && NumChannels <= 4) {
-                /*
-
-                 How do we make sure that only Red Green and Blue are present
-
-                 */
-                //if (Mask == RGBMask || Mask == RGBAMask) {
                 uint8_t  RedIndex                             = ImageChannelMap_GetChannelsIndex(Image, ImageMask_Red);
                 uint8_t  GreenIndex                           = ImageChannelMap_GetChannelsIndex(Image, ImageMask_Green);
                 uint8_t  BlueIndex                            = ImageChannelMap_GetChannelsIndex(Image, ImageMask_Blue);
@@ -157,11 +141,6 @@ extern "C" {
                 ImageChannelMap_AddMask(NewMap, GreenIndex, ImageMask_Luma);
                 ImageChannelMap_AddMask(NewMap, BlueIndex, ImageMask_Chroma2);
                 ImageContainer_SetChannelMap(Image, NewMap);
-                /*
-                 } else {
-                 Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Unsupported Channel Mask %u"), Mask);
-                 }
-                 */
             } else {
                 Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("NumChannels %hhu must be 3 or 4"), NumChannels);
             }
@@ -174,27 +153,21 @@ extern "C" {
         .Transform             = ColorTransform_RCT,
         .InputChannels         = (ImageMask_Red | ImageMask_Green | ImageMask_Blue),
         .OutputChannels        = (ImageMask_Luma | ImageMask_Chroma1 | ImageMask_Chroma2),
-        .Function_Transform    = ForwardTransform_RCT,
+        .Function_Transform    = RCT_Encode,
     };
 
     OVIAColorTransform ForwardYCoCgR = {
         .Transform             = ColorTransform_YCoCgR,
         .InputChannels         = (ImageMask_Red | ImageMask_Green | ImageMask_Blue),
         .OutputChannels        = (ImageMask_Luma | ImageMask_Chroma1 | ImageMask_Chroma2),
-        .Function_Transform    = ForwardTransform_YCoCgR,
+        .Function_Transform    = YCoCgR_Encode,
     };
 
     void ReverseTransform_RCT(ImageContainer *Image) {
         if (Image != NULL) {
             ImageChannelMap *Map  = ImageContainer_GetChannelMap(Image);
             uint8_t  NumChannels  = ImageChannelMap_GetNumChannels(Map);
-            if (NumChannels < 2 || NumChannels > 4) {
-                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("NumChannels %u must be 3 or 4"), NumChannels);
-            } else {
-                //Image_ChannelMask RGBMask                         = ImageMask_Red | ImageMask_Green | ImageMask_Blue;
-                //Image_ChannelMask RGBAMask                        = ImageMask_Red | ImageMask_Green | ImageMask_Blue | ImageMask_Alpha;
-
-                //if (Mask == RGBMask || Mask == RGBAMask) {
+            if (NumChannels >= 3 && NumChannels <= 4) {
                 ImageChannelMap *Map                          = ImageContainer_GetChannelMap(Image);
                 uint8_t  Chroma1Index                         = ImageChannelMap_GetChannelsIndex(Map, ImageMask_Chroma1);
                 uint8_t  LumaIndex                            = ImageChannelMap_GetChannelsIndex(Map, ImageMask_Luma);
@@ -254,28 +227,19 @@ extern "C" {
                 ImageChannelMap_AddMask(NewMap, LumaIndex, ImageMask_Green);
                 ImageChannelMap_AddMask(NewMap, Chroma2Index, ImageMask_Blue);
                 ImageContainer_SetChannelMap(Image, NewMap);
-                /*
-                 } else {
-                 Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Unsupported Channel Mask %u"), Mask);
-                 }
-                 */
+            } else {
+                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("NumChannels %u must be 3 or 4"), NumChannels);
             }
         } else {
             Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
         }
     }
 
-    void ReverseTransform_YCoCgR(ImageContainer *Image) {
+    void YCoCgR_Decode(ImageContainer *Image) { // Not Bijective, requires an additional bit in the Chroma channels
         if (Image != NULL) {
             ImageChannelMap *Map  = ImageContainer_GetChannelMap(Image);
             uint8_t  NumChannels  = ImageChannelMap_GetNumChannels(Map);
-            if (NumChannels < 2 || NumChannels > 4) {
-                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("NumChannels %u must be 3 or 4"), NumChannels);
-            } else {
-                //Image_ChannelMask RGBMask                         = ImageMask_Red | ImageMask_Green | ImageMask_Blue;
-                //Image_ChannelMask RGBAMask                        = ImageMask_Red | ImageMask_Green | ImageMask_Blue | ImageMask_Alpha;
-
-                //if (Mask == RGBMask || Mask == RGBAMask) {
+            if (NumChannels >= 3 && NumChannels <= 4) {
                 uint8_t  Chroma1Index                         = ImageChannelMap_GetChannelsIndex(Map, ImageMask_Chroma1);
                 uint8_t  LumaIndex                            = ImageChannelMap_GetChannelsIndex(Map, ImageMask_Luma);
                 uint8_t  Chroma2Index                         = ImageChannelMap_GetChannelsIndex(Map, ImageMask_Chroma2);
@@ -333,11 +297,8 @@ extern "C" {
                 ImageChannelMap_AddMask(NewMap, LumaIndex, ImageMask_Green);
                 ImageChannelMap_AddMask(NewMap, Chroma2Index, ImageMask_Blue);
                 ImageContainer_SetChannelMap(Image, NewMap);
-                /*
-                 } else {
-                 Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Unsupported Channel Mask %u"), Mask);
-                 }
-                 */
+            } else {
+                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("NumChannels %u must be 3 or 4"), NumChannels);
             }
         } else {
             Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
@@ -355,7 +316,7 @@ extern "C" {
         .Transform             = ColorTransform_YCoCgR,
         .InputChannels         = (ImageMask_Red | ImageMask_Green | ImageMask_Blue),
         .OutputChannels        = (ImageMask_Luma | ImageMask_Chroma1 | ImageMask_Chroma2),
-        .Function_Transform    = ReverseTransform_YCoCgR,
+        .Function_Transform    = YCoCgR_Decode,
     };
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
