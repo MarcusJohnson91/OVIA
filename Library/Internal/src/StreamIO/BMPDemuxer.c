@@ -16,42 +16,42 @@ extern "C" {
         if (Options != NULL && BitB != NULL) {
             BMPOptions *BMP = Options;
             BitBuffer_Seek(BitB, 16);                           // Skip BMPMagic
-            BMP->FileSize                                    = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 32);
+            BMP->FileSize                                    = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
             BitBuffer_Seek(BitB, 32);                           // 2 16 bit Reserved fields
-            BMP->Offset                                      = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 32);
+            BMP->Offset                                      = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
             if (BMP->Offset > 14) { // DIB Header
-                BMP->DIBSize                                 = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 32);
+                BMP->DIBSize                                 = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
                 if (BMP->DIBSize >= 40) {
-                    BMP->Width                               = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 32);
-                    BMP->Height                              = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 32);
+                    BMP->Width                               = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
+                    BMP->Height                              = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
                 } else if (BMP->DIBSize == 12) {
-                    BMP->Width                               = (uint16_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 16);
-                    BMP->Height                              = (uint16_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 16);
+                    BMP->Width                               = (uint16_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 16);
+                    BMP->Height                              = (uint16_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 16);
                 }
                 BitBuffer_Seek(BitB, 16);                       // NumPlanes, always 1
-                BMP->BitDepth                                = (uint16_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 16);
-                BMP->CompressionType                         = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 32);
-                BMP->NumBytesUsedBySamples                   = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 32);
-                BMP->WidthPixelsPerMeter                     = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 32);
-                BMP->HeightPixelsPerMeter                    = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 32);
-                BMP->ColorsIndexed                           = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 32);
-                BMP->IndexedColorsUsed                       = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 32);
+                BMP->BitDepth                                = (uint16_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 16);
+                BMP->CompressionType                         = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
+                BMP->NumBytesUsedBySamples                   = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
+                BMP->WidthPixelsPerMeter                     = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
+                BMP->HeightPixelsPerMeter                    = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
+                BMP->ColorsIndexed                           = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
+                BMP->IndexedColorsUsed                       = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
                 if (BMP->DIBSize >= 56) {
-                    BMP->ColorSpaceType                      = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 32);
+                    BMP->ColorSpaceType                      = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
                     if (BMP->DIBSize >= 108) {
-                        BMP->XCoordinate                     = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 32);
-                        BMP->YCoordinate                     = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 32);
-                        BMP->ZCoordinate                     = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 32);
-                        BMP->RGamma                          = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 32);
-                        BMP->GGamma                          = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 32);
-                        BMP->BGamma                          = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 32);
+                        BMP->XCoordinate                     = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
+                        BMP->YCoordinate                     = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
+                        BMP->ZCoordinate                     = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
+                        BMP->RGamma                          = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
+                        BMP->GGamma                          = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
+                        BMP->BGamma                          = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
                         if (BMP->DIBSize >= 124) {
-                            BMP->ICCIntent                   = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 32);
-                            BMP->ICCSize                     = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 32);
+                            BMP->ICCIntent                   = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
+                            BMP->ICCSize                     = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
                             BMP->ICCPayload                  = calloc(BMP->ICCSize, sizeof(uint8_t));
                             if (BMP->ICCPayload != NULL) {
                                 for (uint32_t ICCByte = 0; ICCByte < BMP->ICCSize; ICCByte++) {
-                                    BMP->ICCPayload[ICCByte] = (uint8_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 8);
+                                    BMP->ICCPayload[ICCByte] = (uint8_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 8);
                                 }
                             } else {
                                 Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Couldn't allocate %d bytes for the ICC payload"), BMP->ICCSize);
@@ -63,11 +63,11 @@ extern "C" {
                 }
                 BitBuffer_Seek(BitB, BMP->DIBSize - BitBuffer_GetPosition(BitB)); // Skip the remaining bits.
             } else if (BMP->DIBSize == 40 && (BMP->CompressionType == BMP_BitFields || BMP->CompressionType == BMP_RGBABitFields)) {
-                BMP->RMask     = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, BMP->BitDepth);
-                BMP->GMask     = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, BMP->BitDepth);
-                BMP->BMask     = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, BMP->BitDepth);
+                BMP->RMask     = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, BMP->BitDepth);
+                BMP->GMask     = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, BMP->BitDepth);
+                BMP->BMask     = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, BMP->BitDepth);
                 if (BMP->CompressionType == BMP_RGBABitFields) {
-                    BMP->AMask = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, BMP->BitDepth);
+                    BMP->AMask = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, BMP->BitDepth);
                 }
             } else {
                 BitBuffer_Seek(BitB, Bits2Bytes((BMP->Offset - 14) - BMP->DIBSize, RoundingType_Down));
@@ -100,7 +100,7 @@ extern "C" {
                         for (uint64_t W = 0ULL; W < Width; W++) {
                             for (uint64_t H = 0ULL; H < Height; H++) {
                                 for (uint64_t Channel = 0ULL; Channel < 3; Channel++) {
-                                    Array[View][W][H][Channel] = (uint8_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, Bits2Bytes(BitDepth, RoundingType_Up));
+                                    Array[View][W][H][Channel] = (uint8_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, Bits2Bytes(BitDepth, RoundingType_Up));
                                 }
                             }
                         }
@@ -111,7 +111,7 @@ extern "C" {
                         for (uint64_t W = 0ULL; W < Width; W++) {
                             for (uint64_t H = 0ULL; H < Height; H++) {
                                 for (uint64_t Channel = 0ULL; Channel < 3; Channel++) {
-                                    Array[View][W][H][Channel] = (uint8_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, Bits2Bytes(BitDepth, RoundingType_Up));
+                                    Array[View][W][H][Channel] = (uint8_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, Bits2Bytes(BitDepth, RoundingType_Up));
                                 }
                             }
                         }

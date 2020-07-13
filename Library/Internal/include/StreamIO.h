@@ -65,7 +65,7 @@ extern "C" {
         .OffsetInBits      = 1,
         .FieldSizeInBits   = 7,
         .ByteOrder         = ByteOrder_LSByteIsFarthest,
-        .BitOrder          = BitIO_BitOrder_MSBit,
+        .BitOrder          = BitOrder_LSBitIsFarthest,
     };
 
     static const OVIA_Stream M2TSStreamInfo = {

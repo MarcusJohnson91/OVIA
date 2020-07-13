@@ -6,7 +6,7 @@ extern "C" {
     
     void WriteSegment_StartOfImage(BitBuffer *BitB) {
         if (BitB != NULL) {
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 16, Marker_StartOfImage);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, Marker_StartOfImage);
         } else {
             Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
@@ -19,16 +19,16 @@ extern "C" {
                 StartOfFrameMarker == Marker_StartOfFrameLossless3 ||
                 StartOfFrameMarker == Marker_StartOfFrameLossless4) {
                 uint16_t SegmentSize = 8 + (JPEG->NumChannels * 3);
-                BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 16, StartOfFrameMarker);
-                BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 16, SegmentSize);
-                BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 8, JPEG->BitDepth);
-                BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 16, JPEG->Height);
-                BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 16, JPEG->Width);
-                BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 8, JPEG->NumChannels);
+                BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, StartOfFrameMarker);
+                BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, SegmentSize);
+                BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, JPEG->BitDepth);
+                BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, JPEG->Height);
+                BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, JPEG->Width);
+                BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, JPEG->NumChannels);
                 for (uint8_t Component = 0; Component < JPEG->NumChannels; Component++) {
-                    BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 8, JPEG->Components[Component].ComponentID);
-                    BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 8, JPEG->Components[Component].Horizontal);
-                    BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 8, JPEG->Components[Component].Vertical);
+                    BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, JPEG->Components[Component].ComponentID);
+                    BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, JPEG->Components[Component].Horizontal);
+                    BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, JPEG->Components[Component].Vertical);
                 }
             } else {
                 Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("StartOfFrameMarker %hu isn't a Lossless SOF Marker"), StartOfFrameMarker);
@@ -40,9 +40,9 @@ extern "C" {
     
     void WriteSegment_Comment(BitBuffer *BitB, UTF8 *CommentString) {
         if (BitB != NULL) {
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 16, Marker_Comment);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, Marker_Comment);
             uint16_t StringSize = UTF8_GetStringSizeInCodeUnits(CommentString);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 16, StringSize + 2);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, StringSize + 2);
             BitBuffer_WriteUTF8(BitB, CommentString, StringTerminator_NULL);
         } else {
             Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
@@ -51,7 +51,7 @@ extern "C" {
     
     void WriteSegment_ICCProfile(BitBuffer *BitB) {
         if (BitB != NULL) {
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 16, Marker_ICCProfile);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, Marker_ICCProfile);
             
         } else {
             Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
@@ -74,7 +74,7 @@ extern "C" {
     
     void JPEGWriteFooter(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 16, Marker_EndOfImage);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, Marker_EndOfImage);
         } else if (BitB == NULL) {
             Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {

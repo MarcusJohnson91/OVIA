@@ -239,8 +239,6 @@ extern "C" {
     
     OVIA                *OVIA_Init(void);
     OVIA_CodecIDs        OVIA_IdentifyFileType(OVIA *Ovia, BitBuffer *BitB);
-    OVIA_CodecIDs        UTF8_Extension2CodecID(UTF8 *Extension);
-    OVIA_CodecIDs        UTF16_Extension2CodecID(UTF16 *Extension);
     Audio2DContainer    *OVIA_ExtractSamples(BitBuffer *BitB, uint64_t MaxNumSamples);
     AudioVector         *OVIA_ExtractVector(BitBuffer *BitB);
     ImageContainer      *OVIA_ExtractFrame(BitBuffer *BitB); // Used for both image and video formats

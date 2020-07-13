@@ -24,9 +24,9 @@ extern "C" {
         if (Options != NULL && BitB != NULL) {
             uint32_t iENDSize = 0;
             uint32_t iENDCRC  = 0xAE426082;
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 32, iENDSize);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 32, iENDMarker);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 32, iENDCRC);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32, iENDSize);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32, iENDMarker);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32, iENDCRC);
         } else if (Options == NULL) {
             Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -47,15 +47,15 @@ extern "C" {
             FCHECK                   |= FDICT << 6;
             FCHECK                   |= FDICT << 5;
             
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 4, CompressionMethod);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 4, CompressionInfo);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 4, CompressionMethod);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 4, CompressionInfo);
             
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 5, FCHECK);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 1, FDICT);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 2, 0); // Huh?
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 5, FCHECK);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1, FDICT);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 2, 0); // Huh?
             
             if (FDICT == Yes) {
-                BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, PNG->DAT->DictID);
+                BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNG->DAT->DictID);
             }
         } else if (Options == NULL) {
             Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
@@ -72,8 +72,8 @@ extern "C" {
             uint16_t Bytes2Copy  = 0;
             uint16_t Bytes2Copy2 = Bytes2Copy ^ 0xFFFF;
             
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 16, Bytes2Copy);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, 16, Bytes2Copy2);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 16, Bytes2Copy);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 16, Bytes2Copy2);
             
             // Now we simply copy bytes from the image container to the BitBuffer; the max num bytes is 65536
             
@@ -117,15 +117,15 @@ extern "C" {
     void WriteIHDRChunk(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG           = Options;
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, 13);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, iHDRMarker);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, PNG->iHDR->Width);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, PNG->iHDR->Height);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 8,  PNG->iHDR->BitDepth);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 8,  PNG->iHDR->ColorType);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 8,  PNG->iHDR->Compression);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 8,  PNG->iHDR->FilterMethod);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 8,  PNG->iHDR->Interlaced);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, 13);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, iHDRMarker);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNG->iHDR->Width);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNG->iHDR->Height);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  PNG->iHDR->BitDepth);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  PNG->iHDR->ColorType);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  PNG->iHDR->Compression);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  PNG->iHDR->FilterMethod);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  PNG->iHDR->Interlaced);
         } else if (Options == NULL) {
             Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -136,10 +136,10 @@ extern "C" {
     void WriteACTLChunk(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG           = Options;
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, 8);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, acTLMarker);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, PNG->acTL->NumFrames);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, PNG->acTL->TimesToLoop);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, 8);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, acTLMarker);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNG->acTL->NumFrames);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNG->acTL->TimesToLoop);
         } else if (Options == NULL) {
             Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -150,17 +150,17 @@ extern "C" {
     void WriteFCTLChunk(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG           = Options;
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, 29);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, fcTLMarker);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, PNG->fcTL->FrameNum);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, PNG->fcTL->Width);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, PNG->fcTL->Height);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, PNG->fcTL->XOffset);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, PNG->fcTL->YOffset);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 16, PNG->fcTL->FrameDelayNumerator);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 16, PNG->fcTL->FrameDelayDenominator);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 8,  PNG->fcTL->DisposeMethod);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 8,  PNG->fcTL->BlendMethod);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, 29);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, fcTLMarker);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNG->fcTL->FrameNum);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNG->fcTL->Width);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNG->fcTL->Height);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNG->fcTL->XOffset);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNG->fcTL->YOffset);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, PNG->fcTL->FrameDelayNumerator);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, PNG->fcTL->FrameDelayDenominator);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  PNG->fcTL->DisposeMethod);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  PNG->fcTL->BlendMethod);
         } else if (Options == NULL) {
             Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -171,9 +171,9 @@ extern "C" {
     void WriteFDATChunk(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG           = Options;
-            // BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, DeflatedFrameData + 8);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, fDATMarker);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, PNG->fcTL->FrameNum);
+            // BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, DeflatedFrameData + 8);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, fDATMarker);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNG->fcTL->FrameNum);
         } else if (Options == NULL) {
             Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -184,9 +184,9 @@ extern "C" {
     void WriteSTERChunk(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG           = Options;
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, 1);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, sTERMarker);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 8,  PNG->sTER->StereoType);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, 1);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, sTERMarker);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  PNG->sTER->StereoType);
         } else if (Options == NULL) {
             Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -213,16 +213,16 @@ extern "C" {
                 BKGDEntrySize = Bytes2Bits(NumChannels * 2);
             }
             
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, Size);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, bKGDMarker);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Size);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, bKGDMarker);
             
             if (ColorType == PNG_PalettedRGB || ColorType == PNG_Grayscale || ColorType == PNG_GrayAlpha) {
                 for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
-                    BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, BKGDEntrySize, PNG->bkGD->BackgroundPaletteEntry[Channel]);
+                    BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BKGDEntrySize, PNG->bkGD->BackgroundPaletteEntry[Channel]);
                 }
             } else if (ColorType == PNG_RGB || ColorType == PNG_RGBA) {
                 for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
-                    BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, NumChannels * 16, PNG->bkGD->BackgroundPaletteEntry[Channel]);
+                    BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, NumChannels * 16, PNG->bkGD->BackgroundPaletteEntry[Channel]);
                 }
             }
         } else if (Options == NULL) {
@@ -235,16 +235,16 @@ extern "C" {
     void WriteCHRMChunk(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG           = Options;
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, 32);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, cHRMMarker);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, PNG->cHRM->WhitePointX);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, PNG->cHRM->WhitePointY);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, PNG->cHRM->RedX);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, PNG->cHRM->RedY);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, PNG->cHRM->GreenX);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, PNG->cHRM->GreenY);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, PNG->cHRM->BlueX);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, PNG->cHRM->BlueY);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, 32);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, cHRMMarker);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNG->cHRM->WhitePointX);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNG->cHRM->WhitePointY);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNG->cHRM->RedX);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNG->cHRM->RedY);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNG->cHRM->GreenX);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNG->cHRM->GreenY);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNG->cHRM->BlueX);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNG->cHRM->BlueY);
         } else if (Options == NULL) {
             Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -255,9 +255,9 @@ extern "C" {
     void WriteGAMAChunk(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG           = Options;
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, 4);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, gAMAMarker);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, PNG->gAMA->Gamma);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, 4);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, gAMAMarker);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNG->gAMA->Gamma);
         } else if (Options == NULL) {
             Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -268,11 +268,11 @@ extern "C" {
     void WriteOFFSChunk(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG           = Options;
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, 9);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, oFFsMarker);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, PNG->oFFs->XOffset);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, PNG->oFFs->YOffset);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 8,  PNG->oFFs->UnitSpecifier);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, 9);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, oFFsMarker);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNG->oFFs->XOffset);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNG->oFFs->YOffset);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  PNG->oFFs->UnitSpecifier);
         } else if (Options == NULL) {
             Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -287,12 +287,12 @@ extern "C" {
             uint64_t  ProfileNameSize       = UTF8_GetStringSizeInCodeUnits(ProfileName);
             uint64_t  CompressedProfileSize = PNG->iCCP->CompressedICCPProfileSize;
             
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, 8 + CompressedProfileSize + ProfileNameSize);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, iCCPMarker);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, 8 + CompressedProfileSize + ProfileNameSize);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, iCCPMarker);
             BitBuffer_WriteUTF8(BitB, ProfileName, StringTerminator_NULL);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 8, PNG->iCCP->CompressionType);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, PNG->iCCP->CompressionType);
             for (uint64_t Byte = 0ULL; Byte < PNG->iCCP->CompressedICCPProfileSize; Byte++) {
-                BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 8, PNG->iCCP->CompressedICCPProfile[Byte]);
+                BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, PNG->iCCP->CompressedICCPProfile[Byte]);
             }
         } else if (Options == NULL) {
             Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
@@ -316,23 +316,23 @@ extern "C" {
                 ChunkSize = 4;
             }
             
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, ChunkSize);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, sBITMarker);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, ChunkSize);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, sBITMarker);
             
             if (ColorType == PNG_RGB || ColorType == PNG_PalettedRGB) {
-                BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 8, PNG->sBIT->Red);
-                BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 8, PNG->sBIT->Green);
-                BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 8, PNG->sBIT->Blue);
+                BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, PNG->sBIT->Red);
+                BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, PNG->sBIT->Green);
+                BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, PNG->sBIT->Blue);
             } else if (ColorType == PNG_RGBA) {
-                BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 8, PNG->sBIT->Red);
-                BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 8, PNG->sBIT->Green);
-                BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 8, PNG->sBIT->Blue);
-                BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 8, PNG->sBIT->Alpha);
+                BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, PNG->sBIT->Red);
+                BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, PNG->sBIT->Green);
+                BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, PNG->sBIT->Blue);
+                BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, PNG->sBIT->Alpha);
             } else if (ColorType == PNG_Grayscale) {
-                BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 8, PNG->sBIT->Grayscale);
+                BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, PNG->sBIT->Grayscale);
             } else if (ColorType == PNG_GrayAlpha) {
-                BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 8, PNG->sBIT->Grayscale);
-                BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 8, PNG->sBIT->Alpha);
+                BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, PNG->sBIT->Grayscale);
+                BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, PNG->sBIT->Alpha);
             }
         } else if (Options == NULL) {
             Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
@@ -344,9 +344,9 @@ extern "C" {
     void WriteSRGBChunk(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG           = Options;
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 8, 1);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, sRGBMarker);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 8, PNG->sRGB->RenderingIntent);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, 1);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, sRGBMarker);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, PNG->sRGB->RenderingIntent);
         } else if (Options == NULL) {
             Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -357,12 +357,12 @@ extern "C" {
     void WritePHYSChunk(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG           = Options;
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 8, 9);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, pHYsMarker);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, 9);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, pHYsMarker);
             
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, PNG->pHYs->PixelsPerUnitXAxis);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, PNG->pHYs->PixelsPerUnitYAxis);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 8,  PNG->pHYs->UnitSpecifier);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNG->pHYs->PixelsPerUnitXAxis);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNG->pHYs->PixelsPerUnitYAxis);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  PNG->pHYs->UnitSpecifier);
         } else if (Options == NULL) {
             Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -374,8 +374,8 @@ extern "C" {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG    = Options;
             uint32_t ChunkSize = 0;
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, ChunkSize);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, pCALMarker);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, ChunkSize);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, pCALMarker);
         } else if (Options == NULL) {
             Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {

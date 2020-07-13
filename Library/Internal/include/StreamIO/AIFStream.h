@@ -39,20 +39,7 @@ extern "C" {
         AIF_AIFC              = 0x41494643,
     } AIFChunkIDs;
     
-    typedef enum AIFSubChunkIDs {
-        AIF_AAPL              = 0x4150504c,
-        AIF_AESD              = 0x41455344,
-        AIF_ANNO              = 0x414e4e4f,
-        AIF_AUTH              = 0x41555448,
-        AIF_COMM              = 0x434F4D4D,
-        AIF_COMT              = 0x434f4d54,
-        AIF_ID3               = 0x49443320,
-        AIF_INST              = 0x494e5354,
-        AIF_MARK              = 0x4d41524b,
-        AIF_MIDI              = 0x4d494449,
-        AIF_NAME              = 0x4E414D45,
-        AIF_SSND              = 0x53534E44,
-    } AIFSubChunkIDs;
+
     
     typedef struct AIFOptions {
         UTF8          *Tags;
@@ -83,31 +70,7 @@ extern "C" {
     
     void              AIFOptions_Deinit(void *Options);
 
-    static const OVIA_Extensions AIFExtensions = {
-        .NumExtensions = 3,
-        .Extensions    = {
-            [0]        = UTF32String("aifc"),
-            [1]        = UTF32String("aiff"),
-            [2]        = UTF32String("aif"),
-        },
-    };
-
-    static const OVIA_MIMETypes AIFMIMETypes = {
-        .NumMIMETypes = 2,
-        .MIMETypes    = {
-            [0]       = UTF32String("audio/aiff"),
-            [1]       = UTF32String("audio/x-aiff"),
-        },
-    };
-
-    static const OVIA_MagicIDs AIFMagicIDs = {
-        .NumMagicIDs         = 1,
-        .MagicIDOffsetInBits = 0,
-        .MagicIDSizeInBits   = 32,
-        .MagicIDNumber = {
-            [0] = (uint8_t[4]){0x46, 0x4F, 0x52, 0x4D},
-        },
-    };
+    
     
     
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)

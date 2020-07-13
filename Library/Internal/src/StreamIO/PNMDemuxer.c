@@ -7,11 +7,11 @@ extern "C" {
     static uint64_t PNMCheckForComment(BitBuffer *BitB) {
         uint64_t CommentSize = 0;
         if (BitB != NULL) {
-            if (BitBuffer_PeekBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 8) == PNMCommentStart) {
+            if (BitBuffer_PeekBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8) == PNMCommentStart) {
                 BitBuffer_Seek(BitB, 8);
                 do {
                     CommentSize += 1;
-                } while (BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 8) != PNMEndField);
+                } while (BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8) != PNMEndField);
             }
         } else {
             Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
@@ -24,7 +24,7 @@ extern "C" {
             PNMOptions *PNM           = Options;
             // Read the Marker, store it in PNMOptions
             BitBuffer_Seek(BitB, 8);
-            uint8_t Type = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 8);
+            uint8_t Type = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
             switch (Type) {
                 case '1':
                 case '2':
@@ -178,7 +178,7 @@ extern "C" {
                         for (uint64_t Height = 0; Height < PNM->Height; Height++) {
                             for (uint8_t Channel = 0; Channel < PNM->NumChannels; Channel++) {
                                 for (uint8_t SubPixelByte = 0; SubPixelByte < 3; SubPixelByte++) {
-                                    Component[SubPixelByte]      = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 8);
+                                    Component[SubPixelByte]      = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
                                 }
                                 Array[0][Width][Height][Channel] = UTF8_String2Integer(Component, Base_Integer | Base_Radix10);
                             }
@@ -191,7 +191,7 @@ extern "C" {
                         for (uint64_t Height = 0; Height < PNM->Height; Height++) {
                             for (uint8_t Channel = 0; Channel < PNM->NumChannels; Channel++) {
                                 for (uint8_t SubPixelByte = 0; SubPixelByte < 3; SubPixelByte++) {
-                                    Component[SubPixelByte]      = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 8);
+                                    Component[SubPixelByte]      = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
                                 }
                                 Array[0][Width][Height][Channel] = UTF8_String2Integer(Component, Base_Integer | Base_Radix10);
                             }
@@ -207,7 +207,7 @@ extern "C" {
                     for (uint64_t Width = 0; Width < PNM->Width; Width++) {
                         for (uint64_t Height = 0; Height < PNM->Height; Height++) {
                             for (uint8_t Channel = 0; Channel < PNM->NumChannels; Channel++) {
-                                uint8_t CurrentPixel                 = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, PNM->BitDepth);
+                                uint8_t CurrentPixel                 = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, PNM->BitDepth);
                                 if (PNM->TupleType == PNM_TUPLE_BnW) {
                                     Array[0][Width][Height][Channel] = ~CurrentPixel; // 1 = black, 0 = white
                                 } else {
@@ -222,7 +222,7 @@ extern "C" {
                     for (uint64_t Width = 0; Width < PNM->Width; Width++) {
                         for (uint64_t Height = 0; Height < PNM->Height; Height++) {
                             for (uint8_t Channel = 0; Channel < PNM->NumChannels; Channel++) {
-                                uint16_t CurrentPixel                = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitIO_BitOrder_LSBit, PNM->BitDepth);
+                                uint16_t CurrentPixel                = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, PNM->BitDepth);
                                 if (PNM->TupleType == PNM_TUPLE_BnW) {
                                     Array[0][Width][Height][Channel] = ~CurrentPixel; // 1 = black, 0 = white
                                 } else {

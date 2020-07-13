@@ -7,11 +7,11 @@ extern "C" {
     
     void   FLACWriteMetadata(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 32, FLACMagic);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, FLACMagic);
             bool IsLastMetadataBlock = false;
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 1, IsLastMetadataBlock);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1, IsLastMetadataBlock);
             uint8_t MetadataBlockType = 1;
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 7, MetadataBlockType);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 7, MetadataBlockType);
         } else if (Options == NULL) {
             Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -44,15 +44,15 @@ extern "C" {
     void FLAC_WriteStreamInfo(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             FLACOptions *FLAC = Options;
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 24, 34); // StreamInfoSize
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 16, FLAC->StreamInfo->MinimumBlockSize);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 16, FLAC->StreamInfo->MaximumBlockSize);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 24, FLAC->StreamInfo->MinimumFrameSize);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 24, FLAC->StreamInfo->MaximumFrameSize);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 20, FLAC->StreamInfo->SampleRate);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit,  3, FLAC->StreamInfo->CodedChannels - 1);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit,  5, FLAC->StreamInfo->BitDepth - 1);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_LSBit, 36, FLAC->StreamInfo->SamplesInStream);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 24, 34); // StreamInfoSize
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, FLAC->StreamInfo->MinimumBlockSize);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, FLAC->StreamInfo->MaximumBlockSize);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 24, FLAC->StreamInfo->MinimumFrameSize);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 24, FLAC->StreamInfo->MaximumFrameSize);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 20, FLAC->StreamInfo->SampleRate);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest,  3, FLAC->StreamInfo->CodedChannels - 1);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest,  5, FLAC->StreamInfo->BitDepth - 1);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 36, FLAC->StreamInfo->SamplesInStream);
             BitBuffer_Seek(BitB, 128); // Room for the MD5
         } else if (Options == NULL) {
             Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
@@ -63,7 +63,7 @@ extern "C" {
     
     void FLAC_WriteVorbis(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitIO_BitOrder_MSBit, 32, 4);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 32, 4);
             UTF8 *OVIAVersion = UTF8_Format(UTF8String("OVIA"));
             BitBuffer_WriteUTF8(BitB, OVIAVersion, StringTerminator_Sized);
         } else if (Options == NULL) {
