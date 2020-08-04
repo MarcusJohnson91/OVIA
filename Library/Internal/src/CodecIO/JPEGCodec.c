@@ -243,7 +243,7 @@ extern "C" {
             }
              */
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Couldn't allocate ImageContainer"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Couldn't allocate ImageContainer"));
         }
         return Container;
     }

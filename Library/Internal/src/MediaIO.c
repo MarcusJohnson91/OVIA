@@ -1,6 +1,6 @@
 #include "../include/Private/MediaIO.h"                                      /* Included for our declarations */
 #include "../../Dependencies/FoundationIO/Library/include/MathIO.h"          /* Included for Absolute, Max/Min */
-#include "../../Dependencies/FoundationIO/Library/include/UnicodeIO/LogIO.h" /* Included for error reporting */
+#include "../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h" /* Included for error reporting */
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
@@ -17,7 +17,7 @@ extern "C" {
             ChannelMap->NumChannels = NumChannels;
             ChannelMap->Map         = (MediaIO_AudioChannelMask*) calloc(NumChannels, sizeof(MediaIO_AudioChannelMask));
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Couldn't allocate AudioChannelMap"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Couldn't allocate AudioChannelMap"));
         }
         return ChannelMap;
     }
@@ -26,9 +26,9 @@ extern "C" {
         if (ChannelMap != NULL && Index < ChannelMap->NumChannels) {
             ChannelMap->Map[Index] = Mask;
         } else if (ChannelMap == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ChannelMap Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ChannelMap Pointer is NULL"));
         } else if (Index >= ChannelMap->NumChannels) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Index %llu is greather than there are channels %llu"), Index, ChannelMap->NumChannels);
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Index %llu is greather than there are channels %llu"), Index, ChannelMap->NumChannels);
         }
     }
     
@@ -37,9 +37,9 @@ extern "C" {
         if (ChannelMap != NULL && Index < ChannelMap->NumChannels) {
             ChannelMask = ChannelMap->Map[Index];
         } else if (ChannelMap == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ChannelMap Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ChannelMap Pointer is NULL"));
         } else if (Index >= ChannelMap->NumChannels) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Index %llu is greather than there are channels %llu"), Index, ChannelMap->NumChannels);
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Index %llu is greather than there are channels %llu"), Index, ChannelMap->NumChannels);
         }
         return ChannelMask;
     }
@@ -57,7 +57,7 @@ extern "C" {
                 Channel     += 1;
             }
         } else if (ChannelMap == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ChannelMap Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ChannelMap Pointer is NULL"));
         }
         return Index;
     }
@@ -67,7 +67,7 @@ extern "C" {
             free(ChannelMap->Map);
             free(ChannelMap);
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ChannelMap Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ChannelMap Pointer is NULL"));
         }
     }
     
@@ -92,17 +92,17 @@ extern "C" {
                     Audio->Samples = Array;
                 } else {
                     Audio2DContainer_Deinit(Audio);
-                    Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Couldn't allocate the audio array"));
+                    Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Couldn't allocate the audio array"));
                 }
                 
                 Audio->SampleRate  = SampleRate;
                 Audio->NumSamples  = NumSamples;
             } else {
                 Audio2DContainer_Deinit(Audio);
-                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Couldn't allocate the Audio2DContainer"));
+                Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Couldn't allocate the Audio2DContainer"));
             }
         } else if (NumSamples == 0) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("NumSamples %llu is invalid"), NumSamples);
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("NumSamples %llu is invalid"), NumSamples);
         }
         return Audio;
     }
@@ -112,7 +112,7 @@ extern "C" {
         if (Audio != NULL) {
             Map              = Audio->ChannelMap;
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Audio2DContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Audio2DContainer Pointer is NULL"));
         }
         return Map;
     }
@@ -128,7 +128,7 @@ extern "C" {
                 BitDepth = 32;
             }
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Audio2DContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Audio2DContainer Pointer is NULL"));
         }
         return BitDepth;
     }
@@ -138,7 +138,7 @@ extern "C" {
         if (Audio != NULL) {
             NumChannels = Audio->NumChannels;
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Audio2DContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Audio2DContainer Pointer is NULL"));
         }
         return NumChannels;
     }
@@ -148,7 +148,7 @@ extern "C" {
         if (Audio != NULL) {
             SampleRate = Audio->SampleRate;
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Audio2DContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Audio2DContainer Pointer is NULL"));
         }
         return SampleRate;
     }
@@ -158,7 +158,7 @@ extern "C" {
         if (Audio != NULL) {
             NumSamples = Audio->NumSamples;
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Audio2DContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Audio2DContainer Pointer is NULL"));
         }
         return NumSamples;
     }
@@ -168,7 +168,7 @@ extern "C" {
         if (Audio != NULL) {
             Type = Audio->Type;
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Audio2DContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Audio2DContainer Pointer is NULL"));
         }
         return Type;
     }
@@ -178,7 +178,7 @@ extern "C" {
         if (Audio != NULL) {
             AudioArray = Audio->Samples;
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Audio2DContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Audio2DContainer Pointer is NULL"));
         }
         return AudioArray;
     }
@@ -221,7 +221,7 @@ extern "C" {
                 Average /= Audio->NumSamples;
             }
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Audio2DContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Audio2DContainer Pointer is NULL"));
         }
         return Average;
     }
@@ -297,7 +297,7 @@ extern "C" {
                 }
             }
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Audio2DContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Audio2DContainer Pointer is NULL"));
         }
         return Maximum;
     }
@@ -367,7 +367,7 @@ extern "C" {
                 }
             }
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Audio2DContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Audio2DContainer Pointer is NULL"));
         }
         return Minimum;
     }
@@ -431,7 +431,7 @@ extern "C" {
                 Verification = (Samples[0][0] & 0xFF);
             }
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Audio2DContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Audio2DContainer Pointer is NULL"));
         }
         return Verification;
     }
@@ -442,7 +442,7 @@ extern "C" {
             free(Audio->ChannelMap);
             free(Audio);
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Audio2DContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Audio2DContainer Pointer is NULL"));
         }
     }
     
@@ -483,13 +483,13 @@ extern "C" {
                     Histogram->NumEntries = NumValues;
                 } else {
                     Audio2DHistogram_Deinit(Histogram);
-                    Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Couldn't allocate Audio2DHistogram Array"));
+                    Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Couldn't allocate Audio2DHistogram Array"));
                 }
             } else {
-                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Couldn't allocate Audio2DHistogram"));
+                Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Couldn't allocate Audio2DHistogram"));
             }
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Audio2DContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Audio2DContainer Pointer is NULL"));
         }
         return Histogram;
     }
@@ -499,7 +499,7 @@ extern "C" {
         if (Histogram != NULL) {
             Array = Histogram->Array;
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Audio2DHistogram Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Audio2DHistogram Pointer is NULL"));
         }
         return Array;
     }
@@ -508,7 +508,7 @@ extern "C" {
         if (Histogram != NULL) {
             Histogram->Array = (void*) Array;
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Audio2DHistogram Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Audio2DHistogram Pointer is NULL"));
         }
     }
     
@@ -550,10 +550,10 @@ extern "C" {
                     }
                 }
             } else {
-                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Couldn't allocate Audio2DHistogram"));
+                Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Couldn't allocate Audio2DHistogram"));
             }
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Audio2DContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Audio2DContainer Pointer is NULL"));
         }
         return Histogram;
     }
@@ -626,7 +626,7 @@ extern "C" {
                 }
             }
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageHistogram Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ImageHistogram Pointer is NULL"));
         }
     }
     
@@ -635,11 +635,11 @@ extern "C" {
         if (Container2Upsample != NULL && SampleRate > 0 && BitDepth > 0) {
             
         } else if (Container2Upsample == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Container Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Container Pointer is NULL"));
         } else if (SampleRate == 0) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("SampleRate: 0 is invalid"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("SampleRate: 0 is invalid"));
         } else if (BitDepth == 0) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitDepth: 0 is invalid"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("BitDepth: 0 is invalid"));
         }
         return Upsammpled;
     }
@@ -669,9 +669,9 @@ extern "C" {
              
              */
         } else if (Container1 == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Container1 Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Container1 Pointer is NULL"));
         } else if (Container2 == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Container2 Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Container2 Pointer is NULL"));
         }
         return Mixed;
     }
@@ -735,7 +735,7 @@ extern "C" {
                 Verification = (Samples[0][0] & 0xFF);
             }
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Audio2DHistogram Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Audio2DHistogram Pointer is NULL"));
         }
         return Verification;
     }
@@ -767,7 +767,7 @@ extern "C" {
         if (Vector != NULL) {
             Array = Vector->Samples;
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("AudioVector Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("AudioVector Pointer is NULL"));
         }
         return Array;
     }
@@ -776,9 +776,9 @@ extern "C" {
         if (Vector != NULL && Array != NULL) {
             Vector->Samples = (void*) Array;
         } else if (Vector == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("AudioVector Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("AudioVector Pointer is NULL"));
         } else if (Array == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Array Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Array Pointer is NULL"));
         }
     }
     
@@ -851,7 +851,7 @@ extern "C" {
                 Histogram->Histogram  = (uint64_t*) calloc(Histogram->NumSamples, sizeof(uint64_t));
             }
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("AudioVector Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("AudioVector Pointer is NULL"));
         }
         return Histogram;
     }
@@ -861,7 +861,7 @@ extern "C" {
         if (Histogram != NULL) {
             Array = Histogram->Histogram;
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("AudioVectorHistogram Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("AudioVectorHistogram Pointer is NULL"));
         }
         return Array;
     }
@@ -870,9 +870,9 @@ extern "C" {
         if (Histogram != NULL && Array != NULL) {
             Histogram->Histogram = (uint64_t*) Array;
         } else if (Histogram == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("AudioVectorHistogram Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("AudioVectorHistogram Pointer is NULL"));
         } else if (Array == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Array Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Array Pointer is NULL"));
         }
     }
     
@@ -904,7 +904,7 @@ extern "C" {
                 }
             }
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("AudioVector Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("AudioVector Pointer is NULL"));
         }
         return Histogram;
     }
@@ -975,7 +975,7 @@ extern "C" {
                 }
             }
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageHistogram Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ImageHistogram Pointer is NULL"));
         }
     }
     
@@ -987,7 +987,7 @@ extern "C" {
             }
             Verification = (Histogram->Histogram[0] & 0xFF);
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("AudioVectorHistogram Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("AudioVectorHistogram Pointer is NULL"));
         }
         return Verification;
     }
@@ -997,7 +997,7 @@ extern "C" {
             free(Histogram->Histogram);
             free(Histogram);
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("AudioVectorHistogram Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("AudioVectorHistogram Pointer is NULL"));
         }
     }
     
@@ -1015,11 +1015,11 @@ extern "C" {
         if (Container != NULL && Vector != NULL && Index < Container->NumVectors) {
             Container->Vectors[Index] = *Vector;
         } else if (Container == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Container Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Container Pointer is NULL"));
         } else if (Vector == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Vector Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Vector Pointer is NULL"));
         } else if (Index >= Container->NumVectors) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Index %llu is larger than %llu"), Index, Container->NumVectors);
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Index %llu is larger than %llu"), Index, Container->NumVectors);
         }
     }
     
@@ -1028,9 +1028,9 @@ extern "C" {
         if (Container != NULL && Index < Container->NumVectors) {
             Vector          = &Container->Vectors[Index];
         } else if (Container == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Container Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Container Pointer is NULL"));
         } else if (Index >= Container->NumVectors) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Index %llu is larger than %llu"), Index, Container->NumVectors);
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Index %llu is larger than %llu"), Index, Container->NumVectors);
         }
         return Vector;
     }
@@ -1042,7 +1042,7 @@ extern "C" {
                 NumSamples += Container->Vectors[Vector].NumSamples;
             }
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Audio3DContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Audio3DContainer Pointer is NULL"));
         }
         return NumSamples;
     }
@@ -1053,9 +1053,9 @@ extern "C" {
             uint64_t NumSamples   = Audio3DContainer_GetTotalNumSamples(Audio3D);
             Audio2D               = Audio2DContainer_Init(Type, ChannelMap, SampleRate, /*Calculate this from all the vectors */ 0);
         } else if (Audio3D == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Audio3DContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Audio3DContainer Pointer is NULL"));
         } else if (ChannelMap == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("AudioChannelMap Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("AudioChannelMap Pointer is NULL"));
         }
         return Audio2D;
     }
@@ -1086,7 +1086,7 @@ extern "C" {
                 }
             }
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Container Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Container Pointer is NULL"));
         }
         return Verification;
     }
@@ -1117,7 +1117,7 @@ extern "C" {
             ChannelMap->NumChannels = NumChannels;
             ChannelMap->Map         = (MediaIO_ImageChannelMask**) calloc(NumViews * NumChannels, sizeof(MediaIO_ImageChannelMask**));
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Couldn't allocate ImageChannelMap"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Couldn't allocate ImageChannelMap"));
         }
         return ChannelMap;
     }
@@ -1127,7 +1127,7 @@ extern "C" {
         if (ChannelMap != NULL) {
             NumViews     = ChannelMap->NumViews;
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ChannelMap Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ChannelMap Pointer is NULL"));
         }
         return NumViews;
     }
@@ -1137,7 +1137,7 @@ extern "C" {
         if (ChannelMap != NULL) {
             NumViews     = ChannelMap->NumChannels;
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ChannelMap Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ChannelMap Pointer is NULL"));
         }
         return NumViews;
     }
@@ -1153,9 +1153,9 @@ extern "C" {
                 }
             }
         } else if (ChannelMap == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageChannelMap Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ImageChannelMap Pointer is NULL"));
         } else if (Mask == ImageMask_Unknown) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageMask_Unknown is invalid"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ImageMask_Unknown is invalid"));
         }
         return Index;
     }
@@ -1166,9 +1166,9 @@ extern "C" {
                 ChannelMap->Map[View][Index] = Mask;
             }
         } else if (ChannelMap == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageChannelMap Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ImageChannelMap Pointer is NULL"));
         } else if (Index >= ChannelMap->NumChannels) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Index: %hhu is Invalid"), Index);
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Index: %hhu is Invalid"), Index);
         }
     }
     
@@ -1177,7 +1177,7 @@ extern "C" {
             free(ChannelMap->Map);
             free(ChannelMap);
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ChannelMap Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ChannelMap Pointer is NULL"));
         }
     }
     
@@ -1203,16 +1203,16 @@ extern "C" {
                     Image->ChannelMap = ChannelMap;
                 } else {
                     ImageContainer_Deinit(Image);
-                    Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Couldn't allocate pixel array"));
+                    Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Couldn't allocate pixel array"));
                 }
             } else {
                 ImageContainer_Deinit(Image);
-                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Couldn't allocate the ImageContainer"));
+                Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Couldn't allocate the ImageContainer"));
             }
         } else if (Width == 0) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Width %llu is invalid"), Width);
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Width %llu is invalid"), Width);
         } else if (Height == 0) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Height %llu is invalid"), Height);
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Height %llu is invalid"), Height);
         }
         return Image;
     }
@@ -1222,7 +1222,7 @@ extern "C" {
         if (Image != NULL) {
             Width = Image->Width;
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
         }
         return Width;
     }
@@ -1232,7 +1232,7 @@ extern "C" {
         if (Image != NULL) {
             Height = Image->Height;
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
         }
         return Height;
     }
@@ -1246,7 +1246,7 @@ extern "C" {
                 BitDepth = 16;
             }
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
         }
         return BitDepth;
     }
@@ -1256,7 +1256,7 @@ extern "C" {
         if (Image != NULL) {
             Map = Image->ChannelMap;
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
         }
         return Map;
     }
@@ -1266,9 +1266,9 @@ extern "C" {
             free(Image->ChannelMap);
             Image->ChannelMap = ChannelMap;
         } else if (Image == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
         } else if (ChannelMap == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ChannelMap Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ChannelMap Pointer is NULL"));
         }
     }
     
@@ -1277,7 +1277,7 @@ extern "C" {
         if (Image != NULL) {
             Type = Image->Type;
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
         }
         return Type;
     }
@@ -1287,7 +1287,7 @@ extern "C" {
         if (Image != NULL) {
             ImageArray = Image->Pixels;
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
         }
         return ImageArray;
     }
@@ -1296,7 +1296,7 @@ extern "C" {
         if (Image != NULL) {
             Image->Pixels = (void****) Array;
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
         }
     }
     
@@ -1327,13 +1327,13 @@ extern "C" {
                         Average /= Image->Width * Image->Height;
                     }
                 } else {
-                    Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Channel: %hhu is invalid"), Channel);
+                    Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Channel: %hhu is invalid"), Channel);
                 }
             } else {
-                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("View: %hhu is invalid"), View);
+                Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("View: %hhu is invalid"), View);
             }
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
         }
         return Average;
     }
@@ -1374,13 +1374,13 @@ extern "C" {
                         }
                     }
                 } else {
-                    Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("You tried getting the max from a nonexistant channel"));
+                    Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("You tried getting the max from a nonexistant channel"));
                 }
             } else {
-                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("You tried getting the average from a nonexistant view %hhu"), View);
+                Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("You tried getting the average from a nonexistant view %hhu"), View);
             }
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
         }
         return Maximum;
     }
@@ -1420,13 +1420,13 @@ extern "C" {
                         }
                     }
                 } else {
-                    Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("You tried getting the max from a nonexistant channel"));
+                    Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("You tried getting the max from a nonexistant channel"));
                 }
             } else {
-                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("You tried getting the average from a nonexistant view %hhu"), View);
+                Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("You tried getting the average from a nonexistant view %hhu"), View);
             }
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
         }
         return Minimum;
     }
@@ -1511,7 +1511,7 @@ extern "C" {
                 }
             }
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
         }
     }
     
@@ -1550,7 +1550,7 @@ extern "C" {
                         ImageContainer_SetArray(Image, (void ****) NewArray);
                         free(Array);
                     } else {
-                        Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Couldn't allocate an array for the cropped image"));
+                        Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Couldn't allocate an array for the cropped image"));
                     }
                 } else if (Type == ImageType_Integer16) {
                     uint16_t ****Array = (uint16_t****) ImageContainer_GetArray(Image);
@@ -1568,14 +1568,14 @@ extern "C" {
                         ImageContainer_SetArray(Image, (void****) NewArray);
                         free(Array);
                     } else {
-                        Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Couldn't allocate an array for the cropped image"));
+                        Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Couldn't allocate an array for the cropped image"));
                     }
                 }
             } else {
-                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Couldn't allocate resized array"));
+                Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Couldn't allocate resized array"));
             }
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
         }
     }
     
@@ -1625,23 +1625,23 @@ extern "C" {
                         }
                     }
                 } else {
-                    Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Couldn't Allocate Difference"));
+                    Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Couldn't Allocate Difference"));
                 }
             } else if (RefType != ComType) {
-                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Reference Type %d does not match Compare Type %d"), RefType, ComType);
+                Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Reference Type %d does not match Compare Type %d"), RefType, ComType);
             } else if (RefNumViews != ComNumViews) {
-                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Reference NumViews %d does not match Compare NumViews %d"), RefNumViews, ComNumViews);
+                Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Reference NumViews %d does not match Compare NumViews %d"), RefNumViews, ComNumViews);
             } else if (RefNumChans != ComNumChans) {
-                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Reference NumChannels %d does not match Compare NumChannels %d"), RefNumChans, ComNumChans);
+                Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Reference NumChannels %d does not match Compare NumChannels %d"), RefNumChans, ComNumChans);
             } else if (RefHeight != ComHeight) {
-                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Reference Height %lld does not match Compare Height %lld"), RefHeight, ComHeight);
+                Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Reference Height %lld does not match Compare Height %lld"), RefHeight, ComHeight);
             } else if (RefWidth != ComWidth) {
-                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Reference Width %lld does not match Compare Width %lld"), RefWidth, ComWidth);
+                Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Reference Width %lld does not match Compare Width %lld"), RefWidth, ComWidth);
             }
         } else if (Reference == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Reference Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Reference Pointer is NULL"));
         } else if (Compare == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Compare Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Compare Pointer is NULL"));
         }
         return Difference;
     }
@@ -1681,7 +1681,7 @@ extern "C" {
                 Verification = Pixels[0][0][0][0] & 0xFF;
             }
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
         }
         return Verification;
     }
@@ -1692,7 +1692,7 @@ extern "C" {
             free(Image->ChannelMap);
             free(Image);
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
         }
     }
     
@@ -1725,7 +1725,7 @@ extern "C" {
                         Histogram->Type  = Image->Type;
                     } else {
                         ImageHistogram_Deinit(Histogram);
-                        Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Couldn't allocate Histogram array"));
+                        Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Couldn't allocate Histogram array"));
                     }
                 } else if (Image->Type == ImageType_Integer16) {
                     uint16_t ***HistogramArray = (uint16_t***) calloc(NumViews * NumChannels * NumPossibleColors, sizeof(uint16_t));
@@ -1734,15 +1734,15 @@ extern "C" {
                         Histogram->Type  = Image->Type;
                     } else {
                         ImageHistogram_Deinit(Histogram);
-                        Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Couldn't allocate Histogram array"));
+                        Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Couldn't allocate Histogram array"));
                     }
                 }
             } else {
                 ImageHistogram_Deinit(Histogram);
-                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Couldn't allocate ImageHistogram"));
+                Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Couldn't allocate ImageHistogram"));
             }
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
         }
         return Histogram;
     }
@@ -1756,7 +1756,7 @@ extern "C" {
                 Array = Histogram->Array;
             }
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageHistogram Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ImageHistogram Pointer is NULL"));
         }
         return Array;
     }
@@ -1765,9 +1765,9 @@ extern "C" {
         if (Histogram != NULL && Array != NULL) {
             Histogram->Array = (void***) Array;
         } else if (Histogram == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageHistogram Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ImageHistogram Pointer is NULL"));
         } else if (Array == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Array Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Array Pointer is NULL"));
         }
     }
     
@@ -1812,10 +1812,10 @@ extern "C" {
                     }
                 }
             } else {
-                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Couldn't allocate ImageHistogram"));
+                Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Couldn't allocate ImageHistogram"));
             }
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
         }
         return Histogram;
     }
@@ -1883,7 +1883,7 @@ extern "C" {
                 }
             }
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageHistogram Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ImageHistogram Pointer is NULL"));
         }
     }
     
@@ -1922,7 +1922,7 @@ extern "C" {
                 Verification = Pixels[0][0][0][0] & 0xFF;
             }
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageHistogram Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ImageHistogram Pointer is NULL"));
         }
         return Verification;
     }
@@ -1932,7 +1932,7 @@ extern "C" {
             free(Histogram->Array);
             free(Histogram);
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageHistogram Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ImageHistogram Pointer is NULL"));
         }
     }
     
@@ -1941,7 +1941,7 @@ extern "C" {
         if (Histogram != NULL) {
             Map              = Histogram->ChannelMap;
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageHistogram Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ImageHistogram Pointer is NULL"));
         }
         return Map;
     }

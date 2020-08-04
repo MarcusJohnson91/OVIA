@@ -1,6 +1,6 @@
 #include "../include/Private/TransformIO.h"
 #include "../include/Private/OVIACommon.h"
-#include "../../Dependencies/FoundationIO/Library/include/UnicodeIO/LogIO.h"
+#include "../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h"
 #include "../../Dependencies/FoundationIO/Library/include/MathIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
@@ -71,10 +71,10 @@ extern "C" {
                 ImageChannelMap_AddMask(NewMap, BlueIndex, ImageMask_Chroma2);
                 ImageContainer_SetChannelMap(Image, NewMap);
             } else {
-                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("NumChannels %u must be 3 or 4"), NumChannels);
+                Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("NumChannels %u must be 3 or 4"), NumChannels);
             }
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
         }
     }
 
@@ -142,10 +142,10 @@ extern "C" {
                 ImageChannelMap_AddMask(NewMap, BlueIndex, ImageMask_Chroma2);
                 ImageContainer_SetChannelMap(Image, NewMap);
             } else {
-                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("NumChannels %hhu must be 3 or 4"), NumChannels);
+                Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("NumChannels %hhu must be 3 or 4"), NumChannels);
             }
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
         }
     }
 
@@ -228,10 +228,10 @@ extern "C" {
                 ImageChannelMap_AddMask(NewMap, Chroma2Index, ImageMask_Blue);
                 ImageContainer_SetChannelMap(Image, NewMap);
             } else {
-                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("NumChannels %u must be 3 or 4"), NumChannels);
+                Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("NumChannels %u must be 3 or 4"), NumChannels);
             }
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
         }
     }
 
@@ -298,10 +298,10 @@ extern "C" {
                 ImageChannelMap_AddMask(NewMap, Chroma2Index, ImageMask_Blue);
                 ImageContainer_SetChannelMap(Image, NewMap);
             } else {
-                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("NumChannels %u must be 3 or 4"), NumChannels);
+                Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("NumChannels %u must be 3 or 4"), NumChannels);
             }
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
         }
     }
 

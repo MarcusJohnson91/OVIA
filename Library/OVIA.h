@@ -1,5 +1,5 @@
 #include "../../Dependencies/FoundationIO/Library/include/PlatformIO.h"
-#include "../../Dependencies/FoundationIO/Library/include/UnicodeIO/UnicodeIOTypes.h"
+#include "../../Dependencies/FoundationIO/Library/include/TextIO/TextIOTypes.h"
 
 #pragma once
 

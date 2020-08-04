@@ -7,7 +7,7 @@
  */
 
 #include "../../../Dependencies/FoundationIO/Library/include/PlatformIO.h" /* Included for Platform Independence macros */
-#include "../../../Dependencies/FoundationIO/Library/include/BitIO.h"      /* Included for BitIO_ByteOrders and BitIO_BitOrders enums */
+#include "../../../Dependencies/FoundationIO/Library/include/BufferIO.h"   /* Included for BufferIO_ByteOrders and BitIO_BitOrders enums */
 #include "OVIAInternal.h"
 
 #pragma  once
@@ -39,8 +39,8 @@ extern "C" {
         uint64_t              FieldSizeInBits;   // the number of bits to extract in order to mask out whatever informat is necessary.
         StreamIO_PacketTypes  PacketType;        // If SyncType is Packet
         StreamIO_SyncTypes    SyncType;
-        BitIO_ByteOrders      ByteOrder;
-        BitIO_BitOrders       BitOrder;
+        BufferIO_ByteOrders   ByteOrder;
+        BufferIO_BitOrders    BitOrder;
     } OVIA_Stream;
 
     static const OVIA_MagicIDs NativeFLACMagicID = {
@@ -91,11 +91,11 @@ extern "C" {
      */
 
     typedef struct OVIAStream {
-        uint8_t          Alignment;   // number of bits needed for each field
-        BitIO_ByteOrders ByteOrder;   // What byte order does the Stream use?
-        BitIO_BitOrders  BitOrder;    // What bit order does the stream use?
-        uint8_t          ChunkIDSize; // How many bits should be read for each chunk id
-        uint32_t         PayloadSize; // How many bits can be stored in the payload, 0 = variable sized.
+        uint8_t             Alignment;   // number of bits needed for each field
+        BufferIO_ByteOrders ByteOrder;   // What byte order does the Stream use?
+        BufferIO_BitOrders  BitOrder;    // What bit order does the stream use?
+        uint8_t             ChunkIDSize; // How many bits should be read for each chunk id
+        uint32_t            PayloadSize; // How many bits can be stored in the payload, 0 = variable sized.
         
         /*
          MagicID for the Stream format

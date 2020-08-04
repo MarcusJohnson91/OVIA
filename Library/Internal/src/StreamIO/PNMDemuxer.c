@@ -14,7 +14,7 @@ extern "C" {
                 } while (BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8) != PNMEndField);
             }
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
         return CommentSize;
     }
@@ -140,7 +140,7 @@ extern "C" {
                     PNM->NumChannels       = 4;
                     PNM->TupleType         = PNM_TUPLE_RGBAlpha;
                 } else {
-                    Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Unknown PNM Tuple: %s"), TupleTypeString);
+                    Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Unknown PNM Tuple: %s"), TupleTypeString);
                 }
                 free(TupleTypeString);
                 /* Read TupleType */
@@ -150,9 +150,9 @@ extern "C" {
                 /* Skip ENDHDR */
             }
         } else if (Options == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -198,7 +198,7 @@ extern "C" {
                         }
                     }
                 } else {
-                    Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("16 bit ASCII PNM is invalid"));
+                    Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("16 bit ASCII PNM is invalid"));
                 }
             } else if (PNM->Type == BinaryPNM || PNM->Type == PAMPNM) {
                 if (PNM->BitDepth <= 8) {
@@ -234,11 +234,11 @@ extern "C" {
                 }
             }
         } else if (Options == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         } else if (Image == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
         }
         return Image;
     }

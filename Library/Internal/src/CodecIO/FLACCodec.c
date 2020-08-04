@@ -10,7 +10,7 @@ extern "C" {
             FLAC->StreamInfo  = calloc(1, sizeof(StreamInfo));
             FLAC->CueSheet    = calloc(1, sizeof(FLACCueSheet));
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Couldn't allocate FLACOptions"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Couldn't allocate FLACOptions"));
         }
         return FLAC;
     }
@@ -25,7 +25,7 @@ extern "C" {
                 NumChannels = 2;
             }
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Options Pointer is NULL"));
         }
         return NumChannels;
     }

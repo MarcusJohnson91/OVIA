@@ -1,5 +1,5 @@
 #include "../include/Private/EntropyIO.h"
-#include "../../Dependencies/FoundationIO/Library/include/UnicodeIO/LogIO.h"
+#include "../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h"
 #include "../../Dependencies/FoundationIO/Library/include/MathIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
@@ -179,11 +179,11 @@ extern "C" {
              */
             /* F.16 */
         } else if (Table == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Table Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Table Pointer is NULL"));
         } else if (Frequencies == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Frequencies Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Frequencies Pointer is NULL"));
         } else if (NumFrequencies != Table->NumNodes) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("NumFrequencies does not match the number of nodes in Table"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("NumFrequencies does not match the number of nodes in Table"));
         }
     }
 

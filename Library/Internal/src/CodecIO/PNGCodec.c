@@ -30,7 +30,7 @@ extern "C" {
             PNG->acTL       = calloc(1, sizeof(acTLChunk));
             PNG->fcTL       = calloc(1, sizeof(fcTLChunk));
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Couldn't allocate PNGOptions"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Couldn't allocate PNGOptions"));
         }
         return PNG;
     }
@@ -65,7 +65,7 @@ extern "C" {
             free(PNG->DAT);
             free(PNG);
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Couldn't allocate PNGOptions"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Couldn't allocate PNGOptions"));
         }
     }
     
@@ -76,7 +76,7 @@ extern "C" {
             Tree->Frequency  = calloc(NumSymbols, sizeof(uint16_t));
             Tree->Symbol     = calloc(NumSymbols, sizeof(uint16_t));
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Couldn't allocate HuffmanTree"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Couldn't allocate HuffmanTree"));
         }
         return Tree;
     }
@@ -101,10 +101,10 @@ extern "C" {
                 }
                 free(Offsets);
             } else {
-                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Couldn't allocate Offset table"));
+                Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Couldn't allocate Offset table"));
             }
         } else if (SymbolLengths == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("SymbolLengths is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("SymbolLengths is NULL"));
         }
         return Tree;
     }

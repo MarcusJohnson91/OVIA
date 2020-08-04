@@ -136,11 +136,11 @@ extern "C" {
                 uint16_t LastK           = Index;
                 /* HUFFSIZE aka C.1 */
             } else if (TableClass > 0) {
-                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("TableClass: %u is invalid for Lossless JPEG"), TableClass);
+                Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("TableClass: %u is invalid for Lossless JPEG"), TableClass);
             }
             /*
             else if (JPEG->Huffman[TableCount]->TableID > 3) {
-                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("TableID %u is invalid"), JPEG->Huffman[TableCount]->TableID);
+                Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("TableID %u is invalid"), JPEG->Huffman[TableCount]->TableID);
             }
              */
         }
@@ -192,9 +192,9 @@ extern "C" {
             JPEG->Ah                                    = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 4);
             JPEG->Al                                    = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 4);
         } else if (Length != ((NumberOfComponents * 2) + 4)) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("StartOfScan Size: %hu is invalid"), Length);
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("StartOfScan Size: %hu is invalid"), Length);
         } else if (NumberOfComponents < 1 || NumberOfComponents > 4) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Number of Channels: %hhu is invalid"), NumberOfComponents);
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Number of Channels: %hhu is invalid"), NumberOfComponents);
         }
     }
     
@@ -216,10 +216,10 @@ extern "C" {
             case 0xFFDF: // Expand Reference Component, Lossy?
                 Length = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 16) - 2;
                 BitBuffer_Seek(BitB, Bytes2Bits(Length));
-                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Lossy JPEG is not supported"));
+                Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Lossy JPEG is not supported"));
                 break;
             default:
-                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Marker 0x%X is unknown"), ChunkMarker);
+                Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Marker 0x%X is unknown"), ChunkMarker);
                 break;
         }
     }

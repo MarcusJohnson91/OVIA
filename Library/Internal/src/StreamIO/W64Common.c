@@ -61,7 +61,7 @@ extern "C" {
                 AudioChannelMap_AddMask(Map, AudioChannelMap_GetLowestUnusedIndex(Map), AudioMask_FrontLeft);
             }
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Couldn't allocate AudioChannelMap"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Couldn't allocate AudioChannelMap"));
         }
         return Map;
     }

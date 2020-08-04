@@ -52,11 +52,11 @@ extern "C" {
                 FLAC_Frame_Read(FLAC, BitB, Audio);
             } while (LastMetadataBlock == Yes && Marker == FrameMagic);
         } else if (Options == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         } else if (Audio == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Audio2DContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Audio2DContainer Pointer is NULL"));
         }
     }
     
@@ -100,7 +100,7 @@ extern "C" {
                 SampleRate = EndOfHeaderBits * 10;
             }
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("FLACOptions Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("FLACOptions Pointer is NULL"));
         }
         return SampleRate;
     }
@@ -124,7 +124,7 @@ extern "C" {
                 BitDepth = 24;
             }
         } else {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("FLACOptions Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("FLACOptions Pointer is NULL"));
         }
         return BitDepth;
     }
@@ -205,17 +205,17 @@ extern "C" {
                     
                     uint16_t FrameCRC16            = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 16);
                 } else {
-                    Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Reserved2 value is invalid"));
+                    Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Reserved2 value is invalid"));
                 }
             } else {
-                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BlockType %d is invalid"), FLAC->Frame->BlockType);
+                Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("BlockType %d is invalid"), FLAC->Frame->BlockType);
             }
         } else if (Options == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         } else if (Audio == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Audio2DContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Audio2DContainer Pointer is NULL"));
         }
     }
     
@@ -371,7 +371,7 @@ extern "C" {
                             FLAC->Frame->Sub->Coeffs[Coeff] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, FLAC->Frame->Sub->LPCPrecision);
                         }
                     } else {
-                        Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("NumCoeffs: %u is invalid"), FLAC->Frame->Sub->NumCoeffs);
+                        Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("NumCoeffs: %u is invalid"), FLAC->Frame->Sub->NumCoeffs);
                     }
                     
                     FLAC->Frame->Sub->ResidualCoder  = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 2); // 0b10 aka 2 aka RICE2
@@ -396,7 +396,7 @@ extern "C" {
                             
                         }
                     } else {
-                        Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("ResidualCoder Coder: %u is invalid"), FLAC->Frame->Sub->ResidualCoder);
+                        Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ResidualCoder Coder: %u is invalid"), FLAC->Frame->Sub->ResidualCoder);
                     }
                     // FLAC_Read_Residual
                     
@@ -448,11 +448,11 @@ extern "C" {
                 }
             }
         } else if (Options == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         } else if (Audio == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Audio2DContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Audio2DContainer Pointer is NULL"));
         }
     }
     
@@ -476,7 +476,7 @@ extern "C" {
                     Partition                 = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 5);
                 }
             } else {
-                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Invalid Residual Coding Method %d"), ResiducalCodingMethod);
+                Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Invalid Residual Coding Method %d"), ResiducalCodingMethod);
             }
             
             if (PartitionOrder == 0) {
@@ -487,11 +487,11 @@ extern "C" {
                 NumSamples                    = (FLAC->Frame->BlockSize / Exponentiate(2, PartitionOrder)) - FLAC->LPC->LPCOrder;
             }
         } else if (Options == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         } else if (Audio == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Audio2DContainer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Audio2DContainer Pointer is NULL"));
         }
     }
     
@@ -541,9 +541,9 @@ extern "C" {
                 NumSamplesInPart         = (FLAC->Frame->BlockSize / NumPartitions) - PartitionOrder; // Predictor Order
             }
         } else if (Options == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -566,9 +566,9 @@ extern "C" {
                 BitBuffer_Seek(BitB, 128);
             }
         } else if (Options == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -582,9 +582,9 @@ extern "C" {
                 FLAC->SeekPoints->TargetFrameSize[SeekPoint]     = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16);
             }
         } else if (Options == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -604,9 +604,9 @@ extern "C" {
                 //
             }
         } else if (Options == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -636,9 +636,9 @@ extern "C" {
              FLAC->CueSheet->IndexPointNum  = (uint8_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
             BitBuffer_Seek(BitB, 24); // Reserved
         } else if (Options == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
     
@@ -666,12 +666,12 @@ extern "C" {
                     PictureBuffer[Byte] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
                 }
             } else {
-                Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Couldn't allocate Picture Buffer"));
+                Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Couldn't allocate Picture Buffer"));
             }
         } else if (Options == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("Options Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
-            Log(Severity_DEBUG, UnicodeIOTypes_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
         return PictureBuffer;
     }
