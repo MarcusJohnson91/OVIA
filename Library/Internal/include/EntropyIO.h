@@ -6,8 +6,7 @@
  @brief               This header contains code for reusable Entropy encoders and decoders.
  */
 
-#include "../../../Dependencies/FoundationIO/Library/include/PlatformIO.h" /* Included for Platform Independence macros */
-#include "OVIAInternal.h"
+#include "../MediaIO.h"
 
 #pragma  once
 
@@ -34,10 +33,6 @@ extern "C" {
     //typedef struct HuffmanNode HuffmanNode;
 
     typedef struct HuffmanTable HuffmanTable;
-
-    void CanonicalHuffman_Blah() {
-
-    }
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }

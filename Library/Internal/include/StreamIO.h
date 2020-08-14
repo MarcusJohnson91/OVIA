@@ -6,9 +6,8 @@
  @brief               This header contains code for streams (muxing and demuxing).
  */
 
-#include "../../../Dependencies/FoundationIO/Library/include/PlatformIO.h" /* Included for Platform Independence macros */
-#include "../../../Dependencies/FoundationIO/Library/include/BufferIO.h"   /* Included for BufferIO_ByteOrders and BitIO_BitOrders enums */
-#include "OVIAInternal.h"
+#include "../MediaIO.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/BufferIO.h" /* Included for BufferIO_ByteOrders and BufferIO_BitOrders enums */
 
 #pragma  once
 
@@ -33,14 +32,14 @@ extern "C" {
 
     typedef struct OVIA_Stream {
         // Once we have the kind of marker to look for, we need to know the offset from the sync code as well as the actual sync code
-        OVIA_MagicIDs        *MagicID;           // uint8_t              *SyncCode;          // If SyncType is Marker
-        uint64_t              PacketSizeInBytes; // 0 = Unknown
-        uint64_t              OffsetInBits;      //
-        uint64_t              FieldSizeInBits;   // the number of bits to extract in order to mask out whatever informat is necessary.
-        StreamIO_PacketTypes  PacketType;        // If SyncType is Packet
-        StreamIO_SyncTypes    SyncType;
-        BufferIO_ByteOrders   ByteOrder;
-        BufferIO_BitOrders    BitOrder;
+        const OVIA_MagicIDs        *MagicID;           // uint8_t              *SyncCode;          // If SyncType is Marker
+        const uint64_t              PacketSizeInBytes; // 0 = Unknown
+        const uint64_t              OffsetInBits;      //
+        const uint64_t              FieldSizeInBits;   // the number of bits to extract in order to mask out whatever informat is necessary.
+        const StreamIO_PacketTypes  PacketType;        // If SyncType is Packet
+        const StreamIO_SyncTypes    SyncType;
+        const BufferIO_ByteOrders   ByteOrder;
+        const BufferIO_BitOrders    BitOrder;
     } OVIA_Stream;
 
     static const OVIA_MagicIDs NativeFLACMagicID = {
@@ -64,7 +63,7 @@ extern "C" {
         .MagicID           = &NativeFLACMagicID,
         .OffsetInBits      = 1,
         .FieldSizeInBits   = 7,
-        .ByteOrder         = ByteOrder_LSByteIsFarthest,
+        .ByteOrder         = ByteOrder_LSByteIsNearest,
         .BitOrder          = BitOrder_LSBitIsFarthest,
     };
 
@@ -91,11 +90,11 @@ extern "C" {
      */
 
     typedef struct OVIAStream {
+        uint32_t            PayloadSize; // How many bits can be stored in the payload, 0 = variable sized.
         uint8_t             Alignment;   // number of bits needed for each field
+        uint8_t             ChunkIDSize; // How many bits should be read for each chunk id
         BufferIO_ByteOrders ByteOrder;   // What byte order does the Stream use?
         BufferIO_BitOrders  BitOrder;    // What bit order does the stream use?
-        uint8_t             ChunkIDSize; // How many bits should be read for each chunk id
-        uint32_t            PayloadSize; // How many bits can be stored in the payload, 0 = variable sized.
         
         /*
          MagicID for the Stream format
@@ -109,6 +108,19 @@ extern "C" {
          */
     } OVIAStream;
 
+    typedef enum StreamIO_StreamTypes {
+        StreamType_Unknown = 0,
+        StreamType_Audio2D = 1,
+        StreamType_Audio3D = 2,
+        StreamType_Image   = 3,
+        StreamType_Video   = 4,
+    } StreamIO_StreamTypes;
+
+    typedef struct StreamIO_Limitations {
+        uint64_t             MaxStreamSize;       // after accounting for all the overhead.
+        StreamIO_StreamTypes SupportedStreamTypes;
+    } StreamIO_Limitations;
+
     typedef struct OVIADemuxer {
         const OVIA_MagicIDs    *MagicID;
         const OVIA_MediaTypes   MediaType;
@@ -118,6 +130,14 @@ extern "C" {
         const OVIA_MediaTypes   MediaType;
         const OVIA_ContainerIDs ContainerID;
     } OVIAMuxer;
+
+    /*
+     RIFF/RF64 as well as "AVI ", "ANI ", "WebP".
+
+     Structure of RIFF: RIFFXXXXYYYY where XXXX is the size and YYYY is the substream.
+
+     
+     */
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }

@@ -185,17 +185,7 @@ extern "C" {
      The User needs to get the metadata for the file, and put it into OVIA, and the Image/Audio Container.
      */
     
-    typedef enum OVIA_TagTypes {
-        UnknownTag            = 0,
-        TitleTag              = 1,
-        AuthorTag             = 2,
-        AnnotationTag         = 3,
-        ArtistTag             = 4,
-        AlbumTag              = 5,
-        GenreTag              = 6,
-        ReleaseTag            = 7,
-        CreatingSoftware      = 8,
-    } OVIA_TagTypes;
+    
     
     typedef enum OVIA_CodecIDs {
         CodecID_Unknown       = 0,
@@ -222,6 +212,15 @@ extern "C" {
         ColorTransform_YCoCgR  = 2, // AVC, HEVC Lossless Transform
         OVIA_NumTransforms     = ColorTransform_YCoCgR,
     } OVIA_ColorTransforms;
+
+    typedef enum OVIA_MediaTypes {
+        MediaType_Unknown   = 0,
+        MediaType_Container = 1,
+        MediaType_Audio2D   = 2,
+        MediaType_Audio3D   = 3,
+        MediaType_Image     = 4,
+        MediaType_Video     = 5,
+    } OVIA_MediaTypes;
     
     typedef struct       Audio2DContainer  Audio2DContainer; // Forward declare ContainerIO's tyoes
     
@@ -229,13 +228,58 @@ extern "C" {
     
     typedef struct       AudioVector       AudioVector;
     
-    typedef struct       ImageContainer    ImageContainer; // Forward declare ContainerIO's tyoes
+    typedef struct       ImageContainer    ImageContainer; // Forward declare MediaIO's tyoes
     
     typedef struct       MetadataContainer MetadataContainer;
     
-    typedef struct       BitBuffer         BitBuffer;      // Forward declare BitIO's types
+    typedef struct       BitBuffer         BitBuffer;      // Forward declare BufferIO's types
     
     typedef struct       OVIA              OVIA;
+
+    typedef struct OVIA_MagicIDs {
+        const uint16_t NumMagicIDs;
+        const uint16_t MagicIDOffsetInBits;
+        const uint8_t  MagicIDSizeInBits;
+        const uint8_t *MagicIDNumber[];
+    } OVIA_MagicIDs;
+
+    typedef struct OVIA_Extensions {
+        const uint8_t  NumExtensions;
+        const UTF32   *Extensions[];
+    } OVIA_Extensions;
+
+    typedef struct OVIA_MIMETypes {
+        const uint8_t NumMIMETypes;
+        const UTF32  *MIMETypes[];
+    } OVIA_MIMETypes;
+
+    typedef void* (*Function_Initalize)(void);
+    typedef void  (*Function_ManipulateBuffer)(void *Options, BitBuffer *BitB);
+    typedef void  (*Function_ManipulateContainer)(void *Options, BitBuffer *BitB, void *Container);
+    typedef void  (*Function_Deinitalize)(void *Options);
+
+    typedef struct OVIADecoder {
+        const Function_Initalize           Initalize;
+        const Function_ManipulateBuffer    Parse;
+        const Function_ManipulateContainer Decode; // Returns a Container pointer, takes Options and BitBuffer pointer
+        const Function_Deinitalize         Deinitalize;
+        const OVIA_MagicIDs               *MagicIDs;
+        const OVIA_Extensions             *Extensions;
+        const OVIA_MediaTypes              MediaType;
+        const OVIA_CodecIDs                DecoderID;
+    } OVIADecoder;
+
+    typedef struct OVIAEncoder {
+        const Function_Initalize           Initalize;
+        const Function_ManipulateBuffer    WriteHeader;
+        const Function_ManipulateContainer Encode;
+        const Function_ManipulateBuffer    WriteFooter;
+        const Function_Deinitalize         Deinitalize;
+        const OVIA_CodecIDs                EncoderID;
+        const OVIA_MediaTypes              MediaType;
+        const OVIA_Extensions             *Extensions;
+        // How do we identify the encoder to choose? Maybe this should be an enum with a mapping function that maps all known codec names for example JPG, JPEG, JPE, JLS, JPEG-LS, JPEG-Lossless, LosslessJPEG to the CodecID
+    } const OVIAEncoder;
     
     OVIA                *OVIA_Init(void);
     OVIA_CodecIDs        OVIA_IdentifyFileType(OVIA *Ovia, BitBuffer *BitB);

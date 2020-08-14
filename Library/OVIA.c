@@ -1,4 +1,4 @@
-#include "../include/Private/OVIACommon.h"
+#include "../include/OVIA.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
@@ -60,7 +60,7 @@ extern "C" {
             for (uint64_t MagicID = 0ULL; MagicID < Ovia->Decoders[Decoder].NumMagicIDs; MagicID++) {
                 BitBuffer_Seek(BitB, Ovia->Decoders[Decoder].MagicIDOffsetInBits[MagicID]);
                 for (uint64_t MagicIDByte = 0ULL; MagicIDByte < Ovia->Decoders[Decoder].MagicIDSizeInBits[Decoder]; MagicIDByte++) {
-                    uint8_t ExtractedByte = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8); // Should we put a bit order field in the magic id thing?
+                    uint8_t ExtractedByte = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 8); // Should we put a bit order field in the magic id thing?
                     if (ExtractedByte != Ovia->Decoders[Decoder].MagicID[MagicIDByte]) {
                         break;
                     } else if (MagicIDByte + 1 == Ovia->Decoders[Decoder].MagicIDSizeInBits[Decoder] && ExtractedByte == Ovia->Decoders[Decoder].MagicID[MagicIDByte]) {
@@ -91,7 +91,7 @@ extern "C" {
      
      I need a function that will call a function
      */
-    
+    /*
     void OVIA_Deinit(OVIA *Ovia) {
         if (Ovia != NULL) {
             free(Ovia->Encoders);
@@ -111,6 +111,7 @@ extern "C" {
         }
         return Ovia;
     }
+     */
     
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }

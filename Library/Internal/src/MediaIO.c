@@ -1,5 +1,5 @@
-#include "../include/Private/MediaIO.h"                                      /* Included for our declarations */
-#include "../../Dependencies/FoundationIO/Library/include/MathIO.h"          /* Included for Absolute, Max/Min */
+#include "../include/Private/MediaIO.h"                                   /* Included for our declarations */
+#include "../../Dependencies/FoundationIO/Library/include/MathIO.h"       /* Included for Absolute, Max/Min */
 #include "../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h" /* Included for error reporting */
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
@@ -73,13 +73,13 @@ extern "C" {
     
     /* Audio2DContainer */
     typedef struct Audio2DContainer {
-        void                 **Samples;
-        AudioChannelMap       *ChannelMap;
-        uint64_t               NumChannels;
-        uint64_t               NumSamples;
-        uint64_t               SampleRate;
-        uint64_t               Offset;
-        MediaIO_AudioTypes Type;
+        void              **Samples;
+        AudioChannelMap    *ChannelMap;
+        uint64_t            NumChannels;
+        uint64_t            NumSamples;
+        uint64_t            SampleRate;
+        uint64_t            Offset;
+        MediaIO_AudioTypes  Type;
     } Audio2DContainer;
     
     Audio2DContainer *Audio2DContainer_Init(MediaIO_AudioTypes Type, AudioChannelMap *ChannelMap, uint64_t SampleRate, uint64_t NumSamples) {

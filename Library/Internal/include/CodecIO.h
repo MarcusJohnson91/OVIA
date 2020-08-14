@@ -6,8 +6,7 @@
  @brief               This header contains code for codecs (encoding and decoding).
  */
 
-#include "../../../Dependencies/FoundationIO/Library/include/PlatformIO.h" /* Included for Platform Independence macros */
-#include "../OVIAInternal.h"
+#include "../MediaIO.h"
 
 #pragma  once
 
