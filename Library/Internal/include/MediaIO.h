@@ -103,6 +103,8 @@ extern "C" {
      @constant     ImageMask_Green                  The channel contains the Green  color information.
      @constant     ImageMask_Blue                   The channel contains the Blue   color information.
      @constant     ImageMask_Green2                 The channel contains the Green2 color information, for Bayer filtered images.
+     @constant     ImageMask_Infrared               The channel contains the Infrared color information, sometimes used for dust removal.
+     @constant     ImageMask_Ultraviolet            The channel contains the Ultraviolet color information.
      */
     typedef enum MediaIO_ImageChannelMask {
                    ImageMask_Unknown                = 0,
@@ -118,6 +120,8 @@ extern "C" {
                    ImageMask_Green                  = 512,
                    ImageMask_Blue                   = 1024,
                    ImageMask_Green2                 = 2048,
+                   ImageMask_Infrared               = 4096,
+                   ImageMask_Ultraviolet            = 8192,
     } MediaIO_ImageChannelMask;
     
     /*!
