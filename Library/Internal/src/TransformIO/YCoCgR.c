@@ -11,9 +11,9 @@ extern "C" {
             ImageChannelMap *Map  = ImageContainer_GetChannelMap(Image);
             uint8_t  NumChannels  = ImageChannelMap_GetNumChannels(Map);
             if (NumChannels >= 3 && NumChannels <= 4) {
-                uint8_t  RedIndex                             = ImageChannelMap_GetChannelsIndex(Image, ImageMask_Red);
-                uint8_t  GreenIndex                           = ImageChannelMap_GetChannelsIndex(Image, ImageMask_Green);
-                uint8_t  BlueIndex                            = ImageChannelMap_GetChannelsIndex(Image, ImageMask_Blue);
+                uint8_t  RedIndex                             = ImageChannelMap_GetChannelsIndex(Map, ImageMask_Red);
+                uint8_t  GreenIndex                           = ImageChannelMap_GetChannelsIndex(Map, ImageMask_Green);
+                uint8_t  BlueIndex                            = ImageChannelMap_GetChannelsIndex(Map, ImageMask_Blue);
 
                 uint8_t  NumViews                             = ImageChannelMap_GetNumViews(Map);
                 uint8_t  BitDepth                             = ImageContainer_GetBitDepth(Image);
