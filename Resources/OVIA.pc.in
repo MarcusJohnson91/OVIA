@@ -1,0 +1,11 @@
+name: OVIA
+description: Audio/Video/Media library for lossless codec/stream conversion and transformation.
+
+prefix=${CMAKE_INSTALL_PREFIX}
+exec_prefix=${CMAKE_INSTALL_PREFIX}
+libdir=${CMAKE_INSTALL_PREFIX}/lib
+includedir=${CMAKE_INSTALL_PREFIX}/include
+Version: @OVIA_VERSION_STRING@
+Libs: -L${CMAKE_INSTALL_PREFIX}/lib -lOVIA
+Libs.private: -lm
+Cflags: -I${includedir}

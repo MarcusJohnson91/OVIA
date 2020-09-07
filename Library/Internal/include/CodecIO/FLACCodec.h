@@ -1,18 +1,17 @@
 /*!
- @header              FLACCommon.h
+ @header              FLACCodec.h
  @author              Marcus Johnson
- @copyright           2016+
+ @copyright           2020+
  @version             1.0.0
- @brief               This header contains code for reading and writing lossless FLAC audio files
+ @brief               This header contains code for PNG (encoding and decoding).
  */
 
-#include "OVIACommon.h"
-#include "StreamIO.h"
+#include "CodecIO.h"
 
 #pragma once
 
-#ifndef OVIA_FLACCommon_H
-#define OVIA_FLACCommon_H
+#ifndef OVIA_FLACCodec_H
+#define OVIA_FLACCodec_H
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
@@ -118,19 +117,19 @@ extern "C" {
         RICE1                                                       =          0,
         RICE2                                                       =          1,
     } FLACRicePartitionType;
-    
+
     typedef struct StreamInfo {
         uint64_t  SamplesInStream:36; // 36 bits, all the samples in the stream; channel agnostic
-        uint32_t  BitDepth;
-        uint32_t  SampleRate;
-        uint32_t  MinimumFrameSize:24;
-        uint32_t  MaximumFrameSize:24;
-        uint16_t  MinimumBlockSize:16; // in samples; must be at least 16
-        uint16_t  MaximumBlockSize:16; // If these match than it's fixed blocksize format
+        uint32_t MinimumFrameSize:24;
+        uint32_t MaximumFrameSize:24;
+        uint16_t MinimumBlockSize:16; // in samples; must be at least 16
+        uint16_t MaximumBlockSize:16; // If these match than it's fixed blocksize format
+        uint8_t      CodedSampleRate; // 4 bits
+        uint8_t      CodedBitDepth:6; // 5 bits, 4-32 bits per sample
         uint8_t      CodedChannels:4; // 3 bits, add 1 to get the real value
         uint8_t                 *MD5; // MD5
     } StreamInfo;
-    
+
     typedef struct CueSheetTrack {
         UTF8      *ISRC;                // the tracks's ISRC number as a string.
         uint64_t  *TrackOffset;         // samples from the beginning of the FLAC file to the first sample of the track
@@ -138,9 +137,9 @@ extern "C" {
         bool      *IsAudio;             // 1 for audio, 0 for data
         bool      *PreEmphasis;         // 1 for true 0 for false.
     } CueSheetTrack;
-    
+
     typedef struct FLACCueSheet {
-        UTF8         **ISRC;
+        UTF8          *ISRC;
         uint64_t      *Offset;
         uint8_t       *Num;
         bool          *IsAudio;
@@ -154,14 +153,14 @@ extern "C" {
         bool           IsCD;                // 1 if it came from a CD; 0 otherwise
         uint8_t        IndexPointNum;
     } FLACCueSheet;
-    
+
     typedef struct SeekTable {
         uint32_t      NumSeekPoints;
         uint64_t     *SampleInTargetFrame; // FIXME: Sample in the whole file, or sample in a specific frame?
         uint64_t     *OffsetFrom1stSample; // in bytes
         uint16_t     *TargetFrameSize;
     } SeekTable;
-    
+
     typedef struct Picture {
         uint32_t     *PictureStart; // Pointer to the start of the picture
         uint8_t      *MIMEString;
@@ -175,45 +174,40 @@ extern "C" {
         uint32_t      PictureSize;
         FLACPicTypes  PicType;
     } Picture;
-    
+
     typedef struct SubFrame {
-        uint8_t  Coeffs[32];
-        uint8_t  NumCoeffs;
         uint8_t  SubFrameType;
         uint8_t  LPCFilterOrder;
         uint8_t  LPCPrecision;
         uint8_t  LPCShift;
-        uint8_t  WastedBits; // Uses unary coding
-        uint8_t  ResidualCoder;
-        uint8_t  PartitionOrder;
-        uint8_t  RICEParameter;
-        bool     WastedBitsFlag;
+        uint64_t Coeff;
+        uint8_t  WastedBits:6; // Uses unary coding
+        bool     WastedBitsFlag:1;
     } SubFrame;
-    
+
     typedef struct Frame {
         SubFrame     *Sub;
         uint64_t      SampleNumber:36;
         uint32_t      SampleRate;
-        uint32_t      FrameNumber;
+        uint32_t      FrameNumber:31;
         uint16_t      BlockSize; // SamplesInBlock
         uint8_t       BitDepth;
         uint8_t       PartitionOrder;
         uint8_t       CurrentPartition;
         uint8_t       SamplesInPartition;
         uint8_t       CodedBlockSize;
-        uint8_t       CodedBitDepth;
-        uint8_t       CodedSampleRate;
-        uint8_t       CodedChannelLayout;
-        uint8_t       NumChannels;
-        bool          BlockType;
+        uint8_t       CodedSampleRate:5;
+        uint8_t       ChannelLayout:4;
+        uint8_t       CodedBitDepth:4;
+        bool          BlockType:1;
     } Frame;
-    
+
     typedef struct RICEPartition {
         uint8_t      *RICEParameter;
         uint8_t       EscapeBitDepth:5;
         uint8_t       NumRICEPartitions:4;
     } RICEPartition;
-    
+
     typedef struct FLACLPC {
         int8_t       *LPCCoeff;
         uint8_t       LPCOrder;
@@ -223,7 +217,7 @@ extern "C" {
         uint8_t       PartitionOrder:4;
         uint8_t       RicePartitionType:2;
     } FLACLPC;
-    
+
     typedef struct FLACOptions {
         Picture        **Pictures;
         StreamInfo      *StreamInfo;
@@ -235,68 +229,46 @@ extern "C" {
         uint32_t         NumPictures;
         bool             EncodeSubset;
     } FLACOptions;
-    
+
     /* OVIA specific functions */
-    
+
     void       *FLACOptions_Init(void);
-    
+
     void        FLAC_Frame_Read(void *Options, BitBuffer *BitB, Audio2DContainer *Audio);
-    
-    uint8_t FLAC_GetNumChannels(void *Options);
-    
+
+    uint8_t     FLAC_GetNumChannels(void *Options);
+
     void        FLAC_SubFrame_Read(void *Options, BitBuffer *BitB, Audio2DContainer *Audio, uint8_t Channel);
-    
+
     void        FLAC_SubFrame_Verbatim(void *Options, BitBuffer *BitB, Audio2DContainer *Audio);
-    
+
     void        FLAC_SubFrame_Constant(void *Options, BitBuffer *BitB, Audio2DContainer *Audio);
-    
+
     void        FLAC_SubFrame_Fixed(void *Options, BitBuffer *BitB, Audio2DContainer *Audio);
-    
+
     void        FLAC_SubFrame_LPC(void *Options, BitBuffer *BitB, Audio2DContainer *Audio, uint8_t Channel);
-    
-    void FLAC_Decode_RICE(void *Options, BitBuffer *BitB, uint8_t RICEPartitionType);
-    
-    uint16_t    FLAC_GetBlockSizeInSamples(void *Options, uint16_t HeaderBlockSize);
-    
-    void        FLAC_Read_Blocks(void *Options, BitBuffer *BitB);
-    
-    void        FLAC_Read_StreamInfo(void *Options, BitBuffer *BitB);
-    
-    void        FLAC_Read_SeekTable(void *Options, BitBuffer *BitB, uint32_t ChunkSize);
-    
-    void        FLAC_Read_Vorbis(void *Options, BitBuffer *BitB);
-    
-    void        FLAC_CUE_Read(void *Options, BitBuffer *BitB);
-    
+
+    void        FLAC_Decode_RICE(void *Options, BitBuffer *BitB, uint8_t RICEPartitionType);
+
+    uint16_t    FLAC_GetBlockSizeInSamples(void *Options);
+
+    bool        FLAC_Parse_Blocks(void *Options, BitBuffer *BitB);
+
+    void        FLAC_Parse_StreamInfo(void *Options, BitBuffer *BitB);
+
+    void        FLAC_Parse_SeekTable(void *Options, BitBuffer *BitB, uint32_t ChunkSize);
+
+    void        FLAC_Parse_Vorbis(void *Options, BitBuffer *BitB);
+
+    void        FLAC_CUE_Parse(void *Options, BitBuffer *BitB);
+
     uint8_t    *FLAC_Pic_Read(void *Options, BitBuffer *BitB);
-    
+
     void        FLACOptions_Deinit(void *Options);
 
-    static const OVIA_Extensions FLACExtensions = {
-        .NumExtensions = 1,
-        .Extensions    = {
-            [0]        = UTF32String("flac"),
-        },
-    };
 
-    static const OVIA_MIMETypes FLACMIMETypes = {
-        .NumMIMETypes = 1,
-        .MIMETypes    = {
-            [0]       = UTF32String("audio/flac"),
-        },
-    };
-    
-    static const OVIA_MagicIDs FLACMagicIDs = {
-        .NumMagicIDs         = 1,
-        .MagicIDOffsetInBits = 0,
-        .MagicIDSizeInBits   = 32,
-        .MagicIDNumber = {
-            [0] = (uint8_t[4]){0x66, 0x4C, 0x61, 0x43},
-        },
-    };
-    
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif
 
-#endif /* OVIA_FLACCommon_H */
+#endif /* OVIA_FLACCodec_H */

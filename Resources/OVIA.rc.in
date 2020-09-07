@@ -1,0 +1,20 @@
+#include "../Library/include/Private/Version.h"
+
+LANGUAGE LANG_ENGLISH,SUBLANG_DEFAULT
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION    @OVIA_VERSION_RESOURCE@
+FILEOS         VOS_NT_WINDOWS32
+FILETYPE       VFT_DLL
+PRODUCTVERSION @OVIA_VERSION_RESOURCE@
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "LegalCopyright",  "© Marcus Johnson, 2020"
+            VALUE "FileDescription", "Lossless Media Transformation Library"
+            VALUE "FileVersion",     "@OVIA_VERSION_STRING@"
+        END
+    END
+END

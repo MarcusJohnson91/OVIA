@@ -1,9 +1,5 @@
 #include "../../include/Private/CodecIO/PNGCodec.h"
 
-#include "../../../Dependencies/FoundationIO/Library/include/BufferIO.h"
-#include "../../../Dependencies/FoundationIO/Library/include/MathIO.h"
-#include "../../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h"
-
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
@@ -162,7 +158,7 @@ extern "C" {
         /*
         for (uint64_t Bit = BitOffset; Bit < BitOffset + BitLength; Bit++) {
             // Now we need to select a bit from the buffer
-            CurrentBit = BitBuffer_ReadBits(MSByteFirst, LSBitFirst, BitB, 1);
+            CurrentBit = BitBuffer_ReadBits(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
 
         }
          */

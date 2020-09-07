@@ -31,6 +31,46 @@ extern "C" {
                                 uint8_t Blue                  = Array[View][W][H][BlueIndex];
                                 
                                 // RGB = 00BBFF, RCT = 459D44, YCoCgR =
+
+                                /*
+                                4 channel RCT: Possibly use Mid-Side coding on the Green channels?
+                                Cr = Red - (Green1 + Green2)
+                                Y  = Floor(Red + (Green1 + Green2) + Blue) / 4
+                                Cb = Blue - (Green1 + Green2)
+
+                                Mid-Side RCT:
+                                GreenM = Green1 + Green2
+                                GreenS = Green1 - Green2
+
+                                Cr     = Red - GreenS
+                                Y      = Floor((Red + GreenM + Blue) / 4)
+                                Cb     = Blue - GreenS
+
+                                That seems pretty damn simple.
+
+                                Lets do a test and see how it performs:
+
+                                R = C0, G1 = 20, G2 = 21, B = A2
+
+                                GreenM = 0x41
+                                GreenS = 0xFF
+
+                                Cr     = 0xC1
+                                Y      = 0x68
+                                Cb     = 0xA3
+
+                                Decode:
+
+                                Green? = Y - Floor((Cb + Cr) / 4) = 0x68 - Floor(() / 4) = 0x59
+
+                                 Ok, so the issue is that you can' cram 4 channels into 3.
+
+                                 So, let's create a new transform that is similar to RCT
+
+                                 Why not have two luma channels? because they contain the most information.
+
+                                 why
+                                */
                                 
                                 uint8_t Cr                    = Red - Green;
                                 uint8_t Y                     = FloorD((Red + (Green * 2) + Blue) / 4);
@@ -104,6 +144,8 @@ extern "C" {
                                 uint8_t Cb                      = Array[View][W][H][Chroma2Index]; // 68
                                 
                                 // RGB = 00BBFF, RCT = 459D44, YCoCgR = 15D|01|BC
+
+
                                 
                                 uint8_t Green                   = Luma - FloorD((Cb + Cr) / 4); // 69 - 56 = 13
                                 uint8_t Red                     = Cr   + Green;

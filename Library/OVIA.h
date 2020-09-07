@@ -65,6 +65,24 @@ extern "C" {
 
      */
 
+    /*
+     OVIA needs the ability to open files, and to handle streams already in memory.
+
+     So the memory version needs to take a pointer and size to a 1D array of bytes.
+
+     the file version simply needs to create a file pointer, allocate memory for the frame, and copy the data in from the file to that memory address.
+
+     then OVIA_Identify needs to just take a pointer and size the the memory and read the magic numbers from there.
+
+     OVIA_ReadFile
+
+     There's just one problem, and that is we need to support individual files like BMP and streaming files like APNG or AVC.
+
+     So, the obvious solution is to treat this like a String, split out a file size function, and take that as a parameter.
+
+     Ok but how do we handle formats like AVC which are completely variable with no landing marks at all?
+     */
+
 
 
 

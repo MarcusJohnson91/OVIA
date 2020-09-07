@@ -8,7 +8,7 @@
 
 #include "MediaIO.h"
 
-#pragma  once
+#pragma once
 
 #ifndef OVIA_TransformIO_H
 #define OVIA_TransformIO_H

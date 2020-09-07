@@ -7,8 +7,11 @@
  */
 
 #include "../MediaIO.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/BufferIO.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/MathIO.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h"
 
-#pragma  once
+#pragma once
 
 #ifndef OVIA_CodecIO_H
 #define OVIA_CodecIO_H
@@ -17,9 +20,13 @@
 extern "C" {
 #endif
 
-    /*
-     What all do we need to put here?
-     */
+    typedef struct CodecIO_ImageLimitations {
+        uint64_t                 MaxWidth;
+        uint64_t                 MaxHeight;
+        uint8_t                  MaxBitDepth;
+        uint8_t                  MaxViews;
+        MediaIO_ImageChannelMask SupportedChannels;
+    } CodecIO_ImageLimitations;
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }

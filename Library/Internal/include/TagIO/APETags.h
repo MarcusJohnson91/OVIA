@@ -8,7 +8,7 @@
 
 #include "TagIO.h"
 
-#pragma  once
+#pragma once
 
 #ifndef OVIA_TagIO_APETags_H
 #define OVIA_TagIO_APETags_H

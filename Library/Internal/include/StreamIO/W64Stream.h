@@ -8,7 +8,7 @@
 
 #include "StreamIO.h"
 
-#pragma  once
+#pragma once
 
 #ifndef OVIA_StreamIO_W64Stream_H
 #define OVIA_StreamIO_W64Stream_H

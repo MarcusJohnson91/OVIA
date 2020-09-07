@@ -164,12 +164,12 @@ extern "C" {
             // Parameters: JPEGBinaryReader JPEGStream
             /*
                 int i = 0;
-                short code = (short)JPEGStream.ReadBits(1);
+                short code = (short)JPEGStream.BitBuffer_ReadBits(1);
                 while (code > maxcode[i])
                 {
                     i++;
                     code <<= 1;
-                    code |= (short)JPEGStream.ReadBits(1);
+                    code |= (short)JPEGStream.BitBuffer_ReadBits(1);
                 }
                 int val = HUFFVAL[code + (valptr[i])];
             if (val < 0) {

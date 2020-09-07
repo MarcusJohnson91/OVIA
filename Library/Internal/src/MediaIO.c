@@ -1697,7 +1697,7 @@ extern "C" {
     }
     
     typedef struct ImageHistogram {
-        void                ***Array;
+        void                 **Array;
         ImageChannelMap       *ChannelMap;
         uint64_t               Width;
         uint64_t               Height;
@@ -1713,25 +1713,26 @@ extern "C" {
                 uint8_t          NumViews          = ImageChannelMap_GetNumViews(Map);
                 uint8_t          NumChannels       = ImageChannelMap_GetNumChannels(Map);
                 uint64_t         NumPossibleColors = Exponentiate(2, ImageContainer_GetBitDepth(Image)) - 1;
+                uint64_t         NumValues         = 0;
                 
-                Histogram->ChannelMap  = Map;
-                Histogram->Height      = Image->Height;
-                Histogram->Width       = Image->Width;
+                Histogram->ChannelMap              = Map;
+                Histogram->Height                  = Image->Height;
+                Histogram->Width                   = Image->Width;
+
+                uint64_t **HistogramArray          = (uint64_t**) calloc(NumViews * NumChannels, sizeof(uint64_t));
                 
                 if (Image->Type == ImageType_Integer8) {
-                    uint8_t ***HistogramArray = (uint8_t***) calloc(NumViews * NumChannels * NumPossibleColors, sizeof(uint8_t));
                     if (HistogramArray != NULL) {
-                        Histogram->Array = (void ***) HistogramArray;
-                        Histogram->Type  = Image->Type;
+                        Histogram->Array           = (void **) HistogramArray;
+                        Histogram->Type            = Image->Type;
                     } else {
                         ImageHistogram_Deinit(Histogram);
                         Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Couldn't allocate Histogram array"));
                     }
                 } else if (Image->Type == ImageType_Integer16) {
-                    uint16_t ***HistogramArray = (uint16_t***) calloc(NumViews * NumChannels * NumPossibleColors, sizeof(uint16_t));
                     if (HistogramArray != NULL) {
-                        Histogram->Array = (void ***) HistogramArray;
-                        Histogram->Type  = Image->Type;
+                        Histogram->Array           = (void **) HistogramArray;
+                        Histogram->Type            = Image->Type;
                     } else {
                         ImageHistogram_Deinit(Histogram);
                         Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Couldn't allocate Histogram array"));
@@ -1747,8 +1748,8 @@ extern "C" {
         return Histogram;
     }
     
-    void ***ImageHistogram_GetArray(ImageHistogram *Histogram) {
-        void ***Array = NULL;
+    void **ImageHistogram_GetArray(ImageHistogram *Histogram) {
+        void **Array = NULL;
         if (Histogram != NULL) {
             if (Histogram->Type == ImageType_Integer8) {
                 Array = Histogram->Array;
@@ -1761,9 +1762,9 @@ extern "C" {
         return Array;
     }
     
-    void ImageHistogram_SetArray(ImageHistogram *Histogram, void ***Array) {
+    void ImageHistogram_SetArray(ImageHistogram *Histogram, void **Array) {
         if (Histogram != NULL && Array != NULL) {
-            Histogram->Array = (void***) Array;
+            Histogram->Array = (void**) Array;
         } else if (Histogram == NULL) {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ImageHistogram Pointer is NULL"));
         } else if (Array == NULL) {

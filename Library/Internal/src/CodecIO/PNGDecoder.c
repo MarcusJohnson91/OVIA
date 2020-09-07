@@ -1,9 +1,5 @@
 #include "../../include/Private/CodecIO/PNGCodec.h"
 
-#include "../../../Dependencies/FoundationIO/Library/include/MathIO.h"
-#include "../../../Dependencies/FoundationIO/Library/include/BufferIO.h"
-#include "../../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h"
-
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
@@ -260,7 +256,13 @@ extern "C" {
         uint64_t FileMagic    = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 64);
 
         if (FileMagic == PNGMagic) {
-            char     *ChunkID        = calloc(4, sizeof(uint8_t));
+            char     ChunkID[4];
+            uint32_t ChunkID2 = 0;
+            for (uint8_t i = 0; i < 4; i++) {
+                ChunkID2 <<= 8;
+                ChunkID2   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+            }
+
             uint32_t ChunkSize       = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
 
             for (uint8_t ChunkIDSize = 0; ChunkIDSize < 4; ChunkIDSize++) {
@@ -270,75 +272,75 @@ extern "C" {
                                            // Now we call the VerifyCRC32 function with the ChunkSize
             VerifyCRC32(BitB, ChunkSize);
 
-            if (*ChunkID == PNGMarker_iHDR) {        // iHDR
+            if (ChunkID2 == PNGMarker_iHDR) {        // iHDR
                 ParseIHDR(Dec, BitB, ChunkSize);
-            } else if (*ChunkID == PNGMarker_PLTE) { // PLTE
+            } else if (ChunkID2 == PNGMarker_PLTE) { // PLTE
                 Dec->PLTEExists = true;
                 ParsePLTE(Dec, BitB, ChunkSize);
-            } else if (*ChunkID == PNGMarker_bKGD) { // bKGD
+            } else if (ChunkID2 == PNGMarker_bKGD) { // bKGD
                 Dec->bkGDExists = true;
                 ParseBKGD(Dec, BitB, ChunkSize);
-            } else if (*ChunkID == PNGMarker_cHRM) { // cHRM
+            } else if (ChunkID2 == PNGMarker_cHRM) { // cHRM
                 Dec->cHRMExists = true;
                 ParseCHRM(Dec, BitB, ChunkSize);
-            } else if (*ChunkID == PNGMarker_gAMA) { // gAMA
+            } else if (ChunkID2 == PNGMarker_gAMA) { // gAMA
                 Dec->gAMAExists = true;
                 ParseGAMA(Dec, BitB, ChunkSize);
-            } else if (*ChunkID == PNGMarker_oFFs) { // oFFs
+            } else if (ChunkID2 == PNGMarker_oFFs) { // oFFs
                 Dec->oFFsExists = true;
                 ParseOFFS(Dec, BitB, ChunkSize);
-            } else if (*ChunkID == PNGMarker_pHYs) { // pHYs
+            } else if (ChunkID2 == PNGMarker_pHYs) { // pHYs
                 Dec->pHYsExists = true;
                 ParsePHYS(Dec, BitB, ChunkSize);
-            } else if (*ChunkID == PNGMarker_sBIT) { // sBIT
+            } else if (ChunkID2 == PNGMarker_sBIT) { // sBIT
                 Dec->sBITExists = true;
                 ParseSBIT(Dec, BitB, ChunkSize);
-            } else if (*ChunkID == PNGMarker_sCAL) { // sCAL
+            } else if (ChunkID2 == PNGMarker_sCAL) { // sCAL
                 Dec->sCALExists = true;
                 ParseSCAL(Dec, BitB, ChunkSize);
-            } else if (*ChunkID == PNGMarker_sRGB) { // sRGB
+            } else if (ChunkID2 == PNGMarker_sRGB) { // sRGB
                 Dec->sRGBExists = true;
                 ParseSRGB(Dec, BitB, ChunkSize);
-            } else if (*ChunkID == PNGMarker_sTER) { // sTER
+            } else if (ChunkID2 == PNGMarker_sTER) { // sTER
                 Dec->sTERExists = true;
                 ParseSTER(Dec, BitB, ChunkSize);
-            } else if (*ChunkID == PNGMarker_tEXt) { // tEXt
+            } else if (ChunkID2 == PNGMarker_tEXt) { // tEXt
                 Dec->TextExists = true;
                 ParseTEXt(Dec, BitB, ChunkSize);
-            } else if (*ChunkID == PNGMarker_zTXt) { // zTXt
+            } else if (ChunkID2 == PNGMarker_zTXt) { // zTXt
                 Dec->TextExists = true;
                 ParseZTXt(Dec, BitB, ChunkSize);
-            } else if (*ChunkID == PNGMarker_iTXt) { // iTXt
+            } else if (ChunkID2 == PNGMarker_iTXt) { // iTXt
                 Dec->TextExists = true;
                 ParseITXt(Dec, BitB, ChunkSize);
-            } else if (*ChunkID == PNGMarker_tIME) { // tIME
+            } else if (ChunkID2 == PNGMarker_tIME) { // tIME
                 Dec->tIMEExists = true;
                 ParseTIME(Dec, BitB, ChunkSize);
-            } else if (*ChunkID == PNGMarker_tRNS) { // tRNS
+            } else if (ChunkID2 == PNGMarker_tRNS) { // tRNS
                 Dec->tRNSExists = true;
                 ParseTRNS(Dec, BitB, ChunkSize);
-            } else if (*ChunkID == PNGMarker_hIST && Dec->PLTEExists) { // hIST
+            } else if (ChunkID2 == PNGMarker_hIST && Dec->PLTEExists) { // hIST
                 Dec->hISTExists = true;
                 ParseHIST(Dec, BitB, ChunkSize);
-            } else if (*ChunkID == PNGMarker_iCCP) { // iCCP
+            } else if (ChunkID2 == PNGMarker_iCCP) { // iCCP
                 Dec->iCCPExists = true;
                 ParseICCP(Dec, BitB, ChunkSize);
-            } else if (*ChunkID == PNGMarker_pCAL) { // pCAL
+            } else if (ChunkID2 == PNGMarker_pCAL) { // pCAL
                 Dec->pCALExists = true;
                 ParsePCAL(Dec, BitB, ChunkSize);
-            } else if (*ChunkID == PNGMarker_sPLT) { // sPLT
+            } else if (ChunkID2 == PNGMarker_sPLT) { // sPLT
                 Dec->sPLTExists = true;
                 ParseSPLT(Dec, BitB, ChunkSize);
-            } else if (*ChunkID == PNGMarker_acTL) { // acTL
+            } else if (ChunkID2 == PNGMarker_acTL) { // acTL
                 Dec->acTLExists = true;
                 ParseACTL(Dec, BitB, ChunkSize);
-            } else if (*ChunkID == PNGMarker_fcTL) { // fcTL
+            } else if (ChunkID2 == PNGMarker_fcTL) { // fcTL
                 Dec->fcTLExists = true;
                 ParseFCTL(Dec, BitB, ChunkSize);
             }
             free(ChunkID);
         } else {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("File Magic 0x%X is not PNG, exiting"), FileMagic);
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("File Magic 0x%llX is not PNG, exiting"), FileMagic);
             exit(EXIT_FAILURE);
         }
         return EXIT_SUCCESS;
@@ -494,7 +496,7 @@ extern "C" {
 
     };
 
-    void DecodeDEFLATEBlock(PNGDecoder *Dec, BitBuffer *DEFLATEBlock, BitBuffer *DecodedBlock) { // LSByteFirst
+    void DecodeDEFLATEBlock(PNGDecoder *Dec, BitBuffer *DEFLATEBlock, BitBuffer *DecodedBlock) { // ByteOrder_LSByteIsNearest
                                                                                                 // Huffman codes are written MSBit first, everything else is writen LSBit first
 
         // DEFLATE Block header:
