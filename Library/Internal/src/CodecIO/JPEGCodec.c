@@ -13,7 +13,10 @@ extern "C" {
     };
 
     void *JPEGOptions_Init(void) {
-        void *Options = calloc(1, sizeof(JPEGOptions));
+        JPEGOptions *Options = calloc(1, sizeof(JPEGOptions));
+        if (Options != NULL) {
+            Options->Huffman     = calloc(1, sizeof(JPEGHuffman));
+        }
         return Options;
     }
 
@@ -27,12 +30,12 @@ extern "C" {
         return Type;
     }
 
-    static MediaIO_ImageChannelMask JPEG_GetChannelMask(JPEGOptions *JPEG) {
-        MediaIO_ImageChannelMask Mask = ImageMask_Unknown;
+    static Image_ChannelMask JPEG_GetChannelMask(JPEGOptions *JPEG) {
+        Image_ChannelMask Mask = ImageMask_Unknown;
         if (JPEG->NumChannels == 3) {
-            Mask                      = ImageMask_2D | ImageMask_Luma | ImageMask_Chroma1 | ImageMask_Chroma2;
+            Mask               = ImageMask_2D | ImageMask_Luma | ImageMask_Chroma1 | ImageMask_Chroma2;
         } else if (JPEG->NumChannels == 1) { // Todo: Actually find the channels encoded instead of assuming this basic shit
-            Mask                      = ImageMask_2D | ImageMask_Luma;
+            Mask               = ImageMask_2D | ImageMask_Luma;
         }
         return Mask;
     }
@@ -49,7 +52,7 @@ extern "C" {
              Loop until we get an End of Block Huffman code, the end of the file, a restart marker, or that's pretty much it actually.
 
              */
-            while (Symbol != JPEG->Huffman->EndOfBlockCode && (Symbol < Marker_Restart0 || Symbol > Marker_Restart7)) {
+            while (Symbol != JPEG->Huffman->EndOfBlockCode && (Symbol < JPEGMarker_Restart0 || Symbol > JPEGMarker_Restart7)) {
                 // What do I do now? Read a Unary code until we find a stop bit effictively
                 // Yes, read until you find a zerom it's effictively a RICE code.
                 Symbol               = BitBuffer_ReadUnary(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, UnaryType_Whole, UnaryTerminator_Zero);

@@ -74,26 +74,6 @@ extern "C" {
         }
     }
     
-    /*
-     static void RegisterEncoder_FLAC(OVIA *Ovia) {
-     Ovia->NumEncoders                                 += 1;
-     uint64_t EncoderIndex                              = Ovia->NumEncoders;
-     Ovia->Encoders                                     = realloc(Ovia->Encoders, sizeof(OVIAEncoder) * Ovia->NumEncoders);
-     
-     Ovia->Encoders[EncoderIndex].EncoderID             = CodecID_FLAC;
-     Ovia->Encoders[EncoderIndex].MediaType             = MediaType_Audio2D;
-     Ovia->Encoders[EncoderIndex].Function_Initialize   = FLACOptions_Init;
-     Ovia->Encoders[EncoderIndex].Function_WriteHeader  = FLAC_WriteStreamInfo; // Make a new function that wrap up all this stuff called WriteHeader
-     Ovia->Encoders[EncoderIndex].Function_Encode       = FLAC_Encode;
-     Ovia->Encoders[EncoderIndex].Function_WriteFooter  = NULL;
-     Ovia->Encoders[EncoderIndex].Function_Deinitialize = FLACOptions_Deinit;
-     }
-     
-     static OVIACodecRegistry Register_FLACEncoder = {
-     .Function_RegisterEncoder[CodecID_FLAC - 1]   = RegisterEncoder_FLAC,
-     };
-     */
-    
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif

@@ -8,15 +8,15 @@ extern "C" {
     
     void RCT_Encode(ImageContainer *Image) {
         if (Image != NULL) {
-            ImageChannelMap *Map  = ImageContainer_GetChannelMap(Image);
-            uint8_t NumChannels  = ImageChannelMap_GetNumChannels(Map);
+            ImageChannelMap *Map                              = ImageContainer_GetChannelMap(Image);
+            uint8_t NumChannels                               = ImageChannelMap_GetNumChannels(Map);
             if (NumChannels >= 3 && NumChannels <= 4) {
                 uint8_t  RedIndex                             = ImageChannelMap_GetChannelsIndex(Map, ImageMask_Red);
                 uint8_t  GreenIndex                           = ImageChannelMap_GetChannelsIndex(Map, ImageMask_Green);
                 uint8_t  BlueIndex                            = ImageChannelMap_GetChannelsIndex(Map, ImageMask_Blue);
                 
                 uint8_t  NumViews                             = ImageChannelMap_GetNumViews(Map);
-                uint8_t  BitDepth                             = ImageContainer_GetBitDepth(Image);
+                uint8_t  BitDepth                             = ImageType_GetBitDepth(ImageContainer_GetType(Image));
                 uint64_t Width                                = ImageContainer_GetWidth(Image);
                 uint64_t Height                               = ImageContainer_GetHeight(Image);
                 
@@ -129,7 +129,7 @@ extern "C" {
                 uint8_t  Chroma2Index                         = ImageChannelMap_GetChannelsIndex(Map, ImageMask_Chroma2);
                 
                 uint8_t  NumViews                             = ImageChannelMap_GetNumViews(Map);
-                uint8_t  BitDepth                             = ImageContainer_GetBitDepth(Image);
+                uint8_t  BitDepth                             = ImageType_GetBitDepth(ImageContainer_GetType(Image));
                 uint64_t Width                                = ImageContainer_GetWidth(Image);
                 uint64_t Height                               = ImageContainer_GetHeight(Image);
                 

@@ -18,7 +18,7 @@ extern "C" {
 #endif
     
     /*!
-     @enum         MediaIO_AudioChannelMask
+     @enum         Audio_ChannelMask
      @abstract                                      Defines the MediaIO_AudioTypes values, OR-able.
      @constant     AudioMask_Unknown                Invalid AudioMask, exists solely to tell when it hasn't been set.
      @constant     AudioMask_FrontLeft              The channel's location is the front left.
@@ -43,7 +43,7 @@ extern "C" {
      @constant     AudioMask_StereoLeft             RF64 Extension, Stereo Downmix, Left.
      @constant     AudioMask_StereoRight            RF64 Extension, Stereo Downmix, Right.
      */
-    typedef enum MediaIO_AudioChannelMask {
+    typedef enum Audio_ChannelMask {
                    AudioMask_Unknown                = 0,
                    AudioMask_FrontLeft              = 1,
                    AudioMask_FrontRight             = 2,
@@ -66,7 +66,7 @@ extern "C" {
                    AudioMask_TopRearCenter          = 262144,
                    AudioMask_StereoLeft             = 524288,
                    AudioMask_StereoRight            = 1048576,
-    } MediaIO_AudioChannelMask;
+    } Audio_ChannelMask;
     
     /*!
      @enum         MediaIO_AudioTypes
@@ -88,7 +88,7 @@ extern "C" {
     } MediaIO_AudioTypes;
     
     /*!
-     @enum         MediaIO_ImageChannelMask
+     @enum         Image_ChannelMask
      @abstract                                      Defines the ChannelMask values.
      @constant     ImageMask_Unknown                Invalid ImageMask, exists solely to tell when it hasn't been set.
      @constant     ImageMask_2D                     The image has two dimensions.
@@ -106,7 +106,7 @@ extern "C" {
      @constant     ImageMask_Infrared               The channel contains the Infrared color information, sometimes used for dust removal.
      @constant     ImageMask_Ultraviolet            The channel contains the Ultraviolet color information.
      */
-    typedef enum MediaIO_ImageChannelMask {
+    typedef enum Image_ChannelMask {
                    ImageMask_Unknown                = 0,
                    ImageMask_2D                     = 1,
                    ImageMask_Luma                   = 2,
@@ -122,7 +122,7 @@ extern "C" {
                    ImageMask_Green2                 = 2048,
                    ImageMask_Infrared               = 4096,
                    ImageMask_Ultraviolet            = 8192,
-    } MediaIO_ImageChannelMask;
+    } Image_ChannelMask;
     
     /*!
      @enum         MediaIO_ImageTypes
@@ -183,6 +183,18 @@ extern "C" {
     typedef struct          ImageChannelMap         ImageChannelMap;
     
     typedef struct          ImageHistogram          ImageHistogram;
+    
+    /*!
+     @abstract                                      Gets the BitDepth of the Audio Samples.
+     @param                 AudioType               The AudioType.
+     */
+    uint8_t                 AudioType_GetBitDepth(MediaIO_AudioTypes AudioType);
+    
+    /*!
+     @abstract                                      Gets the BitDepth of the Image Samples.
+     @param                 ImageType               The ImageType.
+     */
+    uint8_t                 ImageType_GetBitDepth(MediaIO_ImageTypes ImageType);
     
     /*!
      @abstract                                      Creates an empty Audio2DContainer.
@@ -271,14 +283,14 @@ extern "C" {
      @param                 Histogram               A pointer to the instance of an Audio2DHistogram in question.
      @return                                        Returns a pointer to the histogram data.
      */
-    void                   *Audio2DHistogram_GetArray(Audio2DHistogram *Histogram);
+    void                  **Audio2DHistogram_GetArray(Audio2DHistogram *Histogram);
     
     /*!
      @abstract                                      Sets a pointer to the histogram data.
      @param                 Histogram               A pointer to the instance of an Audio2DHistogram in question.
      @param                 Array                   A pointer to the histogram data.
      */
-    void                    Audio2DHistogram_SetArray(Audio2DHistogram *Histogram, void *Array);
+    void                    Audio2DHistogram_SetArray(Audio2DHistogram *Histogram, void **Array);
     
     /*!
      @abstract                                      Generates a histogram from an Audio2DContainer.
@@ -329,23 +341,23 @@ extern "C" {
     uint64_t                Audio2DContainer_GetNumChannels(Audio2DContainer *Audio);
     
     /*!
-     @abstract                                      Adds a MediaIO_AudioChannelMask at the specified Index to the ChannelMap.
+     @abstract                                      Adds a Audio_ChannelMask at the specified Index to the ChannelMap.
      @param                 ChannelMap              The number of channels.
      @param                 Index                   The index in the ChannelMap to add the mask.
      @param                 Mask                    The ChannelMask for the index.
      */
-    void                    AudioChannelMap_AddMask(AudioChannelMap *ChannelMap, uint64_t Index, MediaIO_AudioChannelMask Mask);
+    void                    AudioChannelMap_AddMask(AudioChannelMap *ChannelMap, uint64_t Index, Audio_ChannelMask Mask);
     
     /*!
      @abstract                                      Returns the ChannelMask for Index.
      @param                 ChannelMap              Audio2DContainer Pointer.
      @param                 Index                   The channel index to get the mask for.
      */
-    MediaIO_AudioChannelMask AudioChannelMap_GetMask(AudioChannelMap *ChannelMap, uint64_t Index);
+    Audio_ChannelMask       AudioChannelMap_GetMask(AudioChannelMap *ChannelMap, uint64_t Index);
     
     /*!
      @abstract                                       Finds the lowest index in the ChannelMap that is unused.
-     @param                  ChannelMap              Pointer to the ChannelMap.
+     @param                 ChannelMap               Pointer to the ChannelMap.
      */
     uint64_t                AudioChannelMap_GetLowestUnusedIndex(AudioChannelMap *ChannelMap);
     
@@ -511,7 +523,7 @@ extern "C" {
      @param                 Mask                    The color you want to find the index of.
      @return                                        Returns the Index.
      */
-    uint8_t                 ImageChannelMap_GetChannelsIndex(ImageChannelMap *ChannelMap, MediaIO_ImageChannelMask Mask);
+    uint8_t                 ImageChannelMap_GetChannelsIndex(ImageChannelMap *ChannelMap, Image_ChannelMask Mask);
     
     /*!
      @abstract                                      Sets a ChannelMap.
@@ -519,7 +531,7 @@ extern "C" {
      @param                 Index                   The index of the channel.
      @param                 Mask                    The ChannelMask for the Index
      */
-    void                    ImageChannelMap_AddMask(ImageChannelMap *ChannelMap, uint8_t Index, MediaIO_ImageChannelMask Mask);
+    void                    ImageChannelMap_AddMask(ImageChannelMap *ChannelMap, uint8_t Index, Image_ChannelMask Mask);
     
     /*!
      @abstract                                      Destroys an AudioVectorHistogram.
@@ -550,12 +562,6 @@ extern "C" {
     uint64_t                ImageContainer_GetHeight(ImageContainer *Image);
     
     /*!
-     @abstract                                      Returns the number of bits needed to represent the image in this container.
-     @param                 Image                   A pointer to the instance of an ImageContainer in question.
-     */
-    uint8_t                 ImageContainer_GetBitDepth(ImageContainer *Image);
-    
-    /*!
      @abstract                                      Gets the channel mask.
      @param                 Image                   A pointer to the instance of an ImageContainer in question.
      */
@@ -572,7 +578,7 @@ extern "C" {
      @abstract                                      Gets the type of the array contained by the ImageContainer.
      @param                 Image                   A pointer to the instance of an ImageContainer in question.
      */
-    MediaIO_ImageTypes             ImageContainer_GetType(ImageContainer *Image);
+    MediaIO_ImageTypes      ImageContainer_GetType(ImageContainer *Image);
     
     /*!
      @abstract                                      Gets a pointer to the array of pixels.
@@ -664,14 +670,14 @@ extern "C" {
      @param                 Histogram               A pointer to the instance of an ImageHistogram in question.
      @return                                        Returns a pointer to the histogram data.
      */
-    void                  **ImageHistogram_GetArray(ImageHistogram *Histogram);
+    uint64_t             ***ImageHistogram_GetArray(ImageHistogram *Histogram);
     
     /*!
      @abstract                                      Sets a pointer to the histogram data.
      @param                 Histogram               A pointer to the instance of an ImageHistogram in question.
      @param                 Array                   A pointer to the histogram data.
      */
-    void                    ImageHistogram_SetArray(ImageHistogram *Histogram, void **Array);
+    void                    ImageHistogram_SetArray(ImageHistogram *Histogram, uint64_t ***Array);
     
     /*!
      @abstract                                      Generates a histogram from an ImageContainer.

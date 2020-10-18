@@ -16,7 +16,7 @@ extern "C" {
                 uint8_t  BlueIndex                            = ImageChannelMap_GetChannelsIndex(Map, ImageMask_Blue);
 
                 uint8_t  NumViews                             = ImageChannelMap_GetNumViews(Map);
-                uint8_t  BitDepth                             = ImageContainer_GetBitDepth(Image);
+                uint8_t  BitDepth                             = ImageType_GetBitDepth(ImageContainer_GetType(Image));
                 uint64_t Width                                = ImageContainer_GetWidth(Image);
                 uint64_t Height                               = ImageContainer_GetHeight(Image);
 
@@ -87,7 +87,7 @@ extern "C" {
                 uint8_t  Chroma2Index                         = ImageChannelMap_GetChannelsIndex(Map, ImageMask_Chroma2);
 
                 uint8_t  NumViews                             = ImageChannelMap_GetNumViews(Map);
-                uint8_t  BitDepth                             = ImageContainer_GetBitDepth(Image);
+                uint8_t  BitDepth                             = ImageType_GetBitDepth(ImageContainer_GetType(Image));
                 uint64_t Width                                = ImageContainer_GetWidth(Image);
                 uint64_t Height                               = ImageContainer_GetHeight(Image);
 

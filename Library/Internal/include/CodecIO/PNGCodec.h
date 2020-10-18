@@ -31,6 +31,7 @@ extern "C" {
         PNGMarker_hIST            = 0x68495354,
         PNGMarker_iCCP            = 0x69434350,
         PNGMarker_iDAT            = 0x49444154,
+        PNGMarker_iEND            = 0x49454E44,
         PNGMarker_iHDR            = 0x49484452,
         PNGMarker_iTXt            = 0x69545874,
         PNGMarker_oFFs            = 0x6F464673,
@@ -39,13 +40,13 @@ extern "C" {
         PNGMarker_PLTE            = 0x504C5445,
         PNGMarker_sBIT            = 0x73424954,
         PNGMarker_sCAL            = 0x7343414c,
+        PNGMarker_sPLT            = 0x73504c54,
         PNGMarker_sRGB            = 0x73524742,
         PNGMarker_sTER            = 0x73544552,
         PNGMarker_tEXt            = 0x74455874,
-        PNGMarker_zTXt            = 0x7A545874,
         PNGMarker_tIME            = 0x74494d45,
         PNGMarker_tRNS            = 0x74524e53,
-        PNGMarker_sPLT            = 0x73504c54,
+        PNGMarker_zTXt            = 0x7A545874,
     } PNGChunkMarkers;
 
     typedef enum PNGColorTypes {

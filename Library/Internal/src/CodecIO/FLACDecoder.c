@@ -459,28 +459,7 @@ extern "C" {
         }
         return PictureBuffer;
     }
-    /*
-    static void RegisterDecoder_FLAC(OVIA *Ovia) {
-        Ovia->NumDecoders                                 += 1;
-        uint64_t DecoderIndex                              = Ovia->NumDecoders;
-        Ovia->Decoders                                     = realloc(Ovia->Decoders, sizeof(OVIADecoder) * Ovia->NumDecoders);
-        
-        Ovia->Decoders[DecoderIndex].DecoderID             = CodecID_FLAC;
-        Ovia->Decoders[DecoderIndex].MediaType             = MediaType_Audio2D;
-        Ovia->Decoders[DecoderIndex].NumMagicIDs           = 1;
-        Ovia->Decoders[DecoderIndex].MagicIDOffset[0]      = 0;
-        Ovia->Decoders[DecoderIndex].MagicIDSize[0]        = 4;
-        Ovia->Decoders[DecoderIndex].MagicID[0]            = (uint8_t[4]) {0x66, 0x4C, 0x61, 0x43};
-        Ovia->Decoders[DecoderIndex].Function_Initialize   = FLACOptions_Init;
-        Ovia->Decoders[DecoderIndex].Function_Parse        = FLAC_Parse_Blocks;
-        Ovia->Decoders[DecoderIndex].Function_Decode       = NULL;
-        Ovia->Decoders[DecoderIndex].Function_Deinitialize = FLACOptions_Deinit;
-    }
     
-    static OVIACodecRegistry Register_FLACDecoder = {
-        .Function_RegisterEncoder[CodecID_FLAC - 1]   = RegisterDecoder_FLAC,
-    };
-    */
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif

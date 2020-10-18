@@ -84,13 +84,13 @@ extern "C" {
         FLACOptions *FLAC = Options;
         if (FLAC->StreamInfo->CodedSampleRate == 1) {
             SamplesInBlock = 192;
-        } else if (FLAC_GetBlockSizeInSamples >= 2 && FLAC_GetBlockSizeInSamples <= 5) {
+        } else if (FLAC->StreamInfo->CodedSampleRate >= 2 && FLAC->StreamInfo->CodedSampleRate <= 5) {
             SamplesInBlock = 576 * Exponentiate(2, FLAC->Frame->CodedBlockSize - 2);
-        } else if (FLAC_GetBlockSizeInSamples == 6) {
+        } else if (FLAC->StreamInfo->CodedSampleRate == 6) {
             // get 8 bit block from the end of the header
-        } else if (FLAC_GetBlockSizeInSamples == 7) {
+        } else if (FLAC->StreamInfo->CodedSampleRate == 7) {
             // get 16 bit block from the end of the header
-        } else if (FLAC_GetBlockSizeInSamples >= 8 && FLAC_GetBlockSizeInSamples <= 15) {
+        } else if (FLAC->StreamInfo->CodedSampleRate >= 8 && FLAC->StreamInfo->CodedSampleRate <= 15) {
             SamplesInBlock = 256 * Exponentiate(2, FLAC->Frame->CodedBlockSize - 8);
         } else {
             // Reserved

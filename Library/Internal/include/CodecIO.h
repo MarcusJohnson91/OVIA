@@ -24,9 +24,17 @@ extern "C" {
         uint64_t                 MaxWidth;
         uint64_t                 MaxHeight;
         uint8_t                  MaxBitDepth;
+        uint8_t                  MaxNumChannels;
         uint8_t                  MaxViews;
-        MediaIO_ImageChannelMask SupportedChannels;
+        Image_ChannelMask        SupportedChannels;
     } CodecIO_ImageLimitations;
+
+    typedef struct CodecIO_AudioLimitations {
+        uint64_t                 MaxSampleRate;
+        uint8_t                  MaxBitDepth;
+        uint8_t                  MaxNumChannels;
+        Image_ChannelMask        SupportedChannels;
+    } CodecIO_AudioLimitations;
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }

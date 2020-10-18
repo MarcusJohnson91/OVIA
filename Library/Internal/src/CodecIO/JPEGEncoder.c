@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-    void WriteSegment_StartOfFrame(void *Options, BitBuffer *BitB) {
+    void JPEG_WriteSegment_StartOfFrame(void *Options, BitBuffer *BitB) {
         JPEGOptions *JPEG = Options;
         if (JPEG != NULL && BitB != NULL) {
 
@@ -14,9 +14,9 @@ extern "C" {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
         if (JPEG->EntropyCoder == EntropyCoder_Arithmetic) {
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, Marker_StartOfFrameLossless3);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, JPEGMarker_StartOfFrameLossless3);
         } else if (JPEG->EntropyCoder == EntropyCoder_Huffman) {
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, Marker_StartOfFrameLossless1);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, JPEGMarker_StartOfFrameLossless1);
         }
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, JPEG->BitDepth);
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, JPEG->Height);
@@ -31,7 +31,7 @@ extern "C" {
         }
     }
 
-    void WriteSegment_DefineHuffmanTable(void *Options, BitBuffer *BitB) {
+    void JPEG_WriteSegment_DefineHuffmanTable(void *Options, BitBuffer *BitB) {
         JPEGOptions *JPEG = Options;
         if (JPEG != NULL && BitB != NULL) {
 
@@ -53,7 +53,7 @@ extern "C" {
         }
     }
 
-    void WriteSegment_DefineArithmeticTable(void *Options, BitBuffer *BitB) {
+    void JPEG_WriteSegment_DefineArithmeticTable(void *Options, BitBuffer *BitB) {
         JPEGOptions *JPEG = Options;
         if (JPEG != NULL && BitB != NULL) {
 
@@ -68,12 +68,12 @@ extern "C" {
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  JPEG->Arithmetic->CodeValue);
     }
 
-    void WriteSegment_DefineRestartInterval(void *Options, BitBuffer *BitB) {
+    void JPEG_WriteSegment_DefineRestartInterval(void *Options, BitBuffer *BitB) {
         JPEGOptions *JPEG = Options;
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, JPEG->RestartInterval);
     }
 
-    void WriteSegment_DefineNumberOfLines(void *Options, BitBuffer *BitB) {
+    void JPEG_WriteSegment_DefineNumberOfLines(void *Options, BitBuffer *BitB) {
         JPEGOptions *JPEG = Options;
         if (JPEG != NULL && BitB != NULL) {
 
@@ -85,7 +85,7 @@ extern "C" {
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, JPEG->Height);
     }
 
-    void WriteSegment_Comment(void *Options, BitBuffer *BitB) {
+    void JPEG_WriteSegment_Comment(void *Options, BitBuffer *BitB) {
         JPEGOptions *JPEG = Options;
         if (JPEG != NULL && BitB != NULL) {
 
@@ -95,7 +95,7 @@ extern "C" {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
         if (JPEG->CommentSize >= 3 && JPEG->Comment != NULL) {
-        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 16, Marker_Comment);
+        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 16, JPEGMarker_Comment);
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 16, JPEG->CommentSize);
             for (uint16_t Byte = 0; Byte < JPEG->CommentSize - 2; Byte++) {
                 BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 16, JPEG->Comment[Byte]);
@@ -103,7 +103,7 @@ extern "C" {
         }
     }
 
-    void WriteSegment_StartOfScan(void *Options, BitBuffer *BitB) {
+    void JPEG_WriteSegment_StartOfScan(void *Options, BitBuffer *BitB) {
         JPEGOptions *JPEG = Options;
         if (JPEG != NULL && BitB != NULL) {
 
@@ -112,7 +112,7 @@ extern "C" {
         } else if (BitB == NULL) {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
-        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 16, Marker_StartOfScan);
+        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 16, JPEGMarker_StartOfScan);
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 16, (JPEG->NumChannels * 2) + 2);
 
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 16, JPEG->NumChannels);

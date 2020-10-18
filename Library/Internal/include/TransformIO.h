@@ -28,8 +28,8 @@ extern "C" {
     typedef struct OVIAColorTransform { // Ignore Alpha channels
         const ColorTransformFunction    Function_Encode;
         const ColorTransformFunction    Function_Decode;
-        const MediaIO_ImageChannelMask  InputChannels;
-        const MediaIO_ImageChannelMask  OutputChannels;
+        const Image_ChannelMask  InputChannels;
+        const Image_ChannelMask  OutputChannels;
         const OVIA_ColorTransforms      Transform;
         const Transform_BijectiveType   BijectiveType;
     } OVIAColorTransform;

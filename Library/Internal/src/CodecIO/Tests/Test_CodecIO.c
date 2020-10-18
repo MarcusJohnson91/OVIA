@@ -5,6 +5,10 @@
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
+
+    /*
+     Ok, so we can embed a JPEG file here and make sure it's decoded correctly
+     */
     
     typedef enum Switches {
         Input       = 1,
