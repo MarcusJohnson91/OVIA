@@ -135,15 +135,103 @@ extern "C" {
 
      */
 
-    // Default Huffman Tables:
-
     void           *JPEGOptions_Init(void);
 
     void            JPEG_Parse(void *Options, BitBuffer *BitB);
 
-    ImageContainer *JPEG_Extract(void *Options, BitBuffer *BitB);
+    void            JPEG_Extract(void *Options, BitBuffer *BitB, void *Container);
 
     void            JPEGOptions_Deinit(void *Options);
+
+    extern const    CodecIO_ImageChannelConfig JPEGChannelConfig;
+
+    extern const    CodecIO_ImageLimitations   JPEGLimits;
+
+    extern const    CodecIO_MIMETypes          JPEGMIMETypes;
+
+    extern const    CodecIO_Extensions         JPEGExtensions;
+
+    extern const    CodecIO_FileSignature      JPEGSignature;
+
+#define OVIA_EnableEncoders
+#define OVIA_EnableDecoders
+#define OVIA_EnableJPEG
+
+    extern const    CodecIO_Encoder            JPEGEncoder;
+
+    extern const    CodecIO_Decoder            JPEGDecoder;
+
+#ifdef OVIA_EnableJPEG
+    const CodecIO_ImageChannelConfig JPEGChannelConfig = {
+        .NumChannels = 2,
+        .Channels    = {
+            [0]      = ImageMask_2D | ImageMask_Luma,
+            [1]      = ImageMask_2D | ImageMask_Luma | ImageMask_Chroma1 | ImageMask_Chroma2,
+        },
+    };
+
+    const CodecIO_ImageLimitations JPEGLimits = {
+        .MaxHeight      = 0xFFFF,
+        .MaxWidth       = 0xFFFF,
+        .MaxBitDepth    = 16,
+        .ChannelConfigs = &JPEGChannelConfig,
+    };
+
+    const CodecIO_MIMETypes JPEGMIMETypes = {
+        .NumMIMETypes = 2,
+        .MIMETypes    = {
+            [0]       = UTF32String("image/jpeg"),
+            [1]       = UTF32String("image/pjpeg"),
+        },
+    };
+
+    const CodecIO_Extensions JPEGExtensions = {
+        .NumExtensions = 6,
+        .Extensions    = {
+            [0]        = UTF32String("jpeg"),
+            [1]        = UTF32String("jpe"),
+            [2]        = UTF32String("jpg"),
+            [3]        = UTF32String("jfif"),
+            [4]        = UTF32String("jfi"),
+            [5]        = UTF32String("jif"),
+        },
+    };
+
+    const CodecIO_FileSignature JPEGSignature = {
+        .SizeInBits    = 16,
+        .OffsetInBits  = 0,
+        .NumSignatures = 1,
+        .Signature     = {
+            [0]        = (uint8_t[2]){0xFF, 0xD8},
+        },
+    };
+#endif /* Common Literals */
+
+#ifdef OVIA_EnableEncoders
+#ifdef OVIA_EnableJPEG
+
+    const CodecIO_Encoder JPEGEncoder = {
+        .Function_Initalize   = JPEGOptions_Init,
+        .Function_Parse       = JPEG_Parse,
+        .Function_Media       = JPEG_Extract,
+        .Function_Deinitalize = JPEGOptions_Deinit,
+    };
+
+#endif /* OVIA_EnableJPEG */
+#endif /* OVIA_EnableEncoders */
+
+#ifdef OVIA_EnableDecoders
+#ifdef OVIA_EnableJPEG
+
+    const CodecIO_Decoder JPEGDecoder = {
+        .Function_Initalize   = JPEGOptions_Init,
+        .Function_Parse       = JPEG_Parse,
+        .Function_Media       = JPEG_Extract,
+        .Function_Deinitalize = JPEGOptions_Deinit,
+    };
+
+#endif /* OVIA_EnableJPEG */
+#endif /* OVIA_EnableDecoders */
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }

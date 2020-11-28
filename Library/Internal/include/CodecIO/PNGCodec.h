@@ -222,8 +222,7 @@ extern "C" {
         bool       CRCIsValid:1;
     } tIMe;
 
-    typedef struct PNGDecoder {
-        uint16_t    ***DecodedImage;
+    typedef struct PNGOptions {
         struct acTL   *acTL;
         struct bkGD   *bkGD;
         struct cHRM   *cHRM;
@@ -269,67 +268,119 @@ extern "C" {
         bool           TextExists:1;
         bool           tIMEExists:1;
         bool           tRNSExists:1;
-    } PNGDecoder;
-
-    typedef struct PNGEncoder {
-        struct acTL   *acTL;
-        struct bkGD   *bkGD;
-        struct cHRM   *cHRM;
-        struct fcTL   *fcTL;
-        struct fdAT   *fdAT;
-        struct gAMA   *gAMA;
-        struct hIST   *hIST;
-        struct iCCP   *iCCP;
-        struct iHDR   *iHDR;
-        struct oFFs   *oFFs;
-        struct pCAL   *pCAL;
-        struct pHYs   *pHYs;
-        struct PLTE   *PLTE;
-        struct sBIT   *sBIT;
-        struct sCAL   *sCAL;
-        struct sRGB   *sRGB;
-        struct sTER   *sTER;
-        struct Text   *Text;
-        struct tIMe   *tIMe;
-        struct tRNS   *tRNS;
-        uint32_t       NumTextChunks;
-        uint32_t       CurrentFrame;
-        uint32_t       LineWidth;
-        uint32_t       LinePadding;
-        bool           PNGIsAnimated:1;
-        bool           PNGIs3D:1;
-        bool           acTLExists:1;
-        bool           bkGDExists:1;
-        bool           cHRMExists:1;
-        bool           fcTLExists:1;
-        bool           gAMAExists:1;
-        bool           hISTExists:1;
-        bool           iCCPExists:1;
-        bool           oFFsExists:1;
-        bool           pCALExists:1;
-        bool           pHYsExists:1;
-        bool           PLTEExists:1;
-        bool           sBITExists:1;
-        bool           sCALExists:1;
-        bool           sPLTExists:1;
-        bool           sRGBExists:1;
-        bool           sTERExists:1;
-        bool           TextExists:1;
-        bool           tIMEExists:1;
-        bool           tRNSExists:1;
-    } PNGEncoder;
+    } PNGOptions;
 
     static const uint8_t PNGNumChannelsFromColorType[7] = {
         1, 0, 3, 3, 4, 0, 4
     };
 
-    uint32_t GenerateCRC32(BitBuffer *BitB, const uint64_t ChunkSize);
+    void *PNGOptions_Init(void);
 
-    bool VerifyCRC32(BitBuffer *BitB, uint64_t ChunkSize);
+    void  PNG_Parse(void *Options, BitBuffer *BitB);
 
-    uint32_t GenerateAdler32(const uint8_t *Data, const uint64_t DataSize);
+    void  PNG_Extract(void *Options, BitBuffer *BitB, void *Container);
 
-    bool VerifyAdler32(const uint8_t *Data, const uint64_t DataSize, const uint32_t EmbeddedAdler32);
+    void  PNGOptions_Deinit(void *Options);
+
+
+
+
+
+
+
+
+
+
+    extern const    CodecIO_ImageChannelConfig PNGChannelConfig;
+
+    extern const    CodecIO_ImageLimitations   PNGLimits; // Maybe Image Features would be a better name?
+
+    extern const    CodecIO_MIMETypes          PNGMIMETypes;
+
+    extern const    CodecIO_Extensions         PNGExtensions;
+
+    extern const    CodecIO_FileSignature      PNGSignature;
+
+#define OVIA_EnableEncoders
+#define OVIA_EnableDecoders
+#define OVIA_EnablePNG
+
+    extern const    CodecIO_Encoder            PNGEncoder;
+
+    extern const    CodecIO_Decoder            PNGDecoder;
+
+#ifdef OVIA_EnablePNG
+    const CodecIO_ImageChannelConfig PNGChannelConfig = {
+        .NumChannels = 2,
+        .Channels    = {
+            [0]      = ImageMask_2D | ImageMask_Luma,
+            [1]      = ImageMask_2D | ImageMask_Luma | ImageMask_Chroma1 | ImageMask_Chroma2,
+        },
+    };
+
+    const CodecIO_ImageLimitations PNGLimits = {
+        .MaxHeight      = 0xFFFF,
+        .MaxWidth       = 0xFFFF,
+        .MaxBitDepth    = 16,
+        .ChannelConfigs = &PNGChannelConfig,
+    };
+
+    const CodecIO_MIMETypes PNGMIMETypes = {
+        .NumMIMETypes = 4,
+        .MIMETypes    = {
+            [0]       = UTF32String("image/png"),
+            [1]       = UTF32String("image/apng"),
+            [2]       = UTF32String("image/x-mng"),
+            [3]       = UTF32String("video/x-mng"),
+        },
+    };
+
+    const CodecIO_Extensions PNGExtensions = {
+        .NumExtensions = 4,
+        .Extensions    = {
+            [0]        = UTF32String("png"),
+            [1]        = UTF32String("apng"),
+            [2]        = UTF32String("mng"),
+            [5]        = UTF32String("jng"),
+        },
+    };
+
+    const CodecIO_FileSignature PNGSignature = {
+        .SizeInBits    = 64,
+        .OffsetInBits  = 0,
+        .NumSignatures = 2,
+        .Signature     = {
+            [0]        = (uint8_t[8]) {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}, // PNG
+            [1]        = (uint8_t[8]) {0x89, 0x4D, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}, // MNG
+        },
+    };
+#endif /* Common Literals */
+
+#ifdef OVIA_EnableEncoders
+#ifdef OVIA_EnablePNG
+
+    const CodecIO_Encoder PNGEncoder = {
+        .Function_Initalize   = PNGOptions_Init,
+        .Function_Parse       = PNG_Parse,
+        .Function_Media       = PNG_Extract,
+        .Function_Deinitalize = PNGOptions_Deinit,
+    };
+
+#endif /* OVIA_EnablePNG */
+#endif /* OVIA_EnableEncoders */
+
+#ifdef OVIA_EnableDecoders
+#ifdef OVIA_EnablePNG
+
+    const CodecIO_Decoder PNGDecoder = {
+        .Function_Initalize   = PNGOptions_Init,
+        .Function_Parse       = PNG_Parse,
+        .Function_Media       = PNG_Extract,
+        .Function_Deinitalize = PNGOptions_Deinit,
+    };
+
+#endif /* OVIA_EnablePNG */
+#endif /* OVIA_EnableDecoders */
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }

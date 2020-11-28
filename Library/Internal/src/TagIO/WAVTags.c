@@ -1,4 +1,4 @@
-#include "../../include/Private/TagIO/TagIO.h"
+#include "../../include/TagIO.h"
 #include "../../include/Private/StreamIO/RIFFStream.h"
 #include "../../../Dependencies/FoundationIO/Library/include/MathIO.h"
 #include "../../../Dependencies/FoundationIO/Library/include/TextIO/StringIO.h"

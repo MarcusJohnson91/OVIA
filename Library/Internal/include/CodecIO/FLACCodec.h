@@ -103,8 +103,8 @@ extern "C" {
 
     typedef enum SubFrameTypes {
         Subframe_Constant                                           =          0,
-        Subframe_Verbatim                                           =          1,
-        Subframe_Fixed                                              =          8,
+        Subframe_Verbatim                                           =          2,
+        Subframe_Fixed                                              =         24,
         Subframe_LPC                                                =         63,
     } SubFrameTypes;
 
@@ -209,9 +209,10 @@ extern "C" {
     } RICEPartition;
 
     typedef struct FLACLPC {
-        int8_t       *LPCCoeff;
-        uint8_t       LPCOrder;
+        int8_t        LPCCoeff[32]; // Max 32 Coeffs
         uint8_t       NumLPCCoeffs;
+        uint8_t       QLevel; // Quantization Level aka Shift
+        uint8_t       LPCOrder;
         uint8_t       LPCShift:5;
         uint8_t       LPCPrecision:4;
         uint8_t       PartitionOrder:4;

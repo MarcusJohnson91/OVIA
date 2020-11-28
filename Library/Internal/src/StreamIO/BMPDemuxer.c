@@ -87,11 +87,13 @@ extern "C" {
             uint32_t Width           = BMP->Width;
             bool     IsUpsideDown    = (BMP->Height & 0x80000000) >> 31;
             uint32_t Height          = AbsoluteI(BMP->Height);
+            ImageChannelMap *Map    = ImageContainer_GetChannelMap(Image);
+            MediaIO_ImageTypes Type = ImageContainer_GetType(Image);
 
             if (BMP->CompressionType == BMP_RGB) {
                 if (BitDepth <= 8) {
                     uint8_t ****Array  = (uint8_t****) ImageContainer_GetArray(Image);
-                    for (uint64_t View = 0ULL; View < ImageContainer_GetNumViews(Image); View++) {
+                    for (uint64_t View = 0ULL; View < ImageChannelMap_GetNumViews(Map); View++) {
                         for (uint64_t W = 0ULL; W < Width; W++) {
                             for (uint64_t H = 0ULL; H < Height; H++) {
                                 for (uint64_t Channel = 0ULL; Channel < 3; Channel++) {
@@ -102,7 +104,7 @@ extern "C" {
                     }
                 } else if (BMP->BitDepth > 8 && BMP->BitDepth <= 16) {
                     uint16_t ****Array = (uint16_t****) ImageContainer_GetArray(Image);
-                    for (uint64_t View = 0ULL; View < ImageContainer_GetNumViews(Image); View++) {
+                    for (uint64_t View = 0ULL; View < ImageChannelMap_GetNumViews(Map); View++) {
                         for (uint64_t W = 0ULL; W < Width; W++) {
                             for (uint64_t H = 0ULL; H < Height; H++) {
                                 for (uint64_t Channel = 0ULL; Channel < 3; Channel++) {

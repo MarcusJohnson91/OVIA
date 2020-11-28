@@ -1,13 +1,14 @@
 #include "../../include/Private/CodecIO/PNGCodec.h"
 
 #include "../../../Dependencies/FoundationIO/Library/include/BufferIO.h"
+#include "../../../Dependencies/FoundationIO/Library/include/TextIO/StringIO.h"
 #include "../../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
 
-    void WriteIHDRChunk(PNGEncoder *Enc, BitBuffer *OutputPNG) {
+    void WriteIHDRChunk(PNGOptions *Enc, BitBuffer *OutputPNG) {
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, 13);
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNGMarker_iHDR);
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Enc->iHDR->Width);
@@ -19,14 +20,14 @@ extern "C" {
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  Enc->iHDR->IsInterlaced);
     }
 
-    void WriteACTLChunk(PNGEncoder *Enc, BitBuffer *OutputPNG) {
+    void WriteACTLChunk(PNGOptions *Enc, BitBuffer *OutputPNG) {
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, 8);
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNGMarker_acTL);
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Enc->acTL->NumFrames);
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Enc->acTL->TimesToLoop);
     }
 
-    void WriteFCTLChunk(PNGEncoder *Enc, BitBuffer *OutputPNG) {
+    void WriteFCTLChunk(PNGOptions *Enc, BitBuffer *OutputPNG) {
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, 29);
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNGMarker_fcTL);
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Enc->fcTL->FrameNum);
@@ -40,19 +41,19 @@ extern "C" {
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  Enc->fcTL->BlendMethod);
     }
 
-    void WriteFDATChunk(PNGEncoder *Enc, BitBuffer *OutputPNG, uint8_t *DeflatedFrameData, uint32_t DeflatedFrameDataSize) {
+    void WriteFDATChunk(PNGOptions *Enc, BitBuffer *OutputPNG, uint8_t *DeflatedFrameData, uint32_t DeflatedFrameDataSize) {
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, DeflatedFrameData + 8);
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNGMarker_fDAT);
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Enc->fdAT->FrameNum);
     }
 
-    void WriteSTERChunk(PNGEncoder *Enc, BitBuffer *OutputPNG) {
+    void WriteSTERChunk(PNGOptions *Enc, BitBuffer *OutputPNG) {
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, 1);
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNGMarker_sTER);
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  Enc->sTER->StereoType);
     }
 
-    void WriteBKGDChunk(PNGEncoder *Enc, BitBuffer *OutputPNG) {
+    void WriteBKGDChunk(PNGOptions *Enc, BitBuffer *OutputPNG) {
         uint8_t  NumChannels   = PNGNumChannelsFromColorType[Enc->iHDR->ColorType];
         uint32_t Size          = 0;
         uint8_t  BKGDEntrySize = 0; // in bits
@@ -82,7 +83,7 @@ extern "C" {
         }
     }
 
-    void WriteCHRMChunk(PNGEncoder *Enc, BitBuffer *OutputPNG) {
+    void WriteCHRMChunk(PNGOptions *Enc, BitBuffer *OutputPNG) {
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, 32);
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNGMarker_cHRM);
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Enc->cHRM->WhitePointX);
@@ -95,13 +96,13 @@ extern "C" {
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Enc->cHRM->BlueY);
     }
 
-    void WriteGAMAChunk(PNGEncoder *Enc, BitBuffer *OutputPNG) {
+    void WriteGAMAChunk(PNGOptions *Enc, BitBuffer *OutputPNG) {
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, 4);
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNGMarker_gAMA);
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Enc->gAMA->Gamma);
     }
 
-    void WriteOFFSChunk(PNGEncoder *Enc, BitBuffer *OutputPNG) {
+    void WriteOFFSChunk(PNGOptions *Enc, BitBuffer *OutputPNG) {
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, 9);
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNGMarker_oFFs);
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Enc->oFFs->XOffset);
@@ -109,9 +110,9 @@ extern "C" {
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  Enc->oFFs->UnitSpecifier);
     }
 
-    void WriteICCPChunk(PNGEncoder *Enc, BitBuffer *OutputPNG) {
-        uint32_t ProfileNameSize       = strlen(Enc->iCCP->ProfileName);
-        uint32_t CompressedProfileSize = strlen(Enc->iCCP->CompressedICCPProfile);
+    void WriteICCPChunk(PNGOptions *Enc, BitBuffer *OutputPNG) {
+        uint32_t ProfileNameSize       = UTF8_GetStringSizeInCodeUnits(Enc->iCCP->ProfileName);
+        uint32_t CompressedProfileSize = UTF8_GetStringSizeInCodeUnits(Enc->iCCP->CompressedICCPProfile);
 
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, 8 + CompressedProfileSize + ProfileNameSize);
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNGMarker_iCCP);
@@ -120,7 +121,7 @@ extern "C" {
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, Bytes2Bits(CompressedProfileSize), Enc->iCCP->CompressedICCPProfile);
     }
 
-    void WriteSBITChunk(PNGEncoder *Enc, BitBuffer *OutputPNG) {
+    void WriteSBITChunk(PNGOptions *Enc, BitBuffer *OutputPNG) {
         uint8_t ChunkSize = 0;
         uint8_t NumChannels = PNGNumChannelsFromColorType[Enc->iHDR->ColorType];
         if (Enc->iHDR->ColorType == PNGColor_Gray) {
@@ -153,13 +154,13 @@ extern "C" {
         }
     }
 
-    void WriteSRGBChunk(PNGEncoder *Enc, BitBuffer *OutputPNG) {
+    void WriteSRGBChunk(PNGOptions *Enc, BitBuffer *OutputPNG) {
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, 1);
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNGMarker_sRGB);
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  Enc->sRGB->RenderingIntent);
     }
 
-    void WritePHYSChunk(PNGEncoder *Enc, BitBuffer *OutputPNG) {
+    void WritePHYSChunk(PNGOptions *Enc, BitBuffer *OutputPNG) {
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, 9);
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNGMarker_pHYs);
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Enc->pHYs->PixelsPerUnitXAxis);
@@ -167,51 +168,51 @@ extern "C" {
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  Enc->pHYs->UnitSpecifier);
     }
 
-    void WritePCALChunk(PNGEncoder *Enc, BitBuffer *OutputPNG) {
+    void WritePCALChunk(PNGOptions *Enc, BitBuffer *OutputPNG) {
         uint32_t ChunkSize = 0;
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, ChunkSize);
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNGMarker_pCAL);
 
     }
 
-    void WriteSCALChunk(PNGEncoder *Enc, BitBuffer *OutputPNG) {
+    void WriteSCALChunk(PNGOptions *Enc, BitBuffer *OutputPNG) {
         uint32_t ChunkSize = 0;
     }
 
-    void PNGIsAnimated(PNGEncoder *Enc, const bool PNGIsAnimated) {
+    void PNGIsAnimated(PNGOptions *Enc, const bool PNGIsAnimated) {
         if (Enc != NULL) {
             Enc->PNGIsAnimated = PNGIsAnimated;
         } else {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to PNGEncoder is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to PNGOptions is NULL"));
         }
     }
 
-    void ComposeAPNGNumFrames(PNGEncoder *Enc, const uint32_t NumFrames) {
+    void ComposeAPNGNumFrames(PNGOptions *Enc, const uint32_t NumFrames) {
         if (Enc != NULL) {
             Enc->acTL->NumFrames = NumFrames;
         } else {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to PNGEncoder is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to PNGOptions is NULL"));
         }
     }
 
-    void ComposeAPNGTimes2Loop(PNGEncoder *Enc, const uint32_t NumTimes2Loop) {
+    void ComposeAPNGTimes2Loop(PNGOptions *Enc, const uint32_t NumTimes2Loop) {
         if (Enc != NULL) {
             Enc->acTL->TimesToLoop = NumTimes2Loop;
         } else {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to PNGEncoder is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to PNGOptions is NULL"));
         }
     }
 
-    void ComposeAPNGFrameDelay(PNGEncoder *Enc, const uint32_t FrameDelayNumerator, const uint32_t FrameDelayDenominator) {
+    void ComposeAPNGFrameDelay(PNGOptions *Enc, const uint32_t FrameDelayNumerator, const uint32_t FrameDelayDenominator) {
         if (Enc == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to PNGEncoder is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to PNGOptions is NULL"));
         } else {
             Enc->fcTL->FrameDelayNumerator   = FrameDelayNumerator;
             Enc->fcTL->FrameDelayDenominator = FrameDelayDenominator;
         }
     }
 
-    void PNGSetIHDR(PNGEncoder *Enc, const uint32_t Height, const uint32_t Width, const uint8_t BitDepth, PNGColorTypes ColorType, const bool Interlace) {
+    void PNGSetIHDR(PNGOptions *Enc, const uint32_t Height, const uint32_t Width, const uint8_t BitDepth, PNGColorTypes ColorType, const bool Interlace) {
         if (Enc != NULL && Height > 0 && Width > 0 && (BitDepth > 0 || BitDepth > 16) && (ColorType <= 6 && ColorType != 1 && ColorType != 5) && Interlace >= 0 && Interlace <= 1) {
             Enc->iHDR->Height       = Height;
             Enc->iHDR->Width        = Width;
@@ -219,7 +220,7 @@ extern "C" {
             Enc->iHDR->ColorType    = ColorType;
             Enc->iHDR->IsInterlaced = Interlace;
         } else if (Enc == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("PNGEncoder Pointer is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("PNGOptions Pointer is NULL"));
         } else if (Height == 0) {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Height is 0, which is invalid"));
         } else if (Width == 0) {
@@ -233,28 +234,28 @@ extern "C" {
         }
     }
 
-    void PNGSetSTER(PNGEncoder *Enc, const bool StereoType) {
+    void PNGSetSTER(PNGOptions *Enc, const bool StereoType) {
         if (Enc != NULL && StereoType >= 0 && StereoType <= 1) {
             Enc->sTER->StereoType = StereoType;
         } else if (Enc == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to PNGEncoder is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to PNGOptions is NULL"));
         } else if (StereoType < 0 || StereoType > 1) {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("StereoType %d is invalid, valid values range from 0-1"));
         }
     }
 
-    void PNGSetACTL(PNGEncoder *Enc, const uint32_t NumFrames, const uint32_t Times2Loop) {
+    void PNGSetACTL(PNGOptions *Enc, const uint32_t NumFrames, const uint32_t Times2Loop) {
         if (Enc != NULL && NumFrames > 0) {
             Enc->acTL->NumFrames   = NumFrames;
             Enc->acTL->TimesToLoop = Times2Loop;
         } else if (Enc == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to PNGEncoder is NULL"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to PNGOptions is NULL"));
         } else if (NumFrames == 0) {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("NumFrames is 0, that isn't possible..."));
         }
     }
 
-    void PNGSetFCTL(PNGEncoder *Enc, const uint32_t FrameNum, const uint32_t FrameWidth, const uint32_t FrameHeight, uint32_t XOffset, uint32_t YOffset, uint16_t FrameDelayNumerator, uint16_t FrameDelayDenominator, uint8_t DisposalType, uint8_t BlendType) {
+    void PNGSetFCTL(PNGOptions *Enc, const uint32_t FrameNum, const uint32_t FrameWidth, const uint32_t FrameHeight, uint32_t XOffset, uint32_t YOffset, uint16_t FrameDelayNumerator, uint16_t FrameDelayDenominator, uint8_t DisposalType, uint8_t BlendType) {
 
     }
 
@@ -262,8 +263,8 @@ extern "C" {
 
     }
 
-    PNGEncoder *EncodePNG_Init(void) {
-        PNGEncoder *Enc  = calloc(1, sizeof(PNGEncoder));
+    PNGOptions *EncodePNG_Init(void) {
+        PNGOptions *Enc  = calloc(1, sizeof(PNGOptions));
         if (Enc != NULL) {
             Enc->acTL       = calloc(1, sizeof(acTL));
             Enc->bkGD       = calloc(1, sizeof(bkGD));
@@ -284,12 +285,12 @@ extern "C" {
             Enc->tIMe       = calloc(1, sizeof(tIMe));
             Enc->tRNS       = calloc(1, sizeof(tRNS));
         } else {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Failed to allocate enough memory for PNGEncoder"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Failed to allocate enough memory for PNGOptions"));
         }
         return Enc;
     }
 
-    void EncodePNG_Deinit(PNGEncoder *Enc) {
+    void EncodePNG_Deinit(PNGOptions *Enc) {
         if (Enc->acTLExists) {
             free(Enc->acTL);
         }
@@ -354,14 +355,14 @@ extern "C" {
         free(Enc);
     }
 
-    BitBuffer *EncodePNGImage(PNGEncoder *Enc, void ****RawImage2Encode, bool InterlacePNG, bool OptimizePNG) {
+    BitBuffer *EncodePNGImage(PNGOptions *Enc, void ****RawImage2Encode, bool InterlacePNG, bool OptimizePNG) {
         // RawImage2Encode is a void pointer, the contents of Enc->iHDR->BitDepth will define the data type, uint8_t or uint16_t
 
         // This is THE main function for encoding a buffer into a PNG file.
         return NULL;
     }
 
-    BitBuffer *EncodeAdam7(PNGEncoder *Enc, BitBuffer *ProgressiveImage) { // Returns the interlaced image
+    BitBuffer *EncodeAdam7(PNGOptions *Enc, BitBuffer *ProgressiveImage) { // Returns the interlaced image
         /*
          Ok, so to interlace an image, we need to loop over every pixel in an 8x8 block?
          */
@@ -369,17 +370,17 @@ extern "C" {
         return InterlacedImage;
     }
 
-    void PNGEncodeFilterNone(PNGEncoder *Enc, uint8_t *DeEntropyedData, uint8_t *DeFilteredData, size_t Line) {
+    void PNGEncodeFilterNone(PNGOptions *Enc, uint8_t *DeEntropyedData, uint8_t *DeFilteredData, size_t Line) {
 
     }
 
-    void PNGEncodeFilterPaeth(PNGEncoder *Enc, uint8_t *Line, size_t LineSize) {
+    void PNGEncodeFilterPaeth(PNGOptions *Enc, uint8_t *Line, size_t LineSize) {
         // RawData is after decoding the I/f DATs, and after INFLAT'ing and De-LZ77'ing it.
         // Each line is preceded by a filter type byte, so decode it by a line by line basis.
         // Good candidate for multi-threading.
     }
 
-    void PNGEncodeFilterSub(PNGEncoder *Enc, uint8_t *Line, size_t NumPixels) {
+    void PNGEncodeFilterSub(PNGOptions *Enc, uint8_t *Line, size_t NumPixels) {
         // NumPixel means whole pixel not sub pixel.
         uint16_t *EncodedLine = calloc(1, Enc->iHDR->Width * Bits2Bytes(Enc->iHDR->BitDepth, Yes) * sizeof(uint16_t));
         for (size_t Pixel = 1; Pixel < NumPixels; Pixel++) {

@@ -1,5 +1,5 @@
 #include "../Dependencies/FoundationIO/Library/include/TestIO.h"
-#include "../Library/include/Private/EntropyIO/EntropyIO.h"
+#include "../Library/include/EntropyIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {

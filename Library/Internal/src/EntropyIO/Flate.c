@@ -53,8 +53,8 @@ extern "C" {
                         Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Literal Block Length and 1's Complement Length do not match"));
                     }
                 } else if (BTYPE == BlockType_Fixed) {
-                    HuffmanTree *Length        = PNG_Flate_BuildHuffmanTree(FixedLiteralTable, 288);
-                    HuffmanTree *Distance      = PNG_Flate_BuildHuffmanTree(FixedDistanceTable, 32);
+                    HuffmanTable *Length        = PNG_Flate_BuildHuffmanTree(FixedLiteralTable, 288);
+                    HuffmanTable *Distance      = PNG_Flate_BuildHuffmanTree(FixedDistanceTable, 32);
                     PNG_Flate_ReadHuffman(PNG, BitB, Length, Distance, Image);
                 } else if (BTYPE == BlockType_Dynamic) {
                     uint16_t NumLengthCodes               = 257 + BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 5); // HLIT; 21, 26?

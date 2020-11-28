@@ -1,5 +1,5 @@
 #include "../Dependencies/FoundationIO/Library/include/TestIO.h"
-#include "../Library/include/Private/StreamIO/StreamIO.h"
+#include "../Library/include/StreamIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {

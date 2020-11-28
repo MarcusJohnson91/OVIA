@@ -83,6 +83,46 @@ extern "C" {
     void              AIFWriteHeader(AIFOptions *AIF, BitBuffer *BitB);
     
     void              AIFOptions_Deinit(void *Options);
+
+    extern OVIA_MagicIDs AIFSignature = {
+        .NumMagicIDs         = 1,
+        .MagicIDOffsetInBits = 0,
+        .MagicIDSizeInBits   = 32,
+        .MagicIDNumber       = {
+            [0]              = (uint8_t[4]){0x46, 0x4F, 0x52, 0x4D},
+        }
+    };
+
+    extern const OVIA_Extensions AIFExtensions = {
+        .NumExtensions = 3,
+        .Extensions    = {
+            [0]        = UTF32String("aifc"),
+            [1]        = UTF32String("aiff"),
+            [2]        = UTF32String("aif"),
+        },
+    };
+
+    extern const OVIA_MIMETypes AIFMIMETypes = {
+        .NumMIMETypes = 2,
+        .MIMETypes    = {
+            [0]       = UTF32String("audio/aiff"),
+            [1]       = UTF32String("audio/x-aiff"),
+        },
+    };
+
+    static const OVIA_MagicIDs AIFMagicIDs = {
+        .NumMagicIDs         = 1,
+        .MagicIDOffsetInBits = 0,
+        .MagicIDSizeInBits   = 32,
+        .MagicIDNumber = {
+            [0]              = (uint8_t[4]){0x46, 0x4F, 0x52, 0x4D},
+        },
+    };
+
+    extern OVIA_Stream AIFEncoder = {
+        .MagicID = &AIFMagicIDs,
+
+    };
     
     
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)

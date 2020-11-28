@@ -6,8 +6,8 @@
  @brief               This header contains code for streams (muxing and demuxing).
  */
 
-#include "../MediaIO.h"
-#include "../../../../Dependencies/FoundationIO/Library/include/BufferIO.h" /* Included for BufferIO_ByteOrders and BufferIO_BitOrders enums */
+#include "MediaIO.h"
+#include "../../Dependencies/FoundationIO/Library/include/BufferIO.h" /* Included for BufferIO_ByteOrders and BufferIO_BitOrders enums */
 
 #pragma once
 
@@ -17,6 +17,28 @@
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
+
+    /*
+     The biggest problem with StreamIO, is we need to provide a interface for both files and packets.
+
+     I mean, isn't that the entire god damn point of BufferIO? that it can be used to piece files into chunks, and load multiple packets into chunks as well?
+
+     it's the entire god damn point...
+
+     So we're ok there...
+
+     All we really need is the infrastructure to say where a file or network input or output is in relation to BufferIO, and have this interface be maintained by the buffer it's self.
+
+     So, modify FileIO and NetworkIO to have BufferIO control them; they're downstream from BufferIO; BufferIO is in charge.
+
+     ----
+
+     Is there a lower level interface for dealing with files on POSIX or in C?
+
+     Fuck a big ass FILE pointer with it's associated buffers and all kinds of stupid shit.
+
+     Ok, yes you can use the `open()` function, it's a part of POSIX, and is available on windows; returns a file descriptor aka an integer.
+     */
 
     typedef enum StreamIO_SyncTypes {
         SyncType_Unknown = 0,

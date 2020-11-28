@@ -64,7 +64,7 @@ extern "C" {
             uint32_t AnnotationSize            = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
             UTF8    *Annotation                = BitBuffer_ReadUTF8(BitB, AnnotationSize);
             AIF->NumTags                      += 1;
-            AIF->Tags[AIF->NumTags - 1]        = Annotation;
+            AIF->Tags[AIF->NumTags - 1]        = *Annotation;
             AIF->TagTypes[AIF->NumTags - 1]    = AnnotationTag;
         } else if (AIF == NULL) {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("OVIA Pointer is NULL"));

@@ -9,59 +9,12 @@ extern "C" {
         if (FLAC != NULL) {
             FLAC->StreamInfo  = calloc(1, sizeof(StreamInfo));
             FLAC->CueSheet    = calloc(1, sizeof(FLACCueSheet));
+            FLAC->LPC         = calloc(1, sizeof(FLACLPC));
+            
         } else {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Couldn't allocate FLACOptions"));
         }
         return FLAC;
-    }
-    
-    uint32_t Adler32(BitBuffer *BitB, uint64_t Start, uint64_t NumBytes) {
-        uint32_t Output = 0;
-        if (BitB != NULL && Start * 8 < BitBuffer_GetSize(BitB) && (Start + NumBytes) * 8 <= BitBuffer_GetSize(BitB)) {
-            uint16_t A = 1;
-            uint16_t B = 0;
-            
-            for (uint64_t Byte = Start; Byte < NumBytes - 1; Byte++) {
-                uint8_t Value = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
-                A = (A + Value) % 65521;
-                B = (B + A)     % 65521;
-            }
-            
-            Output = (B << 16) | A;
-        } else if (BitB == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
-        } else if (Start * 8 < BitBuffer_GetSize(BitB)) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Start: %lld is larger than the BitBuffer %lld"), Start * 8, BitBuffer_GetSize(BitB));
-        } else if ((Start + NumBytes) * 8 <= BitBuffer_GetSize(BitB)) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("End: %lld is larger than the BitBuffer %lld"), (Start + NumBytes) * 8, BitBuffer_GetSize(BitB));
-        }
-        return Output;
-    }
-    
-    uint32_t CRC32(BitBuffer *BitB, uint64_t Start, uint64_t NumBytes) {
-        uint32_t Output = -1;
-        if (BitB != NULL && Start * 8 < BitBuffer_GetSize(BitB) && (Start + NumBytes) * 8 <= BitBuffer_GetSize(BitB)) {
-            for (uint64_t Byte = Start; Byte < NumBytes - 1; Byte++) {
-                uint32_t Polynomial = 0x82608EDB;
-                uint8_t  Data       = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
-                
-                Output               ^= Data;
-                for (uint8_t Bit = 0; Bit < 8; Bit++) {
-                    if (Output & 1) {
-                        Output = (Output >> 1) ^ Polynomial;
-                    } else {
-                        Output >>= 1;
-                    }
-                }
-            }
-        } else if (BitB == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
-        } else if (Start * 8 < BitBuffer_GetSize(BitB)) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Start: %lld is larger than the BitBuffer %lld"), Start * 8, BitBuffer_GetSize(BitB));
-        } else if ((Start + NumBytes) * 8 <= BitBuffer_GetSize(BitB)) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("End: %lld is larger than the BitBuffer %lld"), (Start + NumBytes) * 8, BitBuffer_GetSize(BitB));
-        }
-        return ~Output;
     }
     
     uint8_t FLAC_GetNumChannels(void *Options) {

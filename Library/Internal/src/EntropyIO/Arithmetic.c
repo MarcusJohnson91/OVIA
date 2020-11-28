@@ -1,31 +1,9 @@
-#ifdef __cplusplus
+#include "../../include/EntropyIO.h"
+
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
-    
-    void AVCDecodeArithmetic() {
-        
-    }
-    
-    void AVCDecodeContextAdaptiveVariableLengthCoding() {
-        
-    }
-    
-    void AVCDecodeMappedExpGolomb() {
-        
-    }
-    
-    void AVCDecodeSignedExpGolomb() {
-        
-    }
-    
-    void AVCDecodeTruncatedExpGolomb() {
-        
-    }
-    
-    void AVCDecodeUnsignedExpGolomb() {
-        
-    }
-    
-#ifdef __cplusplus
+
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif

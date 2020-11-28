@@ -44,9 +44,10 @@ extern "C" {
             BMPOptions *BMP         = Options;
             uint64_t Width          = ImageContainer_GetWidth(Image);
             uint64_t Height         = ImageContainer_GetHeight(Image);
-            uint64_t NumChannels    = ImageContainer_GetNumChannels(Image);
-            uint64_t BitDepth       = Bits2Bytes(ImageContainer_GetBitDepth(Image), RoundingType_Up);
+            ImageChannelMap *Map    = ImageContainer_GetChannelMap(Image);
             MediaIO_ImageTypes Type = ImageContainer_GetType(Image);
+            uint64_t NumChannels    = ImageChannelMap_GetNumChannels(Map);
+            uint64_t BitDepth       = Bits2Bytes(ImageType_GetBitDepth(Type), RoundingType_Up);
 
             if (Type == ImageType_Integer8) {
                 uint8_t ****Array = (uint8_t****) ImageContainer_GetArray(Image);

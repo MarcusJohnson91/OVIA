@@ -1,5 +1,5 @@
 #include "../Dependencies/FoundationIO/Library/include/TestIO.h"
-#include "../Library/include/Private/TagIO/TagIO.h"
+#include "../Library/include/TagIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {

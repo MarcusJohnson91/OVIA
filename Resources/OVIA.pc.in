@@ -1,5 +1,5 @@
 name: OVIA
-description: Audio/Video/Media library for lossless codec/stream conversion and transformation.
+description: Media framework for lossless codec/stream conversion and transformation.
 
 prefix=${CMAKE_INSTALL_PREFIX}
 exec_prefix=${CMAKE_INSTALL_PREFIX}

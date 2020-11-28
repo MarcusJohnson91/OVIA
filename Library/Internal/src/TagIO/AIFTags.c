@@ -1,4 +1,4 @@
-#include "../../include/Private/TagIO/TagIO.h"
+#include "../../include/TagIO.h"
 #include "../../include/Private/StreamIO/AIFStream.h"
 #include "../../../Dependencies/FoundationIO/Library/include/MathIO.h"
 #include "../../../Dependencies/FoundationIO/Library/include/TextIO/StringIO.h"
@@ -78,32 +78,6 @@ extern "C" {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
-
-    static const OVIA_Extensions AIFExtensions = {
-        .NumExtensions = 3,
-        .Extensions    = {
-            [0]        = UTF32String("aifc"),
-            [1]        = UTF32String("aiff"),
-            [2]        = UTF32String("aif"),
-        },
-    };
-
-    static const OVIA_MIMETypes AIFMIMETypes = {
-        .NumMIMETypes = 2,
-        .MIMETypes    = {
-            [0]       = UTF32String("audio/aiff"),
-            [1]       = UTF32String("audio/x-aiff"),
-        },
-    };
-
-    static const OVIA_MagicIDs AIFMagicIDs = {
-        .NumMagicIDs         = 1,
-        .MagicIDOffsetInBits = 0,
-        .MagicIDSizeInBits   = 32,
-        .MagicIDNumber = {
-            [0]              = (uint8_t[4]){0x46, 0x4F, 0x52, 0x4D},
-        },
-    };
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }

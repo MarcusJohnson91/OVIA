@@ -1,4 +1,4 @@
-#include "../../include/Private/EntropyIO/EntropyIO.h"
+#include "../../include/EntropyIO.h"
 #include "../../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h"
 #include "../../../Dependencies/FoundationIO/Library/include/MathIO.h"
 

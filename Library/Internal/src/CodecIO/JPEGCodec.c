@@ -4,14 +4,6 @@
 extern "C" {
 #endif
 
-    CodecIO_ImageLimitations JPEGLimits = {
-        .MaxWidth          = 0x7FFF,
-        .MaxHeight         = 0x7FFF,
-        .MaxBitDepth       = 16,
-        .MaxViews          = 1,
-        .SupportedChannels = ImageMask_Red | ImageMask_Green | ImageMask_Blue,
-    };
-
     void *JPEGOptions_Init(void) {
         JPEGOptions *Options = calloc(1, sizeof(JPEGOptions));
         if (Options != NULL) {
@@ -40,9 +32,9 @@ extern "C" {
         return Mask;
     }
 
-    ImageContainer *JPEG_Extract(void *Options, BitBuffer *BitB) {
+    void JPEG_Extract(void *Options, BitBuffer *BitB, void *Container) {
         JPEGOptions *JPEG            = Options;
-        ImageContainer *Container    = ImageContainer_Init(JPEG_GetImageType(JPEG), JPEG_GetChannelMask(JPEG), JPEG->Width, JPEG->Height);
+        ImageContainer *Image        = Container;
         if (Container != NULL) {
             int16_t Symbol           = -1;
             /*
@@ -71,7 +63,6 @@ extern "C" {
         } else {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Couldn't allocate ImageContainer"));
         }
-        return Container;
     }
 
     void JPEGOptions_Deinit(void *Options) {
