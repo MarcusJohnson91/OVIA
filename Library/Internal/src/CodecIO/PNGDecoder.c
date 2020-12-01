@@ -1264,11 +1264,11 @@ extern "C" {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG = Options;
             for (uint32_t TextChunk = 0UL; TextChunk < PNG->NumTextChunks; TextChunk++) {
-                if (PNG->Text[TextChunk]->TextType == tEXt) { // ASCII aka Latin-1
+                if (PNG->Text[TextChunk].TextType == tEXt) { // ASCII aka Latin-1
 
-                } else if (PNG->Text[TextChunk]->TextType == iTXt) { // Unicode, UTF-8
+                } else if (PNG->Text[TextChunk].TextType == iTXt) { // Unicode, UTF-8
 
-                } else if (PNG->Text[TextChunk]->TextType == zTXt) { // Compressed
+                } else if (PNG->Text[TextChunk].TextType == zTXt) { // Compressed
 
                 }
             }
