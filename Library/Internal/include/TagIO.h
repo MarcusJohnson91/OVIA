@@ -6,7 +6,7 @@
  @brief               This header contains code for Tag conversion (e.g. ID3 to Vorbis and vice versa).
  */
 
-#include "MediaIO.h"
+#include "Private/MediaIO.h"
 
 #pragma once
 
