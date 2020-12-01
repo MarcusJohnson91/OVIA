@@ -219,9 +219,10 @@ extern "C" {
     } OVIA_CodecIDs;
     
     typedef enum OVIA_ContainerIDs {
-        ContainerID_Unknown = 0,
-        ContainerID_RIFF    = 1,
-        ContainerID_AIF     = 2,
+        ContainerID_Unknown    = 0,
+        ContainerID_RIFF       = 1,
+        ContainerID_AIF        = 2,
+        ContainerID_FLACNative = 3,
     } OVIA_ContainerIDs;
     
     typedef enum OVIA_ColorTransforms {

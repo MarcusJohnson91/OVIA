@@ -161,6 +161,22 @@ extern "C" {
      
      */
 
+    /*
+     We also need to work on limiting which codecs can be used with which Stream
+
+     So, WAV streams primarily support PCM streams
+
+     MKV streams can support most codecs.
+
+     OGG can support a handful of audio and video codecs.
+
+     FLACNative streams can only support FLAC encoded audio.
+
+     So, Stream registry needs to know the kind of codecs supported; Image, Video, 2DAudio, 3DAudio, Subtitles, Tags
+
+     and which codecs are actually supported
+     */
+
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif

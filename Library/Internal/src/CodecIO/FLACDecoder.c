@@ -22,23 +22,23 @@ extern "C" {
                 uint8_t  BlockType = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 7);  // 0
                 uint32_t BlockSize = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 24); // 393
                 switch (BlockType) {
-                    case Block_StreamInfo:
+                    case BlockType_StreamInfo:
                         FLAC_Parse_StreamInfo(FLAC, BitB);
                         break;
-                    case Block_SeekTable:
+                    case BlockType_SeekTable:
                         FLAC_Parse_SeekTable(FLAC, BitB, BlockSize);
                         break;
-                    case Block_Vorbis:
+                    case BlockType_Vorbis:
                         FLAC_Parse_Vorbis(FLAC, BitB);
                         break;
-                    case Block_Cuesheet:
+                    case BlockType_Cuesheet:
                         FLAC_CUE_Parse(FLAC, BitB);
                         break;
-                    case Block_Picture:
+                    case BlockType_Picture:
                         FLAC_Pic_Read(FLAC, BitB);
                         break;
-                    case Block_Padding:
-                    case Block_Custom:
+                    case BlockType_Padding:
+                    case BlockType_Custom:
                     default:
                         BitBuffer_Seek(BitB, Bytes2Bits(BlockSize));
                         break;
@@ -411,28 +411,28 @@ extern "C" {
             uint8_t *PictureArray            = NULL;
             // Actual audio data starts at: 1056166
             if (IsLastBlock == false) {
-                BlockTypes BlockType         = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 7);  // 6
+                FLAC_BlockTypes BlockType         = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 7);  // 6
                 uint32_t BlockSize           = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 24); // 865,236
                 switch (BlockType) {
-                    case Block_StreamInfo:
+                    case BlockType_StreamInfo:
                         FLAC_Parse_StreamInfo(FLAC, BitB);
                         break;
-                    case Block_Padding:
+                    case BlockType_Padding:
                         BitBuffer_Seek(BitB, Bytes2Bits(BlockSize));
                         break;
-                    case Block_Custom:
+                    case BlockType_Custom:
                         BitBuffer_Seek(BitB, Bytes2Bits(BlockSize));
                         break;
-                    case Block_SeekTable:
+                    case BlockType_SeekTable:
                         FLAC_Parse_SeekTable(FLAC, BitB, BlockSize);
                         break;
-                    case Block_Vorbis:
+                    case BlockType_Vorbis:
                         FLAC_Parse_Vorbis(FLAC, BitB);
                         break;
-                    case Block_Cuesheet:
+                    case BlockType_Cuesheet:
                         FLAC_CUE_Parse(FLAC, BitB);
                         break;
-                    case Block_Picture:
+                    case BlockType_Picture:
                         PictureArray = FLAC_Pic_Read(FLAC, BitB);
                         break;
                     default:

@@ -112,6 +112,7 @@ extern "C" {
         uint16_t                HeaderSize;
         uint8_t                 BitDepth;
         uint8_t                 NumChannels;
+        uint8_t                 Predictor;
         JPEG_EntropyCoders      EntropyCoder;
         JPEG_CodingMode         CodingMode;
     } JPEGOptions;
@@ -151,7 +152,7 @@ extern "C" {
 
     extern const    CodecIO_Extensions         JPEGExtensions;
 
-    extern const    CodecIO_FileSignature      JPEGSignature;
+    extern const    CodecIO_MagicIDs           JPEGMagicIDs;
 
 #define OVIA_EnableEncoders
 #define OVIA_EnableDecoders
@@ -186,23 +187,44 @@ extern "C" {
     };
 
     const CodecIO_Extensions JPEGExtensions = {
-        .NumExtensions = 6,
-        .Extensions    = {
-            [0]        = UTF32String("jpeg"),
-            [1]        = UTF32String("jpe"),
-            [2]        = UTF32String("jpg"),
-            [3]        = UTF32String("jfif"),
-            [4]        = UTF32String("jfi"),
-            [5]        = UTF32String("jif"),
+        .NumExtensions     = 6,
+        .Extensions        = {
+            [0]            = {
+                .Size      = 4,
+                .Extension = UTF32String("jpeg"),
+
+            },
+            [1]            = {
+                .Size      = 3,
+                .Extension = UTF32String("jpe"),
+            },
+            [2]            = {
+                .Size      = 3,
+                .Extension = UTF32String("jpg"),
+            },
+            [3]            = {
+                .Size      = 4,
+                .Extension = UTF32String("jfif"),
+            },
+            [4]            = {
+                .Size      = 3,
+                .Extension = UTF32String("jfi"),
+            },
+            [5]            = {
+                .Size      = 3,
+                .Extension = UTF32String("jif"),
+            },
         },
     };
 
-    const CodecIO_FileSignature JPEGSignature = {
-        .SizeInBits    = 16,
-        .OffsetInBits  = 0,
-        .NumSignatures = 1,
-        .Signature     = {
-            [0]        = (uint8_t[2]){0xFF, 0xD8},
+    const CodecIO_MagicIDs JPEGMagicIDs = {
+        .NumMagicIDs   = 1,
+        .MagicIDs      = {
+            [0]        = {
+                .OffsetInBits = 0,
+                .SizeInBits   = 16,
+                .Signature    = (uint8_t[2]) {0xFF, 0xD8},
+            },
         },
     };
 #endif /* Common Literals */

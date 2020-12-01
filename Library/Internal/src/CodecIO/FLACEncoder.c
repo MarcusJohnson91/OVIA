@@ -5,21 +5,7 @@
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
-    
-    void FLACWriteMetadata(void *Options, BitBuffer *BitB) {
-        if (Options != NULL && BitB != NULL) {
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, FLACMagic);
-            bool IsLastMetadataBlock = false;
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1, IsLastMetadataBlock);
-            uint8_t MetadataBlockType = 1;
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 7, MetadataBlockType);
-        } else if (Options == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Options Pointer is NULL"));
-        } else if (BitB == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
-        }
-    }
-    
+
     void FLAC_Encode(void *Options, Audio2DContainer *Audio, BitBuffer *BitB) {
         if (Options != NULL && Audio && BitB != NULL) {
             FLACOptions *FLAC = Options;
@@ -40,8 +26,18 @@ extern "C" {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
+
+    void FLAC_Compose(void *Options, BitBuffer *BitB) {
+        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, FLACMagic);
+        bool IsLastMetadataBlock = false;
+        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1, IsLastMetadataBlock);
+        FLAC_BlockTypes BlockType = BlockType_StreamInfo;
+        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 7, BlockType);
+        FLAC_Write_StreamInfo(Options, BitB);
+        // Write all the Metadata blocks, then start writing the actual audio in the FLAC_Append function
+    }
     
-    void FLAC_WriteStreamInfo(void *Options, BitBuffer *BitB) {
+    void FLAC_Write_StreamInfo(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             FLACOptions *FLAC = Options;
             BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 24, 34); // StreamInfoSize
@@ -61,7 +57,7 @@ extern "C" {
         }
     }
     
-    void FLAC_WriteVorbis(void *Options, BitBuffer *BitB) {
+    void FLAC_Write_Vorbis(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 32, 4);
             UTF8 *OVIAVersion = UTF8_Format(UTF8String("OVIA %d.%d.%d"), OVIA_Version_Major, OVIA_Version_Minor, OVIA_Version_Patch);
@@ -72,6 +68,10 @@ extern "C" {
         } else if (BitB == NULL) {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
+    }
+
+    void FLAC_Write_Audio(void *Options, BitBuffer *BitB, Audio2DContainer *Audio) {
+        // Take the Audio2DContainer, encode the contents, and write it out to the BitBuffer
     }
     
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)

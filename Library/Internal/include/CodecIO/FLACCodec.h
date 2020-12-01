@@ -91,15 +91,15 @@ extern "C" {
         Complex                                                     =          1,
     } FLACResidualTypes;
 
-    typedef enum BlockTypes {
-        Block_StreamInfo                                            =          0, // 0x30 = 0 in ascii, 0x31 = 1, etc.
-        Block_Padding                                               =          1,
-        Block_Custom                                                =          2, // Application aka App specific
-        Block_SeekTable                                             =          3,
-        Block_Vorbis                                                =          4,
-        Block_Cuesheet                                              =          5,
-        Block_Picture                                               =          6,
-    } BlockTypes;
+    typedef enum FLAC_BlockTypes {
+        BlockType_StreamInfo                                            =          0, // 0x30 = 0 in ascii, 0x31 = 1, etc.
+        BlockType_Padding                                               =          1,
+        BlockType_Custom                                                =          2, // Application aka App specific
+        BlockType_SeekTable                                             =          3,
+        BlockType_Vorbis                                                =          4,
+        BlockType_Cuesheet                                              =          5,
+        BlockType_Picture                                               =          6,
+    } FLAC_BlockTypes;
 
     typedef enum SubFrameTypes {
         Subframe_Constant                                           =          0,
@@ -235,6 +235,12 @@ extern "C" {
 
     void       *FLACOptions_Init(void);
 
+    void        FLAC_Compose(void *Options, BitBuffer *BitB);
+
+    void        FLAC_Write_Audio(void *Options, BitBuffer *BitB, Audio2DContainer *Audio);
+
+    void        FLAC_Write_StreamInfo(void *Options, BitBuffer *BitB);
+
     void        FLAC_Frame_Read(void *Options, BitBuffer *BitB, Audio2DContainer *Audio);
 
     uint8_t     FLAC_GetNumChannels(void *Options);
@@ -266,6 +272,107 @@ extern "C" {
     uint8_t    *FLAC_Pic_Read(void *Options, BitBuffer *BitB);
 
     void        FLACOptions_Deinit(void *Options);
+
+    extern const    CodecIO_AudioLimitations   FLACLimits;
+
+    extern const    CodecIO_MIMETypes          FLACMIMETypes;
+
+    extern const    CodecIO_Extensions         FLACExtensions;
+
+    extern const    CodecIO_MagicIDs           FLACMagicIDs;
+
+#define OVIA_EnableEncoders
+#define OVIA_EnableDecoders
+#define OVIA_EnableFLAC
+
+    extern const    CodecIO_Encoder            FLACEncoder;
+
+    extern const    CodecIO_Decoder            FLACDecoder;
+
+#ifdef OVIA_EnableFLAC
+    const CodecIO_AudioLimitations FLACLimits = {
+        .MaxSampleRate     = 655350,
+        .MaxBitDepth       = 32,
+        .MaxNumChannels    = 8,
+        .SupportedChannels = AudioMask_FrontLeft | AudioMask_FrontRight | AudioMask_FrontCenter | AudioMask_LFE | AudioMask_SurroundLeft | AudioMask_SurroundRight | AudioMask_SurroundCenter | AudioMask_RearLeft | AudioMask_RearRight | AudioMask_StereoLeft | AudioMask_StereoRight,
+    };
+
+    const CodecIO_MIMETypes FLACMIMETypes = {
+        .NumMIMETypes = 2,
+        .MIMETypes    = {
+            [0]       = UTF32String("image/FLAC"),
+            [1]       = UTF32String("image/pFLAC"),
+        },
+    };
+
+    const CodecIO_Extensions FLACExtensions = {
+        .NumExtensions     = 6,
+        .Extensions        = {
+            [0]            = {
+                .Size      = 4,
+                .Extension = UTF32String("FLAC"),
+
+            },
+            [1]            = {
+                .Size      = 3,
+                .Extension = UTF32String("jpe"),
+            },
+            [2]            = {
+                .Size      = 3,
+                .Extension = UTF32String("jpg"),
+            },
+            [3]            = {
+                .Size      = 4,
+                .Extension = UTF32String("jfif"),
+            },
+            [4]            = {
+                .Size      = 3,
+                .Extension = UTF32String("jfi"),
+            },
+            [5]            = {
+                .Size      = 3,
+                .Extension = UTF32String("jif"),
+            },
+        },
+    };
+
+    const CodecIO_MagicIDs FLACMagicIDs = {
+        .NumMagicIDs   = 1,
+        .MagicIDs      = {
+            [0]        = {
+                .OffsetInBits = 0,
+                .SizeInBits   = 16,
+                .Signature    = (uint8_t[4]) {0x66, 0x4C, 0x61, 0x43}, // FLAC native container, can also be stored in MKV, as well as OGG
+            },
+        },
+    };
+#endif /* Common Literals */
+
+#ifdef OVIA_EnableEncoders
+#ifdef OVIA_EnableFLAC
+
+    const CodecIO_Encoder FLACEncoder = {
+        .Function_Initalize   = FLACOptions_Init,
+        .Function_Parse       = FLAC_Compose,
+        .Function_Media       = FLAC_Extract,
+        .Function_Deinitalize = FLACOptions_Deinit,
+    };
+
+#endif /* OVIA_EnableFLAC */
+#endif /* OVIA_EnableEncoders */
+
+#ifdef OVIA_EnableDecoders
+#ifdef OVIA_EnableFLAC
+
+    const CodecIO_Decoder FLACDecoder = {
+        .Function_Initalize   = FLACOptions_Init,
+        .Function_Parse       = FLAC_Parse,
+        .Function_Media       = FLAC_Extract,
+        .Function_Deinitalize = FLACOptions_Deinit,
+    };
+
+#endif /* OVIA_EnableFLAC */
+#endif /* OVIA_EnableDecoders */
 
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)

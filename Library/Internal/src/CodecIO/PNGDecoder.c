@@ -488,7 +488,7 @@ extern "C" {
         free(DeFilteredData);
     }
 
-    enum DEFLATEBlockTypes {
+    enum DEFLATEFLAC_BlockTypes {
         UncompressedBlock   = 0,
         FixedHuffmanBlock   = 1,
         DynamicHuffmanBlock = 2,

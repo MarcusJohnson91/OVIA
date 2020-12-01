@@ -299,7 +299,7 @@ extern "C" {
 
     extern const    CodecIO_Extensions         PNGExtensions;
 
-    extern const    CodecIO_FileSignature      PNGSignature;
+    extern const    CodecIO_MagicIDs           PNGMagicIDs;
 
 #define OVIA_EnableEncoders
 #define OVIA_EnableDecoders
@@ -311,47 +311,72 @@ extern "C" {
 
 #ifdef OVIA_EnablePNG
     const CodecIO_ImageChannelConfig PNGChannelConfig = {
-        .NumChannels = 2,
+        .NumChannels = 3,
         .Channels    = {
-            [0]      = ImageMask_2D | ImageMask_Luma,
-            [1]      = ImageMask_2D | ImageMask_Luma | ImageMask_Chroma1 | ImageMask_Chroma2,
+            [0]      = ImageMask_2D | ImageMask_3D_L | ImageMask_3D_R | ImageMask_Luma,
+            [1]      = ImageMask_2D | ImageMask_3D_L | ImageMask_3D_R | ImageMask_Red | ImageMask_Green | ImageMask_Blue,
+            [2]      = ImageMask_2D | ImageMask_3D_L | ImageMask_3D_R | ImageMask_Red | ImageMask_Green | ImageMask_Blue | ImageMask_Alpha,
         },
     };
 
     const CodecIO_ImageLimitations PNGLimits = {
-        .MaxHeight      = 0xFFFF,
-        .MaxWidth       = 0xFFFF,
+        .MaxHeight      = 0xFFFFFFFF,
+        .MaxWidth       = 0xFFFFFFFF,
         .MaxBitDepth    = 16,
         .ChannelConfigs = &PNGChannelConfig,
     };
 
     const CodecIO_MIMETypes PNGMIMETypes = {
-        .NumMIMETypes = 4,
+        .NumMIMETypes = 5,
         .MIMETypes    = {
             [0]       = UTF32String("image/png"),
             [1]       = UTF32String("image/apng"),
             [2]       = UTF32String("image/x-mng"),
             [3]       = UTF32String("video/x-mng"),
+            [4]       = UTF32String("image/x-jng"),
         },
     };
 
     const CodecIO_Extensions PNGExtensions = {
-        .NumExtensions = 4,
-        .Extensions    = {
-            [0]        = UTF32String("png"),
-            [1]        = UTF32String("apng"),
-            [2]        = UTF32String("mng"),
-            [5]        = UTF32String("jng"),
+        .NumExtensions     = 4,
+        .Extensions        = {
+            [0]            = {
+                .Size      = 3,
+                .Extension = UTF32String("png"),
+            },
+            [1]            = {
+                .Size      = 4,
+                .Extension = UTF32String("apng"),
+            },
+            [2]            = {
+                .Size      = 3,
+                .Extension = UTF32String("mng"),
+            },
+            [3]            = {
+                .Size      = 3,
+                .Extension = UTF32String("jng"),
+            }
         },
     };
 
-    const CodecIO_FileSignature PNGSignature = {
-        .SizeInBits    = 64,
-        .OffsetInBits  = 0,
-        .NumSignatures = 2,
-        .Signature     = {
-            [0]        = (uint8_t[8]) {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}, // PNG
-            [1]        = (uint8_t[8]) {0x89, 0x4D, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}, // MNG
+    const CodecIO_MagicIDs PNGMagicIDs = {
+        .NumMagicIDs   = 3,
+        .MagicIDs      = {
+            [0]        = {
+                .OffsetInBits = 0,
+                .SizeInBits   = 64,
+                .Signature    = (uint8_t[8]) { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}, // PNG / APNG
+            },
+            [1]        = {
+                .OffsetInBits = 0,
+                .SizeInBits   = 64,
+                .Signature    = (uint8_t[8]) {0x8A, 0x4D, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}, // MNG
+            },
+            [2]        = {
+                .OffsetInBits = 0,
+                .SizeInBits   = 64,
+                .Signature    = (uint8_t[8]) {0x8B, 0x4A, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}, // JNG
+            },
         },
     };
 #endif /* Common Literals */
