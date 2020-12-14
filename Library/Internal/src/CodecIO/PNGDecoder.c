@@ -601,6 +601,7 @@ extern "C" {
     }
 
     /* FIXME: Old code below */
+    /*
     void PNG_DAT_Decode(void *Options, BitBuffer *BitB, ImageContainer *Image) {
         if (BitB != NULL && Image != NULL) {
             PNGOptions *PNG                        = Options;
@@ -667,7 +668,7 @@ extern "C" {
             uint64_t Offset = 0ULL;
             do {
                 Symbol                              = ReadSymbol(BitB, LengthTree);;
-                if (Symbol > 256) { /* length */
+                if (Symbol > 256) { // length
                     Symbol  -= 257;
                     uint64_t Length                 = LengthBase[Symbol] + BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, LengthAdditionalBits[Symbol]);
 
@@ -686,7 +687,7 @@ extern "C" {
                         Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Couldn't get ImageArray"));
                     }
                 }
-            } while (Symbol != EndOfBlock); /* end of block symbol */
+            } while (Symbol != EndOfBlock); // end of block symbol
         } else if (Options == NULL) {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -699,6 +700,7 @@ extern "C" {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
         }
     }
+    */
 
     uint8_t PaethPredictor(int64_t Left, int64_t Above, int64_t UpperLeft) {
         uint8_t Output    = 0;
