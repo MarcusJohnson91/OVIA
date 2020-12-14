@@ -19,13 +19,13 @@ extern "C" {
 
     typedef struct BitBuffer BitBuffer;
 
-    void AIFReadNameChunk(TagIO_Tags *Tags, BitBuffer *BitB);
+    void AIF_Read_Name(TagIO_Tags *Tags, BitBuffer *BitB);
 
-    void AIFReadAuthorChunk(TagIO_Tags *Tags, BitBuffer *BitB);
+    void AIF_Read_Author(TagIO_Tags *Tags, BitBuffer *BitB);
 
-    void AIFReadAnnotationChunk(TagIO_Tags *Tags, BitBuffer *BitB);
+    void AIF_Read_Annotation(TagIO_Tags *Tags, BitBuffer *BitB);
 
-    void AIFReadCommentChunk(TagIO_Tags *Tags, BitBuffer *BitB);
+    void AIF_Read_Comment(TagIO_Tags *Tags, BitBuffer *BitB);
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }

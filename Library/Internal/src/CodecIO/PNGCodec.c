@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-    uint32_t CalculateSTERPadding(const uint32_t Width) {
+    uint32_t PNG_CalculateSTERPadding(const uint32_t Width) {
         return 7 - ((Width - 1) % 8);
     }
 
@@ -149,7 +149,8 @@ extern "C" {
         }
     }
 
-    void PNGOptions_Deinit(PNGOptions *Dec) {
+    void PNGOptions_Deinit(void *Options) {
+        PNGOptions *Dec = Options;
         free(Dec->acTL);
         free(Dec->bkGD->BackgroundPaletteEntry);
         free(Dec->bkGD);

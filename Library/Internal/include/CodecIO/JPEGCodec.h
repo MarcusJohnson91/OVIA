@@ -103,6 +103,7 @@ extern "C" {
     typedef struct JPEGOptions {
         JPEG_ChannelParameters *Channels;
         JPEGHuffman            *Huffman;
+        JPEGArthimetic         *Arithmetic;
         // Huffman and Arthimetic states
         CharSet8               *Comment;
         uint16_t                Width;

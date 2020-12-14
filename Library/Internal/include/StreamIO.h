@@ -64,36 +64,10 @@ extern "C" {
         const BufferIO_BitOrders    BitOrder;
     } OVIA_Stream;
 
-    static const OVIA_MagicIDs NativeFLACMagicID = {
-        .NumMagicIDs         = 1,
-        .MagicIDOffsetInBits = 0,
-        .MagicIDSizeInBits   = 32,
-        .MagicIDNumber       = {
-            [0]              = (uint8_t[4]){0x66, 0x4C, 0x61, 0x43},
-        },
-    };
-
-    static const OVIA_Stream NativeFLACInfo = {
-        .SyncType          = SyncType_Packet | SyncType_Marker, // NativeFLAC uses both kinds, the metablocks are Packet based, then the sync codes are for audio frames; the switch happens once the IsLastMetaBlock bit is set, which is the first bit.
-        // How do we handle formats that need to extract multiple pieces of information?
-        // Packet formats tend to use flag bits.
-        /*
-         Logic: If SyncType is both Packet and Marker, we need to know how to detect the switch over
-         */
-        .PacketType        = PacketType_Variable,
-        .PacketSizeInBytes = 0,
-        .MagicID           = &NativeFLACMagicID,
-        .OffsetInBits      = 1,
-        .FieldSizeInBits   = 7,
-        .ByteOrder         = ByteOrder_LSByteIsNearest,
-        .BitOrder          = BitOrder_LSBitIsFarthest,
-    };
-
     static const OVIA_Stream M2TSStreamInfo = {
         .SyncType          = SyncType_Packet,
         .PacketType        = PacketType_Constant,
         .PacketSizeInBytes = 192,
-
     };
 
     // if PackSize is Variable, we need to know how to get the size of each packet.
@@ -157,8 +131,6 @@ extern "C" {
      RIFF/RF64 as well as "AVI ", "ANI ", "WebP".
 
      Structure of RIFF: RIFFXXXXYYYY where XXXX is the size and YYYY is the substream.
-
-     
      */
 
     /*

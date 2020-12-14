@@ -82,13 +82,12 @@ extern "C" {
     typedef void  (*FunctionPointer_Media)(void *Options, BitBuffer *BitB, void *Container);
 
     typedef struct CodecIO_Encoder {
-        FunctionPointer_Init   Function_Initalize;
-
-        // Write header
-        FunctionPointer_Body   Function_Parse;
-        FunctionPointer_Media  Function_Media;
-        // Write body
-        FunctionPointer_Deinit Function_Deinitalize;
+        FunctionPointer_Init    Function_Initalize;
+        FunctionPointer_Body    Function_Parse;
+        FunctionPointer_Media   Function_Media;
+        FunctionPointer_Deinit  Function_Deinitalize;
+        const CodecIO_MagicIDs *MagicIDs;
+        
     } CodecIO_Encoder;
 
     typedef struct CodecIO_Decoder {
@@ -97,6 +96,9 @@ extern "C" {
         FunctionPointer_Media  Function_Media;
         FunctionPointer_Deinit Function_Deinitalize;
     } CodecIO_Decoder;
+
+    extern uint64_t        NumEncoders;
+    extern CodecIO_Encoder GlobalEncoders[];
 
     /*
      What information is needed to register a Codec?

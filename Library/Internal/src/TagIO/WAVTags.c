@@ -12,7 +12,7 @@ extern "C" {
     /*
      This all needs to be Rewritten to use the TagIO API.
      */
-    static void ReadINFO_TRCK(TagIO_Tags *Tags, BitBuffer *BitB) {
+    static void WAV_Read_INFO_TRCK(TagIO_Tags *Tags, BitBuffer *BitB) {
         if (Tags != NULL && BitB != NULL) {
             uint64_t StringSize            = BitBuffer_GetUTF8StringSize(BitB);
             uint64_t Index                 = TagIO_GetNextUnusedIndex(Tags);
@@ -27,7 +27,7 @@ extern "C" {
         }
     }
 
-    static void ReadINFO_IPRT(TagIO_Tags *Tags, BitBuffer *BitB) {
+    static void WAV_Read_INFO_IPRT(TagIO_Tags *Tags, BitBuffer *BitB) {
         if (Tags != NULL && BitB != NULL) {
             uint64_t StringSize            = BitBuffer_GetUTF8StringSize(BitB);
             uint64_t Index                 = TagIO_GetNextUnusedIndex(Tags);
@@ -42,7 +42,7 @@ extern "C" {
         }
     }
 
-    static void ReadINFO_IART(TagIO_Tags *Tags, BitBuffer *BitB) {
+    static void WAV_Read_INFO_IART(TagIO_Tags *Tags, BitBuffer *BitB) {
         if (Tags != NULL && BitB != NULL) {
             uint64_t StringSize            = BitBuffer_GetUTF8StringSize(BitB);
             uint64_t Index                 = TagIO_GetNextUnusedIndex(Tags);
@@ -57,7 +57,7 @@ extern "C" {
         }
     }
 
-    static void ReadINFO_ICRD(TagIO_Tags *Tags, BitBuffer *BitB) {
+    static void WAV_Read_INFO_ICRD(TagIO_Tags *Tags, BitBuffer *BitB) {
         if (Tags != NULL && BitB != NULL) {
             uint64_t StringSize            = BitBuffer_GetUTF8StringSize(BitB);
             uint64_t Index                 = TagIO_GetNextUnusedIndex(Tags);
@@ -72,7 +72,7 @@ extern "C" {
         }
     }
 
-    static void ReadINFO_IGNR(TagIO_Tags *Tags, BitBuffer *BitB) {
+    static void WAV_Read_INFO_IGNR(TagIO_Tags *Tags, BitBuffer *BitB) {
         if (Tags != NULL && BitB != NULL) {
             uint64_t StringSize            = BitBuffer_GetUTF8StringSize(BitB);
             uint64_t Index                 = TagIO_GetNextUnusedIndex(Tags);
@@ -87,7 +87,7 @@ extern "C" {
         }
     }
 
-    static void ReadINFO_INAM(TagIO_Tags *Tags, BitBuffer *BitB) {
+    static void WAV_Read_INFO_INAM(TagIO_Tags *Tags, BitBuffer *BitB) {
         if (Tags != NULL && BitB != NULL) {
             uint64_t StringSize            = BitBuffer_GetUTF8StringSize(BitB);
             uint64_t Index                 = TagIO_GetNextUnusedIndex(Tags);
@@ -102,7 +102,7 @@ extern "C" {
         }
     }
 
-    static void ReadINFO_IPRD(TagIO_Tags *Tags, BitBuffer *BitB) {
+    static void WAV_Read_INFO_IPRD(TagIO_Tags *Tags, BitBuffer *BitB) {
         if (Tags != NULL && BitB != NULL) {
             uint64_t StringSize            = BitBuffer_GetUTF8StringSize(BitB);
             uint64_t Index                 = TagIO_GetNextUnusedIndex(Tags);
@@ -117,7 +117,7 @@ extern "C" {
         }
     }
 
-    static void ReadINFO_ISFT(TagIO_Tags *Tags, BitBuffer *BitB) { // Encoder
+    static void WAV_Read_INFO_ISFT(TagIO_Tags *Tags, BitBuffer *BitB) { // Encoder
         if (Tags != NULL && BitB != NULL) {
             uint64_t StringSize            = BitBuffer_GetUTF8StringSize(BitB);
             uint64_t Index                 = TagIO_GetNextUnusedIndex(Tags);
@@ -156,22 +156,22 @@ extern "C" {
 
             switch (SubChunkID) {
                 case WAVChunkID_IART: // Artist
-                    ReadINFO_IART(Tags, BitB);
+                    WAV_Read_INFO_IART(Tags, BitB);
                     break;
                 case WAVChunkID_ICRD: // Release date
-                    ReadINFO_ICRD(Tags, BitB);
+                    WAV_Read_INFO_ICRD(Tags, BitB);
                     break;
                 case WAVChunkID_IGNR: // Genre
-                    ReadINFO_IGNR(Tags, BitB);
+                    WAV_Read_INFO_IGNR(Tags, BitB);
                     break;
                 case WAVChunkID_INAM: // Title
-                    ReadINFO_INAM(Tags, BitB);
+                    WAV_Read_INFO_INAM(Tags, BitB);
                     break;
                 case WAVChunkID_IPRD: // Album
-                    ReadINFO_IPRD(Tags, BitB);
+                    WAV_Read_INFO_IPRD(Tags, BitB);
                     break;
                 case WAVChunkID_ISFT: // Encoder
-                    ReadINFO_ISFT(Tags, BitB);
+                    WAV_Read_INFO_ISFT(Tags, BitB);
                     break;
                 case WAVChunkID_ICMT:
                     ReadINFO_ICMT(Tags, BitB);
@@ -192,7 +192,7 @@ extern "C" {
         }
     }
 
-    static void WAVWriteLISTChunk(TagIO_Tags *Tags, BitBuffer *BitB) {
+    static void WAV_Write_LIST(TagIO_Tags *Tags, BitBuffer *BitB) {
         if (Tags != NULL && BitB != NULL) {
         } else if (Tags == NULL) {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Tags Pointer is NULL"));

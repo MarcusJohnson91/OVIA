@@ -1,4 +1,5 @@
 #include "../../include/Private/StreamIO/AIFStream.h"
+#include "../../include/Private/TagIO/AIFTags.h"
 #include "../../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h"
 #include "../../../Dependencies/FoundationIO/Library/include/MathIO.h"
 
@@ -11,7 +12,7 @@ extern "C" {
      the ChunkSize field does NOT include the ChunkID or ChunkSize fields.
      */
 
-    static void AIFParseCOMMChunk(AIFOptions *AIF, BitBuffer *BitB) {
+    static void AIF_Read_Comm(AIFOptions *AIF, BitBuffer *BitB) {
         if (AIF != NULL && BitB != NULL) {
             AIF->NumChannels                   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16);
             AIF->NumSamples                    = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32); // A SampleFrame is simply a single sample from all channels.
@@ -31,48 +32,6 @@ extern "C" {
         }
     }
 
-    static void AIFParseNameChunk(AIFOptions *AIF, BitBuffer *BitB) {
-        if (AIF != NULL && BitB != NULL) {
-            uint32_t TitleSize                 = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-            UTF8    *Title                     = BitBuffer_ReadUTF8(BitB, TitleSize);
-            AIF->NumTags                      += 1;
-            AIF->Tags[AIF->NumTags - 1]        = Title;
-            AIF->TagTypes[AIF->NumTags - 1]    = TitleTag;
-        } else if (AIF == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Options Pointer is NULL"));
-        } else if (BitB == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
-        }
-    }
-
-    static void AIFParseAuthorChunk(AIFOptions *AIF, BitBuffer *BitB) {
-        if (AIF != NULL && BitB != NULL) {
-            uint32_t AuthorSize                = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-            UTF8    *Author                    = BitBuffer_ReadUTF8(BitB, AuthorSize);
-            AIF->NumTags                      += 1;
-            AIF->Tags[AIF->NumTags - 1]        = Author;
-            AIF->TagTypes[AIF->NumTags - 1]    = AuthorTag;
-        } else if (AIF == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Options Pointer is NULL"));
-        } else if (BitB == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
-        }
-    }
-
-    static void AIFParseAnnotationChunk(AIFOptions *AIF, BitBuffer *BitB) {
-        if (AIF != NULL && BitB != NULL) {
-            uint32_t AnnotationSize            = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-            UTF8    *Annotation                = BitBuffer_ReadUTF8(BitB, AnnotationSize);
-            AIF->NumTags                      += 1;
-            AIF->Tags[AIF->NumTags - 1]        = *Annotation;
-            AIF->TagTypes[AIF->NumTags - 1]    = AnnotationTag;
-        } else if (AIF == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("OVIA Pointer is NULL"));
-        } else if (BitB == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
-        }
-    }
-
     void AIFParseMetadata(AIFOptions *AIF, BitBuffer *BitB) {
         if (AIF != NULL && BitB != NULL) {
             AIF->FileSize                      = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
@@ -83,53 +42,29 @@ extern "C" {
                 uint32_t SampleOffset          = 0;
                 uint32_t BlockSize             = 0;
                 switch (AIFFSubChunkID) {
-                    case AIF_AAPL:
-                        BitBuffer_Seek(BitB, Bytes2Bits(AIFFSubChunkSize));
-                        AIFSkipPadding(BitB, AIFFSubChunkSize);
-                        break;
-                    case AIF_AESD:
-                        BitBuffer_Seek(BitB, Bytes2Bits(AIFFSubChunkSize));
-                        AIFSkipPadding(BitB, AIFFSubChunkSize);
-                        break;
                     case AIF_ANNO:
-                        AIFParseAnnotationChunk(AIF, BitB);
+                        AIF_Read_Annotation(AIF, BitB);
                         AIFSkipPadding(BitB, AIFFSubChunkSize);
                         break;
                     case AIF_AUTH:
-                        AIFParseAuthorChunk(AIF, BitB);
+                        AIF_Read_Author(AIF, BitB);
                         AIFSkipPadding(BitB, AIFFSubChunkSize);
                         break;
                     case AIF_COMM:
-                        AIFParseCOMMChunk(AIF, BitB);
-                        AIFSkipPadding(BitB, AIFFSubChunkSize);
-                        break;
-                    case AIF_COMT:
-                        BitBuffer_Seek(BitB, Bytes2Bits(AIFFSubChunkSize));
-                        AIFSkipPadding(BitB, AIFFSubChunkSize);
-                        break;
-                    case AIF_ID3:
-                        BitBuffer_Seek(BitB, Bytes2Bits(AIFFSubChunkSize));
-                        AIFSkipPadding(BitB, AIFFSubChunkSize);
-                        break;
-                    case AIF_INST:
-                        BitBuffer_Seek(BitB, Bytes2Bits(AIFFSubChunkSize));
-                        AIFSkipPadding(BitB, AIFFSubChunkSize);
-                        break;
-                    case AIF_MARK:
-                        BitBuffer_Seek(BitB, Bytes2Bits(AIFFSubChunkSize));
-                        AIFSkipPadding(BitB, AIFFSubChunkSize);
-                        break;
-                    case AIF_MIDI:
-                        BitBuffer_Seek(BitB, Bytes2Bits(AIFFSubChunkSize));
+                        AIF_Read_Comm(AIF, BitB);
                         AIFSkipPadding(BitB, AIFFSubChunkSize);
                         break;
                     case AIF_NAME:
-                        AIFParseNameChunk(AIF, BitB);
+                        AIF_Read_Name(AIF, BitB);
                         AIFSkipPadding(BitB, AIFFSubChunkSize);
                         break;
                     case AIF_SSND:
                         AIF->SampleOffset = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
                         AIF->BlockSize    = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+                        break;
+                    default:
+                        BitBuffer_Seek(BitB, Bytes2Bits(AIFFSubChunkSize));
+                        AIFSkipPadding(BitB, AIFFSubChunkSize);
                         break;
                 }
             } else {

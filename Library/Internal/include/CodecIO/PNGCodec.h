@@ -123,6 +123,17 @@ extern "C" {
         bool       CRCIsValid:1;
     } sTER;
 
+    typedef struct DAT {
+        uint64_t   ImageSize;
+        uint64_t   ImageOffset;
+        uint32_t   DictID;
+        uint32_t   Size;
+        uint16_t   LengthLiteralTreeSize;
+        uint8_t    DistanceTreeSize;
+        uint8_t    CMF;
+        uint8_t    FLG;
+    } DATChunk;
+
     typedef struct fdAT {
         uint32_t   FrameNum;
         bool       CRCIsValid:1;
@@ -226,6 +237,7 @@ extern "C" {
         struct acTL   *acTL;
         struct bkGD   *bkGD;
         struct cHRM   *cHRM;
+        struct DAT    *DAT;
         struct fcTL   *fcTL;
         struct fdAT   *fdAT;
         struct gAMA   *gAMA;
@@ -389,6 +401,7 @@ extern "C" {
         .Function_Parse       = PNG_Parse,
         .Function_Media       = PNG_Extract,
         .Function_Deinitalize = PNGOptions_Deinit,
+        .MagicIDs             = &PNGMagicIDs,
     };
 
 #endif /* OVIA_EnablePNG */

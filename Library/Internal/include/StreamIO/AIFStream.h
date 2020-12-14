@@ -7,6 +7,7 @@
  */
 
 #include "StreamIO.h"
+#include "TagIO.h"
 
 #pragma once
 
@@ -56,18 +57,18 @@ extern "C" {
     } AIFSubChunkIDs;
     
     typedef struct AIFOptions {
-        UTF8          *Tags;
-        OVIA_TagTypes *TagTypes;
-        uint64_t       NumTags;
-        uint64_t       SampleRate;
-        uint64_t       SampleRate_Mantissa;
-        uint32_t       FileSize;
-        uint32_t       NumSamples;
-        uint32_t       SampleOffset;
-        uint32_t       BlockSize;
-        int16_t        SampleRate_Exponent;
-        uint16_t       NumChannels;
-        uint16_t       BitDepth;
+        UTF8           *Tags;
+        TagIO_TagTypes *TagTypes;
+        uint64_t        NumTags;
+        uint64_t        SampleRate;
+        uint64_t        SampleRate_Mantissa;
+        uint32_t        FileSize;
+        uint32_t        NumSamples;
+        uint32_t        SampleOffset;
+        uint32_t        BlockSize;
+        int16_t         SampleRate_Exponent;
+        uint16_t        NumChannels;
+        uint16_t        BitDepth;
     } AIFOptions;
     
     void             *AIFOptions_Init(void);
