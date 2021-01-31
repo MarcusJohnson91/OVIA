@@ -281,15 +281,11 @@ extern "C" {
 
     extern const    CodecIO_MagicIDs           FLACMagicIDs;
 
-#define OVIA_EnableEncoders
-#define OVIA_EnableDecoders
-#define OVIA_EnableFLAC
-
     extern const    CodecIO_Encoder            FLACEncoder;
 
     extern const    CodecIO_Decoder            FLACDecoder;
 
-#ifdef OVIA_EnableFLAC
+#ifdef OVIA_CodecIO_FLAC
     const CodecIO_AudioLimitations FLACLimits = {
         .MaxSampleRate     = 655350,
         .MaxBitDepth       = 32,
@@ -348,8 +344,7 @@ extern "C" {
     };
 #endif /* Common Literals */
 
-#ifdef OVIA_EnableEncoders
-#ifdef OVIA_EnableFLAC
+#if defined(OVIA_CodecIO_Encode) && defined(OVIA_CodecIO_FLAC)
 
     const CodecIO_Encoder FLACEncoder = {
         .Function_Initalize   = FLACOptions_Init,
@@ -358,11 +353,9 @@ extern "C" {
         .Function_Deinitalize = FLACOptions_Deinit,
     };
 
-#endif /* OVIA_EnableFLAC */
-#endif /* OVIA_EnableEncoders */
+#endif /* OVIA_CodecIO_Encode && OVIA_CodecIO_FLAC */
 
-#ifdef OVIA_EnableDecoders
-#ifdef OVIA_EnableFLAC
+#if defined(OVIA_CodecIO_Decode) && defined(OVIA_CodecIO_FLAC)
 
     const CodecIO_Decoder FLACDecoder = {
         .Function_Initalize   = FLACOptions_Init,
@@ -371,8 +364,7 @@ extern "C" {
         .Function_Deinitalize = FLACOptions_Deinit,
     };
 
-#endif /* OVIA_EnableFLAC */
-#endif /* OVIA_EnableDecoders */
+#endif /* OVIA_CodecIO_Decode && OVIA_CodecIO_FLAC */
 
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)

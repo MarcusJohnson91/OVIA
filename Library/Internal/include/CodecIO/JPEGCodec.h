@@ -155,15 +155,11 @@ extern "C" {
 
     extern const    CodecIO_MagicIDs           JPEGMagicIDs;
 
-#define OVIA_EnableEncoders
-#define OVIA_EnableDecoders
-#define OVIA_EnableJPEG
-
     extern const    CodecIO_Encoder            JPEGEncoder;
 
     extern const    CodecIO_Decoder            JPEGDecoder;
 
-#ifdef OVIA_EnableJPEG
+#ifdef OVIA_CodecIO_JPEG
     const CodecIO_ImageChannelConfig JPEGChannelConfig = {
         .NumChannels = 2,
         .Channels    = {
@@ -230,8 +226,7 @@ extern "C" {
     };
 #endif /* Common Literals */
 
-#ifdef OVIA_EnableEncoders
-#ifdef OVIA_EnableJPEG
+#if defined(OVIA_CodecIO_Encode) && defined(OVIA_CodecIO_JPEG)
 
     const CodecIO_Encoder JPEGEncoder = {
         .Function_Initalize   = JPEGOptions_Init,
@@ -240,11 +235,9 @@ extern "C" {
         .Function_Deinitalize = JPEGOptions_Deinit,
     };
 
-#endif /* OVIA_EnableJPEG */
-#endif /* OVIA_EnableEncoders */
+#endif /* OVIA_CodecIO_Encode && OVIA_CodecIO_JPEG */
 
-#ifdef OVIA_EnableDecoders
-#ifdef OVIA_EnableJPEG
+#if defined(OVIA_CodecIO_Decode) && defined(OVIA_CodecIO_JPEG)
 
     const CodecIO_Decoder JPEGDecoder = {
         .Function_Initalize   = JPEGOptions_Init,
@@ -253,8 +246,7 @@ extern "C" {
         .Function_Deinitalize = JPEGOptions_Deinit,
     };
 
-#endif /* OVIA_EnableJPEG */
-#endif /* OVIA_EnableDecoders */
+#endif /* OVIA_CodecIO_Decode && OVIA_CodecIO_JPEG */
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }

@@ -75,7 +75,45 @@ extern "C" {
     static uint64_t BMPGetPixelArraySize(const uint64_t RowSize, const int32_t ImageHeight);
 
     void            BMPOptions_Deinit(void *Options);
+    
+#ifdef OVIA_StreamIO_BMP
+    extern OVIA_MagicIDs BMPSignature = {
+        .NumMagicIDs         = 1,
+        .MagicIDOffsetInBits = 0,
+        .MagicIDSizeInBits   = 16,
+        .MagicIDNumber       = {
+            [0]              = (uint8_t[2]){0x42, 0x4D},
+        }
+    };
 
+    extern const OVIA_Extensions BMPExtensions = {
+        .NumExtensions = 2,
+        .Extensions    = {
+            [0]        = UTF32String("bmp"),
+            [1]        = UTF32String("dib"),
+        },
+    };
+
+    extern const OVIA_MIMETypes BMPMIMETypes = {
+        .NumMIMETypes = 2,
+        .MIMETypes    = {
+            [0]       = UTF32String("image/bmp"),
+            [1]       = UTF32String("image/x-bmp"),
+        },
+    };
+#endif /* OVIA_StreamIO_BMP */
+    
+#if defined(OVIA_StreamIO_Encode) && defined(OVIA_StreamIO_BMP)
+    extern OVIA_Stream BMPEncoder = {
+        .MagicID = &BMPMagicIDs,
+    };
+#endif /* OVIA_StreamIO_Encode && OVIA_StreamIO_BMP */
+    
+#if defined(OVIA_StreamIO_Decode) && defined(OVIA_StreamIO_BMP)
+    extern OVIA_Stream BMPDecoder = {
+        .MagicID = &BMPMagicIDs,
+    };
+#endif /* OVIA_StreamIO_Decode && OVIA_StreamIO_BMP */
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }

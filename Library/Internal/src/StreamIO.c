@@ -5,28 +5,28 @@
 #endif /* OVIA_EnableAIF */
 
 #ifdef OVIA_EnableBMP
-#include "../../include/Private/StreamIO/AIFStream.h"
+#include "../../include/Private/StreamIO/BMPStream.h"
 #endif /* OVIA_EnableBMP */
 
 #ifdef OVIA_EnablePNM
-#include "../../include/Private/StreamIO/AIFStream.h"
+#include "../../include/Private/StreamIO/PNMStream.h"
 #endif /* OVIA_EnablePNM */
 
 #ifdef OVIA_EnableRIFF
-#include "../../include/Private/StreamIO/AIFStream.h"
+#include "../../include/Private/StreamIO/RIFFStream.h"
 #endif /* OVIA_EnableRIFF */
+
+#ifdef OVIA_EnableOGG
+#include "../../include/Private/StreamIO/OGGStream.h"
+#endif /* OVIA_EnableOGG */
+
+#ifdef OVIA_CodecIO_FLACNative
+#include "../../include/Private/StreamIO/FLACNativeStream.h"
+#endif /* OVIA_CodecIO_FLACNative */
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
-
-#ifdef OVIA_EnableEncoders
-
-#endif /* OVIA_EnableEncoders */
-
-#ifdef OVIA_EnableDecoders
-
-#endif /* OVIA_EnableDecoders */
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }

@@ -85,6 +85,7 @@ extern "C" {
     
     void              AIFOptions_Deinit(void *Options);
 
+#ifdef OVIA_StreamIO_AIF
     extern OVIA_MagicIDs AIFSignature = {
         .NumMagicIDs         = 1,
         .MagicIDOffsetInBits = 0,
@@ -119,12 +120,19 @@ extern "C" {
             [0]              = (uint8_t[4]){0x46, 0x4F, 0x52, 0x4D},
         },
     };
-
+#endif /* OVIA_StreamIO_AIF */
+    
+#if defined(OVIA_StreamIO_Encode) && defined(OVIA_StreamIO_AIF)
     extern OVIA_Stream AIFEncoder = {
         .MagicID = &AIFMagicIDs,
-
     };
+#endif /* OVIA_StreamIO_Encode && OVIA_StreamIO_AIF */
     
+#if defined(OVIA_StreamIO_Decode) && defined(OVIA_StreamIO_AIF)
+    extern OVIA_Stream AIFDecoder = {
+        .MagicID = &AIFMagicIDs,
+    };
+#endif /* OVIA_StreamIO_Decode && OVIA_StreamIO_AIF */
     
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }

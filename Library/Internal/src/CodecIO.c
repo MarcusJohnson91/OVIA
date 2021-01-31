@@ -1,13 +1,13 @@
 #include "../../include/CodecIO.h"
 
 #ifdef    OVIA_EnableImage
-#ifdef    OVIA_EnablePNG
+#ifdef    OVIA_CodecIO_PNG
 #include "../../include/Private/CodecIO/PNGCodec.h"
-#endif /* OVIA_EnablePNG */
+#endif /* OVIA_CodecIO_PNG */
 
-#ifdef    OVIA_EnableJPEG
+#ifdef    OVIA_CodecIO_JPEG
 #include "../../include/Private/CodecIO/JPEGCodec.h"
-#endif /* OVIA_EnableJPEG */
+#endif /* OVIA_CodecIO_JPEG */
 
 #ifdef    OVIA_EnableBMP
 #include "../../include/Private/CodecIO/BMPCodec.h"
@@ -23,9 +23,9 @@
 #endif /* OVIA_EnableImage */
 
 #ifdef    OVIA_EnableAudio
-#ifdef    OVIA_EnableFLAC
+#ifdef    OVIA_CodecIO_FLAC
 #include "../../include/Private/CodecIO/FLACCodec.h"
-#endif /* OVIA_EnableFLAC */
+#endif /* OVIA_CodecIO_FLAC */
 
 #ifdef    OVIA_EnablePCM
 #include "../../include/Private/CodecIO/PCMCodec.h"
@@ -39,19 +39,19 @@ extern "C" {
     uint64_t        NumEncoders;
     CodecIO_Encoder GlobalEncoders[];
 
-#ifdef OVIA_EnablePNG
+#ifdef OVIA_CodecIO_PNG
     GlobalEncoders    = {
         [__COUNTER__] = PNGEncoder,
     }
     NumEncoders      += 1;
-#endif /* OVIA_EnablePNG */
+#endif /* OVIA_CodecIO_PNG */
 
-#ifdef OVIA_EnableJPEG
+#ifdef OVIA_CodecIO_JPEG
     GlobalEncoders    = {
         [__COUNTER__] = JPEGEncoder,
     }
     NumEncoders      += 1;
-#endif /* OVIA_EnableJPEG */
+#endif /* OVIA_CodecIO_JPEG */
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }

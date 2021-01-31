@@ -313,15 +313,11 @@ extern "C" {
 
     extern const    CodecIO_MagicIDs           PNGMagicIDs;
 
-#define OVIA_EnableEncoders
-#define OVIA_EnableDecoders
-#define OVIA_EnablePNG
-
     extern const    CodecIO_Encoder            PNGEncoder;
 
     extern const    CodecIO_Decoder            PNGDecoder;
 
-#ifdef OVIA_EnablePNG
+#ifdef OVIA_CodecIO_PNG
     const CodecIO_ImageChannelConfig PNGChannelConfig = {
         .NumChannels = 3,
         .Channels    = {
@@ -393,8 +389,7 @@ extern "C" {
     };
 #endif /* Common Literals */
 
-#ifdef OVIA_EnableEncoders
-#ifdef OVIA_EnablePNG
+#if defined(OVIA_CodecIO_Encode) && defined(OVIA_CodecIO_PNG)
 
     const CodecIO_Encoder PNGEncoder = {
         .Function_Initalize   = PNGOptions_Init,
@@ -404,11 +399,9 @@ extern "C" {
         .MagicIDs             = &PNGMagicIDs,
     };
 
-#endif /* OVIA_EnablePNG */
-#endif /* OVIA_EnableEncoders */
+#endif /* OVIA_CodecIO_Encode && OVIA_CodecIO_PNG */
 
-#ifdef OVIA_EnableDecoders
-#ifdef OVIA_EnablePNG
+#if defined(OVIA_CodecIO_Decode) && defined(OVIA_CodecIO_PNG)
 
     const CodecIO_Decoder PNGDecoder = {
         .Function_Initalize   = PNGOptions_Init,
@@ -417,8 +410,7 @@ extern "C" {
         .Function_Deinitalize = PNGOptions_Deinit,
     };
 
-#endif /* OVIA_EnablePNG */
-#endif /* OVIA_EnableDecoders */
+#endif /* OVIA_CodecIO_Decode && OVIA_CodecIO_PNG */
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }

@@ -66,6 +66,55 @@ extern "C" {
     
     void PNMOptions_Deinit(void *Options);
     
+#ifdef OVIA_StreamIO_PNM
+    extern OVIA_MagicIDs PNMSignature = {
+        .NumMagicIDs         = 7,
+        .MagicIDOffsetInBits = 0,
+        .MagicIDSizeInBits   = 16,
+        .MagicIDNumber       = {
+            [0]              = (uint8_t[2]){0x50, 0x31},
+            [1]              = (uint8_t[2]){0x50, 0x34},
+            [2]              = (uint8_t[2]){0x50, 0x32},
+            [3]              = (uint8_t[2]){0x50, 0x35},
+            [4]              = (uint8_t[2]){0x50, 0x33},
+            [5]              = (uint8_t[2]){0x50, 0x36},
+            [6]              = (uint8_t[2]){0x50, 0x37},
+        }
+    };
+
+    extern const OVIA_Extensions PNMExtensions = {
+        .NumExtensions = 4,
+        .Extensions    = {
+            [0]        = UTF32String("pbm"),
+            [1]        = UTF32String("pgm"),
+            [2]        = UTF32String("ppm"),
+            [3]        = UTF32String("pnm"),
+        },
+    };
+
+    extern const OVIA_MIMETypes PNMMIMETypes = {
+        .NumMIMETypes = 4,
+        .MIMETypes    = {
+            [0]       = UTF32String("image/x-portable-bitmap"),
+            [1]       = UTF32String("image/x-portable-graymap"),
+            [0]       = UTF32String("image/x-portable-pixmap"),
+            [1]       = UTF32String("image/x-portable-anymap"),
+        },
+    };
+#endif /* OVIA_StreamIO_PNM */
+    
+#if defined(OVIA_StreamIO_Encode) && defined(OVIA_StreamIO_PNM)
+    extern OVIA_Stream PNMEncoder = {
+        .MagicID = &PNMMagicIDs,
+    };
+#endif /* OVIA_StreamIO_Encode && OVIA_StreamIO_PNM */
+    
+#if defined(OVIA_StreamIO_Decode) && defined(OVIA_StreamIO_PNM)
+    extern OVIA_Stream PNMDecoder = {
+        .MagicID = &PNMMagicIDs,
+    };
+#endif /* OVIA_StreamIO_Decode && OVIA_StreamIO_PNM */
+    
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif
