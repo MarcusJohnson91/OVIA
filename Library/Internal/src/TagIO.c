@@ -7,25 +7,25 @@
 #include "../../include/Private/StreamIO/AIFStream.h"
 #endif /* OVIA_EnableAIF */
 
-#ifdef OVIA_EnableBMP
+#ifdef OVIA_StreamIO_BMP
 #include "../../include/Private/StreamIO/BMPStream.h"
-#endif /* OVIA_EnableBMP */
+#endif /* OVIA_StreamIO_BMP */
 
-#ifdef OVIA_EnablePNM
+#ifdef OVIA_StreamIO_PNM
 #include "../../include/Private/StreamIO/PNMStream.h"
-#endif /* OVIA_EnablePNM */
+#endif /* OVIA_StreamIO_PNM */
 
 #ifdef OVIA_EnableRIFF
 #include "../../include/Private/StreamIO/RIFFStream.h"
 #endif /* OVIA_EnableRIFF */
 
-#ifdef OVIA_EnableOGG
+#ifdef OVIA_StreamIO_OGG
 #include "../../include/Private/StreamIO/OGGStream.h"
-#endif /* OVIA_EnableOGG */
+#endif /* OVIA_StreamIO_OGG */
 
-#ifdef OVIA_CodecIO_FLACNative
+#ifdef OVIA_StreamIO_FLAC
 #include "../../include/Private/StreamIO/FLACNativeStream.h"
-#endif /* OVIA_CodecIO_FLACNative */
+#endif /* OVIA_StreamIO_FLAC */
 
 #include "../../include/TagIO.h"
 #include "../../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h"

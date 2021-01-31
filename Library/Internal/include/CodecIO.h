@@ -58,7 +58,6 @@ extern "C" {
         FunctionPointer_Media   Function_Media;
         FunctionPointer_Deinit  Function_Deinitalize;
         const OVIA_MagicIDs    *MagicIDs;
-        
     } CodecIO_Encoder;
 
     typedef struct CodecIO_Decoder {
@@ -69,7 +68,9 @@ extern "C" {
     } CodecIO_Decoder;
 
     extern uint64_t        NumEncoders;
+    extern uint64_t        NumDecoders;
     extern CodecIO_Encoder GlobalEncoders[];
+    extern CodecIO_Decoder GlobalDecoders[];
 
     /*
      What information is needed to register a Codec?

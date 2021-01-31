@@ -289,7 +289,7 @@ extern "C" {
     typedef struct OVIADecoder {
         const Function_Initalize           Initalize;
         const Function_ManipulateBuffer    Parse;
-        const Function_ManipulateContainer Decode; // Returns a Container pointer, takes Options and BitBuffer pointer
+        const Function_ManipulateContainer Decode;
         const Function_Deinitalize         Deinitalize;
         const OVIA_MagicIDs               *MagicIDs;
         const OVIA_Extensions             *Extensions;
