@@ -457,7 +457,7 @@ extern "C" {
 
         for (uint8_t StereoView = 0; StereoView < PNGGetStereoscopicStatus(Dec); StereoView++) {
             for (size_t Line = 0; Line < Dec->iHDR->Height; Line++) {
-                PNGFilterTypes FilterType = ExtractLineFilterType(Line);
+                PNGFilterTypes FilterType = ExtractLineFilterType(*DeFilteredData[Line]);
                 switch (FilterType) {
                     case PNGFilter_Unfiltered:
                         // copy the Line except byte 0 (the filter indication byte) to the output buffer.

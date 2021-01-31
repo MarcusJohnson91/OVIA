@@ -240,7 +240,7 @@ extern "C" {
         } else if (Enc == NULL) {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to PNGOptions is NULL"));
         } else if (StereoType < 0 || StereoType > 1) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("StereoType %d is invalid, valid values range from 0-1"));
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("StereoType %d is invalid, valid values range from 0-1"), StereoType);
         }
     }
 

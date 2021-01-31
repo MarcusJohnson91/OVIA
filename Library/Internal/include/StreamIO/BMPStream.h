@@ -77,43 +77,62 @@ extern "C" {
     void            BMPOptions_Deinit(void *Options);
     
 #ifdef OVIA_StreamIO_BMP
-    extern OVIA_MagicIDs BMPSignature = {
-        .NumMagicIDs         = 1,
-        .MagicIDOffsetInBits = 0,
-        .MagicIDSizeInBits   = 16,
-        .MagicIDNumber       = {
-            [0]              = (uint8_t[2]){0x42, 0x4D},
-        }
+    extern const OVIA_MagicIDs BMPSignature;
+    
+    const OVIA_MagicIDs BMPSignature = {
+        .NumMagicIDs          = 1,
+        .MagicIDs             = {
+            [0]               = {
+                .OffsetInBits = 0,
+                .SizeInBits   = 16,
+                .Signature    = (uint8_t[4]){0x42, 0x4D},
+            },
+        },
     };
-
-    extern const OVIA_Extensions BMPExtensions = {
-        .NumExtensions = 2,
-        .Extensions    = {
-            [0]        = UTF32String("bmp"),
-            [1]        = UTF32String("dib"),
+    
+    extern const OVIA_Extensions BMPExtensions;
+    
+    const OVIA_Extensions BMPExtensions = {
+        .NumExtensions     = 2,
+        .Extensions        = {
+            [0]            = {
+                .Size      = 3,
+                .Extension = UTF32String("bmp"),
+            },
+            [1]            = {
+                .Size      = 3,
+                .Extension = UTF32String("dib"),
+            },
         },
     };
 
-    extern const OVIA_MIMETypes BMPMIMETypes = {
+    extern const OVIA_MIMETypes BMPMIMETypes;
+    
+    const OVIA_MIMETypes BMPMIMETypes = {
         .NumMIMETypes = 2,
         .MIMETypes    = {
             [0]       = UTF32String("image/bmp"),
             [1]       = UTF32String("image/x-bmp"),
         },
     };
-#endif /* OVIA_StreamIO_BMP */
     
-#if defined(OVIA_StreamIO_Encode) && defined(OVIA_StreamIO_BMP)
-    extern OVIA_Stream BMPEncoder = {
-        .MagicID = &BMPMagicIDs,
-    };
-#endif /* OVIA_StreamIO_Encode && OVIA_StreamIO_BMP */
+#if defined(OVIA_StreamIO_Encode)
+    extern const OVIA_Stream BMPEncoder;
     
-#if defined(OVIA_StreamIO_Decode) && defined(OVIA_StreamIO_BMP)
-    extern OVIA_Stream BMPDecoder = {
-        .MagicID = &BMPMagicIDs,
+    const OVIA_Stream BMPEncoder = {
+        .MagicID = &BMPSignature,
     };
-#endif /* OVIA_StreamIO_Decode && OVIA_StreamIO_BMP */
+#endif /* OVIA_StreamIO_Encode */
+    
+#if defined(OVIA_StreamIO_Decode)
+    extern const OVIA_Stream BMPDecoder;
+    
+    const OVIA_Stream BMPDecoder = {
+        .MagicID = &BMPSignature,
+    };
+#endif /* OVIA_StreamIO_Decode */
+    
+#endif /* BMP Literals */
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }

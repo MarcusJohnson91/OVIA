@@ -20,49 +20,56 @@ extern "C" {
 #endif
     
 #ifdef OVIA_StreamIO_OGG
-    extern OVIA_MagicIDs OGGSignature = {
-        .NumMagicIDs         = 3,
-        .MagicIDOffsetInBits = 0,
-        .MagicIDSizeInBits   = 32,
-        .MagicIDNumber       = {
-            [0]              = (uint8_t[2]){0x52, 0x49, 0x46, 0x46},
-            [1]              = (uint8_t[2]){0x42, 0x57, 0x36, 0x34},
-            [2]              = (uint8_t[4]){0x66, 0x66, 0x69, 0x72},
-        }
+    extern const OVIA_MagicIDs OGGSignature = {
+        .NumMagicIDs          = 1,
+        .MagicIDs             = {
+            [0]               = {
+                .OffsetInBits = 0,
+                .SizeInBits   = 32,
+                .Signature    = (uint8_t[4]){0x4F, 0x67, 0x67, 0x53},
+            },
+        },
     };
 
     extern const OVIA_Extensions OGGExtensions = {
-        .NumExtensions = 4,
+        .NumExtensions = 7,
         .Extensions    = {
-            [0]        = UTF32String("wav"),
-            [1]        = UTF32String("wave"),
-            [2]        = UTF32String("bwf"),
-            [3]        = UTF32String("w64"),
+            [0]        = UTF32String("opus"),
+            [1]        = UTF32String("ogg"),
+            [2]        = UTF32String("ogv"),
+            [3]        = UTF32String("oga"),
+            [4]        = UTF32String("ogx"),
+            [5]        = UTF32String("ogm"),
+            [6]        = UTF32String("spx"),
         },
     };
 
     extern const OVIA_MIMETypes OGGMIMETypes = {
-        .NumMIMETypes = 4,
+        .NumMIMETypes = 3,
         .MIMETypes    = {
-            [0]       = UTF32String("audio/vnd.wave"),
-            [1]       = UTF32String("audio/wav"),
-            [2]       = UTF32String("audio/wave"),
-            [3]       = UTF32String("audio/x-wav"),
+            [0]       = UTF32String("video/ogg"),
+            [1]       = UTF32String("audio/ogg"),
+            [2]       = UTF32String("application/ogg"),
         },
     };
-#endif /* OVIA_StreamIO_OGG */
     
-#if defined(OVIA_StreamIO_Encode) && defined(OVIA_StreamIO_OGG)
-    extern OVIA_Stream OGGEncoder = {
+#if defined(OVIA_StreamIO_Encode)
+    extern const OVIA_Stream OGGEncoder;
+    
+    const OVIA_Stream OGGEncoder = {
         .MagicID = &OGGMagicIDs,
     };
-#endif /* OVIA_StreamIO_Encode && OVIA_StreamIO_OGG */
+#endif /* OVIA_StreamIO_Encode */
     
-#if defined(OVIA_StreamIO_Decode) && defined(OVIA_StreamIO_OGG)
-    extern OVIA_Stream OGGDecoder = {
+#if defined(OVIA_StreamIO_Decode)
+    extern const OVIA_Stream OGGDecoder;
+    
+    const OVIA_Stream OGGDecoder = {
         .MagicID = &OGGMagicIDs,
     };
-#endif /* OVIA_StreamIO_Decode && OVIA_StreamIO_OGG */
+#endif /* OVIA_StreamIO_Decode */
+    
+#endif /* OGG Literals */
 
     /*
      Ok, so an OGG stream can contain various formats, like FLAC

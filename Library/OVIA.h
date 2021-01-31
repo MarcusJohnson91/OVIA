@@ -254,17 +254,26 @@ extern "C" {
     typedef struct       BitBuffer         BitBuffer;      // Forward declare BufferIO's types
     
     typedef struct       OVIA              OVIA;
+    
+    typedef struct OVIA_Signature {
+        const uint64_t OffsetInBits;
+        const uint8_t  SizeInBits;
+        const uint8_t *Signature;
+    } OVIA_Signature;
 
     typedef struct OVIA_MagicIDs {
-        const uint16_t NumMagicIDs;
-        const uint16_t MagicIDOffsetInBits;
-        const uint8_t  MagicIDSizeInBits;
-        const uint8_t *MagicIDNumber[];
+        const uint64_t          NumMagicIDs;
+        const OVIA_Signature    MagicIDs[];
     } OVIA_MagicIDs;
+    
+    typedef struct OVIA_ExtensionInfo {
+        const uint8_t                Size;
+        PlatformIO_Immutable(UTF32*) Extension;
+    } OVIA_ExtensionInfo;
 
     typedef struct OVIA_Extensions {
-        const uint8_t  NumExtensions;
-        const UTF32   *Extensions[];
+        const uint8_t            NumExtensions;
+        const OVIA_ExtensionInfo Extensions[];
     } OVIA_Extensions;
 
     typedef struct OVIA_MIMETypes {

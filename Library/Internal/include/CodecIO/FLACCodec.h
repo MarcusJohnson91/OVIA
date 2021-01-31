@@ -273,19 +273,9 @@ extern "C" {
 
     void        FLACOptions_Deinit(void *Options);
 
-    extern const    CodecIO_AudioLimitations   FLACLimits;
-
-    extern const    CodecIO_MIMETypes          FLACMIMETypes;
-
-    extern const    CodecIO_Extensions         FLACExtensions;
-
-    extern const    CodecIO_MagicIDs           FLACMagicIDs;
-
-    extern const    CodecIO_Encoder            FLACEncoder;
-
-    extern const    CodecIO_Decoder            FLACDecoder;
-
 #ifdef OVIA_CodecIO_FLAC
+    extern const CodecIO_AudioLimitations FLACLimits;
+    
     const CodecIO_AudioLimitations FLACLimits = {
         .MaxSampleRate     = 655350,
         .MaxBitDepth       = 32,
@@ -293,6 +283,8 @@ extern "C" {
         .SupportedChannels = AudioMask_FrontLeft | AudioMask_FrontRight | AudioMask_FrontCenter | AudioMask_LFE | AudioMask_SurroundLeft | AudioMask_SurroundRight | AudioMask_SurroundCenter | AudioMask_RearLeft | AudioMask_RearRight | AudioMask_StereoLeft | AudioMask_StereoRight,
     };
 
+    extern const CodecIO_MIMETypes FLACMIMETypes;
+    
     const CodecIO_MIMETypes FLACMIMETypes = {
         .NumMIMETypes = 2,
         .MIMETypes    = {
@@ -300,39 +292,22 @@ extern "C" {
             [1]       = UTF32String("image/pFLAC"),
         },
     };
+    
+    extern const OVIA_Extensions FLACExtensions;
 
-    const CodecIO_Extensions FLACExtensions = {
-        .NumExtensions     = 6,
+    const OVIA_Extensions FLACExtensions = {
+        .NumExtensions     = 1,
         .Extensions        = {
             [0]            = {
                 .Size      = 4,
-                .Extension = UTF32String("FLAC"),
-
-            },
-            [1]            = {
-                .Size      = 3,
-                .Extension = UTF32String("jpe"),
-            },
-            [2]            = {
-                .Size      = 3,
-                .Extension = UTF32String("jpg"),
-            },
-            [3]            = {
-                .Size      = 4,
-                .Extension = UTF32String("jfif"),
-            },
-            [4]            = {
-                .Size      = 3,
-                .Extension = UTF32String("jfi"),
-            },
-            [5]            = {
-                .Size      = 3,
-                .Extension = UTF32String("jif"),
+                .Extension = UTF32String("flac"),
             },
         },
     };
 
-    const CodecIO_MagicIDs FLACMagicIDs = {
+    extern const OVIA_MagicIDs FLACMagicIDs;
+    
+    const OVIA_MagicIDs FLACMagicIDs = {
         .NumMagicIDs   = 1,
         .MagicIDs      = {
             [0]        = {
@@ -342,29 +317,30 @@ extern "C" {
             },
         },
     };
-#endif /* Common Literals */
-
-#if defined(OVIA_CodecIO_Encode) && defined(OVIA_CodecIO_FLAC)
-
+    
+#if defined(OVIA_CodecIO_Encode)
+    extern const CodecIO_Encoder FLACEncoder;
+    
     const CodecIO_Encoder FLACEncoder = {
         .Function_Initalize   = FLACOptions_Init,
         .Function_Parse       = FLAC_Compose,
         .Function_Media       = FLAC_Extract,
         .Function_Deinitalize = FLACOptions_Deinit,
     };
-
-#endif /* OVIA_CodecIO_Encode && OVIA_CodecIO_FLAC */
-
-#if defined(OVIA_CodecIO_Decode) && defined(OVIA_CodecIO_FLAC)
-
+#endif /* OVIA_CodecIO_Encode */
+    
+#if defined(OVIA_CodecIO_Decode)
+    extern const CodecIO_Decoder FLACDecoder;
+    
     const CodecIO_Decoder FLACDecoder = {
         .Function_Initalize   = FLACOptions_Init,
         .Function_Parse       = FLAC_Parse,
         .Function_Media       = FLAC_Extract,
         .Function_Deinitalize = FLACOptions_Deinit,
     };
-
-#endif /* OVIA_CodecIO_Decode && OVIA_CodecIO_FLAC */
+#endif /* OVIA_CodecIO_Decode */
+    
+#endif /* FLAC Literals */
 
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)

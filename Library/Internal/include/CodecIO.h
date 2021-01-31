@@ -25,35 +25,6 @@ extern "C" {
         PlatformIO_Immutable(UTF32*) MIMETypes[];
     } CodecIO_MIMETypes;
 
-    typedef struct CodecIO_Extension {
-        const uint8_t                Size;
-        PlatformIO_Immutable(UTF32*) Extension;
-    } CodecIO_Extension;
-
-    typedef struct CodecIO_Extensions {
-        const uint8_t           NumExtensions;
-        const CodecIO_Extension Extensions[];
-    } CodecIO_Extensions;
-
-    typedef struct CodecIO_Signature {
-        const uint64_t OffsetInBits;
-        const uint8_t  SizeInBits;
-        const uint8_t  *Signature;
-    } CodecIO_Signature;
-
-    typedef struct CodecIO_MagicIDs {
-        const uint64_t          NumMagicIDs;
-        const CodecIO_Signature MagicIDs[];
-    } CodecIO_MagicIDs;
-
-
-    typedef struct CodecIO_FileSignature {
-        const uint64_t               OffsetInBits;
-        const uint8_t                SizeInBits;
-        const uint8_t                NumSignatures;
-        const uint8_t               *Signature[];
-    } CodecIO_FileSignature;
-
     typedef struct CodecIO_ImageChannelConfig {
         const uint8_t           NumChannels;
         const Image_ChannelMask Channels[];
@@ -86,7 +57,7 @@ extern "C" {
         FunctionPointer_Body    Function_Parse;
         FunctionPointer_Media   Function_Media;
         FunctionPointer_Deinit  Function_Deinitalize;
-        const CodecIO_MagicIDs *MagicIDs;
+        const OVIA_MagicIDs    *MagicIDs;
         
     } CodecIO_Encoder;
 

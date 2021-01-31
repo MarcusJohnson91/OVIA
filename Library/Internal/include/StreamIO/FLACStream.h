@@ -18,41 +18,54 @@ extern "C" {
 #endif
     
 #ifdef OVIA_StreamIO_FLAC
-    extern OVIA_MagicIDs FLACSignature = {
-        .NumMagicIDs         = 1,
-        .MagicIDOffsetInBits = 0,
-        .MagicIDSizeInBits   = 32,
-        .MagicIDNumber       = {
-            [0]              = (uint8_t[4]){0x66, 0x4C, 0x61, 0x43},
-        }
+    extern const OVIA_MagicIDs FLACSignatures;
+    
+    const OVIA_MagicIDs FLACSignatures = {
+        .NumMagicIDs          = 1,
+        .MagicIDs             = {
+            [0]               = {
+                .OffsetInBits = 0,
+                .SizeInBits   = 32,
+                .Signature    = (uint8_t[4]){0x66, 0x4C, 0x61, 0x43},
+            },
+        },
     };
+    
+    extern const OVIA_Extensions FLACExtensions;
 
-    extern const OVIA_Extensions FLACExtensions = {
+    const OVIA_Extensions FLACExtensions = {
         .NumExtensions = 1,
         .Extensions    = {
             [0]        = UTF32String("flac"),
         },
     };
 
-    extern const OVIA_MIMETypes FLACMIMETypes = {
+    extern const OVIA_MIMETypes FLACMIMETypes;
+    
+    const OVIA_MIMETypes FLACMIMETypes = {
         .NumMIMETypes = 1,
         .MIMETypes    = {
             [1]       = UTF32String("audio/flac"),
         },
     };
-#endif /* OVIA_StreamIO_FLAC */
     
-#if defined(OVIA_StreamIO_Encode) && defined(OVIA_StreamIO_FLAC)
-    extern OVIA_Stream FLACEncoder = {
+#if defined(OVIA_StreamIO_Encode)
+    extern const OVIA_Stream FLACEncoder;
+    
+    const OVIA_Stream FLACEncoder = {
         .MagicID = &FLACMagicIDs,
     };
-#endif /* OVIA_StreamIO_Encode && OVIA_StreamIO_FLAC */
+#endif /* OVIA_StreamIO_Encode */
     
-#if defined(OVIA_StreamIO_Decode) && defined(OVIA_StreamIO_FLAC)
-    extern OVIA_Stream FLACDecoder = {
+#if defined(OVIA_StreamIO_Decode)
+    extern const OVIA_Stream FLACDecoder;
+    
+    const OVIA_Stream FLACDecoder = {
         .MagicID = &FLACMagicIDs,
     };
-#endif /* OVIA_StreamIO_Decode && OVIA_StreamIO_FLAC */
+#endif /* OVIA_StreamIO_Decode */
+    
+#endif /* FLAC Literals */
 
     /*
      Ok, so an FLACNative stream can contain FLAC.

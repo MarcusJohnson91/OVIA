@@ -151,15 +151,17 @@ extern "C" {
 
     extern const    CodecIO_MIMETypes          JPEGMIMETypes;
 
-    extern const    CodecIO_Extensions         JPEGExtensions;
+    extern const    OVIA_Extensions            JPEGExtensions;
 
-    extern const    CodecIO_MagicIDs           JPEGMagicIDs;
+    extern const    OVIA_MagicIDs              JPEGMagicIDs;
 
     extern const    CodecIO_Encoder            JPEGEncoder;
 
     extern const    CodecIO_Decoder            JPEGDecoder;
 
 #ifdef OVIA_CodecIO_JPEG
+    extern const CodecIO_ImageChannelConfig JPEGChannelConfig;
+    
     const CodecIO_ImageChannelConfig JPEGChannelConfig = {
         .NumChannels = 2,
         .Channels    = {
@@ -167,6 +169,8 @@ extern "C" {
             [1]      = ImageMask_2D | ImageMask_Luma | ImageMask_Chroma1 | ImageMask_Chroma2,
         },
     };
+    
+    extern const CodecIO_ImageLimitations JPEGLimits;
 
     const CodecIO_ImageLimitations JPEGLimits = {
         .MaxHeight      = 0xFFFF,
@@ -175,6 +179,8 @@ extern "C" {
         .ChannelConfigs = &JPEGChannelConfig,
     };
 
+    extern const CodecIO_MIMETypes JPEGMIMETypes;
+    
     const CodecIO_MIMETypes JPEGMIMETypes = {
         .NumMIMETypes = 2,
         .MIMETypes    = {
@@ -183,25 +189,26 @@ extern "C" {
         },
     };
 
-    const CodecIO_Extensions JPEGExtensions = {
+    extern const OVIA_Extensions JPEGExtensions;
+    
+    const OVIA_Extensions JPEGExtensions = {
         .NumExtensions     = 6,
         .Extensions        = {
             [0]            = {
                 .Size      = 4,
                 .Extension = UTF32String("jpeg"),
-
             },
             [1]            = {
-                .Size      = 3,
-                .Extension = UTF32String("jpe"),
+                .Size      = 4,
+                .Extension = UTF32String("jfif"),
             },
             [2]            = {
                 .Size      = 3,
-                .Extension = UTF32String("jpg"),
+                .Extension = UTF32String("jpe"),
             },
             [3]            = {
-                .Size      = 4,
-                .Extension = UTF32String("jfif"),
+                .Size      = 3,
+                .Extension = UTF32String("jpg"),
             },
             [4]            = {
                 .Size      = 3,
@@ -214,39 +221,42 @@ extern "C" {
         },
     };
 
-    const CodecIO_MagicIDs JPEGMagicIDs = {
-        .NumMagicIDs   = 1,
-        .MagicIDs      = {
-            [0]        = {
+    extern const OVIA_MagicIDs JPEGMagicIDs;
+    
+    const OVIA_MagicIDs JPEGMagicIDs = {
+        .NumMagicIDs          = 1,
+        .MagicIDs             = {
+            [0]               = {
                 .OffsetInBits = 0,
                 .SizeInBits   = 16,
                 .Signature    = (uint8_t[2]) {0xFF, 0xD8},
             },
         },
     };
-#endif /* Common Literals */
-
-#if defined(OVIA_CodecIO_Encode) && defined(OVIA_CodecIO_JPEG)
-
+    
+#if defined(OVIA_CodecIO_Encode)
+    extern const CodecIO_Encoder JPEGEncoder;
+    
     const CodecIO_Encoder JPEGEncoder = {
         .Function_Initalize   = JPEGOptions_Init,
         .Function_Parse       = JPEG_Parse,
         .Function_Media       = JPEG_Extract,
         .Function_Deinitalize = JPEGOptions_Deinit,
     };
-
-#endif /* OVIA_CodecIO_Encode && OVIA_CodecIO_JPEG */
-
-#if defined(OVIA_CodecIO_Decode) && defined(OVIA_CodecIO_JPEG)
-
+#endif /* OVIA_CodecIO_Encode */
+    
+#if defined(OVIA_CodecIO_Decode)
+    extern const CodecIO_Decoder JPEGDecoder;
+    
     const CodecIO_Decoder JPEGDecoder = {
         .Function_Initalize   = JPEGOptions_Init,
         .Function_Parse       = JPEG_Parse,
         .Function_Media       = JPEG_Extract,
         .Function_Deinitalize = JPEGOptions_Deinit,
     };
-
-#endif /* OVIA_CodecIO_Decode && OVIA_CodecIO_JPEG */
+#endif /* OVIA_CodecIO_Decode */
+    
+#endif /* JPEG Literals */
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }

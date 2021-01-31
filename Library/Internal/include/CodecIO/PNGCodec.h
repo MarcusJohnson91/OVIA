@@ -291,33 +291,14 @@ extern "C" {
     void  PNG_Parse(void *Options, BitBuffer *BitB);
 
     void  PNG_Extract(void *Options, BitBuffer *BitB, void *Container);
+    
+    bool PNGGetStereoscopicStatus(PNGOptions *Dec);
 
     void  PNGOptions_Deinit(void *Options);
 
-
-
-
-
-
-
-
-
-
-    extern const    CodecIO_ImageChannelConfig PNGChannelConfig;
-
-    extern const    CodecIO_ImageLimitations   PNGLimits; // Maybe Image Features would be a better name?
-
-    extern const    CodecIO_MIMETypes          PNGMIMETypes;
-
-    extern const    CodecIO_Extensions         PNGExtensions;
-
-    extern const    CodecIO_MagicIDs           PNGMagicIDs;
-
-    extern const    CodecIO_Encoder            PNGEncoder;
-
-    extern const    CodecIO_Decoder            PNGDecoder;
-
 #ifdef OVIA_CodecIO_PNG
+    extern const CodecIO_ImageChannelConfig PNGChannelConfig;
+    
     const CodecIO_ImageChannelConfig PNGChannelConfig = {
         .NumChannels = 3,
         .Channels    = {
@@ -327,12 +308,16 @@ extern "C" {
         },
     };
 
+    extern const CodecIO_ImageLimitations PNGLimits;
+    
     const CodecIO_ImageLimitations PNGLimits = {
         .MaxHeight      = 0xFFFFFFFF,
         .MaxWidth       = 0xFFFFFFFF,
         .MaxBitDepth    = 16,
         .ChannelConfigs = &PNGChannelConfig,
     };
+    
+    extern const CodecIO_MIMETypes PNGMIMETypes;
 
     const CodecIO_MIMETypes PNGMIMETypes = {
         .NumMIMETypes = 5,
@@ -344,17 +329,19 @@ extern "C" {
             [4]       = UTF32String("image/x-jng"),
         },
     };
+    
+    extern const OVIA_Extensions PNGExtensions;
 
-    const CodecIO_Extensions PNGExtensions = {
+    const OVIA_Extensions PNGExtensions = {
         .NumExtensions     = 4,
         .Extensions        = {
             [0]            = {
-                .Size      = 3,
-                .Extension = UTF32String("png"),
-            },
-            [1]            = {
                 .Size      = 4,
                 .Extension = UTF32String("apng"),
+            },
+            [1]            = {
+                .Size      = 3,
+                .Extension = UTF32String("png"),
             },
             [2]            = {
                 .Size      = 3,
@@ -366,14 +353,16 @@ extern "C" {
             }
         },
     };
+    
+    extern const OVIA_MagicIDs PNGMagicIDs;
 
-    const CodecIO_MagicIDs PNGMagicIDs = {
+    const OVIA_MagicIDs PNGMagicIDs = {
         .NumMagicIDs   = 3,
         .MagicIDs      = {
             [0]        = {
                 .OffsetInBits = 0,
                 .SizeInBits   = 64,
-                .Signature    = (uint8_t[8]) { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}, // PNG / APNG
+                .Signature    = (uint8_t[8]) {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}, // PNG / APNG
             },
             [1]        = {
                 .OffsetInBits = 0,
@@ -387,10 +376,10 @@ extern "C" {
             },
         },
     };
-#endif /* Common Literals */
-
-#if defined(OVIA_CodecIO_Encode) && defined(OVIA_CodecIO_PNG)
-
+    
+#if defined(OVIA_CodecIO_Encode)
+    extern const CodecIO_Encoder PNGEncoder;
+    
     const CodecIO_Encoder PNGEncoder = {
         .Function_Initalize   = PNGOptions_Init,
         .Function_Parse       = PNG_Parse,
@@ -398,10 +387,10 @@ extern "C" {
         .Function_Deinitalize = PNGOptions_Deinit,
         .MagicIDs             = &PNGMagicIDs,
     };
-
-#endif /* OVIA_CodecIO_Encode && OVIA_CodecIO_PNG */
-
-#if defined(OVIA_CodecIO_Decode) && defined(OVIA_CodecIO_PNG)
+#endif /* OVIA_CodecIO_Encode */
+    
+#if defined(OVIA_CodecIO_Decode)
+    extern const CodecIO_Decoder PNGDecoder;
 
     const CodecIO_Decoder PNGDecoder = {
         .Function_Initalize   = PNGOptions_Init,
@@ -409,8 +398,9 @@ extern "C" {
         .Function_Media       = PNG_Extract,
         .Function_Deinitalize = PNGOptions_Deinit,
     };
-
-#endif /* OVIA_CodecIO_Decode && OVIA_CodecIO_PNG */
+#endif /* OVIA_CodecIO_Decode */
+    
+#endif /* PNG Literals */
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
