@@ -18,9 +18,9 @@ extern "C" {
 #endif
     
 #ifdef OVIA_StreamIO_FLAC
-    extern const OVIA_MagicIDs FLACSignatures;
+    extern const OVIA_MagicIDs FLACSignature;
     
-    const OVIA_MagicIDs FLACSignatures = {
+    const OVIA_MagicIDs FLACSignature = {
         .NumMagicIDs          = 1,
         .MagicIDs             = {
             [0]               = {
@@ -34,18 +34,24 @@ extern "C" {
     extern const OVIA_Extensions FLACExtensions;
 
     const OVIA_Extensions FLACExtensions = {
-        .NumExtensions = 1,
-        .Extensions    = {
-            [0]        = UTF32String("flac"),
+        .NumExtensions     = 1,
+        .Extensions        = {
+            [0]            = {
+                .Size      = 4,
+                .Extension = UTF32String("flac"),
+            },
         },
     };
 
     extern const OVIA_MIMETypes FLACMIMETypes;
     
     const OVIA_MIMETypes FLACMIMETypes = {
-        .NumMIMETypes = 1,
-        .MIMETypes    = {
-            [1]       = UTF32String("audio/flac"),
+        .NumMIMETypes     = 1,
+        .MIMETypes        = {
+            [0]           = {
+                .Size     = 10,
+                .MIMEType = UTF32String("audio/flac"),
+            },
         },
     };
     
@@ -53,7 +59,7 @@ extern "C" {
     extern const OVIA_Stream FLACEncoder;
     
     const OVIA_Stream FLACEncoder = {
-        .MagicID = &FLACMagicIDs,
+        .MagicID = &FLACSignature,
     };
 #endif /* OVIA_StreamIO_Encode */
     
@@ -61,7 +67,7 @@ extern "C" {
     extern const OVIA_Stream FLACDecoder;
     
     const OVIA_Stream FLACDecoder = {
-        .MagicID = &FLACMagicIDs,
+        .MagicID = &FLACSignature,
     };
 #endif /* OVIA_StreamIO_Decode */
     
@@ -90,7 +96,7 @@ extern "C" {
          */
         .PacketType        = PacketType_Variable,
         .PacketSizeInBytes = 0,
-        .MagicID           = &NativeFLACMagicID,
+        .MagicID           = &FLACSignature,
         .OffsetInBits      = 1,
         .FieldSizeInBits   = 7,
         .ByteOrder         = ByteOrder_LSByteIsNearest,

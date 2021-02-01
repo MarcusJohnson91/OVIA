@@ -149,16 +149,6 @@ extern "C" {
 
     extern const    CodecIO_ImageLimitations   JPEGLimits;
 
-    extern const    CodecIO_MIMETypes          JPEGMIMETypes;
-
-    extern const    OVIA_Extensions            JPEGExtensions;
-
-    extern const    OVIA_MagicIDs              JPEGMagicIDs;
-
-    extern const    CodecIO_Encoder            JPEGEncoder;
-
-    extern const    CodecIO_Decoder            JPEGDecoder;
-
 #ifdef OVIA_CodecIO_JPEG
     extern const CodecIO_ImageChannelConfig JPEGChannelConfig;
     
@@ -179,13 +169,19 @@ extern "C" {
         .ChannelConfigs = &JPEGChannelConfig,
     };
 
-    extern const CodecIO_MIMETypes JPEGMIMETypes;
+    extern const OVIA_MIMETypes JPEGMIMETypes;
     
-    const CodecIO_MIMETypes JPEGMIMETypes = {
-        .NumMIMETypes = 2,
-        .MIMETypes    = {
-            [0]       = UTF32String("image/jpeg"),
-            [1]       = UTF32String("image/pjpeg"),
+    const OVIA_MIMETypes JPEGMIMETypes = {
+        .NumMIMETypes     = 2,
+        .MIMETypes        = {
+            [0]           = {
+                .Size     = 10,
+                .MIMEType = UTF32String("image/jpeg"),
+            },
+            [1]           = {
+                .Size     = 10,
+                .MIMEType = UTF32String("image/pjpeg"),
+            },
         },
     };
 

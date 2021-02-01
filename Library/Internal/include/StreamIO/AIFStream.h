@@ -122,26 +122,32 @@ extern "C" {
     extern const OVIA_MIMETypes AIFMIMETypes;
     
     const OVIA_MIMETypes AIFMIMETypes = {
-        .NumMIMETypes = 2,
-        .MIMETypes    = {
-            [0]       = UTF32String("audio/aiff"),
-            [1]       = UTF32String("audio/x-aiff"),
+        .NumMIMETypes     = 2,
+        .MIMETypes        = {
+            [0]           = {
+                .Size     = 10,
+                .MIMEType = UTF32String("audio/aiff"),
+            },
+            [1]           = {
+                .Size     = 12,
+                .MIMEType = UTF32String("audio/x-aiff"),
+            }
         },
     };
     
 #if defined(OVIA_StreamIO_Encode)
     extern const OVIA_Stream AIFEncoder;
     
-    extern OVIA_Stream AIFEncoder = {
-        .MagicID = &AIFMagicIDs,
+    const OVIA_Stream AIFEncoder = {
+        .MagicID = &AIFSignature,
     };
 #endif /* OVIA_StreamIO_Encode */
     
 #if defined(OVIA_StreamIO_Decode)
     extern const OVIA_Stream AIFDecoder;
     
-    extern OVIA_Stream AIFDecoder = {
-        .MagicID = &AIFMagicIDs,
+    const OVIA_Stream AIFDecoder = {
+        .MagicID = &AIFSignature,
     };
 #endif /* OVIA_StreamIO_Decode */
     

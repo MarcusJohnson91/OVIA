@@ -97,7 +97,7 @@ extern "C" {
                         for (uint64_t W = 0ULL; W < Width; W++) {
                             for (uint64_t H = 0ULL; H < Height; H++) {
                                 for (uint64_t Channel = 0ULL; Channel < 3; Channel++) {
-                                    Array[View * W * H * Channel] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, Bits2Bytes(BitDepth, RoundingType_Up));
+                                    Array[View][W][H][Channel] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, Bits2Bytes(BitDepth, RoundingType_Up));
                                 }
                             }
                         }
@@ -108,7 +108,7 @@ extern "C" {
                         for (uint64_t W = 0ULL; W < Width; W++) {
                             for (uint64_t H = 0ULL; H < Height; H++) {
                                 for (uint64_t Channel = 0ULL; Channel < 3; Channel++) {
-                                    Array[View * W * H * Channel] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, Bits2Bytes(BitDepth, RoundingType_Up));
+                                    Array[View][W][H][Channel] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, Bits2Bytes(BitDepth, RoundingType_Up));
                                 }
                             }
                         }

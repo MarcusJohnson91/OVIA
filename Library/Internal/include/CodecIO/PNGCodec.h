@@ -317,16 +317,31 @@ extern "C" {
         .ChannelConfigs = &PNGChannelConfig,
     };
     
-    extern const CodecIO_MIMETypes PNGMIMETypes;
-
-    const CodecIO_MIMETypes PNGMIMETypes = {
-        .NumMIMETypes = 5,
-        .MIMETypes    = {
-            [0]       = UTF32String("image/png"),
-            [1]       = UTF32String("image/apng"),
-            [2]       = UTF32String("image/x-mng"),
-            [3]       = UTF32String("video/x-mng"),
-            [4]       = UTF32String("image/x-jng"),
+    extern const OVIA_MIMETypes PNGMIMETypes;
+    
+    const OVIA_MIMETypes PNGMIMETypes = {
+        .NumMIMETypes     = 5,
+        .MIMETypes        = {
+            [0]           = {
+                .Size     = 9,
+                .MIMEType = UTF32String("image/png"),
+            },
+            [1]           = {
+                .Size     = 10,
+                .MIMEType = UTF32String("image/apng"),
+            },
+            [2]           = {
+                .Size     = 11,
+                .MIMEType = UTF32String("image/x-mng"),
+            },
+            [3]           = {
+                .Size     = 11,
+                .MIMEType = UTF32String("video/x-mng"),
+            },
+            [4]           = {
+                .Size     = 11,
+                .MIMEType = UTF32String("image/x-jng"),
+            },
         },
     };
     

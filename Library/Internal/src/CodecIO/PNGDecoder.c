@@ -723,13 +723,14 @@ extern "C" {
     void PNG_Filter_Sub(ImageContainer *Image) {
         if (Image != NULL) {
             MediaIO_ImageTypes Type = ImageContainer_GetType(Image);
+            ImageChannelMap   *Map  = ImageContainer_GetChannelMap(Image);
             if (Type == ImageType_Integer8) {
                 uint8_t  *ImageArray = (uint8_t*)  ImageContainer_GetArray(Image);
 
-                for (uint8_t StereoView = 0; StereoView < ImageContainer_GetNumViews(Image); StereoView++) {
+                for (uint8_t StereoView = 0; StereoView < ImageChannelMap_GetNumViews(Map); StereoView++) {
                     for (uint32_t Height = 0UL; Height < ImageContainer_GetHeight(Image); Height++) {
                         for (uint32_t Width = 0UL; Width < ImageContainer_GetWidth(Image); Width++) {
-                            for (uint32_t Byte = 0UL; Byte < Bits2Bytes(ImageContainer_GetBitDepth(Image), RoundingType_Up); Byte++) {
+                            for (uint32_t Byte = 0UL; Byte < Bits2Bytes(ImageType_GetBitDepth(Type), RoundingType_Up); Byte++) {
                                 ImageArray[StereoView * Height * Width * Byte] = (ImageArray[StereoView * Height * Width * Byte] + ImageArray[StereoView * Height * Width * (Byte + 1)]) % 256;
                             }
                         }
@@ -738,10 +739,10 @@ extern "C" {
             } else {
                 uint16_t *ImageArray = (uint16_t*) ImageContainer_GetArray(Image);
 
-                for (uint8_t StereoView = 0; StereoView < ImageContainer_GetNumViews(Image); StereoView++) {
+                for (uint8_t StereoView = 0; StereoView < ImageChannelMap_GetNumViews(Map); StereoView++) {
                     for (uint32_t Height = 0UL; Height < ImageContainer_GetHeight(Image); Height++) {
                         for (uint32_t Width = 0UL; Width < ImageContainer_GetWidth(Image); Width++) {
-                            for (uint32_t Byte = 0UL; Byte < Bits2Bytes(ImageContainer_GetBitDepth(Image), RoundingType_Up); Byte++) {
+                            for (uint32_t Byte = 0UL; Byte < Bits2Bytes(ImageType_GetBitDepth(Type), RoundingType_Up); Byte++) {
                                 ImageArray[StereoView * Height * Width * Byte] = (ImageArray[StereoView * Height * Width * Byte] + ImageArray[StereoView * Height * Width * (Byte + 1)]) % 65536;
                             }
                         }
@@ -756,13 +757,14 @@ extern "C" {
     void PNG_Filter_Up(ImageContainer *Image) {
         if (Image != NULL) {
             MediaIO_ImageTypes Type = ImageContainer_GetType(Image);
+            ImageChannelMap   *Map  = ImageContainer_GetChannelMap(Image);
             if (Type == ImageType_Integer8) {
                 uint8_t  *ImageArray = (uint8_t*)  ImageContainer_GetArray(Image);
 
-                for (uint8_t StereoView = 0; StereoView < ImageContainer_GetNumViews(Image); StereoView++) {
+                for (uint8_t StereoView = 0; StereoView < ImageChannelMap_GetNumViews(Map); StereoView++) {
                     for (uint32_t Height = 0UL; Height < ImageContainer_GetHeight(Image); Height++) {
                         for (uint32_t Width = 0UL; Width < ImageContainer_GetWidth(Image); Width++) {
-                            for (uint32_t Byte = 0UL; Byte < Bits2Bytes(ImageContainer_GetBitDepth(Image), RoundingType_Up); Byte++) {
+                            for (uint32_t Byte = 0UL; Byte < Bits2Bytes(ImageType_GetBitDepth(Type), RoundingType_Up); Byte++) {
                                 ImageArray[StereoView * Height * Width * Byte] = (ImageArray[StereoView * Height * Width * Byte] + ImageArray[StereoView * (Height - 1) * Width * Byte]) % 256;
                             }
                         }
@@ -771,10 +773,10 @@ extern "C" {
             } else {
                 uint16_t *ImageArray = (uint16_t*) ImageContainer_GetArray(Image);
 
-                for (uint8_t StereoView = 0; StereoView < ImageContainer_GetNumViews(Image); StereoView++) {
+                for (uint8_t StereoView = 0; StereoView < ImageChannelMap_GetNumViews(Map); StereoView++) {
                     for (uint32_t Height = 0UL; Height < ImageContainer_GetHeight(Image); Height++) {
                         for (uint32_t Width = 0UL; Width < ImageContainer_GetWidth(Image); Width++) {
-                            for (uint32_t Byte = 0UL; Byte < Bits2Bytes(ImageContainer_GetBitDepth(Image), RoundingType_Up); Byte++) {
+                            for (uint32_t Byte = 0UL; Byte < Bits2Bytes(ImageType_GetBitDepth(Type), RoundingType_Up); Byte++) {
                                 ImageArray[StereoView * Height * Width * Byte] = (ImageArray[StereoView * Height * Width * Byte] + ImageArray[StereoView * (Height - 1) * Width * Byte]) % 65536;
                             }
                         }
@@ -789,14 +791,15 @@ extern "C" {
     void PNG_Filter_Average(ImageContainer *Image) {
         if (Image != NULL) {
             MediaIO_ImageTypes Type = ImageContainer_GetType(Image);
+            ImageChannelMap   *Map  = ImageContainer_GetChannelMap(Image);
             if (Type == ImageType_Integer8) {
                 uint8_t  *ImageArray = (uint8_t*)  ImageContainer_GetArray(Image);
 
-                for (uint8_t StereoView = 0; StereoView < ImageContainer_GetNumViews(Image); StereoView++) {
+                for (uint8_t StereoView = 0; StereoView < ImageChannelMap_GetNumViews(Map); StereoView++) {
                     for (uint32_t Height = 0UL; Height < ImageContainer_GetHeight(Image); Height++) {
                         for (uint32_t Width = 0UL; Width < ImageContainer_GetWidth(Image); Width++) {
-                            for (uint32_t Byte = 0UL; Byte < Bits2Bytes(ImageContainer_GetBitDepth(Image), RoundingType_Up); Byte++) {
-                                float   PreAverage = (ImageArray[StereoView * Height * Width * (Byte - Bits2Bytes(ImageContainer_GetBitDepth(Image), RoundingType_Up))] + ImageArray[StereoView * Height * (Width - 1) * Byte]) / 2;
+                            for (uint32_t Byte = 0UL; Byte < Bits2Bytes(ImageType_GetBitDepth(Type), RoundingType_Up); Byte++) {
+                                float   PreAverage = (ImageArray[StereoView * Height * Width * (Byte - Bits2Bytes(ImageType_GetBitDepth(Type), RoundingType_Up))] + ImageArray[StereoView * Height * (Width - 1) * Byte]) / 2;
                                 uint8_t Average    = FloorF(PreAverage) % 256;
 
                                 ImageArray[StereoView * Height * Width * Byte] = Average;
@@ -807,11 +810,11 @@ extern "C" {
             } else {
                 uint16_t *ImageArray = (uint16_t*) ImageContainer_GetArray(Image);
 
-                for (uint8_t StereoView = 0; StereoView < ImageContainer_GetNumViews(Image); StereoView++) {
+                for (uint8_t StereoView = 0; StereoView < ImageChannelMap_GetNumViews(Map); StereoView++) {
                     for (uint32_t Height = 0UL; Height < ImageContainer_GetHeight(Image); Height++) {
                         for (uint32_t Width = 0UL; Width < ImageContainer_GetWidth(Image); Width++) {
-                            for (uint32_t Byte = 0UL; Byte < Bits2Bytes(ImageContainer_GetBitDepth(Image), RoundingType_Up); Byte++) {
-                                float   PreAverage = (ImageArray[StereoView * Height * Width * (Byte - Bits2Bytes(ImageContainer_GetBitDepth(Image), true))] + ImageArray[StereoView * Height * (Width - 1) * Byte]) / 2;
+                            for (uint32_t Byte = 0UL; Byte < Bits2Bytes(ImageType_GetBitDepth(Type), RoundingType_Up); Byte++) {
+                                float   PreAverage = (ImageArray[StereoView * Height * Width * (Byte - Bits2Bytes(ImageType_GetBitDepth(Type), RoundingType_Up))] + ImageArray[StereoView * Height * (Width - 1) * Byte]) / 2;
                                 uint16_t Average   = FloorF(PreAverage) % 65536;
 
                                 ImageArray[StereoView * Height * Width * Byte] = Average;
@@ -828,13 +831,14 @@ extern "C" {
     void PNG_Filter_Paeth(ImageContainer *Image) {
         if (Image != NULL) {
             MediaIO_ImageTypes Type = ImageContainer_GetType(Image);
+            ImageChannelMap   *Map  = ImageContainer_GetChannelMap(Image);
             if (Type == ImageType_Integer8) {
                 uint8_t  *ImageArray = (uint8_t*)  ImageContainer_GetArray(Image);
 
-                for (uint8_t StereoView = 0; StereoView < ImageContainer_GetNumViews(Image); StereoView++) {
+                for (uint8_t StereoView = 0; StereoView < ImageChannelMap_GetNumViews(Map); StereoView++) {
                     for (uint32_t Height = 0UL; Height < ImageContainer_GetHeight(Image); Height++) {
                         for (uint32_t Width = 0UL; Width < ImageContainer_GetWidth(Image); Width++) {
-                            for (uint32_t Byte = 0UL; Byte < Bits2Bytes(ImageContainer_GetBitDepth(Image), RoundingType_Up); Byte++) {
+                            for (uint32_t Byte = 0UL; Byte < Bits2Bytes(ImageType_GetBitDepth(Type), RoundingType_Up); Byte++) {
                                 uint8_t Current = (ImageArray[StereoView * Height * Width * Byte]);
 
                                 uint8_t Left    = ImageArray[StereoView * Height * Width * (Byte - 1)];
@@ -850,10 +854,10 @@ extern "C" {
             } else {
                 uint16_t *ImageArray = (uint16_t*) ImageContainer_GetArray(Image);
 
-                for (uint8_t StereoView = 0; StereoView < ImageContainer_GetNumViews(Image); StereoView++) {
+                for (uint8_t StereoView = 0; StereoView < ImageChannelMap_GetNumViews(Map); StereoView++) {
                     for (uint32_t Height = 0UL; Height < ImageContainer_GetHeight(Image); Height++) {
                         for (uint32_t Width = 0UL; Width < ImageContainer_GetWidth(Image); Width++) {
-                            for (uint32_t Byte = 0UL; Byte < Bits2Bytes(ImageContainer_GetBitDepth(Image), RoundingType_Up); Byte++) {
+                            for (uint32_t Byte = 0UL; Byte < Bits2Bytes(ImageType_GetBitDepth(Type), RoundingType_Up); Byte++) {
                                 uint16_t Current = (ImageArray[StereoView * Height * Width * Byte]);
 
                                 uint16_t Left    = ImageArray[StereoView * Height * Width * (Byte - 1)];
@@ -886,23 +890,23 @@ extern "C" {
 
                 for (size_t ScanLine = 0; ScanLine < ImageContainer_GetWidth(Image); ScanLine++) {
                     switch (ImageArray[0][ScanLine][0][0]) {
-                        case NotFiltered:
+                        case PNGFilter_Unfiltered:
                             // copy the Line except byte 0 (the filter indication byte) to the output buffer.
                             // With the ImageContainer framework the way it is, this is only possible at the end.
                             break;
-                        case SubFilter:
+                        case PNGFilter_Sub:
                             // SubFilter
                             PNG_Filter_Sub(Image);
                             break;
-                        case UpFilter:
+                        case PNGFilter_Up:
                             // UpFilter
                             PNG_Filter_Up(Image);
                             break;
-                        case AverageFilter:
+                        case PNGFilter_Average:
                             // AverageFilter
                             PNG_Filter_Average(Image);
                             break;
-                        case PaethFilter:
+                        case PNGFilter_Paeth:
                             // PaethFilter
                             PNG_Filter_Paeth(Image);
                             break;

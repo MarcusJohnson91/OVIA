@@ -283,13 +283,15 @@ extern "C" {
         .SupportedChannels = AudioMask_FrontLeft | AudioMask_FrontRight | AudioMask_FrontCenter | AudioMask_LFE | AudioMask_SurroundLeft | AudioMask_SurroundRight | AudioMask_SurroundCenter | AudioMask_RearLeft | AudioMask_RearRight | AudioMask_StereoLeft | AudioMask_StereoRight,
     };
 
-    extern const CodecIO_MIMETypes FLACMIMETypes;
+    extern const OVIA_MIMETypes FLACMIMETypes;
     
-    const CodecIO_MIMETypes FLACMIMETypes = {
-        .NumMIMETypes = 2,
-        .MIMETypes    = {
-            [0]       = UTF32String("image/FLAC"),
-            [1]       = UTF32String("image/pFLAC"),
+    const OVIA_MIMETypes FLACMIMETypes = {
+        .NumMIMETypes     = 1,
+        .MIMETypes        = {
+            [0]           = {
+                .Size     = 10,
+                .MIMEType = UTF32String("audio/flac"),
+            },
         },
     };
     

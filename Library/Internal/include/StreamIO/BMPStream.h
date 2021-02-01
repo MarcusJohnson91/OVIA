@@ -85,7 +85,7 @@ extern "C" {
             [0]               = {
                 .OffsetInBits = 0,
                 .SizeInBits   = 16,
-                .Signature    = (uint8_t[4]){0x42, 0x4D},
+                .Signature    = (uint8_t[2]){0x42, 0x4D},
             },
         },
     };
@@ -109,10 +109,16 @@ extern "C" {
     extern const OVIA_MIMETypes BMPMIMETypes;
     
     const OVIA_MIMETypes BMPMIMETypes = {
-        .NumMIMETypes = 2,
-        .MIMETypes    = {
-            [0]       = UTF32String("image/bmp"),
-            [1]       = UTF32String("image/x-bmp"),
+        .NumMIMETypes     = 2,
+        .MIMETypes        = {
+            [0]           = {
+                .Size     = 9,
+                .MIMEType = UTF32String("image/bmp"),
+            },
+            [1]           = {
+                .Size     = 11,
+                .MIMEType = UTF32String("image/x-bmp"),
+            }
         },
     };
     

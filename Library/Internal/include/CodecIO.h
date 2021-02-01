@@ -20,11 +20,6 @@
 extern "C" {
 #endif
 
-    typedef struct CodecIO_MIMETypes {
-        const uint8_t                NumMIMETypes;
-        PlatformIO_Immutable(UTF32*) MIMETypes[];
-    } CodecIO_MIMETypes;
-
     typedef struct CodecIO_ImageChannelConfig {
         const uint8_t           NumChannels;
         const Image_ChannelMask Channels[];

@@ -141,13 +141,28 @@ extern "C" {
     extern const OVIA_MIMETypes PNMMIMETypes;
     
     const OVIA_MIMETypes PNMMIMETypes = {
-        .NumMIMETypes = 5,
-        .MIMETypes    = {
-            [0]       = UTF32String("image/x-portable-bitmap"),
-            [1]       = UTF32String("image/x-portable-graymap"),
-            [2]       = UTF32String("image/x-portable-pixmap"),
-            [3]       = UTF32String("image/x-portable-anymap"),
-            [4]       = UTF32String("image/x-portable-arbitrarymap"),
+        .NumMIMETypes     = 5,
+        .MIMETypes        = {
+            [0]           = {
+                .Size     = 23,
+                .MIMEType = UTF32String("image/x-portable-bitmap"),
+            },
+            [1]           = {
+                .Size     = 23,
+                .MIMEType = UTF32String("image/x-portable-pixmap"),
+            },
+            [2]           = {
+                .Size     = 23,
+                .MIMEType = UTF32String("image/x-portable-anymap"),
+            },
+            [3]           = {
+                .Size     = 24,
+                .MIMEType = UTF32String("image/x-portable-graymap"),
+            },
+            [4]           = {
+                .Size     = 29,
+                .MIMEType = UTF32String("image/x-portable-arbitrarymap"),
+            }
         },
     };
     

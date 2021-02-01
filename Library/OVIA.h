@@ -275,10 +275,15 @@ extern "C" {
         const uint8_t            NumExtensions;
         const OVIA_ExtensionInfo Extensions[];
     } OVIA_Extensions;
+    
+    typedef struct OVIA_MIMEInfo {
+        const uint8_t                Size;
+        PlatformIO_Immutable(UTF32*) MIMEType;
+    } OVIA_MIMEInfo;
 
     typedef struct OVIA_MIMETypes {
-        const uint8_t NumMIMETypes;
-        const UTF32  *MIMETypes[];
+        const uint8_t            NumMIMETypes;
+        const OVIA_MIMEInfo      MIMETypes[];
     } OVIA_MIMETypes;
 
     typedef void* (*Function_Initalize)(void);
