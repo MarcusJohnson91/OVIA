@@ -895,23 +895,19 @@ extern "C" {
                             // With the ImageContainer framework the way it is, this is only possible at the end.
                             break;
                         case PNGFilter_Sub:
-                            // SubFilter
                             PNG_Filter_Sub(Image);
                             break;
                         case PNGFilter_Up:
-                            // UpFilter
                             PNG_Filter_Up(Image);
                             break;
                         case PNGFilter_Average:
-                            // AverageFilter
                             PNG_Filter_Average(Image);
                             break;
                         case PNGFilter_Paeth:
-                            // PaethFilter
                             PNG_Filter_Paeth(Image);
                             break;
                         default:
-                            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Filter type: %d is invalid"), ImageArray[ScanLine]);
+                            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Filter type: %d is invalid"), ImageArray[0][ScanLine][0][0]);
                             break;
                     }
                 }
@@ -921,23 +917,23 @@ extern "C" {
 
                 for (size_t ScanLine = 0; ScanLine < ImageContainer_GetWidth(Image); ScanLine++) {
                     switch (ImageArray[0][ScanLine][0][0]) {
-                        case NotFiltered:
+                        case PNGFilter_Unfiltered:
                             // copy the Line except byte 0 (the filter indication byte) to the output buffer.
                             break;
-                        case SubFilter:
+                        case PNGFilter_Sub:
                             PNG_Filter_Sub(Image);
                             break;
-                        case UpFilter:
+                        case PNGFilter_Up:
                             PNG_Filter_Up(Image);
                             break;
-                        case AverageFilter:
+                        case PNGFilter_Average:
                             PNG_Filter_Average(Image);
                             break;
-                        case PaethFilter:
+                        case PNGFilter_Paeth:
                             PNG_Filter_Paeth(Image);
                             break;
                         default:
-                            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Filter type: %d is invalid"), ImageArray[ScanLine]);
+                            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Filter type: %d is invalid"), ImageArray[0][ScanLine][0][0]);
                             break;
                     }
                 }

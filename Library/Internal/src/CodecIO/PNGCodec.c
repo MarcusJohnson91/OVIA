@@ -171,15 +171,15 @@ extern "C" {
         free(Dec->sBIT);
         free(Dec->sRGB);
         free(Dec->sTER);
+        free(Dec->tIMe);
+        free(Dec->tRNS->Palette);
+        free(Dec->tRNS);
+        free(Dec->iHDR);
         for (uint32_t TextChunk = 0UL; TextChunk < Dec->NumTextChunks; TextChunk++) {
             free(Dec->Text[TextChunk].Keyword);
             free(Dec->Text[TextChunk].Comment);
         }
         free(Dec->Text);
-        free(Dec->tIMe);
-        free(Dec->tRNS->Palette);
-        free(Dec->tRNS);
-        free(Dec->iHDR);
         free(Dec);
     }
 
