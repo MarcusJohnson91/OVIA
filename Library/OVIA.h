@@ -308,9 +308,9 @@ extern "C" {
         const Function_ManipulateContainer Encode;
         const Function_ManipulateBuffer    WriteFooter;
         const Function_Deinitalize         Deinitalize;
+        const OVIA_Extensions             *Extensions;
         const OVIA_CodecIDs                EncoderID;
         const OVIA_MediaTypes              MediaType;
-        const OVIA_Extensions             *Extensions;
         // How do we identify the encoder to choose? Maybe this should be an enum with a mapping function that maps all known codec names for example JPG, JPEG, JPE, JLS, JPEG-LS, JPEG-Lossless, LosslessJPEG to the CodecID
     } const OVIAEncoder;
     

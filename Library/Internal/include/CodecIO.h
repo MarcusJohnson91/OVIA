@@ -61,6 +61,15 @@ extern "C" {
         FunctionPointer_Media  Function_Media;
         FunctionPointer_Deinit Function_Deinitalize;
     } CodecIO_Decoder;
+  
+  typedef struct CodecIO_RegisteredCodecs {
+      const uint64_t   NumEncoders;
+      const uint64_t   NumDecoders;
+      CodecIO_Encoder *Encoders;
+      CodecIO_Decoder *Decoders;
+  } CodecIO_RegisteredCodecs;
+    
+    extern CodecIO_RegisteredCodecs CodecRegistry;
 
     extern uint64_t        NumEncoders;
     extern uint64_t        NumDecoders;

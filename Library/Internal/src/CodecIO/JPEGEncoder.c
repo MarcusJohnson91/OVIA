@@ -27,7 +27,7 @@ extern "C" {
             BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, JPEG->Channels[Channel].ChannelID);
             BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 4, JPEG->Channels[Channel].HorizontalSF);
             BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 4, JPEG->Channels[Channel].VerticalSF);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, JPEG->Channels[Channel].TableID); // 0
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, JPEG->Huffman->Values[TableID]); // 0
         }
     }
 
