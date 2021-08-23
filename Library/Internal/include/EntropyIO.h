@@ -6,9 +6,9 @@
  @brief               This header contains code for reusable Entropy encoders and decoders.
  */
 
-#include "Private/MediaIO.h"
-#include "../../Dependencies/FoundationIO/Library/include/BufferIO.h"
-#include "../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h"
+#include "../MediaIO.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/BufferIO.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h"
 
 #pragma once
 

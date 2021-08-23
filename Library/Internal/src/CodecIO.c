@@ -1,4 +1,4 @@
-#include "../../include/CodecIO.h"
+#include "../../../include/Private/CodecIO/CodecIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
@@ -11,7 +11,7 @@ extern "C" {
 #define DecoderID __COUNTER__
     
 #ifdef    OVIA_CodecIO_PNG
-#include "../../include/Private/CodecIO/PNGCodec.h"
+#include "../../../include/Private/CodecIO/PNGCodec.h"
 #ifdef    OVIA_CodecIO_Encode
     CodecIO_Encoder GlobalEncoders[EncoderID] = {PNGEncoder};
 #endif /* OVIA_CodecIO_Encode */
@@ -21,7 +21,7 @@ extern "C" {
 #endif /* OVIA_CodecIO_PNG */
     
 #ifdef    OVIA_CodecIO_FLAC
-#include "../../include/Private/CodecIO/FLACCodec.h"
+#include "../../../include/Private/CodecIO/FLACCodec.h"
 #ifdef    OVIA_CodecIO_Encode
     CodecIO_Encoder GlobalEncoders[EncoderID] = {FLACEncoder};
 #endif /* OVIA_CodecIO_Encode */
@@ -31,7 +31,7 @@ extern "C" {
 #endif /* OVIA_CodecIO_FLAC */
     
 #ifdef    OVIA_CodecIO_JPEG
-#include "../../include/Private/CodecIO/JPEGCodec.h"
+#include "../../../include/Private/CodecIO/JPEGCodec.h"
 #ifdef    OVIA_CodecIO_Encode
     CodecIO_Encoder GlobalEncoders[EncoderID] = {JPEGEncoder};
 #endif /* OVIA_CodecIO_Encode */
@@ -41,7 +41,7 @@ extern "C" {
 #endif /* OVIA_CodecIO_JPEG */
     
 #ifdef    OVIA_CodecIO_LIVC
-#include "../../include/Private/CodecIO/LIVCCodec.h"
+#include "../../../include/Private/CodecIO/LIVCCodec.h"
 #ifdef    OVIA_CodecIO_Encode
     CodecIO_Encoder GlobalEncoders[EncoderID] = {LIVCEncoder};
 #endif /* OVIA_CodecIO_Encode */

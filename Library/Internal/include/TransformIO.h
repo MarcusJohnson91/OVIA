@@ -6,7 +6,7 @@
  @brief               This header contains code for reusable reversible image transforms.
  */
 
-#include "Private/MediaIO.h"
+#include "../MediaIO.h"
 
 #pragma once
 

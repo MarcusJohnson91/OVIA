@@ -1,4 +1,4 @@
-#include "../../include/Private/CodecIO/JPEGCodec.h"
+#include "../../../include/Private/CodecIO/JPEGCodec.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {

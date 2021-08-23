@@ -6,10 +6,10 @@
  @brief               This header contains code for codecs (encoding and decoding).
  */
 
-#include "Private/MediaIO.h"
-#include "../../Dependencies/FoundationIO/Library/include/BufferIO.h"
-#include "../../Dependencies/FoundationIO/Library/include/MathIO.h"
-#include "../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h"
+#include "../MediaIO.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/BufferIO.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/MathIO.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h"
 
 #pragma once
 

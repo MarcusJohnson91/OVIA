@@ -1,7 +1,7 @@
-#include "../../include/Private/StreamIO/AIFStream.h"
-#include "../../include/Private/TagIO/AIFTags.h"
-#include "../../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h"
-#include "../../../Dependencies/FoundationIO/Library/include/MathIO.h"
+#include "../../../include/Private/StreamIO/AIFStream.h"
+#include "../../../include/Private/TagIO/AIFTags.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/MathIO.h"
 
 #ifdef __cplusplus
 extern "C" {

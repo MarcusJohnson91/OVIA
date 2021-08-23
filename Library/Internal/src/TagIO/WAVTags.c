@@ -1,8 +1,8 @@
-#include "../../include/TagIO.h"
-#include "../../include/Private/StreamIO/RIFFStream.h"
-#include "../../../Dependencies/FoundationIO/Library/include/MathIO.h"
-#include "../../../Dependencies/FoundationIO/Library/include/TextIO/StringIO.h"
-#include "../../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h"
+#include "../../../include/Private/TagIO/TagIO.h"
+#include "../../../include/Private/StreamIO/RIFFStream.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/MathIO.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/TextIO/StringIO.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h"
 
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)

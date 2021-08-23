@@ -7,8 +7,6 @@
  */
 
 #include "CodecIO.h"
-#include "../EntropyIO/Arithmetic.h"
-#include "../EntropyIO/CanonicalHuffman.h"
 
 #pragma once
 

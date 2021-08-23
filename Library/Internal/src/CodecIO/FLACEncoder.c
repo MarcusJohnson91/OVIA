@@ -1,6 +1,5 @@
-#include "../../include/Private/CodecIO/FLACCodec.h"
-#include "../../include/Private/Version.h"
-#include "../../../Dependencies/FoundationIO/Library/include/TextIO/FormatIO.h"
+#include "../../../include/Private/CodecIO/FLACCodec.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/TextIO/FormatIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {

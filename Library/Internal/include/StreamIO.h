@@ -6,8 +6,8 @@
  @brief               This header contains code for streams (muxing and demuxing).
  */
 
-#include "Private/MediaIO.h"
-#include "../../Dependencies/FoundationIO/Library/include/BufferIO.h" /* Included for BufferIO_ByteOrders and BufferIO_BitOrders enums */
+#include "../MediaIO.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/BufferIO.h" /* Included for BufferIO_ByteOrders and BufferIO_BitOrders enums */
 
 #pragma once
 
