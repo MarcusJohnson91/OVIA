@@ -24,6 +24,10 @@
 #include "../../../include/Private/StreamIO/FLACNativeStream.h"
 #endif /* OVIA_StreamIO_FLAC */
 
+#ifdef    OVIA_StreamIO_TIFF
+#include "../../../include/Private/StreamIO/TIFFStream.h"
+#endif /* OVIA_StreamIO_TIFF */
+
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
