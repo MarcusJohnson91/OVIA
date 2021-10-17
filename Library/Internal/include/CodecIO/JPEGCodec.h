@@ -87,6 +87,11 @@ extern "C" {
         uint16_t      *NumValues; // {TableSize0 = X, TableSize1 = Y}
     } JPEGHuffman;
 
+    typedef struct JPEGArithmetic {
+        uint64_t Numerator;
+        uint64_t Denominator;
+    } JPEGArithmetic;
+
     /*
     typedef struct JPEGHuffman {
 
@@ -101,7 +106,7 @@ extern "C" {
     typedef struct JPEGOptions {
         JPEG_ChannelParameters *Channels;
         JPEGHuffman            *Huffman;
-        Arithmetic             *Arithmetic;
+        JPEGArithmetic         *Arithmetic;
         // Huffman and Arthimetic states
         CharSet8               *Comment;
         uint16_t                Width;
