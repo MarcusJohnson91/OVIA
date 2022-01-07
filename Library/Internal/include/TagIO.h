@@ -6,12 +6,12 @@
  @brief               This header contains code for Tag conversion (e.g. ID3 to Vorbis and vice versa).
  */
 
-#include "../MediaIO.h"
-
 #pragma once
 
 #ifndef OVIA_TagIO_H
 #define OVIA_TagIO_H
+
+#include "../MediaIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {

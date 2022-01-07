@@ -6,12 +6,12 @@
  @brief               This header contains code for FLACNative streams.
  */
 
-#include "StreamIO.h"
-
 #pragma once
 
 #ifndef OVIA_StreamIO_FLACNativeStream_H
 #define OVIA_StreamIO_FLACNativeStream_H
+
+#include "StreamIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {

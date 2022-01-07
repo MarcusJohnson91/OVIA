@@ -6,13 +6,13 @@
  @brief               This header contains code for TIFF/EP streams.
  */
 
-#include "StreamIO.h"
-#include "../../../../Dependencies/FoundationIO/Library/include/BufferIO.h"
-
 #pragma once
 
 #ifndef OVIA_StreamIO_TIFFStream_H
 #define OVIA_StreamIO_TIFFStream_H
+
+#include "StreamIO.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/BufferIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {

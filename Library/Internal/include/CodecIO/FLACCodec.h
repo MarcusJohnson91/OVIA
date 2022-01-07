@@ -6,12 +6,12 @@
  @brief               This header contains code for PNG (encoding and decoding).
  */
 
-#include "CodecIO.h"
-
 #pragma once
 
 #ifndef OVIA_FLACCodec_H
 #define OVIA_FLACCodec_H
+
+#include "CodecIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {

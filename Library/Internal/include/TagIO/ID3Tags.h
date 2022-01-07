@@ -6,12 +6,12 @@
  @brief               This header contains code for reading ID3v2 Tags.
  */
 
-#include "TagIO.h"
-
 #pragma once
 
 #ifndef OVIA_TagIO_ID3Tags_H
 #define OVIA_TagIO_ID3Tags_H
+
+#include "TagIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {

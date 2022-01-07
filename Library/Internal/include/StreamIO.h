@@ -6,13 +6,13 @@
  @brief               This header contains code for streams (muxing and demuxing).
  */
 
-#include "../MediaIO.h"
-#include "../../../../Dependencies/FoundationIO/Library/include/BufferIO.h" /* Included for BufferIO_ByteOrders and BufferIO_BitOrders enums */
-
 #pragma once
 
 #ifndef OVIA_StreamIO_H
 #define OVIA_StreamIO_H
+
+#include "../MediaIO.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/BufferIO.h" /* Included for Byte and Bit Order enums */
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {

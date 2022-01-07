@@ -6,12 +6,12 @@
  @brief               This header contains code for DNG (encoding and decoding).
  */
 
-#include "CodecIO.h"
-
 #pragma once
 
 #ifndef OVIA_DNGCodec_H
 #define OVIA_DNGCodec_H
+
+#include "CodecIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {

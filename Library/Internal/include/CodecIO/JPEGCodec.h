@@ -4,20 +4,19 @@
  @copyright           2020+
  @version             1.0.0
  @brief               This header contains code for JPEG (encoding and decoding).
+ @remak               ONLY LOSSLESS versions of JPEG will ever be supported.
  */
-
-#include "CodecIO.h"
 
 #pragma once
 
 #ifndef OVIA_JPEGCodec_H
 #define OVIA_JPEGCodec_H
 
+#include "CodecIO.h"
+
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
-    
-    /* !!!ONLY LOSSLESS JPEG CODECS WILL EVER BE SUPPORTED!!! */
 
     typedef enum JPEG_Markers {
         JPEGMarker_StartOfImage           = 0xFFD8, // SOI, Magic

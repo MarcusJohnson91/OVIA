@@ -1,15 +1,15 @@
-#include "../../Dependencies/FoundationIO/Library/include/PlatformIO.h"
-#include "../../Dependencies/FoundationIO/Library/include/TextIO/TextIOTypes.h"
-
 #pragma once
 
 #ifndef OVIA_OVIA_H
 #define OVIA_OVIA_H
 
+#include "../../Dependencies/FoundationIO/Library/include/PlatformIO.h"
+#include "../../Dependencies/FoundationIO/Library/include/TextIO/TextIOTypes.h"
+
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
-
+    
     /*
      OVIA Interface: User Perspective
      Read the command line arguments

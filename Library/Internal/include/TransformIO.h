@@ -6,12 +6,12 @@
  @brief               This header contains code for reusable reversible image transforms.
  */
 
-#include "../MediaIO.h"
-
 #pragma once
 
 #ifndef OVIA_TransformIO_H
 #define OVIA_TransformIO_H
+
+#include "../MediaIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {

@@ -6,14 +6,14 @@
  @brief               This header contains code for reusable Entropy encoders and decoders.
  */
 
-#include "../MediaIO.h"
-#include "../../../../Dependencies/FoundationIO/Library/include/BufferIO.h"
-#include "../../../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h"
-
 #pragma once
 
 #ifndef OVIA_EntropyIO_H
 #define OVIA_EntropyIO_H
+
+#include "../MediaIO.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/BufferIO.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {

@@ -4,16 +4,14 @@
  @copyright           2020+
  @version             1.0.0
  @brief               This header contains code for OGG streams.
- Has Substreams.
- is multiplexible
  */
-
-#include "StreamIO.h"
 
 #pragma once
 
 #ifndef OVIA_StreamIO_OGGStream_H
 #define OVIA_StreamIO_OGGStream_H
+
+#include "StreamIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {

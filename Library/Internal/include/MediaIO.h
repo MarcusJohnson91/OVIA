@@ -6,12 +6,12 @@
  @brief               This header contains code for media (type generic arrays)
  */
 
-#include "../OVIA.h"
-
 #pragma once
 
 #ifndef OVIA_MediaIO_H
 #define OVIA_MediaIO_H
+
+#include "../OVIA.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {

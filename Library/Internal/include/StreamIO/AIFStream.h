@@ -6,13 +6,13 @@
  @brief               This header contains code for AIF streams.
  */
 
-#include "StreamIO.h"
-#include "TagIO.h"
-
 #pragma once
 
 #ifndef OVIA_StreamIO_AIFStream_H
 #define OVIA_StreamIO_AIFStream_H
+
+#include "StreamIO.h"
+#include "TagIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {

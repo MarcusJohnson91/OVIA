@@ -1,9 +1,9 @@
-#include "EntropyIO.h"
-
 #pragma once
 
 #ifndef OVIA_EntropyIO_Flate_h
 #define OVIA_EntropyIO_Flate_h
+
+#include "EntropyIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
