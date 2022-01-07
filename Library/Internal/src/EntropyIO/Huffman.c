@@ -1,4 +1,4 @@
-#include "../../../include/Private/EntropyIO/EntropyIO.h"
+#include "../../../include/Private/EntropyIO/Huffman.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
@@ -53,22 +53,22 @@ extern "C" {
              C.1:
 
              for (i = 0; i < ????; i++) {
-                for (j = 0; j < ????; j++) {
-                    for (k = 1; k < ????; k++) {
-                        if (k > BitLengths[i]) {
-                            i += 1;
-                            j  = 1;
-                            if (i > 16) {
-                                HUFFSIZE[k] = 0;
-                                LASTK       = k;
-                            }
-                        } else {
-                            HUFFSIZE[k] = i + 1;
-                            k += 1;
-                            j += 1;
-                        }
-                    }
-                }
+             for (j = 0; j < ????; j++) {
+             for (k = 1; k < ????; k++) {
+             if (k > BitLengths[i]) {
+             i += 1;
+             j  = 1;
+             if (i > 16) {
+             HUFFSIZE[k] = 0;
+             LASTK       = k;
+             }
+             } else {
+             HUFFSIZE[k] = i + 1;
+             k += 1;
+             j += 1;
+             }
+             }
+             }
              }
              */
 

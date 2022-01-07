@@ -1,8 +1,19 @@
 #include "../../../include/Private/TagIO/TagIO.h"
 #include "../../../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h"
 
-#ifdef OVIA_TagIO_AIF
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
+extern "C" {
+#endif
+
+#ifdef    OVIA_TagIO_AIF
 #include "../../../include/Private/TagIO/AIFTags.h"
+#ifdef    OVIA_StreamIO_Mux
+TagIO_RegisterEncoder()
+StreamIO_RegisterMuxer(AIFMuxer)
+#endif /* OVIA_StreamIO_Mux */
+#ifdef    OVIA_StreamIO_Demux
+StreamIO_RegisterDemuxer(AIFDemuxer)
+#endif /* OVIA_StreamIO_Demux */
 #endif /* OVIA_TagIO_AIF */
 
 #ifdef OVIA_TagIO_APE
@@ -20,10 +31,6 @@
 #ifdef OVIA_TagIO_WAV
 #include "../../../include/Private/TagIO/WAVTags.h"
 #endif /* OVIA_TagIO_WAV */
-
-#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
-extern "C" {
-#endif
 
     TagIO_Tags *TagIO_Init(uint64_t NumTags) {
         TagIO_Tags *Tags    = calloc(1, sizeof(TagIO_Tags));

@@ -50,15 +50,15 @@ extern "C" {
     } PNGChunkMarkers;
 
     typedef enum PNGColorTypes {
-        PNGColor_Gray             = 0, // PNG_Grayscale
-        PNGColor_RGB              = 2, // PNG_RGB
-        PNGColor_Palette          = 3, // PNG_PalettedRGB
-        PNGColor_GrayAlpha        = 4, // PNG_GrayAlpha
-        PNGColor_RGBAlpha         = 6, // PNG_RGBA
+        PNGColor_Gray             = 0,
+        PNGColor_RGB              = 2,
+        PNGColor_Palette          = 3,
+        PNGColor_GrayAlpha        = 4,
+        PNGColor_RGBAlpha         = 6,
     } PNGColorTypes;
 
     typedef enum PNGFilterTypes {
-        PNGFilter_Unfiltered      = 0, // NotFiltered
+        PNGFilter_Unfiltered      = 0,
         PNGFilter_Sub             = 1, // SubFilter
         PNGFilter_Up              = 2, // UpFilter
         PNGFilter_Average         = 3, // AverageFilter
@@ -194,6 +194,7 @@ extern "C" {
     typedef struct pCAL {
         UTF8      *CalibrationName;
         uint8_t   *UnitName;
+        double    *Parameters;
         int32_t    OriginalZero;
         int32_t    OriginalMax;
         uint8_t    CalibrationNameSize;
@@ -216,11 +217,17 @@ extern "C" {
         bool       CRCIsValid:1;
     } hIST;
 
+    typedef enum PNGTextTypes {
+        PNGTextType_tEXt = 0,
+        PNGTextType_iTXt = 1,
+        PNGTextType_zTXt = 2,
+    } PNGTextTypes;
+
     typedef struct Text { // Replaces:  tEXt, iTXt, zTXt
-        UTF8      *Keyword;
-        UTF8      *Comment;
-        uint8_t    TextType;
-        bool       CRCIsValid:1;
+        UTF8         *Keyword;
+        UTF8         *Comment;
+        PNGTextTypes  TextType;
+        bool          CRCIsValid:1;
     } Text;
 
     typedef struct tIMe {
@@ -232,6 +239,20 @@ extern "C" {
         uint8_t    Second;
         bool       CRCIsValid:1;
     } tIMe;
+
+    typedef struct PaletteEntry {
+        uint16_t Red;
+        uint16_t Green;
+        uint16_t Blue;
+        uint16_t Alpha;
+    } PaletteEntry;
+
+    typedef struct sPLT {
+        UTF8         *PaletteName; // 1-79 CodeUnits, NULL terminator, size is number of colors minus PaletteName + Terminator + SampleDepth bytes
+        PaletteEntry *Palette;
+        uint64_t      NumEntries;
+        uint8_t       SampleDepth;
+    } sPLT;
 
     typedef struct PNGOptions {
         struct acTL   *acTL;
@@ -250,11 +271,13 @@ extern "C" {
         struct PLTE   *PLTE;
         struct sBIT   *sBIT;
         struct sCAL   *sCAL;
+        struct sPLT   *sPLT;
         struct sRGB   *sRGB;
         struct sTER   *sTER;
         struct Text   *Text;
         struct tIMe   *tIMe;
         struct tRNS   *tRNS;
+        uint32_t       NumSPLTChunks;
         uint32_t       NumTextChunks;
         uint32_t       CurrentFrame;
         uint32_t       LineWidth;

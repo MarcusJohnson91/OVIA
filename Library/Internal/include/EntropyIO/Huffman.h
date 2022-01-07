@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef OVIA_EntropyIO_CanonicalHuffman_h
-#define OVIA_EntropyIO_CanonicalHuffman_h
+#ifndef OVIA_EntropyIO_Huffman_h
+#define OVIA_EntropyIO_Huffman_h
 
 #include "EntropyIO.h"
 
@@ -34,10 +34,8 @@ extern "C" {
 
     HuffmanTree *HuffmanTree_Init(uint8_t BitLengths[16], uint8_t *Values);
 
-
-
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif
 
-#endif /* OVIA_EntropyIO_CanonicalHuffman_h */
+#endif /* OVIA_EntropyIO_Huffman_h */

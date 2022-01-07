@@ -123,17 +123,17 @@ extern "C" {
     };
     
 #if defined(OVIA_StreamIO_Encode)
-    extern const OVIA_Stream BMPEncoder;
+    extern const OVIA_Stream BMPMuxer;
     
-    const OVIA_Stream BMPEncoder = {
+    const OVIA_Stream BMPMuxer = {
         .MagicID = &BMPSignature,
     };
 #endif /* OVIA_StreamIO_Encode */
     
 #if defined(OVIA_StreamIO_Decode)
-    extern const OVIA_Stream BMPDecoder;
+    extern const OVIA_Stream BMPDemuxer;
     
-    const OVIA_Stream BMPDecoder = {
+    const OVIA_Stream BMPDemuxer = {
         .MagicID = &BMPSignature,
     };
 #endif /* OVIA_StreamIO_Decode */

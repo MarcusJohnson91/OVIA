@@ -136,17 +136,17 @@ extern "C" {
     };
     
 #if defined(OVIA_StreamIO_Encode)
-    extern const OVIA_Stream AIFEncoder;
+    extern const OVIA_Stream AIFMuxer;
     
-    const OVIA_Stream AIFEncoder = {
+    const OVIA_Stream AIFMuxer = {
         .MagicID = &AIFSignature,
     };
 #endif /* OVIA_StreamIO_Encode */
     
 #if defined(OVIA_StreamIO_Decode)
-    extern const OVIA_Stream AIFDecoder;
+    extern const OVIA_Stream AIFDemuxer;
     
-    const OVIA_Stream AIFDecoder = {
+    const OVIA_Stream AIFDemuxer = {
         .MagicID = &AIFSignature,
     };
 #endif /* OVIA_StreamIO_Decode */

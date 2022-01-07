@@ -88,17 +88,17 @@ extern "C" {
     };
     
 #if defined(OVIA_StreamIO_Encode)
-    extern const OVIA_Stream OGGEncoder;
+    extern const OVIA_Stream OGGMuxer;
     
-    const OVIA_Stream OGGEncoder = {
+    const OVIA_Stream OGGMuxer = {
         .MagicID = &OGGSignature,
     };
 #endif /* OVIA_StreamIO_Encode */
     
 #if defined(OVIA_StreamIO_Decode)
-    extern const OVIA_Stream OGGDecoder;
+    extern const OVIA_Stream OGGDemuxer;
     
-    const OVIA_Stream OGGDecoder = {
+    const OVIA_Stream OGGDemuxer = {
         .MagicID = &OGGSignature,
     };
 #endif /* OVIA_StreamIO_Decode */

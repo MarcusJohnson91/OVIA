@@ -1,4 +1,5 @@
-#include "../../../include/Private/EntropyIO/EntropyIO.h"
+#include "../../../include/Private/EntropyIO/Flate.h"
+#include "../../../include/Private/EntropyIO/Huffman.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
@@ -36,6 +37,42 @@ extern "C" {
         }
     }
 
+    HuffmanTree *Flate_BuildHuffmanTree(uint16_t *SymbolLengths, uint16_t NumSymbols) {
+        HuffmanTree *Tree = HuffmanTree_Init(SymbolLengths, NumSymbols);
+        if (SymbolLengths != NULL) {
+            for (uint16_t Symbol = 0; Symbol < NumSymbols; Symbol++) {
+                Tree->Frequency[SymbolLengths[Symbol]] += 1;
+            }
+
+            uint16_t *Offsets = calloc(MaxBitsPerSymbol + 1, sizeof(uint16_t));
+            if (Offsets != NULL) {
+                for (uint16_t SymbolLength = 1; SymbolLength < MaxBitsPerSymbol; SymbolLength++) {
+                    Offsets[SymbolLength + 1] = Offsets[SymbolLength] + Tree->Frequency[SymbolLength];
+                }
+
+                for (uint16_t Symbol = 0; Symbol < NumSymbols; Symbol++) {
+                    if (SymbolLengths[Symbol] != 0) {
+                        Tree->Symbol[Offsets[SymbolLengths[Symbol]] + 1] = Symbol;
+                    }
+                }
+                free(Offsets);
+            } else {
+                Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Couldn't allocate Offset table"));
+            }
+        } else if (SymbolLengths == NULL) {
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("SymbolLengths is NULL"));
+        }
+        return Tree;
+    }
+
+    void HuffmanTree_Deinit(HuffmanTree *Tree) {
+        if (Tree != NULL) {
+            free(Tree->Frequency);
+            free(Tree->Symbol);
+        }
+        free(Tree);
+    }
+
     void Flate_ReadDeflateBlock(BitBuffer *BitB) {
         if (BitB != NULL) {
             bool    BFINAL        = No;
@@ -53,8 +90,8 @@ extern "C" {
                         Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Literal Block Length and 1's Complement Length do not match"));
                     }
                 } else if (BTYPE == BlockType_Fixed) {
-                    HuffmanTable *Length        = PNG_Flate_BuildHuffmanTree(FixedLiteralTable, 288);
-                    HuffmanTable *Distance      = PNG_Flate_BuildHuffmanTree(FixedDistanceTable, 32);
+                    HuffmanTable *Length        = Flate_BuildHuffmanTree(FixedLiteralTable, 288);
+                    HuffmanTable *Distance      = Flate_BuildHuffmanTree(FixedDistanceTable, 32);
                     PNG_Flate_ReadHuffman(PNG, BitB, Length, Distance, Image);
                 } else if (BTYPE == BlockType_Dynamic) {
                     uint16_t NumLengthCodes               = 257 + BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 5); // HLIT; 21, 26?
@@ -68,7 +105,7 @@ extern "C" {
                             CodeLengthCodeLengths[MetaCodeLengthOrder[CodeLengthCodeLengthCode]] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 3);
                         }
 
-                        HuffmanTree *Tree2DecodeTrees     = PNG_Flate_BuildHuffmanTree(CodeLengthCodeLengths, NumMetaCodes);
+                        HuffmanTree *Tree2DecodeTrees     = Flate_BuildHuffmanTree(CodeLengthCodeLengths, NumMetaCodes);
                         uint16_t Index = 0;
                         do {
                             uint64_t Length2Repeat        = 0; // len

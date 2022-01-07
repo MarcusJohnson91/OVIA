@@ -1,6 +1,7 @@
 #include "../../../include/Private/CodecIO/PNGCodec.h"
 #include "../../../../Dependencies/FoundationIO/Library/include/TextIO/StringIO.h"
 #include "../../../../Dependencies/FoundationIO/Library/include/CryptographyIO.h"
+#include "../../../include/Private/EntropyIO/Flate.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
@@ -18,10 +19,10 @@ extern "C" {
         Dec->iHDR->FilterMethod   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
         Dec->iHDR->IsInterlaced   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
 
-        uint32_t GeneratedCRC     = CRC32(BitB, BitBuffer_GetPosition(BitB) - 104,  BitBuffer_GetPosition(BitB));
+        uint32_t ComputedCRC      = BitBuffer_CalculateCRC(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitBuffer_GetPosition(BitB) - 104, 13, 0xFFFFFFFF, CRCPolynomial_IEEE802_3);
 
         uint32_t CRC              = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        if (GeneratedCRC != CRC) {
+        if (ComputedCRC != CRC) {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("CRC Mismatch"));
         }
     }
@@ -49,7 +50,7 @@ extern "C" {
 
     void PNG_Read_TRNS(PNGOptions *Dec, BitBuffer *BitB, uint32_t ChunkSize) { // Transparency
         Dec->tRNS->NumEntries = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        uint16_t **Entries    = NULL;
+        uint16_t *Entries    = NULL;
         if (Dec->iHDR->ColorType == PNGColor_RGB) {
             Entries = calloc(3, Bits2Bytes(Dec->iHDR->BitDepth, RoundingType_Down) * sizeof(uint16_t));
         } else if (Dec->iHDR->ColorType == PNGColor_RGBAlpha) {
@@ -65,7 +66,6 @@ extern "C" {
             for (uint8_t Color = 0; Color < PNGNumChannelsFromColorType[Dec->iHDR->ColorType]; Color++) {
                 Entries[Color]    = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, Bits2Bytes(Dec->iHDR->BitDepth, RoundingType_Down));
             }
-            //Dec->tRNS->Palette = Entries;
         }
     }
 
@@ -132,7 +132,7 @@ extern "C" {
     }
 
     void PNG_Read_PCAL(PNGOptions *Dec, BitBuffer *BitB, uint32_t ChunkSize) {
-        char CalibrationName[80];
+        UTF8 CalibrationName[80];
         while (BitBuffer_PeekBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8) != 0x0) {
             for (uint8_t Byte = 0; Byte < 80; Byte++) {
                 CalibrationName[Byte] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
@@ -169,7 +169,7 @@ extern "C" {
     }
 
     void PNG_Read_TEXT(PNGOptions *Dec, BitBuffer *BitB, uint32_t ChunkSize) { // Uncompressed, ASCII tEXt
-                                                                              // Read until you hit a NULL for the name string, then subtract the size of the previous string from the total length to get the number of bytes for the second string
+       // Read until you hit a NULL for the name string, then subtract the size of the previous string from the total length to get the number of bytes for the second string
         uint8_t  KeywordSize = 0UL;
         uint8_t  CurrentByte = 0; // 1 is BULLshit
 
@@ -201,10 +201,6 @@ extern "C" {
         // Now, how do we handle multiple text strings?
         // Why not just have a count of the text chunks?
         // Store a variable in PNGOptions called NumTextChunks, then store a type called Comment or something that stores both the comment type as a string and the actual comment...
-
-
-
-
     }
 
     void PNG_Read_ZTXT(PNGOptions *Dec, BitBuffer *BitB, uint32_t ChunkSize) { // Compressed text
@@ -358,7 +354,7 @@ extern "C" {
 
         }
         uint32_t ChunkCRC = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        uint32_t ContentCRC = CRC32(BitB, BitBuffer_GetPosition(BitB) - 104,  BitBuffer_GetPosition(BitB));
+        uint32_t ContentCRC = BitBuffer_CalculateCRC(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitBuffer_GetPosition(BitB) - 104, ChunkSize, 0xFFFFFFFF, CRCPolynomial_IEEE802_3);
         bool CRCsMatch = No;
         if (ContentCRC == ChunkCRC) {
             CRCsMatch  = Yes;
@@ -367,15 +363,16 @@ extern "C" {
     }
 
     uint8_t PaethPredictor(int64_t Left, int64_t Above, int64_t UpperLeft) {
-        int64_t Guess     = Left + Above - UpperLeft;
-        int64_t DistanceA = llabs(Guess - Left);
-        int64_t DistanceB = llabs(Guess - Above);
-        int64_t DistanceC = llabs(Guess - UpperLeft);
+        uint8_t Output    = 0;
 
-        uint8_t Output = 0;
-        if (DistanceA <= DistanceB && DistanceA < DistanceC) {
+        int64_t Guess     = Left + Above - UpperLeft;
+        int64_t DistanceA = AbsoluteI(Guess - Left);
+        int64_t DistanceB = AbsoluteI(Guess - Above);
+        int64_t DistanceC = AbsoluteI(Guess - UpperLeft);
+
+        if (DistanceA <= DistanceB && DistanceA <= DistanceC) {
             Output = DistanceA;
-        } else if (DistanceB < DistanceC) {
+        } else if (DistanceB <= DistanceC) {
             Output = DistanceB;
         } else {
             Output = DistanceC;
@@ -460,23 +457,18 @@ extern "C" {
                 PNGFilterTypes FilterType = ExtractLineFilterType(*DeFilteredData[Line]);
                 switch (FilterType) {
                     case PNGFilter_Unfiltered:
-                        // copy the Line except byte 0 (the filter indication byte) to the output buffer.
                         PNGDecodeNonFilter(Dec, InflatedBuffer, DeFilteredData, Line);
                         break;
                     case PNGFilter_Sub:
-                        // SubFilter
                         PNGDecodeSubFilter(Dec, InflatedBuffer, DeFilteredData, Line);
                         break;
                     case PNGFilter_Up:
-                        // UpFilter
                         PNGDecodeUpFilter(Dec, InflatedBuffer, DeFilteredData, Line);
                         break;
                     case PNGFilter_Average:
-                        // AverageFilter
                         PNGDecodeAverageFilter(Dec, InflatedBuffer, DeFilteredData, Line);
                         break;
                     case PNGFilter_Paeth:
-                        // PaethFilter
                         PNGDecodePaethFilter(Dec, InflatedBuffer, DeFilteredData, Line);
                         break;
                     default:
@@ -624,9 +616,9 @@ extern "C" {
                         Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Data Error: Bytes2Copy does not match Bytes2CopyXOR in literal block"));
                     }
                 } else if (BlockType == BlockType_Fixed) {
-                    //Tree = PNG_Flate_BuildHuffmanTree();
+                    //Tree = Flate_BuildHuffmanTree();
                 } else if (BlockType == BlockType_Dynamic) {
-                    //Tree = PNG_Flate_BuildHuffmanTree();
+                    //Tree = Flate_BuildHuffmanTree();
                 } else {
                     Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("PNG Invalid DAT Block"));
                 }
@@ -701,24 +693,6 @@ extern "C" {
         }
     }
     */
-
-    uint8_t PaethPredictor(int64_t Left, int64_t Above, int64_t UpperLeft) {
-        uint8_t Output    = 0;
-
-        int64_t Guess     = Left + Above - UpperLeft;
-        int64_t DistanceA = AbsoluteI(Guess - Left);
-        int64_t DistanceB = AbsoluteI(Guess - Above);
-        int64_t DistanceC = AbsoluteI(Guess - UpperLeft);
-
-        if (DistanceA <= DistanceB && DistanceA <= DistanceC) {
-            Output = DistanceA;
-        } else if (DistanceB <= DistanceC) {
-            Output = DistanceB;
-        } else {
-            Output = DistanceC;
-        }
-        return Output;
-    }
 
     void PNG_Filter_Sub(ImageContainer *Image) {
         if (Image != NULL) {
@@ -949,29 +923,29 @@ extern "C" {
             bool     Is3D           = PNG->sTER->StereoType > 0 ? Yes : No;
             uint8_t  BitDepth       = PNG->iHDR->BitDepth;
             uint8_t  ColorType      = PNG->iHDR->ColorType;
-            uint8_t  NumChannels    = PNG_NumChannelsPerColorType[ColorType];
+            uint8_t  NumChannels    = PNGNumChannelsFromColorType[ColorType];
             uint64_t Width          = PNG->iHDR->Width;
             uint64_t Height         = PNG->iHDR->Height;
             ImageContainer *Decoded = NULL;
             Image_ChannelMask Mask  = 0;
 
-            PNG_Flate_ReadZlibHeader(PNG, BitB);
+            Flate_ReadZlibHeader(PNG, BitB);
 
             if (Is3D == true) {
                 Mask += ImageMask_3D_L;
                 Mask += ImageMask_3D_R;
             }
 
-            if (ColorType == PNG_Grayscale) {
+            if (ColorType == PNGColor_Gray) {
                 Mask += ImageMask_Luma;
-            } else if (ColorType == PNG_GrayAlpha) {
+            } else if (ColorType == PNGColor_GrayAlpha) {
                 Mask += ImageMask_Luma;
                 Mask += ImageMask_Alpha;
-            } else if (ColorType == PNG_RGB || ColorType == PNG_PalettedRGB) {
+            } else if (ColorType == PNGColor_RGB || ColorType == PNGColor_Palette) {
                 Mask += ImageMask_Red;
                 Mask += ImageMask_Green;
                 Mask += ImageMask_Blue;
-            } else if (ColorType == PNG_RGBA) {
+            } else if (ColorType == PNGColor_RGBAlpha) {
                 Mask += ImageMask_Red;
                 Mask += ImageMask_Green;
                 Mask += ImageMask_Blue;
@@ -986,8 +960,8 @@ extern "C" {
                 Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("BitDepth %d is invalid"), BitDepth);
             }
 
-            PNG_DAT_Decode(PNG, BitB, Decoded);
-            PNG_Flate_ReadDeflateBlock(PNG, BitB, Decoded);
+            //PNG_DAT_Decode(PNG, BitB, Decoded);
+            Flate_ReadDeflateBlock(PNG, BitB, Decoded);
         } else if (Options == NULL) {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -1015,7 +989,7 @@ extern "C" {
             }
             PNG->iHDR->Compression    = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
             PNG->iHDR->FilterMethod   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
-            PNG->iHDR->Progressive    = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+            PNG->iHDR->IsInterlaced   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
         } else if (Options == NULL) {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {
@@ -1029,14 +1003,14 @@ extern "C" {
             uint8_t BitDepth = PNG->iHDR->BitDepth;
             if (BitDepth <= 8) {
                 uint8_t ColorType = PNG->iHDR->ColorType;
-                if (ColorType == PNG_PalettedRGB || ColorType == PNG_RGB) {
+                if (ColorType == PNGColor_Palette || ColorType == PNGColor_RGB) {
                     //PNG_PLTE_Init(Ovia);
                     for (uint32_t Entry = 0UL; Entry < ChunkSize / 3; Entry++) {
                         PNG->PLTE->Palette[0] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 8);
                         PNG->PLTE->Palette[1] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 8);
                         PNG->PLTE->Palette[2] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 8);
                     }
-                } else if (ColorType == PNG_RGBA) {
+                } else if (ColorType == PNGColor_RGBAlpha) {
                     for (uint32_t Entry = 0UL; Entry < ChunkSize / 3; Entry++) {
                         PNG->PLTE->Palette[0] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 8);
                         PNG->PLTE->Palette[1] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 8);
@@ -1060,17 +1034,17 @@ extern "C" {
             PNGOptions *PNG       = Options;
             uint32_t NumEntries   = ChunkSize % 3;
             uint16_t **Entries    = NULL;
-            if (PNG->iHDR->ColorType == PNG_RGB) {
+            if (PNG->iHDR->ColorType == PNGColor_RGB) {
                 Entries = calloc(3, Bits2Bytes(PNG->iHDR->BitDepth, RoundingType_Up) * sizeof(uint16_t));
-            } else if (PNG->iHDR->ColorType == PNG_RGBA) {
+            } else if (PNG->iHDR->ColorType == PNGColor_RGBAlpha) {
                 Entries = calloc(4, Bits2Bytes(PNG->iHDR->BitDepth, RoundingType_Up) * sizeof(uint16_t));
-            } else if (PNG->iHDR->ColorType == PNG_Grayscale) {
+            } else if (PNG->iHDR->ColorType == PNGColor_Gray) {
                 Entries = calloc(1, Bits2Bytes(PNG->iHDR->BitDepth, RoundingType_Up) * sizeof(uint16_t));
-            } else if (PNG->iHDR->ColorType == PNG_GrayAlpha) {
+            } else if (PNG->iHDR->ColorType == PNGColor_GrayAlpha) {
                 Entries = calloc(2, Bits2Bytes(PNG->iHDR->BitDepth, RoundingType_Up) * sizeof(uint16_t));
             }
             if (Entries != NULL) {
-                for (uint8_t Color = 0; Color < PNG_NumChannelsPerColorType[PNG->iHDR->ColorType]; Color++) {
+                for (uint8_t Color = 0; Color < PNGNumChannelsFromColorType[PNG->iHDR->ColorType]; Color++) {
                     Entries[Color]    = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, Bits2Bytes(PNG->iHDR->BitDepth, RoundingType_Up));
                 }
                 //Ovia->tRNS->Palette = Entries;
@@ -1089,7 +1063,7 @@ extern "C" {
     void PNG_BKGD_Parse(void *Options, BitBuffer *BitB) { // Background
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG = Options;
-            for (uint8_t Entry = 0; Entry < PNG_NumChannelsPerColorType[PNG->iHDR->ColorType]; Entry++) {
+            for (uint8_t Entry = 0; Entry < PNGNumChannelsFromColorType[PNG->iHDR->ColorType]; Entry++) {
                 PNG->bkGD->BackgroundPaletteEntry[Entry] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, PNG->iHDR->BitDepth);
             }
         } else if (Options == NULL) {
@@ -1207,17 +1181,17 @@ extern "C" {
     void PNG_SBIT_Parse(void *Options, BitBuffer *BitB) { // Significant bits per sample
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG          = Options;
-            PNG_ColorTypes ColorType = PNG->iHDR->ColorType;
-            if (ColorType == PNG_Grayscale) {
+            PNGColorTypes ColorType  = PNG->iHDR->ColorType;
+            if (ColorType == PNGColor_Gray) {
                 PNG->sBIT->Grayscale = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
-            } else if (ColorType == PNG_RGB || ColorType == PNG_PalettedRGB) {
+            } else if (ColorType == PNGColor_RGB || ColorType == PNGColor_Palette) {
                 PNG->sBIT->Red       = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
                 PNG->sBIT->Green     = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
                 PNG->sBIT->Blue      = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
-            } else if (ColorType == PNG_GrayAlpha) {
+            } else if (ColorType == PNGColor_GrayAlpha) {
                 PNG->sBIT->Grayscale = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
                 PNG->sBIT->Alpha     = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
-            } else if (ColorType == PNG_RGBA) {
+            } else if (ColorType == PNGColor_RGBAlpha) {
                 PNG->sBIT->Red       = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
                 PNG->sBIT->Green     = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
                 PNG->sBIT->Blue      = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
@@ -1266,11 +1240,11 @@ extern "C" {
         if (Options != NULL && BitB != NULL) {
             PNGOptions *PNG = Options;
             for (uint32_t TextChunk = 0UL; TextChunk < PNG->NumTextChunks; TextChunk++) {
-                if (PNG->Text[TextChunk].TextType == tEXt) { // ASCII aka Latin-1
+                if (PNG->Text[TextChunk].TextType == PNGTextType_tEXt) { // ASCII aka Latin-1
 
-                } else if (PNG->Text[TextChunk].TextType == iTXt) { // Unicode, UTF-8
+                } else if (PNG->Text[TextChunk].TextType == PNGTextType_iTXt) { // Unicode, UTF-8
 
-                } else if (PNG->Text[TextChunk].TextType == zTXt) { // Compressed
+                } else if (PNG->Text[TextChunk].TextType == PNGTextType_zTXt) { // Compressed
 
                 }
             }
@@ -1383,18 +1357,26 @@ extern "C" {
         ProfileNameSize = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
     }
 
-    void PNG_SPLT_Parse(void *Options, BitBuffer *BitB) {
+    void PNG_SPLT_Parse(void *Options, BitBuffer *BitB, uint32_t ChunkSize) {
         if (Options != NULL && BitB != NULL) {
-            PNGOptions *PNG                          = Options;
-            PNG_ColorTypes ColorType                 = PNG->iHDR->ColorType;
-            uint8_t BitDepthInBytes                  = Bits2Bytes(PNG->iHDR->BitDepth, RoundingType_Up);
-            uint8_t PaletteNameSize                  = BitBuffer_GetUTF8StringSize(BitB);
-            PNG->sPLT[PNG->NumSPLTChunks - 1]->Name  = BitBuffer_ReadUTF8(BitB, PaletteNameSize);
-            PNG->sPLT[PNG->NumSPLTChunks - 1]->Red   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, Bytes2Bits(BitDepthInBytes));
-            PNG->sPLT[PNG->NumSPLTChunks - 1]->Green = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, Bytes2Bits(BitDepthInBytes));
-            PNG->sPLT[PNG->NumSPLTChunks - 1]->Blue  = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, Bytes2Bits(BitDepthInBytes));
-            if (ColorType == PNG_RGBA || ColorType == PNG_GrayAlpha) {
-                PNG->sPLT[PNG->NumSPLTChunks - 1]->Alpha = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, Bytes2Bits(BitDepthInBytes));
+            PNGOptions *PNG                         = Options;
+            PNGColorTypes ColorType                 = PNG->iHDR->ColorType;
+            uint8_t BitDepthInBytes                 = Bits2Bytes(PNG->iHDR->BitDepth, RoundingType_Up);
+            uint8_t PaletteNameSize                 = BitBuffer_GetUTF8StringSize(BitB);
+            PNG->sPLT->NumEntries                   = ChunkSize - (PaletteNameSize + TextIO_NULLTerminator) + 1;
+            if (ColorType == PNGColor_RGBAlpha || ColorType == PNGColor_GrayAlpha) {
+                PNG->sPLT->NumEntries              /= 4;
+            } else {
+                PNG->sPLT->NumEntries              /= 3;
+            }
+            PNG->sPLT[PNG->NumSPLTChunks - 1].PaletteName = BitBuffer_ReadUTF8(BitB, PaletteNameSize);
+            for (uint32_t Entry = 0; Entry < PNG->sPLT->NumEntries; Entry++) {
+                PNG->sPLT->Palette[Entry].Red       = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, Bytes2Bits(BitDepthInBytes));
+                PNG->sPLT->Palette[Entry].Green     = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, Bytes2Bits(BitDepthInBytes));
+                PNG->sPLT->Palette[Entry].Blue      = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, Bytes2Bits(BitDepthInBytes));
+                if (ColorType == PNGColor_RGBAlpha || ColorType == PNGColor_GrayAlpha) {
+                    PNG->sPLT->Palette[Entry].Alpha = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, Bytes2Bits(BitDepthInBytes));
+                }
             }
         } else if (Options == NULL) {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Options Pointer is NULL"));
@@ -1410,58 +1392,58 @@ extern "C" {
                 uint32_t ChunkSize   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
                 uint32_t ChunkID     = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
 
-                if (ChunkID == acTLMarker) {
+                if (ChunkID == PNGMarker_acTL) {
                     PNG_ACTL_Parse(PNG, BitB);
-                } else if (ChunkID == bKGDMarker) {
+                } else if (ChunkID == PNGMarker_bKGD) {
                     PNG_BKGD_Parse(PNG, BitB);
-                } else if (ChunkID == cHRMMarker) {
+                } else if (ChunkID == PNGMarker_cHRM) {
                     PNG_CHRM_Parse(PNG, BitB);
-                } else if (ChunkID == fcTLMarker) {
+                } else if (ChunkID == PNGMarker_fcTL) {
                     PNG_FCTL_Parse(PNG, BitB);
-                } else if (ChunkID == gAMAMarker) {
+                } else if (ChunkID == PNGMarker_gAMA) {
                     PNG_GAMA_Parse(PNG, BitB);
-                } else if (ChunkID == hISTMarker) {
+                } else if (ChunkID == PNGMarker_hIST) {
                     PNG_HIST_Parse(PNG, BitB);
-                } else if (ChunkID == iCCPMarker) {
+                } else if (ChunkID == PNGMarker_iCCP) {
                     PNG_OFFS_Parse(PNG, BitB);
-                } else if (ChunkID == IDATMarker || ChunkID == fDATMarker) {
+                } else if (ChunkID == PNGMarker_iDAT || ChunkID == PNGMarker_fDAT) {
                     PNG_DAT_Parse(PNG, BitB);
-                } else if (ChunkID == iHDRMarker) {
+                } else if (ChunkID == PNGMarker_iHDR) {
                     PNG_IHDR_Parse(PNG, BitB);
-                } else if (ChunkID == oFFsMarker) {
+                } else if (ChunkID == PNGMarker_oFFs) {
                     PNG_OFFS_Parse(PNG, BitB);
-                } else if (ChunkID == pCALMarker) {
+                } else if (ChunkID == PNGMarker_pCAL) {
                     PNG_PCAL_Parse(PNG, BitB);
-                } else if (ChunkID == pHYsMarker) {
+                } else if (ChunkID == PNGMarker_pHYs) {
                     PNG_PHYS_Parse(PNG, BitB);
-                } else if (ChunkID == PLTEMarker) {
+                } else if (ChunkID == PNGMarker_PLTE) {
                     PNG_PLTE_Parse(PNG, BitB, ChunkSize);
-                } else if (ChunkID == sBITMarker) {
+                } else if (ChunkID == PNGMarker_sBIT) {
                     PNG_SBIT_Parse(PNG, BitB);
-                } else if (ChunkID == sRGBMarker) {
+                } else if (ChunkID == PNGMarker_sRGB) {
                     PNG_SRGB_Parse(PNG, BitB);
-                } else if (ChunkID == sTERMarker) {
+                } else if (ChunkID == PNGMarker_sTER) {
                     PNG_STER_Parse(PNG, BitB);
-                } else if (ChunkID == tEXtMarker) {
+                } else if (ChunkID == PNGMarker_tEXt) {
                     PNG->NumTextChunks += 1;
-                    PNG->Text[PNG->NumTextChunks - 1]->TextType = tEXt;
+                    PNG->Text[PNG->NumTextChunks - 1].TextType = PNGMarker_tEXt;
                     PNG_TEXT_Parse(PNG, BitB);
-                } else if (ChunkID == zTXtMarker) {
+                } else if (ChunkID == PNGMarker_zTXt) {
                     PNG->NumTextChunks += 1;
-                    PNG->Text[PNG->NumTextChunks - 1]->TextType = zTXt;
+                    PNG->Text[PNG->NumTextChunks - 1].TextType = PNGTextType_zTXt;
                     PNG_TEXT_Parse(PNG, BitB);
-                } else if (ChunkID == iTXtMarker) {
+                } else if (ChunkID == PNGMarker_iTXt) {
                     PNG->NumTextChunks += 1;
-                    PNG->Text[PNG->NumTextChunks - 1]->TextType = iTXt;
+                    PNG->Text[PNG->NumTextChunks - 1].TextType = PNGTextType_iTXt;
                     PNG_TEXT_Parse(PNG, BitB);
-                } else if (ChunkID == sCALMarker) {
+                } else if (ChunkID == PNGMarker_sCAL) {
                     PNG_SCAL_Parse(PNG, BitB);
-                } else if (ChunkID == tIMEMarker) {
+                } else if (ChunkID == PNGMarker_tIME) {
                     PNG_TIME_Parse(PNG, BitB);
-                } else if (ChunkID == tRNSMarker) {
+                } else if (ChunkID == PNGMarker_tRNS) {
                     PNG_TRNS_Parse(PNG, BitB, ChunkSize);
-                } else if (ChunkID == sPLTMarker) {
-                    PNG_SPLT_Parse(PNG, BitB);
+                } else if (ChunkID == PNGMarker_sPLT) {
+                    PNG_SPLT_Parse(PNG, BitB, ChunkSize);
                 }
             }
         } else if (Options == NULL) {

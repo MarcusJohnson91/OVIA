@@ -59,9 +59,9 @@ extern "C" {
     void FLAC_Write_Vorbis(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 32, 4);
-            UTF8 *OVIAVersion = UTF8_Format(UTF8String("OVIA %d.%d.%d"), OVIA_Version_Major, OVIA_Version_Minor, OVIA_Version_Patch);
-            BitBuffer_WriteUTF8(BitB, OVIAVersion, StringTerminator_Sized);
-            free(OVIAVersion);
+            //UTF8 *OVIAVersion = UTF8_Format(UTF8String("OVIA %d.%d.%d"), OVIA_Version_Major, OVIA_Version_Minor, OVIA_Version_Patch);
+            //BitBuffer_WriteUTF8(BitB, OVIAVersion, StringTerminator_Sized);
+            //free(OVIAVersion);
         } else if (Options == NULL) {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {

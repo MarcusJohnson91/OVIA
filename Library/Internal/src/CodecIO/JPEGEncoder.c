@@ -28,7 +28,7 @@ extern "C" {
             BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, JPEG->Channels[Channel].ChannelID);
             BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 4, JPEG->Channels[Channel].HorizontalSF);
             BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 4, JPEG->Channels[Channel].VerticalSF);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, JPEG->Huffman->Values[TableID]); // 0
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, JPEG->Huffman->Values[JPEG->Huffman->TableID]); // 0
         }
     }
 
@@ -41,14 +41,14 @@ extern "C" {
         } else if (BitB == NULL) {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
-        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 4, JPEG->Huffman->TableClass);
+        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 4, JPEG->Huffman->TableID);
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 4, JPEG->Huffman->TableID);
 
         for (uint8_t Count = 0; Count < 16; Count++) {
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, JPEG->Huffman->BitLengths[Count]);
-            for (uint8_t Code = 0; Code < JPEG->Huffman->BitLengths[Count]; Code++) {
-                if (JPEG->Huffman->BitLengths[Code] > 0) {
-                    BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, JPEG->Huffman->Values[Code].Values[Code]);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, JPEG->Huffman->Values[Count]->BitLength);
+            for (uint8_t Code = 0; Code < JPEG->Huffman->Values[Count]; Code++) {
+                if (JPEG->Huffman->Values[Code] > 0) {
+                    BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, JPEG->Huffman->Values[Code]);
                 }
             }
         }
@@ -64,7 +64,7 @@ extern "C" {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, JPEG->Arithmetic->CodeLength);
-        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 4,  JPEG->Arithmetic->TableClass);
+        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 4,  JPEG->Arithmetic->TableType);
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 4,  JPEG->Arithmetic->TableDestination);
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  JPEG->Arithmetic->CodeValue);
     }
@@ -121,7 +121,6 @@ extern "C" {
             BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 8, JPEG->Channels[Channel].ChannelID);
             BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 4, JPEG->Channels[Channel].HorizontalSF);
             BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 4, JPEG->Channels[Channel].VerticalSF);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, JPEG->Channels[Channel].TableID);
         }
     }
 

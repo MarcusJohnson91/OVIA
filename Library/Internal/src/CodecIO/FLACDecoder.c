@@ -4,62 +4,6 @@
 extern "C" {
 #endif
     
-    void FLAC_ParseBlocks(void *Options, BitBuffer *BitB, Audio2DContainer *Audio) {
-        if (Options != NULL && BitB != NULL && Audio != NULL) {
-            /*
-             Mandatory: FLAC Magic ID, StreamInfo header, FLACDATA.
-             We've gotten here after the MAGICID has been parsed bare minimum.
-             So, just check the byte for a
-             
-             So, read the highest bit, MSBit, as a bool to see if there are more blocks.
-             then the the type n the remaining 7 bits
-             then read the size of the block in the following 24 bits.
-             */
-            FLACOptions *FLAC      = Options;
-            bool LastMetadataBlock = No;
-            do {
-                LastMetadataBlock  = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 1);  // 0
-                uint8_t  BlockType = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 7);  // 0
-                uint32_t BlockSize = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 24); // 393
-                switch (BlockType) {
-                    case BlockType_StreamInfo:
-                        FLAC_Parse_StreamInfo(FLAC, BitB);
-                        break;
-                    case BlockType_SeekTable:
-                        FLAC_Parse_SeekTable(FLAC, BitB, BlockSize);
-                        break;
-                    case BlockType_Vorbis:
-                        FLAC_Parse_Vorbis(FLAC, BitB);
-                        break;
-                    case BlockType_Cuesheet:
-                        FLAC_CUE_Parse(FLAC, BitB);
-                        break;
-                    case BlockType_Picture:
-                        FLAC_Pic_Read(FLAC, BitB);
-                        break;
-                    case BlockType_Padding:
-                    case BlockType_Custom:
-                    default:
-                        BitBuffer_Seek(BitB, Bytes2Bits(BlockSize));
-                        break;
-                }
-            } while (LastMetadataBlock == No);
-            
-            uint16_t Marker        = FrameMagic;
-            
-            do {
-                Marker             = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 14);
-                FLAC_Frame_Read(FLAC, BitB, Audio);
-            } while (LastMetadataBlock == Yes && Marker == FrameMagic);
-        } else if (Options == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Options Pointer is NULL"));
-        } else if (BitB == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
-        } else if (Audio == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Audio2DContainer Pointer is NULL"));
-        }
-    }
-    
     void FLAC_Frame_Read(void *Options, BitBuffer *BitB, Audio2DContainer *Audio) {
         if (Options != NULL && BitB != NULL && Audio != NULL) {
             FLACOptions *FLAC                 = Options;

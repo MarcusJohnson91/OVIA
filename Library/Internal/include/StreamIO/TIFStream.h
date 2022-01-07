@@ -70,17 +70,17 @@ extern "C" {
     };
 
 #if defined(OVIA_StreamIO_Encode)
-    extern const OVIA_Stream TIFFEncoder;
+    extern const OVIA_Stream TIFFMuxer;
 
-    const OVIA_Stream TIFFEncoder = {
+    const OVIA_Stream TIFFMuxer = {
         .MagicID = &TIFFSignature,
     };
 #endif /* OVIA_StreamIO_Encode */
 
 #if defined(OVIA_StreamIO_Decode)
-    extern const OVIA_Stream TIFFDecoder;
+    extern const OVIA_Stream TIFFDemuxer;
 
-    const OVIA_Stream TIFFDecoder = {
+    const OVIA_Stream TIFFDemuxer = {
         .MagicID = &TIFFSignature,
     };
 #endif /* OVIA_StreamIO_Decode */

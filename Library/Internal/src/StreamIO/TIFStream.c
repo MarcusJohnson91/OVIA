@@ -28,220 +28,220 @@ extern "C" {
             TIFF->IFDEntries[IFDEntry].ValueOffset = BitBuffer_ReadBits(BitB, TIFF->ByteOrder, BitOrder_LSBitIsNearest, 32); // 1
             switch (TIFF->IFDEntries[IFDEntry].FieldTag) {
                 case TIFFTag_NewSubFileType:
-                    <#code#>
+                    
                     break;
                 case TIFFTag_ImageWidth:
-                    <#code#>
+
                     break;
                 case TIFFTag_ImageLength:
-                    <#code#>
+
                     break;
                 case TIFFTag_BitsPerSample:
-                    <#code#>
+
                     break;
                 case TIFFTag_Compression:
-                    <#code#>
+
                     break;
                 case TIFFTag_PhotometricIntrepretation:
-                    <#code#>
+
                     break;
                 case TIFFTag_ImageDescription:
-                    <#code#>
+
                     break;
                 case TIFFTag_Make:
-                    <#code#>
+
                     break;
                 case TIFFTag_Model:
-                    <#code#>
+
                     break;
                 case TIFFTag_StripOffsets:
-                    <#code#>
+
                     break;
                 case TIFFTag_Orientation:
-                    <#code#>
+
                     break;
                 case TIFFTag_SamplesPerPixel:
-                    <#code#>
+
                     break;
                 case TIFFTag_RowsPerStrip:
-                    <#code#>
+
                     break;
                 case TIFFTag_StripByteCounts:
-                    <#code#>
+
                     break;
                 case TIFFTag_XResolution:
-                    <#code#>
+
                     break;
                 case TIFFTag_YResolution:
-                    <#code#>
+
                     break;
                 case TIFFTag_PlanarConfiguration:
-                    <#code#>
+
                     break;
                 case TIFFTag_ResolutionUnit:
-                    <#code#>
+
                     break;
                 case TIFFTag_Software:
-                    <#code#>
+
                     break;
                 case TIFFTag_DateTime:
-                    <#code#>
+
                     break;
                 case TIFFTag_Artist:
-                    <#code#>
+
                     break;
                 case TIFFTag_TileWidth:
-                    <#code#>
+
                     break;
                 case TIFFTag_TileLength:
-                    <#code#>
+
                     break;
                 case TIFFTag_TileOffsets:
-                    <#code#>
+
                     break;
                 case TIFFTag_TileByteCounts:
-                    <#code#>
+
                     break;
                 case TIFFTag_SubIFDs:
-                    <#code#>
+
                     break;
                 case TIFFTag_JPEGTables:
-                    <#code#>
+
                     break;
                 case TIFFTag_YCbCrCoefficients:
-                    <#code#>
+
                     break;
                 case TIFFTag_YCbCrSubsampling:
-                    <#code#>
+
                     break;
                 case TIFFTag_YCbCrPositioning:
-                    <#code#>
+
                     break;
                 case TIFFTag_ReferenceBlackWhite:
-                    <#code#>
+
                     break;
                 case TIFFTag_CFARepeatPatternDim:
-                    <#code#>
+
                     break;
                 case TIFFTag_CFAPattern:
-                    <#code#>
+
                     break;
                 case TIFFTag_BatteryLevel:
-                    <#code#>
+
                     break;
                 case TIFFTag_Copyright:
-                    <#code#>
+
                     break;
                 case TIFFTag_ExposureTime:
-                    <#code#>
+
                     break;
                 case TIFFTag_FNumber:
-                    <#code#>
+
                     break;
                 case TIFFTag_IPTC_NAA:
-                    <#code#>
+
                     break;
                 case TIFFTag_InterColorProfile:
-                    <#code#>
+
                     break;
                 case TIFFTag_ExposureProgram:
-                    <#code#>
+
                     break;
                 case TIFFTag_SpectralSensitivity:
-                    <#code#>
+
                     break;
                 case TIFFTag_GPSInfo:
-                    <#code#>
+
                     break;
                 case TIFFTag_ISOSpeedRatings:
-                    <#code#>
+
                     break;
                 case TIFFTag_OECF:
-                    <#code#>
+
                     break;
                 case TIFFTag_Interlace:
-                    <#code#>
+
                     break;
                 case TIFFTag_TimeZoneOffset:
-                    <#code#>
+
                     break;
                 case TIFFTag_SelfTimerMode:
-                    <#code#>
+
                     break;
                 case TIFFTag_DateTimeOriginal:
-                    <#code#>
+
                     break;
                 case TIFFTag_CompressedBitsPerPixel:
-                    <#code#>
+
                     break;
                 case TIFFTag_ShutterSpeedValue:
-                    <#code#>
+
                     break;
                 case TIFFTag_ApartureValue:
-                    <#code#>
+
                     break;
                 case TIFFTag_BrightnessValue:
-                    <#code#>
+
                     break;
                 case TIFFTag_ExposureBiasValue:
-                    <#code#>
+
                     break;
                 case TIFFTag_MaxApertureValue:
-                    <#code#>
+
                     break;
                 case TIFFTag_SubjectDistance:
-                    <#code#>
+
                     break;
                 case TIFFTag_MeteringMode:
-                    <#code#>
+
                     break;
                 case TIFFTag_LightSource:
-                    <#code#>
+
                     break;
                 case TIFFTag_Flash:
-                    <#code#>
+
                     break;
                 case TIFFTag_FocalLength:
-                    <#code#>
+
                     break;
                 case TIFFTag_FlashEnergy:
-                    <#code#>
+
                     break;
                 case TIFFTag_SpatialFrequencyResponse:
-                    <#code#>
+
                     break;
                 case TIFFTag_Noise:
-                    <#code#>
+
                     break;
                 case TIFFTag_FocalPlaneXResolution:
-                    <#code#>
+
                     break;
                 case TIFFTag_FocalPlaneYResolution:
-                    <#code#>
+
                     break;
                 case TIFFTag_FocalPlaneResolutionUnit:
-                    <#code#>
+
                     break;
                 case TIFFTag_ImageNumber:
-                    <#code#>
+
                     break;
                 case TIFFTag_SecurityClassification:
-                    <#code#>
+
                     break;
                 case TIFFTag_ImageHistory:
-                    <#code#>
+
                     break;
                 case TIFFTag_SubjectLocation:
-                    <#code#>
+
                     break;
                 case TIFFTag_ExposureIndex:
-                    <#code#>
+
                     break;
                 case TIFFTag_TIFFStandardID:
-                    <#code#>
+
                     break;
                 case TIFFTag_SensingMethod:
-                    <#code#>
+
                     break;
             }
             /*

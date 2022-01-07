@@ -84,23 +84,29 @@ extern "C" {
     typedef struct JPEGHuffman {
         HuffmanValue **Values; // [TableID][Value]
         uint16_t      *NumValues; // {TableSize0 = X, TableSize1 = Y}
+        uint16_t       EndOfBlockSymbol;
+        uint8_t        TableID;
     } JPEGHuffman;
 
+    /*
+     typedef struct JPEGHuffman {
+
+     uint16_t Codes[2][256];   // the Huffman strings to replace
+     uint8_t  Symbols[2][256]; // encoded value
+     uint16_t TableSize;
+     uint8_t  MinBits; // 2
+     uint8_t  MaxBits; // 9
+     } JPEGHuffman;
+     */
+
     typedef struct JPEGArithmetic {
+        uint8_t  CodeLength;
+        uint8_t  TableType;
+        uint8_t  TableDestination;
+        uint8_t  CodeValue;
         uint64_t Numerator;
         uint64_t Denominator;
     } JPEGArithmetic;
-
-    /*
-    typedef struct JPEGHuffman {
-
-        uint16_t Codes[2][256];   // the Huffman strings to replace
-        uint8_t  Symbols[2][256]; // encoded value
-        uint16_t TableSize;
-        uint8_t  MinBits; // 2
-        uint8_t  MaxBits; // 9
-    } JPEGHuffman;
-     */
 
     typedef struct JPEGOptions {
         JPEG_ChannelParameters *Channels;

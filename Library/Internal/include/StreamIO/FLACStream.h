@@ -56,17 +56,17 @@ extern "C" {
     };
     
 #if defined(OVIA_StreamIO_Encode)
-    extern const OVIA_Stream FLACEncoder;
+    extern const OVIA_Stream FLACMuxer;
     
-    const OVIA_Stream FLACEncoder = {
+    const OVIA_Stream FLACMuxer = {
         .MagicID = &FLACSignature,
     };
 #endif /* OVIA_StreamIO_Encode */
     
 #if defined(OVIA_StreamIO_Decode)
-    extern const OVIA_Stream FLACDecoder;
+    extern const OVIA_Stream FLACDemuxer;
     
-    const OVIA_Stream FLACDecoder = {
+    const OVIA_Stream FLACDemuxer = {
         .MagicID = &FLACSignature,
     };
 #endif /* OVIA_StreamIO_Decode */

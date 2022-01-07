@@ -167,17 +167,17 @@ extern "C" {
     };
     
 #if defined(OVIA_StreamIO_Encode)
-    extern const OVIA_Stream PNMEncoder;
+    extern const OVIA_Stream PNMMuxer;
     
-    const OVIA_Stream PNMEncoder = {
+    const OVIA_Stream PNMMuxer = {
         .MagicID = &PNMSignatures,
     };
 #endif /* OVIA_StreamIO_Encode */
     
 #if defined(OVIA_StreamIO_Decode)
-    extern const OVIA_Stream PNMDecoder;
+    extern const OVIA_Stream PNMDemuxer;
     
-    const OVIA_Stream PNMDecoder = {
+    const OVIA_Stream PNMDemuxer = {
         .MagicID = &PNMSignatures,
     };
 #endif /* OVIA_StreamIO_Decode */

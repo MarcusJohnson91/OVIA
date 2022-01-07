@@ -99,6 +99,47 @@ extern "C" {
 
     } CodecIO_CodecRegistry;
 
+#ifndef CodecIO_Internal_NumEncoders
+#define CodecIO_Internal_NumEncoders 0
+#endif /* CodecIO_Internal_NumEncoders */
+
+#ifndef CodecIO_Internal_NumDecoders
+#define CodecIO_Internal_NumDecoders 0
+#endif /* CodecIO_Internal_NumDecoders */
+
+#ifndef CodecIO_Internal_EncoderList
+#define CodecIO_Internal_EncoderList
+#endif /* CodecIO_Internal_EncoderList */
+
+#ifndef CodecIO_Internal_DecoderList
+#define CodecIO_Internal_DecoderList
+#endif /* CodecIO_Internal_DecoderList */
+
+    /*!
+     @param CodecType    Encoder or Decoder?
+     @param CodecStruct  CodecIO_Encoder/CodecIO_Decoder
+     */
+#ifndef CodecIO_Register
+#define CodecIO_Register(CodecType, CodecStruct) \
+/* Num */
+#endif /* CodecIO_Register */
+
+#ifndef CodecIO_RegisterEncoder
+#define CodecIO_RegisterEncoder(CodecStruct) \
+/* Increment CodecIO_Internal_NumEncoders */ \
+_Redefine CodecIO_Internal_NumEncoders CodecIO_Internal_NumEncoders + 1 \
+_Pragma("push_macro(\"CodecIO_Internal_EncoderList\")") \
+_Redefine CodecIO_Internal_EncoderList CodecStruct
+#endif /* CodecIO_RegisterEncoder */
+
+#ifndef CodecIO_RegisterDecoder
+#define CodecIO_RegisterDecoder(CodecStruct) \
+/* Increment CodecIO_Internal_NumDecoders */ \
+_Redefine CodecIO_Internal_NumDecoders CodecIO_Internal_NumDecoders + 1 \
+_Pragma("push_macro(\"CodecIO_Internal_DecoderList\")") \
+_Redefine CodecIO_Internal_DecoderList CodecStruct
+#endif /* CodecIO_RegisterDecoder */
+
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif
