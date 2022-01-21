@@ -27,55 +27,76 @@ extern "C" {
         }
     }
 
-    void JPEG_Read_DefineHuffmanTable(void *Options, BitBuffer *BitB, uint16_t SegmentSize) {
+    static void JPEG_Huffman_CreateHUFFSIZETable(uint8_t BITS[16], uint8_t *HUFFVAL) { // Generate_size_table
+
+    }
+
+    static uint8_t *tjei_huff_get_code_lengths(uint8_t huffsize[/*256*/], uint8_t const *bits) {
+        int k = 0;
+        for (int i = 0; i < 16; ++i) {
+            for (int j = 0; j < bits[i]; ++j) {
+                huffsize[k++] = (uint8_t) (i + 1);
+            }
+            huffsize[k] = 0;
+        }
+        return huffsize;
+    }
+
+    static void JPEG_Huffman_CreateHUFFCODETable(uint8_t BITS[16], uint8_t *HUFFVAL) { // Generate_code_table
+
+    }
+
+    static void JPEG_Huffman_Sort(uint8_t BITS[16], uint8_t *HUFFVAL) { // Order_codes
+
+    }
+
+    // Huffman values are written in big endian order; most significant to least
+
+    void JPEG_Read_DefineHuffmanTable(void *Options, BitBuffer *BitB, uint16_t SegmentSize) { // SegmentSize = 30
         JPEGOptions *JPEG                                    = Options;
         if (JPEG != NULL && BitB != NULL) {
             JPEG->EntropyCoder                               = EntropyCoder_Huffman;
             JPEG->Huffman->Values                            = calloc(2, sizeof(HuffmanValue*));
             while (SegmentSize > 0) {
                 if (JPEG->Huffman->Values != NULL) {
-                    uint8_t TableType                        = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 4); // 1
-                    uint8_t TableID                          = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 4); // 1
+                    uint8_t TableType                        = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 4); // 0
+                    JPEG->Huffman->TableID                   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 4); // 0
+                    // TableType 0 = DC/Lossless, 1 = AC
 
                     if (TableType == 0) {
-                        uint8_t BitLengths[16];
+                        uint8_t BitLengths[16]; // 01 00 03 01 | 01 01 01 01 | [01] 01 00 00 | 00 00 00 00
                         uint8_t NumSymbols                   = 0;
 
-                        for (uint8_t Count = 0; Count < 16; Count++) {
-                            BitLengths[Count]                = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 8);
-                            if (BitLengths[Count] > 0) {
-                                NumSymbols                  += BitLengths[Count];
-                            }
+                        // BitLengths aka BITS needs to be copied to the specified TableID
+
+                        for (uint8_t Length = 0; Length < 16; Length++) { // BITS
+                            BitLengths[Length]               = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 8);
+                            NumSymbols                      += BitLengths[Length];
                             SegmentSize                     -= 1;
                         }
 
-                        JPEG->Huffman->NumValues[TableID]    = NumSymbols;
+                        JPEG->Huffman->NumValues[JPEG->Huffman->TableID]    = NumSymbols; // 12
 
-                        JPEG->Huffman->Values[TableID]       = calloc(NumSymbols, sizeof(HuffmanValue));
-                        if (JPEG->Huffman->Values[TableID] != NULL) {
+                        // Now we create the actual Huffman table from the BitLengths and their associated values called Vij in the Spec.
+                        /* HUFFVAL = {0, 7, 8, 9, 6, 5, 4, 3, 1, 2, 10}
+                         [BitLength = 1] = {0},
+                         [BitLength = 3] = {7, 8, 9},
+                         [BitLength = 4] = {6},
+                         [BitLength = 5] = {5},
+                         [BitLength = 6] = {4},
+                         [BitLength = 7] = {3},
+                         [BitLength = 8] = {1},
+                         [BitLength = 9] = {2},
+                         [BitLength = 10] = {10},
+                         */
+
+                        JPEG->Huffman->Values[JPEG->Huffman->TableID]       = calloc(NumSymbols, sizeof(HuffmanValue));
+                        if (JPEG->Huffman->Values[JPEG->Huffman->TableID] != NULL) {
                             /*
-                             [0] = { BITS= 00 01 05 01 01 [01] [01] 01 01 00 00 00 00 00 00 00
-                                 [1] = BitLength=2: {HuffCode = 0b00, Symbol = 0x0}
-                                 [2] = BitLength=3: {HuffCode = 0b010, Symbol = 0x1}, {HuffCode = 0b011, Symbol = 0x2}, {HuffCode = 0b100, Symbol = 0x3}, {HuffCode = 0b101, Symbol = 0x4}, {HuffCode = 0b110, Symbol = 0x5}
-                                 [3] = BitLength=4: {HuffCode = 0b1110, Symbol = 0x6},
-                                 [4] = BitLength=5: {HuffCode = 0b11110, Symbol = 0x7},
-                                 [5] = BitLength=6: {HuffCode = 0b111110, Symbol = 0x8},
-                                 [6] = BitLength=7: {HuffCode = 0b1111110, Symbol = 0x9},
-                                 [7] = BitLength=8: {HuffCode = 0b11111110, Symbol = 0xA},
-                                 [8] = BitLength=9: {HuffCode = 0b111111110, Symbol = 0xb},
+                             [0] = { BITS = 1E 00 01 00 | 03 01 01 01 | 01 01 01 01 | 00 00 00 00
+                                 [0] = BitLength = 1;
                              },
-                             [1] = { BITS= 00 03 01 01 01 01 01 01 01 01 01 00 00 00 00 00
-                                [1] = BitLength=2: {HuffCode = 0b00, Symbol = 0x0}, {HuffCode = 0b01, Symbol = 0x1}, {HuffCode = 0b10, Symbol = 0x2}
-                                [2] = BitLength=3: {HuffCode = 0b110, Symbol = 0x3}
-                                [3] = BitLength=4: {HuffCode = 0b1110, Symbol = 0x4}
-                                [4] = BitLength=5: {HuffCode = 0b11110, Symbol = 0x5}
-                                [5] = BitLength=6: {HuffCode = 0b111110, Symbol = 0x6}
-                                [6] = BitLength=7: {HuffCode = 0b1111110, Symbol = 0x7}
-                                [7] = BitLength=8: {HuffCode = 0b11111110, Symbol = 0x8}
-                                [8] = BitLength=9: {HuffCode = 0b111111110, Symbol = 0x9}
-                                [9] = BitLength=A: {HuffCode = 0b1111111110, Symbol = 0xA}
-                                [A] = BitLength=B: {HuffCode = 0b11111111110, Symbol = 0xB}
-                             },
+
 
                              So, this is how Huffman decoding works.
 
@@ -85,10 +106,10 @@ extern "C" {
                             uint16_t HuffCode                                 = 0;
                             while (BitLength < 16) {
                                 if (BitLengths[BitLength] > 0) {
-                                    JPEG->Huffman->Values[TableID]->BitLength = BitLength;
-                                    JPEG->Huffman->Values[TableID]->HuffCode  = HuffCode;
+                                    JPEG->Huffman->Values[JPEG->Huffman->TableID]->BitLength = BitLength;
+                                    JPEG->Huffman->Values[JPEG->Huffman->TableID]->HuffCode  = HuffCode;
                                     HuffCode                                 += 1;
-                                    JPEG->Huffman->Values[TableID]->Symbol    = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 8);
+                                    JPEG->Huffman->Values[JPEG->Huffman->TableID]->Symbol    = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 8);
                                     SegmentSize                              -= 1;
                                 }
                                 HuffCode                                    <<= 1; // Shift always
@@ -114,13 +135,14 @@ extern "C" {
         }
     }
 
-    void JPEG_Read_DefineArithmeticTable(void *Options, BitBuffer *BitB, uint16_t SegmentSize) {
+    void JPEG_Read_DefineArithmeticTable(void *Options, BitBuffer *BitB, uint16_t SegmentSize) { // SegmentSize = LA
         JPEGOptions *JPEG                         = Options;
         if (JPEG != NULL && BitB != NULL) {
-            JPEG->Arithmetic->CodeLength          = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 16);
-            JPEG->Arithmetic->TableType           = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 4);
-            JPEG->Arithmetic->TableDestination    = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 4);
-            JPEG->Arithmetic->CodeValue           = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 8);
+            JPEG->Arithmetic->TableType           = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 4); // Tc
+            JPEG->Arithmetic->TableID             = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 4); // Tb
+
+            JPEG->Arithmetic->CodeValue           = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 8); // Cs
+            /* For DC (and lossless) conditioning tables Tc shall be zero and Cs shall contain two 4-bit parameters, U and L. U and L shall be in the range 0 ≤ L ≤ U ≤ 15 and the value of Cs shall be L + 16 × U. */
             BitBuffer_Seek(BitB, Bytes2Bits(SegmentSize - 6));
         } else if (JPEG == NULL) {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Options Pointer is NULL"));

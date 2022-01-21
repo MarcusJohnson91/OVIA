@@ -9,6 +9,35 @@
 extern "C" {
 #endif
 
+
+    typedef struct Huffman { // Each Huffman Code aka binary string corresponds to a value that it represents
+        uint32_t Code; // Binary string
+        uint32_t Value; // Value represented by the string
+    } Huffman;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // Old below
+
     /*!
      @constant BitString     The actual Huffman encoded value
      @constant BitStringSize The number of bits this BitString requires

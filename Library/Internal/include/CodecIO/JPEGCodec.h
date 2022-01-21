@@ -81,6 +81,14 @@ extern "C" {
         uint8_t  Symbol;  // What the BitSting represents
     } HuffmanValue;
 
+    /* JPEG uses 4 Huffman tables L_AC, L_DC, */
+
+    typedef struct JPEGHuffman2 {
+        uint8_t BitLengths[16]; // BITS
+        uint8_t Values[255]; // HUFFVAL
+    } JPEGHuffman2;
+
+
     typedef struct JPEGHuffman {
         HuffmanValue **Values; // [TableID][Value]
         uint16_t      *NumValues; // {TableSize0 = X, TableSize1 = Y}
@@ -100,9 +108,8 @@ extern "C" {
      */
 
     typedef struct JPEGArithmetic {
-        uint8_t  CodeLength;
         uint8_t  TableType;
-        uint8_t  TableDestination;
+        uint8_t  TableID;
         uint8_t  CodeValue;
         uint64_t Numerator;
         uint64_t Denominator;

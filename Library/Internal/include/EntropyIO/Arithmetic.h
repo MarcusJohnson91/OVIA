@@ -10,9 +10,8 @@ extern "C" {
 #endif
 
     typedef struct Arithmetic {
-        uint16_t CodeLength;
         uint8_t  TableType;
-        uint8_t  TableDestination;
+        uint8_t  TableID;
         uint8_t  CodeValue;
     } Arithmetic;
 
