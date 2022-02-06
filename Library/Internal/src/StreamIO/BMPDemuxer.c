@@ -6,14 +6,6 @@
 extern "C" {
 #endif
 
-    /*
-     Why don't I go ahead and set the registration functions up so that
-
-
-
-     why can't I set up the system so that it will take X
-     */
-
     void BMPParseMetadata(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             BMPOptions *BMP = Options;
