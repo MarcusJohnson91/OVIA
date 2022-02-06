@@ -8,17 +8,14 @@
 
 #pragma once
 
-#ifndef OVIA_StreamIO_AIFStream_H
-#define OVIA_StreamIO_AIFStream_H
+#ifndef OVIA_StreamIO_AIFStream_h
+#define OVIA_StreamIO_AIFStream_h
 
-#include "StreamIO.h"
-#include "TagIO.h"
+#include "../StreamIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
-    
-    typedef struct TagIO_Tags TagIO_Tags;
     
     typedef enum AIFSpeakerMask {
         AIFFrontLeft          = 0x1,
@@ -157,5 +154,5 @@ extern "C" {
 }
 #endif
 
-#endif /* OVIA_StreamIO_AIFStream_H */
+#endif /* OVIA_StreamIO_AIFStream_h */
 

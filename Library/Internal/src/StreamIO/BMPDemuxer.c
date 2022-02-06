@@ -1,8 +1,8 @@
-#include "../../../include/Private/StreamIO/BMPStream.h"
+#include "../../include/StreamIO/BMPStream.h"
 #include "../../../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h"
 #include "../../../../Dependencies/FoundationIO/Library/include/MathIO.h"
 
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
 
@@ -133,7 +133,7 @@ extern "C" {
         }
     }
 
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif
 

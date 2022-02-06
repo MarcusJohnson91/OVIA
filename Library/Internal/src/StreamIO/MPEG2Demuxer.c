@@ -1,9 +1,7 @@
-#include "../../../Dependencies/BitIO/libBitIO/include/BitIO.h"
-#include "../../include/libMPEG2Stream.h"
-#include "../../include/MPEG2StreamTypes.h"
-#include "../../include/Demuxer/DemuxMPEG2Stream.h"
+#include "../../include/StreamIO/MPEG2Stream.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/BufferIO.h"
 
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
 
@@ -386,6 +384,6 @@ extern "C" {
 
     }
 
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif

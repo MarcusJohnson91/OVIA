@@ -1,5 +1,4 @@
-#include "../../../include/Private/EntropyIO/Flate.h"
-#include "../../../include/Private/EntropyIO/Huffman.h"
+#include "../../include/EntropyIO/Flate.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {

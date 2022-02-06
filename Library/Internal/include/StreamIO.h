@@ -8,11 +8,10 @@
 
 #pragma once
 
-#ifndef OVIA_StreamIO_H
-#define OVIA_StreamIO_H
+#ifndef OVIA_StreamIO_h
+#define OVIA_StreamIO_h
 
-#include "../MediaIO.h"
-#include "../../../../Dependencies/FoundationIO/Library/include/BufferIO.h" /* Included for Byte and Bit Order enums */
+#include "MediaIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
@@ -153,5 +152,5 @@ extern "C" {
 }
 #endif
 
-#endif /* OVIA_StreamIO_H */
+#endif /* OVIA_StreamIO_h */
 

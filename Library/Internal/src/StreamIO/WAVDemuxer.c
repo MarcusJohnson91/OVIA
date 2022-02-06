@@ -1,8 +1,6 @@
-#include "../../../../Dependencies/FoundationIO/libFoundationIO/include/Macros.h"
-#include "../../../../Dependencies/FoundationIO/libFoundationIO/include/BitIO.h"
-#include "../../../include/Private/Audio/WAVCommon.h"
+#include "../../include/StreamIO/WAVStream.h"
 
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
     
@@ -242,6 +240,6 @@ extern "C" {
         return Audio;
     }
     
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif

@@ -1,4 +1,4 @@
-#include "../../../include/Private/CodecIO/JPEGCodec.h"
+#include "../../include/CodecIO/JPEGCodec.h"
 #include "../../../../Dependencies/FoundationIO/Library/include/BufferIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)

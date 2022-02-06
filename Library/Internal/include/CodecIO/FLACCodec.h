@@ -8,10 +8,10 @@
 
 #pragma once
 
-#ifndef OVIA_FLACCodec_H
-#define OVIA_FLACCodec_H
+#ifndef OVIA_CodecIO_FLACCodec_h
+#define OVIA_CodecIO_FLACCodec_h
 
-#include "CodecIO.h"
+#include "../CodecIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
@@ -349,4 +349,4 @@ extern "C" {
 }
 #endif
 
-#endif /* OVIA_FLACCodec_H */
+#endif /* OVIA_CodecIO_FLACCodec_h */

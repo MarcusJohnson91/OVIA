@@ -6,22 +6,20 @@
  @brief               This header contains code for W64 streams.
  */
 
-#include "StreamIO.h"
-
 #pragma once
 
-#ifndef OVIA_StreamIO_W64Stream_H
-#define OVIA_StreamIO_W64Stream_H
+#ifndef OVIA_StreamIO_W64Stream_h
+#define OVIA_StreamIO_W64Stream_h
+
+#include "../StreamIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
 
-    typedef struct TagIO_Tags TagIO_Tags;
-
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif
 
-#endif /* OVIA_StreamIO_W64Stream_H */
+#endif /* OVIA_StreamIO_W64Stream_h */
 

@@ -8,12 +8,10 @@
 
 #pragma once
 
-#ifndef OVIA_EntropyIO_H
-#define OVIA_EntropyIO_H
+#ifndef OVIA_EntropyIO_h
+#define OVIA_EntropyIO_h
 
-#include "../MediaIO.h"
-#include "../../../../Dependencies/FoundationIO/Library/include/BufferIO.h"
-#include "../../../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h"
+#include "MediaIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
@@ -40,4 +38,4 @@ extern "C" {
 }
 #endif
 
-#endif /* OVIA_EntropyIO_H */
+#endif /* OVIA_EntropyIO_h */

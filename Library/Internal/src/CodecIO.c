@@ -1,11 +1,11 @@
-#include "../../../include/Private/CodecIO/CodecIO.h"
+#include "../include/CodecIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
     
 #ifdef    OVIA_CodecIO_PNG
-#include "../../../include/Private/CodecIO/PNGCodec.h"
+#include "../include/CodecIO/PNGCodec.h"
 #ifdef    OVIA_CodecIO_Encode
     CodecIO_RegisterEncoder(PNGEncoder)
 #endif /* OVIA_CodecIO_Encode */
@@ -15,7 +15,7 @@ extern "C" {
 #endif /* OVIA_CodecIO_PNG */
     
 #ifdef    OVIA_CodecIO_JPEG
-#include "../../../include/Private/CodecIO/JPEGCodec.h"
+#include "../include/CodecIO/JPEGCodec.h"
 #ifdef    OVIA_CodecIO_Encode
     CodecIO_RegisterEncoder(JPEGEncoder);
 #endif /* OVIA_CodecIO_Encode */
@@ -25,7 +25,7 @@ extern "C" {
 #endif /* OVIA_CodecIO_JPEG */
     
 #ifdef    OVIA_CodecIO_LIVC
-#include "../../../include/Private/CodecIO/LIVCCodec.h"
+#include "../../External/LIVC/Library/include/CodecIO/LIVC.h"
 #ifdef    OVIA_CodecIO_Encode
     CodecIO_RegisterEncoder(LIVCEncoder);
 #endif /* OVIA_CodecIO_Encode */
@@ -35,7 +35,7 @@ extern "C" {
 #endif /* OVIA_CodecIO_LIVC */
 
 #ifdef    OVIA_CodecIO_FLAC
-#include "../../../include/Private/CodecIO/FLACCodec.h"
+#include "../include/CodecIO/FLACCodec.h"
 #ifdef    OVIA_CodecIO_Encode
     CodecIO_RegisterEncoder(FLACEncoder)
 #endif /* OVIA_CodecIO_Encode */

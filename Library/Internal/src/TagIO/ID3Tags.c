@@ -1,4 +1,4 @@
-#include "../../../include/Private/TagIO/ID3Tags.h"
+#include "../../include/TagIO/ID3Tags.h"
 #include "../../../../Dependencies/FoundationIO/Library/include/BufferIO.h"
 #include "../../../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h"
 

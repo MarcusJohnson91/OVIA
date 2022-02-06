@@ -8,10 +8,10 @@
 
 #pragma once
 
-#ifndef OVIA_DNGCodec_H
-#define OVIA_DNGCodec_H
+#ifndef OVIA_CodecIO_DNGCodec_h
+#define OVIA_CodecIO_DNGCodec_h
 
-#include "CodecIO.h"
+#include "../CodecIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
@@ -55,4 +55,4 @@ extern "C" {
 }
 #endif
 
-#endif /* OVIA_DNGCodec_H */
+#endif /* OVIA_CodecIO_DNGCodec_h */

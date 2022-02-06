@@ -1,6 +1,6 @@
-#include "../../include/Private/AIFCommon.h"
+#include "../../include/StreamIO/AIFStream.h"
 
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
     
@@ -16,6 +16,6 @@ extern "C" {
         .Function_Deinitialize = AIFOptions_Deinit,
     };
     
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif

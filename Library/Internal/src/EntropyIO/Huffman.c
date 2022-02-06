@@ -1,4 +1,4 @@
-#include "../../../include/Private/EntropyIO/Huffman.h"
+#include "../../include/EntropyIO/Huffman.h"
 #include "../../../../Dependencies/FoundationIO/Library/include/MathIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)

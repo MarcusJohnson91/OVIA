@@ -1,15 +1,15 @@
 /*!
- @header              WAVTags.h
+ @header              VorbisTags.h
  @author              Marcus Johnson
- @copyright           2020+
+ @copyright           2022+
  @version             1.0.0
  @brief               This header contains code for Tag conversion (e.g. ID3 to Vorbis and vice versa).
  */
 
 #pragma once
 
-#ifndef OVIA_TagIO_WAVTags_h
-#define OVIA_TagIO_WAVTags_h
+#ifndef OVIA_TagIO_VorbisTags_h
+#define OVIA_TagIO_VorbisTags_h
 
 #include "../TagIO.h"
 
@@ -23,4 +23,4 @@ extern "C" {
 }
 #endif
 
-#endif /* OVIA_TagIO_WAVTags_h */
+#endif /* OVIA_TagIO_VorbisTags_h */

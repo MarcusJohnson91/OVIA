@@ -8,10 +8,10 @@
 
 #pragma once
 
-#ifndef OVIA_StreamIO_BMPStream_H
-#define OVIA_StreamIO_BMPStream_H
+#ifndef OVIA_StreamIO_BMPStream_h
+#define OVIA_StreamIO_BMPStream_h
 
-#include "StreamIO.h"
+#include "../StreamIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
@@ -144,4 +144,4 @@ extern "C" {
 }
 #endif
 
-#endif /* OVIA_StreamIO_BMPStream_H */
+#endif /* OVIA_StreamIO_BMPStream_h */

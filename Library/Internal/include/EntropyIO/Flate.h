@@ -1,9 +1,17 @@
+/*!
+ @header              Flate.h
+ @author              Marcus Johnson
+ @copyright           2022+
+ @version             1.0.0
+ @brief               This header contains code for a Deflate/Inflate entropy coder.
+ */
+
 #pragma once
 
 #ifndef OVIA_EntropyIO_Flate_h
 #define OVIA_EntropyIO_Flate_h
 
-#include "EntropyIO.h"
+#include "../EntropyIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {

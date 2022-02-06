@@ -1,4 +1,4 @@
-#include "../../include/Private/WAVCommon.h"
+#include "../../include/StreamIO/WAVStream.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {

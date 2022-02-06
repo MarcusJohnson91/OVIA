@@ -1,10 +1,18 @@
+/*!
+ @header              OVIA.h
+ @author              Marcus Johnson
+ @copyright           2018+
+ @version             1.0.0
+ @brief               This header is for OVIA's public API.
+ */
+
 #pragma once
 
-#ifndef OVIA_OVIA_H
-#define OVIA_OVIA_H
+#ifndef OVIA_OVIA_h
+#define OVIA_OVIA_h
 
-#include "../../Dependencies/FoundationIO/Library/include/PlatformIO.h"
-#include "../../Dependencies/FoundationIO/Library/include/TextIO/TextIOTypes.h"
+#include "../../../Dependencies/FoundationIO/Library/include/PlatformIO.h"
+#include "../../../Dependencies/FoundationIO/Library/include/TextIO/TextIOTypes.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
@@ -331,4 +339,4 @@ extern "C" {
 }
 #endif
 
-#endif /* OVIA_OVIA_H */
+#endif /* OVIA_OVIA_h */

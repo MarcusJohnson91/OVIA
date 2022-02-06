@@ -1,4 +1,4 @@
-#include "../../../include/Private/EntropyIO/EntropyIO.h"
+#include "../../include/EntropyIO/Arithmetic.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {

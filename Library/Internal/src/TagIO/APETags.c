@@ -1,4 +1,4 @@
-#include "../../../include/Private/TagIO/TagIO.h"
+#include "../../include/TagIO/APETags.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {

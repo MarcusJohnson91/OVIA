@@ -1,22 +1,20 @@
 /*!
- @header    libModernAVC.h
- @author    Marcus Johnson aka BumbleBritches57
- @copyright 2016, Marcus Johnson
- @version   0.2.3
+ @header              AVCCodec.h
+ @author              Marcus Johnson
+ @copyright           2016+
+ @version             1.1.0
+ @brief               This header contains code for AVC (encoding and decoding).
+ @remak               ONLY LOSSLESS versions of AVC will ever be supported.
  */
-
-#include "../../Dependencies/ModernPNG/Dependencies/libPCM/Dependencies/BitIO/libBitIO/include/BitIO.h"
-
-#include <stdbool.h>
-#include <stdint.h>
-#include <math.h>
 
 #pragma once
 
-#ifndef LIBMODERNAVC_libModernAVC_H
-#define LIBMODERNAVC_libModernAVC_H
+#ifndef OVIA_CodecIO_AVCCodec_h
+#define OVIA_CodecIO_AVCCodec_h
 
-#ifdef __cplusplus
+#include "../CodecIO.h"
+
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
     
@@ -1367,8 +1365,8 @@ extern "C" {
         12, 15, 7, 11, 13, 14, 6,  9
     };
     
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif
 
-#endif /* LIBMODERNAVC_libModernAVC_H */
+#endif /* OVIA_CodecIO_AVCCodec_h */

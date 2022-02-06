@@ -1,30 +1,10 @@
-#include "../../../Dependencies/BitIO/libBitIO/include/BitIO.h"
-#include "../../include/libMPEG2Stream.h"
-#include "../../include/MPEG2StreamTypes.h"
-#include "../../include/Muxer/MuxMPEG2Stream.h"
+#include "../../include/StreamIO/MPEG2Stream.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/BufferIO.h"
 
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
     
-    void MuxMPEG2PESPacket(Packet2Mux *Packet, BitBuffer *BitB) {
-        
-    }
-    
-    void MuxMPEG2ProgramStream(Packet2Mux *Packet, BitBuffer *BitB) {
-        
-    }
-    
-    void MuxMPEG2TransportStream(Packet2Mux *Packet, BitBuffer *BitB) {
-        
-    }
-    
-    void SpliceMPEG2TransportStream(Packet2Mux *Packet, BitBuffer *BitB) {
-        
-    }
-    
-    
-    
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif

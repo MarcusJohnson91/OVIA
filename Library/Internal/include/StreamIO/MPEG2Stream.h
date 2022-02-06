@@ -1,20 +1,19 @@
 /*!
- @header    libMPEGTS
- @author    Marcus Johnson aka BumbleBritches57
- @copyright 2017, released under the BSD 3 clause license
- @version   0.1.0
- @brief     This library contains a muxer and demuxer for MPEG2-TS aka H.222 streams
+ @header              MPEG2Stream.h
+ @author              Marcus Johnson
+ @copyright           2017+
+ @version             0.1.0
+ @brief               This header contains code for MPEG2 streams.
  */
-
-#include "../../Dependencies/BitIO/libBitIO/include/BitIO.h"
-#include "libMPEG2StreamTables.h"
 
 #pragma once
 
-#ifndef LIBMPEG2STREAM_LIBMPEG2STREAM_H
-#define LIBMPEG2STREAM_LIBMPEG2STREAM_H
+#ifndef OVIA_StreamIO_MPEG2Stream_h
+#define OVIA_StreamIO_MPEG2Stream_h
 
-#ifdef __cplusplus
+#include "../StreamIO.h"
+
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
 
@@ -236,8 +235,8 @@ extern "C" {
     
     void MuxAVC2MPEGTransportStream(BitBuffer *BitB, Packet2Mux *Packet);
     
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif
 
-#endif /* LIBMPEG2STREAM_LIBMPEG2STREAM_H */
+#endif /* OVIA_StreamIO_MPEG2Stream_h */

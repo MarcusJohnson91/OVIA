@@ -8,10 +8,10 @@
 
 #pragma once
 
-#ifndef OVIA_TagIO_H
-#define OVIA_TagIO_H
+#ifndef OVIA_TagIO_h
+#define OVIA_TagIO_h
 
-#include "../MediaIO.h"
+#include "MediaIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
@@ -68,4 +68,4 @@ extern "C" {
 }
 #endif
 
-#endif /* OVIA_TagIO_H */
+#endif /* OVIA_TagIO_h */

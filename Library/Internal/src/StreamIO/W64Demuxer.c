@@ -1,4 +1,4 @@
-#include "../../include/Private/W64Common.h"
+#include "../../include/StreamIO/W64Stream.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {

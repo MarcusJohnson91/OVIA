@@ -1,4 +1,4 @@
-#include "../../../include/Private/CodecIO/FLACCodec.h"
+#include "../../include/CodecIO/FLACCodec.h"
 #include "../../../../Dependencies/FoundationIO/Library/include/TextIO/FormatIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)

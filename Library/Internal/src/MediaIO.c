@@ -1,4 +1,4 @@
-#include "../../include/Private/MediaIO.h"                                   /* Included for our declarations */
+#include "../include/MediaIO.h"                                              /* Included for our declarations */
 #include "../../../Dependencies/FoundationIO/Library/include/MathIO.h"       /* Included for Absolute, Max/Min */
 #include "../../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h" /* Included for error reporting */
 

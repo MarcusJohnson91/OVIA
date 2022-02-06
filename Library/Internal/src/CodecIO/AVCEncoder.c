@@ -1,7 +1,6 @@
-#include "../../include/Private/Common/libModernAVC_Types.h"
-#include "../../include/Private/Encode/libModernAVC_Encode.h"
+#include "../../include/CodecIO/AVCCodec.h"
 
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
     
@@ -352,6 +351,6 @@ extern "C" {
         return 0;
     }
     
-#ifdef __cplusplus
+#if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif

@@ -8,13 +8,10 @@
 
 #pragma once
 
-#ifndef OVIA_CodecIO_H
-#define OVIA_CodecIO_H
+#ifndef OVIA_CodecIO_h
+#define OVIA_CodecIO_h
 
-#include "../MediaIO.h"
-#include "../../../../Dependencies/FoundationIO/Library/include/BufferIO.h"
-#include "../../../../Dependencies/FoundationIO/Library/include/MathIO.h"
-#include "../../../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h"
+#include "MediaIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
@@ -144,4 +141,4 @@ _Redefine CodecIO_Internal_DecoderList CodecStruct
 }
 #endif
 
-#endif /* OVIA_CodecIO_H */
+#endif /* OVIA_CodecIO_h */
