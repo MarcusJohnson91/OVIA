@@ -18,7 +18,6 @@ set(CMAKE_OUTPUT_DIRECTORY         "${CMAKE_CURRENT_SOURCE_DIR}/../BUILD/${Targe
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../BUILD/${TargetArchitecture}/${CMAKE_BUILD_TYPE}")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../BUILD/${TargetArchitecture}/${CMAKE_BUILD_TYPE}")
 set(OVIA_Library_Dir               "${CMAKE_CURRENT_SOURCE_DIR}/../Library")
-set(OVIA_Test_Dir                  "${CMAKE_CURRENT_SOURCE_DIR}/../Tests") # CHANGE THIS
 set(OVIA_Resource_Dir              "${CMAKE_CURRENT_SOURCE_DIR}/../Resources")
 
 set(OVIA_SOURCE
@@ -74,6 +73,8 @@ set(OVIA_SOURCE
     "${OVIA_Library_Dir}/Internal/src/TransformIO/YCoCgR.c"
 )
 
+include("${OVIA_Library_Dir}/External/LIVC/LIVC.cmake" OPTIONAL LIVCPath)
+
 if(CMAKE_HOST_UNIX)
     add_definitions(-D_LARGEFILE_SOURCE)
     add_definitions(-D_LARGEFILE64_SOURCE)
@@ -96,9 +97,18 @@ configure_file("${OVIA_Resource_Dir}/OVIA.rc.in" "${CMAKE_LIBRARY_OUTPUT_DIRECTO
 option(BUILD_AS_SHARED_LIBRARY "Should OVIA be compiled as a dynamic library? (.dylib/.dll/.so)" ON)
 
 if(BUILD_AS_SHARED_LIBRARY MATCHES ON)
+if(LIVCPath NOT STREQUAL "NOTFOUND")
+    add_library(OVIA SHARED ${OVIA_SOURCE} ${LIVC_SOURCE})
+else
     add_library(OVIA SHARED ${OVIA_SOURCE})
+endif(LIVCPath NOT STREQUAL "NOTFOUND")
 elseif(BUILD_AS_SHARED_LIBRARY MATCHES OFF)
+if(LIVCPath NOT STREQUAL "NOTFOUND")
+    add_library(OVIA STATIC ${OVIA_SOURCE} ${LIVC_SOURCE})
+else
     add_library(OVIA STATIC ${OVIA_SOURCE})
+endif(LIVCPath NOT STREQUAL "NOTFOUND")
+
 endif(BUILD_AS_SHARED_LIBRARY MATCHES ON)
 
 set_target_properties(OVIA PROPERTIES PREFIX "")
