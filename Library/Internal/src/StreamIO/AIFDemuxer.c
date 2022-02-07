@@ -5,7 +5,7 @@ extern "C" {
 #endif
     
     OVIADecoder AIFCDecoder = {
-        .DecoderID             = CodecID_AIFC,
+        .DecoderID             = StreamIO_AIF,
         .MediaType             = MediaType_Audio2D,
         .MagicIDOffset         = 0,
         .MagicIDSize           = 4,

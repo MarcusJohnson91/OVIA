@@ -1,6 +1,6 @@
-#include "../Dependencies/FoundationIO/Library/include/TestIO.h"
-#include "../Library/include/CodecIO.h"
-#include "../Dependencies/FoundationIO/Library/include/TextIO/CommandLineIO.h"
+#include "../../../include/CodecIO.h"
+#include "../../../../../Dependencies/FoundationIO/Library/include/TestIO.h"
+#include "../../../../../Dependencies/FoundationIO/Library/include/TextIO/CommandLineIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {

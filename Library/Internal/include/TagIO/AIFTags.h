@@ -17,8 +17,6 @@
 extern "C" {
 #endif
 
-    typedef struct BitBuffer BitBuffer;
-
     void AIF_Read_Name(TagIO_Tags *Tags, BitBuffer *BitB);
 
     void AIF_Read_Author(TagIO_Tags *Tags, BitBuffer *BitB);

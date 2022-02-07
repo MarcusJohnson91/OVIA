@@ -5,7 +5,7 @@ extern "C" {
 #endif
 
 #ifdef    OVIA_StreamIO_AIF
-#include "../../../include/Private/StreamIO/AIFStream.h"
+#include "../include/StreamIO/AIFStream.h"
 #ifdef    OVIA_StreamIO_Mux
 StreamIO_RegisterMuxer(AIFMuxer)
 #endif /* OVIA_StreamIO_Mux */
@@ -15,7 +15,7 @@ StreamIO_RegisterDemuxer(AIFDemuxer)
 #endif /* OVIA_StreamIO_AIF */
 
 #ifdef    OVIA_StreamIO_BMP
-#include "../../../include/Private/StreamIO/BMPStream.h"
+#include "../include/StreamIO/BMPStream.h"
 #ifdef    OVIA_StreamIO_Mux
 StreamIO_RegisterMuxer(BMPMuxer)
 #endif /* OVIA_StreamIO_Mux */
@@ -25,7 +25,7 @@ StreamIO_RegisterDemuxer(BMPDemuxer)
 #endif /* OVIA_StreamIO_BMP */
 
 #ifdef    OVIA_StreamIO_PNM
-#include "../../../include/Private/StreamIO/PNMStream.h"
+#include "../include/StreamIO/PNMStream.h"
 #ifdef    OVIA_StreamIO_Mux
 StreamIO_RegisterMuxer(PNMMuxer)
 #endif /* OVIA_StreamIO_Mux */
@@ -34,8 +34,18 @@ StreamIO_RegisterDemuxer(PNMDemuxer)
 #endif /* OVIA_StreamIO_Demux */
 #endif /* OVIA_StreamIO_PNM */
 
-#ifdef    OVIA_StreamIO_RIFF
-#include "../../../include/Private/StreamIO/RIFFStream.h"
+#ifdef    OVIA_StreamIO_W64
+#include "../include/StreamIO/W64Stream.h"
+#ifdef    OVIA_StreamIO_Mux
+    StreamIO_RegisterMuxer(W64Muxer)
+#endif /* OVIA_StreamIO_Mux */
+#ifdef    OVIA_StreamIO_Demux
+    StreamIO_RegisterDemuxer(W64Demuxer)
+#endif /* OVIA_StreamIO_Demux */
+#endif /* OVIA_StreamIO_W64 */
+
+#ifdef    OVIA_StreamIO_WAV
+#include "../include/StreamIO/WAVStream.h"
 #ifdef    OVIA_StreamIO_Mux
 StreamIO_RegisterMuxer(RIFFMuxer)
 #endif /* OVIA_StreamIO_Mux */
@@ -45,7 +55,7 @@ StreamIO_RegisterDemuxer(RIFFDemuxer)
 #endif /* OVIA_StreamIO_RIFF */
 
 #ifdef    OVIA_StreamIO_OGG
-#include "../../../include/Private/StreamIO/OGGStream.h"
+#include "../include/StreamIO/OGGStream.h"
 #ifdef    OVIA_StreamIO_Mux
 StreamIO_RegisterMuxer(OGGMuxer)
 #endif /* OVIA_StreamIO_Mux */
@@ -55,7 +65,7 @@ StreamIO_RegisterDemuxer(OGGDemuxer)
 #endif /* OVIA_StreamIO_OGG */
 
 #ifdef    OVIA_StreamIO_FLAC
-#include "../../../include/Private/StreamIO/FLACNativeStream.h"
+#include "../include/StreamIO/FLACStream.h"
 #ifdef    OVIA_StreamIO_Mux
 StreamIO_RegisterMuxer(FLACMuxer)
 #endif /* OVIA_StreamIO_Mux */
@@ -64,13 +74,13 @@ StreamIO_RegisterDemuxer(FLACDemuxer)
 #endif /* OVIA_StreamIO_Demux */
 #endif /* OVIA_StreamIO_FLAC */
 
-#ifdef    OVIA_StreamIO_TIFF
-#include "../../../include/Private/StreamIO/TIFFStream.h"
+#ifdef    OVIA_StreamIO_TIF
+#include "../include/StreamIO/TIFStream.h"
 #ifdef    OVIA_StreamIO_Mux
-StreamIO_RegisterMuxer(TIFFMuxer)
+StreamIO_RegisterMuxer(TIFMuxer)
 #endif /* OVIA_StreamIO_Mux */
 #ifdef    OVIA_StreamIO_Demux
-StreamIO_RegisterDemuxer(TIFFDemuxer)
+StreamIO_RegisterDemuxer(TIFDemuxer)
 #endif /* OVIA_StreamIO_Demux */
 #endif /* OVIA_StreamIO_TIFF */
 

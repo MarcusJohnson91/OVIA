@@ -1,4 +1,4 @@
-#include "../include/OVIA.h"
+#include "OVIA.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
