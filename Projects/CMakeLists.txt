@@ -10,7 +10,7 @@ elseif(NOT DEFINED CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Debug")
 endif(DEFINED CMAKE_BUILD_TYPE AND CMAKE_BUILD_TYPE STREQUAL "")
 
-include(../Dependencies/FoundationIO/Projects/DetectArchitecture.cmake)
+include("${CMAKE_CURRENT_SOURCE_DIR}/../Dependencies/FoundationIO/Projects/DetectArchitecture.cmake")
 FindTargetArchitecture(TargetArchitecture)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../BUILD/${TargetArchitecture}/${CMAKE_BUILD_TYPE}")
@@ -19,6 +19,25 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../BUILD/${Targe
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../BUILD/${TargetArchitecture}/${CMAKE_BUILD_TYPE}")
 set(OVIA_Library_Dir               "${CMAKE_CURRENT_SOURCE_DIR}/../Library")
 set(OVIA_Resource_Dir              "${CMAKE_CURRENT_SOURCE_DIR}/../Resources")
+set(OVIA_StreamIO_Tests_Dir        "${OVIA_Library_Dir}/Internal/src/StreamIO/Tests" CACHE PATH INTERNAL FORCE)
+set(OVIA_CodecIO_Tests_Dir         "${OVIA_Library_Dir}/Internal/src/CodecIO/Tests" CACHE PATH INTERNAL FORCE)
+set(OVIA_EntropyIO_Tests_Dir       "${OVIA_Library_Dir}/Internal/src/EntropyIO/Tests" CACHE PATH INTERNAL FORCE)
+set(OVIA_TagIO_Tests_Dir           "${OVIA_Library_Dir}/Internal/src/TagIO/Tests" CACHE PATH INTERNAL FORCE)
+set(OVIA_TransformIO_Tests_Dir     "${OVIA_Library_Dir}/Internal/src/TransformIO/Tests" CACHE PATH INTERNAL FORCE)
+set(FoundationIO_Dir               "${CMAKE_CURRENT_SOURCE_DIR}/../Dependencies/FoundationIO")
+
+if(CMAKE_HOST_UNIX)
+    add_definitions(-D_LARGEFILE_SOURCE)
+    add_definitions(-D_LARGEFILE64_SOURCE)
+    add_definitions(-D_FILE_OFFSET_BITS=64)
+    add_definitions(-D__STDC_WANT_LIB_EXT1__)
+    add_definitions(-D__TIMESIZE=64)
+elseif(CMAKE_HOST_WIN32)
+    add_definitions(-DUNICODE)
+    add_definitions(-D_UNICODE)
+    add_definitions(-D_ATL_ALLOW_CHAR_UNSIGNED)
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+endif(CMAKE_HOST_UNIX)
 
 set(OVIA_SOURCE
     "${OVIA_Library_Dir}/OVIA.c"
@@ -71,25 +90,13 @@ set(OVIA_SOURCE
     "${OVIA_Library_Dir}/Internal/src/TagIO/WAVTags.c"
     "${OVIA_Library_Dir}/Internal/src/TransformIO/RCT.c"
     "${OVIA_Library_Dir}/Internal/src/TransformIO/YCoCgR.c"
+    "${LIVC_SOURCE}"
 )
 
 include("${OVIA_Library_Dir}/External/LIVC/LIVC.cmake" OPTIONAL LIVCPath)
 
-if(CMAKE_HOST_UNIX)
-    add_definitions(-D_LARGEFILE_SOURCE)
-    add_definitions(-D_LARGEFILE64_SOURCE)
-    add_definitions(-D_FILE_OFFSET_BITS=64)
-    add_definitions(-D__STDC_WANT_LIB_EXT1__)
-    add_definitions(-D__TIMESIZE=64)
-elseif(CMAKE_HOST_WIN32)
-    add_definitions(-DUNICODE)
-    add_definitions(-D_UNICODE)
-    add_definitions(-D_ATL_ALLOW_CHAR_UNSIGNED)
-    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-endif(CMAKE_HOST_UNIX)
-
-include(../Dependencies/FoundationIO/Projects/GetVersion.cmake) # Honestly, I want this to get the version from the main header
-GetVersionString(VERSION_STRING "/Library")
+include("${FoundationIO_Dir}/Projects/GetVersion.cmake")
+GetVersionString(VERSION_STRING "${FoundationIO_Dir}/Library")
 
 configure_file("${OVIA_Resource_Dir}/OVIA.pc.in" "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/Resources/OVIA.pc")
 configure_file("${OVIA_Resource_Dir}/OVIA.rc.in" "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/Resources/OVIA.rc")
@@ -97,18 +104,9 @@ configure_file("${OVIA_Resource_Dir}/OVIA.rc.in" "${CMAKE_LIBRARY_OUTPUT_DIRECTO
 option(BUILD_AS_SHARED_LIBRARY "Should OVIA be compiled as a dynamic library? (.dylib/.dll/.so)" ON)
 
 if(BUILD_AS_SHARED_LIBRARY MATCHES ON)
-if(LIVCPath NOT STREQUAL "NOTFOUND")
-    add_library(OVIA SHARED ${OVIA_SOURCE} ${LIVC_SOURCE})
-else
     add_library(OVIA SHARED ${OVIA_SOURCE})
-endif(LIVCPath NOT STREQUAL "NOTFOUND")
 elseif(BUILD_AS_SHARED_LIBRARY MATCHES OFF)
-if(LIVCPath NOT STREQUAL "NOTFOUND")
-    add_library(OVIA STATIC ${OVIA_SOURCE} ${LIVC_SOURCE})
-else
     add_library(OVIA STATIC ${OVIA_SOURCE})
-endif(LIVCPath NOT STREQUAL "NOTFOUND")
-
 endif(BUILD_AS_SHARED_LIBRARY MATCHES ON)
 
 set_target_properties(OVIA PROPERTIES PREFIX "")
@@ -131,309 +129,44 @@ endif(DEFINED CMAKE_BUILD_TYPE AND (CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_B
 
 if(BUILD_TESTING)
     enable_testing()
+    include("${FoundationIO_Dir}/Projects/RegisterTests.cmake")
 
-	macro(register_test ComponentName TestName)
-        string(CONCAT Test_Name "Test_${TestName}")
+    RegisterTest("${OVIA_CodecIO_Tests_Dir}" AVCCodec OVIA)
+	RegisterTest("${OVIA_CodecIO_Tests_Dir}" DNGCodec OVIA)
+	RegisterTest("${OVIA_CodecIO_Tests_Dir}" FLACCodec OVIA)
+	RegisterTest("${OVIA_CodecIO_Tests_Dir}" JPEGCodec OVIA)
+	RegisterTest("${OVIA_CodecIO_Tests_Dir}" PNGCodec OVIA)
 
-        add_executable(${Test_Name} "Library/Internal/src/${ComponentName}/Tests/${Test_Name}.c")
+    RegisterTest("${OVIA_EntropyIO_Tests_Dir}" Arithmetic OVIA)
+	RegisterTest("${OVIA_EntropyIO_Tests_Dir}" Huffman OVIA)
+	RegisterTest("${OVIA_EntropyIO_Tests_Dir}" Flate OVIA)
+	RegisterTest("${OVIA_EntropyIO_Tests_Dir}" Rice OVIA)
 
-        target_link_libraries(${Test_Name} OVIA)
+	RegisterTest("${OVIA_StreamIO_Tests_Dir}" AIFStream OVIA)
+	RegisterTest("${OVIA_StreamIO_Tests_Dir}" BMPStream OVIA)
+	RegisterTest("${OVIA_StreamIO_Tests_Dir}" MPEG2Stream OVIA)
+	RegisterTest("${OVIA_StreamIO_Tests_Dir}" PNMStream OVIA)
+	RegisterTest("${OVIA_StreamIO_Tests_Dir}" TIFStream OVIA)
+	RegisterTest("${OVIA_StreamIO_Tests_Dir}" W64Stream OVIA)
+	RegisterTest("${OVIA_StreamIO_Tests_Dir}" WAVStream OVIA)
 
-        set(UNIT_TEST_TARGETS ${UNIT_TEST_TARGETS} ${Test_Name})
+	RegisterTest("${OVIA_TagIO_Tests_Dir}" AIFTags OVIA)
+	RegisterTest("${OVIA_TagIO_Tests_Dir}" APETags OVIA)
+	RegisterTest("${OVIA_TagIO_Tests_Dir}" ID3Tags OVIA)
+	RegisterTest("${OVIA_TagIO_Tests_Dir}" VorbisTags OVIA)
+	RegisterTest("${OVIA_TagIO_Tests_Dir}" WAVTags OVIA)
 
-        add_test(${Test_Name} "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${Test_Name}")
-
-        set_tests_properties(${Test_Name} PROPERTIES TIMEOUT 15)
-    endmacro(register_test)
-
-	register_test(StreamIO AIFStream)
-	register_test(StreamIO BMPStream)
-	register_test(StreamIO MPEG2Stream)
-	register_test(StreamIO PNMStream)
-	register_test(StreamIO TIFStream)
-	register_test(StreamIO W64Stream)
-	register_test(StreamIO WAVStream)
-
-	register_test(CodecIO AVCCodec)
-	register_test(CodecIO DNGCodec)
-	register_test(CodecIO FLACCodec)
-	register_test(CodecIO JPEGCodec)
-	register_test(CodecIO PNGCodec)
-
-	register_test(TagIO AIFTags)
-	register_test(TagIO APETags)
-	register_test(TagIO ID3Tags)
-	register_test(TagIO VorbisTags)
-	register_test(TagIO WAVTags)
-
-	register_test(EntropyIO Arithmetic)
-	register_test(EntropyIO Huffman)
-	register_test(EntropyIO Flate)
-	register_test(EntropyIO Rice)
-
-	register_test(TransformIO RCT)
-	register_test(TransformIO YCoCgR)
-
-    add_custom_target(OVIA_Tests Test DEPENDS ${UNIT_TEST_TARGETS})
-    add_custom_command(TARGET OVIA_Tests COMMENT "Run tests" POST_BUILD COMMAND ctest ARGS --output-on-failure WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+	RegisterTest("${OVIA_TransformIO_Tests_Dir}" RCT OVIA)
+	RegisterTest("${OVIA_TransformIO_Tests_Dir}" YCoCgR OVIA)
 endif(BUILD_TESTING)
 
 install(TARGETS OVIA DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 install(FILES ${OVIA_PUBLICHEADERS} DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
 
-add_subdirectory(../Dependencies/FoundationIO/Projects "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/../Dependencies/FoundationIO/BUILD")
+add_subdirectory("${FoundationIO_Dir}/Projects" "${CMAKE_OUTPUT_DIRECTORY}")
 
 set_target_properties(OVIA PROPERTIES PREFIX "")
 
 target_link_libraries(OVIA PUBLIC FoundationIO)
 
-if(${CMAKE_C_COMPILER_ID} STREQUAL "AppleClang" OR ${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
-
-set(CMAKE_C_FLAGS " \
-${CMAKE_C_FLAGS} \
--fPIC \
--fshort-enums \
--funsigned-char \
--std=c18 \
--Weverything \
--Wall \
--Wextra \
--Wpedantic \
--Wno-assign-enum \
--Wno-c99-compat \
--Wno-ignored-attributes \
--Wno-incompatible-pointer-types-discards-qualifiers \
--Wno-padded \
--Wno-pointer-sign \
--Wno-reserved-id-macro \
--Wno-sign-conversion \
--Wsuggest-attribute=const \
--Wenum-conversion \
--v \
-")
-
-set(CMAKE_C_FLAGS_DEBUG " \
-${CMAKE_C_FLAGS} \
--fsanitize=address,undefined \
--fno-omit-frame-pointer \
--DDEBUG=1 \
--g \
--O1 \
-")
-
-set(CMAKE_C_FLAGS_RELEASE " \
-${CMAKE_C_FLAGS} \
--Ofast \
-")
-
-set(CMAKE_C_FLAGS_RELWITHDEBINFO " \
-${CMAKE_C_FLAGS} \
--fsanitize=address,undefined \
--fno-omit-frame-pointer \
--DDEBUG=1 \
--g \
--Ofast \
-")
-
-set(CMAKE_C_FLAGS_MINSIZEREL " \
-${CMAKE_C_FLAGS} \
--Oz \
-")
-
-set(LINK_FLAGS ${LINK_FLAGS} " \
--flto=full \
--lm \
-")
-
-if(CMAKE_HOST_APPLE)
-set(LINK_FLAGS ${LINK_FLAGS} " \
--dead_strip_dylibs
-")
-endif(CMAKE_HOST_APPLE)
-
-set(LINK_FLAGS_DEBUG " \
-${LINK_FLAGS} \
-")
-
-set(LINK_FLAGS_RELWITHDEBINFO " \
-${LINK_FLAGS} \
-")
-
-set(LINK_FLAGS_RELEASE " \
-${LINK_FLAGS} \
-")
-
-set(LINK_FLAGS_MINSIZEREL " \
-${LINK_FLAGS} \
-")
-
-elseif(${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
-
-set(CMAKE_C_FLAGS " \
-${CMAKE_C_FLAGS} \
--fPIC \
--fshort-enums \
--funroll-loops \
--funsigned-char \
--std=c2x \
--Wall \
--Wextra \
--Wpedantic \
--Wno-ignored-attributes \
--Wno-padded \
--Wno-pointer-sign \
--Wno-sign-conversion \
--Wno-varargs \
--Wsuggest-attribute=const \
--Wsuggest-attribute=pure \
--Wsuggest-attribute=malloc \
--Wsuggest-attribute=noreturn \
--Wsuggest-attribute=format \
--Wmissing-format-attribute \
--Wmissing-noreturn \
-")
-
-set(CMAKE_C_FLAGS_DEBUG " \
-${CMAKE_C_FLAGS} \
--fsanitize=address,undefined \
--DDEBUG=1 \
--g \
--O1 \
-")
-
-set(CMAKE_C_FLAGS_RELEASE " \
-${CMAKE_C_FLAGS} \
--Ofast \
-")
-
-set(CMAKE_C_FLAGS_RELWITHDEBINFO " \
-${CMAKE_C_FLAGS} \
--fsanitize=address,undefined \
--fno-omit-frame-pointer \
--DDEBUG=1 \
--g \
--Ofast \
-")
-
-set(CMAKE_C_FLAGS_MINSIZEREL " \
-${CMAKE_C_FLAGS} \
--Os \
-")
-
-set(LINK_FLAGS ${LINK_FLAGS} " \
--flto=full \
--lm \
-")
-
-if(CMAKE_HOST_APPLE)
-set(LINK_FLAGS ${LINK_FLAGS} " \
--dead_strip_dylibs
-")
-endif(CMAKE_HOST_APPLE)
-
-set(LINK_FLAGS_DEBUG " \
-${LINK_FLAGS} \
-")
-
-set(LINK_FLAGS_RELWITHDEBINFO " \
-${LINK_FLAGS} \
-")
-
-set(LINK_FLAGS_RELEASE " \
-${LINK_FLAGS} \
-")
-
-set(LINK_FLAGS_MINSIZEREL " \
-${LINK_FLAGS} \
-")
-
-elseif(${CMAKE_C_COMPILER_ID} STREQUAL "MSVC")
-
-set(CMAKE_C_FLAGS " \
-${CMAKE_C_FLAGS} \
-/bigobj \
-/FAu \
-/GF \
-/Gm- \
-/GT \
-/Gy \
-/JMC \
-/J \
-/MP \
-/MT \
-/Ob2 \
-/openmp \
-/p:CharacterSet=Unicode \
-/p:FunctionLevelLinking=true \
-/p:PrecompiledHeader=NotUsing \
-/p:RuntimeLibrary=MultiThreaded \
-/p:UseOfMfc=false \
-/p:WarningLevel=Level3 \
-/Qpar \
-/sdl- \
-/std:c++17 \
-/W3 \
-/Zc:rvalueCast \
-/Zc:wchar_t \
-/Wall \
-")
-
-set(CMAKE_C_FLAGS_DEBUG " \
-${CMAKE_C_FLAGS} \
-/DDEBUG=1 \
-/D_DEBUG=1 \
-/p:UseDebugLibraries=true \
-/O1 \
-")
-
-set(CMAKE_C_FLAGS_RELEASE " \
-${CMAKE_C_FLAGS} \
-/p:UseDebugLibraries=false \
-/Ox \
-")
-
-set(CMAKE_C_FLAGS_RELWITHDEBINFO " \
-${CMAKE_C_FLAGS} \
-/DDEBUG=1 \
-/D_DEBUG=1 \
-/p:UseDebugLibraries=true \
--Ox \
-")
-
-set(CMAKE_C_FLAGS_MINSIZEREL " \
-${CMAKE_C_FLAGS} \
-/p:UseDebugLibraries=false \
--Os \
-")
-
-set(LINK_FLAGS " \
-${LINK_FLAGS} \
-/GL \
-/LTCG:INCREMENTAL
-/OPT:REF
-/flto \
-")
-
-set(LINK_FLAGS_DEBUG " \
-${LINK_FLAGS} \
-/DEBUG \
-")
-
-
-set(LINK_FLAGS_RELWITHDEBINFO " \
-${LINK_FLAGS} \
-/DEBUG \
-/RELEASE \
-")
-
-set(LINK_FLAGS_RELEASE " \
-${LINK_FLAGS} \
-/RELEASE \
-")
-
-set(LINK_FLAGS_MINSIZEREL " \
-${LINK_FLAGS} \
-/RELEASE \
-")
-
-endif(${CMAKE_C_COMPILER_ID} STREQUAL "AppleClang" OR ${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
+include("${FoundationIO_Dir}/Projects/BuildSettings.cmake")
