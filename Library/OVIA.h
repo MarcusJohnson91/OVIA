@@ -11,8 +11,7 @@
 #ifndef OVIA_OVIA_h
 #define OVIA_OVIA_h
 
-#include "../Dependencies/FoundationIO/Library/include/PlatformIO.h"
-#include "../Dependencies/FoundationIO/Library/include/TextIO/TextIOTypes.h"
+#include "../Dependencies/FoundationIO/Library/FoundationIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {

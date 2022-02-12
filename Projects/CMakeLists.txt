@@ -96,7 +96,7 @@ set(OVIA_SOURCE
 set(LIVCPath "")
 include("${OVIA_Library_Dir}/External/LIVC/LIVC.cmake" OPTIONAL RESULT_VARIABLE LIVCPath)
 
-include(${FoundationIO_Dir}/Projects/GetVersion.cmake)
+include("${FoundationIO_Dir}/Projects/GetVersion.cmake")
 GetVersionString("${OVIA_Library_Dir}/OVIA.h" OVIA_VERSION)
 
 configure_file("${OVIA_Resource_Dir}/OVIA.pc.in" "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/Resources/OVIA.pc")
