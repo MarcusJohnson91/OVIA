@@ -1,0 +1,6 @@
+[submodule "Dependencies/FoundationIO"]
+	path = Dependencies/FoundationIO
+	url = git@github.com:MarcusJohnson91/FoundationIO.git
+[submodule "Library/External/LIVC"]
+	path = Library/External/LIVC
+	url = git@github.com:MarcusJohnson91/LIVC.git
