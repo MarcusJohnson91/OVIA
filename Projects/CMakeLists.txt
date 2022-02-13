@@ -49,9 +49,6 @@ set(OVIA_SOURCE
     "${OVIA_Library_Dir}/Internal/src/CodecIO/AVCCodec.c"
     "${OVIA_Library_Dir}/Internal/src/CodecIO/AVCDecoder.c"
     "${OVIA_Library_Dir}/Internal/src/CodecIO/AVCEncoder.c"
-    "${OVIA_Library_Dir}/Internal/src/CodecIO/DNGCodec.c"
-    "${OVIA_Library_Dir}/Internal/src/CodecIO/DNGDecoder.c"
-    "${OVIA_Library_Dir}/Internal/src/CodecIO/DNGEncoder.c"
     "${OVIA_Library_Dir}/Internal/src/CodecIO/FLACCodec.c"
     "${OVIA_Library_Dir}/Internal/src/CodecIO/FLACDecoder.c"
     "${OVIA_Library_Dir}/Internal/src/CodecIO/FLACEncoder.c"
@@ -61,9 +58,6 @@ set(OVIA_SOURCE
     "${OVIA_Library_Dir}/Internal/src/CodecIO/PNGCodec.c"
     "${OVIA_Library_Dir}/Internal/src/CodecIO/PNGDecoder.c"
     "${OVIA_Library_Dir}/Internal/src/CodecIO/PNGEncoder.c"
-    "${OVIA_Library_Dir}/Internal/src/CodecIO/DNGCodec.c"
-    "${OVIA_Library_Dir}/Internal/src/CodecIO/DNGDecoder.c"
-    "${OVIA_Library_Dir}/Internal/src/CodecIO/DNGEncoder.c"
     "${OVIA_Library_Dir}/Internal/src/EntropyIO/Arithmetic.c"
     "${OVIA_Library_Dir}/Internal/src/EntropyIO/Flate.c"
     "${OVIA_Library_Dir}/Internal/src/EntropyIO/Huffman.c"
@@ -135,7 +129,6 @@ if(BUILD_TESTING)
     add_custom_target(OVIA_Tests Test DEPENDS ${OVIA_TEST_TARGETS})
 
     RegisterTest("${OVIA_CodecIO_Tests_Dir}" AVCCodec OVIA)
-    RegisterTest("${OVIA_CodecIO_Tests_Dir}" DNGCodec OVIA)
     RegisterTest("${OVIA_CodecIO_Tests_Dir}" FLACCodec OVIA)
     RegisterTest("${OVIA_CodecIO_Tests_Dir}" JPEGCodec OVIA)
     RegisterTest("${OVIA_CodecIO_Tests_Dir}" PNGCodec OVIA)

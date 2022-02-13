@@ -47,15 +47,12 @@
 		2C3EF32827AF9919004F95EC /* PNGEncoder.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C3EF31927AF9919004F95EC /* PNGEncoder.c */; };
 		2C3EF32927AF9919004F95EC /* JPEGCodec.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C3EF31A27AF9919004F95EC /* JPEGCodec.c */; };
 		2C3EF32A27AF9919004F95EC /* FLACCodec.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C3EF31B27AF9919004F95EC /* FLACCodec.c */; };
-		2C3EF32B27AF9919004F95EC /* DNGCodec.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C3EF31C27AF9919004F95EC /* DNGCodec.c */; };
 		2C3EF32C27AF9919004F95EC /* JPEGEncoder.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C3EF31D27AF9919004F95EC /* JPEGEncoder.c */; };
 		2C3EF32D27AF9919004F95EC /* AVCCodec.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C3EF31E27AF9919004F95EC /* AVCCodec.c */; };
 		2C3EF32E27AF9919004F95EC /* FLACEncoder.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C3EF31F27AF9919004F95EC /* FLACEncoder.c */; };
 		2C3EF32F27AF9919004F95EC /* JPEGDecoder.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C3EF32027AF9919004F95EC /* JPEGDecoder.c */; };
-		2C3EF33027AF9919004F95EC /* DNGDecoder.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C3EF32127AF9919004F95EC /* DNGDecoder.c */; };
 		2C3EF33127AF9919004F95EC /* AVCDecoder.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C3EF32227AF9919004F95EC /* AVCDecoder.c */; };
 		2C3EF33227AF9919004F95EC /* AVCEncoder.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C3EF32327AF9919004F95EC /* AVCEncoder.c */; };
-		2C3EF33327AF9919004F95EC /* DNGEncoder.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C3EF32427AF9919004F95EC /* DNGEncoder.c */; };
 		2C3EF39527AFA934004F95EC /* VorbisTags.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C3EF39427AFA934004F95EC /* VorbisTags.h */; };
 		2CB6450327AFB80400B4A14E /* OVIA.h in Headers */ = {isa = PBXBuildFile; fileRef = 2CB6450227AFB80400B4A14E /* OVIA.h */; };
 		2CB6450527AFB80800B4A14E /* OVIA.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CB6450427AFB80700B4A14E /* OVIA.c */; };
@@ -89,7 +86,6 @@
 		2CB7A24D27AF969600DDAC80 /* FLACCodec.h in Headers */ = {isa = PBXBuildFile; fileRef = 2CB7A24627AF969600DDAC80 /* FLACCodec.h */; };
 		2CB7A24E27AF969600DDAC80 /* AVCCodec.h in Headers */ = {isa = PBXBuildFile; fileRef = 2CB7A24727AF969600DDAC80 /* AVCCodec.h */; };
 		2CB7A25027AF969600DDAC80 /* PNGCodec.h in Headers */ = {isa = PBXBuildFile; fileRef = 2CB7A24927AF969600DDAC80 /* PNGCodec.h */; };
-		2CB7A25127AF969600DDAC80 /* DNGCodec.h in Headers */ = {isa = PBXBuildFile; fileRef = 2CB7A24A27AF969600DDAC80 /* DNGCodec.h */; };
 		2CBB4F2D27B891B800289889 /* PNMStream.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CBB4F2A27B891B800289889 /* PNMStream.c */; };
 		2CBB4F2E27B891B800289889 /* PNMDemuxer.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CBB4F2B27B891B800289889 /* PNMDemuxer.c */; };
 		2CBB4F2F27B891B800289889 /* PNMMuxer.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CBB4F2C27B891B800289889 /* PNMMuxer.c */; };
@@ -112,7 +108,6 @@
 		2CBB4F5127B8928900289889 /* Test_Huffman.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CBB4F2727B8919700289889 /* Test_Huffman.c */; };
 		2CBB4F5227B8928D00289889 /* Test_Rice.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CBB4F2927B8919700289889 /* Test_Rice.c */; };
 		2CBB4F5327B8933A00289889 /* Test_AVCCodec.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CBB4F1127B8910A00289889 /* Test_AVCCodec.c */; };
-		2CBB4F5427B8934200289889 /* Test_DNGCodec.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CBB4F1327B8910A00289889 /* Test_DNGCodec.c */; };
 		2CBB4F5527B8934500289889 /* Test_FLACCodec.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CBB4F1427B8910A00289889 /* Test_FLACCodec.c */; };
 		2CBB4F5627B8934800289889 /* Test_JPEGCodec.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CBB4F1527B8910A00289889 /* Test_JPEGCodec.c */; };
 		2CBB4F5727B8934C00289889 /* Test_PNGCodec.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CBB4F1227B8910A00289889 /* Test_PNGCodec.c */; };
@@ -484,15 +479,12 @@
 		2C3EF31927AF9919004F95EC /* PNGEncoder.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = PNGEncoder.c; path = ../Library/Internal/src/CodecIO/PNGEncoder.c; sourceTree = "<group>"; };
 		2C3EF31A27AF9919004F95EC /* JPEGCodec.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = JPEGCodec.c; path = ../Library/Internal/src/CodecIO/JPEGCodec.c; sourceTree = "<group>"; };
 		2C3EF31B27AF9919004F95EC /* FLACCodec.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = FLACCodec.c; path = ../Library/Internal/src/CodecIO/FLACCodec.c; sourceTree = "<group>"; };
-		2C3EF31C27AF9919004F95EC /* DNGCodec.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = DNGCodec.c; path = ../Library/Internal/src/CodecIO/DNGCodec.c; sourceTree = "<group>"; };
 		2C3EF31D27AF9919004F95EC /* JPEGEncoder.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = JPEGEncoder.c; path = ../Library/Internal/src/CodecIO/JPEGEncoder.c; sourceTree = "<group>"; };
 		2C3EF31E27AF9919004F95EC /* AVCCodec.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = AVCCodec.c; path = ../Library/Internal/src/CodecIO/AVCCodec.c; sourceTree = "<group>"; };
 		2C3EF31F27AF9919004F95EC /* FLACEncoder.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = FLACEncoder.c; path = ../Library/Internal/src/CodecIO/FLACEncoder.c; sourceTree = "<group>"; };
 		2C3EF32027AF9919004F95EC /* JPEGDecoder.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = JPEGDecoder.c; path = ../Library/Internal/src/CodecIO/JPEGDecoder.c; sourceTree = "<group>"; };
-		2C3EF32127AF9919004F95EC /* DNGDecoder.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = DNGDecoder.c; path = ../Library/Internal/src/CodecIO/DNGDecoder.c; sourceTree = "<group>"; };
 		2C3EF32227AF9919004F95EC /* AVCDecoder.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = AVCDecoder.c; path = ../Library/Internal/src/CodecIO/AVCDecoder.c; sourceTree = "<group>"; };
 		2C3EF32327AF9919004F95EC /* AVCEncoder.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = AVCEncoder.c; path = ../Library/Internal/src/CodecIO/AVCEncoder.c; sourceTree = "<group>"; };
-		2C3EF32427AF9919004F95EC /* DNGEncoder.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = DNGEncoder.c; path = ../Library/Internal/src/CodecIO/DNGEncoder.c; sourceTree = "<group>"; };
 		2C3EF36A27AFA122004F95EC /* FoundationIO.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = FoundationIO.xcodeproj; path = ../Dependencies/FoundationIO/Projects/FoundationIO.xcodeproj; sourceTree = "<group>"; };
 		2C3EF39427AFA934004F95EC /* VorbisTags.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VorbisTags.h; path = ../Library/Internal/include/TagIO/VorbisTags.h; sourceTree = "<group>"; };
 		2C6ADE1127AF94E400B82028 /* libOVIA.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libOVIA.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -550,10 +542,8 @@
 		2CB7A24627AF969600DDAC80 /* FLACCodec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = FLACCodec.h; path = ../Library/Internal/include/CodecIO/FLACCodec.h; sourceTree = "<group>"; };
 		2CB7A24727AF969600DDAC80 /* AVCCodec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = AVCCodec.h; path = ../Library/Internal/include/CodecIO/AVCCodec.h; sourceTree = "<group>"; };
 		2CB7A24927AF969600DDAC80 /* PNGCodec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = PNGCodec.h; path = ../Library/Internal/include/CodecIO/PNGCodec.h; sourceTree = "<group>"; };
-		2CB7A24A27AF969600DDAC80 /* DNGCodec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = DNGCodec.h; path = ../Library/Internal/include/CodecIO/DNGCodec.h; sourceTree = "<group>"; };
 		2CBB4F1127B8910A00289889 /* Test_AVCCodec.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = Test_AVCCodec.c; path = ../Library/Internal/src/CodecIO/Tests/Test_AVCCodec.c; sourceTree = "<group>"; };
 		2CBB4F1227B8910A00289889 /* Test_PNGCodec.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = Test_PNGCodec.c; path = ../Library/Internal/src/CodecIO/Tests/Test_PNGCodec.c; sourceTree = "<group>"; };
-		2CBB4F1327B8910A00289889 /* Test_DNGCodec.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = Test_DNGCodec.c; path = ../Library/Internal/src/CodecIO/Tests/Test_DNGCodec.c; sourceTree = "<group>"; };
 		2CBB4F1427B8910A00289889 /* Test_FLACCodec.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = Test_FLACCodec.c; path = ../Library/Internal/src/CodecIO/Tests/Test_FLACCodec.c; sourceTree = "<group>"; };
 		2CBB4F1527B8910A00289889 /* Test_JPEGCodec.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = Test_JPEGCodec.c; path = ../Library/Internal/src/CodecIO/Tests/Test_JPEGCodec.c; sourceTree = "<group>"; };
 		2CBB4F2627B8919700289889 /* Test_Arithmetic.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = Test_Arithmetic.c; path = ../Library/Internal/src/EntropyIO/Tests/Test_Arithmetic.c; sourceTree = "<group>"; };
@@ -759,9 +749,6 @@
 				2C3EF31E27AF9919004F95EC /* AVCCodec.c */,
 				2C3EF32227AF9919004F95EC /* AVCDecoder.c */,
 				2C3EF32327AF9919004F95EC /* AVCEncoder.c */,
-				2C3EF31C27AF9919004F95EC /* DNGCodec.c */,
-				2C3EF32127AF9919004F95EC /* DNGDecoder.c */,
-				2C3EF32427AF9919004F95EC /* DNGEncoder.c */,
 				2C3EF31B27AF9919004F95EC /* FLACCodec.c */,
 				2C3EF31727AF9919004F95EC /* FLACDecoder.c */,
 				2C3EF31F27AF9919004F95EC /* FLACEncoder.c */,
@@ -975,7 +962,6 @@
 			isa = PBXGroup;
 			children = (
 				2CB7A24727AF969600DDAC80 /* AVCCodec.h */,
-				2CB7A24A27AF969600DDAC80 /* DNGCodec.h */,
 				2CB7A24627AF969600DDAC80 /* FLACCodec.h */,
 				2CB7A24427AF969600DDAC80 /* JPEGCodec.h */,
 				2CB7A24927AF969600DDAC80 /* PNGCodec.h */,
@@ -1027,7 +1013,6 @@
 			isa = PBXGroup;
 			children = (
 				2CBB4F1127B8910A00289889 /* Test_AVCCodec.c */,
-				2CBB4F1327B8910A00289889 /* Test_DNGCodec.c */,
 				2CBB4F1427B8910A00289889 /* Test_FLACCodec.c */,
 				2CBB4F1527B8910A00289889 /* Test_JPEGCodec.c */,
 				2CBB4F1227B8910A00289889 /* Test_PNGCodec.c */,
@@ -1115,7 +1100,6 @@
 				2CB6450327AFB80400B4A14E /* OVIA.h in Headers */,
 				2CB7A22B27AF963800DDAC80 /* FLACTags.h in Headers */,
 				2CB7A21B27AF95D800DDAC80 /* TransformIO.h in Headers */,
-				2CB7A25127AF969600DDAC80 /* DNGCodec.h in Headers */,
 				2CB7A25027AF969600DDAC80 /* PNGCodec.h in Headers */,
 				2CB7A21827AF95D800DDAC80 /* MediaIO.h in Headers */,
 				2CB7A23327AF964500DDAC80 /* Rice.h in Headers */,
@@ -1777,7 +1761,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2C3EF33327AF9919004F95EC /* DNGEncoder.c in Sources */,
 				2C3EF2F827AF98F8004F95EC /* WAVMuxer.c in Sources */,
 				2C3EF2D727AF98CB004F95EC /* YCoCgR.c in Sources */,
 				2CBB4F2E27B891B800289889 /* PNMDemuxer.c in Sources */,
@@ -1791,7 +1774,6 @@
 				2C3EF32C27AF9919004F95EC /* JPEGEncoder.c in Sources */,
 				2C3EF30027AF98F8004F95EC /* W64Muxer.c in Sources */,
 				2C3EF2CA27AF9870004F95EC /* CodecIO.c in Sources */,
-				2C3EF32B27AF9919004F95EC /* DNGCodec.c in Sources */,
 				2C3EF33127AF9919004F95EC /* AVCDecoder.c in Sources */,
 				2C3EF2CC27AF9870004F95EC /* EntropyIO.c in Sources */,
 				2CB6450927AFBD2A00B4A14E /* TIFMuxer.c in Sources */,
@@ -1814,7 +1796,6 @@
 				2C3EF33227AF9919004F95EC /* AVCEncoder.c in Sources */,
 				2C3EF30127AF98F8004F95EC /* WAVDemuxer.c in Sources */,
 				2CB6450527AFB80800B4A14E /* OVIA.c in Sources */,
-				2C3EF33027AF9919004F95EC /* DNGDecoder.c in Sources */,
 				2C3EF30527AF98F8004F95EC /* BMPStream.c in Sources */,
 				2C3EF30327AF98F8004F95EC /* PNMStream.c in Sources */,
 				2C3EF31327AF9909004F95EC /* Huffman.c in Sources */,
@@ -1846,7 +1827,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2CBB4F5427B8934200289889 /* Test_DNGCodec.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
