@@ -92,36 +92,49 @@ extern "C" {
      @abstract                                      Defines the ChannelMask values.
      @constant     ImageMask_Unknown                Invalid ImageMask, exists solely to tell when it hasn't been set.
      @constant     ImageMask_2D                     The image has two dimensions.
-     @constant     ImageMask_Luma                   The channel contains the Luminance aka Brightness information, also used for single channel images.
-     @constant     ImageMask_Chroma1                The channel contains the Chrominance aka Color information.
-     @constant     ImageMask_Chroma2                The channel contains the Chrominance aka Color information.
-     @constant     ImageMask_Chroma3                The channel contains the Chrominance aka Color information.
-     @constant     ImageMask_Alpha                  The channel contains the Alpha aka transparency information.
      @constant     ImageMask_3D_L                   The image has three dimensions, this one is the left.
      @constant     ImageMask_3D_R                   The image has three dimensions, this one is the right.
-     @constant     ImageMask_Red                    The channel contains the Red    color information.
-     @constant     ImageMask_Green                  The channel contains the Green  color information.
-     @constant     ImageMask_Blue                   The channel contains the Blue   color information.
-     @constant     ImageMask_Green2                 The channel contains the Green2 color information, for Bayer filtered images.
-     @constant     ImageMask_Infrared               The channel contains the Infrared color information, sometimes used for dust removal.
-     @constant     ImageMask_Ultraviolet            The channel contains the Ultraviolet color information.
+     @constant     ImageMask_Luma                   The channel is for Luminance, also used for single channel/gray images.
+     @constant     ImageMask_Chroma1                The channel is for Chrominance.
+     @constant     ImageMask_Chroma2                The channel is for Chrominance.
+     @constant     ImageMask_Red                    The channel is for Red.
+     @constant     ImageMask_Green                  The channel is for Green.
+     @constant     ImageMask_Blue                   The channel is for Blue.
+     @constant     ImageMask_Cyan                   The channel is for Cyan.
+     @constant     ImageMask_Magenta                The channel is for Magenta.
+     @constant     ImageMask_Yellow                 The channel is for Yellow.
+     @constant     ImageMask_Black                  The channel is for Black.
+     @constant     ImageMask_White                  The channel is for White.
+     @constant     ImageMask_Chroma3                The channel is for Chrominance.
+     @constant     ImageMask_Alpha                  The channel is for Alpha aka transparency information.
+     @constant     ImageMask_Green2                 The channel is for Green2.
+     @constant     ImageMask_Emerald                The channel is for Emerald.
+     @constant     ImageMask_Infrared               The channel is for Infrared, sometimes used for dust removal.
+     @constant     ImageMask_Ultraviolet            The channel is for Ultraviolet.
      */
     typedef enum Image_ChannelMask {
                    ImageMask_Unknown                = 0,
                    ImageMask_2D                     = 1,
-                   ImageMask_Luma                   = 2,
-                   ImageMask_Chroma1                = 4,
-                   ImageMask_Chroma2                = 8,
-                   ImageMask_Chroma3                = 16,
-                   ImageMask_Alpha                  = 32,
-                   ImageMask_3D_L                   = 64,
-                   ImageMask_3D_R                   = 128,
-                   ImageMask_Red                    = 256,
-                   ImageMask_Green                  = 512,
-                   ImageMask_Blue                   = 1024,
-                   ImageMask_Green2                 = 2048,
-                   ImageMask_Infrared               = 4096,
-                   ImageMask_Ultraviolet            = 8192,
+                   ImageMask_3D_L                   = 2,
+                   ImageMask_3D_R                   = 4,
+                   ImageMask_Luma                   = 8,
+                   ImageMask_Chroma1                = 16,
+                   ImageMask_Chroma2                = 32,
+                   ImageMask_Red                    = 64,
+                   ImageMask_Green                  = 128,
+                   ImageMask_Blue                   = 256,
+                   ImageMask_Cyan                   = 512,
+                   ImageMask_Magenta                = 1024,
+                   ImageMask_Yellow                 = 2048,
+                   ImageMask_Black                  = 4096,
+                   ImageMask_White                  = 8192,
+                   ImageMask_Chroma3                = 16384,
+                   ImageMask_Alpha                  = 32768,
+                   ImageMask_Green2                 = 65536,
+                   ImageMask_Emerald                = 131072,
+                   ImageMask_Infrared               = 262144,
+                   ImageMask_Ultraviolet            = 524288,
+                   ImageMask_All                    = 1048575,
     } Image_ChannelMask;
     
     /*!

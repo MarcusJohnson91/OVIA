@@ -19,7 +19,7 @@ extern "C" {
 
     typedef struct CodecIO_ImageChannelConfig {
         const uint8_t           NumChannels;
-        const Image_ChannelMask Channels[];
+        const Image_ChannelMask Channels;
     } CodecIO_ImageChannelConfig;
 
     typedef struct CodecIO_ImageLimitations {
@@ -36,27 +36,27 @@ extern "C" {
         const Audio_ChannelMask  SupportedChannels;
     } CodecIO_AudioLimitations;
 
-    typedef void *(*FunctionPointer_Init)(void);   // Returns Options as void pointer
+    typedef void *(*CodecIO_Function_Init)(void);   // Returns Options as void pointer
 
-    typedef void  (*FunctionPointer_Deinit)(void *Options2Deinit);
+    typedef void  (*CodecIO_Function_Deinit)(void *Options2Deinit);
 
-    typedef void  (*FunctionPointer_Body)(void *Options, BitBuffer *BitB);
+    typedef void  (*CodecIO_Function_Parse)(void *Options, BitBuffer *BitB);
 
-    typedef void  (*FunctionPointer_Media)(void *Options, BitBuffer *BitB, void *Container);
+    typedef void  (*CodecIO_Function_Coder)(void *Options, BitBuffer *BitB, void *Container);
 
     typedef struct CodecIO_Encoder {
-        FunctionPointer_Init    Function_Initalize;
-        FunctionPointer_Body    Function_Parse;
-        FunctionPointer_Media   Function_Media;
-        FunctionPointer_Deinit  Function_Deinitalize;
-        const OVIA_MagicIDs    *MagicIDs;
+        CodecIO_Function_Init    Function_Initalize;
+        CodecIO_Function_Parse   Function_Parse;
+        CodecIO_Function_Coder   Function_Media;
+        CodecIO_Function_Deinit  Function_Deinitalize;
+        const OVIA_MagicIDs     *MagicIDs;
     } CodecIO_Encoder;
 
     typedef struct CodecIO_Decoder {
-        FunctionPointer_Init   Function_Initalize;
-        FunctionPointer_Body   Function_Parse;
-        FunctionPointer_Media  Function_Media;
-        FunctionPointer_Deinit Function_Deinitalize;
+        CodecIO_Function_Init   Function_Initalize;
+        CodecIO_Function_Parse  Function_Parse;
+        CodecIO_Function_Coder  Function_Media;
+        CodecIO_Function_Deinit Function_Deinitalize;
     } CodecIO_Decoder;
   
   typedef struct CodecIO_RegisteredCodecs {

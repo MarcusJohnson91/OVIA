@@ -17,39 +17,13 @@
 extern "C" {
 #endif
 
-    /*
-     The biggest problem with StreamIO, is we need to provide a interface for both files and packets.
+    typedef void *(*StreamIO_Function_Init)(void);   // Returns Options as void pointer
 
-     I mean, isn't that the entire god damn point of BufferIO? that it can be used to piece files into chunks, and load multiple packets into chunks as well?
+    typedef void  (*StreamIO_Function_Parse)(void *Options, BitBuffer *BitB);
 
-     it's the entire god damn point...
+    typedef void  (*StreamIO_Function_Coder)(void *Options, BitBuffer *BitB, void *Container);
 
-     So we're ok there...
-
-     All we really need is the infrastructure to say where a file or network input or output is in relation to BufferIO, and have this interface be maintained by the buffer it's self.
-
-     So, modify FileIO and NetworkIO to have BufferIO control them; they're downstream from BufferIO; BufferIO is in charge.
-
-     ----
-
-     Is there a lower level interface for dealing with files on POSIX or in C?
-
-     Fuck a big ass FILE pointer with it's associated buffers and all kinds of stupid shit.
-
-     Ok, yes you can use the `open()` function, it's a part of POSIX, and is available on windows; returns a file descriptor aka an integer.
-     */
-
-    typedef enum StreamIO_SyncTypes {
-        SyncType_Unknown = 0,
-        SyncType_Marker  = 1,
-        SyncType_Packet  = 2,
-    } StreamIO_SyncTypes;
-
-    typedef enum StreamIO_PacketTypes {
-        PacketType_Unknown  = 0,
-        PacketType_Constant = 1,
-        PacketType_Variable = 2,
-    } StreamIO_PacketTypes;
+    typedef void  (*StreamIO_Function_Deinit)(void *Options2Deinit);
 
     typedef struct OVIA_Stream {
         // Once we have the kind of marker to look for, we need to know the offset from the sync code as well as the actual sync code
@@ -63,34 +37,13 @@ extern "C" {
         const BufferIO_BitOrders    BitOrder;
     } OVIA_Stream;
 
-    static const OVIA_Stream M2TSStreamInfo = {
-        .SyncType          = SyncType_Packet,
-        .PacketType        = PacketType_Constant,
-        .PacketSizeInBytes = 192,
-    };
-
-    // if PackSize is Variable, we need to know how to get the size of each packet.
-
-    /*
-     What is our goal? Extract substreams and data from container formats, interleaving/deinterleaving streams.
-
-     identifying contained substreams.
-
-     extract audio/video frames intact so things can be remuxed or whatever.
-     */
-
-    /*
-     So, theres Streams, and Substreams (with potential for sub-substreams etc.)
-     So, What does a Stream need?
-     */
-
     typedef struct OVIAStream {
         uint32_t            PayloadSize; // How many bits can be stored in the payload, 0 = variable sized.
         uint8_t             Alignment;   // number of bits needed for each field
         uint8_t             ChunkIDSize; // How many bits should be read for each chunk id
         BufferIO_ByteOrders ByteOrder;   // What byte order does the Stream use?
         BufferIO_BitOrders  BitOrder;    // What bit order does the stream use?
-        
+
         /*
          MagicID for the Stream format
          ChunkIDs
@@ -125,6 +78,80 @@ extern "C" {
         const OVIA_MediaTypes   MediaType;
         const OVIA_ContainerIDs ContainerID;
     } OVIAMuxer;
+
+    static const OVIA_Stream M2TSStreamInfo = {
+        .SyncType          = SyncType_Packet,
+        .PacketType        = PacketType_Constant,
+        .PacketSizeInBytes = 192,
+    };
+
+    typedef struct StreamIO_Encoder {
+        StreamIO_Function_Init    Function_Initalize;
+        StreamIO_Function_Parse   Function_Parse;
+        StreamIO_Function_Coder   Function_Media;
+        StreamIO_Function_Deinit  Function_Deinitalize;
+        const OVIA_MagicIDs     *MagicIDs;
+    } StreamIO_Encoder;
+
+    typedef struct StreamIO_Decoder {
+        StreamIO_Function_Init   Function_Initalize;
+        StreamIO_Function_Parse  Function_Parse;
+        StreamIO_Function_Coder  Function_Media;
+        StreamIO_Function_Deinit Function_Deinitalize;
+    } StreamIO_Decoder;
+
+    /*
+     The biggest problem with StreamIO, is we need to provide a interface for both files and packets.
+
+     I mean, isn't that the entire god damn point of BufferIO? that it can be used to piece files into chunks, and load multiple packets into chunks as well?
+
+     it's the entire god damn point...
+
+     So we're ok there...
+
+     All we really need is the infrastructure to say where a file or network input or output is in relation to BufferIO, and have this interface be maintained by the buffer it's self.
+
+     So, modify FileIO and NetworkIO to have BufferIO control them; they're downstream from BufferIO; BufferIO is in charge.
+
+     ----
+
+     Is there a lower level interface for dealing with files on POSIX or in C?
+
+     Fuck a big ass FILE pointer with it's associated buffers and all kinds of stupid shit.
+
+     Ok, yes you can use the `open()` function, it's a part of POSIX, and is available on windows; returns a file descriptor aka an integer.
+     */
+
+    typedef enum StreamIO_SyncTypes {
+        SyncType_Unknown = 0,
+        SyncType_Marker  = 1,
+        SyncType_Packet  = 2,
+    } StreamIO_SyncTypes;
+
+    typedef enum StreamIO_PacketTypes {
+        PacketType_Unknown  = 0,
+        PacketType_Constant = 1,
+        PacketType_Variable = 2,
+    } StreamIO_PacketTypes;
+
+
+
+    // if PackSize is Variable, we need to know how to get the size of each packet.
+
+    /*
+     What is our goal? Extract substreams and data from container formats, interleaving/deinterleaving streams.
+
+     identifying contained substreams.
+
+     extract audio/video frames intact so things can be remuxed or whatever.
+     */
+
+    /*
+     So, theres Streams, and Substreams (with potential for sub-substreams etc.)
+     So, What does a Stream need?
+     */
+
+
 
     /*
      RIFF/RF64 as well as "AVI ", "ANI ", "WebP".

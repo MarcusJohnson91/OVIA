@@ -18,6 +18,23 @@ extern "C" {
 #endif
 
     /*
+     With entropy coding, we just need function pointers to the Encode and Decode as well as Init and Deinit functions.
+     */
+
+    typedef void *(*EntropyIO_Function_Init)(void);   // Returns Options as void pointer
+
+    typedef void  (*EntropyIO_Function_Coder)(void *Options, BitBuffer *BitB, void *Container);
+
+    typedef void  (*EntropyIO_Function_Deinit)(void *Options2Deinit);
+
+    typedef struct EntropyIO_Coder {
+        EntropyIO_Function_Init    Function_Initalize;
+        EntropyIO_Function_Coder   Function_Decode;
+        EntropyIO_Function_Coder   Function_Encode;
+        EntropyIO_Function_Deinit  Function_Deinitalize;
+    } EntropyIO_Encoder;
+
+    /*
      What all do we need to put here?
 
      for Canonical Huffman:

@@ -110,7 +110,7 @@ extern "C" {
         }
     }
     
-    static const OVIAEncoder W64Encoder = {
+    static const StreamIO_Muxer W64Encoder = {
         .EncoderID             = CodecID_PCMAudio,
         .MediaType             = MediaType_Audio2D,
         .Extensions            = &W64Extensions,

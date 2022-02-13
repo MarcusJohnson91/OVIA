@@ -65,6 +65,14 @@ extern "C" {
                 .Size     = 10,
                 .MIMEType = UTF32String("image/tiff"),
             },
+            [1]           = {
+                .Size     = 10,
+                .MIMEType = UTF32String("image/x-tiff"),
+            },
+            [2]           = {
+                .Size     = 17,
+                .MIMEType = UTF32String("image/x-adobe-dng"),
+            },
         },
     };
 
