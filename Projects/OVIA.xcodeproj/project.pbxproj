@@ -488,8 +488,8 @@
 		2C3EF36A27AFA122004F95EC /* FoundationIO.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = FoundationIO.xcodeproj; path = ../Dependencies/FoundationIO/Projects/FoundationIO.xcodeproj; sourceTree = "<group>"; };
 		2C3EF39427AFA934004F95EC /* VorbisTags.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VorbisTags.h; path = ../Library/Internal/include/TagIO/VorbisTags.h; sourceTree = "<group>"; };
 		2C6ADE1127AF94E400B82028 /* libOVIA.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libOVIA.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		2CB6450227AFB80400B4A14E /* OVIA.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OVIA.h; path = ../Library/OVIA.h; sourceTree = "<group>"; };
-		2CB6450427AFB80700B4A14E /* OVIA.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = OVIA.c; path = ../Library/OVIA.c; sourceTree = "<group>"; };
+		2CB6450227AFB80400B4A14E /* OVIA.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = OVIA.h; path = ../Library/OVIA.h; sourceTree = "<group>"; };
+		2CB6450427AFB80700B4A14E /* OVIA.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = OVIA.c; path = ../Library/OVIA.c; sourceTree = "<group>"; };
 		2CB6450627AFBD2A00B4A14E /* TIFDemuxer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = TIFDemuxer.c; path = ../Library/Internal/src/StreamIO/TIFDemuxer.c; sourceTree = "<group>"; };
 		2CB6450727AFBD2A00B4A14E /* TIFMuxer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = TIFMuxer.c; path = ../Library/Internal/src/StreamIO/TIFMuxer.c; sourceTree = "<group>"; };
 		2CB6454527AFC69B00B4A14E /* Test_AVCCodec */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Test_AVCCodec; sourceTree = BUILT_PRODUCTS_DIR; };
