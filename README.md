@@ -5,7 +5,9 @@
 
 License:
 =======
-OVIA is released under the terms of the 3 clause [`Revised BSD`](https://tldrlegal.com/license/bsd-3-clause-license-%28revised%29) license.
+* All contributions are accepted only under the terms of the public-domain and CC0 licenses.
+* OVIA is released under the terms of the 3 clause [`Revised BSD`](https://tldrlegal.com/license/bsd-3-clause-license-%28revised%29) license.
+* OVIA's subproject LIVC is proprietary and is private, though the build files optionally reference LIVC for joined compilation.
 
 Here's a tl;dr of my license:
 
@@ -34,3 +36,4 @@ Dependencies:
 ===========
 OVIA depends on FoundationIO for various subsystems, like Text handling (especially Unicode), File/Network access, bit reading/writing, and more.
 * So either clone OVIA with the `--recurse-submodules` flag, or  if you've already cloned it you can use `git submodule update --init --recursive` to clone FoundationIO.
+* OVIA also includes a submodule containing the proprietary LIVC project that won't be checked out without the correct access rights; ignore any warnings about it.

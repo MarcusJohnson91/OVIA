@@ -487,6 +487,7 @@
 		2C3EF32327AF9919004F95EC /* AVCEncoder.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = AVCEncoder.c; path = ../Library/Internal/src/CodecIO/AVCEncoder.c; sourceTree = "<group>"; };
 		2C3EF36A27AFA122004F95EC /* FoundationIO.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = FoundationIO.xcodeproj; path = ../Dependencies/FoundationIO/Projects/FoundationIO.xcodeproj; sourceTree = "<group>"; };
 		2C3EF39427AFA934004F95EC /* VorbisTags.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VorbisTags.h; path = ../Library/Internal/include/TagIO/VorbisTags.h; sourceTree = "<group>"; };
+		2C69A52A27C642F500946D68 /* LIVC.xcworkspace */ = {isa = PBXFileReference; lastKnownFileType = wrapper.workspace; name = LIVC.xcworkspace; path = ../Library/External/LIVC/LIVC.xcworkspace; sourceTree = "<group>"; };
 		2C6ADE1127AF94E400B82028 /* libOVIA.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libOVIA.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		2CB6450227AFB80400B4A14E /* OVIA.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = OVIA.h; path = ../Library/OVIA.h; sourceTree = "<group>"; };
 		2CB6450427AFB80700B4A14E /* OVIA.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = OVIA.c; path = ../Library/OVIA.c; sourceTree = "<group>"; };
@@ -865,6 +866,22 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		2C69A4E327C63D8800946D68 /* External */ = {
+			isa = PBXGroup;
+			children = (
+				2C69A4F227C63DCC00946D68 /* LIVC */,
+			);
+			name = External;
+			sourceTree = "<group>";
+		};
+		2C69A4F227C63DCC00946D68 /* LIVC */ = {
+			isa = PBXGroup;
+			children = (
+				2C69A52A27C642F500946D68 /* LIVC.xcworkspace */,
+			);
+			name = LIVC;
+			sourceTree = "<group>";
+		};
 		2C6ADE0827AF94E400B82028 = {
 			isa = PBXGroup;
 			children = (
@@ -925,9 +942,10 @@
 		2C6ADE1A27AF950B00B82028 /* OVIA */ = {
 			isa = PBXGroup;
 			children = (
-				2CB6450127AFB7F100B4A14E /* Internal */,
 				2CB6450227AFB80400B4A14E /* OVIA.h */,
 				2CB6450427AFB80700B4A14E /* OVIA.c */,
+				2CB6450127AFB7F100B4A14E /* Internal */,
+				2C69A4E327C63D8800946D68 /* External */,
 			);
 			name = OVIA;
 			sourceTree = "<group>";

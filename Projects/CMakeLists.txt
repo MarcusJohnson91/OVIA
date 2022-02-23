@@ -80,8 +80,8 @@ set(OVIA_SOURCE
     "${OVIA_Library_Dir}/Internal/src/TagIO/AIFTags.c"
     "${OVIA_Library_Dir}/Internal/src/TagIO/APETags.c"
     "${OVIA_Library_Dir}/Internal/src/TagIO/ID3Tags.c"
+    "${OVIA_Library_Dir}/Internal/src/TagIO/RIFFTags.c"
     "${OVIA_Library_Dir}/Internal/src/TagIO/VorbisTags.c"
-    "${OVIA_Library_Dir}/Internal/src/TagIO/WAVTags.c"
     "${OVIA_Library_Dir}/Internal/src/TransformIO/RCT.c"
     "${OVIA_Library_Dir}/Internal/src/TransformIO/YCoCgR.c"
     "${LIVC_SOURCE}"
@@ -149,8 +149,8 @@ if(BUILD_TESTING)
     RegisterTest("${OVIA_TagIO_Tests_Dir}" AIFTags OVIA)
     RegisterTest("${OVIA_TagIO_Tests_Dir}" APETags OVIA)
     RegisterTest("${OVIA_TagIO_Tests_Dir}" ID3Tags OVIA)
+    RegisterTest("${OVIA_TagIO_Tests_Dir}" RIFFTags OVIA)
     RegisterTest("${OVIA_TagIO_Tests_Dir}" VorbisTags OVIA)
-    RegisterTest("${OVIA_TagIO_Tests_Dir}" WAVTags OVIA)
 
     RegisterTest("${OVIA_TransformIO_Tests_Dir}" RCT OVIA)
     RegisterTest("${OVIA_TransformIO_Tests_Dir}" YCoCgR OVIA)
