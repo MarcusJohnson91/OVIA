@@ -1,7 +1,7 @@
 /*!
  @header              FLACCodec.h
  @author              Marcus Johnson
- @copyright           2020+
+ @copyright           2017+
  @version             1.0.0
  @brief               This header contains code for PNG (encoding and decoding).
  */
@@ -11,7 +11,7 @@
 #ifndef OVIA_CodecIO_FLACCodec_h
 #define OVIA_CodecIO_FLACCodec_h
 
-#include "../CodecIO.h"
+#include "../../../OVIA/include/CodecIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
@@ -343,7 +343,6 @@ extern "C" {
 #endif /* OVIA_CodecIO_Decode */
     
 #endif /* FLAC Literals */
-
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }

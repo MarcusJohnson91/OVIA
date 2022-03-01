@@ -12,10 +12,23 @@
 #define OVIA_StreamIO_h
 
 #include "MediaIO.h"
+#include "../../../Dependencies/FoundationIO/Library/include/BufferIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
+
+    typedef enum StreamIO_PacketTypes {
+        PacketType_Unknown  = 0,
+        PacketType_Constant = 1,
+        PacketType_Variable = 2,
+    } StreamIO_PacketTypes;
+
+    typedef enum StreamIO_SyncTypes {
+        SyncType_Unknown = 0,
+        SyncType_Packet  = 1,
+        SyncType_Marker  = 2,
+    } StreamIO_SyncTypes;
 
     typedef void *(*StreamIO_Function_Init)(void);   // Returns Options as void pointer
 
@@ -85,20 +98,22 @@ extern "C" {
         .PacketSizeInBytes = 192,
     };
 
-    typedef struct StreamIO_Encoder {
+    typedef struct StreamIO_Muxer {
         StreamIO_Function_Init    Function_Initalize;
         StreamIO_Function_Parse   Function_Parse;
         StreamIO_Function_Coder   Function_Media;
         StreamIO_Function_Deinit  Function_Deinitalize;
         const OVIA_MagicIDs     *MagicIDs;
-    } StreamIO_Encoder;
+    } StreamIO_Muxer;
 
-    typedef struct StreamIO_Decoder {
+    typedef struct StreamIO_Demuxer {
         StreamIO_Function_Init   Function_Initalize;
         StreamIO_Function_Parse  Function_Parse;
         StreamIO_Function_Coder  Function_Media;
         StreamIO_Function_Deinit Function_Deinitalize;
-    } StreamIO_Decoder;
+        const OVIA_MagicIDs     *MagicIDs;
+        OVIA_MediaTypes          MediaType;
+    } StreamIO_Demuxer;
 
     /*
      The biggest problem with StreamIO, is we need to provide a interface for both files and packets.
@@ -122,17 +137,7 @@ extern "C" {
      Ok, yes you can use the `open()` function, it's a part of POSIX, and is available on windows; returns a file descriptor aka an integer.
      */
 
-    typedef enum StreamIO_SyncTypes {
-        SyncType_Unknown = 0,
-        SyncType_Marker  = 1,
-        SyncType_Packet  = 2,
-    } StreamIO_SyncTypes;
 
-    typedef enum StreamIO_PacketTypes {
-        PacketType_Unknown  = 0,
-        PacketType_Constant = 1,
-        PacketType_Variable = 2,
-    } StreamIO_PacketTypes;
 
 
 

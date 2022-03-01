@@ -1,5 +1,9 @@
 #include "../../include/CodecIO/JPEGCodec.h"
 
+#include "../../../../Dependencies/FoundationIO/Library/include/MathIO.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/BufferIO.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h"
+
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
@@ -22,8 +26,8 @@ extern "C" {
         return Type;
     }
 
-    static Image_ChannelMask JPEG_GetChannelMask(JPEGOptions *JPEG) {
-        Image_ChannelMask Mask = ImageMask_Unknown;
+    static MediaIO_ImageMask JPEG_GetChannelMask(JPEGOptions *JPEG) {
+        MediaIO_ImageMask Mask = ImageMask_Unknown;
         if (JPEG->NumChannels == 3) {
             Mask               = ImageMask_2D | ImageMask_Luma | ImageMask_Chroma1 | ImageMask_Chroma2;
         } else if (JPEG->NumChannels == 1) { // Todo: Actually find the channels encoded instead of assuming this basic shit

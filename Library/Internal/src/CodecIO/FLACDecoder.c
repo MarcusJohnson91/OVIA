@@ -1,5 +1,9 @@
 #include "../../include/CodecIO/FLACCodec.h"
 
+#include "../../../../Dependencies/FoundationIO/Library/include/MathIO.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/BufferIO.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h"
+
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
@@ -17,7 +21,7 @@ extern "C" {
 
                 BitBuffer_Seek(BitB, 1); // Reserved2, should be 0
 
-                uint8_t Frame_SampleIDSize    = BitBuffer_ReadUnary(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, UnaryType_Count, UnaryTerminator_Zero) + 1; // 1
+                uint8_t Frame_SampleIDSize    = BitBuffer_ReadUnary(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, UnaryType_Natural, UnaryTerminator_Zero) + 1; // 1
                 if (FLAC->Frame->BlockType == BlockType_Fixed) {
                     FLAC->Frame->FrameNumber  = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, Bytes2Bits(Frame_SampleIDSize));
                 } else if (FLAC->Frame->BlockType == BlockType_Variable) {

@@ -1,5 +1,9 @@
 #include "../../include/StreamIO/MPEG2Stream.h"
 
+#include "../../../../Dependencies/FoundationIO/Library/include/MathIO.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/BufferIO.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h"
+
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
@@ -47,8 +51,8 @@ extern "C" {
         Transport->Condition->CurrentNextIndicator   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1);
         Transport->Condition->SectionNumber          = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
         Transport->Condition->LastSectionNumber      = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
-        for (int i                                   = 0; i < N; i++) {
-            TSParseConditionalAccessDescriptor(BitB, Transport);
+        for (int i = 0; i < N; i++) {
+            ParseConditionalAccessDescriptor(BitB, Transport);
         }
         Transport->Condition->ConditionCRC32         = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
     }
@@ -319,7 +323,7 @@ extern "C" {
             Transport->Adaptation->LegalTimeWindowFlag                   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1);
             Transport->Adaptation->PiecewiseRateFlag                     = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1);
             Transport->Adaptation->SeamlessSpliceFlag                    = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1);
-            AlignInput(BitB, 1);
+            BitBuffer_Align(BitB, 1);
             if (Transport->Adaptation->LegalTimeWindowFlag == true) { // Reads 16 bits
                 Transport->Adaptation->LegalTimeWindowValidFlag          = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1);
                 if (Transport->Adaptation->LegalTimeWindowValidFlag == true) {

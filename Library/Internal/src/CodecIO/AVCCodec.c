@@ -1,17 +1,21 @@
 #include "../../include/CodecIO/AVCCodec.h"
 
+#include "../../../../Dependencies/FoundationIO/Library/include/MathIO.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/BufferIO.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h"
+
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
-    
+
     int64_t Min(int64_t X, int64_t Y) {
         return X <= Y ? X : Y;
     }
-    
+
     int64_t Max(int64_t X, int64_t Y) {
         return X >= Y ? X : Y;
     }
-    
+
     int64_t InverseRasterScan(int64_t A, int64_t B, int64_t C, int64_t D, int64_t E) {
         int64_t Result = 0;
         if (E == 0) {
@@ -21,7 +25,7 @@ extern "C" {
         }
         return Result;
     }
-    
+
     int64_t Clip3(int16_t X, int16_t Y, int16_t Z) {
         int64_t Result = 0;
         if (Z < X) {
@@ -33,26 +37,26 @@ extern "C" {
         }
         return Result;
     }
-    
+
     int64_t Clip1Luma(int16_t X, uint8_t BitDepth) { // Clip1y
         return Clip3(0, (1 << BitDepth) -1, X);
     }
-    
+
     int64_t Clip1Chroma(int16_t X, uint8_t BitDepth) { // Clip1c
         return Clip3(0, (1 << BitDepth) -1, X);
     }
-    
+
     int64_t Median(double X, double Y, double Z) {
         return X + Y + Z - Min(X, Min(Y, Z)) - Max(X, Max(Y, Z));
     }
-    
+
     int8_t Sign(double X) {
         return X >= 0 ? 1 : -1;
     }
     
     void WriteArithmetic(BitBuffer *BitB, double *ProbabilityTable[], size_t TableSize, uint64_t Bits2Encode) { // Use the least precision you can get away with to be as efficent as possible.
         if (BitB == NULL) {
-            Log(Severity_DEBUG, ModernAVCLibraryName, PlatformIO_FunctionName, "Pointer to BitBuffer is NULL");
+            Log(Severity_DEBUG, PlatformIO_FunctionName, "Pointer to BitBuffer is NULL");
         } else {
             uint64_t High = 0xFFFFFFFFFFFFFFFFULL, Low = 0ULL, Range = 0ULL, Probability = 0ULL;
             while ((Bits2Encode >= High) && (Bits2Encode <= Low)) {
@@ -72,6 +76,7 @@ extern "C" {
         double Low;
         double High;
     } Probability;
+
     /*
      // Create a function to lookup the symbol from the probabilities
      uint16_t FindSymbolFromProbability(double Probability, uint64_t	*MaximumTable, uint64_t *MinimumTable, size_t TableSize) {
@@ -123,25 +128,17 @@ extern "C" {
     
     bool IsThereMoreDataInThisNAL() { // more_rbsp_data
         if (Enc == NULL) {
-            Log(Severity_DEBUG, ModernAVCLibraryName, PlatformIO_FunctionName, "Pointer to EncodeAVC is NULL");
+            Log(Severity_DEBUG, PlatformIO_FunctionName, "Pointer to EncodeAVC is NULL");
         } else {
+            /*
             if (there is no more data) {
                 return false;
             } else {
                 // find the rightmost 1 bit, Given the position of this bit, which is the first bit (rbsp_stop_one_bit) of the rbsp_trailing_bits( ) syntax structure
             }
+             */
         }
     }
-    
-    typedef struct Arthimetic {
-        uint16_t *ProbabilityTable;
-        size_t    TableSize;
-    } Arthimetic;
-    
-    typedef struct Probability {
-        double Low;
-        double High;
-    } Probability;
     
     uint64_t ReadArithmetic(BitBuffer *BitB, uint64_t *MaximumTable, uint64_t *MinimumTable, size_t TableSize, uint64_t Bits2Decode) {
         // Read a bit at a time.
@@ -149,16 +146,8 @@ extern "C" {
         return 0;
     }
     
-    size_t GetSizeOfNALUnit(DecodeAVC *Dec, BitBuffer *BitB) {
+    size_t GetSizeOfNALUnit(AVCOptions *Dec, BitBuffer *BitB) {
         
-    }
-    
-    bool IsThereMoreDataInThisNAL() { // more_rbsp_data, TODO: This function needs to be finished
-        if (there is no more data) {
-            return false;
-        } else {
-            // find the rightmost 1 bit, Given the position of this bit, which is the first bit (rbsp_stop_one_bit) of the rbsp_trailing_bits( ) syntax structure
-        }
     }
     
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)

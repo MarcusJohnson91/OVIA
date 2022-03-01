@@ -1,5 +1,5 @@
 /*!
- @header              WAVTags.h
+ @header              RIFFTags.h
  @author              Marcus Johnson
  @copyright           2020+
  @version             1.0.0
@@ -8,10 +8,10 @@
 
 #pragma once
 
-#ifndef OVIA_TagIO_WAVTags_h
-#define OVIA_TagIO_WAVTags_h
+#ifndef OVIA_TagIO_RIFFTags_h
+#define OVIA_TagIO_RIFFTags_h
 
-#include "../TagIO.h"
+#include "../../../OVIA/include/TagIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
@@ -23,4 +23,4 @@ extern "C" {
 }
 #endif
 
-#endif /* OVIA_TagIO_WAVTags_h */
+#endif /* OVIA_TagIO_RIFFTags_h */

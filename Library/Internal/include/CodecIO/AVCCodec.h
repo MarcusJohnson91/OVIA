@@ -12,13 +12,13 @@
 #ifndef OVIA_CodecIO_AVCCodec_h
 #define OVIA_CodecIO_AVCCodec_h
 
-#include "../CodecIO.h"
+#include "../../../OVIA/include/CodecIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
     
-    enum ModernAVCConstants {
+    typedef enum AVCConstants {
         AVCMagic                                    = 0x00000001,
         MVCMaxViews                                 = 2,
         MaxChromaChannels                           = 2,
@@ -30,23 +30,21 @@ extern "C" {
         ExtendedISO                                 = 255,
         MacroBlockMaxPixels                         = 256,
         AVCStopBit                                  =   1,
-    };
+    } AVCConstants;
     
-    static const char *ModernAVCLibraryName         = "libModernAVC";
-    
-    enum EntropyCoder {
+    typedef enum AVCCompressionType {
         ExpGolomb                                   =  0,
         Arithmetic                                  =  1,
-    };
+    } AVCCompressionType;
     
-    enum ChromaFormats {
+    typedef enum AVCChromaFormats {
         ChromaBW                                    =  0, // Black and white, When Profile 183, Chroma is assumed to be this, default is Chroma420
         Chroma420                                   =  1,
         Chroma422                                   =  2,
         Chroma444                                   =  3,
-    };
+    } AVCChromaFormats;
     
-    enum SampleAspectRatios {
+    typedef enum AVCSampleAspectRatios {
         SAR_Unspecified                             =  0,
         SAR_Square                                  =  1,
         SAR_Twelve_Eleven                           =  2,
@@ -64,18 +62,18 @@ extern "C" {
         SAR_Four_Three                              = 14,
         SAR_Three_Two                               = 15,
         SAR_Two_One                                 = 16,
-    };
+    } AVCSampleAspectRatios;
     
-    enum RefinedSliceGroupMapType {
+    typedef enum RefinedSliceGroupMapType {
         BoxOutClockwise                             = 0, // Box-out clockwise
         BoxOutCounterClockwise                      = 1, // Box-out counter-clockwise
         RasterScan                                  = 2, // Raster scan
         ReverseRasterScan                           = 4, // Reverse raster scan
         WipeRight                                   = 5, // Wipe right
         WipeLeft                                    = 6, // Wipe left
-    };
+    } RefinedSliceGroupMapType;
     
-    enum SliceType { // A group of macroblocks, a slice group contains all the macroblocks in a frame
+    typedef enum AVCSliceType { // A group of macroblocks, a slice group contains all the macroblocks in a frame
         SliceP1                                     = 0, // Intra or Inter prediction, + 1 motion vector
         SliceP2                                     = 5, // Intra or Inter prediction, + 1 motion vector
         SliceB1                                     = 1, // Intra or Inter prediction, + 2 motion vectors
@@ -94,14 +92,14 @@ extern "C" {
         SliceEB2                                    = 6,
         SliceEI1                                    = 2,
         SliceEI2                                    = 7,
-    };
+    } AVCSliceType;
     
-    enum FilmGrainType { // blending_mode_id
+    typedef enum FilmGrainType { // blending_mode_id
         AdditiveGrain                               =  0,
         MultiplicativeGrain                         =  1,
-    };
+    } FilmGrainType;
     
-    enum VideoType {
+    typedef enum VideoType {
         Component                                   =  0,
         PAL                                         =  1,
         NTSC                                        =  2,
@@ -110,16 +108,16 @@ extern "C" {
         Unspecified                                 =  5,
         Reserved1                                   =  6,
         Reserved2                                   =  7,
-    };
+    } VideoType;
     
-    enum ChromaIntraPredictionMode { // intra_chroma_pred_mode
+    typedef enum ChromaIntraPredictionMode { // intra_chroma_pred_mode
         ChromaIntra_DC                              =  0,
         ChromaIntra_Horizontal                      =  1,
         ChromaIntra_Vertical                        =  2,
         ChromaIntra_Plane                           =  3,
-    };
+    } ChromaIntraPredictionMode;
     
-    enum IntraPrediction4x4Mode { // Intra4x4PredMode[luma4x4BlkIdx]
+    typedef enum IntraPrediction4x4Mode { // Intra4x4PredMode[luma4x4BlkIdx]
         Intra4x4Vertical                            =  0, // Intra_4x4_Vertical
         Intra4x4Horizontal                          =  1, // Intra_4x4_Horizontal
         Intra4x4DC                                  =  2, // Intra_4x4_DC
@@ -129,16 +127,16 @@ extern "C" {
         Intra4x4HorizontalDown                      =  6, // Intra_4x4_Horizontal_Down
         Intra4x4VerticalLeft                        =  7, // Intra_4x4_Vertical_Left
         Intra4x4HorizontalUp                        =  8, // Intra_4x4_Horizontal_Up
-    };
+    } IntraPrediction4x4Mode;
     
-    enum PMacroBlockSubTypes { // sub_mb_type[mbPartIdx]
+    typedef enum PMacroBlockSubTypes { // sub_mb_type[mbPartIdx]
         P_L0_8x8                                    =  0, // P_L0_8x8
         P_L0_8x4                                    =  1, // P_L0_8x4
         P_L0_4x8                                    =  2, // P_L0_4x8
         P_L0_4x4                                    =  3, // P_L0_4x4
-    };
+    } PMacroBlockSubTypes;
     
-    enum BMacroBlockSubTypes {   // sub_mb_type
+    typedef enum BMacroBlockSubTypes {   // sub_mb_type
         B_Direct_8x8                                =  0,
         B_L0_8x8                                    =  1,
         B_L1_8x8                                    =  2,
@@ -152,9 +150,9 @@ extern "C" {
         B_L0_4x4                                    = 10,
         B_L1_4x4                                    = 11,
         B_Bi_4x4                                    = 12,
-    };
+    } BMacroBlockSubTypes;
     
-    enum BSliceMacroBlockTypes {
+    typedef enum BSliceMacroBlockTypes {
         B_Direct_16x16                              =  0,
         B_L0_16x16                                  =  1,
         B_L1_16x16                                  =  2,
@@ -180,18 +178,18 @@ extern "C" {
         B_8x8                                       = 22,
         // 23 - 255 = inferred to be B_Skip
         B_Skip                                      = 23,
-    };
+    } BSliceMacroBlockTypes;
     
-    enum PSliceMacroBlockTypes { // Covers bot P and SP types. Table 7-13
+    typedef enum PSliceMacroBlockTypes { // Covers bot P and SP types. Table 7-13
         P_L0_16x16                                  =  0,
         P_L0_L0_16x8                                =  1,
         P_L0_L0_8x16                                =  2,
         P_8x8                                       =  3,
         P_8x8ref0                                   =  4,
         P_Skip                                      =  5,
-    };
+    } PSliceMacroBlockTypes;
     
-    enum ISliceMacroBlockTypes { // Table 7-11; everything elses is I_PCM
+    typedef enum ISliceMacroBlockTypes { // Table 7-11; everything elses is I_PCM
         I_NxN                                       =  0,
         I_16x16_0_0_0                               =  1,
         I_16x16_1_0_0                               =  2,
@@ -218,34 +216,34 @@ extern "C" {
         I_16x16_2_2_1                               = 23,
         I_16x16_3_2_1                               = 24,
         I_PCM                                       = 25,
-    };
+    } ISliceMacroBlockTypes;
     
-    enum MacroBlockPredictionMode { // TODO: Fix me
+    typedef enum MacroBlockPredictionMode { // TODO: Fix me
         Intra_16x16                                 = 0,
         Intra_8x8                                   = 0,
         Intra_4x4                                   = 0,
         Inter_16x16                                 = 0,
         Inter_8x8                                   = 0,
         Inter_4x4                                   = 0,
-    };
+    } MacroBlockPredictionMode;
     
-    enum PrimaryPictureType {
+    typedef enum PrimaryPictureType {
         wat                                         = 0,
-    };
+    } PrimaryPictureType;
     
-    enum NonPartitionedMacroBlockPredictionMode {
+    typedef enum NonPartitionedMacroBlockPredictionMode {
         Direct                                      = 0,
         Pred_L0                                     = 1,
         Pred_L1                                     = 2,
         BiPred                                      = 3,
-    };
+    } NonPartitionedMacroBlockPredictionMode;
     
-    enum SubMacroBlockTypes {
+    typedef enum SubMacroBlockTypes {
         B_SubMacroBlock                             = 0,
         P_SubMacroBlock                             = 1,
-    };
+    } SubMacroBlockTypes;
     
-    enum NALTypes {
+    typedef enum NALTypes {
         NAL_Unspecified0                            =  0,
         NAL_NonIDRSlice                             =  1,
         NAL_SlicePartitionA                         =  2,
@@ -278,9 +276,9 @@ extern "C" {
         NAL_Unspecified6                            = 29,
         NAL_Unspecified7                            = 30,
         NAL_Unspecified8                            = 31,
-    };
+    } NALTypes;
     
-    enum SEITypes {
+    typedef enum SEITypes {
         SEI_BufferingPeriod                         =   0, // buffering_period
         SEI_PictureTiming                           =   1, // pic_timing
         SEI_PanScan                                 =   2, // pan_scan_rect
@@ -338,9 +336,9 @@ extern "C" {
         SEI_DepthSamplingInformation                =  53, // depth_sampling_info
         SEI_MVCConstrainedDPSIdentifier             =  54, // constrained_depth_parameter_set_identifier
         SEI_MasteringDisplayColorVolume             = 137, // mastering_display_color_volume
-    };
+    } SEITypes;
     
-    enum ProfileTypes {
+    typedef enum ProfileTypes {
         Constrained_Baseline_Profile                =  66, // + constrainedflag1 = 1
         Baseline_Profile                            =  66,
         Main_Profile                                =  77,
@@ -362,7 +360,7 @@ extern "C" {
         MultiView_Depth_High_Profile                = 138,
         High444_Predictive_Profile                  = 244, // 8 10 14 bits
         CAVLC444_Intra_Profile                      = 244, //
-    };
+    } ProfileTypes;
     
     typedef struct SequenceParameterSet { // Whole video variables
         bool         ConstraintFlag0:1;                            // constraint_set0_flag
@@ -1153,7 +1151,7 @@ extern "C" {
         uint8_t   ***PDIInitDelayNonAnchor;                        // pdi_init_delay_non_anchor_minus2_l0, pdi_init_delay_non_anchor_minus2_l1
     } SupplementalEnhancementInfo;
 
-    struct AVCEncoder {
+    typedef struct AVCEncoder {
         bool                          EncodeInterlaced;
         bool                          EncodeLosslessly;
         uint64_t                      Bitrate;
@@ -1173,9 +1171,9 @@ extern "C" {
         Slice                        *Slice;
         DepthParameterSet            *DPS;
         MacroBlock                   *MacroBlock;
-    };
+    } EncodeAVC;
 
-    struct AVCDecoder {
+    typedef struct AVCDecoder {
         bool                          EncodedInterlaced;
         bool                          EncodedLosslessly;
         uint8_t                       ProfileMajor;
@@ -1195,7 +1193,7 @@ extern "C" {
         MacroBlock                   *MacroBlock;
         uint64_t                   ***DisparityScale;
         uint64_t                   ***DisparityOffset;
-    };
+    } DecodeAVC;
 
     static const int8_t ScalingList4x4[16] = {
         0, 0, 0, 0, 0, 0, 0, 0,
@@ -1364,6 +1362,119 @@ extern "C" {
         0,  1,  2,  4,  8,  3, 5, 10,
         12, 15, 7, 11, 13, 14, 6,  9
     };
+
+#ifdef OVIA_CodecIO_AVC
+    extern const CodecIO_ImageChannelConfig AVCChannelConfig;
+
+    const CodecIO_ImageChannelConfig AVCChannelConfig = {
+        .NumChannels = 5,
+        .Channels    = {
+            [0]      = ImageMask_2D | ImageMask_Luma,
+            [1]      = ImageMask_2D | ImageMask_Luma | ImageMask_Chroma1 | ImageMask_Chroma2,
+            [2]      = ImageMask_2D | ImageMask_Luma | ImageMask_Chroma1 | ImageMask_Chroma2 | ImageMask_Alpha,
+            [3]      = ImageMask_3D | ImageMask_Luma | ImageMask_Chroma1 | ImageMask_Chroma2,
+            [4]      = ImageMask_3D | ImageMask_Luma | ImageMask_Chroma1 | ImageMask_Chroma2 | ImageMask_Alpha,
+        },
+    };
+
+    extern const CodecIO_ImageLimitations AVCLimits;
+
+    const CodecIO_ImageLimitations AVCLimits = {
+        .MaxHeight      = 4320,
+        .MaxWidth       = 7680,
+        .MaxBitDepth    = 16,
+        .ChannelConfigs = &AVCChannelConfig,
+    };
+
+    extern const OVIA_MIMETypes AVCMIMETypes;
+
+    const OVIA_MIMETypes AVCMIMETypes = {
+        .NumMIMETypes     = 4,
+        .MIMETypes        = {
+            [0]           = {
+                .Size     = 9,
+                .MIMEType = UTF32String("video/avc"),
+            },
+            [1]           = {
+                .Size     = 9,
+                .MIMEType = UTF32String("video/mvc"),
+            },
+            [2]           = {
+                .Size     = 9,
+                .MIMEType = UTF32String("video/svc"),
+            },
+            [3]           = {
+                .Size     = 10,
+                .MIMEType = UTF32String("video/h264"),
+            },
+        },
+    };
+
+    extern const OVIA_Extensions AVCExtensions;
+
+    const OVIA_Extensions AVCExtensions = {
+        .NumExtensions     = 4,
+        .Extensions        = {
+            [0]            = {
+                .Size      = 4,
+                .Extension = UTF32String("h264"),
+            },
+            [1]            = {
+                .Size      = 4,
+                .Extension = UTF32String("avc"),
+            },
+            [2]            = {
+                .Size      = 3,
+                .Extension = UTF32String("mvc"),
+            },
+            [3]            = {
+                .Size      = 3,
+                .Extension = UTF32String("svc"),
+            },
+        },
+    };
+
+    extern const OVIA_MagicIDs AVCMagicIDs;
+
+    const OVIA_MagicIDs AVCMagicIDs = {
+        .NumMagicIDs          = 2,
+        .MagicIDs             = {
+            [0]               = {
+                .OffsetInBits = 0,
+                .SizeInBits   = 24,
+                .Signature    = (uint8_t[3]) {0x00, 0x00, 0x01},
+            },
+            [1]               = {
+                .OffsetInBits = 0,
+                .SizeInBits   = 32,
+                .Signature    = (uint8_t[4]) {0x00, 0x00, 0x00, 0x01},
+            },
+        },
+    };
+
+#if defined(OVIA_CodecIO_Encode)
+    extern const CodecIO_Encoder AVCEncoder;
+
+    const CodecIO_Encoder AVCEncoder = {
+        .Function_Initalize   = AVCOptions_Init,
+        .Function_Parse       = AVC_Parse,
+        .Function_Media       = AVC_Extract,
+        .Function_Deinitalize = AVCOptions_Deinit,
+    };
+#endif /* OVIA_CodecIO_Encode */
+
+#if defined(OVIA_CodecIO_Decode)
+    extern const CodecIO_Decoder AVCDecoder;
+
+    const CodecIO_Decoder AVCDecoder = {
+        .Function_Initalize   = AVCOptions_Init,
+        .Function_Parse       = AVC_Parse,
+        .Function_Media       = AVC_Compose,
+        .Function_Deinitalize = AVCOptions_Deinit,
+    };
+#endif /* OVIA_CodecIO_Decode */
+
+#endif /* AVC Literals */
     
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }

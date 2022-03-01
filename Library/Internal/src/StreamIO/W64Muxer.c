@@ -1,5 +1,9 @@
 #include "../../include/StreamIO/W64Stream.h"
 
+#include "../../../../Dependencies/FoundationIO/Library/include/MathIO.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/BufferIO.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h"
+
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
@@ -109,16 +113,6 @@ extern "C" {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
-    
-    static const StreamIO_Muxer W64Encoder = {
-        .EncoderID             = CodecID_PCMAudio,
-        .MediaType             = MediaType_Audio2D,
-        .Extensions            = &W64Extensions,
-        .Function_Initialize   = W64Options_Init,
-        .Function_WriteHeader  = W64WriteHeader,
-        .Function_Encode       = W64AppendSamples,
-        .Function_Deinitialize = W64Options_Deinit,
-    };
     
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }

@@ -11,7 +11,7 @@
 #ifndef OVIA_TagIO_AIFTags_h
 #define OVIA_TagIO_AIFTags_h
 
-#include "../TagIO.h"
+#include "../../../OVIA/include/TagIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {

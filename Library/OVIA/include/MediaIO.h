@@ -18,7 +18,7 @@ extern "C" {
 #endif
     
     /*!
-     @enum         Audio_ChannelMask
+     @enum         MediaIO_AudioMask
      @abstract                                      Defines the MediaIO_AudioTypes values, OR-able.
      @constant     AudioMask_Unknown                Invalid AudioMask, exists solely to tell when it hasn't been set.
      @constant     AudioMask_FrontLeft              The channel's location is the front left.
@@ -43,7 +43,7 @@ extern "C" {
      @constant     AudioMask_StereoLeft             RF64 Extension, Stereo Downmix, Left.
      @constant     AudioMask_StereoRight            RF64 Extension, Stereo Downmix, Right.
      */
-    typedef enum Audio_ChannelMask {
+    typedef enum MediaIO_AudioMask {
                    AudioMask_Unknown                = 0,
                    AudioMask_FrontLeft              = 1,
                    AudioMask_FrontRight             = 2,
@@ -66,7 +66,7 @@ extern "C" {
                    AudioMask_TopRearCenter          = 262144,
                    AudioMask_StereoLeft             = 524288,
                    AudioMask_StereoRight            = 1048576,
-    } Audio_ChannelMask;
+    } MediaIO_AudioMask;
     
     /*!
      @enum         MediaIO_AudioTypes
@@ -88,7 +88,7 @@ extern "C" {
     } MediaIO_AudioTypes;
     
     /*!
-     @enum         Image_ChannelMask
+     @enum         MediaIO_ImageMask
      @abstract                                      Defines the ChannelMask values.
      @constant     ImageMask_Unknown                Invalid ImageMask, exists solely to tell when it hasn't been set.
      @constant     ImageMask_2D                     The image has two dimensions.
@@ -112,7 +112,7 @@ extern "C" {
      @constant     ImageMask_Infrared               The channel is for Infrared, sometimes used for dust removal.
      @constant     ImageMask_Ultraviolet            The channel is for Ultraviolet.
      */
-    typedef enum Image_ChannelMask {
+    typedef enum MediaIO_ImageMask {
                    ImageMask_Unknown                = 0,
                    ImageMask_2D                     = 1,
                    ImageMask_3D_L                   = 2,
@@ -135,7 +135,7 @@ extern "C" {
                    ImageMask_Infrared               = 262144,
                    ImageMask_Ultraviolet            = 524288,
                    ImageMask_All                    = 1048575,
-    } Image_ChannelMask;
+    } MediaIO_ImageMask;
     
     /*!
      @enum         MediaIO_ImageTypes
@@ -354,19 +354,19 @@ extern "C" {
     uint64_t                Audio2DContainer_GetNumChannels(Audio2DContainer *Audio);
     
     /*!
-     @abstract                                      Adds a Audio_ChannelMask at the specified Index to the ChannelMap.
+     @abstract                                      Adds a MediaIO_AudioMask at the specified Index to the ChannelMap.
      @param                 ChannelMap              The number of channels.
      @param                 Index                   The index in the ChannelMap to add the mask.
      @param                 Mask                    The ChannelMask for the index.
      */
-    void                    AudioChannelMap_AddMask(AudioChannelMap *ChannelMap, uint64_t Index, Audio_ChannelMask Mask);
+    void                    AudioChannelMap_AddMask(AudioChannelMap *ChannelMap, uint64_t Index, MediaIO_AudioMask Mask);
     
     /*!
      @abstract                                      Returns the ChannelMask for Index.
      @param                 ChannelMap              Audio2DContainer Pointer.
      @param                 Index                   The channel index to get the mask for.
      */
-    Audio_ChannelMask       AudioChannelMap_GetMask(AudioChannelMap *ChannelMap, uint64_t Index);
+    MediaIO_AudioMask       AudioChannelMap_GetMask(AudioChannelMap *ChannelMap, uint64_t Index);
     
     /*!
      @abstract                                       Finds the lowest index in the ChannelMap that is unused.
@@ -536,7 +536,7 @@ extern "C" {
      @param                 Mask                    The color you want to find the index of.
      @return                                        Returns the Index.
      */
-    uint8_t                 ImageChannelMap_GetChannelsIndex(ImageChannelMap *ChannelMap, Image_ChannelMask Mask);
+    uint8_t                 ImageChannelMap_GetChannelsIndex(ImageChannelMap *ChannelMap, MediaIO_ImageMask Mask);
     
     /*!
      @abstract                                      Sets a ChannelMap.
@@ -544,7 +544,7 @@ extern "C" {
      @param                 Index                   The index of the channel.
      @param                 Mask                    The ChannelMask for the Index
      */
-    void                    ImageChannelMap_AddMask(ImageChannelMap *ChannelMap, uint8_t Index, Image_ChannelMask Mask);
+    void                    ImageChannelMap_AddMask(ImageChannelMap *ChannelMap, uint8_t Index, MediaIO_ImageMask Mask);
     
     /*!
      @abstract                                      Destroys an AudioVectorHistogram.
@@ -592,6 +592,20 @@ extern "C" {
      @param                 Image                   A pointer to the instance of an ImageContainer in question.
      */
     MediaIO_ImageTypes      ImageContainer_GetType(ImageContainer *Image);
+
+    /*!
+     @abstract                                      Convienence function that just calls ImageContainer_GetType.
+     @param                 Image                   A pointer to the instance of an ImageContainer in question.
+     @return                                        Returns the BitDepth of the Container as an integer.
+     */
+    uint8_t                 ImageContainer_GetBitDepth(ImageContainer *Image);
+
+    /*!
+     @abstract                                      Convienence function that just calls ImageChannelMap_GetNumViews.
+     @param                 Image                   A pointer to the instance of an ImageContainer in question.
+     @return                                        Returns the NumViews of the Container as an integer.
+     */
+    uint8_t                 ImageContainer_GetNumViews(ImageContainer *Image);
     
     /*!
      @abstract                                      Gets a pointer to the array of pixels.

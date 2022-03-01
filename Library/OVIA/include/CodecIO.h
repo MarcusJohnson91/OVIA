@@ -19,13 +19,14 @@ extern "C" {
 
     typedef struct CodecIO_ImageChannelConfig {
         const uint8_t           NumChannels;
-        const Image_ChannelMask Channels;
+        const MediaIO_ImageMask Channels;
     } CodecIO_ImageChannelConfig;
 
     typedef struct CodecIO_ImageLimitations {
         const uint64_t                                    MaxWidth;
         const uint64_t                                    MaxHeight;
         const uint8_t                                     MaxBitDepth;
+        const uint8_t                                     MaxNumViews;
         PlatformIO_Immutable(CodecIO_ImageChannelConfig*) ChannelConfigs;
     } CodecIO_ImageLimitations;
 
@@ -33,7 +34,7 @@ extern "C" {
         const uint64_t           MaxSampleRate;
         const uint8_t            MaxBitDepth;
         const uint8_t            MaxNumChannels;
-        const Audio_ChannelMask  SupportedChannels;
+        const MediaIO_AudioMask  SupportedChannels;
     } CodecIO_AudioLimitations;
 
     typedef void *(*CodecIO_Function_Init)(void);   // Returns Options as void pointer

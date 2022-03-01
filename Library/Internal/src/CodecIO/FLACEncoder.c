@@ -1,4 +1,8 @@
 #include "../../include/CodecIO/FLACCodec.h"
+
+#include "../../../../Dependencies/FoundationIO/Library/include/MathIO.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/BufferIO.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h"
 #include "../../../../Dependencies/FoundationIO/Library/include/TextIO/FormatIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
@@ -59,9 +63,9 @@ extern "C" {
     void FLAC_Write_Vorbis(void *Options, BitBuffer *BitB) {
         if (Options != NULL && BitB != NULL) {
             BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 32, 4);
-            //UTF8 *OVIAVersion = UTF8_Format(UTF8String("OVIA %d.%d.%d"), OVIA_Version_Major, OVIA_Version_Minor, OVIA_Version_Patch);
-            //BitBuffer_WriteUTF8(BitB, OVIAVersion, StringTerminator_Sized);
-            //free(OVIAVersion);
+            UTF8 *OVIAVersion = UTF8_Format(UTF8String("OVIA %d.%d.%d"), PlatformIO_Stringify8(OVIA_Version_Major), PlatformIO_Stringify8(OVIA_Version_Minor), PlatformIO_Stringify8(OVIA_Version_Patch));
+            BitBuffer_WriteUTF8(BitB, OVIAVersion, StringTerminator_Sized);
+            UTF8_Deinit(OVIAVersion);
         } else if (Options == NULL) {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Options Pointer is NULL"));
         } else if (BitB == NULL) {

@@ -11,7 +11,7 @@
 #ifndef OVIA_EntropyIO_Huffman_h
 #define OVIA_EntropyIO_Huffman_h
 
-#include "../EntropyIO.h"
+#include "../../../OVIA/include/EntropyIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {

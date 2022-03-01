@@ -11,7 +11,8 @@
 #ifndef OVIA_StreamIO_AIFStream_h
 #define OVIA_StreamIO_AIFStream_h
 
-#include "../StreamIO.h"
+#include "../../../OVIA/include/StreamIO.h"
+#include "../../../OVIA/include/TagIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
@@ -91,7 +92,7 @@ extern "C" {
             [0]               = {
                 .OffsetInBits = 0,
                 .SizeInBits   = 32,
-                .Signature    = (uint8_t[4]){0x46, 0x4F, 0x52, 0x4D},
+                .Signature    = (uint8_t[4]) {0x46, 0x4F, 0x52, 0x4D},
             },
         },
     };
@@ -101,15 +102,15 @@ extern "C" {
     const OVIA_Extensions AIFExtensions = {
         .NumExtensions     = 3,
         .Extensions        = {
-            [0]            = {
-                .Size      = 4,
-                .Extension = UTF32String("aifc"),
-            },
             [1]            = {
                 .Size      = 4,
                 .Extension = UTF32String("aiff"),
             },
             [2]            = {
+                .Size      = 4,
+                .Extension = UTF32String("aifc"),
+            },
+            [3]            = {
                 .Size      = 3,
                 .Extension = UTF32String("aif"),
             },
@@ -136,19 +137,29 @@ extern "C" {
     extern const OVIA_Stream AIFMuxer;
     
     const OVIA_Stream AIFMuxer = {
-        .MagicID = &AIFSignature,
+        .MediaType             = MediaType_Audio2D,
+        .MagicID               = &AIFSignature,
+        .Function_Initialize   = AIFOptions_Init,
+        .Function_Parse        = AIFParseMetadata,
+        .Function_Decode       = AIFExtractSamples,
+        .Function_Deinitialize = AIFOptions_Deinit,
     };
 #endif /* OVIA_StreamIO_Encode */
     
 #if defined(OVIA_StreamIO_Decode)
-    extern const OVIA_Stream AIFDemuxer;
+    extern const StreamIO_Demuxer AIFDemuxer;
     
-    const OVIA_Stream AIFDemuxer = {
-        .MagicID = &AIFSignature,
+    const StreamIO_Demuxer AIFDemuxer = {
+        .MediaType             = MediaType_Audio2D,
+        .MagicID               = &AIFSignature,
+        .Function_Initialize   = AIFOptions_Init,
+        .Function_Parse        = AIFParseMetadata,
+        .Function_Decode       = AIFExtractSamples,
+        .Function_Deinitialize = AIFOptions_Deinit,
     };
 #endif /* OVIA_StreamIO_Decode */
     
-#endif /* AIF Literals */
+#endif /* OVIA_StreamIO_AIF */
     
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }

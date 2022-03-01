@@ -11,7 +11,7 @@
 #ifndef OVIA_StreamIO_FLACStream_h
 #define OVIA_StreamIO_FLACStream_h
 
-#include "../StreamIO.h"
+#include "../../../OVIA/include/StreamIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {

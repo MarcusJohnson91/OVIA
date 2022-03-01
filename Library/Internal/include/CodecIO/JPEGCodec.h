@@ -12,7 +12,7 @@
 #ifndef OVIA_CodecIO_JPEGCodec_h
 #define OVIA_CodecIO_JPEGCodec_h
 
-#include "../CodecIO.h"
+#include "../../../OVIA/include/CodecIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {

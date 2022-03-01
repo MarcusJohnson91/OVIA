@@ -11,7 +11,7 @@
 #ifndef OVIA_StreamIO_BMPStream_h
 #define OVIA_StreamIO_BMPStream_h
 
-#include "../StreamIO.h"
+#include "../../../OVIA/include/StreamIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
@@ -123,17 +123,17 @@ extern "C" {
     };
     
 #if defined(OVIA_StreamIO_Encode)
-    extern const OVIA_Stream BMPMuxer;
+    extern const StreamIO_Muxer BMPMuxer;
     
-    const OVIA_Stream BMPMuxer = {
+    const StreamIO_Muxer BMPMuxer = {
         .MagicID = &BMPSignature,
     };
 #endif /* OVIA_StreamIO_Encode */
     
 #if defined(OVIA_StreamIO_Decode)
-    extern const OVIA_Stream BMPDemuxer;
+    extern const StreamIO_Demuxer BMPDemuxer;
     
-    const OVIA_Stream BMPDemuxer = {
+    const StreamIO_Demuxer BMPDemuxer = {
         .MagicID = &BMPSignature,
     };
 #endif /* OVIA_StreamIO_Decode */

@@ -1,27 +1,29 @@
-#include "../include/TagIO.h"
+#include "../include/TagIO.h" /* Included for our declarations */
+
+#include "../../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
 
 #ifdef    OVIA_TagIO_AIF
-#include "../include/TagIO/AIFTags.h"
+#include "../../Internal/include/TagIO/AIFTags.h"
 #endif /* OVIA_TagIO_AIF */
 
 #ifdef OVIA_TagIO_APE
-#include "../include/TagIO/APETags.h"
+#include "../../Internal/include/TagIO/APETags.h"
 #endif /* OVIA_TagIO_APE */
 
 #ifdef OVIA_TagIO_FLAC
-#include "../include/TagIO/FLACTags.h"
+#include "../../Internal/include/TagIO/FLACTags.h"
 #endif /* OVIA_TagIO_FLAC */
 
 #ifdef OVIA_TagIO_ID3
-#include "../include/TagIO/ID3Tags.h"
+#include "../../Internal/include/TagIO/ID3Tags.h"
 #endif /* OVIA_TagIO_ID3 */
 
 #ifdef OVIA_TagIO_WAV
-#include "../include/TagIO/WAVTags.h"
+#include "../../Internal/include/TagIO/RIFFTags.h"
 #endif /* OVIA_TagIO_WAV */
 
     TagIO_Tags *TagIO_Init(uint64_t NumTags) {

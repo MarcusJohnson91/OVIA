@@ -11,7 +11,7 @@
 #ifndef OVIA_StreamIO_WAVStream_h
 #define OVIA_StreamIO_WAVStream_h
 
-#include "../StreamIO.h"
+#include "../../../OVIA/include/StreamIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
@@ -54,6 +54,80 @@ extern "C" {
     void WAVSkipPadding(BitBuffer *BitB, uint32_t SubChunkSize);
 
     void WAVOptions_Deinit(void *Options);
+
+#ifdef OVIA_StreamIO_WAV
+    extern const OVIA_MagicIDs WAVSignature;
+
+    const OVIA_MagicIDs WAVSignature = {
+        .NumMagicIDs          = 1,
+        .MagicIDs             = {
+            [0]               = {
+                .OffsetInBits = 0,
+                .SizeInBits   = 32,
+                .Signature    = (uint8_t[4]) {0x57, 0x41, 0x56, 0x45},
+            },
+        },
+    };
+
+    extern const OVIA_Extensions WAVExtensions;
+
+    const OVIA_Extensions WAVExtensions = {
+        .NumExtensions     = 2,
+        .Extensions        = {
+            [1]            = {
+                .Size      = 3,
+                .Extension = UTF32String("wav"),
+            },
+            [2]            = {
+                .Size      = 4,
+                .Extension = UTF32String("wave"),
+            },
+        },
+    };
+
+    extern const OVIA_MIMETypes WAVMIMETypes;
+
+    const OVIA_MIMETypes WAVMIMETypes = {
+        .NumMIMETypes     = 2,
+        .MIMETypes        = {
+            [0]           = {
+                .Size     = 10,
+                .MIMEType = UTF32String("audio/wav"),
+            },
+            [1]           = {
+                .Size     = 12,
+                .MIMEType = UTF32String("audio/x-wav"),
+            }
+        },
+    };
+
+#if defined(OVIA_StreamIO_Encode)
+    extern const OVIA_Stream WAVMuxer;
+
+    const OVIA_Stream WAVMuxer = {
+        .MediaType             = MediaType_Audio2D,
+        .MagicID               = &WAVSignature,
+        .Function_Initialize   = WAVOptions_Init,
+        .Function_Parse        = WAVParseMetadata,
+        .Function_Decode       = WAVExtractSamples,
+        .Function_Deinitialize = WAVOptions_Deinit,
+    };
+#endif /* OVIA_StreamIO_Encode */
+
+#if defined(OVIA_StreamIO_Decode)
+    extern const StreamIO_Demuxer WAVDemuxer;
+
+    const StreamIO_Demuxer WAVDemuxer = {
+        .MediaType             = MediaType_Audio2D,
+        .MagicID               = &WAVSignature,
+        .Function_Initialize   = WAVOptions_Init,
+        .Function_Parse        = WAVParseMetadata,
+        .Function_Decode       = WAVExtractSamples,
+        .Function_Deinitialize = WAVOptions_Deinit,
+    };
+#endif /* OVIA_StreamIO_Decode */
+
+#endif /* OVIA_StreamIO_WAV */
     
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }

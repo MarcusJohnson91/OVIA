@@ -1,5 +1,7 @@
 #include "../../include/StreamIO/WAVStream.h"
 
+#include "../../../../Dependencies/FoundationIO/Library/include/MathIO.h" /* Included for IsOdd */
+
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif

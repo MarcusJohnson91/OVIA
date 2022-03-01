@@ -1,7 +1,11 @@
-#include "../../include/EntropyIO.h"
+#include "../../../OVIA/include/EntropyIO.h"
 #include "../../include/CodecIO/PNGCodec.h"
+
 #include "../../../../Dependencies/FoundationIO/Library/include/TextIO/StringIO.h"
 #include "../../../../Dependencies/FoundationIO/Library/include/CryptographyIO.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/MathIO.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/BufferIO.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
@@ -927,7 +931,7 @@ extern "C" {
             uint64_t Width          = PNG->iHDR->Width;
             uint64_t Height         = PNG->iHDR->Height;
             ImageContainer *Decoded = NULL;
-            Image_ChannelMask Mask  = 0;
+            MediaIO_ImageMask Mask  = 0;
 
             Flate_ReadZlibHeader(PNG, BitB);
 

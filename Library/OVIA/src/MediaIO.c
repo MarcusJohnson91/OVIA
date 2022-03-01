@@ -1,4 +1,7 @@
-#include "../include/MediaIO.h" /* Included for our declarations */
+#include "../include/MediaIO.h"                                                /* Included for our declarations */
+
+#include "../../../Dependencies/FoundationIO/Library/include/MathIO.h"         /* Included for Exponentiate */
+#include "../../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h"   /* Included for Logging */
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
@@ -50,7 +53,7 @@ extern "C" {
     }
     
     typedef struct AudioChannelMap {
-        Audio_ChannelMask  *Map;
+        MediaIO_AudioMask  *Map;
         uint64_t                   NumChannels;
     } AudioChannelMap;
     
@@ -58,31 +61,31 @@ extern "C" {
         AudioChannelMap *ChannelMap = (AudioChannelMap*) calloc(1, sizeof(AudioChannelMap));
         if (ChannelMap != NULL) {
             ChannelMap->NumChannels = NumChannels;
-            ChannelMap->Map         = (Audio_ChannelMask*) calloc(NumChannels, sizeof(Audio_ChannelMask));
+            ChannelMap->Map         = (MediaIO_AudioMask*) calloc(NumChannels, sizeof(MediaIO_AudioMask));
         } else {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Couldn't allocate AudioChannelMap"));
         }
         return ChannelMap;
     }
     
-    void AudioChannelMap_AddMask(AudioChannelMap *ChannelMap, uint64_t Index, Audio_ChannelMask Mask) {
+    void AudioChannelMap_AddMask(AudioChannelMap *ChannelMap, uint64_t Index, MediaIO_AudioMask Mask) {
         if (ChannelMap != NULL && Index < ChannelMap->NumChannels) {
             ChannelMap->Map[Index] = Mask;
         } else if (ChannelMap == NULL) {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ChannelMap Pointer is NULL"));
         } else if (Index >= ChannelMap->NumChannels) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Index %llu is greather than there are channels %llu"), Index, ChannelMap->NumChannels);
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Index %llu is greater than there are channels %llu"), Index, ChannelMap->NumChannels);
         }
     }
     
-    Audio_ChannelMask AudioChannelMap_GetMask(AudioChannelMap *ChannelMap, uint64_t Index) {
-        Audio_ChannelMask ChannelMask = AudioMask_Unknown;
+    MediaIO_AudioMask AudioChannelMap_GetMask(AudioChannelMap *ChannelMap, uint64_t Index) {
+        MediaIO_AudioMask ChannelMask = AudioMask_Unknown;
         if (ChannelMap != NULL && Index < ChannelMap->NumChannels) {
             ChannelMask = ChannelMap->Map[Index];
         } else if (ChannelMap == NULL) {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ChannelMap Pointer is NULL"));
         } else if (Index >= ChannelMap->NumChannels) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Index %llu is greather than there are channels %llu"), Index, ChannelMap->NumChannels);
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Index %llu is greater than there are channels %llu"), Index, ChannelMap->NumChannels);
         }
         return ChannelMask;
     }
@@ -494,12 +497,12 @@ extern "C" {
      
      Since we're making Audio_ChannelMap a real thing, let's NULL terminate the array and drop the num channels variable from the init functions
      
-     Audio_ChannelMask
+     MediaIO_AudioMask
      */
     
     typedef struct Audio2DHistogram {
         uint64_t                 **Array; // Channel, Sample
-        Audio_ChannelMask  *ChannelMap;
+        MediaIO_AudioMask  *ChannelMap;
         uint64_t                   NumEntries;
         uint8_t                    NumChannels;
         MediaIO_AudioTypes         Type;
@@ -1066,17 +1069,17 @@ extern "C" {
     
     /* ImageContainer */
     typedef struct ImageChannelMap {
-        Image_ChannelMask **Map;
-        uint8_t                        NumChannels;
-        uint8_t                        NumViews;
+        MediaIO_ImageMask **Map;
+        uint8_t             NumChannels;
+        uint8_t             NumViews;
     } ImageChannelMap;
     
     ImageChannelMap *ImageChannelMap_Init(uint8_t NumViews, uint8_t NumChannels) {
-        ImageChannelMap *ChannelMap = (ImageChannelMap*) calloc(1, sizeof(Image_ChannelMask));
+        ImageChannelMap *ChannelMap = (ImageChannelMap*) calloc(1, sizeof(MediaIO_ImageMask));
         if (ChannelMap != NULL) {
             ChannelMap->NumViews    = NumViews;
             ChannelMap->NumChannels = NumChannels;
-            ChannelMap->Map         = (Image_ChannelMask**) calloc(NumViews * NumChannels, sizeof(Image_ChannelMask**));
+            ChannelMap->Map         = (MediaIO_ImageMask**) calloc(NumViews * NumChannels, sizeof(MediaIO_ImageMask**));
         } else {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Couldn't allocate ImageChannelMap"));
         }
@@ -1103,7 +1106,7 @@ extern "C" {
         return NumViews;
     }
     
-    uint8_t ImageChannelMap_GetChannelsIndex(ImageChannelMap *ChannelMap, Image_ChannelMask Mask) {
+    uint8_t ImageChannelMap_GetChannelsIndex(ImageChannelMap *ChannelMap, MediaIO_ImageMask Mask) {
         uint8_t Index = 0xFF;
         if (ChannelMap != NULL && Mask != ImageMask_Unknown) {
             Index     = ChannelMap->NumChannels;
@@ -1121,7 +1124,7 @@ extern "C" {
         return Index;
     }
     
-    void ImageChannelMap_AddMask(ImageChannelMap *ChannelMap, uint8_t Index, Image_ChannelMask Mask) {
+    void ImageChannelMap_AddMask(ImageChannelMap *ChannelMap, uint8_t Index, MediaIO_ImageMask Mask) {
         if (ChannelMap != NULL && Index < ChannelMap->NumChannels) {
             for (uint8_t View = 0; View < ChannelMap->NumViews; View++) {
                 ChannelMap->Map[View][Index] = Mask;
@@ -1227,6 +1230,14 @@ extern "C" {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("ImageContainer Pointer is NULL"));
         }
         return Type;
+    }
+
+    uint8_t ImageContainer_GetBitDepth(ImageContainer *Image) {
+        return ImageType_GetBitDepth(Image->Type);
+    }
+
+    uint8_t ImageContainer_GetNumViews(ImageContainer *Image) {
+        return ImageChannelMap_GetNumViews(Image->ChannelMap);
     }
     
     void ****ImageContainer_GetArray(ImageContainer *Image) {

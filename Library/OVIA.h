@@ -15,7 +15,7 @@
 #define OVIA_Version_Minor 3
 #define OVIA_Version_Patch 7
 
-#include "../Dependencies/FoundationIO/Library/include/PlatformIO.h"
+#include "../Dependencies/FoundationIO/Library/include/TextIO/TextIOTypes.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
