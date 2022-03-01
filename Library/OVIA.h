@@ -2,7 +2,7 @@
  @header              OVIA.h
  @author              Marcus Johnson
  @copyright           2018+
- @version             1.0.0
+ @version             0.3.7
  @brief               This header is for OVIA's public API.
  */
 
@@ -11,7 +11,11 @@
 #ifndef OVIA_OVIA_h
 #define OVIA_OVIA_h
 
-#include "../Dependencies/FoundationIO/Library/FoundationIO.h"
+#define OVIA_Version_Major 0
+#define OVIA_Version_Minor 3
+#define OVIA_Version_Patch 7
+
+#include "../Dependencies/FoundationIO/Library/include/PlatformIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
