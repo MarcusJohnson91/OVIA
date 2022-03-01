@@ -61,7 +61,6 @@ set(OVIA_SOURCE
     "${OVIA_Library_Dir}/Internal/src/EntropyIO/Arithmetic.c"
     "${OVIA_Library_Dir}/Internal/src/EntropyIO/Flate.c"
     "${OVIA_Library_Dir}/Internal/src/EntropyIO/Huffman.c"
-    "${OVIA_Library_Dir}/Internal/src/EntropyIO/Rice.c"
     "${OVIA_Library_Dir}/Internal/src/StreamIO/AIFStream.c"
     "${OVIA_Library_Dir}/Internal/src/StreamIO/AIFDemuxer.c"
     "${OVIA_Library_Dir}/Internal/src/StreamIO/AIFMuxer.c"
@@ -136,7 +135,6 @@ if(BUILD_TESTING)
     RegisterTest("${OVIA_EntropyIO_Tests_Dir}" Arithmetic OVIA)
     RegisterTest("${OVIA_EntropyIO_Tests_Dir}" Huffman OVIA)
     RegisterTest("${OVIA_EntropyIO_Tests_Dir}" Flate OVIA)
-    RegisterTest("${OVIA_EntropyIO_Tests_Dir}" Rice OVIA)
 
     RegisterTest("${OVIA_StreamIO_Tests_Dir}" AIFStream OVIA)
     RegisterTest("${OVIA_StreamIO_Tests_Dir}" BMPStream OVIA)
