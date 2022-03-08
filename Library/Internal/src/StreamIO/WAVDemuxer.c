@@ -90,33 +90,33 @@ extern "C" {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
-    
-    AudioContainer *WAVExtractSamples(OVIA *Ovia, BitBuffer *BitB) {
-        AudioContainer *Audio = NULL;
+
+    Audio2DContainer *WAVExtractSamples(OVIA *Ovia, BitBuffer *BitB) {
+        Audio2DContainer *Audio = NULL;
         if (Ovia != NULL && BitB != NULL) {
             uint64_t BitDepth     = OVIA_GetBitDepth(Ovia);
             uint64_t NumChannels  = OVIA_GetNumChannels(Ovia);
             uint64_t SampleRate   = OVIA_GetSampleRate(Ovia);
             uint64_t NumSamples   = OVIA_GetNumSamples(Ovia);
             if (BitDepth <= 8) {
-                Audio = AudioContainer_Init(AudioType_Integer8, BitDepth, NumChannels, SampleRate, NumSamples);
-                uint8_t **Samples = (uint8_t**) AudioContainer_GetArray(Audio);
+                Audio = Audio2DContainer_Init(AudioType_Integer8, BitDepth, NumChannels, SampleRate, NumSamples);
+                uint8_t **Samples = (uint8_t**) Audio2DContainer_GetArray(Audio);
                 for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                     for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
                         Samples[Channel][Sample] = BitBuffer_ReadBits(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, Bits2Bytes(BitDepth, Yes));
                     }
                 }
             } else if (BitDepth > 8 && BitDepth <= 16) {
-                Audio = AudioContainer_Init(AudioType_Integer16, BitDepth, NumChannels, SampleRate, NumSamples);
-                uint16_t **Samples = (uint16_t**) AudioContainer_GetArray(Audio);
+                Audio = Audio2DContainer_Init(AudioType_Integer16, BitDepth, NumChannels, SampleRate, NumSamples);
+                uint16_t **Samples = (uint16_t**) Audio2DContainer_GetArray(Audio);
                 for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                     for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
                         Samples[Channel][Sample] = BitBuffer_ReadBits(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, Bits2Bytes(BitDepth, Yes));
                     }
                 }
             } else if (BitDepth > 16 && BitDepth <= 32) {
-                Audio = AudioContainer_Init(AudioType_Integer32, BitDepth, NumChannels, SampleRate, NumSamples);
-                uint32_t **Samples = (uint32_t**) AudioContainer_GetArray(Audio);
+                Audio = Audio2DContainer_Init(AudioType_Integer32, BitDepth, NumChannels, SampleRate, NumSamples);
+                uint32_t **Samples = (uint32_t**) Audio2DContainer_GetArray(Audio);
                 for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                     for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
                         Samples[Channel][Sample] = BitBuffer_ReadBits(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, Bits2Bytes(BitDepth, Yes));

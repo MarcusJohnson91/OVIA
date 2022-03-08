@@ -1,4 +1,5 @@
 #include "../../include/TagIO/RIFFTags.h"
+#include "../../include/StreamIO/WAVStream.h"
 
 #include "../../../../Dependencies/FoundationIO/Library/include/BufferIO.h"
 #include "../../../../Dependencies/FoundationIO/Library/include/MathIO.h"
@@ -155,28 +156,27 @@ extern "C" {
             uint64_t TargetOffset   = OriginalOffset + Bytes2Bits(SubChunkSize);
 
             switch (SubChunkID) {
-                case WAVChunkID_IART: // Artist
+                case WAV_IART: // Artist
                     WAV_Read_INFO_IART(Tags, BitB);
                     break;
-                case WAVChunkID_ICRD: // Release date
+                case WAV_ICRD: // Release date
                     WAV_Read_INFO_ICRD(Tags, BitB);
                     break;
-                case WAVChunkID_IGNR: // Genre
+                case WAV_IGNR: // Genre
                     WAV_Read_INFO_IGNR(Tags, BitB);
                     break;
-                case WAVChunkID_INAM: // Title
+                case WAV_INAM: // Title
                     WAV_Read_INFO_INAM(Tags, BitB);
                     break;
-                case WAVChunkID_IPRD: // Album
+                case WAV_IPRD: // Album
                     WAV_Read_INFO_IPRD(Tags, BitB);
                     break;
-                case WAVChunkID_ISFT: // Encoder
+                case WAV_ISFT: // Encoder
                     WAV_Read_INFO_ISFT(Tags, BitB);
                     break;
-                case WAVChunkID_ICMT:
+                case WAV_ICMT:
                     ReadINFO_ICMT(Tags, BitB);
                     break;
-                case WAVChunkID_Unspecified:
                 default:
                     Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Unknown LIST Chunk: 0x%X"), SubChunkID);
                     break;
