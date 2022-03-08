@@ -93,7 +93,7 @@ extern "C" {
         BitBuffer_Seek(BitB, 7); // marker_bit && reserved
         Program->PSP->PackStuffingSize        = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 3);
         BitBuffer_Seek(BitB, Bytes2Bits(Program->PSP->PackStuffingSize));
-        if (PeekBits(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 0) == MPEG2TSSystemHeaderStartCode) {
+        if (BitBuffer_PeekBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 0) == MPEG2TSSystemHeaderStartCode) {
             // system_header();
         }
     }

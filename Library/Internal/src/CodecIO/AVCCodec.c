@@ -56,7 +56,7 @@ extern "C" {
     
     void WriteArithmetic(BitBuffer *BitB, double *ProbabilityTable[], size_t TableSize, uint64_t Bits2Encode) { // Use the least precision you can get away with to be as efficent as possible.
         if (BitB == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, "Pointer to BitBuffer is NULL");
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to BitBuffer is NULL"));
         } else {
             uint64_t High = 0xFFFFFFFFFFFFFFFFULL, Low = 0ULL, Range = 0ULL, Probability = 0ULL;
             while ((Bits2Encode >= High) && (Bits2Encode <= Low)) {
@@ -128,7 +128,7 @@ extern "C" {
     
     bool IsThereMoreDataInThisNAL() { // more_rbsp_data
         if (Enc == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, "Pointer to EncodeAVC is NULL");
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to EncodeAVC is NULL"));
         } else {
             /*
             if (there is no more data) {

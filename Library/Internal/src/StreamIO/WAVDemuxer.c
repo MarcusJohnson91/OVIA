@@ -23,7 +23,7 @@ extern "C" {
     
     static void WAVParseDATAChunk(OVIA *Ovia, BitBuffer *BitB) {
         if (Ovia != NULL && BitB != NULL) {
-            uint32_t ChunkSize = BitBuffer_ReadBits(ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, BitB, 32);
+            uint32_t ChunkSize = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
             OVIA_SetNumSamples(Ovia, ChunkSize / OVIA_GetNumChannels(Ovia));
         } else if (Ovia == NULL) {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("OVIA Pointer is NULL"));
@@ -34,7 +34,7 @@ extern "C" {
     
     static void WAVParseFMTChunk(OVIA *Ovia, BitBuffer *BitB) {
         if (Ovia != NULL && BitB != NULL) {
-            uint32_t ChunkSize = BitBuffer_ReadBits(ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, BitB, 32);
+            uint32_t ChunkSize = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
             
             OVIA_WAV_SetCompressionType(Ovia, BitBuffer_ReadBits(ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, BitB, 16)); // 1
             OVIA_SetNumChannels(Ovia, BitBuffer_ReadBits(ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, BitB, 16)); // 2
@@ -44,16 +44,16 @@ extern "C" {
             //OVIA_WAV_SetBlockAlignment(Ovia, BitBuffer_ReadBits(ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, BitB, 32));
             OVIA_SetBitDepth(Ovia, BitBuffer_ReadBits(ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, BitB, 16)); // 16
             if (ChunkSize == 18) {
-                uint16_t CBSize             = BitBuffer_ReadBits(ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, BitB, 16);
+                uint16_t CBSize             = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 16);
                 BitBuffer_Seek(BitB, Bytes2Bits(CBSize - 16));
             } else if (ChunkSize == 40) {
-                uint16_t CBSize             = BitBuffer_ReadBits(ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, BitB, 16);
-                uint16_t ValidBitsPerSample = BitBuffer_ReadBits(ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, BitB, 16);
+                uint16_t CBSize             = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 16);
+                uint16_t ValidBitsPerSample = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 16);
                 if (ValidBitsPerSample != 0) {
                     OVIA_SetBitDepth(Ovia, ValidBitsPerSample);
                 }
-                uint32_t  SpeakerMask       = BitBuffer_ReadBits(ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, BitB, 32);
-                uint8_t  *BinaryGUIDFormat  = BitBuffer_ReadGUUID(BitB, BinaryGUID);
+                uint32_t  SpeakerMask       = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
+                uint8_t  *BinaryGUIDFormat  = BitBuffer_ReadGUUID(BitB, GUUIDType_BinaryGUID);
                 BitBuffer_Seek(BitB, Bytes2Bits(CBSize - 22));
             }
         } else if (Ovia == NULL) {
@@ -65,8 +65,8 @@ extern "C" {
     
     void WAVParseMetadata(OVIA *Ovia, BitBuffer *BitB) {
         if (Ovia != NULL && BitB != NULL) {
-            uint32_t ChunkID   = BitBuffer_ReadBits(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 32);
-            uint32_t ChunkSize = BitBuffer_ReadBits(ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, BitB, 32);
+            uint32_t ChunkID   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+            uint32_t ChunkSize = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
             
             switch (ChunkID) {
                 case WAV_LIST:
@@ -94,6 +94,7 @@ extern "C" {
     Audio2DContainer *WAVExtractSamples(OVIA *Ovia, BitBuffer *BitB) {
         Audio2DContainer *Audio = NULL;
         if (Ovia != NULL && BitB != NULL) {
+            // Get the ChannelMap to initailize the Audio2DContainer
             uint64_t BitDepth     = OVIA_GetBitDepth(Ovia);
             uint64_t NumChannels  = OVIA_GetNumChannels(Ovia);
             uint64_t SampleRate   = OVIA_GetSampleRate(Ovia);
