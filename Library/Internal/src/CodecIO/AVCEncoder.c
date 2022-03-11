@@ -8,84 +8,53 @@
 extern "C" {
 #endif
     
-    EncodeAVC *InitAVCEncoder(void) {
-        EncodeAVC *Enc                = (EncodeAVC*) calloc(1, sizeof(EncodeAVC));
-        if (Enc == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Not enough memory to allocate EncodeAVC"));
-        } else {
-            Enc->NAL                  = (NALHeader*)                    calloc(1, sizeof(NALHeader));
-            Enc->SPS                  = (SequenceParameterSet*)         calloc(1, sizeof(SequenceParameterSet));
-            Enc->PPS                  = (PictureParameterSet*)          calloc(1, sizeof(PictureParameterSet));
-            Enc->VUI                  = (VideoUsabilityInformation*)    calloc(1, sizeof(VideoUsabilityInformation));
-            Enc->HRD                  = (HypotheticalReferenceDecoder*) calloc(1, sizeof(HypotheticalReferenceDecoder));
-            Enc->SEI                  = (SupplementalEnhancementInfo*)  calloc(1, sizeof(SupplementalEnhancementInfo));
-            Enc->Slice                = (Slice*)                        calloc(1, sizeof(Slice));
-            Enc->SVC                  = (ScalableVideoCoding*)          calloc(1, sizeof(ScalableVideoCoding));
-            Enc->DPS                  = (DepthParameterSet*)            calloc(1, sizeof(DepthParameterSet));
-            Enc->MacroBlock           = (MacroBlock*)                   calloc(1, sizeof(MacroBlock));
-        }
-        return Enc;
-    }
-    
-    bool AreAllViewsPaired(EncodeAVC *Enc) {
-        if (Enc == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to EncodeAVC is NULL"));
-        } else {
-            bool AllViewsPairedFlag = false;
-            for (uint8_t View = 0; View < Enc->SPS->ViewCount; View++) {
-                AllViewsPairedFlag = (1 && Enc->SPS->DepthViewPresent[View] && Enc->SPS->TextureViewPresent[View]);
-            }
-        }
-        return AllViewsPairedFlag;
-    }
-    
-    void ParseTransformCoeffs(EncodeAVC *Enc, uint8_t i16x16DC, uint8_t i16x16AC, uint8_t Level4x4, uint8_t Level8x8, uint8_t StartIndex, uint8_t EndIndex) { // ParseTransformCoeffs
-        if (Enc == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to EncodeAVC is NULL"));
+    void ParseTransformCoeffs(AVCOptions *Options, uint8_t i16x16DC, uint8_t i16x16AC, uint8_t Level4x4, uint8_t Level8x8, uint8_t StartIndex, uint8_t EndIndex) { // ParseTransformCoeffs
+        if (Options == NULL) {
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to AVCOptions is NULL"));
         } else if (BitB == NULL) {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to BitBuffer is NULL"));
         } else {
             uint8_t Intra16x16DCLevel = i16x16DC, Intra16x16ACLevel = i16x16AC, LumaLevel4x4 = Level4x4, LumaLevel8x8 = Level8x8;
             // Return the first 4 variables
-            if (Enc->PPS->EntropyCodingMode == ExpGolomb) {
+            if (AVC->PPS->EntropyCodingMode == ExpGolomb) {
                 // Read ExpGolomb
             } else {
                 // Read Arithmetic
             }
             
-            if (Enc->SPS->ChromaArrayType == Chroma420 || Enc->SPS->ChromaArrayType == Chroma422) {
+            if (AVC->SPS->ChromaArrayType == Chroma420 || AVC->SPS->ChromaArrayType == Chroma422) {
                 for (uint8_t iCbCr = 0; iCbCr < 1; iCbCr++) {
                     ChromaDCLevel[iCbCr] = 4 * NumC8x8;
                     for (uint8_t ChromaBlock = 0; ChromaBlock < i4x4; ChromaBlock++) {
                         ChromaACLevel[iCbCr][(i8x8 * 4) + i4x4] = 0;
                     }
                 }
-            } else if (Enc->SPS->ChromaArrayType == Chroma444) {
+            } else if (AVC->SPS->ChromaArrayType == Chroma444) {
                 
             }
         }
     }
     
-    void ResidualLuma(EncodeAVC *Enc, BitBuffer *BitB, int i16x16DClevel, int i16x16AClevel, int level4x4,
+    void ResidualLuma(AVCOptions *Options, BitBuffer *BitB, int i16x16DClevel, int i16x16AClevel, int level4x4,
                       int level8x8, int startIdx, int endIdx) { // residual_luma
-        if (Enc == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to EncodeAVC is NULL"));
+        if (Options == NULL) {
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to AVCOptions is NULL"));
         } else if (BitB == NULL) {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to BitBuffer is NULL"));
         } else {
-            if (startIdx == 0 && MacroBlockPartitionPredictionMode(Enc, Enc->MacroBlock->Type, 0) == Intra_16x16) {
-                ParseTransformCoeffs(Enc, i16x16DClevel, 0, 15, 16);
+            if (startIdx == 0 && MacroBlockPartitionPredictionMode(Options, AVC->MacroBlock->Type, 0) == Intra_16x16) {
+                ParseTransformCoeffs(Options, i16x16DClevel, 0, 15, 16);
             }
             for (uint8_t i8x8 = 0; i8x8 < 4; i8x8++) {
-                if (Enc->MacroBlock->TransformSizeIs8x8 == false || Enc->PPS->EntropyCodingMode == ExpGolomb) {
+                if (AVC->MacroBlock->TransformSizeIs8x8 == false || AVC->PPS->EntropyCodingMode == ExpGolomb) {
                     for (uint8_t i4x4 = 0; i4x4 < 4; i4x4++) {
-                        if (Enc->MacroBlock->BlockPatternLuma & (1 << i8x8)) {
-                            if (MacroBlockPartitionPredictionMode(Enc, Enc->MacroBlock->Type, 0) == Intra_16x16) {
+                        if (AVC->MacroBlock->BlockPatternLuma & (1 << i8x8)) {
+                            if (MacroBlockPartitionPredictionMode(Options, AVC->MacroBlock->Type, 0) == Intra_16x16) {
                                 ParseTransformCoeffs(i16x16AClevel[i8x8 * 4 + i4x4], Maximum(0, startIdx - 1), endIdx - 1, 15);
                             } else {
                                 ParseTransformCoeffs(level4x4[i8x8 * 4 + i4x4], startIdx, endIdx, 16);
                             }
-                        } else if (MacroBlockPartitionPredictionMode(Enc, Enc->MacroBlock->Type, 0) == Intra_16x16) {
+                        } else if (MacroBlockPartitionPredictionMode(Options, AVC->MacroBlock->Type, 0) == Intra_16x16) {
                             for (uint8_t i = 0; i < 15; i++) {
                                 i16x16AClevel[i8x8 * 4 + i4x4][i] = 0;
                             }
@@ -96,12 +65,12 @@ extern "C" {
                         }
                     }
                 }
-                if (Enc->PPS->EntropyCodingMode == ExpGolomb && Enc->MacroBlock->TransformSizeIs8x8) {
+                if (AVC->PPS->EntropyCodingMode == ExpGolomb && AVC->MacroBlock->TransformSizeIs8x8) {
                     for (uint8_t i = 0; i < 16; i++) {
                         level8x8[i8x8][4 * i + i4x4] = level4x4[i8x8 * 4 + i4x4][i];
                     }
                 }
-                else if (Enc->MacroBlock->BlockPatternLuma & (1 << i8x8)) {
+                else if (AVC->MacroBlock->BlockPatternLuma & (1 << i8x8)) {
                     ParseTransformCoeffs(level8x8[i8x8], 4 * startIdx, 4 * endIdx + 3, 64);
                 } else {
                     for (uint8_t i = 0; i < 64; i++) {
@@ -112,27 +81,27 @@ extern "C" {
         }
     }
     
-    int8_t MacroBlock2SliceGroupMap(EncodeAVC *Enc, uint8_t CurrentMacroBlock) { // MbToSliceGroupMap
-        if (Enc == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to EncodeAVC is NULL"));
+    int8_t MacroBlock2SliceGroupMap(AVCOptions *Options, uint8_t CurrentMacroBlock) { // MbToSliceGroupMap
+        if (Options == NULL) {
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to AVCOptions is NULL"));
         } else {
-            if (Enc->PPS->SliceGroups == 1 && (Enc->PPS->SliceGroupMapType == 3 || Enc->PPS->SliceGroupMapType == 4 || Enc->PPS->SliceGroupMapType == 5)) {
-                if (Enc->PPS->SliceGroupMapType == 3) {
-                    if (Enc->PPS->SliceGroupChangeDirection == false) {
+            if (AVC->PPS->SliceGroups == 1 && (AVC->PPS->SliceGroupMapType == 3 || AVC->PPS->SliceGroupMapType == 4 || AVC->PPS->SliceGroupMapType == 5)) {
+                if (AVC->PPS->SliceGroupMapType == 3) {
+                    if (AVC->PPS->SliceGroupChangeDirection == false) {
                         return BoxOutClockwise;
-                    } else if (Enc->PPS->SliceGroupChangeDirection == true) {
+                    } else if (AVC->PPS->SliceGroupChangeDirection == true) {
                         return BoxOutCounterClockwise;
                     }
-                } else if (Enc->PPS->SliceGroupMapType == 4) {
-                    if (Enc->PPS->SliceGroupChangeDirection == false) {
+                } else if (AVC->PPS->SliceGroupMapType == 4) {
+                    if (AVC->PPS->SliceGroupChangeDirection == false) {
                         return RasterScan;
-                    } else if (Enc->PPS->SliceGroupChangeDirection == true) {
+                    } else if (AVC->PPS->SliceGroupChangeDirection == true) {
                         return ReverseRasterScan;
                     }
-                } else if (Enc->PPS->SliceGroupMapType == 5) {
-                    if (Enc->PPS->SliceGroupChangeDirection == false) {
+                } else if (AVC->PPS->SliceGroupMapType == 5) {
+                    if (AVC->PPS->SliceGroupChangeDirection == false) {
                         return WipeRight;
-                    } else if (Enc->PPS->SliceGroupChangeDirection == true) {
+                    } else if (AVC->PPS->SliceGroupChangeDirection == true) {
                         return WipeLeft;
                     }
                 }
@@ -141,12 +110,12 @@ extern "C" {
         return -1; // failure
     }
     
-    void rbsp_slice_trailing_bits(EncodeAVC *Enc, BitBuffer *BitB) {
-        if (Enc == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to EncodeAVC is NULL"));
+    void rbsp_slice_trailing_bits(AVCOptions *Options, BitBuffer *BitB) {
+        if (Options == NULL) {
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to AVCOptions is NULL"));
         } else {
             BitBuffer_Align(BitB, 1); // rbsp_trailing_bits();
-            if (Enc->PPS->EntropyCodingMode == Arithmetic) {
+            if (AVC->PPS->EntropyCodingMode == Arithmetic) {
                 while (more_rbsp_trailing_data()) {
                     uint16_t CABACZeroWord = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16); /* equal to 0x0000 */
                 }
@@ -154,13 +123,13 @@ extern "C" {
         }
     }
     
-    uint8_t MacroBlockPartitionPredictionMode(EncodeAVC *Enc, uint8_t MacroBlockType, uint8_t PartitionNumber) {  // MbPartPredMode
+    uint8_t MacroBlockPartitionPredictionMode(AVCOptions *Options, uint8_t MacroBlockType, uint8_t PartitionNumber) {  // MbPartPredMode
         uint8_t ReturnValue = 0;
-        if (Enc == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to EncodeAVC is NULL"));
+        if (Options == NULL) {
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to AVCOptions is NULL"));
         } else {
             if (MacroBlockType == 0) {
-                if (Enc->MacroBlock->TransformSizeIs8x8 == true) {
+                if (AVC->MacroBlock->TransformSizeIs8x8 == true) {
                     ReturnValue = Intra_8x8;
                 } else {
                     ReturnValue = Intra_4x4;
@@ -228,23 +197,23 @@ extern "C" {
         return ReturnValue;
     }
     
-    uint64_t NextMacroBlockAddress(EncodeAVC *Enc, uint64_t CurrentMacroBlockAddress) { // NextMbAddress
-        if (Enc == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to EncodeAVC is NULL"));
+    uint64_t NextMacroBlockAddress(AVCOptions *Options, uint64_t CurrentMacroBlockAddress) { // NextMbAddress
+        if (Options == NULL) {
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to AVCOptions is NULL"));
         } else {
-            while (CurrentMacroBlockAddress + 1 < Enc->Slice->PicSizeInMacroBlocks && MacroBlock2SliceGroupMap(Enc, CurrentMacroBlockAddress + 1) != MacroBlock2SliceGroupMap(Enc, CurrentMacroBlockAddress)) {
+            while (CurrentMacroBlockAddress + 1 < AVC->Slice->PicSizeInMacroBlocks && MacroBlock2SliceGroupMap(Options, CurrentMacroBlockAddress + 1) != MacroBlock2SliceGroupMap(Options, CurrentMacroBlockAddress)) {
                 i++; nextMbAddress = I
             }
             // aka
-            for (uint64_t I = CurrentMacroBlockAddress + 1; I < Enc->Slice->PicSizeInMacroBlocks && MbToSliceGroups[I]) {
-                MacroBlock2SliceGroupMap(Enc, CurrentMacroBlockAddress);
+            for (uint64_t I = CurrentMacroBlockAddress + 1; I < AVC->Slice->PicSizeInMacroBlocks && MbToSliceGroups[I]) {
+                MacroBlock2SliceGroupMap(Options, CurrentMacroBlockAddress);
             }
         }
     }
     
-    size_t GetSizeOfNALUnit(EncodeAVC *Enc, BitBuffer *BitB) {
-        if (Enc == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to EncodeAVC is NULL"));
+    size_t GetSizeOfNALUnit(AVCOptions *Options, BitBuffer *BitB) {
+        if (Options == NULL) {
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to AVCOptions is NULL"));
         } else if (BitB == NULL) {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to BitBuffer is NULL"));
         } else {
@@ -253,12 +222,12 @@ extern "C" {
         return 0;
     }
     
-    uint8_t CalculateNumberOfTimeStamps(EncodeAVC *Enc) { // PicOrderCount
-        if (Enc == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to EncodeAVC is NULL"));
+    uint8_t CalculateNumberOfTimeStamps(AVCOptions *Options) { // PicOrderCount
+        if (Options == NULL) {
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to AVCOptions is NULL"));
         } else {
             uint8_t NumTimeStamps = 0;
-            if ((Enc->Slice->SliceIsInterlaced == false) && (Enc->Slice->TopFieldOrderCount == Enc->Slice->BottomFieldOrderCount)) {
+            if ((AVC->Slice->SliceIsInterlaced == false) && (AVC->Slice->TopFieldOrderCount == AVC->Slice->BottomFieldOrderCount)) {
                 NumTimeStamps = 1;
             } else if (0 == 1) {
                 
@@ -274,7 +243,7 @@ extern "C" {
     
     
     /*
-     void ConvertRGB2YCgCo(EncodeAVC *Enc, uint8_t NumChannels, uint8_t NumPixels, uint16_t *DecodedMB[3][256]) {
+     void ConvertRGB2YCgCo(AVCOptions *Options, uint8_t NumChannels, uint8_t NumPixels, uint16_t *DecodedMB[3][256]) {
      uint16_t Temp, Green[NumChannels][NumPixels], Red[NumChannels][NumPixels], Blue[NumChannels][NumPixels];
      
      // Y  = DecodedMB[0]

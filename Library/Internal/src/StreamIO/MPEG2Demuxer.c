@@ -93,7 +93,7 @@ extern "C" {
         BitBuffer_Seek(BitB, 7); // marker_bit && reserved
         Program->PSP->PackStuffingSize        = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 3);
         BitBuffer_Seek(BitB, Bytes2Bits(Program->PSP->PackStuffingSize));
-        if (BitBuffer_PeekBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 0) == MPEG2TSSystemHeaderStartCode) {
+        if (BitBuffer_PeekBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 0) == 0) { // MPEG2TSSystemHeaderStartCode
             // system_header();
         }
     }
@@ -220,7 +220,7 @@ extern "C" {
                 }
                 if (Stream->PackHeaderFieldFlag == true) {
                     Stream->PackFieldSize            = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
-                    pack_header();
+                    //pack_header();
                 }
                 if (Stream->ProgramPacketSeqCounterFlag == true) {
                     BitBuffer_Seek(BitB, 1);

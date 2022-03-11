@@ -9,63 +9,63 @@
 extern "C" {
 #endif
 
-    void WriteIHDRChunk(PNGOptions *Enc, BitBuffer *OutputPNG) {
+    void WriteIHDRChunk(PNGOptions *Options, BitBuffer *OutputPNG) {
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, 13);
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNGMarker_iHDR);
-        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Enc->iHDR->Width);
-        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Enc->iHDR->Height);
-        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  Enc->iHDR->BitDepth);
-        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  Enc->iHDR->ColorType);
-        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  Enc->iHDR->Compression);
-        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  Enc->iHDR->FilterMethod);
-        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  Enc->iHDR->IsInterlaced);
+        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Options->iHDR->Width);
+        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Options->iHDR->Height);
+        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  Options->iHDR->BitDepth);
+        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  Options->iHDR->ColorType);
+        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  Options->iHDR->Compression);
+        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  Options->iHDR->FilterMethod);
+        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  Options->iHDR->IsInterlaced);
     }
 
-    void WriteACTLChunk(PNGOptions *Enc, BitBuffer *OutputPNG) {
+    void WriteACTLChunk(PNGOptions *Options, BitBuffer *OutputPNG) {
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, 8);
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNGMarker_acTL);
-        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Enc->acTL->NumFrames);
-        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Enc->acTL->TimesToLoop);
+        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Options->acTL->NumFrames);
+        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Options->acTL->TimesToLoop);
     }
 
-    void WriteFCTLChunk(PNGOptions *Enc, BitBuffer *OutputPNG) {
+    void WriteFCTLChunk(PNGOptions *Options, BitBuffer *OutputPNG) {
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, 29);
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNGMarker_fcTL);
-        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Enc->fcTL->FrameNum);
-        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Enc->fcTL->Width);
-        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Enc->fcTL->Height);
-        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Enc->fcTL->XOffset);
-        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Enc->fcTL->YOffset);
-        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, Enc->fcTL->FrameDelayNumerator);
-        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, Enc->fcTL->FrameDelayDenominator);
-        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  Enc->fcTL->DisposeMethod);
-        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  Enc->fcTL->BlendMethod);
+        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Options->fcTL->FrameNum);
+        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Options->fcTL->Width);
+        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Options->fcTL->Height);
+        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Options->fcTL->XOffset);
+        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Options->fcTL->YOffset);
+        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, Options->fcTL->FrameDelayNumerator);
+        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, Options->fcTL->FrameDelayDenominator);
+        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  Options->fcTL->DisposeMethod);
+        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  Options->fcTL->BlendMethod);
     }
 
-    void WriteFDATChunk(PNGOptions *Enc, BitBuffer *OutputPNG, uint8_t *DeflatedFrameData, uint32_t DeflatedFrameDataSize) {
+    void WriteFDATChunk(PNGOptions *Options, BitBuffer *OutputPNG, uint8_t *DeflatedFrameData, uint32_t DeflatedFrameDataSize) {
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, DeflatedFrameData + 8);
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNGMarker_fDAT);
-        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Enc->fdAT->FrameNum);
+        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Options->fdAT->FrameNum);
     }
 
-    void WriteSTERChunk(PNGOptions *Enc, BitBuffer *OutputPNG) {
+    void WriteSTERChunk(PNGOptions *Options, BitBuffer *OutputPNG) {
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, 1);
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNGMarker_sTER);
-        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  Enc->sTER->StereoType);
+        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  Options->sTER->StereoType);
     }
 
-    void WriteBKGDChunk(PNGOptions *Enc, BitBuffer *OutputPNG) {
-        uint8_t  NumChannels   = PNGNumChannelsFromColorType[Enc->iHDR->ColorType];
+    void WriteBKGDChunk(PNGOptions *Options, BitBuffer *OutputPNG) {
+        uint8_t  NumChannels   = PNGNumChannelsFromColorType[Options->iHDR->ColorType];
         uint32_t Size          = 0;
         uint8_t  BKGDEntrySize = 0; // in bits
 
-        if (Enc->iHDR->ColorType == PNGColor_Palette) {
+        if (Options->iHDR->ColorType == PNGColor_Palette) {
             Size          = 1;
             BKGDEntrySize = Bytes2Bits(1);
-        } else if (Enc->iHDR->ColorType == PNGColor_Gray || Enc->iHDR->ColorType == PNGColor_GrayAlpha) {
+        } else if (Options->iHDR->ColorType == PNGColor_Gray || Options->iHDR->ColorType == PNGColor_GrayAlpha) {
             Size          = 2;
             BKGDEntrySize = Bytes2Bits(2);
-        } else if (Enc->iHDR->ColorType == PNGColor_RGB || Enc->iHDR->ColorType == PNGColor_RGBAlpha) {
+        } else if (Options->iHDR->ColorType == PNGColor_RGB || Options->iHDR->ColorType == PNGColor_RGBAlpha) {
             Size          = NumChannels * 2;
             BKGDEntrySize = Bytes2Bits(NumChannels * 2);
         }
@@ -73,154 +73,154 @@ extern "C" {
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Size);
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNGMarker_bKGD);
 
-        if (Enc->iHDR->ColorType == PNGColor_Palette || Enc->iHDR->ColorType == PNGColor_Gray || Enc->iHDR->ColorType == PNGColor_GrayAlpha) {
+        if (Options->iHDR->ColorType == PNGColor_Palette || Options->iHDR->ColorType == PNGColor_Gray || Options->iHDR->ColorType == PNGColor_GrayAlpha) {
             for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
-                BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BKGDEntrySize, Enc->bkGD->BackgroundPaletteEntry[Channel]);
+                BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BKGDEntrySize, Options->bkGD->BackgroundPaletteEntry[Channel]);
             }
-        } else if (Enc->iHDR->ColorType == PNGColor_RGB || Enc->iHDR->ColorType == PNGColor_RGBAlpha) {
+        } else if (Options->iHDR->ColorType == PNGColor_RGB || Options->iHDR->ColorType == PNGColor_RGBAlpha) {
             for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
-                BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, NumChannels * 16, Enc->bkGD->BackgroundPaletteEntry[Channel]);
+                BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, NumChannels * 16, Options->bkGD->BackgroundPaletteEntry[Channel]);
             }
         }
     }
 
-    void WriteCHRMChunk(PNGOptions *Enc, BitBuffer *OutputPNG) {
+    void WriteCHRMChunk(PNGOptions *Options, BitBuffer *OutputPNG) {
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, 32);
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNGMarker_cHRM);
-        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Enc->cHRM->WhitePointX);
-        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Enc->cHRM->WhitePointY);
-        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Enc->cHRM->RedX);
-        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Enc->cHRM->RedY);
-        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Enc->cHRM->GreenX);
-        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Enc->cHRM->GreenY);
-        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Enc->cHRM->BlueX);
-        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Enc->cHRM->BlueY);
+        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Options->cHRM->WhitePointX);
+        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Options->cHRM->WhitePointY);
+        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Options->cHRM->RedX);
+        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Options->cHRM->RedY);
+        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Options->cHRM->GreenX);
+        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Options->cHRM->GreenY);
+        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Options->cHRM->BlueX);
+        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Options->cHRM->BlueY);
     }
 
-    void WriteGAMAChunk(PNGOptions *Enc, BitBuffer *OutputPNG) {
+    void WriteGAMAChunk(PNGOptions *Options, BitBuffer *OutputPNG) {
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, 4);
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNGMarker_gAMA);
-        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Enc->gAMA->Gamma);
+        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Options->gAMA->Gamma);
     }
 
-    void WriteOFFSChunk(PNGOptions *Enc, BitBuffer *OutputPNG) {
+    void WriteOFFSChunk(PNGOptions *Options, BitBuffer *OutputPNG) {
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, 9);
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNGMarker_oFFs);
-        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Enc->oFFs->XOffset);
-        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Enc->oFFs->YOffset);
-        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  Enc->oFFs->UnitSpecifier);
+        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Options->oFFs->XOffset);
+        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Options->oFFs->YOffset);
+        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  Options->oFFs->UnitSpecifier);
     }
 
-    void WriteICCPChunk(PNGOptions *Enc, BitBuffer *OutputPNG) {
-        uint32_t ProfileNameSize       = UTF8_GetStringSizeInCodeUnits(Enc->iCCP->ProfileName);
-        uint32_t CompressedProfileSize = UTF8_GetStringSizeInCodeUnits(Enc->iCCP->CompressedICCPProfile);
+    void WriteICCPChunk(PNGOptions *Options, BitBuffer *OutputPNG) {
+        uint32_t ProfileNameSize       = UTF8_GetStringSizeInCodeUnits(Options->iCCP->ProfileName);
+        uint32_t CompressedProfileSize = UTF8_GetStringSizeInCodeUnits(Options->iCCP->CompressedICCPProfile);
 
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, 8 + CompressedProfileSize + ProfileNameSize);
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNGMarker_iCCP);
-        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, Bytes2Bits(ProfileNameSize), Enc->iCCP->ProfileName);
-        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, Enc->iCCP->CompressionType);
-        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, Bytes2Bits(CompressedProfileSize), Enc->iCCP->CompressedICCPProfile);
+        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, Bytes2Bits(ProfileNameSize), Options->iCCP->ProfileName);
+        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, Options->iCCP->CompressionType);
+        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, Bytes2Bits(CompressedProfileSize), Options->iCCP->CompressedICCPProfile);
     }
 
-    void WriteSBITChunk(PNGOptions *Enc, BitBuffer *OutputPNG) {
+    void WriteSBITChunk(PNGOptions *Options, BitBuffer *OutputPNG) {
         uint8_t ChunkSize = 0;
-        uint8_t NumChannels = PNGNumChannelsFromColorType[Enc->iHDR->ColorType];
-        if (Enc->iHDR->ColorType == PNGColor_Gray) {
+        uint8_t NumChannels = PNGNumChannelsFromColorType[Options->iHDR->ColorType];
+        if (Options->iHDR->ColorType == PNGColor_Gray) {
             ChunkSize = 1;
-        } else if (Enc->iHDR->ColorType == PNGColor_RGB || Enc->iHDR->ColorType == PNGColor_Palette) {
+        } else if (Options->iHDR->ColorType == PNGColor_RGB || Options->iHDR->ColorType == PNGColor_Palette) {
             ChunkSize = 3;
-        } else if (Enc->iHDR->ColorType == PNGColor_GrayAlpha) {
+        } else if (Options->iHDR->ColorType == PNGColor_GrayAlpha) {
             ChunkSize = 2;
-        } else if (Enc->iHDR->ColorType == PNGColor_RGBAlpha) {
+        } else if (Options->iHDR->ColorType == PNGColor_RGBAlpha) {
             ChunkSize = 4;
         }
 
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, ChunkSize);
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNGMarker_sBIT);
 
-        if (Enc->iHDR->ColorType == PNGColor_RGB || Enc->iHDR->ColorType == PNGColor_Palette) {
-            BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, Enc->sBIT->Red);
-            BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, Enc->sBIT->Green);
-            BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, Enc->sBIT->Blue);
-        } else if (Enc->iHDR->ColorType == PNGColor_RGBAlpha) {
-            BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, Enc->sBIT->Red);
-            BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, Enc->sBIT->Green);
-            BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, Enc->sBIT->Blue);
-            BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, Enc->sBIT->Alpha);
-        } else if (Enc->iHDR->ColorType == PNGColor_Gray) {
-            BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, Enc->sBIT->Grayscale);
-        } else if (Enc->iHDR->ColorType == PNGColor_GrayAlpha) {
-            BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, Enc->sBIT->Grayscale);
-            BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, Enc->sBIT->Alpha);
+        if (Options->iHDR->ColorType == PNGColor_RGB || Options->iHDR->ColorType == PNGColor_Palette) {
+            BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, Options->sBIT->Red);
+            BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, Options->sBIT->Green);
+            BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, Options->sBIT->Blue);
+        } else if (Options->iHDR->ColorType == PNGColor_RGBAlpha) {
+            BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, Options->sBIT->Red);
+            BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, Options->sBIT->Green);
+            BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, Options->sBIT->Blue);
+            BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, Options->sBIT->Alpha);
+        } else if (Options->iHDR->ColorType == PNGColor_Gray) {
+            BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, Options->sBIT->Grayscale);
+        } else if (Options->iHDR->ColorType == PNGColor_GrayAlpha) {
+            BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, Options->sBIT->Grayscale);
+            BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, Options->sBIT->Alpha);
         }
     }
 
-    void WriteSRGBChunk(PNGOptions *Enc, BitBuffer *OutputPNG) {
+    void WriteSRGBChunk(PNGOptions *Options, BitBuffer *OutputPNG) {
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, 1);
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNGMarker_sRGB);
-        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  Enc->sRGB->RenderingIntent);
+        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  Options->sRGB->RenderingIntent);
     }
 
-    void WritePHYSChunk(PNGOptions *Enc, BitBuffer *OutputPNG) {
+    void WritePHYSChunk(PNGOptions *Options, BitBuffer *OutputPNG) {
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, 9);
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNGMarker_pHYs);
-        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Enc->pHYs->PixelsPerUnitXAxis);
-        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Enc->pHYs->PixelsPerUnitYAxis);
-        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  Enc->pHYs->UnitSpecifier);
+        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Options->pHYs->PixelsPerUnitXAxis);
+        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Options->pHYs->PixelsPerUnitYAxis);
+        BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  Options->pHYs->UnitSpecifier);
     }
 
-    void WritePCALChunk(PNGOptions *Enc, BitBuffer *OutputPNG) {
+    void WritePCALChunk(PNGOptions *Options, BitBuffer *OutputPNG) {
         uint32_t ChunkSize = 0;
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, ChunkSize);
         BitBuffer_WriteBits(OutputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNGMarker_pCAL);
 
     }
 
-    void WriteSCALChunk(PNGOptions *Enc, BitBuffer *OutputPNG) {
+    void WriteSCALChunk(PNGOptions *Options, BitBuffer *OutputPNG) {
         uint32_t ChunkSize = 0;
     }
 
-    void PNGIsAnimated(PNGOptions *Enc, const bool PNGIsAnimated) {
-        if (Enc != NULL) {
-            Enc->PNGIsAnimated = PNGIsAnimated;
+    void PNGIsAnimated(PNGOptions *Options, const bool PNGIsAnimated) {
+        if (Options != NULL) {
+            Options->PNGIsAnimated = PNGIsAnimated;
         } else {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to PNGOptions is NULL"));
         }
     }
 
-    void ComposeAPNGNumFrames(PNGOptions *Enc, const uint32_t NumFrames) {
-        if (Enc != NULL) {
-            Enc->acTL->NumFrames = NumFrames;
+    void ComposeAPNGNumFrames(PNGOptions *Options, const uint32_t NumFrames) {
+        if (Options != NULL) {
+            Options->acTL->NumFrames = NumFrames;
         } else {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to PNGOptions is NULL"));
         }
     }
 
-    void ComposeAPNGTimes2Loop(PNGOptions *Enc, const uint32_t NumTimes2Loop) {
-        if (Enc != NULL) {
-            Enc->acTL->TimesToLoop = NumTimes2Loop;
+    void ComposeAPNGTimes2Loop(PNGOptions *Options, const uint32_t NumTimes2Loop) {
+        if (Options != NULL) {
+            Options->acTL->TimesToLoop = NumTimes2Loop;
         } else {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to PNGOptions is NULL"));
         }
     }
 
-    void ComposeAPNGFrameDelay(PNGOptions *Enc, const uint32_t FrameDelayNumerator, const uint32_t FrameDelayDenominator) {
-        if (Enc == NULL) {
+    void ComposeAPNGFrameDelay(PNGOptions *Options, const uint32_t FrameDelayNumerator, const uint32_t FrameDelayDenominator) {
+        if (Options == NULL) {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to PNGOptions is NULL"));
         } else {
-            Enc->fcTL->FrameDelayNumerator   = FrameDelayNumerator;
-            Enc->fcTL->FrameDelayDenominator = FrameDelayDenominator;
+            Options->fcTL->FrameDelayNumerator   = FrameDelayNumerator;
+            Options->fcTL->FrameDelayDenominator = FrameDelayDenominator;
         }
     }
 
-    void PNGSetIHDR(PNGOptions *Enc, const uint32_t Height, const uint32_t Width, const uint8_t BitDepth, PNGColorTypes ColorType, const bool Interlace) {
-        if (Enc != NULL && Height > 0 && Width > 0 && (BitDepth > 0 || BitDepth > 16) && (ColorType <= 6 && ColorType != 1 && ColorType != 5) && Interlace >= 0 && Interlace <= 1) {
-            Enc->iHDR->Height       = Height;
-            Enc->iHDR->Width        = Width;
-            Enc->iHDR->BitDepth     = BitDepth;
-            Enc->iHDR->ColorType    = ColorType;
-            Enc->iHDR->IsInterlaced = Interlace;
-        } else if (Enc == NULL) {
+    void PNGSetIHDR(PNGOptions *Options, const uint32_t Height, const uint32_t Width, const uint8_t BitDepth, PNGColorTypes ColorType, const bool Interlace) {
+        if (Options != NULL && Height > 0 && Width > 0 && (BitDepth > 0 || BitDepth > 16) && (ColorType <= 6 && ColorType != 1 && ColorType != 5) && Interlace >= 0 && Interlace <= 1) {
+            Options->iHDR->Height       = Height;
+            Options->iHDR->Width        = Width;
+            Options->iHDR->BitDepth     = BitDepth;
+            Options->iHDR->ColorType    = ColorType;
+            Options->iHDR->IsInterlaced = Interlace;
+        } else if (Options == NULL) {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("PNGOptions Pointer is NULL"));
         } else if (Height == 0) {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Height is 0, which is invalid"));
@@ -235,28 +235,28 @@ extern "C" {
         }
     }
 
-    void PNGSetSTER(PNGOptions *Enc, const bool StereoType) {
-        if (Enc != NULL && StereoType >= 0 && StereoType <= 1) {
-            Enc->sTER->StereoType = StereoType;
-        } else if (Enc == NULL) {
+    void PNGSetSTER(PNGOptions *Options, const bool StereoType) {
+        if (Options != NULL && StereoType >= 0 && StereoType <= 1) {
+            Options->sTER->StereoType = StereoType;
+        } else if (Options == NULL) {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to PNGOptions is NULL"));
         } else if (StereoType < 0 || StereoType > 1) {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("StereoType %d is invalid, valid values range from 0-1"), StereoType);
         }
     }
 
-    void PNGSetACTL(PNGOptions *Enc, const uint32_t NumFrames, const uint32_t Times2Loop) {
-        if (Enc != NULL && NumFrames > 0) {
-            Enc->acTL->NumFrames   = NumFrames;
-            Enc->acTL->TimesToLoop = Times2Loop;
-        } else if (Enc == NULL) {
+    void PNGSetACTL(PNGOptions *Options, const uint32_t NumFrames, const uint32_t Times2Loop) {
+        if (Options != NULL && NumFrames > 0) {
+            Options->acTL->NumFrames   = NumFrames;
+            Options->acTL->TimesToLoop = Times2Loop;
+        } else if (Options == NULL) {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to PNGOptions is NULL"));
         } else if (NumFrames == 0) {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("NumFrames is 0, that isn't possible..."));
         }
     }
 
-    void PNGSetFCTL(PNGOptions *Enc, const uint32_t FrameNum, const uint32_t FrameWidth, const uint32_t FrameHeight, uint32_t XOffset, uint32_t YOffset, uint16_t FrameDelayNumerator, uint16_t FrameDelayDenominator, uint8_t DisposalType, uint8_t BlendType) {
+    void PNGSetFCTL(PNGOptions *Options, const uint32_t FrameNum, const uint32_t FrameWidth, const uint32_t FrameHeight, uint32_t XOffset, uint32_t YOffset, uint16_t FrameDelayNumerator, uint16_t FrameDelayDenominator, uint8_t DisposalType, uint8_t BlendType) {
 
     }
 
@@ -264,14 +264,14 @@ extern "C" {
 
     }
 
-    BitBuffer *EncodePNGImage(PNGOptions *Enc, void ****RawImage2Encode, bool InterlacePNG, bool OptimizePNG) {
-        // RawImage2Encode is a void pointer, the contents of Enc->iHDR->BitDepth will define the data type, uint8_t or uint16_t
+    BitBuffer *EncodePNGImage(PNGOptions *Options, void ****RawImage2Encode, bool InterlacePNG, bool OptimizePNG) {
+        // RawImage2Encode is a void pointer, the contents of Options->iHDR->BitDepth will define the data type, uint8_t or uint16_t
 
         // This is THE main function for encoding a buffer into a PNG file.
         return NULL;
     }
 
-    BitBuffer *EncodeAdam7(PNGOptions *Enc, BitBuffer *ProgressiveImage) { // Returns the interlaced image
+    BitBuffer *EncodeAdam7(PNGOptions *Options, BitBuffer *ProgressiveImage) { // Returns the interlaced image
         /*
          Ok, so to interlace an image, we need to loop over every pixel in an 8x8 block?
          */
@@ -279,19 +279,19 @@ extern "C" {
         return InterlacedImage;
     }
 
-    void PNGEncodeFilterNone(PNGOptions *Enc, uint8_t *DeEntropyedData, uint8_t *DeFilteredData, size_t Line) {
+    void PNGEncodeFilterNone(PNGOptions *Options, uint8_t *DeEntropyedData, uint8_t *DeFilteredData, size_t Line) {
 
     }
 
-    void PNGEncodeFilterPaeth(PNGOptions *Enc, uint8_t *Line, size_t LineSize) {
+    void PNGEncodeFilterPaeth(PNGOptions *Options, uint8_t *Line, size_t LineSize) {
         // RawData is after decoding the I/f DATs, and after INFLAT'ing and De-LZ77'ing it.
         // Each line is preceded by a filter type byte, so decode it by a line by line basis.
         // Good candidate for multi-threading.
     }
 
-    void PNGEncodeFilterSub(PNGOptions *Enc, uint8_t *Line, size_t NumPixels) {
+    void PNGEncodeFilterSub(PNGOptions *Options, uint8_t *Line, size_t NumPixels) {
         // NumPixel means whole pixel not sub pixel.
-        uint16_t *EncodedLine = calloc(1, Enc->iHDR->Width * Bits2Bytes(Enc->iHDR->BitDepth, Yes) * sizeof(uint16_t));
+        uint16_t *EncodedLine = calloc(1, Options->iHDR->Width * Bits2Bytes(Options->iHDR->BitDepth, Yes) * sizeof(uint16_t));
         for (size_t Pixel = 1; Pixel < NumPixels; Pixel++) {
             if (Pixel == 1) {
                 EncodedLine[Pixel] = Line[Pixel];

@@ -11,17 +11,17 @@
 extern "C" {
 #endif
 
-    void PNG_Read_IHDR(PNGOptions *Dec, BitBuffer *BitB, uint32_t ChunkSize) {
-        Dec->iHDR->Width          = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        Dec->iHDR->Height         = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        Dec->iHDR->BitDepth       = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
-        Dec->iHDR->ColorType      = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
-        if (Dec->iHDR->ColorType == 1 || Dec->iHDR->ColorType == 5 || Dec->iHDR->ColorType >= 7) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Invalid color type: %d"), Dec->iHDR->ColorType);
+    void PNG_Read_IHDR(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) {
+        Options->iHDR->Width          = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+        Options->iHDR->Height         = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+        Options->iHDR->BitDepth       = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+        Options->iHDR->ColorType      = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+        if (Options->iHDR->ColorType == 1 || Options->iHDR->ColorType == 5 || Options->iHDR->ColorType >= 7) {
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Invalid color type: %d"), Options->iHDR->ColorType);
         }
-        Dec->iHDR->Compression    = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
-        Dec->iHDR->FilterMethod   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
-        Dec->iHDR->IsInterlaced   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+        Options->iHDR->Compression    = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+        Options->iHDR->FilterMethod   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+        Options->iHDR->IsInterlaced   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
 
         uint32_t ComputedCRC      = BitBuffer_CalculateCRC(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitBuffer_GetPosition(BitB) - 104, 13, 0xFFFFFFFF, CRCPolynomial_IEEE802_3);
 
@@ -31,84 +31,84 @@ extern "C" {
         }
     }
 
-    void PNG_Read_PLTE(PNGOptions *Dec, BitBuffer *BitB, uint32_t ChunkSize) { // Palette
-        if (Dec->iHDR->BitDepth > 8) { // INVALID
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Invalid bit depth %d and palette combination"), Dec->iHDR->BitDepth);
+    void PNG_Read_PLTE(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) { // Palette
+        if (Options->iHDR->BitDepth > 8) { // INVALID
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Invalid bit depth %d and palette combination"), Options->iHDR->BitDepth);
             BitBuffer_Seek(BitB, Bytes2Bits(ChunkSize));
         } else {
 
-            if (Dec->iHDR->ColorType == PNGColor_Palette || Dec->iHDR->ColorType == PNGColor_RGB) {
-                Dec->PLTE->Palette = calloc(1, (3 * Dec->PLTE->NumEntries) * Bits2Bytes(Dec->iHDR->BitDepth, RoundingType_Down));
-            } else if (Dec->iHDR->ColorType == PNGColor_RGBAlpha) {
-                Dec->PLTE->Palette = calloc(1, (4 * Dec->PLTE->NumEntries) * Bits2Bytes(Dec->iHDR->BitDepth, RoundingType_Down));
+            if (Options->iHDR->ColorType == PNGColor_Palette || Options->iHDR->ColorType == PNGColor_RGB) {
+                Options->PLTE->Palette = calloc(1, (3 * Options->PLTE->NumEntries) * Bits2Bytes(Options->iHDR->BitDepth, RoundingType_Down));
+            } else if (Options->iHDR->ColorType == PNGColor_RGBAlpha) {
+                Options->PLTE->Palette = calloc(1, (4 * Options->PLTE->NumEntries) * Bits2Bytes(Options->iHDR->BitDepth, RoundingType_Down));
             }
 
 
-            for (uint8_t Channel = 0; Channel < PNGNumChannelsFromColorType[Dec->iHDR->ColorType]; Channel++) {
+            for (uint8_t Channel = 0; Channel < PNGNumChannelsFromColorType[Options->iHDR->ColorType]; Channel++) {
                 for (uint16_t PaletteEntry = 0; PaletteEntry < ChunkSize / 3; PaletteEntry++) {
-                    Dec->PLTE->Palette[Channel][PaletteEntry] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, Dec->iHDR->BitDepth);
+                    Options->PLTE->Palette[Channel][PaletteEntry] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, Options->iHDR->BitDepth);
                 }
             }
         }
     }
 
-    void PNG_Read_TRNS(PNGOptions *Dec, BitBuffer *BitB, uint32_t ChunkSize) { // Transparency
-        Dec->tRNS->NumEntries = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+    void PNG_Read_TRNS(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) { // Transparency
+        Options->tRNS->NumEntries = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
         uint16_t *Entries    = NULL;
-        if (Dec->iHDR->ColorType == PNGColor_RGB) {
-            Entries = calloc(3, Bits2Bytes(Dec->iHDR->BitDepth, RoundingType_Down) * sizeof(uint16_t));
-        } else if (Dec->iHDR->ColorType == PNGColor_RGBAlpha) {
-            Entries = calloc(4, Bits2Bytes(Dec->iHDR->BitDepth, RoundingType_Down) * sizeof(uint16_t));
-        } else if (Dec->iHDR->ColorType == PNGColor_Gray) {
-            Entries = calloc(1, Bits2Bytes(Dec->iHDR->BitDepth, RoundingType_Down) * sizeof(uint16_t));
-        } else if (Dec->iHDR->ColorType == PNGColor_GrayAlpha) {
-            Entries = calloc(2, Bits2Bytes(Dec->iHDR->BitDepth, RoundingType_Down) * sizeof(uint16_t));
+        if (Options->iHDR->ColorType == PNGColor_RGB) {
+            Entries = calloc(3, Bits2Bytes(Options->iHDR->BitDepth, RoundingType_Down) * sizeof(uint16_t));
+        } else if (Options->iHDR->ColorType == PNGColor_RGBAlpha) {
+            Entries = calloc(4, Bits2Bytes(Options->iHDR->BitDepth, RoundingType_Down) * sizeof(uint16_t));
+        } else if (Options->iHDR->ColorType == PNGColor_Gray) {
+            Entries = calloc(1, Bits2Bytes(Options->iHDR->BitDepth, RoundingType_Down) * sizeof(uint16_t));
+        } else if (Options->iHDR->ColorType == PNGColor_GrayAlpha) {
+            Entries = calloc(2, Bits2Bytes(Options->iHDR->BitDepth, RoundingType_Down) * sizeof(uint16_t));
         }
         if (Entries == NULL) {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Failed to allocate enough memory for the TRNS Palette"));
         } else {
-            for (uint8_t Color = 0; Color < PNGNumChannelsFromColorType[Dec->iHDR->ColorType]; Color++) {
-                Entries[Color]    = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, Bits2Bytes(Dec->iHDR->BitDepth, RoundingType_Down));
+            for (uint8_t Color = 0; Color < PNGNumChannelsFromColorType[Options->iHDR->ColorType]; Color++) {
+                Entries[Color]    = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, Bits2Bytes(Options->iHDR->BitDepth, RoundingType_Down));
             }
         }
     }
 
-    void PNG_Read_BKGD(PNGOptions *Dec, BitBuffer *BitB, uint32_t ChunkSize) { // Background
+    void PNG_Read_BKGD(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) { // Background
         for (uint8_t Entry = 0; Entry < 3; Entry++) {
-            Dec->bkGD->BackgroundPaletteEntry[Entry] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+            Options->bkGD->BackgroundPaletteEntry[Entry] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
         }
     }
 
-    void PNG_Read_CHRM(PNGOptions *Dec, BitBuffer *BitB, uint32_t ChunkSize) { // Chromaticities
-        Dec->cHRM->WhitePointX = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        Dec->cHRM->WhitePointY = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        Dec->cHRM->RedX        = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        Dec->cHRM->RedY        = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        Dec->cHRM->GreenX      = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        Dec->cHRM->GreenY      = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        Dec->cHRM->BlueX       = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        Dec->cHRM->BlueY       = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+    void PNG_Read_CHRM(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) { // Chromaticities
+        Options->cHRM->WhitePointX = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+        Options->cHRM->WhitePointY = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+        Options->cHRM->RedX        = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+        Options->cHRM->RedY        = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+        Options->cHRM->GreenX      = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+        Options->cHRM->GreenY      = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+        Options->cHRM->BlueX       = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+        Options->cHRM->BlueY       = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
     }
 
-    void PNG_Read_GAMA(PNGOptions *Dec, BitBuffer *BitB, uint32_t ChunkSize) { // Gamma
-        Dec->gAMA->Gamma = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+    void PNG_Read_GAMA(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) { // Gamma
+        Options->gAMA->Gamma = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
     }
 
-    void PNG_Read_OFFS(PNGOptions *Dec, BitBuffer *BitB, uint32_t ChunkSize) { // Image Offset
-        Dec->oFFs->XOffset       = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        Dec->oFFs->YOffset       = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        Dec->oFFs->UnitSpecifier = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+    void PNG_Read_OFFS(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) { // Image Offset
+        Options->oFFs->XOffset       = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+        Options->oFFs->YOffset       = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+        Options->oFFs->UnitSpecifier = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
     }
 
-    void PNG_Read_PHYS(PNGOptions *Dec, BitBuffer *BitB, uint32_t ChunkSize) { // Aspect ratio, Physical pixel size
-        Dec->pHYs->PixelsPerUnitXAxis = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        Dec->pHYs->PixelsPerUnitYAxis = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        Dec->pHYs->UnitSpecifier      = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+    void PNG_Read_PHYS(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) { // Aspect ratio, Physical pixel size
+        Options->pHYs->PixelsPerUnitXAxis = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+        Options->pHYs->PixelsPerUnitYAxis = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+        Options->pHYs->UnitSpecifier      = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
     }
 
-    void PNG_Read_SCAL(PNGOptions *Dec, BitBuffer *BitB, uint32_t ChunkSize) { // Physical Scale
+    void PNG_Read_SCAL(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) { // Physical Scale
                                                                               // Ok, so we need to take the size of the chunk into account.
-        Dec->sCAL->UnitSpecifier = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8); // 1 = Meter, 2 = Radian
+        Options->sCAL->UnitSpecifier = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8); // 1 = Meter, 2 = Radian
 
         uint32_t WidthStringSize  = 0;
         uint32_t HeightStringSize = 0;
@@ -131,34 +131,34 @@ extern "C" {
             HeightString[HeightCodePoint] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
         }
 
-        Dec->sCAL->PixelWidth  = UTF8_String2Decimal(Base_Decimal | Base_Radix10, WidthString);
-        Dec->sCAL->PixelHeight = UTF8_String2Decimal(Base_Decimal | Base_Radix10, HeightString);
+        Options->sCAL->PixelWidth  = UTF8_String2Decimal(Base_Decimal | Base_Radix10, WidthString);
+        Options->sCAL->PixelHeight = UTF8_String2Decimal(Base_Decimal | Base_Radix10, HeightString);
     }
 
-    void PNG_Read_PCAL(PNGOptions *Dec, BitBuffer *BitB, uint32_t ChunkSize) {
+    void PNG_Read_PCAL(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) {
         UTF8 CalibrationName[80];
         while (BitBuffer_PeekBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8) != 0x0) {
             for (uint8_t Byte = 0; Byte < 80; Byte++) {
                 CalibrationName[Byte] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
             }
         }
-        Dec->pCAL->CalibrationName     = CalibrationName;
-        Dec->pCAL->CalibrationNameSize = UTF8_GetStringSizeInCodePoints(Dec->pCAL->CalibrationName);
+        Options->pCAL->CalibrationName     = CalibrationName;
+        Options->pCAL->CalibrationNameSize = UTF8_GetStringSizeInCodePoints(Options->pCAL->CalibrationName);
     }
 
-    void PNG_Read_SBIT(PNGOptions *Dec, BitBuffer *BitB, uint32_t ChunkSize) { // Significant bits per sample
-        Dec->sBIT->Red                   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
-        Dec->sBIT->Green                 = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
-        Dec->sBIT->Blue                  = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+    void PNG_Read_SBIT(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) { // Significant bits per sample
+        Options->sBIT->Red                   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+        Options->sBIT->Green                 = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+        Options->sBIT->Blue                  = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
     }
 
-    void PNG_Read_SRGB(PNGOptions *Dec, BitBuffer *BitB, uint32_t ChunkSize) {
-        Dec->sRGB->RenderingIntent       = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+    void PNG_Read_SRGB(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) {
+        Options->sRGB->RenderingIntent       = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
     }
 
-    void PNG_Read_STER(PNGOptions *Dec, BitBuffer *BitB, uint32_t ChunkSize) {
-        Dec->PNGIs3D                     = true;
-        Dec->sTER->StereoType            = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+    void PNG_Read_STER(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) {
+        Options->PNGIs3D                     = true;
+        Options->sTER->StereoType            = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
 
         // No matter what StereoType is used, both images are arranged side by side, and the left edge is aligned on a boundary of the 8th column in case interlacing is used.
         // The two sub images must have the same dimensions after padding is removed.
@@ -172,7 +172,7 @@ extern "C" {
         //
     }
 
-    void PNG_Read_TEXT(PNGOptions *Dec, BitBuffer *BitB, uint32_t ChunkSize) { // Uncompressed, ASCII tEXt
+    void PNG_Read_TEXT(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) { // Uncompressed, ASCII tEXt
        // Read until you hit a NULL for the name string, then subtract the size of the previous string from the total length to get the number of bytes for the second string
         uint8_t  KeywordSize = 0UL;
         uint8_t  CurrentByte = 0; // 1 is BULLshit
@@ -184,7 +184,7 @@ extern "C" {
 
         uint32_t CommentSize = ChunkSize - KeywordSize;
 
-        Dec->NumTextChunks  += 1;
+        Options->NumTextChunks  += 1;
 
 
 
@@ -207,53 +207,53 @@ extern "C" {
         // Store a variable in PNGOptions called NumTextChunks, then store a type called Comment or something that stores both the comment type as a string and the actual comment...
     }
 
-    void PNG_Read_ZTXT(PNGOptions *Dec, BitBuffer *BitB, uint32_t ChunkSize) { // Compressed text
+    void PNG_Read_ZTXT(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) { // Compressed text
     }
 
-    void PNG_Read_ITXT(PNGOptions *Dec, BitBuffer *BitB, uint32_t ChunkSize) { // International Text
+    void PNG_Read_ITXT(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) { // International Text
     }
 
-    void PNG_Read_TIME(PNGOptions *Dec, BitBuffer *BitB, uint32_t ChunkSize) {
-        Dec->tIMe->Year                  = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16);
-        Dec->tIMe->Month                 = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
-        Dec->tIMe->Day                   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
-        Dec->tIMe->Hour                  = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
-        Dec->tIMe->Minute                = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
-        Dec->tIMe->Second                = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+    void PNG_Read_TIME(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) {
+        Options->tIMe->Year                  = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16);
+        Options->tIMe->Month                 = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+        Options->tIMe->Day                   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+        Options->tIMe->Hour                  = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+        Options->tIMe->Minute                = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+        Options->tIMe->Second                = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
     }
 
     /* APNG */
-    void PNG_Read_ACTL(PNGOptions *Dec, BitBuffer *BitB, uint32_t ChunkSize) { // Animation control, part of APNG
-        Dec->PNGIsAnimated               = true;
-        Dec->acTL->NumFrames             = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        Dec->acTL->TimesToLoop           = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32); // If 0, loop forever.
+    void PNG_Read_ACTL(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) { // Animation control, part of APNG
+        Options->PNGIsAnimated               = true;
+        Options->acTL->NumFrames             = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+        Options->acTL->TimesToLoop           = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32); // If 0, loop forever.
     }
 
-    void PNG_Read_FCTL(PNGOptions *Dec, BitBuffer *BitB, uint32_t ChunkSize) { // Frame Control, part of APNG
-        Dec->fcTL->FrameNum              = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        Dec->fcTL->Width                 = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        Dec->fcTL->Height                = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        Dec->fcTL->XOffset               = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        Dec->fcTL->YOffset               = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        Dec->fcTL->FrameDelayNumerator   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16);
-        Dec->fcTL->FrameDelayDenominator = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16);
-        Dec->fcTL->DisposeMethod         = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
-        Dec->fcTL->BlendMethod           = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+    void PNG_Read_FCTL(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) { // Frame Control, part of APNG
+        Options->fcTL->FrameNum              = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+        Options->fcTL->Width                 = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+        Options->fcTL->Height                = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+        Options->fcTL->XOffset               = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+        Options->fcTL->YOffset               = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+        Options->fcTL->FrameDelayNumerator   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16);
+        Options->fcTL->FrameDelayDenominator = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16);
+        Options->fcTL->DisposeMethod         = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+        Options->fcTL->BlendMethod           = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
     }
     /* End APNG */
 
-    void PNG_Read_HIST(PNGOptions *Dec, BitBuffer *BitB, uint32_t ChunkSize) {
+    void PNG_Read_HIST(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) {
     }
 
-    void PNG_Read_ICCP(PNGOptions *Dec, BitBuffer *BitB, uint32_t ChunkSize) {
+    void PNG_Read_ICCP(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) {
         uint8_t ProfileNameSize = 0;
         ProfileNameSize = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
     }
 
-    void PNG_Read_SPLT(PNGOptions *Dec, BitBuffer *BitB, uint32_t ChunkSize) {
+    void PNG_Read_SPLT(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) {
     }
 
-    uint8_t ParsePNGMetadata(BitBuffer *BitB, PNGOptions *Dec) {
+    uint8_t ParsePNGMetadata(BitBuffer *BitB, PNGOptions *Options) {
         uint64_t FileMagic    = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 64);
 
         if (FileMagic == PNGMagic) {
@@ -272,70 +272,70 @@ extern "C" {
             BitBuffer_Seek(BitB, -32); // Now we need to skip back so we can read the ChunkID as part of the CRC check.
 
             if (ChunkID2 == PNGMarker_iHDR) {        // iHDR
-                PNG_Read_IHDR(Dec, BitB, ChunkSize);
+                PNG_Read_IHDR(Options, BitB, ChunkSize);
             } else if (ChunkID2 == PNGMarker_PLTE) { // PLTE
-                Dec->PLTEExists = true;
-                PNG_Read_PLTE(Dec, BitB, ChunkSize);
+                Options->PLTEExists = true;
+                PNG_Read_PLTE(Options, BitB, ChunkSize);
             } else if (ChunkID2 == PNGMarker_bKGD) { // bKGD
-                Dec->bkGDExists = true;
-                PNG_Read_BKGD(Dec, BitB, ChunkSize);
+                Options->bkGDExists = true;
+                PNG_Read_BKGD(Options, BitB, ChunkSize);
             } else if (ChunkID2 == PNGMarker_cHRM) { // cHRM
-                Dec->cHRMExists = true;
-                PNG_Read_CHRM(Dec, BitB, ChunkSize);
+                Options->cHRMExists = true;
+                PNG_Read_CHRM(Options, BitB, ChunkSize);
             } else if (ChunkID2 == PNGMarker_gAMA) { // gAMA
-                Dec->gAMAExists = true;
-                PNG_Read_GAMA(Dec, BitB, ChunkSize);
+                Options->gAMAExists = true;
+                PNG_Read_GAMA(Options, BitB, ChunkSize);
             } else if (ChunkID2 == PNGMarker_oFFs) { // oFFs
-                Dec->oFFsExists = true;
-                PNG_Read_OFFS(Dec, BitB, ChunkSize);
+                Options->oFFsExists = true;
+                PNG_Read_OFFS(Options, BitB, ChunkSize);
             } else if (ChunkID2 == PNGMarker_pHYs) { // pHYs
-                Dec->pHYsExists = true;
-                PNG_Read_PHYS(Dec, BitB, ChunkSize);
+                Options->pHYsExists = true;
+                PNG_Read_PHYS(Options, BitB, ChunkSize);
             } else if (ChunkID2 == PNGMarker_sBIT) { // sBIT
-                Dec->sBITExists = true;
-                PNG_Read_SBIT(Dec, BitB, ChunkSize);
+                Options->sBITExists = true;
+                PNG_Read_SBIT(Options, BitB, ChunkSize);
             } else if (ChunkID2 == PNGMarker_sCAL) { // sCAL
-                Dec->sCALExists = true;
-                PNG_Read_SCAL(Dec, BitB, ChunkSize);
+                Options->sCALExists = true;
+                PNG_Read_SCAL(Options, BitB, ChunkSize);
             } else if (ChunkID2 == PNGMarker_sRGB) { // sRGB
-                Dec->sRGBExists = true;
-                PNG_Read_SRGB(Dec, BitB, ChunkSize);
+                Options->sRGBExists = true;
+                PNG_Read_SRGB(Options, BitB, ChunkSize);
             } else if (ChunkID2 == PNGMarker_sTER) { // sTER
-                Dec->sTERExists = true;
-                PNG_Read_STER(Dec, BitB, ChunkSize);
+                Options->sTERExists = true;
+                PNG_Read_STER(Options, BitB, ChunkSize);
             } else if (ChunkID2 == PNGMarker_tEXt) { // tEXt
-                Dec->TextExists = true;
-                PNG_Read_TEXT(Dec, BitB, ChunkSize);
+                Options->TextExists = true;
+                PNG_Read_TEXT(Options, BitB, ChunkSize);
             } else if (ChunkID2 == PNGMarker_zTXt) { // zTXt
-                Dec->TextExists = true;
-                PNG_Read_ZTXT(Dec, BitB, ChunkSize);
+                Options->TextExists = true;
+                PNG_Read_ZTXT(Options, BitB, ChunkSize);
             } else if (ChunkID2 == PNGMarker_iTXt) { // iTXt
-                Dec->TextExists = true;
-                PNG_Read_ITXT(Dec, BitB, ChunkSize);
+                Options->TextExists = true;
+                PNG_Read_ITXT(Options, BitB, ChunkSize);
             } else if (ChunkID2 == PNGMarker_tIME) { // tIME
-                Dec->tIMEExists = true;
-                PNG_Read_TIME(Dec, BitB, ChunkSize);
+                Options->tIMEExists = true;
+                PNG_Read_TIME(Options, BitB, ChunkSize);
             } else if (ChunkID2 == PNGMarker_tRNS) { // tRNS
-                Dec->tRNSExists = true;
-                PNG_Read_TRNS(Dec, BitB, ChunkSize);
-            } else if (ChunkID2 == PNGMarker_hIST && Dec->PLTEExists) { // hIST
-                Dec->hISTExists = true;
-                PNG_Read_HIST(Dec, BitB, ChunkSize);
+                Options->tRNSExists = true;
+                PNG_Read_TRNS(Options, BitB, ChunkSize);
+            } else if (ChunkID2 == PNGMarker_hIST && Options->PLTEExists) { // hIST
+                Options->hISTExists = true;
+                PNG_Read_HIST(Options, BitB, ChunkSize);
             } else if (ChunkID2 == PNGMarker_iCCP) { // iCCP
-                Dec->iCCPExists = true;
-                PNG_Read_ICCP(Dec, BitB, ChunkSize);
+                Options->iCCPExists = true;
+                PNG_Read_ICCP(Options, BitB, ChunkSize);
             } else if (ChunkID2 == PNGMarker_pCAL) { // pCAL
-                Dec->pCALExists = true;
-                PNG_Read_PCAL(Dec, BitB, ChunkSize);
+                Options->pCALExists = true;
+                PNG_Read_PCAL(Options, BitB, ChunkSize);
             } else if (ChunkID2 == PNGMarker_sPLT) { // sPLT
-                Dec->sPLTExists = true;
-                PNG_Read_SPLT(Dec, BitB, ChunkSize);
+                Options->sPLTExists = true;
+                PNG_Read_SPLT(Options, BitB, ChunkSize);
             } else if (ChunkID2 == PNGMarker_acTL) { // acTL
-                Dec->acTLExists = true;
-                PNG_Read_ACTL(Dec, BitB, ChunkSize);
+                Options->acTLExists = true;
+                PNG_Read_ACTL(Options, BitB, ChunkSize);
             } else if (ChunkID2 == PNGMarker_fcTL) { // fcTL
-                Dec->fcTLExists = true;
-                PNG_Read_FCTL(Dec, BitB, ChunkSize);
+                Options->fcTLExists = true;
+                PNG_Read_FCTL(Options, BitB, ChunkSize);
             }
             free(ChunkID);
         } else {
@@ -384,41 +384,41 @@ extern "C" {
         return Output;
     }
 
-    void PNGDecodeNonFilter(PNGOptions *Dec, uint8_t ***InflatedData, uint8_t ***DeFilteredData, size_t Line) {
-        for (uint8_t StereoView = 0; StereoView < Dec->sTER->StereoType; StereoView++) {
-            for (uint32_t Width = 0; Width < Dec->iHDR->Width; Width++) {
-                for (size_t Byte = 1; Byte < Bits2Bytes(Dec->iHDR->BitDepth, RoundingType_Down); Byte++) {
+    void PNGDecodeNonFilter(PNGOptions *Options, uint8_t ***InflatedData, uint8_t ***DeFilteredData, size_t Line) {
+        for (uint8_t StereoView = 0; StereoView < Options->sTER->StereoType; StereoView++) {
+            for (uint32_t Width = 0; Width < Options->iHDR->Width; Width++) {
+                for (size_t Byte = 1; Byte < Bits2Bytes(Options->iHDR->BitDepth, RoundingType_Down); Byte++) {
                     DeFilteredData[StereoView][Width][Byte - 1] = InflatedData[StereoView][Width][Byte]; // Remove filter indicating byte
                 }
             }
         }
     }
 
-    void PNGDecodeSubFilter(PNGOptions *Dec, uint8_t ***InflatedData, uint8_t ***DeFilteredData, size_t Line) {
-        for (uint8_t StereoView = 0; StereoView < Dec->sTER->StereoType; StereoView++) {
-            for (uint32_t Width = 0; Width < Dec->iHDR->Width; Width++) {
-                for (size_t Byte = 1; Byte < Bits2Bytes(Dec->iHDR->BitDepth, RoundingType_Down); Byte++) {
+    void PNGDecodeSubFilter(PNGOptions *Options, uint8_t ***InflatedData, uint8_t ***DeFilteredData, size_t Line) {
+        for (uint8_t StereoView = 0; StereoView < Options->sTER->StereoType; StereoView++) {
+            for (uint32_t Width = 0; Width < Options->iHDR->Width; Width++) {
+                for (size_t Byte = 1; Byte < Bits2Bytes(Options->iHDR->BitDepth, RoundingType_Down); Byte++) {
                     DeFilteredData[StereoView][Line][Byte - 1] = (InflatedData[StereoView][Line][Byte] + InflatedData[StereoView][Line][Byte+1]) & 0xFF; // Byte+1 is wrong, needs to be + bitdepth
                 }
             }
         }
     }
 
-    void PNGDecodeUpFilter(PNGOptions *Dec, uint8_t ***InflatedData, uint8_t ***DeFilteredData, size_t Line) {
-        for (uint8_t StereoView = 0; StereoView < Dec->sTER->StereoType; StereoView++) {
-            for (uint32_t Width = 0; Width < Dec->iHDR->Width; Width++) {
-                for (size_t Byte = 1; Byte < Bits2Bytes(Dec->iHDR->BitDepth, RoundingType_Down); Byte++) {
+    void PNGDecodeUpFilter(PNGOptions *Options, uint8_t ***InflatedData, uint8_t ***DeFilteredData, size_t Line) {
+        for (uint8_t StereoView = 0; StereoView < Options->sTER->StereoType; StereoView++) {
+            for (uint32_t Width = 0; Width < Options->iHDR->Width; Width++) {
+                for (size_t Byte = 1; Byte < Bits2Bytes(Options->iHDR->BitDepth, RoundingType_Down); Byte++) {
                     DeFilteredData[StereoView][Line][Byte - 1] = InflatedData[StereoView][Line][Byte] + InflatedData[StereoView][Line - 1][Byte] & 0xFF;
                 }
             }
         }
     }
 
-    void PNGDecodeAverageFilter(PNGOptions *Dec, uint8_t ***InflatedData, uint8_t ***DeFilteredData, size_t Line) {
-        uint8_t PixelSize = Bits2Bytes(Dec->iHDR->BitDepth, RoundingType_Down);
-        for (uint8_t StereoView = 0; StereoView < Dec->sTER->StereoType; StereoView++) {
-            for (uint32_t Width = 0; Width < Dec->iHDR->Width; Width++) {
-                for (size_t Byte = 1; Byte < Bits2Bytes(Dec->iHDR->BitDepth, RoundingType_Down); Byte++) {
+    void PNGDecodeAverageFilter(PNGOptions *Options, uint8_t ***InflatedData, uint8_t ***DeFilteredData, size_t Line) {
+        uint8_t PixelSize = Bits2Bytes(Options->iHDR->BitDepth, RoundingType_Down);
+        for (uint8_t StereoView = 0; StereoView < Options->sTER->StereoType; StereoView++) {
+            for (uint32_t Width = 0; Width < Options->iHDR->Width; Width++) {
+                for (size_t Byte = 1; Byte < Bits2Bytes(Options->iHDR->BitDepth, RoundingType_Down); Byte++) {
                     uint8_t Average = floor((InflatedData[StereoView][Line][Byte - (PixelSize)] + InflatedData[StereoView][Line - 1][Byte]) / 2);
                     DeFilteredData[StereoView][Line][Byte - 1] = InflatedData[StereoView][Line][Byte] + Average;
                 }
@@ -426,12 +426,12 @@ extern "C" {
         }
     }
 
-    void PNGDecodePaethFilter(PNGOptions *Dec, uint8_t ***InflatedData, uint8_t ***DeFilteredData, size_t Line) {
+    void PNGDecodePaethFilter(PNGOptions *Options, uint8_t ***InflatedData, uint8_t ***DeFilteredData, size_t Line) {
         // Filtering is applied to bytes, not pixels
-        uint8_t PixelSize = Bits2Bytes(Dec->iHDR->BitDepth, RoundingType_Down);
-        for (uint8_t StereoView = 0; StereoView < Dec->sTER->StereoType; StereoView++) {
-            for (uint32_t Width = 0; Width < Dec->iHDR->Width; Width++) {
-                for (size_t Byte = 1; Byte < Bits2Bytes(Dec->iHDR->BitDepth, RoundingType_Down); Byte++) {
+        uint8_t PixelSize = Bits2Bytes(Options->iHDR->BitDepth, RoundingType_Down);
+        for (uint8_t StereoView = 0; StereoView < Options->sTER->StereoType; StereoView++) {
+            for (uint32_t Width = 0; Width < Options->iHDR->Width; Width++) {
+                for (size_t Byte = 1; Byte < Bits2Bytes(Options->iHDR->BitDepth, RoundingType_Down); Byte++) {
                     if (Line == 0) { // Assume top and top left = 0
                         DeFilteredData[StereoView][Line][Byte] = PaethPredictor(InflatedData[StereoView][Line][Byte], 0, 0);
                     } else {
@@ -452,28 +452,28 @@ extern "C" {
         return FilterType;
     }
 
-    void PNGDecodeFilteredImage(PNGOptions *Dec, uint8_t ***InflatedBuffer) {
+    void PNGDecodeFilteredImage(PNGOptions *Options, uint8_t ***InflatedBuffer) {
 
-        uint8_t ***DeFilteredData = calloc((Dec->iHDR->Height * Dec->iHDR->Width), Bits2Bytes(Dec->iHDR->BitDepth, RoundingType_Down));
+        uint8_t ***DeFilteredData = calloc((Options->iHDR->Height * Options->iHDR->Width), Bits2Bytes(Options->iHDR->BitDepth, RoundingType_Down));
 
-        for (uint8_t StereoView = 0; StereoView < PNGGetStereoscopicStatus(Dec); StereoView++) {
-            for (size_t Line = 0; Line < Dec->iHDR->Height; Line++) {
+        for (uint8_t StereoView = 0; StereoView < PNGGetStereoscopicStatus(Options); StereoView++) {
+            for (size_t Line = 0; Line < Options->iHDR->Height; Line++) {
                 PNGFilterTypes FilterType = ExtractLineFilterType(*DeFilteredData[Line]);
                 switch (FilterType) {
                     case PNGFilter_Unfiltered:
-                        PNGDecodeNonFilter(Dec, InflatedBuffer, DeFilteredData, Line);
+                        PNGDecodeNonFilter(Options, InflatedBuffer, DeFilteredData, Line);
                         break;
                     case PNGFilter_Sub:
-                        PNGDecodeSubFilter(Dec, InflatedBuffer, DeFilteredData, Line);
+                        PNGDecodeSubFilter(Options, InflatedBuffer, DeFilteredData, Line);
                         break;
                     case PNGFilter_Up:
-                        PNGDecodeUpFilter(Dec, InflatedBuffer, DeFilteredData, Line);
+                        PNGDecodeUpFilter(Options, InflatedBuffer, DeFilteredData, Line);
                         break;
                     case PNGFilter_Average:
-                        PNGDecodeAverageFilter(Dec, InflatedBuffer, DeFilteredData, Line);
+                        PNGDecodeAverageFilter(Options, InflatedBuffer, DeFilteredData, Line);
                         break;
                     case PNGFilter_Paeth:
-                        PNGDecodePaethFilter(Dec, InflatedBuffer, DeFilteredData, Line);
+                        PNGDecodePaethFilter(Options, InflatedBuffer, DeFilteredData, Line);
                         break;
                     default:
                         Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Filter type: %d is invalid"), FilterType);
@@ -491,7 +491,7 @@ extern "C" {
 
     };
 
-    void DecodeDEFLATEBlock(PNGOptions *Dec, BitBuffer *DEFLATEBlock, BitBuffer *DecodedBlock) { // ByteOrder_LSByteIsNearest
+    void DecodeDEFLATEBlock(PNGOptions *Options, BitBuffer *DEFLATEBlock, BitBuffer *DecodedBlock) { // ByteOrder_LSByteIsNearest
         // Huffman codes are written MSBit first, everything else is writen LSBit first
 
         // DEFLATE Block header:
@@ -507,7 +507,7 @@ extern "C" {
         }
     }
 
-    void DecodeIFDATChunk(PNGOptions *Dec, BitBuffer *DAT2Decode, BitBuffer *DecodedDAT, uint64_t DATSize) { // Decodes both fDAT and IDAT chunks
+    void DecodeIFDATChunk(PNGOptions *Options, BitBuffer *DAT2Decode, BitBuffer *DecodedDAT, uint64_t DATSize) { // Decodes both fDAT and IDAT chunks
                                                                                                             // well lets go ahead and allocate a DAT block the size of DATSize
         BitBuffer_Init(DATSize);
         // Now we need to go ahead and parse the ZLIB Header.
@@ -533,7 +533,7 @@ extern "C" {
 
     }
 
-    void DecodePNGData(PNGOptions *Dec, BitBuffer *BitB) {
+    void DecodePNGData(PNGOptions *Options, BitBuffer *BitB) {
         // read the iDAT/fDAT chunk header, then do the other stuff.
         while (BitBuffer_GetSize(BitB) > 0) { // 12 is the start of IEND
             uint32_t ChunkSize   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
@@ -541,54 +541,54 @@ extern "C" {
 
 
             if (ChunkID == PNGMarker_acTL) {
-                PNG_Read_ACTL(Dec, BitB, ChunkSize);
+                PNG_Read_ACTL(Options, BitB, ChunkSize);
             } else if (ChunkID == PNGMarker_bKGD) {
-                PNG_Read_BKGD(Dec, BitB, ChunkSize);
+                PNG_Read_BKGD(Options, BitB, ChunkSize);
             } else if (ChunkID == PNGMarker_cHRM) {
-                PNG_Read_CHRM(Dec, BitB, ChunkSize);
+                PNG_Read_CHRM(Options, BitB, ChunkSize);
             } else if (ChunkID == PNGMarker_fcTL) {
-                PNG_Read_FCTL(Dec, BitB, ChunkSize);
+                PNG_Read_FCTL(Options, BitB, ChunkSize);
             } else if (ChunkID == PNGMarker_gAMA) {
-                PNG_Read_GAMA(Dec, BitB, ChunkSize);
+                PNG_Read_GAMA(Options, BitB, ChunkSize);
             } else if (ChunkID == PNGMarker_hIST) {
-                PNG_Read_HIST(Dec, BitB, ChunkSize);
+                PNG_Read_HIST(Options, BitB, ChunkSize);
             } else if (ChunkID == PNGMarker_iCCP) {
-                PNG_Read_OFFS(Dec, BitB, ChunkSize);
+                PNG_Read_OFFS(Options, BitB, ChunkSize);
             } else if (ChunkID == PNGMarker_iDAT || ChunkID == PNGMarker_fDAT) {
-                DecodeIFDATChunk(Dec, BitB, NULL, ChunkSize);
+                DecodeIFDATChunk(Options, BitB, NULL, ChunkSize);
             } else if (ChunkID == PNGMarker_iHDR) {
-                PNG_Read_IHDR(Dec, BitB, ChunkSize);
+                PNG_Read_IHDR(Options, BitB, ChunkSize);
             } else if (ChunkID == PNGMarker_iTXt) {
-                PNG_Read_ITXT(Dec, BitB, ChunkSize);
+                PNG_Read_ITXT(Options, BitB, ChunkSize);
             } else if (ChunkID == PNGMarker_oFFs) {
-                PNG_Read_OFFS(Dec, BitB, ChunkSize);
+                PNG_Read_OFFS(Options, BitB, ChunkSize);
             } else if (ChunkID == PNGMarker_pCAL) {
-                PNG_Read_PCAL(Dec, BitB, ChunkSize);
+                PNG_Read_PCAL(Options, BitB, ChunkSize);
             } else if (ChunkID == PNGMarker_pHYs) {
-                PNG_Read_PHYS(Dec, BitB, ChunkSize);
+                PNG_Read_PHYS(Options, BitB, ChunkSize);
             } else if (ChunkID == PNGMarker_PLTE) {
-                PNG_Read_PLTE(Dec, BitB, ChunkSize);
+                PNG_Read_PLTE(Options, BitB, ChunkSize);
             } else if (ChunkID == PNGMarker_sBIT) {
-                PNG_Read_SBIT(Dec, BitB, ChunkSize);
+                PNG_Read_SBIT(Options, BitB, ChunkSize);
             } else if (ChunkID == PNGMarker_sRGB) {
-                PNG_Read_SRGB(Dec, BitB, ChunkSize);
+                PNG_Read_SRGB(Options, BitB, ChunkSize);
             } else if (ChunkID == PNGMarker_sTER) {
-                PNG_Read_STER(Dec, BitB, ChunkSize);
+                PNG_Read_STER(Options, BitB, ChunkSize);
             } else if (ChunkID == PNGMarker_tEXt) {
-                PNG_Read_TEXT(Dec, BitB, ChunkSize);
+                PNG_Read_TEXT(Options, BitB, ChunkSize);
             } else if (ChunkID == PNGMarker_zTXt) {
-                PNG_Read_ZTXT(Dec, BitB, ChunkSize);
+                PNG_Read_ZTXT(Options, BitB, ChunkSize);
             }
         }
     }
 
     // Let's do this library right, by adding attach and delete functions for the various chunks, and let's also have a fancy function that applies color profiles to the pixels.
     // that's kinda a lot of work tho...
-    uint16_t ***DecodePNGImage(PNGOptions *Dec, BitBuffer *BitB) {
+    uint16_t ***DecodePNGImage(PNGOptions *Options, BitBuffer *BitB) {
         return NULL;
     }
 
-    BitBuffer *DecodeAdam7(PNGOptions *Dec, BitBuffer *InterlacedImage) { // Returns the interlaced image
+    BitBuffer *DecodeAdam7(PNGOptions *Options, BitBuffer *InterlacedImage) { // Returns the interlaced image
         /*
          Ok, so to interlace an image, we need to loop over every pixel in an 8x8 block?
          */
@@ -1470,107 +1470,107 @@ extern "C" {
     // Hmm, for parsing chunks I should have basically a PNG muxer that pops out bit buffers with the data for each chunk...
     // So, we need to
 
-    void ParseIHDR(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) {
+    void ParseIHDR(DecodePNG *Options, BitBuffer *InputPNG, uint32_t ChunkSize) {
         /* When checking the CRC, you need to skip over the ChunkSize field, but include the ChunkID */
         uint32_t GeneratedCRC     = GenerateCRC32(InputPNG, ChunkSize);
-        Dec->iHDR->Width          = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        Dec->iHDR->Height         = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest,32);
-        Dec->iHDR->BitDepth       = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest,8);
-        Dec->iHDR->ColorType      = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest,8);
-        if (Dec->iHDR->ColorType == 1 || Dec->iHDR->ColorType == 5 || Dec->iHDR->ColorType >= 7) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Invalid color type: %d"), Dec->iHDR->ColorType);
+        Options->iHDR->Width          = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+        Options->iHDR->Height         = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest,32);
+        Options->iHDR->BitDepth       = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest,8);
+        Options->iHDR->ColorType      = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest,8);
+        if (Options->iHDR->ColorType == 1 || Options->iHDR->ColorType == 5 || Options->iHDR->ColorType >= 7) {
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Invalid color type: %d"), Options->iHDR->ColorType);
         }
-        Dec->iHDR->Compression    = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest,8);
-        Dec->iHDR->FilterMethod   = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest,8);
-        Dec->iHDR->IsInterlaced   = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest,8);
+        Options->iHDR->Compression    = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest,8);
+        Options->iHDR->FilterMethod   = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest,8);
+        Options->iHDR->IsInterlaced   = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest,8);
 
         uint32_t CRC              = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest,32);
         if (GeneratedCRC != CRC) {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("CRC Mismatch"));
         }
 
-        //VerifyCRC(Dec->iHDR, ChunkSize, 1, 1, CRC);
+        //VerifyCRC(Options->iHDR, ChunkSize, 1, 1, CRC);
     }
 
-    void ParsePLTE(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) { // Palette
-        if (Dec->iHDR->BitDepth > 8) { // INVALID
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Invalid bit depth %d and palette combination"), Dec->iHDR->BitDepth);
+    void ParsePLTE(DecodePNG *Options, BitBuffer *InputPNG, uint32_t ChunkSize) { // Palette
+        if (Options->iHDR->BitDepth > 8) { // INVALID
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Invalid bit depth %d and palette combination"), Options->iHDR->BitDepth);
             BitBuffer_Seek(InputPNG, Bytes2Bits(ChunkSize));
         } else {
 
-            if (Dec->iHDR->ColorType == PNG_PalettedRGB || Dec->iHDR->ColorType == PNG_RGB) {
-                Dec->PLTE->Palette = calloc(1, (3 * Dec->PLTE->NumEntries) * Bits2Bytes(Dec->iHDR->BitDepth, Yes));
-            } else if (Dec->iHDR->ColorType == PNG_RGBA) {
-                Dec->PLTE->Palette = calloc(1, (4 * Dec->PLTE->NumEntries) * Bits2Bytes(Dec->iHDR->BitDepth, Yes));
+            if (Options->iHDR->ColorType == PNG_PalettedRGB || Options->iHDR->ColorType == PNG_RGB) {
+                Options->PLTE->Palette = calloc(1, (3 * Options->PLTE->NumEntries) * Bits2Bytes(Options->iHDR->BitDepth, Yes));
+            } else if (Options->iHDR->ColorType == PNG_RGBA) {
+                Options->PLTE->Palette = calloc(1, (4 * Options->PLTE->NumEntries) * Bits2Bytes(Options->iHDR->BitDepth, Yes));
             }
 
 
-            for (uint8_t Channel = 0; Channel < ModernPNGChannelsPerColorType[Dec->iHDR->ColorType]; Channel++) {
+            for (uint8_t Channel = 0; Channel < ModernPNGChannelsPerColorType[Options->iHDR->ColorType]; Channel++) {
                 for (uint16_t PaletteEntry = 0; PaletteEntry < ChunkSize / 3; PaletteEntry++) {
-                    Dec->PLTE->Palette[Channel][PaletteEntry] = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, Dec->iHDR->BitDepth);
+                    Options->PLTE->Palette[Channel][PaletteEntry] = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, Options->iHDR->BitDepth);
                 }
             }
         }
     }
 
-    void ParseTRNS(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) { // Transparency
-        Dec->tRNS->NumEntries = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+    void ParseTRNS(DecodePNG *Options, BitBuffer *InputPNG, uint32_t ChunkSize) { // Transparency
+        Options->tRNS->NumEntries = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
         uint16_t **Entries    = NULL;
-        if (Dec->iHDR->ColorType == PNG_RGB) {
-            Entries = calloc(3, Bits2Bytes(Dec->iHDR->BitDepth, true) * sizeof(uint16_t));
-        } else if (Dec->iHDR->ColorType == PNG_RGBA) {
-            Entries = calloc(4, Bits2Bytes(Dec->iHDR->BitDepth, true) * sizeof(uint16_t));
-        } else if (Dec->iHDR->ColorType == PNG_Grayscale) {
-            Entries = calloc(1, Bits2Bytes(Dec->iHDR->BitDepth, true) * sizeof(uint16_t));
-        } else if (Dec->iHDR->ColorType == PNG_GrayAlpha) {
-            Entries = calloc(2, Bits2Bytes(Dec->iHDR->BitDepth, true) * sizeof(uint16_t));
+        if (Options->iHDR->ColorType == PNG_RGB) {
+            Entries = calloc(3, Bits2Bytes(Options->iHDR->BitDepth, true) * sizeof(uint16_t));
+        } else if (Options->iHDR->ColorType == PNG_RGBA) {
+            Entries = calloc(4, Bits2Bytes(Options->iHDR->BitDepth, true) * sizeof(uint16_t));
+        } else if (Options->iHDR->ColorType == PNG_Grayscale) {
+            Entries = calloc(1, Bits2Bytes(Options->iHDR->BitDepth, true) * sizeof(uint16_t));
+        } else if (Options->iHDR->ColorType == PNG_GrayAlpha) {
+            Entries = calloc(2, Bits2Bytes(Options->iHDR->BitDepth, true) * sizeof(uint16_t));
         }
         if (Entries == NULL) {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Failed to allocate enough memory for the TRNS Palette"));
         } else {
-            for (uint8_t Color = 0; Color < ModernPNGChannelsPerColorType[Dec->iHDR->ColorType]; Color++) {
-                Entries[Color]    = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, Bits2Bytes(Dec->iHDR->BitDepth, true));
+            for (uint8_t Color = 0; Color < ModernPNGChannelsPerColorType[Options->iHDR->ColorType]; Color++) {
+                Entries[Color]    = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, Bits2Bytes(Options->iHDR->BitDepth, true));
             }
-            //Dec->tRNS->Palette = Entries;
+            //Options->tRNS->Palette = Entries;
         }
     }
 
-    void ParseBKGD(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) { // Background
+    void ParseBKGD(DecodePNG *Options, BitBuffer *InputPNG, uint32_t ChunkSize) { // Background
         for (uint8_t Entry = 0; Entry < 3; Entry++) {
-            Dec->bkGD->BackgroundPaletteEntry[Entry] = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+            Options->bkGD->BackgroundPaletteEntry[Entry] = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
         }
     }
 
-    void ParseCHRM(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) { // Chromaticities
-        Dec->cHRM->WhitePointX = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        Dec->cHRM->WhitePointY = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        Dec->cHRM->RedX        = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        Dec->cHRM->RedY        = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        Dec->cHRM->GreenX      = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        Dec->cHRM->GreenY      = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        Dec->cHRM->BlueX       = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        Dec->cHRM->BlueY       = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+    void ParseCHRM(DecodePNG *Options, BitBuffer *InputPNG, uint32_t ChunkSize) { // Chromaticities
+        Options->cHRM->WhitePointX = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+        Options->cHRM->WhitePointY = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+        Options->cHRM->RedX        = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+        Options->cHRM->RedY        = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+        Options->cHRM->GreenX      = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+        Options->cHRM->GreenY      = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+        Options->cHRM->BlueX       = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+        Options->cHRM->BlueY       = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
     }
 
-    void ParseGAMA(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) { // Gamma
-        Dec->gAMA->Gamma = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+    void ParseGAMA(DecodePNG *Options, BitBuffer *InputPNG, uint32_t ChunkSize) { // Gamma
+        Options->gAMA->Gamma = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
     }
 
-    void ParseOFFS(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) { // Image Offset
-        Dec->oFFs->XOffset       = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        Dec->oFFs->YOffset       = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        Dec->oFFs->UnitSpecifier = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+    void ParseOFFS(DecodePNG *Options, BitBuffer *InputPNG, uint32_t ChunkSize) { // Image Offset
+        Options->oFFs->XOffset       = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+        Options->oFFs->YOffset       = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+        Options->oFFs->UnitSpecifier = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
     }
 
-    void ParsePHYS(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) { // Aspect ratio, Physical pixel size
-        Dec->pHYs->PixelsPerUnitXAxis = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        Dec->pHYs->PixelsPerUnitYAxis = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        Dec->pHYs->UnitSpecifier      = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+    void ParsePHYS(DecodePNG *Options, BitBuffer *InputPNG, uint32_t ChunkSize) { // Aspect ratio, Physical pixel size
+        Options->pHYs->PixelsPerUnitXAxis = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+        Options->pHYs->PixelsPerUnitYAxis = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+        Options->pHYs->UnitSpecifier      = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
     }
 
-    void ParseSCAL(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) { // Physical Scale
+    void ParseSCAL(DecodePNG *Options, BitBuffer *InputPNG, uint32_t ChunkSize) { // Physical Scale
                                                                               // Ok, so we need to take the size of the chunk into account.
-        Dec->sCAL->UnitSpecifier = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8); // 1 = Meter, 2 = Radian
+        Options->sCAL->UnitSpecifier = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8); // 1 = Meter, 2 = Radian
 
         uint32_t WidthStringSize  = 0;
         uint32_t HeightStringSize = 0;
@@ -1593,34 +1593,34 @@ extern "C" {
             HeightString[HeightCodePoint] = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
         }
 
-        Dec->sCAL->PixelWidth  = UTF8_String2Decimal(WidthString);
-        Dec->sCAL->PixelHeight = UTF8_String2Decimal(HeightString);
+        Options->sCAL->PixelWidth  = UTF8_String2Decimal(WidthString);
+        Options->sCAL->PixelHeight = UTF8_String2Decimal(HeightString);
     }
 
-    void ParsePCAL(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) {
+    void ParsePCAL(DecodePNG *Options, BitBuffer *InputPNG, uint32_t ChunkSize) {
         char CalibrationName[80];
         while (BitBuffer_PeekBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8) != 0x0) {
             for (uint8_t Byte = 0; Byte < 80; Byte++) {
                 CalibrationName[Byte] = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
             }
         }
-        Dec->pCAL->CalibrationName     = CalibrationName;
-        Dec->pCAL->CalibrationNameSize = UTF8_GetStringSizeInCodePoints(Dec->pCAL->CalibrationName);
+        Options->pCAL->CalibrationName     = CalibrationName;
+        Options->pCAL->CalibrationNameSize = UTF8_GetStringSizeInCodePoints(Options->pCAL->CalibrationName);
     }
 
-    void ParseSBIT(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) { // Significant bits per sample
-        Dec->sBIT->Red                   = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
-        Dec->sBIT->Green                 = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
-        Dec->sBIT->Blue                  = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+    void ParseSBIT(DecodePNG *Options, BitBuffer *InputPNG, uint32_t ChunkSize) { // Significant bits per sample
+        Options->sBIT->Red                   = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+        Options->sBIT->Green                 = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+        Options->sBIT->Blue                  = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
     }
 
-    void ParseSRGB(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) {
-        Dec->sRGB->RenderingIntent       = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+    void ParseSRGB(DecodePNG *Options, BitBuffer *InputPNG, uint32_t ChunkSize) {
+        Options->sRGB->RenderingIntent       = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
     }
 
-    void ParseSTER(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) {
-        Dec->PNGIs3D                     = true;
-        Dec->sTER->StereoType            = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+    void ParseSTER(DecodePNG *Options, BitBuffer *InputPNG, uint32_t ChunkSize) {
+        Options->PNGIs3D                     = true;
+        Options->sTER->StereoType            = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
 
         // No matter what StereoType is used, both images are arranged side by side, and the left edge is aligned on a boundary of the 8th column in case interlacing is used.
         // The two sub images must have the same dimensions after padding is removed.
@@ -1634,7 +1634,7 @@ extern "C" {
         //
     }
 
-    void ParseTEXt(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) { // Uncompressed, ASCII tEXt
+    void ParseTEXt(DecodePNG *Options, BitBuffer *InputPNG, uint32_t ChunkSize) { // Uncompressed, ASCII tEXt
                                                                               // Read until you hit a NULL for the name string, then subtract the size of the previous string from the total length to get the number of bytes for the second string
         uint8_t  KeywordSize = 0UL;
         uint8_t  CurrentByte = 0; // 1 is BULLshit
@@ -1646,7 +1646,7 @@ extern "C" {
 
         uint32_t CommentSize = ChunkSize - KeywordSize;
 
-        Dec->NumTextChunks  += 1;
+        Options->NumTextChunks  += 1;
 
 
 
@@ -1673,53 +1673,53 @@ extern "C" {
 
     }
 
-    void ParseZTXt(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) { // Compressed text
+    void ParseZTXt(DecodePNG *Options, BitBuffer *InputPNG, uint32_t ChunkSize) { // Compressed text
     }
 
-    void ParseITXt(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) { // International Text
+    void ParseITXt(DecodePNG *Options, BitBuffer *InputPNG, uint32_t ChunkSize) { // International Text
     }
 
-    void ParseTIME(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) {
-        Dec->tIMe->Year                  = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16);
-        Dec->tIMe->Month                 = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
-        Dec->tIMe->Day                   = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
-        Dec->tIMe->Hour                  = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
-        Dec->tIMe->Minute                = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
-        Dec->tIMe->Second                = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+    void ParseTIME(DecodePNG *Options, BitBuffer *InputPNG, uint32_t ChunkSize) {
+        Options->tIMe->Year                  = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16);
+        Options->tIMe->Month                 = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+        Options->tIMe->Day                   = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+        Options->tIMe->Hour                  = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+        Options->tIMe->Minute                = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+        Options->tIMe->Second                = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
     }
 
     /* APNG */
-    void ParseACTL(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) { // Animation control, part of APNG
-        Dec->PNGIsAnimated               = true;
-        Dec->acTL->NumFrames             = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        Dec->acTL->TimesToLoop           = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32); // If 0, loop forever.
+    void ParseACTL(DecodePNG *Options, BitBuffer *InputPNG, uint32_t ChunkSize) { // Animation control, part of APNG
+        Options->PNGIsAnimated               = true;
+        Options->acTL->NumFrames             = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+        Options->acTL->TimesToLoop           = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32); // If 0, loop forever.
     }
 
-    void ParseFCTL(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) { // Frame Control, part of APNG
-        Dec->fcTL->FrameNum              = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        Dec->fcTL->Width                 = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        Dec->fcTL->Height                = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        Dec->fcTL->XOffset               = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        Dec->fcTL->YOffset               = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        Dec->fcTL->FrameDelayNumerator   = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16);
-        Dec->fcTL->FrameDelayDenominator = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16);
-        Dec->fcTL->DisposeMethod         = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
-        Dec->fcTL->BlendMethod           = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+    void ParseFCTL(DecodePNG *Options, BitBuffer *InputPNG, uint32_t ChunkSize) { // Frame Control, part of APNG
+        Options->fcTL->FrameNum              = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+        Options->fcTL->Width                 = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+        Options->fcTL->Height                = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+        Options->fcTL->XOffset               = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+        Options->fcTL->YOffset               = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+        Options->fcTL->FrameDelayNumerator   = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16);
+        Options->fcTL->FrameDelayDenominator = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16);
+        Options->fcTL->DisposeMethod         = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+        Options->fcTL->BlendMethod           = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
     }
     /* End APNG */
 
-    void ParseHIST(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) {
+    void ParseHIST(DecodePNG *Options, BitBuffer *InputPNG, uint32_t ChunkSize) {
     }
 
-    void ParseICCP(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) {
+    void ParseICCP(DecodePNG *Options, BitBuffer *InputPNG, uint32_t ChunkSize) {
         uint8_t ProfileNameSize = 0;
         ProfileNameSize = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
     }
 
-    void ParseSPLT(DecodePNG *Dec, BitBuffer *InputPNG, uint32_t ChunkSize) {
+    void ParseSPLT(DecodePNG *Options, BitBuffer *InputPNG, uint32_t ChunkSize) {
     }
 
-    uint8_t ParsePNGMetadata(BitBuffer *InputPNG, DecodePNG *Dec) {
+    uint8_t ParsePNGMetadata(BitBuffer *InputPNG, DecodePNG *Options) {
         uint64_t FileMagic    = BitBuffer_ReadBits(InputPNG, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 64);
 
         if (FileMagic == PNGMagic) {
@@ -1734,70 +1734,70 @@ extern "C" {
             VerifyCRC32(InputPNG, ChunkSize);
 
             if (*ChunkID == iHDRMarker) {        // iHDR
-                ParseIHDR(Dec, InputPNG, ChunkSize);
+                ParseIHDR(Options, InputPNG, ChunkSize);
             } else if (*ChunkID == PLTEMarker) { // PLTE
-                Dec->PLTEExists = true;
-                ParsePLTE(Dec, InputPNG, ChunkSize);
+                Options->PLTEExists = true;
+                ParsePLTE(Options, InputPNG, ChunkSize);
             } else if (*ChunkID == bKGDMarker) { // bKGD
-                Dec->bkGDExists = true;
-                ParseBKGD(Dec, InputPNG, ChunkSize);
+                Options->bkGDExists = true;
+                ParseBKGD(Options, InputPNG, ChunkSize);
             } else if (*ChunkID == cHRMMarker) { // cHRM
-                Dec->cHRMExists = true;
-                ParseCHRM(Dec, InputPNG, ChunkSize);
+                Options->cHRMExists = true;
+                ParseCHRM(Options, InputPNG, ChunkSize);
             } else if (*ChunkID == gAMAMarker) { // gAMA
-                Dec->gAMAExists = true;
-                ParseGAMA(Dec, InputPNG, ChunkSize);
+                Options->gAMAExists = true;
+                ParseGAMA(Options, InputPNG, ChunkSize);
             } else if (*ChunkID == oFFsMarker) { // oFFs
-                Dec->oFFsExists = true;
-                ParseOFFS(Dec, InputPNG, ChunkSize);
+                Options->oFFsExists = true;
+                ParseOFFS(Options, InputPNG, ChunkSize);
             } else if (*ChunkID == pHYsMarker) { // pHYs
-                Dec->pHYsExists = true;
-                ParsePHYS(Dec, InputPNG, ChunkSize);
+                Options->pHYsExists = true;
+                ParsePHYS(Options, InputPNG, ChunkSize);
             } else if (*ChunkID == sBITMarker) { // sBIT
-                Dec->sBITExists = true;
-                ParseSBIT(Dec, InputPNG, ChunkSize);
+                Options->sBITExists = true;
+                ParseSBIT(Options, InputPNG, ChunkSize);
             } else if (*ChunkID == sCALMarker) { // sCAL
-                Dec->sCALExists = true;
-                ParseSCAL(Dec, InputPNG, ChunkSize);
+                Options->sCALExists = true;
+                ParseSCAL(Options, InputPNG, ChunkSize);
             } else if (*ChunkID == sRGBMarker) { // sRGB
-                Dec->sRGBExists = true;
-                ParseSRGB(Dec, InputPNG, ChunkSize);
+                Options->sRGBExists = true;
+                ParseSRGB(Options, InputPNG, ChunkSize);
             } else if (*ChunkID == sTERMarker) { // sTER
-                Dec->sTERExists = true;
-                ParseSTER(Dec, InputPNG, ChunkSize);
+                Options->sTERExists = true;
+                ParseSTER(Options, InputPNG, ChunkSize);
             } else if (*ChunkID == tEXtMarker) { // tEXt
-                Dec->TextExists = true;
-                ParseTEXt(Dec, InputPNG, ChunkSize);
+                Options->TextExists = true;
+                ParseTEXt(Options, InputPNG, ChunkSize);
             } else if (*ChunkID == zTXtMarker) { // zTXt
-                Dec->TextExists = true;
-                ParseZTXt(Dec, InputPNG, ChunkSize);
+                Options->TextExists = true;
+                ParseZTXt(Options, InputPNG, ChunkSize);
             } else if (*ChunkID == iTXtMarker) { // iTXt
-                Dec->TextExists = true;
-                ParseITXt(Dec, InputPNG, ChunkSize);
+                Options->TextExists = true;
+                ParseITXt(Options, InputPNG, ChunkSize);
             } else if (*ChunkID == tIMEMarker) { // tIME
-                Dec->tIMEExists = true;
-                ParseTIME(Dec, InputPNG, ChunkSize);
+                Options->tIMEExists = true;
+                ParseTIME(Options, InputPNG, ChunkSize);
             } else if (*ChunkID == tRNSMarker) { // tRNS
-                Dec->tRNSExists = true;
-                ParseTRNS(Dec, InputPNG, ChunkSize);
-            } else if (*ChunkID == hISTMarker && Dec->PLTEExists) { // hIST
-                Dec->hISTExists = true;
-                ParseHIST(Dec, InputPNG, ChunkSize);
+                Options->tRNSExists = true;
+                ParseTRNS(Options, InputPNG, ChunkSize);
+            } else if (*ChunkID == hISTMarker && Options->PLTEExists) { // hIST
+                Options->hISTExists = true;
+                ParseHIST(Options, InputPNG, ChunkSize);
             } else if (*ChunkID == iCCPMarker) { // iCCP
-                Dec->iCCPExists = true;
-                ParseICCP(Dec, InputPNG, ChunkSize);
+                Options->iCCPExists = true;
+                ParseICCP(Options, InputPNG, ChunkSize);
             } else if (*ChunkID == pCALMarker) { // pCAL
-                Dec->pCALExists = true;
-                ParsePCAL(Dec, InputPNG, ChunkSize);
+                Options->pCALExists = true;
+                ParsePCAL(Options, InputPNG, ChunkSize);
             } else if (*ChunkID == sPLTMarker) { // sPLT
-                Dec->sPLTExists = true;
-                ParseSPLT(Dec, InputPNG, ChunkSize);
+                Options->sPLTExists = true;
+                ParseSPLT(Options, InputPNG, ChunkSize);
             } else if (*ChunkID == acTLMarker) { // acTL
-                Dec->acTLExists = true;
-                ParseACTL(Dec, InputPNG, ChunkSize);
+                Options->acTLExists = true;
+                ParseACTL(Options, InputPNG, ChunkSize);
             } else if (*ChunkID == fcTLMarker) { // fcTL
-                Dec->fcTLExists = true;
-                ParseFCTL(Dec, InputPNG, ChunkSize);
+                Options->fcTLExists = true;
+                ParseFCTL(Options, InputPNG, ChunkSize);
             }
             free(ChunkID);
         } else {

@@ -1,5 +1,6 @@
 #include "../../include/CodecIO/AVCCodec.h"
 
+#include "../../../../Dependencies/FoundationIO/Library/include/AssertIO.h"
 #include "../../../../Dependencies/FoundationIO/Library/include/MathIO.h"
 #include "../../../../Dependencies/FoundationIO/Library/include/BufferIO.h"
 #include "../../../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h"
@@ -8,12 +9,29 @@
 extern "C" {
 #endif
 
-    int64_t Min(int64_t X, int64_t Y) {
-        return X <= Y ? X : Y;
+    AVCOptions *AVCOptions_Init(void) {
+        AVCOptions *Options           = calloc(1, sizeof(AVCOptions));
+        AssertIO(Options != NULL);
+        Options->NAL                  = calloc(1, sizeof(NALHeader));
+        Options->SPS                  = calloc(1, sizeof(SequenceParameterSet));
+        Options->PPS                  = calloc(1, sizeof(PictureParameterSet));
+        Options->VUI                  = calloc(1, sizeof(VideoUsabilityInformation));
+        Options->HRD                  = calloc(1, sizeof(HypotheticalReferenceDecoder));
+        Options->SEI                  = calloc(1, sizeof(SupplementalEnhancementInfo));
+        Options->Slice                = calloc(1, sizeof(Slice));
+        Options->SVC                  = calloc(1, sizeof(ScalableVideoCoding));
+        Options->DPS                  = calloc(1, sizeof(DepthParameterSet));
+        Options->MacroBlock           = calloc(1, sizeof(MacroBlock));
+        return Options;
     }
 
-    int64_t Max(int64_t X, int64_t Y) {
-        return X >= Y ? X : Y;
+    bool AreAllViewsPaired(AVCOptions *Options) {
+        AssertIO(Options != NULL);
+        bool AllViewsPairedFlag = false;
+        for (uint8_t View = 0; View < Options->SPS->ViewCount; View++) {
+            AllViewsPairedFlag = (1 && Options->SPS->DepthViewPresent[View] && Options->SPS->TextureViewPresent[View]);
+        }
+        return AllViewsPairedFlag;
     }
 
     int64_t InverseRasterScan(int64_t A, int64_t B, int64_t C, int64_t D, int64_t E) {
@@ -47,7 +65,7 @@ extern "C" {
     }
 
     int64_t Median(double X, double Y, double Z) {
-        return X + Y + Z - Min(X, Min(Y, Z)) - Max(X, Max(Y, Z));
+        return X + Y + Z - Minimum(X, Minimum(Y, Z)) - Maximum(X, Maximum(Y, Z));
     }
 
     int8_t Sign(double X) {
@@ -127,8 +145,8 @@ extern "C" {
     }
     
     bool IsThereMoreDataInThisNAL() { // more_rbsp_data
-        if (Enc == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to EncodeAVC is NULL"));
+        if (Options == NULL) {
+            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to AVCOptions is NULL"));
         } else {
             /*
             if (there is no more data) {
@@ -146,8 +164,21 @@ extern "C" {
         return 0;
     }
     
-    size_t GetSizeOfNALUnit(AVCOptions *Dec, BitBuffer *BitB) {
+    size_t GetSizeOfNALUnit(AVCOptions *Options, BitBuffer *BitB) {
         
+    }
+
+    void AVCOptions_Deinit(AVCOptions *Options) {
+        free(Options->NAL);
+        free(Options->SPS);
+        free(Options->PPS);
+        free(Options->VUI);
+        free(Options->HRD);
+        free(Options->SEI);
+        free(Options->Slice);
+        free(Options->SVC);
+        free(Options->DPS);
+        free(Options->MacroBlock);
     }
     
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)

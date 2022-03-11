@@ -572,7 +572,7 @@ extern "C" {
         uint32_t     FirstMacroBlockInSlice;                       // first_mb_in_slice
         uint32_t     MacroBlocksInSlice;                           // num_mbs_in_slice_minus1
         uint64_t     ScaledRefLayerPicHeightInSamplesL;            // ScaledRefLayerPicHeightInSamplesL
-        uint64_t     LongTermPicNum;                               // long_term_pic_num, Min( MaxDpbMbs / ( PicWidthInMbs * FrameHeightInMbs ), 16 ) + 1
+        uint64_t     LongTermPicNum;                               // long_term_pic_num, Minimum MaxDpbMbs / ( PicWidthInMbs * FrameHeightInMbs ), 16 ) + 1
         uint64_t     CurrentMacroBlockAddress;                     // CurrMbAddr
         uint64_t     SliceGroupChangeCycle;                        // slice_group_change_cycle
         uint64_t     SliceGroupChangeRate;                         // slice_group_change_rate
@@ -1151,49 +1151,28 @@ extern "C" {
         uint8_t   ***PDIInitDelayNonAnchor;                        // pdi_init_delay_non_anchor_minus2_l0, pdi_init_delay_non_anchor_minus2_l1
     } SupplementalEnhancementInfo;
 
-    typedef struct AVCEncoder {
-        bool                          EncodeInterlaced;
-        bool                          EncodeLosslessly;
-        uint64_t                      Bitrate;
-        uint8_t                       SubsampleType;
-        uint8_t                       ProfileMajor;
-        uint8_t                       ProfileMinor;
-        uint64_t                      FrameRateNumerator;
-        uint64_t                      FrameRateDenominator;
-
-        NALHeader                    *NAL;
-        SequenceParameterSet         *SPS;
-        PictureParameterSet          *PPS;
-        VideoUsabilityInformation    *VUI;
-        HypotheticalReferenceDecoder *HRD;
-        SupplementalEnhancementInfo  *SEI;
-        ScalableVideoCoding          *SVC;
-        Slice                        *Slice;
-        DepthParameterSet            *DPS;
-        MacroBlock                   *MacroBlock;
-    } EncodeAVC;
-
-    typedef struct AVCDecoder {
+    typedef struct AVCOptions {
         bool                          EncodedInterlaced;
         bool                          EncodedLosslessly;
+        DepthParameterSet            *DPS;
+        HypotheticalReferenceDecoder *HRD;
+        MacroBlock                   *MacroBlock;
+        NALHeader                    *NAL;
+        PictureParameterSet          *PPS;
+        ScalableVideoCoding          *SVC;
+        SequenceParameterSet         *SPS;
+        Slice                        *Slice;
+        SupplementalEnhancementInfo  *SEI;
         uint8_t                       ProfileMajor;
         uint8_t                       ProfileMinor;
-        uint64_t                      FrameRateNumerator;
-        uint64_t                      FrameRateDenominator;
-
-        NALHeader                    *NAL;
-        SequenceParameterSet         *SPS;
-        PictureParameterSet          *PPS;
-        VideoUsabilityInformation    *VUI;
-        HypotheticalReferenceDecoder *HRD;
-        SupplementalEnhancementInfo  *SEI;
-        ScalableVideoCoding          *SVC;
-        Slice                        *Slice;
-        DepthParameterSet            *DPS;
-        MacroBlock                   *MacroBlock;
-        uint64_t                   ***DisparityScale;
+        uint8_t                       SubsampleType;
         uint64_t                   ***DisparityOffset;
-    } DecodeAVC;
+        uint64_t                   ***DisparityScale;
+        uint64_t                      Bitrate;
+        uint64_t                      FrameRateDenominator;
+        uint64_t                      FrameRateNumerator;
+        VideoUsabilityInformation    *VUI;
+    } AVCOptions;
 
     static const int8_t ScalingList4x4[16] = {
         0, 0, 0, 0, 0, 0, 0, 0,
@@ -1363,6 +1342,12 @@ extern "C" {
         12, 15, 7, 11, 13, 14, 6,  9
     };
 
+    AVCOptions *AVCOptions_Init(void);
+
+    bool AreAllViewsPaired(AVCOptions *Options);
+
+    void AVCOptions_Deinit(AVCOptions *Options);
+
 #ifdef OVIA_CodecIO_AVC
     extern const CodecIO_ImageChannelConfig AVCChannelConfig;
 
@@ -1453,9 +1438,9 @@ extern "C" {
     };
 
 #if defined(OVIA_CodecIO_Encode)
-    extern const CodecIO_Encoder AVCEncoder;
+    extern const CodecIO_Encoder AVCOptions;
 
-    const CodecIO_Encoder AVCEncoder = {
+    const CodecIO_Encoder AVCOptions = {
         .Function_Initalize   = AVCOptions_Init,
         .Function_Parse       = AVC_Parse,
         .Function_Media       = AVC_Extract,
@@ -1464,9 +1449,9 @@ extern "C" {
 #endif /* OVIA_CodecIO_Encode */
 
 #if defined(OVIA_CodecIO_Decode)
-    extern const CodecIO_Decoder AVCDecoder;
+    extern const CodecIO_Decoder AVCOptions;
 
-    const CodecIO_Decoder AVCDecoder = {
+    const CodecIO_Decoder AVCOptions = {
         .Function_Initalize   = AVCOptions_Init,
         .Function_Parse       = AVC_Parse,
         .Function_Media       = AVC_Compose,

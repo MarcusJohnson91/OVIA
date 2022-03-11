@@ -17,7 +17,7 @@
 extern "C" {
 #endif
 
-    extern enum TSPIDTable {
+    typedef enum TSPIDTable {
         ProgramAssociationTable         =    0, // Program association table
         ConditionalAccesTable           =    1, // Conditional access table
         TransportStreamDescriptionTable =    2, // Transport stream description table
@@ -25,14 +25,14 @@ extern "C" {
         LastReserved                    = 8191,
     } PIDTable;
 
-    extern enum TSAdaptationFieldTable {
+    typedef enum TSAdaptationFieldTable {
         Reserved                        =    0,
         PayloadOnly                     =    1,
         AdaptationFieldOnly             =    2,
         AdaptationThenPayload           =    3,
     } AdaptationFieldTable;
 
-    extern enum TSStreamIDTypes {
+    typedef enum TSStreamIDTypes {
         ProgramStreamMap                =  188,
         PrivateStream1                  =  189,
         PaddingStream                   =  190,
@@ -57,7 +57,7 @@ extern "C" {
         ProgramStreamFolder             =  255,
     } TSStreamIDTypes;
 
-    extern enum TSTrickModeTypes {
+    typedef enum TSTrickModeTypes {
         FastForward = 0,
         SlowMotion  = 1,
         FreezeFrame = 2,
@@ -65,13 +65,13 @@ extern "C" {
         SlowRewind  = 4,
     } TSTrickModeTypes;
 
-    extern enum TSFieldID {
+    typedef enum TSFieldID {
         TopFieldOnly    = 0,
         BottomFieldOnly = 1,
         DisplayFullPic  = 2,
     } TSFieldID;
 
-    extern enum CoefficentSelection {
+    typedef enum CoefficentSelection {
         OnlyDCCoeffsAreNonZero     = 0,
         OnlyFirst3CoeffsAreNonZero = 1,
         OnlyFirst6CoeffsAreNonZero = 2,
