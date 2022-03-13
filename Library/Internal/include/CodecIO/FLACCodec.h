@@ -8,8 +8,8 @@
 
 #pragma once
 
-#ifndef OVIA_CodecIO_FLACCodec_h
-#define OVIA_CodecIO_FLACCodec_h
+#ifndef OVIA_CodecIO_FLACCodec_H
+#define OVIA_CodecIO_FLACCodec_H
 
 #include "../../../OVIA/include/CodecIO.h"
 
@@ -348,4 +348,4 @@ extern "C" {
 }
 #endif
 
-#endif /* OVIA_CodecIO_FLACCodec_h */
+#endif /* OVIA_CodecIO_FLACCodec_H */

@@ -8,8 +8,8 @@
 
 #pragma once
 
-#ifndef OVIA_EntropyIO_Huffman_h
-#define OVIA_EntropyIO_Huffman_h
+#ifndef OVIA_EntropyIO_Huffman_H
+#define OVIA_EntropyIO_Huffman_H
 
 #include "../../../OVIA/include/EntropyIO.h"
 
@@ -75,4 +75,4 @@ extern "C" {
 }
 #endif
 
-#endif /* OVIA_EntropyIO_Huffman_h */
+#endif /* OVIA_EntropyIO_Huffman_H */

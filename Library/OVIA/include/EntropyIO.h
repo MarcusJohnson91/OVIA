@@ -8,8 +8,8 @@
 
 #pragma once
 
-#ifndef OVIA_EntropyIO_h
-#define OVIA_EntropyIO_h
+#ifndef OVIA_EntropyIO_H
+#define OVIA_EntropyIO_H
 
 #include "OVIATypes.h"
 #include "MediaIO.h"
@@ -56,4 +56,4 @@ extern "C" {
 }
 #endif
 
-#endif /* OVIA_EntropyIO_h */
+#endif /* OVIA_EntropyIO_H */

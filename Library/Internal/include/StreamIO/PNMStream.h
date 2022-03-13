@@ -8,8 +8,8 @@
 
 #pragma once
 
-#ifndef OVIA_StreamIO_PNMStream_h
-#define OVIA_StreamIO_PNMStream_h
+#ifndef OVIA_StreamIO_PNMStream_H
+#define OVIA_StreamIO_PNMStream_H
 
 #include "../../../OVIA/include/StreamIO.h"
 
@@ -188,5 +188,5 @@ extern "C" {
 }
 #endif
 
-#endif /* OVIA_StreamIO_PNMStream_h */
+#endif /* OVIA_StreamIO_PNMStream_H */
 

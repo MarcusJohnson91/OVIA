@@ -8,8 +8,8 @@
 
 #pragma once
 
-#ifndef OVIA_CodecIO_PNGCodec_h
-#define OVIA_CodecIO_PNGCodec_h
+#ifndef OVIA_CodecIO_PNGCodec_H
+#define OVIA_CodecIO_PNGCodec_H
 
 #include "../../../OVIA/include/CodecIO.h"
 
@@ -444,4 +444,4 @@ extern "C" {
 }
 #endif
 
-#endif /* OVIA_CodecIO_PNGCodec_h */
+#endif /* OVIA_CodecIO_PNGCodec_H */

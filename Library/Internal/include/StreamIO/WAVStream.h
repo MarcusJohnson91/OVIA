@@ -8,8 +8,8 @@
 
 #pragma once
 
-#ifndef OVIA_StreamIO_WAVStream_h
-#define OVIA_StreamIO_WAVStream_h
+#ifndef OVIA_StreamIO_WAVStream_H
+#define OVIA_StreamIO_WAVStream_H
 
 #include "../../../OVIA/include/StreamIO.h"
 
@@ -309,4 +309,4 @@ extern "C" {
 }
 #endif
 
-#endif /* OVIA_StreamIO_WAVStream_h */
+#endif /* OVIA_StreamIO_WAVStream_H */

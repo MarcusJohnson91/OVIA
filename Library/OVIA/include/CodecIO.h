@@ -8,8 +8,8 @@
 
 #pragma once
 
-#ifndef OVIA_CodecIO_h
-#define OVIA_CodecIO_h
+#ifndef OVIA_CodecIO_H
+#define OVIA_CodecIO_H
 
 #include "OVIATypes.h"
 #include "MediaIO.h"
@@ -143,4 +143,4 @@ _Redefine CodecIO_Internal_DecoderList CodecStruct
 }
 #endif
 
-#endif /* OVIA_CodecIO_h */
+#endif /* OVIA_CodecIO_H */

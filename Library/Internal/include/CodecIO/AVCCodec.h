@@ -9,8 +9,8 @@
 
 #pragma once
 
-#ifndef OVIA_CodecIO_AVCCodec_h
-#define OVIA_CodecIO_AVCCodec_h
+#ifndef OVIA_CodecIO_AVCCodec_H
+#define OVIA_CodecIO_AVCCodec_H
 
 #include "../../../OVIA/include/CodecIO.h"
 
@@ -1465,4 +1465,4 @@ extern "C" {
 }
 #endif
 
-#endif /* OVIA_CodecIO_AVCCodec_h */
+#endif /* OVIA_CodecIO_AVCCodec_H */

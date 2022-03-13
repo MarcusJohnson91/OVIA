@@ -8,8 +8,8 @@
 
 #pragma once
 
-#ifndef OVIA_OVIATypes_h
-#define OVIA_OVIATypes_h
+#ifndef OVIA_OVIATypes_H
+#define OVIA_OVIATypes_H
 
 #include "../../OVIA.h"
 
@@ -52,4 +52,4 @@ extern "C" {
 }
 #endif
 
-#endif /* OVIA_OVIATypes_h */
+#endif /* OVIA_OVIATypes_H */

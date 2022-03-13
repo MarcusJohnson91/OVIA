@@ -8,8 +8,8 @@
 
 #pragma once
 
-#ifndef OVIA_TagIO_FLACTags_h
-#define OVIA_TagIO_FLACTags_h
+#ifndef OVIA_TagIO_FLACTags_H
+#define OVIA_TagIO_FLACTags_H
 
 #include "../../../OVIA/include/TagIO.h"
 
@@ -23,4 +23,4 @@ extern "C" {
 }
 #endif
 
-#endif /* OVIA_TagIO_FLACTags_h */
+#endif /* OVIA_TagIO_FLACTags_H */

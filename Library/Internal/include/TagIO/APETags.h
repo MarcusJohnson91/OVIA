@@ -8,8 +8,8 @@
 
 #pragma once
 
-#ifndef OVIA_TagIO_APETags_h
-#define OVIA_TagIO_APETags_h
+#ifndef OVIA_TagIO_APETags_H
+#define OVIA_TagIO_APETags_H
 
 #include "../../../OVIA/include/TagIO.h"
 
@@ -23,4 +23,4 @@ extern "C" {
 }
 #endif
 
-#endif /* OVIA_TagIO_APETags_h */
+#endif /* OVIA_TagIO_APETags_H */

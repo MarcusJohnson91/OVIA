@@ -8,8 +8,8 @@
 
 #pragma once
 
-#ifndef OVIA_TagIO_h
-#define OVIA_TagIO_h
+#ifndef OVIA_TagIO_H
+#define OVIA_TagIO_H
 
 #include "OVIATypes.h"
 #include "MediaIO.h"
@@ -74,4 +74,4 @@ extern "C" {
 }
 #endif
 
-#endif /* OVIA_TagIO_h */
+#endif /* OVIA_TagIO_H */

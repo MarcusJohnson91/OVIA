@@ -8,8 +8,8 @@
 
 #pragma once
 
-#ifndef OVIA_MediaIO_h
-#define OVIA_MediaIO_h
+#ifndef OVIA_MediaIO_H
+#define OVIA_MediaIO_H
 
 #include "../../OVIA.h"
 
@@ -745,4 +745,4 @@ extern "C" {
 }
 #endif
 
-#endif /* OVIA_MediaIO_h */
+#endif /* OVIA_MediaIO_H */

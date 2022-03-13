@@ -9,8 +9,8 @@
 
 #pragma once
 
-#ifndef OVIA_CodecIO_JPEGCodec_h
-#define OVIA_CodecIO_JPEGCodec_h
+#ifndef OVIA_CodecIO_JPEGCodec_H
+#define OVIA_CodecIO_JPEGCodec_H
 
 #include "../../../OVIA/include/CodecIO.h"
 
@@ -273,4 +273,4 @@ extern "C" {
 }
 #endif
 
-#endif /* OVIA_CodecIO_JPEGCodec_h */
+#endif /* OVIA_CodecIO_JPEGCodec_H */

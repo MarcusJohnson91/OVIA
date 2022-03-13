@@ -8,8 +8,8 @@
 
 #pragma once
 
-#ifndef OVIA_StreamIO_W64Stream_h
-#define OVIA_StreamIO_W64Stream_h
+#ifndef OVIA_StreamIO_W64Stream_H
+#define OVIA_StreamIO_W64Stream_H
 
 #include "../../../OVIA/include/StreamIO.h"
 #include "../../../../Dependencies/FoundationIO/Library/include/GUUID.h"
@@ -155,5 +155,5 @@ extern "C" {
 }
 #endif
 
-#endif /* OVIA_StreamIO_W64Stream_h */
+#endif /* OVIA_StreamIO_W64Stream_H */
 

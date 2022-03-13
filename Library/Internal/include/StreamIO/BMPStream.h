@@ -8,8 +8,8 @@
 
 #pragma once
 
-#ifndef OVIA_StreamIO_BMPStream_h
-#define OVIA_StreamIO_BMPStream_h
+#ifndef OVIA_StreamIO_BMPStream_H
+#define OVIA_StreamIO_BMPStream_H
 
 #include "../../../OVIA/include/StreamIO.h"
 
@@ -144,4 +144,4 @@ extern "C" {
 }
 #endif
 
-#endif /* OVIA_StreamIO_BMPStream_h */
+#endif /* OVIA_StreamIO_BMPStream_H */

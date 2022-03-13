@@ -8,8 +8,8 @@
 
 #pragma once
 
-#ifndef OVIA_StreamIO_MPEG2Stream_h
-#define OVIA_StreamIO_MPEG2Stream_h
+#ifndef OVIA_StreamIO_MPEG2Stream_H
+#define OVIA_StreamIO_MPEG2Stream_H
 
 #include "../../../OVIA/include/StreamIO.h"
 
@@ -239,4 +239,4 @@ extern "C" {
 }
 #endif
 
-#endif /* OVIA_StreamIO_MPEG2Stream_h */
+#endif /* OVIA_StreamIO_MPEG2Stream_H */

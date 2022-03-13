@@ -8,8 +8,8 @@
 
 #pragma once
 
-#ifndef OVIA_TransformIO_h
-#define OVIA_TransformIO_h
+#ifndef OVIA_TransformIO_H
+#define OVIA_TransformIO_H
 
 #include "OVIATypes.h"
 #include "MediaIO.h"
@@ -39,4 +39,4 @@ extern "C" {
 }
 #endif
 
-#endif /* OVIA_TransformIO_h */
+#endif /* OVIA_TransformIO_H */
