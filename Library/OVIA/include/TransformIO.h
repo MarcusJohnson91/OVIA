@@ -11,6 +11,7 @@
 #ifndef OVIA_TransformIO_h
 #define OVIA_TransformIO_h
 
+#include "OVIATypes.h"
 #include "MediaIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)

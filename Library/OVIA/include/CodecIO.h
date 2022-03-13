@@ -11,6 +11,7 @@
 #ifndef OVIA_CodecIO_h
 #define OVIA_CodecIO_h
 
+#include "OVIATypes.h"
 #include "MediaIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)

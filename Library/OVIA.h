@@ -251,79 +251,28 @@ extern "C" {
         MediaType_Image     = 4,
         MediaType_Video     = 5,
     } OVIA_MediaTypes;
-    
+
+    /* Forward declarations from FoundationIO */
+    typedef struct       BitBuffer         BitBuffer;
+
+    typedef struct       UTF8              UTF8;
+
+    typedef struct       UTF32             UTF32;
+    /* Forward declarations from FoundationIO */
+
+    /* Forward declarations from MediaIO */
     typedef struct       Audio2DContainer  Audio2DContainer; // Forward declare ContainerIO's tyoes
-    
+
     typedef struct       Audio3DContainer  Audio3DContainer;
-    
+
     typedef struct       AudioVector       AudioVector;
-    
+
     typedef struct       ImageContainer    ImageContainer; // Forward declare MediaIO's tyoes
-    
+
     typedef struct       MetadataContainer MetadataContainer;
-    
-    typedef struct       BitBuffer         BitBuffer;      // Forward declare BufferIO's types
+    /* Forward declarations from MediaIO */
     
     typedef struct       OVIA              OVIA;
-    
-    typedef struct OVIA_Signature {
-        const uint64_t OffsetInBits;
-        const uint8_t  SizeInBits;
-        const uint8_t *Signature;
-    } OVIA_Signature;
-    
-    typedef struct OVIA_MagicIDs {
-        const uint64_t          NumMagicIDs;
-        const OVIA_Signature    MagicIDs[];
-    } OVIA_MagicIDs;
-    
-    typedef struct OVIA_ExtensionInfo {
-        const uint8_t                Size;
-        PlatformIO_Immutable(UTF32*) Extension;
-    } OVIA_ExtensionInfo;
-    
-    typedef struct OVIA_Extensions {
-        const uint8_t            NumExtensions;
-        const OVIA_ExtensionInfo Extensions[];
-    } OVIA_Extensions;
-    
-    typedef struct OVIA_MIMEInfo {
-        const uint8_t                Size;
-        PlatformIO_Immutable(UTF32*) MIMEType;
-    } OVIA_MIMEInfo;
-    
-    typedef struct OVIA_MIMETypes {
-        const uint8_t            NumMIMETypes;
-        const OVIA_MIMEInfo      MIMETypes[];
-    } OVIA_MIMETypes;
-    
-    typedef void* (*Function_Initalize)(void);
-    typedef void  (*Function_ManipulateBuffer)(void *Options, BitBuffer *BitB);
-    typedef void  (*Function_ManipulateContainer)(void *Options, BitBuffer *BitB, void *Container);
-    typedef void  (*Function_Deinitalize)(void *Options);
-    
-    typedef struct OVIADecoder {
-        const Function_Initalize           Initalize;
-        const Function_ManipulateBuffer    Parse;
-        const Function_ManipulateContainer Decode;
-        const Function_Deinitalize         Deinitalize;
-        const OVIA_MagicIDs               *MagicIDs;
-        const OVIA_Extensions             *Extensions;
-        const OVIA_MediaTypes              MediaType;
-        const OVIA_CodecIDs                DecoderID;
-    } OVIADecoder;
-    
-    typedef struct OVIAEncoder {
-        const Function_Initalize           Initalize;
-        const Function_ManipulateBuffer    WriteHeader;
-        const Function_ManipulateContainer Encode;
-        const Function_ManipulateBuffer    WriteFooter;
-        const Function_Deinitalize         Deinitalize;
-        const OVIA_Extensions             *Extensions;
-        const OVIA_CodecIDs                EncoderID;
-        const OVIA_MediaTypes              MediaType;
-        // How do we identify the encoder to choose? Maybe this should be an enum with a mapping function that maps all known codec names for example JPG, JPEG, JPE, JLS, JPEG-LS, JPEG-Lossless, LosslessJPEG to the CodecID
-    } const OVIAEncoder;
     
     OVIA                *OVIA_Init(void);
     OVIA_CodecIDs        OVIA_IdentifyFileType(OVIA *Ovia, BitBuffer *BitB);

@@ -142,27 +142,6 @@ extern "C" {
             Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("BitBuffer Pointer is NULL"));
         }
     }
-
-    static const OVIA_Extensions WAVExtensions = {
-        .NumExtensions = 3,
-        .Extensions    = {
-            [0] = UTF32String("wave"),
-            [1] = UTF32String("wav"),
-            [2] = UTF32String("bwf"),
-            [3] = UTF32String("rf64"),
-        },
-    };
-    
-    static const OVIAEncoder WAVEncoder = {
-        .EncoderID             = CodecID_PCMAudio,
-        .MediaType             = MediaType_Audio2D,
-        .Extensions            = &WAVExtensions,
-        .Function_Initialize   = WAVOptions_Init,
-        .Function_WriteHeader  = WAVWriteHeader,
-        .Function_Encode       = WAVAppendSamples,
-        .Function_WriteFooter  = NULL,
-        .Function_Deinitialize = WAVOptions_Deinit,
-    };
     
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }

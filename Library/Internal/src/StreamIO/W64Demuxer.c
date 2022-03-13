@@ -121,16 +121,6 @@ extern "C" {
         return Audio;
     }
     
-    static const OVIADecoder W64Decoder = {
-        .Function_Initialize   = W64Options_Init,
-        .Function_Decode       = W64ExtractSamples,
-        .Function_Read         = W64ReadMetadata,
-        .Function_Deinitialize = W64Options_Deinit,
-        .MagicIDs              = &W64MagicIDs,
-        .MediaType             = MediaType_Audio2D,
-        .DecoderID             = CodecID_PCMAudio,
-    };
-    
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif

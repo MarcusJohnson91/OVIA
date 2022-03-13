@@ -11,8 +11,8 @@
 #ifndef OVIA_StreamIO_h
 #define OVIA_StreamIO_h
 
+#include "OVIATypes.h"
 #include "MediaIO.h"
-#include "../../../Dependencies/FoundationIO/Library/include/BufferIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
