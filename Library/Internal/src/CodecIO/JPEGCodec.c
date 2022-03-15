@@ -1,5 +1,6 @@
 #include "../../include/CodecIO/JPEGCodec.h"
 
+#include "../../../../Dependencies/FoundationIO/Library/include/AssertIO.h"
 #include "../../../../Dependencies/FoundationIO/Library/include/MathIO.h"
 #include "../../../../Dependencies/FoundationIO/Library/include/BufferIO.h"
 #include "../../../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h"
@@ -10,13 +11,13 @@ extern "C" {
 
     void *JPEGOptions_Init(void) {
         JPEGOptions *Options = calloc(1, sizeof(JPEGOptions));
-        if (Options != NULL) {
+        AssertIO(Options != NULL);
             Options->Huffman     = calloc(1, sizeof(JPEGHuffman));
-        }
         return Options;
     }
 
     static MediaIO_ImageTypes JPEG_GetImageType(JPEGOptions *JPEG) {
+        AssertIO(JPEG != NULL);
         MediaIO_ImageTypes Type = ImageType_Unknown;
         if (JPEG->BitDepth > 8) {
             Type          = ImageType_Integer8;
@@ -27,6 +28,7 @@ extern "C" {
     }
 
     static MediaIO_ImageMask JPEG_GetChannelMask(JPEGOptions *JPEG) {
+        AssertIO(JPEG != NULL);
         MediaIO_ImageMask Mask = ImageMask_Unknown;
         if (JPEG->NumChannels == 3) {
             Mask               = ImageMask_2D | ImageMask_Luma | ImageMask_Chroma1 | ImageMask_Chroma2;
@@ -37,9 +39,11 @@ extern "C" {
     }
 
     void JPEG_Extract(void *Options, BitBuffer *BitB, void *Container) {
+        AssertIO(Options != NULL);
+        AssertIO(BitB != NULL);
+        AssertIO(Container != NULL);
         JPEGOptions *JPEG            = Options;
         ImageContainer *Image        = Container;
-        if (Container != NULL) {
             int16_t Symbol           = -1;
             /*
 
@@ -64,12 +68,10 @@ extern "C" {
                 }
                 Symbol               = (int16_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, SymbolSize);
             }
-        } else {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Couldn't allocate ImageContainer"));
-        }
     }
 
     void JPEGOptions_Deinit(void *Options) {
+        AssertIO(Options != NULL);
         JPEGOptions *JPEG = Options;
         free(JPEG);
     }

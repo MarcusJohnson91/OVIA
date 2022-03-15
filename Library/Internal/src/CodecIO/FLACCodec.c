@@ -1,5 +1,6 @@
 #include "../../include/CodecIO/FLACCodec.h"
 
+#include "../../../../Dependencies/FoundationIO/Library/include/AssertIO.h"
 #include "../../../../Dependencies/FoundationIO/Library/include/MathIO.h"
 #include "../../../../Dependencies/FoundationIO/Library/include/BufferIO.h"
 #include "../../../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h"
@@ -9,34 +10,28 @@ extern "C" {
 #endif
     
     void *FLACOptions_Init(void) {
-        FLACOptions *FLAC     = calloc(1, sizeof(FLACOptions));
-        if (FLAC != NULL) {
-            FLAC->StreamInfo  = calloc(1, sizeof(StreamInfo));
-            FLAC->CueSheet    = calloc(1, sizeof(FLACCueSheet));
-            FLAC->LPC         = calloc(1, sizeof(FLACLPC));
-            
-        } else {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Couldn't allocate FLACOptions"));
-        }
+        FLACOptions *Options     = calloc(1, sizeof(FLACOptions));
+        AssertIO(Options != NULL);
+        FLAC->StreamInfo  = calloc(1, sizeof(StreamInfo));
+        FLAC->CueSheet    = calloc(1, sizeof(FLACCueSheet));
+        FLAC->LPC         = calloc(1, sizeof(FLACLPC));
         return FLAC;
     }
     
     uint8_t FLAC_GetNumChannels(void *Options) {
+        AssertIO(Options != NULL);
         uint8_t NumChannels = 0;
-        if (Options != NULL) {
             FLACOptions *FLAC = Options;
             if (FLAC->Frame->ChannelLayout <= 7) {
                 NumChannels = FLAC->Frame->ChannelLayout + 1;
             } else if (FLAC->Frame->ChannelLayout <= 11) {
                 NumChannels = 2;
             }
-        } else {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Options Pointer is NULL"));
-        }
         return NumChannels;
     }
     
     uint16_t FLAC_GetBlockSizeInSamples(void *Options) {
+        AssertIO(Options != NULL);
         uint16_t SamplesInBlock = 0;
         FLACOptions *FLAC = Options;
         if (FLAC->StreamInfo->CodedSampleRate == 1) {
@@ -56,6 +51,7 @@ extern "C" {
     }
     
     void FLACOptions_Deinit(void *Options) {
+        AssertIO(Options != NULL);
         FLACOptions *FLAC = Options;
         free(FLAC->StreamInfo);
         free(FLAC->CueSheet);

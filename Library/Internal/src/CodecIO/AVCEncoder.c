@@ -1,5 +1,6 @@
 #include "../../include/CodecIO/AVCCodec.h"
 
+#include "../../../../Dependencies/FoundationIO/Library/include/AssertIO.h"
 #include "../../../../Dependencies/FoundationIO/Library/include/MathIO.h"
 #include "../../../../Dependencies/FoundationIO/Library/include/BufferIO.h"
 #include "../../../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h"
@@ -9,11 +10,8 @@ extern "C" {
 #endif
     
     void ParseTransformCoeffs(AVCOptions *Options, uint8_t i16x16DC, uint8_t i16x16AC, uint8_t Level4x4, uint8_t Level8x8, uint8_t StartIndex, uint8_t EndIndex) { // ParseTransformCoeffs
-        if (Options == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to AVCOptions is NULL"));
-        } else if (BitB == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to BitBuffer is NULL"));
-        } else {
+        AssertIO(Options != NULL);
+        AssertIO(BitB != NULL);
             uint8_t Intra16x16DCLevel = i16x16DC, Intra16x16ACLevel = i16x16AC, LumaLevel4x4 = Level4x4, LumaLevel8x8 = Level8x8;
             // Return the first 4 variables
             if (AVC->PPS->EntropyCodingMode == ExpGolomb) {
@@ -32,16 +30,12 @@ extern "C" {
             } else if (AVC->SPS->ChromaArrayType == Chroma444) {
                 
             }
-        }
     }
     
     void ResidualLuma(AVCOptions *Options, BitBuffer *BitB, int i16x16DClevel, int i16x16AClevel, int level4x4,
                       int level8x8, int startIdx, int endIdx) { // residual_luma
-        if (Options == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to AVCOptions is NULL"));
-        } else if (BitB == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to BitBuffer is NULL"));
-        } else {
+        AssertIO(Options != NULL);
+        AssertIO(BitB != NULL);
             if (startIdx == 0 && MacroBlockPartitionPredictionMode(Options, AVC->MacroBlock->Type, 0) == Intra_16x16) {
                 ParseTransformCoeffs(Options, i16x16DClevel, 0, 15, 16);
             }
@@ -78,13 +72,10 @@ extern "C" {
                     }
                 }
             }
-        }
     }
     
     int8_t MacroBlock2SliceGroupMap(AVCOptions *Options, uint8_t CurrentMacroBlock) { // MbToSliceGroupMap
-        if (Options == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to AVCOptions is NULL"));
-        } else {
+        AssertIO(Options != NULL);
             if (AVC->PPS->SliceGroups == 1 && (AVC->PPS->SliceGroupMapType == 3 || AVC->PPS->SliceGroupMapType == 4 || AVC->PPS->SliceGroupMapType == 5)) {
                 if (AVC->PPS->SliceGroupMapType == 3) {
                     if (AVC->PPS->SliceGroupChangeDirection == false) {
@@ -106,28 +97,23 @@ extern "C" {
                     }
                 }
             }
-        }
         return -1; // failure
     }
     
     void rbsp_slice_trailing_bits(AVCOptions *Options, BitBuffer *BitB) {
-        if (Options == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to AVCOptions is NULL"));
-        } else {
+        AssertIO(Options != NULL);
+        AssertIO(BitB != NULL);
             BitBuffer_Align(BitB, 1); // rbsp_trailing_bits();
             if (AVC->PPS->EntropyCodingMode == Arithmetic) {
                 while (more_rbsp_trailing_data()) {
                     uint16_t CABACZeroWord = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16); /* equal to 0x0000 */
                 }
             }
-        }
     }
     
     uint8_t MacroBlockPartitionPredictionMode(AVCOptions *Options, uint8_t MacroBlockType, uint8_t PartitionNumber) {  // MbPartPredMode
         uint8_t ReturnValue = 0;
-        if (Options == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to AVCOptions is NULL"));
-        } else {
+        AssertIO(Options != NULL);
             if (MacroBlockType == 0) {
                 if (AVC->MacroBlock->TransformSizeIs8x8 == true) {
                     ReturnValue = Intra_8x8;
@@ -185,7 +171,6 @@ extern "C" {
             } else if (MacroBlockType == 25) {
                 ReturnValue  = I_PCM;
             }
-        }
         /*
          if (NotPartitioned == true) {
          return BlockPredictionMode;
@@ -198,9 +183,7 @@ extern "C" {
     }
     
     uint64_t NextMacroBlockAddress(AVCOptions *Options, uint64_t CurrentMacroBlockAddress) { // NextMbAddress
-        if (Options == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to AVCOptions is NULL"));
-        } else {
+        AssertIO(Options != NULL);
             while (CurrentMacroBlockAddress + 1 < AVC->Slice->PicSizeInMacroBlocks && MacroBlock2SliceGroupMap(Options, CurrentMacroBlockAddress + 1) != MacroBlock2SliceGroupMap(Options, CurrentMacroBlockAddress)) {
                 i++; nextMbAddress = I
             }
@@ -208,31 +191,22 @@ extern "C" {
             for (uint64_t I = CurrentMacroBlockAddress + 1; I < AVC->Slice->PicSizeInMacroBlocks && MbToSliceGroups[I]) {
                 MacroBlock2SliceGroupMap(Options, CurrentMacroBlockAddress);
             }
-        }
     }
     
     size_t GetSizeOfNALUnit(AVCOptions *Options, BitBuffer *BitB) {
-        if (Options == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to AVCOptions is NULL"));
-        } else if (BitB == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to BitBuffer is NULL"));
-        } else {
-            
-        }
+        AssertIO(Options != NULL);
+        AssertIO(BitB != NULL);
         return 0;
     }
     
     uint8_t CalculateNumberOfTimeStamps(AVCOptions *Options) { // PicOrderCount
-        if (Options == NULL) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Pointer to AVCOptions is NULL"));
-        } else {
+        AssertIO(Options != NULL);
             uint8_t NumTimeStamps = 0;
             if ((AVC->Slice->SliceIsInterlaced == false) && (AVC->Slice->TopFieldOrderCount == AVC->Slice->BottomFieldOrderCount)) {
                 NumTimeStamps = 1;
             } else if (0 == 1) {
                 
             }
-        }
         return 0;
     }
     

@@ -113,9 +113,17 @@ extern "C" {
         BlockType_Variable                                           =          1,
     } FLACBlockType;
 
-    typedef enum FLACRicePartitionType {
-        RICE1                                                       =          0,
-        RICE2                                                       =          1,
+    typedef enum FLACRicePartitionType { // FLACResidualCodingType
+        CodingType_4Bit      = 0,
+        CodingType_5Bit      = 1,
+        CodingType_Reserved1 = 2,
+        CodingType_Reserved2 = 3,
+        /*
+         Residual coding method:
+         00 : partitioned Rice coding with 4-bit Rice parameter; RESIDUAL_CODING_METHOD_PARTITIONED_RICE follows
+         01 : partitioned Rice coding with 5-bit Rice parameter; RESIDUAL_CODING_METHOD_PARTITIONED_RICE2 follows
+         10-11 : reserved
+         */
     } FLACRicePartitionType;
 
     typedef struct StreamInfo {

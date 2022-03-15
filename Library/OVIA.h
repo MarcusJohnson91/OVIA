@@ -8,14 +8,14 @@
 
 #pragma once
 
-#include "../Dependencies/FoundationIO/Library/include/TextIO/TextIOTypes.h"
-
-#ifndef OVIA_h
-#define OVIA_h
+#ifndef OVIA_H
+#define OVIA_H
 
 #define OVIA_Version_Major 0
 #define OVIA_Version_Minor 3
 #define OVIA_Version_Patch 7
+
+#include "../Dependencies/FoundationIO/Library/include/PlatformIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
@@ -286,9 +286,23 @@ extern "C" {
     void                 OVIA_AppendMetadata(MetadataContainer *Metadata, BitBuffer *BitB);
     void                 OVIA_WriteHeader(BitBuffer *BitB);
     void                 OVIA_Deinit(OVIA *Ovia);
+
+    /*
+     Sooo....
+
+     A file is passed to OVIA, the signature is read, demuxers and extension stuff get involved in figuring out what to do with this file...
+
+     we need to be able to extract frames from video/images, as well as extract samples from audio.
+
+     audio codecs are limited to frames of X sample clusters that must be extract at once.
+
+     audio streams the number of extractable samples at once...
+
+     
+     */
     
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif
 
-#endif /* OVIA_h */
+#endif /* OVIA_H */
