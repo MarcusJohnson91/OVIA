@@ -288,7 +288,7 @@ extern "C" {
         .MaxSampleRate     = 655350,
         .MaxBitDepth       = 32,
         .MaxNumChannels    = 8,
-        .SupportedChannels = AudioMask_FrontLeft | AudioMask_FrontRight | AudioMask_FrontCenter | AudioMask_LFE | AudioMask_SurroundLeft | AudioMask_SurroundRight | AudioMask_SurroundCenter | AudioMask_RearLeft | AudioMask_RearRight | AudioMask_StereoLeft | AudioMask_StereoRight,
+        .SupportedChannels = AudioMask_FrontLeft | AudioMask_FrontRight | AudioMask_FrontCenter | AudioMask_LFE | AudioMask_SurroundLeft | AudioMask_SurroundRight | AudioMask_SurroundCenter | AudioMask_RearLeft | AudioMask_RearRight,
     };
 
     extern const OVIA_MIMETypes FLACMIMETypes;

@@ -160,10 +160,6 @@ extern "C" {
 
     void            JPEGOptions_Deinit(void *Options);
 
-    extern const    CodecIO_ImageChannelConfig JPEGChannelConfig;
-
-    extern const    CodecIO_ImageLimitations   JPEGLimits;
-
 #ifdef OVIA_CodecIO_JPEG
     extern const CodecIO_ImageChannelConfig JPEGChannelConfig;
     

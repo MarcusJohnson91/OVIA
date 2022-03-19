@@ -19,7 +19,6 @@ extern "C" {
 #endif
     
     typedef enum AVCConstants {
-        AVCMagic                                    = 0x00000001,
         MVCMaxViews                                 = 2,
         MaxChromaChannels                           = 2,
         AVCMaxChannels                              = 3,
@@ -1365,9 +1364,10 @@ extern "C" {
     extern const CodecIO_ImageLimitations AVCLimits;
 
     const CodecIO_ImageLimitations AVCLimits = {
-        .MaxHeight      = 4320,
-        .MaxWidth       = 7680,
+        .MaxHeight      = 8192,
+        .MaxWidth       = 4320,
         .MaxBitDepth    = 16,
+        .MaxNumViews    = 2,
         .ChannelConfigs = &AVCChannelConfig,
     };
 
