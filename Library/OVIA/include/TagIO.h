@@ -55,11 +55,6 @@ extern "C" {
         uint64_t    TotalTags;
     } TagIO_Tags;
 
-    typedef void* (*TagIO_Function_Initalize)(void);
-    typedef void  (*TagIO_Function_ReadTags)(void *Options, BitBuffer *BitB);
-    typedef void  (*TagIO_Function_WriteTags)(void *Options, BitBuffer *BitB, TagIO_Tags *Tags);
-    typedef void  (*TagIO_Function_Deinitalize)(void *Options);
-
     TagIO_Tags *TagIO_Init(uint64_t NumTags);
 
     void        TagIO_Expand(TagIO_Tags *Tags, uint64_t NumTags2Add);

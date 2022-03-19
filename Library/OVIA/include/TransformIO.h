@@ -24,11 +24,9 @@ extern "C" {
         BijectiveType_IsNotBijective = 2,
     } Transform_BijectiveType;
 
-    typedef void (*ColorTransformFunction)(ImageContainer *);
-
     typedef struct OVIAColorTransform { // Ignore Alpha channels
-        const ColorTransformFunction    Function_Encode;
-        const ColorTransformFunction    Function_Decode;
+        const OVIA_Function_Transform  Function_Encode;
+        const OVIA_Function_Transform  Function_Decode;
         const MediaIO_ImageMask         InputChannels;
         const MediaIO_ImageMask         OutputChannels;
         const OVIA_ColorTransforms      Transform;

@@ -30,14 +30,6 @@ extern "C" {
         SyncType_Marker  = 2,
     } StreamIO_SyncTypes;
 
-    typedef void *(*StreamIO_Function_Init)(void);   // Returns Options as void pointer
-
-    typedef void  (*StreamIO_Function_Parse)(void *Options, BitBuffer *BitB);
-
-    typedef void  (*StreamIO_Function_Coder)(void *Options, BitBuffer *BitB, void *Container);
-
-    typedef void  (*StreamIO_Function_Deinit)(void *Options2Deinit);
-
     typedef struct OVIA_Stream {
         // Once we have the kind of marker to look for, we need to know the offset from the sync code as well as the actual sync code
         const OVIA_MagicIDs        *MagicID;           // uint8_t              *SyncCode;          // If SyncType is Marker
@@ -99,18 +91,18 @@ extern "C" {
     };
 
     typedef struct StreamIO_Muxer {
-        StreamIO_Function_Init    Function_Initalize;
-        StreamIO_Function_Parse   Function_Parse;
-        StreamIO_Function_Coder   Function_Media;
-        StreamIO_Function_Deinit  Function_Deinitalize;
+        OVIA_Function_Init    Function_Initalize;
+        OVIA_Function_Parse   Function_Parse;
+        OVIA_Function_Coder   Function_Media;
+        OVIA_Function_Deinit  Function_Deinitalize;
         const OVIA_MagicIDs     *MagicIDs;
     } StreamIO_Muxer;
 
     typedef struct StreamIO_Demuxer {
-        StreamIO_Function_Init   Function_Initalize;
-        StreamIO_Function_Parse  Function_Parse;
-        StreamIO_Function_Coder  Function_Media;
-        StreamIO_Function_Deinit Function_Deinitalize;
+        OVIA_Function_Init   Function_Initalize;
+        OVIA_Function_Parse  Function_Parse;
+        OVIA_Function_Coder  Function_Media;
+        OVIA_Function_Deinit Function_Deinitalize;
         const OVIA_MagicIDs     *MagicIDs;
         OVIA_MediaTypes          MediaType;
     } StreamIO_Demuxer;

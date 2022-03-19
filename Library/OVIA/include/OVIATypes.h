@@ -17,6 +17,20 @@
 extern "C" {
 #endif
 
+    typedef void* (*OVIA_Options);
+
+    typedef void* (*MediaIO_Container);
+
+    typedef OVIA_Options (*OVIA_Function_Init)(void);
+
+    typedef void  (*OVIA_Function_Parse)(OVIA_Options Options, BitBuffer *BitB);
+
+    typedef void  (*OVIA_Function_Coder)(OVIA_Options Options, BitBuffer *BitB, MediaIO_Container Container);
+
+    typedef void  (*OVIA_Function_Transform)(MediaIO_Container Container);
+
+    typedef void  (*OVIA_Function_Deinit)(OVIA_Options Options);
+
     typedef struct OVIA_Signature {
         const uint64_t OffsetInBits;
         const uint8_t  SizeInBits;

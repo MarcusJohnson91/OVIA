@@ -38,42 +38,20 @@ extern "C" {
         const MediaIO_AudioMask  SupportedChannels;
     } CodecIO_AudioLimitations;
 
-    typedef void *(*CodecIO_Function_Init)(void);   // Returns Options as void pointer
-
-    typedef void  (*CodecIO_Function_Deinit)(void *Options2Deinit);
-
-    typedef void  (*CodecIO_Function_Parse)(void *Options, BitBuffer *BitB);
-
-    typedef void  (*CodecIO_Function_Coder)(void *Options, BitBuffer *BitB, void *Container);
-
     typedef struct CodecIO_Encoder {
-        CodecIO_Function_Init    Function_Initalize;
-        CodecIO_Function_Parse   Function_Parse;
-        CodecIO_Function_Coder   Function_Media;
-        CodecIO_Function_Deinit  Function_Deinitalize;
+        OVIA_Function_Init    Function_Initalize;
+        OVIA_Function_Parse   Function_Parse;
+        OVIA_Function_Coder   Function_Media;
+        OVIA_Function_Deinit  Function_Deinitalize;
         const OVIA_MagicIDs     *MagicIDs;
     } CodecIO_Encoder;
 
     typedef struct CodecIO_Decoder {
-        CodecIO_Function_Init   Function_Initalize;
-        CodecIO_Function_Parse  Function_Parse;
-        CodecIO_Function_Coder  Function_Media;
-        CodecIO_Function_Deinit Function_Deinitalize;
+        OVIA_Function_Init   Function_Initalize;
+        OVIA_Function_Parse  Function_Parse;
+        OVIA_Function_Coder  Function_Media;
+        OVIA_Function_Deinit Function_Deinitalize;
     } CodecIO_Decoder;
-  
-  typedef struct CodecIO_RegisteredCodecs {
-      const uint64_t   NumEncoders;
-      const uint64_t   NumDecoders;
-      CodecIO_Encoder *Encoders;
-      CodecIO_Decoder *Decoders;
-  } CodecIO_RegisteredCodecs;
-    
-    extern CodecIO_RegisteredCodecs CodecRegistry;
-
-    extern uint64_t        NumEncoders;
-    extern uint64_t        NumDecoders;
-    extern CodecIO_Encoder GlobalEncoders[];
-    extern CodecIO_Decoder GlobalDecoders[];
 
     /*
      What information is needed to register a Codec?
@@ -92,11 +70,6 @@ extern "C" {
 
      We need to know how to initalize the encoder and decoder, parsing functions, header reading/writing, etc
      */
-
-    typedef struct CodecIO_CodecRegistry {
-        uint64_t NumCodecs;
-
-    } CodecIO_CodecRegistry;
 
 #ifndef CodecIO_Internal_NumEncoders
 #define CodecIO_Internal_NumEncoders 0
