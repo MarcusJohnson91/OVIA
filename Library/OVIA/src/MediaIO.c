@@ -2,7 +2,6 @@
 
 #include "../../../Dependencies/FoundationIO/Library/include/AssertIO.h"       /* Included for Assertions */
 #include "../../../Dependencies/FoundationIO/Library/include/MathIO.h"         /* Included for Exponentiate */
-#include "../../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h"   /* Included for Logging */
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {

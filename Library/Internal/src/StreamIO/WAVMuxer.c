@@ -1,9 +1,8 @@
 #include "../../include/StreamIO/WAVStream.h"
 
 #include "../../../../Dependencies/FoundationIO/Library/include/AssertIO.h"
-#include "../../../../Dependencies/FoundationIO/Library/include/MathIO.h"
 #include "../../../../Dependencies/FoundationIO/Library/include/BufferIO.h"
-#include "../../../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/MathIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {

@@ -1,7 +1,6 @@
 #include "../include/TagIO.h" /* Included for our declarations */
 
 #include "../../../Dependencies/FoundationIO/Library/include/AssertIO.h"
-#include "../../../Dependencies/FoundationIO/Library/include/TextIO/LogIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
