@@ -376,7 +376,7 @@ extern "C" {
     }
     
     void PNG_Image_Insert(ImageContainer *Image, BitBuffer *BitB, bool OptimizePNG) {
-        AssertIO(Options != NULL);
+        AssertIO(Image != NULL);
         AssertIO(BitB != NULL);
         /*
          Loop over the image container, line by line, and try all the filters.

@@ -317,7 +317,7 @@ extern "C" {
     
     bool  PNGGetStereoscopicStatus(PNGOptions *Options);
 
-    void  PNGOptions_Deinit(void *Options);
+    void  PNGOptions_Deinit(PNGOptions *Options);
 
 #ifdef OVIA_CodecIO_PNG
     extern const CodecIO_ImageChannelConfig PNGChannelConfig;

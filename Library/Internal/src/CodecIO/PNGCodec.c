@@ -143,7 +143,7 @@ extern "C" {
         Options->Text[Options->NumTextChunks - 1].Comment = CommentString; // TODO: When writing these chunks out, make sure to scan the Comments for Unicode, if it is, you have to use iTXt
     }
 
-    void PNGOptions_Deinit(void *Options) {
+    void PNGOptions_Deinit(PNGOptions *Options) {
         AssertIO(Options != NULL);
         free(Options->acTL);
         free(Options->bkGD->BackgroundPaletteEntry);

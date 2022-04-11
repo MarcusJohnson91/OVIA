@@ -95,22 +95,21 @@ extern "C" {
 #define CodecIO_Register(CodecType, CodecStruct) \
 /* Num */
 #endif /* CodecIO_Register */
-
+/*
 #ifndef CodecIO_RegisterEncoder
 #define CodecIO_RegisterEncoder(CodecStruct) \
-/* Increment CodecIO_Internal_NumEncoders */ \
-_Redefine CodecIO_Internal_NumEncoders CodecIO_Internal_NumEncoders + 1 \
+_Pragma("redefine_macro(\"CodecIO_Internal_NumEncoders CodecIO_Internal_NumEncoders + 1\")") \
 _Pragma("push_macro(\"CodecIO_Internal_EncoderList\")") \
-_Redefine CodecIO_Internal_EncoderList CodecStruct
-#endif /* CodecIO_RegisterEncoder */
+_Pragma("redefine_macro(\"CodecIO_Internal_EncoderList CodecStruct\")") \
+#endif */ /* CodecIO_RegisterEncoder */
 
+/*
 #ifndef CodecIO_RegisterDecoder
 #define CodecIO_RegisterDecoder(CodecStruct) \
-/* Increment CodecIO_Internal_NumDecoders */ \
-_Redefine CodecIO_Internal_NumDecoders CodecIO_Internal_NumDecoders + 1 \
+_Pragma("redefine_macro(\"CodecIO_Internal_NumDecoders CodecIO_Internal_NumDecoders + 1\")") \
 _Pragma("push_macro(\"CodecIO_Internal_DecoderList\")") \
-_Redefine CodecIO_Internal_DecoderList CodecStruct
-#endif /* CodecIO_RegisterDecoder */
+_Pragma("redefine_macro(\"CodecIO_Internal_DecoderList CodecStruct\")") \
+#endif */ /* CodecIO_RegisterDecoder */
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }

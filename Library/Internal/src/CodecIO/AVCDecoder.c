@@ -395,14 +395,6 @@ extern "C" {
     
     uint64_t NextMacroBlockAddress(AVCOptions *Options, uint64_t CurrentMacroBlockAddress) { // NextMbAddress
         AssertIO(Options != NULL);
-        while (CurrentMacroBlockAddress + 1 < Options->Slice->PicSizeInMacroBlocks && MacroBlock2SliceGroupMap(Options, CurrentMacroBlockAddress + 1) != MacroBlock2SliceGroupMap(Options, CurrentMacroBlockAddress)) {
-            i++; nextMbAddress = I
-        }
-        
-        // aka
-        for (uint64_t I = CurrentMacroBlockAddress + 1; I < Options->Slice->PicSizeInMacroBlocks && MbToSliceGroups[I]) {
-            MacroBlock2SliceGroupMap(Options, CurrentMacroBlockAddress);
-        }
     }
     
     uint8_t CalculateNumberOfTimeStamps(AVCOptions *Options) { // PicOrderCount
