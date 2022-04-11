@@ -15,7 +15,7 @@
 #define OVIA_Version_Minor 3
 #define OVIA_Version_Patch 7
 
-#include "../Dependencies/FoundationIO/Library/include/PlatformIO.h"
+#include "../Dependencies/FoundationIO/Library/include/TextIO/TextIOTypes.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
@@ -254,10 +254,6 @@ extern "C" {
 
     /* Forward declarations from FoundationIO */
     typedef struct       BitBuffer         BitBuffer;
-
-    typedef struct       UTF8              UTF8;
-
-    typedef struct       UTF32             UTF32;
     /* Forward declarations from FoundationIO */
 
     /* Forward declarations from MediaIO */
@@ -297,8 +293,18 @@ extern "C" {
      audio codecs are limited to frames of X sample clusters that must be extract at once.
 
      audio streams the number of extractable samples at once...
+     */
 
-     
+    /* TODO: NEW DESIGN FOR OVIA
+     So, we need to discover at runtime which codecs, streams, etc are available via reading the CodecIO, SteamIO, etc sections of our binary just like TestIO does.
+
+     Our Identify Stream/Codec functions are called which loop over the MagicIDs checking signatures.
+
+     The corect decoder/demuxer are called to start processing the data via the registered function pointers.
+
+     We then identify the requested output format, if one is specified by it's extension on the command line.
+
+     the corect encoder/muxer is called with the Audio2DContainer/ImageContainer as it's source.
      */
     
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
