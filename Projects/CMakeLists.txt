@@ -41,14 +41,11 @@ endif(CMAKE_HOST_UNIX)
 
 set(OVIA_SOURCE
     "${OVIA_Library_Dir}/OVIA.c"
-    "${OVIA_Library_Dir}/Internal/src/CodecIO.c"
-    "${OVIA_Library_Dir}/Internal/src/EntropyIO.c"
-    "${OVIA_Library_Dir}/Internal/src/MediaIO.c"
-    "${OVIA_Library_Dir}/Internal/src/StreamIO.c"
-    "${OVIA_Library_Dir}/Internal/src/TagIO.c"
-    "${OVIA_Library_Dir}/Internal/src/CodecIO/AVCCodec.c"
-    "${OVIA_Library_Dir}/Internal/src/CodecIO/AVCDecoder.c"
-    "${OVIA_Library_Dir}/Internal/src/CodecIO/AVCEncoder.c"
+    "${OVIA_Library_Dir}/OVIA/src/CodecIO.c"
+    "${OVIA_Library_Dir}/OVIA/src/EntropyIO.c"
+    "${OVIA_Library_Dir}/OVIA/src/MediaIO.c"
+    "${OVIA_Library_Dir}/OVIA/src/StreamIO.c"
+    "${OVIA_Library_Dir}/OVIA/src/TagIO.c"
     "${OVIA_Library_Dir}/Internal/src/CodecIO/FLACCodec.c"
     "${OVIA_Library_Dir}/Internal/src/CodecIO/FLACDecoder.c"
     "${OVIA_Library_Dir}/Internal/src/CodecIO/FLACEncoder.c"
@@ -84,6 +81,9 @@ set(OVIA_SOURCE
     "${OVIA_Library_Dir}/Internal/src/TransformIO/RCT.c"
     "${OVIA_Library_Dir}/Internal/src/TransformIO/YCoCgR.c"
     "${LIVC_SOURCE}"
+    "${OVIA_Library_Dir}/Internal/src/CodecIO/AVCCodec.c"
+    "${OVIA_Library_Dir}/Internal/src/CodecIO/AVCDecoder.c"
+    "${OVIA_Library_Dir}/Internal/src/CodecIO/AVCEncoder.c"
 )
 
 set(LIVCPath "")
