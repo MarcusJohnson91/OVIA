@@ -154,11 +154,11 @@ extern "C" {
 
     void           *JPEGOptions_Init(void);
 
-    void            JPEG_Parse(void *Options, BitBuffer *BitB);
+    void            JPEG_Parse(JPEGOptions *Options, BitBuffer *BitB);
 
-    void            JPEG_Extract(void *Options, BitBuffer *BitB, void *Container);
+    void            JPEG_Extract(JPEGOptions *Options, BitBuffer *BitB, void *Container);
 
-    void            JPEGOptions_Deinit(void *Options);
+    void            JPEGOptions_Deinit(JPEGOptions *Options);
 
 #ifdef OVIA_CodecIO_JPEG
     extern const CodecIO_ImageChannelConfig JPEGChannelConfig;

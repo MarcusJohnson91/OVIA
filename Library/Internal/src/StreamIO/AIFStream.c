@@ -19,7 +19,7 @@ extern "C" {
         }
     }
 
-    void AIFOptions_Deinit(void *Options) {
+    void AIFOptions_Deinit(AIFOptions *Options) {
         AIFOptions *AIF = Options;
         free(AIF->Tags);
         free(AIF->TagTypes);

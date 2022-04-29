@@ -8,14 +8,13 @@
 extern "C" {
 #endif
 
-    void *PNMOptions_Init(void) {
-        void *Options = calloc(1, sizeof(PNMOptions));
+    PNMOptions *PNMOptions_Init(void) {
+        PNMOptions *Options = calloc(1, sizeof(PNMOptions));
         return Options;
     }
 
-    void PNMOptions_Deinit(void *Options) {
-        PNMOptions *PNM = Options;
-        free(PNM);
+    void PNMOptions_Deinit(PNMOptions *Options) {
+        free(Options);
     }
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)

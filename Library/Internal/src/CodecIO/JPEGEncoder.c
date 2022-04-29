@@ -8,93 +8,87 @@
 extern "C" {
 #endif
 
-    void JPEG_WriteSegment_StartOfFrame(void *Options, BitBuffer *BitB) {
+    void JPEG_WriteSegment_StartOfFrame(JPEGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        JPEGOptions *JPEG = Options;
-        if (JPEG->EntropyCoder == EntropyCoder_Arithmetic) {
+
+        if (Options->EntropyCoder == EntropyCoder_Arithmetic) {
             BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, JPEGMarker_StartOfFrameLossless3);
-        } else if (JPEG->EntropyCoder == EntropyCoder_Huffman) {
+        } else if (Options->EntropyCoder == EntropyCoder_Huffman) {
             BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, JPEGMarker_StartOfFrameLossless1);
         }
-        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, JPEG->BitDepth);
-        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, JPEG->Height);
-        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, JPEG->Width);
-        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, JPEG->NumChannels);
+        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, Options->BitDepth);
+        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, Options->Height);
+        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, Options->Width);
+        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, Options->NumChannels);
 
-        for (uint8_t Channel = 0; Channel < JPEG->NumChannels; Channel++) {
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, JPEG->Channels[Channel].ChannelID);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 4, JPEG->Channels[Channel].HorizontalSF);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 4, JPEG->Channels[Channel].VerticalSF);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, JPEG->Huffman->Values[JPEG->Huffman->TableID]); // 0
+        for (uint8_t Channel = 0; Channel < Options->NumChannels; Channel++) {
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, Options->Channels[Channel].ChannelID);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 4, Options->Channels[Channel].HorizontalSF);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 4, Options->Channels[Channel].VerticalSF);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, Options->Huffman->Values[Options->Huffman->TableID]); // 0
         }
     }
 
-    void JPEG_WriteSegment_DefineHuffmanTable(void *Options, BitBuffer *BitB) {
+    void JPEG_WriteSegment_DefineHuffmanTable(JPEGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        JPEGOptions *JPEG = Options;
-        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 4, JPEG->Huffman->TableID);
-        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 4, JPEG->Huffman->TableID);
+        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 4, Options->Huffman->TableID);
+        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 4, Options->Huffman->TableID);
 
         for (uint8_t Count = 0; Count < 16; Count++) {
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, JPEG->Huffman->Values[Count]->BitLength);
-            for (uint8_t Code = 0; Code < JPEG->Huffman->Values[Count]; Code++) {
-                if (JPEG->Huffman->Values[Code] > 0) {
-                    BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, JPEG->Huffman->Values[Code]);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, Options->Huffman->Values[Count]->BitLength);
+            for (uint8_t Code = 0; Code < Options->Huffman->Values[Count]; Code++) {
+                if (Options->Huffman->Values[Code] > 0) {
+                    BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, Options->Huffman->Values[Code]);
                 }
             }
         }
     }
 
-    void JPEG_WriteSegment_DefineArithmeticTable(void *Options, BitBuffer *BitB) {
+    void JPEG_WriteSegment_DefineArithmeticTable(JPEGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        JPEGOptions *JPEG = Options;
-        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 4,  JPEG->Arithmetic->TableType);
-        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 4,  JPEG->Arithmetic->TableID);
-        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  JPEG->Arithmetic->CodeValue);
+        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 4,  Options->Arithmetic->TableType);
+        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 4,  Options->Arithmetic->TableID);
+        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  Options->Arithmetic->CodeValue);
     }
 
-    void JPEG_WriteSegment_DefineRestartInterval(void *Options, BitBuffer *BitB) {
+    void JPEG_WriteSegment_DefineRestartInterval(JPEGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        JPEGOptions *JPEG = Options;
-        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, JPEG->RestartInterval);
+        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, Options->RestartInterval);
     }
 
-    void JPEG_WriteSegment_DefineNumberOfLines(void *Options, BitBuffer *BitB) {
+    void JPEG_WriteSegment_DefineNumberOfLines(JPEGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        JPEGOptions *JPEG = Options;
-        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, JPEG->Height);
+        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, Options->Height);
     }
 
-    void JPEG_WriteSegment_Comment(void *Options, BitBuffer *BitB) {
+    void JPEG_WriteSegment_Comment(JPEGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        JPEGOptions *JPEG = Options;
-        if (JPEG->CommentSize >= 3 && JPEG->Comment != NULL) {
+        if (Options->CommentSize >= 3 && Options->Comment != NULL) {
             BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 16, JPEGMarker_Comment);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 16, JPEG->CommentSize);
-            for (uint16_t Byte = 0; Byte < JPEG->CommentSize - 2; Byte++) {
-                BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 16, JPEG->Comment[Byte]);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 16, Options->CommentSize);
+            for (uint16_t Byte = 0; Byte < Options->CommentSize - 2; Byte++) {
+                BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 16, Options->Comment[Byte]);
             }
         }
     }
     
-    void JPEG_WriteSegment_StartOfScan(void *Options, BitBuffer *BitB) {
+    void JPEG_WriteSegment_StartOfScan(JPEGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        JPEGOptions *JPEG = Options;
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 16, JPEGMarker_StartOfScan);
-        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 16, (JPEG->NumChannels * 2) + 2);
+        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 16, (Options->NumChannels * 2) + 2);
 
-        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 16, JPEG->NumChannels);
-        for (uint8_t Channel = 0; Channel < JPEG->NumChannels; Channel++) {
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 8, JPEG->Channels[Channel].ChannelID);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 4, JPEG->Channels[Channel].HorizontalSF);
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 4, JPEG->Channels[Channel].VerticalSF);
+        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 16, Options->NumChannels);
+        for (uint8_t Channel = 0; Channel < Options->NumChannels; Channel++) {
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 8, Options->Channels[Channel].ChannelID);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 4, Options->Channels[Channel].HorizontalSF);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 4, Options->Channels[Channel].VerticalSF);
         }
     }
 

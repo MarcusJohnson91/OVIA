@@ -382,9 +382,10 @@ extern "C" {
     
     /*!
      @abstract                                      Creates an empty Audio3DContainer.
+     @param                 NumVectors             The number of vectors to create.
      @return                                        Returns a pointer to an Audio3DContainer.
      */
-    Audio3DContainer       *Audio3DContainer_Init(void);
+    Audio3DContainer       *Audio3DContainer_Init(size_t NumVectors);
     
     /*!
      @abstract                                      Adds a AudioVector to an Audio3DContainer.
@@ -500,9 +501,8 @@ extern "C" {
      @abstract                                      Zeros an AudioVectorHistogram.
      @param                 Histogram               The AudioVector to zero.
      @param                 NewValue                The value to set each codeunit to while erasing.
-     @return                                        Returns the value of the first element of String, or 0xFE if it was unsucessful
      */
-    uint8_t                 AudioVectorHistogram_Erase(AudioVectorHistogram *Histogram, uint8_t NewValue);
+    void                    AudioVectorHistogram_Erase(AudioVectorHistogram *Histogram, uint8_t NewValue);
     
     /*!
      @abstract                                      Destroys an AudioVectorHistogram.

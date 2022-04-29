@@ -26,7 +26,7 @@ extern "C" {
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 16, BitDepth);
     }
     
-    void W64WriteHeader(void *Options, BitBuffer *BitB) {
+    void W64WriteHeader(W64Options *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         W64Options *W64      = Options;
@@ -46,9 +46,9 @@ extern "C" {
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 64, NumSamples);
     }
     
-    void W64AppendSamples(void *Options, void *Container, BitBuffer *BitB) {
+    void W64AppendSamples(W64Options *Options, void *Container, BitBuffer *BitB) {
         AssertIO(Options != NULL);
-        AssertIO(Container)
+        AssertIO(Container != NULL);
         AssertIO(BitB != NULL);
         W64Options *W64         = Options;
         Audio2DContainer *Audio = Container;

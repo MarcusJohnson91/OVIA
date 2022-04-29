@@ -311,9 +311,9 @@ extern "C" {
 
     void *PNGOptions_Init(void);
 
-    void  PNG_Parse(void *Options, BitBuffer *BitB);
+    void  PNG_Parse(PNGOptions *Options, BitBuffer *BitB);
 
-    void  PNG_Extract(void *Options, BitBuffer *BitB, void *Container);
+    void  PNG_Extract(PNGOptions *Options, BitBuffer *BitB, void *Container);
     
     bool  PNGGetStereoscopicStatus(PNGOptions *Options);
 

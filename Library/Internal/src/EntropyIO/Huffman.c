@@ -8,6 +8,36 @@
 extern "C" {
 #endif
 
+    /* Create a Min Heap data structure */
+    typedef struct Heap {
+        uint64_t *Array;
+        size_t    NumElements;
+        size_t    Capacity;
+    } Heap;
+
+    Heap *Heap_Init(size_t Capacity) {
+        AssertIO(Capacity > 0);
+        Heap *Data = calloc(1, sizeof(Heap));
+
+        AssertIO(Data != NULL);
+
+        Data->Array = calloc(Capacity, sizeof(uint64_t));
+
+        AssertIO(Data->Array != NULL);
+
+        Data->Capacity    = Capacity;
+        Data->NumElements = 0;
+        return Data;
+    }
+
+    void Heap_Insert(Heap *Heap, uint64_t Index, uint64_t Value2Insert) {
+        AssertIO(Heap != NULL);
+        AssertIO(Index < Heap->Capacity);
+        Heap->Array[Index] = Value2Insert;
+    }
+
+    /* OLD below */
+
     /*
      Ok, so we take in a histogram saying the symbol probabilities.
 
@@ -90,7 +120,7 @@ extern "C" {
 #define BITS_PER_BYTE 8
 #define MAX_LENGTH    32
 
-#define FETCH_BIT(buf, n)        ((byte) (buf[n / BITS_PER_BYTE] << (n % BITS_PER_BYTE)) >> (BITS_PER_BYTE - 1))
+#define FETCH_BIT(buf, n)        ((uint8_t) (buf[n / BITS_PER_BYTE] << (n % BITS_PER_BYTE)) >> (BITS_PER_BYTE - 1))
 #define GET_N_LAST_BITS(code, n) (code & (uint8_t) (Exponentiate(2, n) - 1))
 
     uint32_t get_file_size(FILE *fp) {
@@ -425,7 +455,7 @@ extern "C" {
         free(obuf);
     }
 
-    void decode() {
+    void decode(void) {
         // Read file
         FILE     *fp       = fopen("encoded", "r");
         uint32_t  buf_size = get_file_size(fp) - (ALP_SIZE * sizeof(uint32_t));

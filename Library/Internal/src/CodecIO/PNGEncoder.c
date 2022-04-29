@@ -312,13 +312,13 @@ extern "C" {
      it will be a valid PNG so for now who cares?
      */
     
-    void PNGWriteHeader(void *Options, BitBuffer *BitB) {
+    void PNGWriteHeader(PNGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         // Write the iHDR chunk, and then go through the list of other chunks to find out if other chunks should be written
     }
     
-    void PNGWriteFooter(void *Options, BitBuffer *BitB) {
+    void PNGWriteFooter(PNGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         uint32_t iENDSize = 0;
@@ -328,7 +328,7 @@ extern "C" {
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32, iENDCRC);
     }
     
-    void PNG_DAT_WriteZlibHeader(void *Options, BitBuffer *BitB) {
+    void PNG_DAT_WriteZlibHeader(PNGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         PNGOptions *PNG           = Options;
@@ -354,7 +354,7 @@ extern "C" {
         }
     }
     
-    void PNG_Flate_WriteLiteralBlock(void *Options, BitBuffer *BitB) {
+    void PNG_Flate_WriteLiteralBlock(PNGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         BitBuffer_Align(BitB, 1);

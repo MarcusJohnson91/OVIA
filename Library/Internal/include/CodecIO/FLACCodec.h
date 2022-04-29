@@ -243,43 +243,43 @@ extern "C" {
 
     void       *FLACOptions_Init(void);
 
-    void        FLAC_Compose(void *Options, BitBuffer *BitB);
+    void        FLAC_Compose(FLACOptions *Options, BitBuffer *BitB);
 
-    void        FLAC_Write_Audio(void *Options, BitBuffer *BitB, Audio2DContainer *Audio);
+    void        FLAC_Write_Audio(FLACOptions *Options, BitBuffer *BitB, Audio2DContainer *Audio);
 
-    void        FLAC_Write_StreamInfo(void *Options, BitBuffer *BitB);
+    void        FLAC_Write_StreamInfo(FLACOptions *Options, BitBuffer *BitB);
 
-    void        FLAC_Frame_Read(void *Options, BitBuffer *BitB, Audio2DContainer *Audio);
+    void        FLAC_Frame_Read(FLACOptions *Options, BitBuffer *BitB, Audio2DContainer *Audio);
 
-    uint8_t     FLAC_GetNumChannels(void *Options);
+    uint8_t     FLAC_GetNumChannels(FLACOptions *Options);
 
-    void        FLAC_SubFrame_Read(void *Options, BitBuffer *BitB, Audio2DContainer *Audio, uint8_t Channel);
+    void        FLAC_SubFrame_Read(FLACOptions *Options, BitBuffer *BitB, Audio2DContainer *Audio, uint8_t Channel);
 
-    void        FLAC_SubFrame_Verbatim(void *Options, BitBuffer *BitB, Audio2DContainer *Audio);
+    void        FLAC_SubFrame_Verbatim(FLACOptions *Options, BitBuffer *BitB, Audio2DContainer *Audio);
 
-    void        FLAC_SubFrame_Constant(void *Options, BitBuffer *BitB, Audio2DContainer *Audio);
+    void        FLAC_SubFrame_Constant(FLACOptions *Options, BitBuffer *BitB, Audio2DContainer *Audio);
 
-    void        FLAC_SubFrame_Fixed(void *Options, BitBuffer *BitB, Audio2DContainer *Audio);
+    void        FLAC_SubFrame_Fixed(FLACOptions *Options, BitBuffer *BitB, Audio2DContainer *Audio);
 
-    void        FLAC_SubFrame_LPC(void *Options, BitBuffer *BitB, Audio2DContainer *Audio, uint8_t Channel);
+    void        FLAC_SubFrame_LPC(FLACOptions *Options, BitBuffer *BitB, Audio2DContainer *Audio, uint8_t Channel);
 
-    void        FLAC_Decode_RICE(void *Options, BitBuffer *BitB, uint8_t RICEPartitionType);
+    void        FLAC_Decode_RICE(FLACOptions *Options, BitBuffer *BitB, uint8_t RICEPartitionType);
 
-    uint16_t    FLAC_GetBlockSizeInSamples(void *Options);
+    uint16_t    FLAC_GetBlockSizeInSamples(FLACOptions *Options);
 
-    bool        FLAC_Parse_Blocks(void *Options, BitBuffer *BitB);
+    bool        FLAC_Parse_Blocks(FLACOptions *Options, BitBuffer *BitB);
 
-    void        FLAC_Parse_StreamInfo(void *Options, BitBuffer *BitB);
+    void        FLAC_Parse_StreamInfo(FLACOptions *Options, BitBuffer *BitB);
 
-    void        FLAC_Parse_SeekTable(void *Options, BitBuffer *BitB, uint32_t ChunkSize);
+    void        FLAC_Parse_SeekTable(FLACOptions *Options, BitBuffer *BitB, uint32_t ChunkSize);
 
-    void        FLAC_Parse_Vorbis(void *Options, BitBuffer *BitB);
+    void        FLAC_Parse_Vorbis(FLACOptions *Options, BitBuffer *BitB);
 
-    void        FLAC_CUE_Parse(void *Options, BitBuffer *BitB);
+    void        FLAC_CUE_Parse(FLACOptions *Options, BitBuffer *BitB);
 
-    uint8_t    *FLAC_Pic_Read(void *Options, BitBuffer *BitB);
+    uint8_t    *FLAC_Pic_Read(FLACOptions *Options, BitBuffer *BitB);
 
-    void        FLACOptions_Deinit(void *Options);
+    void        FLACOptions_Deinit(FLACOptions *Options);
 
 #ifdef OVIA_CodecIO_FLAC
     extern const CodecIO_AudioLimitations FLACLimits;

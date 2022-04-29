@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-    void BMPWriteHeader(void *Options, BitBuffer *BitB) {
+    void BMPWriteHeader(BMPOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         BMPOptions *BMP        = Options;
@@ -37,7 +37,7 @@ extern "C" {
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32, BMP->IndexedColorsUsed);
     }
 
-    void BMPInsertImage(void *Options, BitBuffer *BitB, ImageContainer *Image) {
+    void BMPInsertImage(BMPOptions *Options, BitBuffer *BitB, ImageContainer *Image) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         AssertIO(Image != NULL);

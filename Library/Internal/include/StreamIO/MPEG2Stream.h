@@ -200,18 +200,14 @@ extern "C" {
         bool      AdaptationFieldExtensionFlag:1;      // adaptation_field_extension_flag
     } TSAdaptationField;
 
-    typedef struct MPEG2TransportStream {
+    typedef struct MPEG2Options {
         TransportStreamPacket      *Packet;
         TSAdaptationField          *Adaptation;
         PacketizedElementaryStream *PES;
         ProgramAssociatedSection   *Program;
         ConditionalAccessSection   *Condition;
-    } MPEG2TransportStream;
-
-    typedef struct MPEG2ProgramStream {
         ProgramStreamPacket        *PSP;
-        PacketizedElementaryStream *PES;
-    } MPEG2ProgramStream;
+    } MPEG2Options;
 
     typedef struct Packet2Mux {
         uint8_t *PacketData;
@@ -221,19 +217,17 @@ extern "C" {
         bool     IsSubstream;
     } Packet2Mux;
     
-    MPEG2TransportStream *InitMPEGTransportStream(void);
+    MPEG2Options *MPEG2Options_Init(void);
     
     /*!
      @abstract     Main Demuxing function
      */
-    void DemuxMPEGTransportStream(MPEG2TransportStream *Stream, BitBuffer *BitB);
+    void MPEG2Demux(MPEG2Options *Options, BitBuffer *BitB);
     
     /*!
      @abstract     Main muxing function
      */
-    void MuxMPEGTransportStream(BitBuffer *BitB, Packet2Mux *Packet, uint64_t PacketType, uint64_t PacketLocale, uint64_t MainLocale);
-    
-    void MuxAVC2MPEGTransportStream(BitBuffer *BitB, Packet2Mux *Packet);
+    void MPEG2Mux(BitBuffer *BitB, Packet2Mux *Packet, uint64_t PacketType, uint64_t PacketLocale, uint64_t MainLocale);
     
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }

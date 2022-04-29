@@ -1,4 +1,4 @@
-#include "../../../OVIA/include/EntropyIO.h"
+#include "../../include/EntropyIO/Flate.h"
 #include "../../include/CodecIO/PNGCodec.h"
 
 #include "../../../../Dependencies/FoundationIO/Library/include/AssertIO.h" /* Included for Assertions */
@@ -15,6 +15,11 @@ extern "C" {
     void PNG_Read_IHDR(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
+        /*
+         ReadBits wanings to disable:
+         warn_impcast_integer_precision
+         warn_impcast_integer_64_32
+         */
         Options->iHDR->Width          = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
         Options->iHDR->Height         = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
         Options->iHDR->BitDepth       = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
@@ -371,7 +376,6 @@ extern "C" {
             Options->fcTLExists = true;
             PNG_Read_FCTL(Options, BitB, ChunkSize);
         }
-        free(ChunkID);
         return EXIT_SUCCESS;
     }
 
@@ -500,7 +504,7 @@ extern "C" {
 
     void PNGDecodeFilteredImage(PNGOptions *Options, uint8_t ***InflatedBuffer) {
         AssertIO(Options != NULL);
-        AssertIO(InflatedData != NULL);
+        AssertIO(InflatedBuffer != NULL);
 
         uint8_t ***DeFilteredData = calloc((Options->iHDR->Height * Options->iHDR->Width), Bits2Bytes(Options->iHDR->BitDepth, RoundingType_Down));
 
@@ -657,17 +661,17 @@ extern "C" {
     }
 
     /* FIXME: Old code below */
-    void PNG_DAT_Decode(void *Options, BitBuffer *BitB, ImageContainer *Image) {
+    void PNG_DAT_Decode(PNGOptions *Options, BitBuffer *BitB, ImageContainer *Image) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         AssertIO(Image != NULL);
         PNGOptions *PNG                        = Options;
         uint8_t     ****ImageArrayBytes        = (uint8_t****) ImageContainer_GetArray(Image);
-        HuffmanTree     *Tree                  = NULL;
+        HuffmanTable   *Tree                   = NULL;
         bool     IsFinalBlock                  = false;
         do {
             IsFinalBlock                       = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1); // 0
-            uint8_t BlockType                  = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 2); // 0b00 = 0
+            Flate_BlockTypes BlockType                  = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 2); // 0b00 = 0
             if (BlockType == BlockType_Literal) {
                 BitBuffer_Align(BitB, 1); // Skip the remaining 5 bits
                 uint16_t Bytes2Copy    = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 16); // 0x4F42 = 20,290
@@ -702,7 +706,7 @@ extern "C" {
         return Symbol;
     }
 
-    void PNG_Flate_ReadHuffman(void *Options, BitBuffer *BitB, HuffmanTree *LengthTree, HuffmanTree *DistanceTree, ImageContainer *Image) { // Codes in Puff
+    void PNG_Flate_ReadHuffman(PNGOptions *Options, BitBuffer *BitB, HuffmanTree *LengthTree, HuffmanTree *DistanceTree, ImageContainer *Image) { // Codes in Puff
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         AssertIO(LengthTree != NULL);
@@ -942,7 +946,7 @@ extern "C" {
         }
     }
 
-    void PNG_DAT_Parse(void *Options, BitBuffer *BitB) {
+    void PNG_DAT_Parse(PNGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         PNGOptions *PNG         = Options;
@@ -992,7 +996,7 @@ extern "C" {
         AssertIO(Image != NULL);
     }
 
-    void PNG_IHDR_Parse(void *Options, BitBuffer *BitB) {
+    void PNG_IHDR_Parse(PNGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         PNGOptions *PNG           = Options;
@@ -1008,7 +1012,7 @@ extern "C" {
         PNG->iHDR->IsInterlaced   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
     }
 
-    void PNG_PLTE_Parse(void *Options, BitBuffer *BitB, uint32_t ChunkSize) {
+    void PNG_PLTE_Parse(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         PNGOptions *PNG  = Options;
@@ -1033,7 +1037,7 @@ extern "C" {
         }
     }
 
-    void PNG_TRNS_Parse(void *Options, BitBuffer *BitB, uint32_t ChunkSize) { // Transparency
+    void PNG_TRNS_Parse(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) { // Transparency
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         PNGOptions *PNG       = Options;
@@ -1055,7 +1059,7 @@ extern "C" {
         //Ovia->tRNS->Palette = Entries;
     }
 
-    void PNG_BKGD_Parse(void *Options, BitBuffer *BitB) { // Background
+    void PNG_BKGD_Parse(PNGOptions *Options, BitBuffer *BitB) { // Background
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         PNGOptions *PNG = Options;
@@ -1064,7 +1068,7 @@ extern "C" {
         }
     }
 
-    void PNG_CHRM_Parse(void *Options, BitBuffer *BitB) {
+    void PNG_CHRM_Parse(PNGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         PNGOptions *PNG        = Options;
@@ -1078,14 +1082,14 @@ extern "C" {
         PNG->cHRM->BlueY       = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
     }
 
-    void PNG_GAMA_Parse(void *Options, BitBuffer *BitB) { // Gamma
+    void PNG_GAMA_Parse(PNGOptions *Options, BitBuffer *BitB) { // Gamma
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         PNGOptions *PNG  = Options;
         PNG->gAMA->Gamma = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
     }
 
-    void PNG_OFFS_Parse(void *Options, BitBuffer *BitB) { // Image Offset
+    void PNG_OFFS_Parse(PNGOptions *Options, BitBuffer *BitB) { // Image Offset
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         PNGOptions *PNG          = Options;
@@ -1094,7 +1098,7 @@ extern "C" {
         PNG->oFFs->UnitSpecifier = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
     }
 
-    void PNG_PHYS_Parse(void *Options, BitBuffer *BitB) { // Aspect ratio, Physical pixel size
+    void PNG_PHYS_Parse(PNGOptions *Options, BitBuffer *BitB) { // Aspect ratio, Physical pixel size
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         PNGOptions *PNG               = Options;
@@ -1103,7 +1107,7 @@ extern "C" {
         PNG->pHYs->UnitSpecifier      = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
     }
 
-    void PNG_SCAL_Parse(void *Options, BitBuffer *BitB) { // Physical Scale
+    void PNG_SCAL_Parse(PNGOptions *Options, BitBuffer *BitB) { // Physical Scale
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         PNGOptions *PNG           = Options;
@@ -1122,7 +1126,7 @@ extern "C" {
         free(HeightString);
     }
 
-    void PNG_PCAL_Parse(void *Options, BitBuffer *BitB) {
+    void PNG_PCAL_Parse(PNGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         PNGOptions *PNG                      = Options;
@@ -1145,7 +1149,7 @@ extern "C" {
         }
     }
 
-    void PNG_SBIT_Parse(void *Options, BitBuffer *BitB) { // Significant bits per sample
+    void PNG_SBIT_Parse(PNGOptions *Options, BitBuffer *BitB) { // Significant bits per sample
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         PNGOptions *PNG          = Options;
@@ -1167,14 +1171,14 @@ extern "C" {
         }
     }
 
-    void PNG_SRGB_Parse(void *Options, BitBuffer *BitB) {
+    void PNG_SRGB_Parse(PNGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         PNGOptions *PNG            = Options;
         PNG->sRGB->RenderingIntent = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
     }
 
-    void PNG_STER_Parse(void *Options, BitBuffer *BitB) {
+    void PNG_STER_Parse(PNGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         PNGOptions *PNG       = Options;
@@ -1191,7 +1195,7 @@ extern "C" {
         //
     }
 
-    void PNG_TEXT_Parse(void *Options, BitBuffer *BitB) { // Uncompressed, ASCII tEXt
+    void PNG_TEXT_Parse(PNGOptions *Options, BitBuffer *BitB) { // Uncompressed, ASCII tEXt
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         PNGOptions *PNG = Options;
@@ -1229,7 +1233,7 @@ extern "C" {
         // Store a variable in OVIA called NumTextChunks, then store a type called Comment or something that stores both the comment type as a string and the actual comment...
     }
 
-    void PNG_TIME_Parse(void *Options, BitBuffer *BitB) {
+    void PNG_TIME_Parse(PNGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         PNGOptions *PNG                     = Options;
@@ -1242,7 +1246,7 @@ extern "C" {
     }
 
     /* APNG */
-    void PNG_ACTL_Parse(void *Options, BitBuffer *BitB) { // Animation control, part of APNG
+    void PNG_ACTL_Parse(PNGOptions *Options, BitBuffer *BitB) { // Animation control, part of APNG
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         PNGOptions *PNG                  = Options;
@@ -1250,7 +1254,7 @@ extern "C" {
         PNG->acTL->TimesToLoop           = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32); // If 0, loop forever.
     }
 
-    void PNG_FCTL_Parse(void *Options, BitBuffer *BitB) { // Frame Control, part of APNG
+    void PNG_FCTL_Parse(PNGOptions *Options, BitBuffer *BitB) { // Frame Control, part of APNG
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         PNGOptions *PNG                  = Options;
@@ -1266,7 +1270,7 @@ extern "C" {
     }
     /* End APNG */
 
-    void PNG_HIST_Parse(void *Options, BitBuffer *BitB) {
+    void PNG_HIST_Parse(PNGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         PNGOptions *PNG      = Options;
@@ -1276,7 +1280,7 @@ extern "C" {
         }
     }
 
-    void PNG_ICCP_Parse(void *Options, BitBuffer *BitB) {
+    void PNG_ICCP_Parse(PNGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         PNGOptions *PNG            = Options;
@@ -1284,11 +1288,10 @@ extern "C" {
         PNG->iCCP->ProfileName     = BitBuffer_ReadUTF8(BitB, ProfileNameSize);
         PNG->iCCP->CompressionType = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
         // Decompress the data with Zlib
-        uint8_t ProfileNameSize = 0;
         ProfileNameSize = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
     }
 
-    void PNG_SPLT_Parse(void *Options, BitBuffer *BitB, uint32_t ChunkSize) {
+    void PNG_SPLT_Parse(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         PNGOptions *PNG                         = Options;
@@ -1312,7 +1315,7 @@ extern "C" {
         }
     }
 
-    void PNG_Parse(void *Options, BitBuffer *BitB) {
+    void PNG_Parse(PNGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         PNGOptions *PNG          = Options;
@@ -1376,7 +1379,7 @@ extern "C" {
         }
     }
 
-    void PNG_Extract(void *Options, BitBuffer *BitB, void *Container) {
+    void PNG_Extract(PNGOptions *Options, BitBuffer *BitB, void *Container) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         AssertIO(Container != NULL);

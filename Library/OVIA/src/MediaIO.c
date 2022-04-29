@@ -443,7 +443,7 @@ extern "C" {
     
     Audio2DHistogram *Audio2DHistogram_Init(Audio2DContainer *Audio) {
         AssertIO(Audio != NULL);
-        Audio2DHistogram *Histogram = Audio2DHistogram_Init(Audio);
+        Audio2DHistogram *Histogram = calloc(1, sizeof(Audio2DHistogram));
         AssertIO(Histogram != NULL);
         uint8_t  NumChannels      = Audio2DContainer_GetNumChannels(Audio);
         uint64_t NumValues        = Exponentiate(2, Audio2DContainer_GetBitDepth(Audio));
@@ -695,21 +695,18 @@ extern "C" {
             for (uint64_t Sample = 0ULL; Sample < Vector->NumSamples; Sample++) {
                 Samples[Sample] = NewValue;
             }
-            Verification = (Samples[0] & 0xFF);
         } else if ((Vector->Type & AudioType_Integer16) == AudioType_Integer16) {
             uint16_t *Samples = (uint16_t*) Vector->Samples;
 
             for (uint64_t Sample = 0ULL; Sample < Vector->NumSamples; Sample++) {
                 Samples[Sample] = NewValue;
             }
-            Verification = (Samples[0] & 0xFF);
         } else if ((Vector->Type & AudioType_Integer32) == AudioType_Integer32) {
             uint32_t *Samples = (uint32_t*) Vector->Samples;
 
             for (uint64_t Sample = 0ULL; Sample < Vector->NumSamples; Sample++) {
                 Samples[Sample] = NewValue;
             }
-            Verification = (Samples[0] & 0xFF);
         }
 
         for (uint64_t Direction = 0; Direction < Vector->NumDirections; Direction++) {
@@ -811,12 +808,11 @@ extern "C" {
         }
     }
     
-    uint8_t AudioVectorHistogram_Erase(AudioVectorHistogram *Histogram, uint8_t NewValue) {
+    void AudioVectorHistogram_Erase(AudioVectorHistogram *Histogram, uint8_t NewValue) {
         AssertIO(Histogram != NULL);
         for (uint64_t Sample = 0; Sample < Histogram->NumSamples; Sample++) {
             Histogram->Histogram[Sample] = NewValue;
         }
-        return Verification;
     }
     
     void AudioVectorHistogram_Deinit(AudioVectorHistogram *Histogram) {
@@ -1142,7 +1138,7 @@ extern "C" {
     
     void ImageContainer_Flip(ImageContainer *Image, MediaIO_FlipTypes FlipType) {
         AssertIO(Image != NULL);
-        AssertIO(FlipType != FlipType_Unknown)
+        AssertIO(FlipType != FlipType_Unknown);
         ImageChannelMap *Map         = ImageContainer_GetChannelMap(Image);
         uint8_t          NumViews    = ImageChannelMap_GetNumViews(Map);
         uint8_t          NumChannels = ImageChannelMap_GetNumChannels(Map);

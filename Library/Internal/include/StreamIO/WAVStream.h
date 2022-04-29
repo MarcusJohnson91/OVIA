@@ -225,11 +225,11 @@ extern "C" {
         uint16_t   ValidBitsPerSample;
     } WAVOptions;
 
-    void *WAVOptions_Init(void);
+    WAVOptions *WAVOptions_Init(void);
 
     void WAVSkipPadding(BitBuffer *BitB, uint32_t SubChunkSize);
 
-    void WAVOptions_Deinit(void *Options);
+    void WAVOptions_Deinit(WAVOptions *Options);
 
 #ifdef OVIA_StreamIO_WAV
     extern const OVIA_MagicIDs WAVSignature;

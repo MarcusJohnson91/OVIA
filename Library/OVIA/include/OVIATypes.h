@@ -19,7 +19,7 @@ extern "C" {
 
     typedef void* (*OVIA_Options);
 
-    typedef void* (*MediaIO_Container);
+    typedef void (*MediaIO_Container);
 
     typedef OVIA_Options (*OVIA_Function_Init)(void);
 
@@ -27,7 +27,7 @@ extern "C" {
 
     typedef void  (*OVIA_Function_Coder)(OVIA_Options Options, BitBuffer *BitB, MediaIO_Container Container);
 
-    typedef void  (*OVIA_Function_Transform)(MediaIO_Container Container);
+    typedef void  (*OVIA_Function_Transform)(MediaIO_Container *Container);
 
     typedef void  (*OVIA_Function_Deinit)(OVIA_Options Options);
 

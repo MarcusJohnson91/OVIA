@@ -8,26 +8,25 @@
 extern "C" {
 #endif
 
-    void TIFF_ReadHeader(void *Options, BitBuffer *BitB) {
+    void TIFF_ReadHeader(TIFFOptions *Options, BitBuffer *BitB) {
         // Read 2 bytes, depending on byte order, should be at least 42 aka 0x2A00 for LE
-        TIFFOptions *TIFF        = Options;
         uint16_t       ByteOrder = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 16); // LL
         if (ByteOrder == TIFF_ByteOrder_LE) {
-            TIFF->ByteOrder      = ByteOrder_LSByteIsNearest;
+            Options->ByteOrder      = ByteOrder_LSByteIsNearest;
         } else if (ByteOrder == TIFF_ByteOrder_BE) {
-            TIFF->ByteOrder      = ByteOrder_LSByteIsFarthest;
+            Options->ByteOrder      = ByteOrder_LSByteIsFarthest;
         }
-        TIFF->Version          = BitBuffer_ReadBits(BitB, TIFF->ByteOrder, BitOrder_LSBitIsNearest, 16); // 42
-        TIFF->IFD1Offset       = BitBuffer_ReadBits(BitB, TIFF->ByteOrder, BitOrder_LSBitIsNearest, 32) - 8; // 0
-        BitBuffer_Seek(BitB, Bytes2Bits(TIFF->IFD1Offset));
-        TIFF->NumIFDEntries   = BitBuffer_ReadBits(BitB, TIFF->ByteOrder, BitOrder_LSBitIsNearest, 16); // 54
-        TIFF->IFDEntries      = calloc(TIFF->NumIFDEntries, sizeof(TIFFIFDEntry));
-        for (uint16_t IFDEntry = 0; IFDEntry < TIFF->NumIFDEntries; IFDEntry++) {
-            TIFF->IFDEntries[IFDEntry].FieldTag    = BitBuffer_ReadBits(BitB, TIFF->ByteOrder, BitOrder_LSBitIsNearest, 16); // 254
-            TIFF->IFDEntries[IFDEntry].FieldType   = BitBuffer_ReadBits(BitB, TIFF->ByteOrder, BitOrder_LSBitIsNearest, 16); // 4
-            TIFF->IFDEntries[IFDEntry].FieldCount  = BitBuffer_ReadBits(BitB, TIFF->ByteOrder, BitOrder_LSBitIsNearest, 32); // 1
-            TIFF->IFDEntries[IFDEntry].ValueOffset = BitBuffer_ReadBits(BitB, TIFF->ByteOrder, BitOrder_LSBitIsNearest, 32); // 1
-            switch (TIFF->IFDEntries[IFDEntry].FieldTag) {
+        Options->Version          = BitBuffer_ReadBits(BitB, Options->ByteOrder, BitOrder_LSBitIsNearest, 16); // 42
+        Options->IFD1Offset       = BitBuffer_ReadBits(BitB, Options->ByteOrder, BitOrder_LSBitIsNearest, 32) - 8; // 0
+        BitBuffer_Seek(BitB, Bytes2Bits(Options->IFD1Offset));
+        Options->NumIFDEntries   = BitBuffer_ReadBits(BitB, Options->ByteOrder, BitOrder_LSBitIsNearest, 16); // 54
+        Options->IFDEntries      = calloc(Options->NumIFDEntries, sizeof(TIFFIFDEntry));
+        for (uint16_t IFDEntry = 0; IFDEntry < Options->NumIFDEntries; IFDEntry++) {
+            Options->IFDEntries[IFDEntry].FieldTag    = BitBuffer_ReadBits(BitB, Options->ByteOrder, BitOrder_LSBitIsNearest, 16); // 254
+            Options->IFDEntries[IFDEntry].FieldType   = BitBuffer_ReadBits(BitB, Options->ByteOrder, BitOrder_LSBitIsNearest, 16); // 4
+            Options->IFDEntries[IFDEntry].FieldCount  = BitBuffer_ReadBits(BitB, Options->ByteOrder, BitOrder_LSBitIsNearest, 32); // 1
+            Options->IFDEntries[IFDEntry].ValueOffset = BitBuffer_ReadBits(BitB, Options->ByteOrder, BitOrder_LSBitIsNearest, 32); // 1
+            switch (Options->IFDEntries[IFDEntry].FieldTag) {
                 case TIFFTag_NewSubFileType:
                     
                     break;

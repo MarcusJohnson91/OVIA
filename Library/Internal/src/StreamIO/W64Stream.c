@@ -8,8 +8,8 @@
 extern "C" {
 #endif
     
-    void *W64Options_Init(void) {
-        void *Options = calloc(1, sizeof(W64Options));
+    W64Options *W64Options_Init(void) {
+        W64Options *Options = calloc(1, sizeof(W64Options));
         return Options;
     }
     
@@ -63,7 +63,7 @@ extern "C" {
         return AudioMask;
     }
     
-    void W64Options_Deinit(void *Options) {
+    void W64Options_Deinit(W64Options *Options) {
         W64Options *W64 = Options;
         free(W64);
     }

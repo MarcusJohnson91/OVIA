@@ -62,9 +62,9 @@ extern "C" {
         PNMTypes      Type;
     } PNMOptions;
     
-    void *PNMOptions_Init(void);
+    PNMOptions *PNMOptions_Init(void);
     
-    void PNMOptions_Deinit(void *Options);
+    void PNMOptions_Deinit(PNMOptions *Options);
     
 #ifdef OVIA_StreamIO_PNM
     extern const OVIA_MagicIDs PNMSignatures;

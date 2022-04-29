@@ -81,7 +81,7 @@ extern "C" {
     
     void              AIFWriteHeader(AIFOptions *AIF, BitBuffer *BitB);
     
-    void              AIFOptions_Deinit(void *Options);
+    void              AIFOptions_Deinit(AIFOptions *Options);
 
 #ifdef OVIA_StreamIO_AIF
     extern const OVIA_MagicIDs AIFSignature;

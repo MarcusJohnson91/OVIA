@@ -120,7 +120,6 @@ extern "C" {
         ImageChannelMap *Map  = ImageContainer_GetChannelMap(Image);
         uint8_t  NumChannels  = ImageChannelMap_GetNumChannels(Map);
         AssertIO(NumChannels == 3);
-        ImageChannelMap *Map                          = ImageContainer_GetChannelMap(Image);
         uint8_t  Chroma1Index                         = ImageChannelMap_GetChannelsIndex(Map, ImageMask_Chroma1);
         uint8_t  LumaIndex                            = ImageChannelMap_GetChannelsIndex(Map, ImageMask_Luma);
         uint8_t  Chroma2Index                         = ImageChannelMap_GetChannelsIndex(Map, ImageMask_Chroma2);

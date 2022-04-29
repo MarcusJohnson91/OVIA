@@ -74,7 +74,7 @@ extern "C" {
 
     static uint64_t BMPGetPixelArraySize(const uint64_t RowSize, const int32_t ImageHeight);
 
-    void            BMPOptions_Deinit(void *Options);
+    void            BMPOptions_Deinit(BMPOptions *Options);
     
 #ifdef OVIA_StreamIO_BMP
     extern const OVIA_MagicIDs BMPSignature;

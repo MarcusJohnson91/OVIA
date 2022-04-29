@@ -21,10 +21,9 @@ extern "C" {
         return RowSize * AbsoluteI(ImageHeight);
     }
 
-    void BMPOptions_Deinit(void *Options) {
-        BMPOptions *BMP = Options;
-        free(BMP->ICCPayload);
-        free(BMP);
+    void BMPOptions_Deinit(BMPOptions *Options) {
+        free(Options->ICCPayload);
+        free(Options);
     }
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)

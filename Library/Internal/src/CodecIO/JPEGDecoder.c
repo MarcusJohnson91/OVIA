@@ -9,23 +9,22 @@
 extern "C" {
 #endif
 
-    void JPEG_Read_StartOfFrame(void *Options, BitBuffer *BitB, uint16_t SegmentSize) {
+    void JPEG_Read_StartOfFrame(JPEGOptions *Options, BitBuffer *BitB, uint16_t SegmentSize) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        JPEGOptions *JPEG                                = Options;
-        JPEG->BitDepth                               = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);  // 9
-        JPEG->Height                                 = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16); // 8, Height
-        JPEG->Width                                  = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16); // 8, Width
-        JPEG->NumChannels                            = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);  // 3, Components
-        JPEG->Channels                               = calloc(JPEG->NumChannels, sizeof(JPEG_ChannelParameters));
-        if (JPEG->Channels != NULL) {
-            for (uint8_t Channel = 0; Channel < JPEG->NumChannels; Channel++) {
-                JPEG->Channels[Channel].ChannelID    = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8); // 1, 2, 3,
-                JPEG->Channels[Channel].HorizontalSF = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 4); // 1, 1, 1,
-                JPEG->Channels[Channel].VerticalSF   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 4); // 1, 1, 1,
+        Options->BitDepth                               = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);  // 9
+        Options->Height                                 = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16); // 8, Height
+        Options->Width                                  = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16); // 8, Width
+        Options->NumChannels                            = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);  // 3, Components
+        Options->Channels                               = calloc(Options->NumChannels, sizeof(JPEG_ChannelParameters));
+        if (Options->Channels != NULL) {
+            for (uint8_t Channel = 0; Channel < Options->NumChannels; Channel++) {
+                Options->Channels[Channel].ChannelID    = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8); // 1, 2, 3,
+                Options->Channels[Channel].HorizontalSF = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 4); // 1, 1, 1,
+                Options->Channels[Channel].VerticalSF   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 4); // 1, 1, 1,
             }
         }
-        BitBuffer_Seek(BitB, Bytes2Bits(SegmentSize - ((JPEG->NumChannels * 3) + 8)));
+        BitBuffer_Seek(BitB, Bytes2Bits(SegmentSize - ((Options->NumChannels * 3) + 8)));
     }
 
     static void JPEG_Huffman_CreateHUFFSIZETable(uint8_t BITS[16], uint8_t *HUFFVAL) { // Generate_size_table
@@ -53,16 +52,15 @@ extern "C" {
 
     // Huffman values are written in big endian order; most significant to least
 
-    void JPEG_Read_DefineHuffmanTable(void *Options, BitBuffer *BitB, uint16_t SegmentSize) { // SegmentSize = 30
+    void JPEG_Read_DefineHuffmanTable(JPEGOptions *Options, BitBuffer *BitB, uint16_t SegmentSize) { // SegmentSize = 30
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        JPEGOptions *JPEG                                    = Options;
-        JPEG->EntropyCoder                               = EntropyCoder_Huffman;
-        JPEG->Huffman->Values                            = calloc(2, sizeof(HuffmanValue*));
-        AssertIO(JPEG->Huffman->Values != NULL);
+        Options->EntropyCoder                               = EntropyCoder_Huffman;
+        Options->Huffman->Values                            = calloc(2, sizeof(HuffmanValue*));
+        AssertIO(Options->Huffman->Values != NULL);
         while (SegmentSize > 0) {
                 uint8_t TableType                        = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 4); // 0
-                JPEG->Huffman->TableID                   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 4); // 0
+                Options->Huffman->TableID                   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 4); // 0
                                                                                                                                             // TableType 0 = DC/Lossless, 1 = AC
 
                 if (TableType == 0) {
@@ -77,7 +75,7 @@ extern "C" {
                         SegmentSize                     -= 1;
                     }
 
-                    JPEG->Huffman->NumValues[JPEG->Huffman->TableID]    = NumSymbols; // 12
+                    Options->Huffman->NumValues[Options->Huffman->TableID]    = NumSymbols; // 12
 
                     // Now we create the actual Huffman table from the BitLengths and their associated values called Vij in the Spec.
                     /* HUFFVAL = {0, 7, 8, 9, 6, 5, 4, 3, 1, 2, 10}
@@ -92,8 +90,8 @@ extern "C" {
                      [BitLength = 10] = {10},
                      */
 
-                    JPEG->Huffman->Values[JPEG->Huffman->TableID]       = calloc(NumSymbols, sizeof(HuffmanValue));
-                    if (JPEG->Huffman->Values[JPEG->Huffman->TableID] != NULL) {
+                    Options->Huffman->Values[Options->Huffman->TableID]       = calloc(NumSymbols, sizeof(HuffmanValue));
+                    if (Options->Huffman->Values[Options->Huffman->TableID] != NULL) {
                         /*
                          [0] = { BITS = 1E 00 01 00 | 03 01 01 01 | 01 01 01 01 | 00 00 00 00
                          [0] = BitLength = 1;
@@ -108,10 +106,10 @@ extern "C" {
                         uint16_t HuffCode                                 = 0;
                         while (BitLength < 16) {
                             if (BitLengths[BitLength] > 0) {
-                                JPEG->Huffman->Values[JPEG->Huffman->TableID]->BitLength = BitLength;
-                                JPEG->Huffman->Values[JPEG->Huffman->TableID]->HuffCode  = HuffCode;
+                                Options->Huffman->Values[Options->Huffman->TableID]->BitLength = BitLength;
+                                Options->Huffman->Values[Options->Huffman->TableID]->HuffCode  = HuffCode;
                                 HuffCode                                 += 1;
-                                JPEG->Huffman->Values[JPEG->Huffman->TableID]->Symbol    = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 8);
+                                Options->Huffman->Values[Options->Huffman->TableID]->Symbol    = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 8);
                                 SegmentSize                              -= 1;
                             }
                             HuffCode                                    <<= 1; // Shift always
@@ -129,54 +127,49 @@ extern "C" {
         }
     }
 
-    void JPEG_Read_DefineArithmeticTable(void *Options, BitBuffer *BitB, uint16_t SegmentSize) { // SegmentSize = LA
+    void JPEG_Read_DefineArithmeticTable(JPEGOptions *Options, BitBuffer *BitB, uint16_t SegmentSize) { // SegmentSize = LA
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        JPEGOptions *JPEG                         = Options;
-        JPEG->Arithmetic->TableType           = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 4); // Tc
-        JPEG->Arithmetic->TableID             = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 4); // Tb
+        Options->Arithmetic->TableType           = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 4); // Tc
+        Options->Arithmetic->TableID             = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 4); // Tb
 
-        JPEG->Arithmetic->CodeValue           = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 8); // Cs
+        Options->Arithmetic->CodeValue           = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 8); // Cs
         /* For DC (and lossless) conditioning tables Tc shall be zero and Cs shall contain two 4-bit parameters, U and L. U and L shall be in the range 0 ≤ L ≤ U ≤ 15 and the value of Cs shall be L + 16 × U. */
         BitBuffer_Seek(BitB, Bytes2Bits(SegmentSize - 6));
     }
 
-    void JPEG_Read_DefineRestartInterval(void *Options, BitBuffer *BitB, uint16_t SegmentSize) {
+    void JPEG_Read_DefineRestartInterval(JPEGOptions *Options, BitBuffer *BitB, uint16_t SegmentSize) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        JPEGOptions *JPEG                         = Options;
-        JPEG->RestartInterval                 = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 16);
+        Options->RestartInterval                 = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 16);
         BitBuffer_Seek(BitB, Bytes2Bits(SegmentSize - 4));
     }
 
-    void JPEG_Read_DefineNumberOfLines(void *Options, BitBuffer *BitB, uint16_t SegmentSize) {
+    void JPEG_Read_DefineNumberOfLines(JPEGOptions *Options, BitBuffer *BitB, uint16_t SegmentSize) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        JPEGOptions *JPEG                     = Options;
-        JPEG->Height                      = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 16);
+        Options->Height                      = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 16);
         BitBuffer_Seek(BitB, Bytes2Bits(SegmentSize - 4));
     }
 
-    void JPEG_Read_Comment(void *Options, BitBuffer *BitB, uint16_t SegmentSize) {
+    void JPEG_Read_Comment(JPEGOptions *Options, BitBuffer *BitB, uint16_t SegmentSize) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        JPEGOptions *JPEG                     = Options;
-        JPEG->CommentSize                 = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 16);
-        if (JPEG->CommentSize >= 3) {
-            JPEG->Comment                 = calloc(JPEG->CommentSize - 2, sizeof(CharSet8));
-            if (JPEG->Comment != NULL) {
-                for (uint16_t Byte = 0; Byte < JPEG->CommentSize - 2; Byte++) {
-                    JPEG->Comment[Byte]   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 8);
+        Options->CommentSize                 = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 16);
+        if (Options->CommentSize >= 3) {
+            Options->Comment                 = calloc(Options->CommentSize - 2, sizeof(CharSet8));
+            if (Options->Comment != NULL) {
+                for (uint16_t Byte = 0; Byte < Options->CommentSize - 2; Byte++) {
+                    Options->Comment[Byte]   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 8);
                 }
             }
         }
-        BitBuffer_Seek(BitB, Bytes2Bits(SegmentSize - JPEG->CommentSize));
+        BitBuffer_Seek(BitB, Bytes2Bits(SegmentSize - Options->CommentSize));
     }
 
-    void JPEG_Read_StartOfScan(void *Options, BitBuffer *BitB) {
+    void JPEG_Read_StartOfScan(JPEGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        JPEGOptions *JPEG                          = Options;
         uint8_t  NumChannels                   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);  // 3
         JPEG_ChannelParameters *Channels       = calloc(NumChannels, sizeof(JPEG_ChannelParameters));
         AssertIO(Channels != NULL);
@@ -185,47 +178,39 @@ extern "C" {
             Channels[Channel].HorizontalSF = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 4); // 0, 1, 1,
             Channels[Channel].VerticalSF   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 4); // 0, 0, 0
         }
-        JPEG->Predictor                        = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8); // 1
+        Options->Predictor                        = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8); // 1
         BitBuffer_Seek(BitB, 16); // 3 fields: Se, Ah, Al; 16 bits, should be zero, but otherwise have no meaning.
         /* SoS header parsing is over, now read the data */
         /* So, Markers can occur here, 0xFF is converted to 0xFF 0x00 by the encoder so undo that here */
         /* Image Data: F1 CF D1 3F 91 -47 bytes of just zeros- 0F */
-        if (JPEG->EntropyCoder == EntropyCoder_Huffman) {
-            if (JPEG->CodingMode == CodingMode_NonHierarchical) {
-                // Ok, so what do we do, how do we read this tree?
-            } else if (JPEG->CodingMode == CodingMode_Hierarchical) {
-                Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Hierarchical coding is not yet implemented"));
-            }
-        } else if (JPEG->EntropyCoder == EntropyCoder_Arithmetic) {
-            Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Arithmetic coding is not yet implemented"));
-        }
+        AssertIO(PlatformIO_Is(Options->EntropyCoder, EntropyCoder_Huffman));
+        AssertIO(PlatformIO_Is(Options->EntropyCoder, CodingMode_Hierarchical));
     }
 
-    void JPEG_Parse(void *Options, BitBuffer *BitB) {
+    void JPEG_Parse(JPEGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        JPEGOptions *JPEG              = Options;
         uint16_t Marker            = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 16);
         uint16_t SegmentSize       = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 16);
         switch (Marker) {
             case JPEGMarker_StartOfFrameLossless1:
-                JPEG->EntropyCoder = EntropyCoder_Huffman;
-                JPEG->CodingMode   = CodingMode_NonHierarchical;
+                Options->EntropyCoder = EntropyCoder_Huffman;
+                Options->CodingMode   = CodingMode_NonHierarchical;
                 JPEG_Read_StartOfFrame(Options, BitB, SegmentSize);
                 break;
             case JPEGMarker_StartOfFrameLossless2:
-                JPEG->EntropyCoder = EntropyCoder_Huffman;
-                JPEG->CodingMode   = CodingMode_Hierarchical;
+                Options->EntropyCoder = EntropyCoder_Huffman;
+                Options->CodingMode   = CodingMode_Hierarchical;
                 JPEG_Read_StartOfFrame(Options, BitB, SegmentSize);
                 break;
             case JPEGMarker_StartOfFrameLossless3:
-                JPEG->EntropyCoder = EntropyCoder_Arithmetic;
-                JPEG->CodingMode   = CodingMode_NonHierarchical;
+                Options->EntropyCoder = EntropyCoder_Arithmetic;
+                Options->CodingMode   = CodingMode_NonHierarchical;
                 JPEG_Read_StartOfFrame(Options, BitB, SegmentSize);
                 break;
             case JPEGMarker_StartOfFrameLossless4:
-                JPEG->EntropyCoder = EntropyCoder_Arithmetic;
-                JPEG->CodingMode   = CodingMode_Hierarchical;
+                Options->EntropyCoder = EntropyCoder_Arithmetic;
+                Options->CodingMode   = CodingMode_Hierarchical;
                 JPEG_Read_StartOfFrame(Options, BitB, SegmentSize);
                 break;
             case JPEGMarker_DefineHuffmanTable:

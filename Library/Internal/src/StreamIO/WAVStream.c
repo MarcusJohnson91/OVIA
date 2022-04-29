@@ -6,8 +6,8 @@
 extern "C" {
 #endif
     
-    void *WAVOptions_Init(void) {
-        void *Options = calloc(1, sizeof(WAVOptions));
+    WAVOptions *WAVOptions_Init(void) {
+        WAVOptions *Options = calloc(1, sizeof(WAVOptions));
         return Options;
     }
     
@@ -17,9 +17,18 @@ extern "C" {
         }
     }
     
-    void WAVOptions_Deinit(void *Options) {
-        WAVOptions *WAV = Options;
-        free(WAV);
+    void WAVOptions_Deinit(WAVOptions *Options) {
+        free(Options->Info->Album);
+        free(Options->Info->Artist);
+        free(Options->Info->CreationSoftware);
+        free(Options->Info->Genre);
+        free(Options->Info->ReleaseDate);
+        free(Options->Info->Title);
+        free(Options->BEXT->Description);
+        free(Options->BEXT->Originator);
+        free(Options->BEXT->OriginatorDate);
+        free(Options->BEXT->Description);
+        free(Options->BEXT->OriginatorRef);
     }
     
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)

@@ -21,16 +21,15 @@ extern "C" {
         return CommentSize;
     }
 
-    static void PNMParse_ASCII(void *Options, BitBuffer *BitB) {
+    static void PNMParse_ASCII(PNMOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        PNMOptions *PNM           = Options; // Cast the void pointer Options to PNMOptions so that the warnings in the registration functions disappear
         uint64_t CommentSizeWidth = PNMCheckForComment(BitB);
         BitBuffer_Seek(BitB, Bytes2Bits(CommentSizeWidth));
         /* Read Width */
         uint64_t WidthStringSize  = BitBuffer_GetUTF8StringSize(BitB);
         UTF8    *WidthString      = BitBuffer_ReadUTF8(BitB, WidthStringSize);
-        PNM->Width                = UTF8_String2Integer(Base_Integer | Base_Radix10, WidthString);
+        Options->Width            = UTF8_String2Integer(Base_Integer | Base_Radix10, WidthString);
         free(WidthString);
         /* Read Width */
 
@@ -40,26 +39,25 @@ extern "C" {
         /* Read Height */
         uint64_t HeightStringSize = BitBuffer_GetUTF8StringSize(BitB);
         UTF8    *HeightString     = BitBuffer_ReadUTF8(BitB, HeightStringSize);
-        PNM->Height               = UTF8_String2Integer(Base_Integer | Base_Radix10, HeightString);
+        Options->Height               = UTF8_String2Integer(Base_Integer | Base_Radix10, HeightString);
         free(HeightString);
         /* Read Height */
     }
 
-    static void PNMParse_Binary(void *Options, BitBuffer *BitB) {
+    static void PNMParse_Binary(PNMOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        PNMOptions *PNM           = Options; // Cast the void pointer Options to PNMOptions so that the warnings in the registration functions disappear
         /* Read Width */
         uint64_t WidthStringSize  = BitBuffer_GetUTF8StringSize(BitB);
         UTF8    *WidthString      = BitBuffer_ReadUTF8(BitB, WidthStringSize);
-        PNM->Width                = UTF8_String2Integer(Base_Integer | Base_Radix10, WidthString);
+        Options->Width                = UTF8_String2Integer(Base_Integer | Base_Radix10, WidthString);
         free(WidthString);
         /* Read Width */
 
         /* Read Height */
         uint64_t HeightStringSize = BitBuffer_GetUTF8StringSize(BitB);
         UTF8    *HeightString     = BitBuffer_ReadUTF8(BitB, HeightStringSize);
-        PNM->Height               = UTF8_String2Integer(Base_Integer | Base_Radix10, HeightString);
+        Options->Height               = UTF8_String2Integer(Base_Integer | Base_Radix10, HeightString);
         free(HeightString);
         /* Read Height */
 
@@ -67,21 +65,20 @@ extern "C" {
         uint64_t MaxValStringSize = BitBuffer_GetUTF8StringSize(BitB);
         UTF8    *MaxValString     = BitBuffer_ReadUTF8(BitB, MaxValStringSize);
         uint64_t MaxVal           = UTF8_String2Integer(Base_Integer | Base_Radix10, MaxValString);
-        PNM->BitDepth             = Logarithm(2, MaxVal + 1);
+        Options->BitDepth             = Logarithm(2, MaxVal + 1);
         free(MaxValString);
         /* Read MaxVal */
     }
 
-    static void PNMParse_PAM(void *Options, BitBuffer *BitB) {
+    static void PNMParse_PAM(PNMOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        PNMOptions *PNM           = Options;  // Cast the void pointer Options to PNMOptions so that the warnings in the registration functions disappear
         /* Read Width */
         BitBuffer_Seek(BitB, 48); // Skip "WIDTH " string
 
         uint64_t WidthStringSize  = BitBuffer_GetUTF8StringSize(BitB);
         UTF8    *WidthString      = BitBuffer_ReadUTF8(BitB, WidthStringSize);
-        PNM->Width                = UTF8_String2Integer(Base_Integer | Base_Radix10, WidthString);
+        Options->Width                = UTF8_String2Integer(Base_Integer | Base_Radix10, WidthString);
         free(WidthString);
         /* Read Width */
 
@@ -90,7 +87,7 @@ extern "C" {
 
         uint64_t HeightStringSize = BitBuffer_GetUTF8StringSize(BitB);
         UTF8    *HeightString     = BitBuffer_ReadUTF8(BitB, HeightStringSize);
-        PNM->Height               = UTF8_String2Integer(Base_Integer | Base_Radix10, HeightString);
+        Options->Height               = UTF8_String2Integer(Base_Integer | Base_Radix10, HeightString);
         free(HeightString);
         /* Read Height */
 
@@ -99,7 +96,7 @@ extern "C" {
 
         uint64_t NumChannelsStringSize  = BitBuffer_GetUTF8StringSize(BitB);
         UTF8    *NumChannelsString      = BitBuffer_ReadUTF8(BitB, NumChannelsStringSize);
-        PNM->NumChannels                = UTF8_String2Integer(Base_Integer | Base_Radix10, NumChannelsString);
+        Options->NumChannels                = UTF8_String2Integer(Base_Integer | Base_Radix10, NumChannelsString);
         free(NumChannelsString);
         /* Read NumChannels */
 
@@ -109,7 +106,7 @@ extern "C" {
         uint64_t MaxValStringSize = BitBuffer_GetUTF8StringSize(BitB);
         UTF8    *MaxValString     = BitBuffer_ReadUTF8(BitB, MaxValStringSize);
         uint64_t MaxVal           = UTF8_String2Integer(Base_Integer | Base_Radix10, MaxValString);
-        PNM->BitDepth             = Logarithm(2, MaxVal + 1);
+        Options->BitDepth             = Logarithm(2, MaxVal + 1);
         free(MaxValString);
         /* Read MaxVal */
 
@@ -119,20 +116,20 @@ extern "C" {
         UTF8    *TupleTypeString   = BitBuffer_ReadUTF8(BitB, TupleTypeSize);
 
         if (UTF8_CompareSubString(TupleTypeString, UTF8String("BLACKANDWHITE"), 0, 0) == true) {
-            PNM->NumChannels       = 1;
-            PNM->TupleType         = PNM_TUPLE_BnW;
+            Options->NumChannels       = 1;
+            Options->TupleType         = PNM_TUPLE_BnW;
         } else if (UTF8_CompareSubString(TupleTypeString, UTF8String("GRAYSCALE"), 0, 0) == true) {
-            PNM->NumChannels       = 1;
-            PNM->TupleType         = PNM_TUPLE_Gray;
+            Options->NumChannels       = 1;
+            Options->TupleType         = PNM_TUPLE_Gray;
         } else if (UTF8_CompareSubString(TupleTypeString, UTF8String("GRAYSCALE_ALPHA"), 0, 0) == true) {
-            PNM->NumChannels       = 2;
-            PNM->TupleType         = PNM_TUPLE_GrayAlpha;
+            Options->NumChannels       = 2;
+            Options->TupleType         = PNM_TUPLE_GrayAlpha;
         } else if (UTF8_CompareSubString(TupleTypeString, UTF8String("RGB"), 0, 0) == true) {
-            PNM->NumChannels       = 3;
-            PNM->TupleType         = PNM_TUPLE_RGB;
+            Options->NumChannels       = 3;
+            Options->TupleType         = PNM_TUPLE_RGB;
         } else if (UTF8_CompareSubString(TupleTypeString, UTF8String("RGB_ALPHA"), 0, 0) == true) {
-            PNM->NumChannels       = 4;
-            PNM->TupleType         = PNM_TUPLE_RGBAlpha;
+            Options->NumChannels       = 4;
+            Options->TupleType         = PNM_TUPLE_RGBAlpha;
         }
         free(TupleTypeString);
         /* Read TupleType */
@@ -142,17 +139,16 @@ extern "C" {
         /* Skip ENDHDR */
     }
 
-    void PNMExtractImage_ASCII(void *Options, BitBuffer *BitB, ImageContainer *Image) {
+    void PNMExtractImage_ASCII(PNMOptions *Options, BitBuffer *BitB, ImageContainer *Image) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         AssertIO(Image != NULL);
-        PNMOptions *PNM              = Options;
-        if (PNM->BitDepth <= 8) {
+        if (Options->BitDepth <= 8) {
             uint8_t ****Array        = (uint8_t****) ImageContainer_GetArray(Image);
             UTF8        Component[4] = {0, 0, 0, 0};
-            for (uint64_t Width = 0; Width < PNM->Width; Width++) {
-                for (uint64_t Height = 0; Height < PNM->Height; Height++) {
-                    for (uint8_t Channel = 0; Channel < PNM->NumChannels; Channel++) {
+            for (uint64_t Width = 0; Width < Options->Width; Width++) {
+                for (uint64_t Height = 0; Height < Options->Height; Height++) {
+                    for (uint8_t Channel = 0; Channel < Options->NumChannels; Channel++) {
                         for (uint8_t SubPixelByte = 0; SubPixelByte < 3; SubPixelByte++) {
                             Component[SubPixelByte]      = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
                         }
@@ -160,12 +156,12 @@ extern "C" {
                     }
                 }
             }
-        } else if (PNM->BitDepth <= 16) {
+        } else if (Options->BitDepth <= 16) {
             uint16_t ****Array       = (uint16_t****) ImageContainer_GetArray(Image);
             UTF8        Component[6] = {0, 0, 0, 0, 0, 0};
-            for (uint64_t Width = 0; Width < PNM->Width; Width++) {
-                for (uint64_t Height = 0; Height < PNM->Height; Height++) {
-                    for (uint8_t Channel = 0; Channel < PNM->NumChannels; Channel++) {
+            for (uint64_t Width = 0; Width < Options->Width; Width++) {
+                for (uint64_t Height = 0; Height < Options->Height; Height++) {
+                    for (uint8_t Channel = 0; Channel < Options->NumChannels; Channel++) {
                         for (uint8_t SubPixelByte = 0; SubPixelByte < 3; SubPixelByte++) {
                             Component[SubPixelByte]      = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
                         }
@@ -176,19 +172,19 @@ extern "C" {
         }
     }
 
-    void PNMExtractImage_Binary(void *Options, BitBuffer *BitB, ImageContainer *Image) {
+    void PNMExtractImage_Binary(PNMOptions *Options, BitBuffer *BitB, ImageContainer *Image) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         AssertIO(Image != NULL);
-        PNMOptions *PNM        = Options;
-        if (PNM->BitDepth <= 8) {
+
+        if (Options->BitDepth <= 8) {
             uint8_t ****Array  = (uint8_t****) ImageContainer_GetArray(Image);
 
-            for (uint64_t Width = 0; Width < PNM->Width; Width++) {
-                for (uint64_t Height = 0; Height < PNM->Height; Height++) {
-                    for (uint8_t Channel = 0; Channel < PNM->NumChannels; Channel++) {
-                        uint8_t CurrentPixel                 = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, PNM->BitDepth);
-                        if (PNM->TupleType == PNM_TUPLE_BnW) {
+            for (uint64_t Width = 0; Width < Options->Width; Width++) {
+                for (uint64_t Height = 0; Height < Options->Height; Height++) {
+                    for (uint8_t Channel = 0; Channel < Options->NumChannels; Channel++) {
+                        uint8_t CurrentPixel                 = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, Options->BitDepth);
+                        if (Options->TupleType == PNM_TUPLE_BnW) {
                             Array[0][Width][Height][Channel] = ~CurrentPixel; // 1 = black, 0 = white
                         } else {
                             Array[0][Width][Height][Channel] = CurrentPixel; // 1 = white, 0 = black
@@ -196,14 +192,14 @@ extern "C" {
                     }
                 }
             }
-        } else if (PNM->BitDepth <= 16) {
+        } else if (Options->BitDepth <= 16) {
             uint16_t ****Array  = (uint16_t****) ImageContainer_GetArray(Image);
 
-            for (uint64_t Width = 0; Width < PNM->Width; Width++) {
-                for (uint64_t Height = 0; Height < PNM->Height; Height++) {
-                    for (uint8_t Channel = 0; Channel < PNM->NumChannels; Channel++) {
-                        uint16_t CurrentPixel                = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, PNM->BitDepth);
-                        if (PNM->TupleType == PNM_TUPLE_BnW) {
+            for (uint64_t Width = 0; Width < Options->Width; Width++) {
+                for (uint64_t Height = 0; Height < Options->Height; Height++) {
+                    for (uint8_t Channel = 0; Channel < Options->NumChannels; Channel++) {
+                        uint16_t CurrentPixel                = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, Options->BitDepth);
+                        if (Options->TupleType == PNM_TUPLE_BnW) {
                             Array[0][Width][Height][Channel] = ~CurrentPixel; // 1 = black, 0 = white
                         } else {
                             Array[0][Width][Height][Channel] = CurrentPixel; // 1 = white, 0 = black

@@ -37,7 +37,7 @@ extern "C" {
         return Mask;
     }
 
-    void JPEG_Extract(void *Options, BitBuffer *BitB, void *Container) {
+    void JPEG_Extract(JPEGOptions *Options, BitBuffer *BitB, void *Container) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         AssertIO(Container != NULL);
@@ -58,7 +58,7 @@ extern "C" {
                 // Count the number of bits set in Symbol, go to that index in the Huffman code table and loop over all possible values there, until you find a matching code, then read that number of bits
                 uint8_t SymbolSize   = CountBitsSet(Symbol);
                 uint8_t NumBits2Read = 0;
-                for (uint8_t NumSymbols = 0; NumSymbols < JPEG->Huffman->Values[NumSymbols]; NumSymbols++) {
+                for (uint8_t NumSymbols = 0; NumSymbols < JPEG->Huffman->Values[NumSymbols]->Symbol; NumSymbols++) {
                     /*
                     if (SymbolSize == JPEG->Huffman->Values[NumBits2Read]) {
                         NumBits2Read = JPEG->Huffman->Values[NumBits2Read];
@@ -69,10 +69,9 @@ extern "C" {
             }
     }
 
-    void JPEGOptions_Deinit(void *Options) {
+    void JPEGOptions_Deinit(JPEGOptions *Options) {
         AssertIO(Options != NULL);
-        JPEGOptions *JPEG = Options;
-        free(JPEG);
+        free(Options);
     }
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)

@@ -28,7 +28,7 @@ extern "C" {
     // Transport streams have no global header.
     // Packet size is 188 bytes, M2ts adds 4 bytes for copyright and timestamp.
 
-    static void ParseConditionalAccessDescriptor(MPEG2TransportStream *Transport, BitBuffer *BitB) { // CA_descriptor
+    static void ParseConditionalAccessDescriptor(MPEG2Options *Options, BitBuffer *BitB) { // CA_descriptor
         int N                                                 = 0;// TODO: what is N?
         uint8_t  DescriptorTag                                = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);// descriptor_tag
         uint8_t  DescriptorSize                               = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);// descriptor_length
@@ -40,41 +40,41 @@ extern "C" {
         }
     }
 
-    static void ParseConditionalAccessSection(MPEG2TransportStream *Transport, BitBuffer *BitB) { // CA_section
+    static void ParseConditionalAccessSection(MPEG2Options *Options, BitBuffer *BitB) { // CA_section
         int N = 0; // TODO: find out what the hell N is
-        Transport->Condition->TableID                = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
-        Transport->Condition->SectionSyntaxIndicator = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1);
+        Options->Condition->TableID                = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+        Options->Condition->SectionSyntaxIndicator = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1);
         BitBuffer_Seek(BitB, 3); // "0" + 2 bits reserved.
-        Transport->Condition->SectionSize            = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 12);
+        Options->Condition->SectionSize            = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 12);
         BitBuffer_Seek(BitB, 18);
-        Transport->Condition->VersionNum             = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 5);
-        Transport->Condition->CurrentNextIndicator   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1);
-        Transport->Condition->SectionNumber          = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
-        Transport->Condition->LastSectionNumber      = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+        Options->Condition->VersionNum             = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 5);
+        Options->Condition->CurrentNextIndicator   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1);
+        Options->Condition->SectionNumber          = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+        Options->Condition->LastSectionNumber      = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
         for (int i = 0; i < N; i++) {
-            ParseConditionalAccessDescriptor(BitB, Transport);
+            ParseConditionalAccessDescriptor(BitB, Options);
         }
-        Transport->Condition->ConditionCRC32         = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+        Options->Condition->ConditionCRC32         = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
     }
 
-    static void ParseProgramAssociationTable(MPEG2TransportStream *Transport, BitBuffer *BitB) { // program_association_section
-        Transport->Program->TableID                = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
-        Transport->Program->SectionSyntaxIndicator = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1);
+    static void ParseProgramAssociationTable(MPEG2Options *Options, BitBuffer *BitB) { // program_association_section
+        Options->Program->TableID                = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+        Options->Program->SectionSyntaxIndicator = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1);
         BitBuffer_Seek(BitB, 3); // "0" + 2 bits reserved.
-        Transport->Program->SectionSize            = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 12);
-        Transport->Program->TransportStreamID      = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16);
+        Options->Program->SectionSize            = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 12);
+        Options->Program->TransportStreamID      = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16);
         BitBuffer_Seek(BitB, 2); // Reserved
-        Transport->Program->VersionNum             = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 5);
-        Transport->Program->CurrentNextIndicator   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1);
-        Transport->Program->SectionNumber          = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
-        Transport->Program->LastSectionNumber      = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
-        Transport->Program->ProgramNumber          = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16);
-        Transport->Program->NetworkPID             = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 13);
-        Transport->Program->ProgramMapPID          = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 13);
-        Transport->Program->ProgramCRC32           = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+        Options->Program->VersionNum             = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 5);
+        Options->Program->CurrentNextIndicator   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1);
+        Options->Program->SectionNumber          = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+        Options->Program->LastSectionNumber      = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+        Options->Program->ProgramNumber          = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16);
+        Options->Program->NetworkPID             = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 13);
+        Options->Program->ProgramMapPID          = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 13);
+        Options->Program->ProgramCRC32           = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
     }
 
-    static void ParsePackHeader(MPEG2ProgramStream *Program, BitBuffer *BitB) { // pack_header
+    static void ParsePackHeader(MPEG2Options *Program, BitBuffer *BitB) { // pack_header
         Program->PSP->PackStartCode           = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
         BitBuffer_Seek(BitB, 2); // 01
         Program->PSP->SystemClockRefBase1     = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 3);
@@ -289,53 +289,53 @@ extern "C" {
         }
     }
 
-    static void ParseTransportStreamAdaptionField(MPEG2TransportStream *Transport, BitBuffer *BitB) { // adaptation_field
-        Transport->Adaptation->AdaptationFieldSize                       = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
-        Transport->Adaptation->DiscontinuityIndicator                    = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1);
-        Transport->Adaptation->RandomAccessIndicator                     = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1);
-        Transport->Adaptation->ElementaryStreamPriorityIndicator         = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1);
-        Transport->Adaptation->PCRFlag                                   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1);
-        Transport->Adaptation->OPCRFlag                                  = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1);
-        Transport->Adaptation->SlicingPointFlag                          = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1);
-        Transport->Adaptation->TransportPrivateDataFlag                  = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1);
-        Transport->Adaptation->AdaptationFieldExtensionFlag              = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1); // 16 bits read so far
-        if (Transport->Adaptation->PCRFlag == true) { // Reads 48 bits
-            Transport->Adaptation->ProgramClockReferenceBase             = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 33);
+    static void ParseTransportStreamAdaptionField(MPEG2Options *Options, BitBuffer *BitB) { // adaptation_field
+        Options->Adaptation->AdaptationFieldSize                       = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+        Options->Adaptation->DiscontinuityIndicator                    = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1);
+        Options->Adaptation->RandomAccessIndicator                     = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1);
+        Options->Adaptation->ElementaryStreamPriorityIndicator         = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1);
+        Options->Adaptation->PCRFlag                                   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1);
+        Options->Adaptation->OPCRFlag                                  = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1);
+        Options->Adaptation->SlicingPointFlag                          = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1);
+        Options->Adaptation->TransportPrivateDataFlag                  = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1);
+        Options->Adaptation->AdaptationFieldExtensionFlag              = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1); // 16 bits read so far
+        if (Options->Adaptation->PCRFlag == true) { // Reads 48 bits
+            Options->Adaptation->ProgramClockReferenceBase             = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 33);
             BitBuffer_Seek(BitB, 6);
-            Transport->Adaptation->ProgramClockReferenceExtension        = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 9);
+            Options->Adaptation->ProgramClockReferenceExtension        = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 9);
         }
-        if (Transport->Adaptation->OPCRFlag == true) { // Reads 48 bits
-            Transport->Adaptation->OriginalProgramClockRefBase           = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 33);
+        if (Options->Adaptation->OPCRFlag == true) { // Reads 48 bits
+            Options->Adaptation->OriginalProgramClockRefBase           = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 33);
             BitBuffer_Seek(BitB, 6);
-            Transport->Adaptation->OriginalProgramClockRefExt            = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 9);
+            Options->Adaptation->OriginalProgramClockRefExt            = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 9);
         }
-        if (Transport->Adaptation->SlicingPointFlag == true) { // Reads 8 bits
-            Transport->Adaptation->SpliceCountdown                       = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+        if (Options->Adaptation->SlicingPointFlag == true) { // Reads 8 bits
+            Options->Adaptation->SpliceCountdown                       = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
         }
-        if (Transport->Adaptation->TransportPrivateDataFlag == true) { // Reads up to 2056 bits
-            Transport->Adaptation->TransportPrivateDataSize              = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
-            for (uint8_t PrivateByte = 0; PrivateByte < Transport->Adaptation->TransportPrivateDataSize; PrivateByte++) {
-                Transport->Adaptation->TransportPrivateData[PrivateByte] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+        if (Options->Adaptation->TransportPrivateDataFlag == true) { // Reads up to 2056 bits
+            Options->Adaptation->TransportPrivateDataSize              = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+            for (uint8_t PrivateByte = 0; PrivateByte < Options->Adaptation->TransportPrivateDataSize; PrivateByte++) {
+                Options->Adaptation->TransportPrivateData[PrivateByte] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
             }
         }
-        if (Transport->Adaptation->AdaptationFieldExtensionFlag == true) { // Reads 12 bits
-            Transport->Adaptation->AdaptationFieldExtensionSize          = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
-            Transport->Adaptation->LegalTimeWindowFlag                   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1);
-            Transport->Adaptation->PiecewiseRateFlag                     = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1);
-            Transport->Adaptation->SeamlessSpliceFlag                    = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1);
+        if (Options->Adaptation->AdaptationFieldExtensionFlag == true) { // Reads 12 bits
+            Options->Adaptation->AdaptationFieldExtensionSize          = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+            Options->Adaptation->LegalTimeWindowFlag                   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1);
+            Options->Adaptation->PiecewiseRateFlag                     = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1);
+            Options->Adaptation->SeamlessSpliceFlag                    = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1);
             BitBuffer_Align(BitB, 1);
-            if (Transport->Adaptation->LegalTimeWindowFlag == true) { // Reads 16 bits
-                Transport->Adaptation->LegalTimeWindowValidFlag          = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1);
-                if (Transport->Adaptation->LegalTimeWindowValidFlag == true) {
-                    Transport->Adaptation->LegalTimeWindowOffset         = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 15);
+            if (Options->Adaptation->LegalTimeWindowFlag == true) { // Reads 16 bits
+                Options->Adaptation->LegalTimeWindowValidFlag          = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1);
+                if (Options->Adaptation->LegalTimeWindowValidFlag == true) {
+                    Options->Adaptation->LegalTimeWindowOffset         = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 15);
                 }
             }
-            if (Transport->Adaptation->PiecewiseRateFlag == true) { // Reads 24 bits
+            if (Options->Adaptation->PiecewiseRateFlag == true) { // Reads 24 bits
                 BitBuffer_Seek(BitB, 2);
-                Transport->Adaptation->PiecewiseRateFlag                 = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 22);
+                Options->Adaptation->PiecewiseRateFlag                 = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 22);
             }
-            if (Transport->Adaptation->SeamlessSpliceFlag == true) { // Reads 44 bits
-                Transport->Adaptation->SpliceType                        = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+            if (Options->Adaptation->SeamlessSpliceFlag == true) { // Reads 44 bits
+                Options->Adaptation->SpliceType                        = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
                 uint8_t  DecodeTimeStamp1                                = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 3);
                 BitBuffer_Seek(BitB, 1); // marker_bit
                 uint16_t DecodeTimeStamp2                                = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 15);
@@ -343,48 +343,36 @@ extern "C" {
                 uint16_t DecodeTimeStamp3                                = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 15);
                 BitBuffer_Seek(BitB, 1); // marker_bit
                 
-                Transport->Adaptation->DecodeTimeStampNextAU             = DecodeTimeStamp1 << 30;
-                Transport->Adaptation->DecodeTimeStampNextAU            += DecodeTimeStamp2 << 15;
-                Transport->Adaptation->DecodeTimeStampNextAU            += DecodeTimeStamp3;
+                Options->Adaptation->DecodeTimeStampNextAU             = DecodeTimeStamp1 << 30;
+                Options->Adaptation->DecodeTimeStampNextAU            += DecodeTimeStamp2 << 15;
+                Options->Adaptation->DecodeTimeStampNextAU            += DecodeTimeStamp3;
             }
-            for (int i = 0; i < 184 - Transport->Adaptation->AdaptationFieldSize; i++) { // So, the minimum number of bytes to read is 188 - 284, aka -96 lol
+            for (int i = 0; i < 184 - Options->Adaptation->AdaptationFieldSize; i++) { // So, the minimum number of bytes to read is 188 - 284, aka -96 lol
                 BitBuffer_Seek(BitB, 8); // Reserved
             }
         }
-        for (int i = 0; i < 184 - Transport->Adaptation->AdaptationFieldSize; i++) {
+        for (int i = 0; i < 184 - Options->Adaptation->AdaptationFieldSize; i++) {
             BitBuffer_Seek(BitB, 8); // Stuffing so 0b11111111, throw it away.
         }
     }
 
-    static void ParseTransportStreamPacket(MPEG2TransportStream *Transport, BitBuffer *BitB, uint8_t *TransportStream, size_t TransportStreamSize) { // transport_packet
-        Transport->Packet->SyncByte                              = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
-        Transport->Packet->TransportErrorIndicator               = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1); // false
-        Transport->Packet->StartOfPayloadIndicator               = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1); // true
-        Transport->Packet->TransportPriorityIndicator            = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1); // false
-        Transport->Packet->PID                                   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 13); // 0
-        Transport->Packet->TransportScramblingControl            = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 2); // 0
-        Transport->Packet->AdaptationFieldControl                = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 2); // 1
-        Transport->Packet->ContinuityCounter                     = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest,  4); // 0
-        if (Transport->Packet->AdaptationFieldControl == 2 || Transport->Packet->AdaptationFieldControl == 3) {
-            ParseTransportStreamAdaptionField(BitB, Transport);
+    static void ParseTransportStreamPacket(MPEG2Options *Options, BitBuffer *BitB, uint8_t *TransportStream, size_t TransportStreamSize) { // transport_packet
+        Options->Packet->SyncByte                              = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+        Options->Packet->TransportErrorIndicator               = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1); // false
+        Options->Packet->StartOfPayloadIndicator               = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1); // true
+        Options->Packet->TransportPriorityIndicator            = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1); // false
+        Options->Packet->PID                                   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 13); // 0
+        Options->Packet->TransportScramblingControl            = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 2); // 0
+        Options->Packet->AdaptationFieldControl                = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 2); // 1
+        Options->Packet->ContinuityCounter                     = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest,  4); // 0
+        if (Options->Packet->AdaptationFieldControl == 2 || Options->Packet->AdaptationFieldControl == 3) {
+            ParseTransportStreamAdaptionField(BitB, Options);
         }
-        if (Transport->Packet->AdaptationFieldControl == 1 || Transport->Packet->AdaptationFieldControl == 3) {
+        if (Options->Packet->AdaptationFieldControl == 1 || Options->Packet->AdaptationFieldControl == 3) {
             for (int i = 0; i < 184; i++) {
                 TransportStream[i] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest,  8); // data_byte, start copying data to the transport stream.
             }
         }
-    }
-
-    void DemuxMPEG2PESPackets(PacketizedElementaryStream *PESPacket, BitBuffer *BitB) {
-		
-    }
-
-    void DemuxMPEG2ProgramStreamPacket(MPEG2ProgramStream *Program, BitBuffer *BitB) {
-
-    }
-
-    void DemuxMPEG2TransportStreamPacket(MPEG2TransportStream *Transport, BitBuffer *BitB) {
-
     }
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)

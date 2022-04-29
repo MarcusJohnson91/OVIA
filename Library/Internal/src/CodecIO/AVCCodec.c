@@ -125,19 +125,7 @@ extern "C" {
     }
     
     uint8_t GetNumSubMacroBlockPartitions(bool IsDirectFlag, uint8_t *MacroBlockType, uint8_t **SubMacroBlockType, uintptr_t CurrentMacroBlockAddress, uint8_t MacroBlockPartitionIndex) { // NumSubMbPart
-        if (MacroBlockType[CurrentMacroBlockAddress] == B_Skip || MacroBlockType[CurrentMacroBlockAddress] == B_Direct_16x16) {
-            IsDirectFlag = true;
-        } else if (MacroBlockType[CurrentMacroBlockAddress] == B_8x8 && SubMacroBlockType[CurrentMacroBlockAddress][MacroBlockPartitionIndex] == B_Direct_8x8) {
-            IsDirectFlag = true;
-        }
-        
-        if (IsDirectFlag == true && DQID == 0 && nal_unit_type != NAL_AuxiliarySliceExtension) {
-            return 4;
-        } else if (IsDirectFlag == true && DQID > 0 && nal_unit_type == NAL_AuxiliarySliceExtension) {
-            return 1;
-        } else if (IsDirectFlag == false) {
-            return NumSubMbPart(subMbType[CurrentMacroBlockAddress][MacroBlockPartitionIndex]);
-        }
+        return 0;
     }
     
     bool IsThereMoreDataInThisNAL() { // more_rbsp_data
@@ -148,6 +136,7 @@ extern "C" {
                 // find the rightmost 1 bit, Given the position of this bit, which is the first bit (rbsp_stop_one_bit) of the rbsp_trailing_bits( ) syntax structure
             }
              */
+        return false;
     }
     
     uint64_t ReadArithmetic(BitBuffer *BitB, uint64_t *MaximumTable, uint64_t *MinimumTable, size_t TableSize, uint64_t Bits2Decode) {
@@ -157,7 +146,7 @@ extern "C" {
     }
     
     size_t GetSizeOfNALUnit(AVCOptions *Options, BitBuffer *BitB) {
-        
+        return 0;
     }
 
     void AVCOptions_Deinit(AVCOptions *Options) {
