@@ -1,6 +1,6 @@
 #include "../../include/CodecIO/FLACCodec.h"
 
-#include "../../../../Dependencies/FoundationIO/Library/include/AssertIO.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/AssertIO.h" /* Included for Assertions */
 #include "../../../../Dependencies/FoundationIO/Library/include/BufferIO.h"
 #include "../../../../Dependencies/FoundationIO/Library/include/MathIO.h"
 

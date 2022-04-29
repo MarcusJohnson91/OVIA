@@ -1,7 +1,7 @@
 #include "../../../OVIA/include/EntropyIO.h"
 #include "../../include/CodecIO/PNGCodec.h"
 
-#include "../../../../Dependencies/FoundationIO/Library/include/AssertIO.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/AssertIO.h" /* Included for Assertions */
 #include "../../../../Dependencies/FoundationIO/Library/include/BufferIO.h"
 #include "../../../../Dependencies/FoundationIO/Library/include/CryptographyIO.h"
 #include "../../../../Dependencies/FoundationIO/Library/include/MathIO.h"

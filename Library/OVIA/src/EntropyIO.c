@@ -1,6 +1,7 @@
-#include "../include/EntropyIO.h" /* Included for our declarations */
+#include "../include/EntropyIO.h"                                        /* Included for our declarations */
 
-#include "../../../Dependencies/FoundationIO/Library/include/AssertIO.h"
+#include "../../../Dependencies/FoundationIO/Library/include/AssertIO.h" /* Included for Assertions */
+#include "../../../Dependencies/FoundationIO/Library/include/MathIO.h"   /* Included for Exponentiate */
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
