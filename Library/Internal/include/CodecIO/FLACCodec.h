@@ -241,7 +241,7 @@ extern "C" {
 
     /* OVIA specific functions */
 
-    void       *FLACOptions_Init(void);
+    FLACOptions *FLACOptions_Init(void);
 
     void        FLAC_Compose(FLACOptions *Options, BitBuffer *BitB);
 

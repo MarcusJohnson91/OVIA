@@ -8,7 +8,7 @@
 extern "C" {
 #endif
     
-    void *FLACOptions_Init(void) {
+    FLACOptions *FLACOptions_Init(void) {
         FLACOptions *Options     = calloc(1, sizeof(FLACOptions));
         AssertIO(Options != NULL);
         Options->StreamInfo  = calloc(1, sizeof(StreamInfo));

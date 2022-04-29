@@ -69,7 +69,7 @@ extern "C" {
         uint16_t        BitDepth;
     } AIFOptions;
     
-    void             *AIFOptions_Init(void);
+    AIFOptions       *AIFOptions_Init(void);
     
     void              AIFSkipPadding(BitBuffer *BitB, uint32_t SubChunkSize);
     

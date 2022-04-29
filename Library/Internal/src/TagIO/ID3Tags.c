@@ -9,7 +9,7 @@
 extern "C" {
 #endif
     
-    void *ID3Options_Init(void) {
+    ID3Options *ID3Options_Init(void) {
         ID3Options *Options   = calloc(1, sizeof(ID3Options));
         Options->VersionMajor = 2;
         Options->VersionMinor = 4;

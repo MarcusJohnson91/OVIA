@@ -112,7 +112,7 @@ extern "C" {
         ID3Encodings Encoding;
     } ID3Options;
 
-    void *ID3Options_Init(void);
+    ID3Options *ID3Options_Init(void);
 
     void ID3Options_SetPreferredVersion(ID3Options *Options, uint8_t MajorVersion, uint8_t MinorVersion);
 

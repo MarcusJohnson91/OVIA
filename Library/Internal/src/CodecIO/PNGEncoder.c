@@ -331,7 +331,6 @@ extern "C" {
     void PNG_DAT_WriteZlibHeader(PNGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        PNGOptions *PNG           = Options;
         bool FDICT                = 0;
         
         uint8_t CompressionInfo   = 7;
@@ -350,7 +349,7 @@ extern "C" {
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 2, 0); // Huh?
         
         if (FDICT == Yes) {
-            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, PNG->DAT->DictID);
+            BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Options->DAT->DictID);
         }
     }
     
