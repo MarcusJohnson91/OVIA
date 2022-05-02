@@ -7,11 +7,11 @@
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
-
+    
     void JPEG_WriteSegment_StartOfFrame(JPEGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-
+        
         if (Options->EntropyCoder == EntropyCoder_Arithmetic) {
             BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, JPEGMarker_StartOfFrameLossless3);
         } else if (Options->EntropyCoder == EntropyCoder_Huffman) {
@@ -21,7 +21,7 @@ extern "C" {
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, Options->Height);
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, Options->Width);
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, Options->NumChannels);
-
+        
         for (uint8_t Channel = 0; Channel < Options->NumChannels; Channel++) {
             BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, Options->Channels[Channel].ChannelID);
             BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 4, Options->Channels[Channel].HorizontalSF);
@@ -29,13 +29,13 @@ extern "C" {
             BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, Options->Huffman->Values[Options->Huffman->TableID]); // 0
         }
     }
-
+    
     void JPEG_WriteSegment_DefineHuffmanTable(JPEGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 4, Options->Huffman->TableID);
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 4, Options->Huffman->TableID);
-
+        
         for (uint8_t Count = 0; Count < 16; Count++) {
             BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, Options->Huffman->Values[Count]->BitLength);
             for (uint8_t Code = 0; Code < Options->Huffman->Values[Count]; Code++) {
@@ -45,7 +45,7 @@ extern "C" {
             }
         }
     }
-
+    
     void JPEG_WriteSegment_DefineArithmeticTable(JPEGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -53,19 +53,19 @@ extern "C" {
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 4,  Options->Arithmetic->TableID);
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8,  Options->Arithmetic->CodeValue);
     }
-
+    
     void JPEG_WriteSegment_DefineRestartInterval(JPEGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, Options->RestartInterval);
     }
-
+    
     void JPEG_WriteSegment_DefineNumberOfLines(JPEGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, Options->Height);
     }
-
+    
     void JPEG_WriteSegment_Comment(JPEGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -83,7 +83,7 @@ extern "C" {
         AssertIO(BitB != NULL);
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 16, JPEGMarker_StartOfScan);
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 16, (Options->NumChannels * 2) + 2);
-
+        
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 16, Options->NumChannels);
         for (uint8_t Channel = 0; Channel < Options->NumChannels; Channel++) {
             BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 8, Options->Channels[Channel].ChannelID);
@@ -91,7 +91,7 @@ extern "C" {
             BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 4, Options->Channels[Channel].VerticalSF);
         }
     }
-
+    
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif

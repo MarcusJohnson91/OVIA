@@ -9,7 +9,7 @@
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
-
+    
     void AIF_Read_Name(TagIO_Tags *Tags, BitBuffer *BitB) {
         AssertIO(Tags != NULL);
         AssertIO(BitB != NULL);
@@ -20,7 +20,7 @@ extern "C" {
         Tags->Tags[Index]->TagType     = TagType_Title;
         UTF8_Deinit(String);
     }
-
+    
     void AIF_Read_Author(TagIO_Tags *Tags, BitBuffer *BitB) {
         AssertIO(Tags != NULL);
         AssertIO(BitB != NULL);
@@ -31,7 +31,7 @@ extern "C" {
         Tags->Tags[Index]->TagType     = TagType_Artist;
         UTF8_Deinit(String);
     }
-
+    
     void AIF_Read_Annotation(TagIO_Tags *Tags, BitBuffer *BitB) {
         AssertIO(Tags != NULL);
         AssertIO(BitB != NULL);
@@ -42,7 +42,7 @@ extern "C" {
         Tags->Tags[Index]->TagType     = TagType_Comment;
         UTF8_Deinit(String);
     }
-
+    
     void AIF_Read_Comment(TagIO_Tags *Tags, BitBuffer *BitB) {
         AssertIO(Tags != NULL);
         AssertIO(BitB != NULL);
@@ -53,7 +53,7 @@ extern "C" {
         Tags->Tags[Index]->TagType     = TagType_Comment;
         UTF8_Deinit(String);
     }
-
+    
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif

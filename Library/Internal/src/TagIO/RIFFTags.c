@@ -10,7 +10,7 @@
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
-
+    
     /*
      This all needs to be Rewritten to use the TagIO API.
      */
@@ -24,7 +24,7 @@ extern "C" {
         Tags->Tags[Index]->TagType     = TagType_NumTracks;
         UTF8_Deinit(String);
     }
-
+    
     static void WAV_Read_INFO_IPRT(TagIO_Tags *Tags, BitBuffer *BitB) {
         AssertIO(Tags != NULL);
         AssertIO(BitB != NULL);
@@ -35,7 +35,7 @@ extern "C" {
         Tags->Tags[Index]->TagType     = TagType_Track;
         UTF8_Deinit(String);
     }
-
+    
     static void WAV_Read_INFO_IART(TagIO_Tags *Tags, BitBuffer *BitB) {
         AssertIO(Tags != NULL);
         AssertIO(BitB != NULL);
@@ -46,7 +46,7 @@ extern "C" {
         Tags->Tags[Index]->TagType     = TagType_Artist;
         UTF8_Deinit(String);
     }
-
+    
     static void WAV_Read_INFO_ICRD(TagIO_Tags *Tags, BitBuffer *BitB) {
         AssertIO(Tags != NULL);
         AssertIO(BitB != NULL);
@@ -57,7 +57,7 @@ extern "C" {
         Tags->Tags[Index]->TagType     = TagType_Date;
         UTF8_Deinit(String);
     }
-
+    
     static void WAV_Read_INFO_IGNR(TagIO_Tags *Tags, BitBuffer *BitB) {
         AssertIO(Tags != NULL);
         AssertIO(BitB != NULL);
@@ -68,7 +68,7 @@ extern "C" {
         Tags->Tags[Index]->TagType     = TagType_Genre;
         UTF8_Deinit(String);
     }
-
+    
     static void WAV_Read_INFO_INAM(TagIO_Tags *Tags, BitBuffer *BitB) {
         AssertIO(Tags != NULL);
         AssertIO(BitB != NULL);
@@ -79,7 +79,7 @@ extern "C" {
         Tags->Tags[Index]->TagType     = TagType_Title;
         UTF8_Deinit(String);
     }
-
+    
     static void WAV_Read_INFO_IPRD(TagIO_Tags *Tags, BitBuffer *BitB) {
         AssertIO(Tags != NULL);
         AssertIO(BitB != NULL);
@@ -90,7 +90,7 @@ extern "C" {
         Tags->Tags[Index]->TagType     = TagType_Album;
         UTF8_Deinit(String);
     }
-
+    
     static void WAV_Read_INFO_ISFT(TagIO_Tags *Tags, BitBuffer *BitB) { // Encoder
         AssertIO(Tags != NULL);
         AssertIO(BitB != NULL);
@@ -101,7 +101,7 @@ extern "C" {
         Tags->Tags[Index]->TagType     = TagType_EncodingSoftware;
         UTF8_Deinit(String);
     }
-
+    
     static void ReadINFO_ICMT(TagIO_Tags *Tags, BitBuffer *BitB) {
         AssertIO(Tags != NULL);
         AssertIO(BitB != NULL);
@@ -112,7 +112,7 @@ extern "C" {
         Tags->Tags[Index]->TagType     = TagType_Comment;
         UTF8_Deinit(String);
     }
-
+    
     static void WAVReadLISTChunk(TagIO_Tags *Tags, BitBuffer *BitB) {
         AssertIO(Tags != NULL);
         AssertIO(BitB != NULL);
@@ -120,7 +120,7 @@ extern "C" {
         uint32_t SubChunkSize   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
         uint64_t OriginalOffset = BitBuffer_GetPosition(BitB); // After reading each Chunk, make sure the offset is corrected
         uint64_t TargetOffset   = OriginalOffset + Bytes2Bits(SubChunkSize);
-
+        
         switch (SubChunkID) {
             case WAV_IART: // Artist
                 WAV_Read_INFO_IART(Tags, BitB);
@@ -152,12 +152,12 @@ extern "C" {
             BitBuffer_Seek(BitB, TargetOffset - NewOffset);
         }
     }
-
+    
     static void WAV_Write_LIST(TagIO_Tags *Tags, BitBuffer *BitB) {
         AssertIO(Tags != NULL);
         AssertIO(BitB != NULL);
     }
-
+    
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif

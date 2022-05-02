@@ -7,7 +7,7 @@
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
-
+    
     static void AIFWriteCOMM(Audio2DContainer *Audio, BitBuffer *BitB) {
         AssertIO(Audio != NULL);
         AssertIO(BitB != NULL);
@@ -23,91 +23,91 @@ extern "C" {
         // 88200  = 0x400F 0xAC44000000000000
         // 96000  = 0x400F 0xBB80000000000000
         // 192000 = 0x4010 0xBB80000000000000
-
+        
         // Treat them as 2 seperate numbers.
         // The first is Unknown.
         // The second is the sample rate
-
+        
         // So, 0x400X = Unsigned, Exponent = {,,}
-
-
-
+        
+        
+        
         // e = (((int32_t)ext.exponent[0]&0x7F)<<8) | ext.exponent[1];
         // Exponent = (0x4X & 0x7F << 8) | 0x01
         // So, remove the sign bit from the exponent.
         // Shift the Exponent then bitwise add the second half of the exponent...
-
+        
         // Literally how does that differ from reading the sign bit, then reading the Exponent...
         // If the Exponent is 0x7FFF AND the Mantissa is greater than 0, return 0.
         // e -= 16383 + 63;
         // Subtract 0x403E from the Exponent? that makes no sense...
-
+        
         // Maybe it's supposed to be Exponent = (Exponent - 0x3FFF) + 63?
         // 0x4010 - (0x4010 - 0x3FFF) = 17
         // 17 + 63 = 80...
-
+        
         // If (Exponent & 0x8000) >> 15 == 1, the Mantissa is negative.
-
+        
         // if Exponent & 0x7FFF > 0, Mantissa << Exponent.
         // If Exponent & 0x7FFF < 0, Mantissa >> -Exponent.
-
+        
         // Well, let's try it.
         // Sign = 0, positive.
         // Exponent = 0x4010 - 0x3FFF = 17, 17 + 63 = 80.
         // Mantissa is positive.
         // Mantissa << 80? that seems excessive as fuck but ok
         // 0xAC44
-
-
-
-
-
-
+        
+        
+        
+        
+        
+        
         // LibAV's Algorithm for extrcting the sample rate:
-
+        
         // Read the first 16 bits as the Exponent. (Includes sign bit)
         // Read the next  64 bits as the Mantissa.
-
+        
         // Call ldexp with the Mantissa first, followed by the exponent - 16383 - 63 aka 0x3FFF - 0x3F = 0x3FC0
         // ldexp multiplies the Mantissa by 2 to the power of Exponent.
         // aka SampleRate = Mantissa * 2^Exponent.
         // SampleRate = 0xBB80000000000000 * 0x4010 - 0x3FC0 = 80
-
+        
         // Subtract 16383 from the exponent.
         // 17, 48000.
         // So, subtract 11 from the result of Exponent - 16383 to get the times to multiply it by...
         // 17 - 11 = 6, which is wrong, it needs to be 13.
-
+        
         // 2 ^ 12 = 4096, 3904 more.
         // FA = 250
-
-
+        
+        
         // Ok, easy way to do this I think.
-
+        
         // Exponent - 16383.
         // Subtract 13 from that.
         // 13 - 12 = -1, or
         // That is the number of times you multiply the Mantissa by.
         // 0xFA = 250
         // 2 * 250 = 500
-
-
+        
+        
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, (SampleRate >> 52) + 15360);
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 64, 0x8000000000000000LLU | SampleRate << 11); // SampleRate Mantissa
     }
-
+    
     static void AIFWriteTitle(AIFOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         AIFSkipPadding(BitB, 0);
     }
-
+    
     static void AIFWriteArtist(AIFOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         AIFSkipPadding(BitB, 0);
     }
-
+    
     static void AIFWriteSSND(AIFOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -117,13 +117,13 @@ extern "C" {
         uint64_t BitDepth    = Bytes2Bits(Bits2Bytes(Options->BitDepth, RoundingType_Up));
         uint64_t Offset      = Options->SampleOffset;
         uint64_t BlockSize   = Options->BlockSize;
-
+        
         uint32_t ChunkSize   = 8 + ((NumSamples * NumChannels) * Bits2Bytes(BitDepth, RoundingType_Up));
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, ChunkSize);
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, Offset);
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, BlockSize);
     }
-
+    
     void AIFWriteHeader(AIFOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -131,7 +131,7 @@ extern "C" {
         uint64_t NumSamples  = Options->NumSamples;
         uint64_t NumChannels = Options->NumChannels;
         uint64_t BitDepth    = Bytes2Bits(Bits2Bytes(Options->BitDepth, RoundingType_Up));
-
+        
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, AIF_FORM);
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, NumSamples * NumChannels * BitDepth); // FIXME: Options Size calculation is wrong
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, AIF_AIFF);
@@ -140,7 +140,7 @@ extern "C" {
         AIFWriteArtist(Options, BitB);
         AIFWriteSSND(Options, BitB);
     }
-
+    
     void AIFAppendSamples(AIFOptions *Options, BitBuffer *BitB, Audio2DContainer *Audio) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -151,7 +151,7 @@ extern "C" {
         uint64_t Offset          = Options->SampleOffset;
         uint64_t BlockSize       = Options->BlockSize;
         uint8_t  BitDepthRounded = Bytes2Bits(Bits2Bytes(Options->BitDepth, RoundingType_Up));
-
+        
         MediaIO_AudioTypes AudioType = Audio2DContainer_GetType(Audio);
         if (AudioType == (AudioType_Signed | AudioType_Integer8)) {
             int8_t **Samples  = (int8_t**) Audio2DContainer_GetArray(Audio);
@@ -197,7 +197,7 @@ extern "C" {
             }
         }
     }
-
+    
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif

@@ -15,7 +15,7 @@ extern "C" {
         AssertIO(BitB != NULL);
         /*
          We need to make all WV files Broadcast Wave compatible, by writing a JUNK chunk and renaming it ds64 if the number of samples grows too large for standard WAVE.
-
+         
          So, that means that we also need to use the WriteFooter function pointer to create a function that checks the size, and if the number of samples times the number of channels times the bitdepth is greater than the 4GB barried, we renae the JUNK chunk to ds64.
          */
     }
@@ -27,7 +27,7 @@ extern "C" {
         uint64_t SampleRate  = Options->SampleRate;
         uint64_t BitDepth    = Options->BitDepth;
         uint8_t CBSize = 46;
-
+        
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32, 40); // ChunkSize
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 16, 0xFFFE); // WaveFormatExtensible
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 16, NumChannels);
@@ -51,12 +51,12 @@ extern "C" {
         AssertIO(Options != NULL);
         AssertIO(Container != NULL);
         AssertIO(BitB != NULL);
-
+        
         uint64_t NumChannels    = Audio2DContainer_GetNumChannels(Container);
         uint64_t BitDepth       = Audio2DContainer_GetBitDepth(Container);
         uint64_t NumSamples     = Audio2DContainer_GetNumSamples(Container);
         MediaIO_AudioTypes Type = Audio2DContainer_GetType(Container);
-
+        
         if (Type == (AudioType_Unsigned | AudioType_Integer8)) {
             uint8_t **Samples  = (uint8_t**) Audio2DContainer_GetArray(Container);
             for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
@@ -105,7 +105,7 @@ extern "C" {
     void WAVWriteFooter(WAVOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-
+        
         uint64_t    WAVSampleSize = Bits2Bytes(Options->NumSamplesWritten * Options->NumChannels * Options->BitDepth, RoundingType_Up); // Don't forget padding
         if (WAVSampleSize > 0xFFFFFFFF) {
             // Rename the JUNK chunk to ds64,
@@ -113,7 +113,7 @@ extern "C" {
             // What do we do if the BitBuffer was written to the file?
             // Well, we could store the current offset, reload the buffer with the first kilobyte or whatever the header may take up, then change it, rewrite that section of the file, then reload where we were...
             // that probably wouldn't work, and if it did, it wouldn't work for true streaming applications.
-
+            
             // A better idea is to just set the WAVE FMT header to 0xFFFFFFFF and set the ds64 block by default.
         }
         // Now check the size of the samples.

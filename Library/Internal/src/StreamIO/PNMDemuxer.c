@@ -8,7 +8,7 @@
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
-
+    
     static uint64_t PNMCheckForComment(BitBuffer *BitB) {
         AssertIO(BitB != NULL);
         uint64_t CommentSize = 0;
@@ -20,7 +20,7 @@ extern "C" {
         }
         return CommentSize;
     }
-
+    
     static void PNMParse_ASCII(PNMOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -32,10 +32,10 @@ extern "C" {
         Options->Width            = UTF8_String2Integer(Base_Integer | Base_Radix10, WidthString);
         free(WidthString);
         /* Read Width */
-
+        
         uint64_t CommentSizeHeight = PNMCheckForComment(BitB);
         BitBuffer_Seek(BitB, Bytes2Bits(CommentSizeHeight));
-
+        
         /* Read Height */
         uint64_t HeightStringSize = BitBuffer_GetUTF8StringSize(BitB);
         UTF8    *HeightString     = BitBuffer_ReadUTF8(BitB, HeightStringSize);
@@ -43,7 +43,7 @@ extern "C" {
         free(HeightString);
         /* Read Height */
     }
-
+    
     static void PNMParse_Binary(PNMOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -53,14 +53,14 @@ extern "C" {
         Options->Width                = UTF8_String2Integer(Base_Integer | Base_Radix10, WidthString);
         free(WidthString);
         /* Read Width */
-
+        
         /* Read Height */
         uint64_t HeightStringSize = BitBuffer_GetUTF8StringSize(BitB);
         UTF8    *HeightString     = BitBuffer_ReadUTF8(BitB, HeightStringSize);
         Options->Height               = UTF8_String2Integer(Base_Integer | Base_Radix10, HeightString);
         free(HeightString);
         /* Read Height */
-
+        
         /* Read MaxVal */
         uint64_t MaxValStringSize = BitBuffer_GetUTF8StringSize(BitB);
         UTF8    *MaxValString     = BitBuffer_ReadUTF8(BitB, MaxValStringSize);
@@ -69,52 +69,52 @@ extern "C" {
         free(MaxValString);
         /* Read MaxVal */
     }
-
+    
     static void PNMParse_PAM(PNMOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         /* Read Width */
         BitBuffer_Seek(BitB, 48); // Skip "WIDTH " string
-
+        
         uint64_t WidthStringSize  = BitBuffer_GetUTF8StringSize(BitB);
         UTF8    *WidthString      = BitBuffer_ReadUTF8(BitB, WidthStringSize);
         Options->Width                = UTF8_String2Integer(Base_Integer | Base_Radix10, WidthString);
         free(WidthString);
         /* Read Width */
-
+        
         /* Read Height */
         BitBuffer_Seek(BitB, 56); // Skip "HEIGHT " string
-
+        
         uint64_t HeightStringSize = BitBuffer_GetUTF8StringSize(BitB);
         UTF8    *HeightString     = BitBuffer_ReadUTF8(BitB, HeightStringSize);
         Options->Height               = UTF8_String2Integer(Base_Integer | Base_Radix10, HeightString);
         free(HeightString);
         /* Read Height */
-
+        
         /* Read NumChannels */
         BitBuffer_Seek(BitB, 48); // Skip "DEPTH " string
-
+        
         uint64_t NumChannelsStringSize  = BitBuffer_GetUTF8StringSize(BitB);
         UTF8    *NumChannelsString      = BitBuffer_ReadUTF8(BitB, NumChannelsStringSize);
         Options->NumChannels                = UTF8_String2Integer(Base_Integer | Base_Radix10, NumChannelsString);
         free(NumChannelsString);
         /* Read NumChannels */
-
+        
         /* Read MaxVal */
         BitBuffer_Seek(BitB, 56); // Skip "MAXVAL " string
-
+        
         uint64_t MaxValStringSize = BitBuffer_GetUTF8StringSize(BitB);
         UTF8    *MaxValString     = BitBuffer_ReadUTF8(BitB, MaxValStringSize);
         uint64_t MaxVal           = UTF8_String2Integer(Base_Integer | Base_Radix10, MaxValString);
         Options->BitDepth             = Logarithm(2, MaxVal + 1);
         free(MaxValString);
         /* Read MaxVal */
-
+        
         /* Read TupleType */
         BitBuffer_Seek(BitB, 72); // Skip "TUPLETYPE " string
         uint64_t TupleTypeSize     = BitBuffer_GetUTF8StringSize(BitB);
         UTF8    *TupleTypeString   = BitBuffer_ReadUTF8(BitB, TupleTypeSize);
-
+        
         if (UTF8_CompareSubString(TupleTypeString, UTF8String("BLACKANDWHITE"), 0, 0) == true) {
             Options->NumChannels       = 1;
             Options->TupleType         = PNM_TUPLE_BnW;
@@ -133,12 +133,12 @@ extern "C" {
         }
         free(TupleTypeString);
         /* Read TupleType */
-
+        
         /* Skip ENDHDR */
         BitBuffer_Seek(BitB, 56); // ENDHDR
         /* Skip ENDHDR */
     }
-
+    
     void PNMExtractImage_ASCII(PNMOptions *Options, BitBuffer *BitB, ImageContainer *Image) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -171,15 +171,15 @@ extern "C" {
             }
         }
     }
-
+    
     void PNMExtractImage_Binary(PNMOptions *Options, BitBuffer *BitB, ImageContainer *Image) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         AssertIO(Image != NULL);
-
+        
         if (Options->BitDepth <= 8) {
             uint8_t ****Array  = (uint8_t****) ImageContainer_GetArray(Image);
-
+            
             for (uint64_t Width = 0; Width < Options->Width; Width++) {
                 for (uint64_t Height = 0; Height < Options->Height; Height++) {
                     for (uint8_t Channel = 0; Channel < Options->NumChannels; Channel++) {
@@ -194,7 +194,7 @@ extern "C" {
             }
         } else if (Options->BitDepth <= 16) {
             uint16_t ****Array  = (uint16_t****) ImageContainer_GetArray(Image);
-
+            
             for (uint64_t Width = 0; Width < Options->Width; Width++) {
                 for (uint64_t Height = 0; Height < Options->Height; Height++) {
                     for (uint8_t Channel = 0; Channel < Options->NumChannels; Channel++) {
@@ -209,7 +209,7 @@ extern "C" {
             }
         }
     }
-
+    
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif

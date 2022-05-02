@@ -10,165 +10,165 @@ extern "C" {
     
     void ParseTransformCoeffs(AVCOptions *Options, uint8_t i16x16DC, uint8_t i16x16AC, uint8_t Level4x4, uint8_t Level8x8, uint8_t StartIndex, uint8_t EndIndex) { // ParseTransformCoeffs
         AssertIO(Options != NULL);
-            uint8_t Intra16x16DCLevel = i16x16DC, Intra16x16ACLevel = i16x16AC, LumaLevel4x4 = Level4x4, LumaLevel8x8 = Level8x8;
-            // Return the first 4 variables
-            if (Options->PPS->EntropyCodingMode == ExpGolomb) {
-                // Read ExpGolomb
-            } else {
-                // Read Arithmetic
-            }
-            
-            if (Options->SPS->ChromaArrayType == Chroma420 || Options->SPS->ChromaArrayType == Chroma422) {
-                for (uint8_t iCbCr = 0; iCbCr < 1; iCbCr++) {
-                    ChromaDCLevel[iCbCr] = 4 * NumC8x8;
-                    for (uint8_t ChromaBlock = 0; ChromaBlock < i4x4; ChromaBlock++) {
-                        ChromaACLevel[iCbCr][(i8x8 * 4) + i4x4] = 0;
-                    }
+        uint8_t Intra16x16DCLevel = i16x16DC, Intra16x16ACLevel = i16x16AC, LumaLevel4x4 = Level4x4, LumaLevel8x8 = Level8x8;
+        // Return the first 4 variables
+        if (Options->PPS->EntropyCodingMode == ExpGolomb) {
+            // Read ExpGolomb
+        } else {
+            // Read Arithmetic
+        }
+        
+        if (Options->SPS->ChromaArrayType == AVCChroma_420 || Options->SPS->ChromaArrayType == AVCChroma_422) {
+            for (uint8_t iCbCr = 0; iCbCr < 1; iCbCr++) {
+                ChromaDCLevel[iCbCr] = 4 * NumC8x8;
+                for (uint8_t ChromaBlock = 0; ChromaBlock < i4x4; ChromaBlock++) {
+                    ChromaACLevel[iCbCr][(i8x8 * 4) + i4x4] = 0;
                 }
-            } else if (Options->SPS->ChromaArrayType == Chroma444) {
-                
             }
+        } else if (Options->SPS->ChromaArrayType == AVCChroma_444) {
+            
+        }
     }
     
     void ResidualLuma(AVCOptions *Options, BitBuffer *BitB, int i16x16DClevel, int i16x16AClevel, int level4x4,
                       int level8x8, int startIdx, int endIdx) { // residual_luma
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-            if (startIdx == 0 && MacroBlockPartitionPredictionMode(Options, Options->MacroBlock->Type, 0) == Intra_16x16) {
-                ParseTransformCoeffs(Options, i16x16DClevel, 0, 15, 16);
-            }
-            for (uint8_t i8x8 = 0; i8x8 < 4; i8x8++) {
-                if (Options->MacroBlock->TransformSizeIs8x8 == false || Options->PPS->EntropyCodingMode == ExpGolomb) {
-                    for (uint8_t i4x4 = 0; i4x4 < 4; i4x4++) {
-                        if (Options->MacroBlock->BlockPatternLuma & (1 << i8x8)) {
-                            if (MacroBlockPartitionPredictionMode(Options, Options->MacroBlock->Type, 0) == Intra_16x16) {
-                                ParseTransformCoeffs(i16x16AClevel[i8x8 * 4 + i4x4], Maximum(0, startIdx - 1), endIdx - 1, 15);
-                            } else {
-                                ParseTransformCoeffs(level4x4[i8x8 * 4 + i4x4], startIdx, endIdx, 16);
-                            }
-                        } else if (MacroBlockPartitionPredictionMode(Options, Options->MacroBlock->Type, 0) == Intra_16x16) {
-                            for (uint8_t i = 0; i < 15; i++) {
-                                i16x16AClevel[i8x8 * 4 + i4x4][i] = 0;
-                            }
+        if (startIdx == 0 && MacroBlockPartitionPredictionMode(Options, Options->MacroBlock->Type, 0) == Intra_16x16) {
+            ParseTransformCoeffs(Options, i16x16DClevel, 0, 15, 16);
+        }
+        for (uint8_t i8x8 = 0; i8x8 < 4; i8x8++) {
+            if (Options->MacroBlock->TransformSizeIs8x8 == false || Options->PPS->EntropyCodingMode == ExpGolomb) {
+                for (uint8_t i4x4 = 0; i4x4 < 4; i4x4++) {
+                    if (Options->MacroBlock->BlockPatternLuma & (1 << i8x8)) {
+                        if (MacroBlockPartitionPredictionMode(Options, Options->MacroBlock->Type, 0) == Intra_16x16) {
+                            ParseTransformCoeffs(i16x16AClevel[i8x8 * 4 + i4x4], Maximum(0, startIdx - 1), endIdx - 1, 15);
                         } else {
-                            for (uint8_t i = 0; i < 16; i++) {
-                                level4x4[i8x8 * 4 + i4x4][i] = 0;
-                            }
+                            ParseTransformCoeffs(level4x4[i8x8 * 4 + i4x4], startIdx, endIdx, 16);
+                        }
+                    } else if (MacroBlockPartitionPredictionMode(Options, Options->MacroBlock->Type, 0) == Intra_16x16) {
+                        for (uint8_t i = 0; i < 15; i++) {
+                            i16x16AClevel[i8x8 * 4 + i4x4][i] = 0;
+                        }
+                    } else {
+                        for (uint8_t i = 0; i < 16; i++) {
+                            level4x4[i8x8 * 4 + i4x4][i] = 0;
                         }
                     }
                 }
-                if (Options->PPS->EntropyCodingMode == ExpGolomb && Options->MacroBlock->TransformSizeIs8x8) {
-                    for (uint8_t i = 0; i < 16; i++) {
-                        level8x8[i8x8][4 * i + i4x4] = level4x4[i8x8 * 4 + i4x4][i];
-                    }
-                }
-                else if (Options->MacroBlock->BlockPatternLuma & (1 << i8x8)) {
-                    ParseTransformCoeffs(level8x8[i8x8], 4 * startIdx, 4 * endIdx + 3, 64);
-                } else {
-                    for (uint8_t i = 0; i < 64; i++) {
-                        level8x8[i8x8][i] = 0;
-                    }
+            }
+            if (Options->PPS->EntropyCodingMode == ExpGolomb && Options->MacroBlock->TransformSizeIs8x8) {
+                for (uint8_t i = 0; i < 16; i++) {
+                    level8x8[i8x8][4 * i + i4x4] = level4x4[i8x8 * 4 + i4x4][i];
                 }
             }
+            else if (Options->MacroBlock->BlockPatternLuma & (1 << i8x8)) {
+                ParseTransformCoeffs(level8x8[i8x8], 4 * startIdx, 4 * endIdx + 3, 64);
+            } else {
+                for (uint8_t i = 0; i < 64; i++) {
+                    level8x8[i8x8][i] = 0;
+                }
+            }
+        }
     }
     
     int8_t MacroBlock2SliceGroupMap(AVCOptions *Options, uint8_t CurrentMacroBlock) { // MbToSliceGroupMap
         AssertIO(Options != NULL);
-            if (Options->PPS->SliceGroups == 1 && (Options->PPS->SliceGroupMapType == 3 || Options->PPS->SliceGroupMapType == 4 || Options->PPS->SliceGroupMapType == 5)) {
-                if (Options->PPS->SliceGroupMapType == 3) {
-                    if (Options->PPS->SliceGroupChangeDirection == false) {
-                        return BoxOutClockwise;
-                    } else if (Options->PPS->SliceGroupChangeDirection == true) {
-                        return BoxOutCounterClockwise;
-                    }
-                } else if (Options->PPS->SliceGroupMapType == 4) {
-                    if (Options->PPS->SliceGroupChangeDirection == false) {
-                        return RasterScan;
-                    } else if (Options->PPS->SliceGroupChangeDirection == true) {
-                        return ReverseRasterScan;
-                    }
-                } else if (Options->PPS->SliceGroupMapType == 5) {
-                    if (Options->PPS->SliceGroupChangeDirection == false) {
-                        return WipeRight;
-                    } else if (Options->PPS->SliceGroupChangeDirection == true) {
-                        return WipeLeft;
-                    }
+        if (Options->PPS->SliceGroups == 1 && (Options->PPS->SliceGroupMapType == 3 || Options->PPS->SliceGroupMapType == 4 || Options->PPS->SliceGroupMapType == 5)) {
+            if (Options->PPS->SliceGroupMapType == 3) {
+                if (Options->PPS->SliceGroupChangeDirection == false) {
+                    return BoxOutClockwise;
+                } else if (Options->PPS->SliceGroupChangeDirection == true) {
+                    return BoxOutCounterClockwise;
+                }
+            } else if (Options->PPS->SliceGroupMapType == 4) {
+                if (Options->PPS->SliceGroupChangeDirection == false) {
+                    return RasterScan;
+                } else if (Options->PPS->SliceGroupChangeDirection == true) {
+                    return ReverseRasterScan;
+                }
+            } else if (Options->PPS->SliceGroupMapType == 5) {
+                if (Options->PPS->SliceGroupChangeDirection == false) {
+                    return WipeRight;
+                } else if (Options->PPS->SliceGroupChangeDirection == true) {
+                    return WipeLeft;
                 }
             }
+        }
         return -1; // failure
     }
     
     void rbsp_slice_trailing_bits(AVCOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-            BitBuffer_Align(BitB, 1); // rbsp_trailing_bits();
-            if (Options->PPS->EntropyCodingMode == Arithmetic) {
-                while (more_rbsp_trailing_data()) {
-                    uint16_t CABACZeroWord = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16); /* equal to 0x0000 */
-                }
+        BitBuffer_Align(BitB, 1); // rbsp_trailing_bits();
+        if (Options->PPS->EntropyCodingMode == Arithmetic) {
+            while (more_rbsp_trailing_data()) {
+                uint16_t CABACZeroWord = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16); /* equal to 0x0000 */
             }
+        }
     }
     
     uint8_t MacroBlockPartitionPredictionMode(AVCOptions *Options, uint8_t MacroBlockType, uint8_t PartitionNumber) {  // MbPartPredMode
         uint8_t ReturnValue = 0;
         AssertIO(Options != NULL);
-            if (MacroBlockType == 0) {
-                if (Options->MacroBlock->TransformSizeIs8x8 == true) {
-                    ReturnValue = Intra_8x8;
-                } else {
-                    ReturnValue = Intra_4x4;
-                }
-            } else if (MacroBlockType == 1) {
-                ReturnValue = I_16x16_0_0_0;
-            } else if (MacroBlockType == 2) {
-                ReturnValue  = I_16x16_1_0_0;
-            } else if (MacroBlockType == 3) {
-                ReturnValue  = I_16x16_2_0_0;
-            } else if (MacroBlockType == 4) {
-                ReturnValue  = I_16x16_3_0_0;
-            } else if (MacroBlockType == 5) {
-                ReturnValue  = I_16x16_0_1_0;
-            } else if (MacroBlockType == 6) {
-                ReturnValue  = I_16x16_1_1_0;
-            } else if (MacroBlockType == 7) {
-                ReturnValue  = I_16x16_2_1_0;
-            } else if (MacroBlockType == 8) {
-                ReturnValue  = I_16x16_3_1_0;
-            } else if (MacroBlockType == 9) {
-                ReturnValue  = I_16x16_0_2_0;
-            } else if (MacroBlockType == 10) {
-                ReturnValue  = I_16x16_1_2_0;
-            } else if (MacroBlockType == 11) {
-                ReturnValue  = I_16x16_2_2_0;
-            } else if (MacroBlockType == 12) {
-                ReturnValue  = I_16x16_3_2_0;
-            } else if (MacroBlockType == 13) {
-                ReturnValue  = I_16x16_0_0_1;
-            } else if (MacroBlockType == 14) {
-                ReturnValue  = I_16x16_1_0_1;
-            } else if (MacroBlockType == 15) {
-                ReturnValue  = I_16x16_2_0_1;
-            } else if (MacroBlockType == 16) {
-                ReturnValue  = I_16x16_3_0_1;
-            } else if (MacroBlockType == 17) {
-                ReturnValue  = I_16x16_0_1_1;
-            } else if (MacroBlockType == 18) {
-                ReturnValue  = I_16x16_1_1_1;
-            } else if (MacroBlockType == 19) {
-                ReturnValue  = I_16x16_2_1_1;
-            } else if (MacroBlockType == 20) {
-                ReturnValue  = I_16x16_3_1_1;
-            } else if (MacroBlockType == 21) {
-                ReturnValue  = I_16x16_0_2_1;
-            } else if (MacroBlockType == 22) {
-                ReturnValue  = I_16x16_1_2_1;
-            } else if (MacroBlockType == 23) {
-                ReturnValue  = I_16x16_2_2_1;
-            } else if (MacroBlockType == 24) {
-                ReturnValue  = I_16x16_3_2_1;
-            } else if (MacroBlockType == 25) {
-                ReturnValue  = I_PCM;
+        if (MacroBlockType == 0) {
+            if (Options->MacroBlock->TransformSizeIs8x8 == true) {
+                ReturnValue = Intra_8x8;
+            } else {
+                ReturnValue = Intra_4x4;
             }
+        } else if (MacroBlockType == 1) {
+            ReturnValue = I_16x16_0_0_0;
+        } else if (MacroBlockType == 2) {
+            ReturnValue  = I_16x16_1_0_0;
+        } else if (MacroBlockType == 3) {
+            ReturnValue  = I_16x16_2_0_0;
+        } else if (MacroBlockType == 4) {
+            ReturnValue  = I_16x16_3_0_0;
+        } else if (MacroBlockType == 5) {
+            ReturnValue  = I_16x16_0_1_0;
+        } else if (MacroBlockType == 6) {
+            ReturnValue  = I_16x16_1_1_0;
+        } else if (MacroBlockType == 7) {
+            ReturnValue  = I_16x16_2_1_0;
+        } else if (MacroBlockType == 8) {
+            ReturnValue  = I_16x16_3_1_0;
+        } else if (MacroBlockType == 9) {
+            ReturnValue  = I_16x16_0_2_0;
+        } else if (MacroBlockType == 10) {
+            ReturnValue  = I_16x16_1_2_0;
+        } else if (MacroBlockType == 11) {
+            ReturnValue  = I_16x16_2_2_0;
+        } else if (MacroBlockType == 12) {
+            ReturnValue  = I_16x16_3_2_0;
+        } else if (MacroBlockType == 13) {
+            ReturnValue  = I_16x16_0_0_1;
+        } else if (MacroBlockType == 14) {
+            ReturnValue  = I_16x16_1_0_1;
+        } else if (MacroBlockType == 15) {
+            ReturnValue  = I_16x16_2_0_1;
+        } else if (MacroBlockType == 16) {
+            ReturnValue  = I_16x16_3_0_1;
+        } else if (MacroBlockType == 17) {
+            ReturnValue  = I_16x16_0_1_1;
+        } else if (MacroBlockType == 18) {
+            ReturnValue  = I_16x16_1_1_1;
+        } else if (MacroBlockType == 19) {
+            ReturnValue  = I_16x16_2_1_1;
+        } else if (MacroBlockType == 20) {
+            ReturnValue  = I_16x16_3_1_1;
+        } else if (MacroBlockType == 21) {
+            ReturnValue  = I_16x16_0_2_1;
+        } else if (MacroBlockType == 22) {
+            ReturnValue  = I_16x16_1_2_1;
+        } else if (MacroBlockType == 23) {
+            ReturnValue  = I_16x16_2_2_1;
+        } else if (MacroBlockType == 24) {
+            ReturnValue  = I_16x16_3_2_1;
+        } else if (MacroBlockType == 25) {
+            ReturnValue  = I_PCM;
+        }
         /*
          if (NotPartitioned == true) {
          return BlockPredictionMode;
@@ -182,13 +182,13 @@ extern "C" {
     
     uint64_t NextMacroBlockAddress(AVCOptions *Options, uint64_t CurrentMacroBlockAddress) { // NextMbAddress
         AssertIO(Options != NULL);
-            while (CurrentMacroBlockAddress + 1 < Options->Slice->PicSizeInMacroBlocks && MacroBlock2SliceGroupMap(Options, CurrentMacroBlockAddress + 1) != MacroBlock2SliceGroupMap(Options, CurrentMacroBlockAddress)) {
-                i++; nextMbAddress = I
-            }
-            // aka
-            for (uint64_t I = CurrentMacroBlockAddress + 1; I < Options->Slice->PicSizeInMacroBlocks && MbToSliceGroups[I]) {
-                MacroBlock2SliceGroupMap(Options, CurrentMacroBlockAddress);
-            }
+        while (CurrentMacroBlockAddress + 1 < Options->Slice->PicSizeInMacroBlocks && MacroBlock2SliceGroupMap(Options, CurrentMacroBlockAddress + 1) != MacroBlock2SliceGroupMap(Options, CurrentMacroBlockAddress)) {
+            i++; nextMbAddress = I
+        }
+        // aka
+        for (uint64_t I = CurrentMacroBlockAddress + 1; I < Options->Slice->PicSizeInMacroBlocks && MbToSliceGroups[I]) {
+            MacroBlock2SliceGroupMap(Options, CurrentMacroBlockAddress);
+        }
     }
     
     size_t GetSizeOfNALUnit(AVCOptions *Options, BitBuffer *BitB) {
@@ -199,12 +199,12 @@ extern "C" {
     
     uint8_t CalculateNumberOfTimeStamps(AVCOptions *Options) { // PicOrderCount
         AssertIO(Options != NULL);
-            uint8_t NumTimeStamps = 0;
-            if ((Options->Slice->SliceIsInterlaced == false) && (Options->Slice->TopFieldOrderCount == Options->Slice->BottomFieldOrderCount)) {
-                NumTimeStamps = 1;
-            } else if (0 == 1) {
-                
-            }
+        uint8_t NumTimeStamps = 0;
+        if ((Options->Slice->SliceIsInterlaced == false) && (Options->Slice->TopFieldOrderCount == Options->Slice->BottomFieldOrderCount)) {
+            NumTimeStamps = 1;
+        } else if (0 == 1) {
+            
+        }
         return 0;
     }
     

@@ -49,26 +49,26 @@ extern "C" {
             BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsFarthest, 8, ID3Flags_Unspecified);
         } else {
             AssertIO(Options->VersionMajor == 2);
-                if (Options->VersionMinor == 2) {
-                    bool IsCompressed     = (Options->Flags & ID3Flags_Compressed) == ID3Flags_Compressed;
-                    if (IsCompressed == Yes) {
-                        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsFarthest, 8, ID3Flags_Compressed);
-                    }
-                } else if ((Options->VersionMinor >= 3 && Options->VersionMinor <= 4)) { // ID3v2.3-2.4
-                    bool IsExtended       = (Options->Flags & ID3Flags_IsExtended) == ID3Flags_IsExtended;
-                    if (IsExtended == Yes) {
-                        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsFarthest, 8, ID3Flags_IsExtended);
-                    }
-                    bool IsExperimental   = (Options->Flags & ID3Flags_IsExperimental) == ID3Flags_IsExperimental;
-                    if (IsExperimental == Yes) {
-                        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsFarthest, 8, ID3Flags_IsExperimental);
-                    }
-                } else if (Options->VersionMinor == 4) { // ID3v2.4
-                    bool HasFooter        = (Options->Flags & ID3Flags_HasFooter) == ID3Flags_HasFooter;
-                    if (HasFooter == Yes) {
-                        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsFarthest, 8, ID3Flags_HasFooter);
-                    }
+            if (Options->VersionMinor == 2) {
+                bool IsCompressed     = (Options->Flags & ID3Flags_Compressed) == ID3Flags_Compressed;
+                if (IsCompressed == Yes) {
+                    BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsFarthest, 8, ID3Flags_Compressed);
                 }
+            } else if ((Options->VersionMinor >= 3 && Options->VersionMinor <= 4)) { // ID3v2.3-2.4
+                bool IsExtended       = (Options->Flags & ID3Flags_IsExtended) == ID3Flags_IsExtended;
+                if (IsExtended == Yes) {
+                    BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsFarthest, 8, ID3Flags_IsExtended);
+                }
+                bool IsExperimental   = (Options->Flags & ID3Flags_IsExperimental) == ID3Flags_IsExperimental;
+                if (IsExperimental == Yes) {
+                    BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsFarthest, 8, ID3Flags_IsExperimental);
+                }
+            } else if (Options->VersionMinor == 4) { // ID3v2.4
+                bool HasFooter        = (Options->Flags & ID3Flags_HasFooter) == ID3Flags_HasFooter;
+                if (HasFooter == Yes) {
+                    BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsFarthest, 8, ID3Flags_HasFooter);
+                }
+            }
         }
     }
     

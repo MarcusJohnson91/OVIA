@@ -8,21 +8,21 @@
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
-
+    
     static void PNM_WriteWidth(BitBuffer *BitB, uint64_t Width) {
         UTF8 *WidthString = UTF8_Integer2String(Base_Integer | Base_Radix10, Width);
         BitBuffer_WriteUTF8(BitB, WidthString, StringTerminator_Sized);
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, PNMEndField);
         UTF8_Deinit(WidthString);
     }
-
+    
     static void PNM_WriteHeight(BitBuffer *BitB, uint64_t Height) {
         UTF8 *HeightString = UTF8_Integer2String(Base_Integer | Base_Radix10, Height);
         BitBuffer_WriteUTF8(BitB, HeightString, StringTerminator_Sized);
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, PNMEndField);
         UTF8_Deinit(HeightString);
     }
-
+    
     static void PNM_WriteBitDepth(BitBuffer *BitB, uint64_t BitDepth) {
         uint64_t MaxVal    = Exponentiate(2, BitDepth) - 1;
         UTF8    *BitDepthString = UTF8_Integer2String(Base_Integer | Base_Radix10, MaxVal);
@@ -30,7 +30,7 @@ extern "C" {
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, 0x0A);
         UTF8_Deinit(BitDepthString);
     }
-
+    
     static void PNM_WriteNumChannels(BitBuffer *BitB, uint64_t NumChannels) {
         UTF8    *NumChannelsString  = UTF8_Integer2String(Base_Integer | Base_Radix10, NumChannels);
         BitBuffer_WriteUTF8(BitB, NumChannelsString, StringTerminator_Sized);
@@ -44,7 +44,7 @@ extern "C" {
         /* Write the Width */
         PNM_WriteWidth(BitB, Options->Width);
         /* Write the Width */
-
+        
         /* Write the Height */
         PNM_WriteHeight(BitB, Options->Height);
         /* Write the Height */
@@ -53,15 +53,15 @@ extern "C" {
     static void PNMWriteHeader_Binary(PNMOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-
+        
         /* Write the Width */
         PNM_WriteWidth(BitB, Options->Width);
         /* Write the Width */
-
+        
         /* Write the Height */
         PNM_WriteHeight(BitB, Options->Height);
         /* Write the Height */
-
+        
         /* Write the BitDepth */
         PNM_WriteBitDepth(BitB, Options->BitDepth);
         /* Write the BitDepth */
@@ -70,30 +70,30 @@ extern "C" {
     static void PNMWriteHeader_PAM(PNMOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-
+        
         BitBuffer_WriteUTF8(BitB, UTF8String("P7"), StringTerminator_Sized);
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, 0x0A);
-
+        
         /* Write the Width */
         BitBuffer_WriteUTF8(BitB, UTF8String("WIDTH "), StringTerminator_Sized);
         PNM_WriteWidth(BitB, Options->Width);
         /* Write the Width */
-
+        
         /* Write the Height */
         BitBuffer_WriteUTF8(BitB, UTF8String("HEIGHT "), StringTerminator_Sized);
         PNM_WriteHeight(BitB, Options->Height);
         /* Write the Height */
-
+        
         /* Write the NumChannels */
         BitBuffer_WriteUTF8(BitB, UTF8String("DEPTH "), StringTerminator_Sized);
         PNM_WriteNumChannels(BitB, Options->NumChannels);
         /* Write the NumChannels */
-
+        
         /* Write the BitDepth */
         BitBuffer_WriteUTF8(BitB, UTF8String("MAXVAL "), StringTerminator_Sized);
         PNM_WriteBitDepth(BitB, Options->BitDepth);
         /* Write the BitDepth */
-
+        
         /* Write the TUPLTYPE */
         BitBuffer_WriteUTF8(BitB, UTF8String("TUPLTYPE "), StringTerminator_Sized);
         PNMTupleTypes TupleType = Options->TupleType;
@@ -110,7 +110,7 @@ extern "C" {
         }
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, 0x0A);
         /* Write the TUPLTYPE */
-
+        
         /* Write the ENDHDR */
         BitBuffer_WriteUTF8(BitB, UTF8String("ENDHDR"), StringTerminator_Sized);
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, 0x0A);

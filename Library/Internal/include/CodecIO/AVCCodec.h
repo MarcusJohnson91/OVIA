@@ -37,10 +37,10 @@ extern "C" {
     } AVCCompressionType;
     
     typedef enum AVCChromaFormats {
-        ChromaBW                                    =  0, // Black and white, When Profile 183, Chroma is assumed to be this, default is Chroma420
-        Chroma420                                   =  1,
-        Chroma422                                   =  2,
-        Chroma444                                   =  3,
+        AVCChroma_Gray                                  =  0, // Black and white, When Profile 183, Chroma is assumed to be this, default is AVCChroma_420
+        AVCChroma_420                                   =  1,
+        AVCChroma_422                                   =  2,
+        AVCChroma_444                                   =  3,
     } AVCChromaFormats;
     
     typedef enum AVCSampleAspectRatios {

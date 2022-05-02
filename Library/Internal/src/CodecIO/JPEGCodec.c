@@ -11,7 +11,7 @@ extern "C" {
     void *JPEGOptions_Init(void) {
         JPEGOptions *Options = calloc(1, sizeof(JPEGOptions));
         AssertIO(Options != NULL);
-            Options->Huffman     = calloc(1, sizeof(JPEGHuffman));
+        Options->Huffman     = calloc(1, sizeof(JPEGHuffman));
         return Options;
     }
 
@@ -43,30 +43,30 @@ extern "C" {
         AssertIO(Container != NULL);
         JPEGOptions *JPEG            = Options;
         ImageContainer *Image        = Container;
-            int16_t Symbol           = -1;
-            /*
+        uint16_t Symbol           = -1;
+        /*
 
-             Ok so what do I need to do?
+         Ok so what do I need to do?
 
-             Loop until we get an End of Block Huffman code, the end of the file, a restart marker, or that's pretty much it actually.
+         Loop until we get an End of Block Huffman code, the end of the file, a restart marker, or that's pretty much it actually.
 
-             */
-            while (Symbol != JPEG->Huffman->EndOfBlockSymbol && (Symbol < JPEGMarker_Restart0 || Symbol > JPEGMarker_Restart7)) {
-                // What do I do now? Read a Unary code until we find a stop bit effictively
-                // Yes, read until you find a zerom it's effictively a RICE code.
-                Symbol               = BitBuffer_ReadUnary(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, UnaryType_Whole, UnaryTerminator_Zero);
-                // Count the number of bits set in Symbol, go to that index in the Huffman code table and loop over all possible values there, until you find a matching code, then read that number of bits
-                uint8_t SymbolSize   = CountBitsSet(Symbol);
-                uint8_t NumBits2Read = 0;
-                for (uint8_t NumSymbols = 0; NumSymbols < JPEG->Huffman->Values[NumSymbols]->Symbol; NumSymbols++) {
-                    /*
-                    if (SymbolSize == JPEG->Huffman->Values[NumBits2Read]) {
-                        NumBits2Read = JPEG->Huffman->Values[NumBits2Read];
-                    }
-                     */
-                }
-                Symbol               = (int16_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, SymbolSize);
+         */
+        while (Symbol != JPEG->Huffman->EndOfBlockSymbol && (Symbol < JPEGMarker_Restart0 || Symbol > JPEGMarker_Restart7)) {
+            // What do I do now? Read a Unary code until we find a stop bit effictively
+            // Yes, read until you find a zerom it's effictively a RICE code.
+            Symbol               = BitBuffer_ReadUnary(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, UnaryType_Whole, UnaryTerminator_Zero);
+            // Count the number of bits set in Symbol, go to that index in the Huffman code table and loop over all possible values there, until you find a matching code, then read that number of bits
+            uint8_t SymbolSize   = CountBitsSet(Symbol);
+            uint8_t NumBits2Read = 0;
+            for (uint8_t NumSymbols = 0; NumSymbols < JPEG->Huffman->Values[NumSymbols]->Symbol; NumSymbols++) {
+                /*
+                 if (SymbolSize == JPEG->Huffman->Values[NumBits2Read]) {
+                 NumBits2Read = JPEG->Huffman->Values[NumBits2Read];
+                 }
+                 */
             }
+            Symbol               = (int16_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, SymbolSize);
+        }
     }
 
     void JPEGOptions_Deinit(JPEGOptions *Options) {

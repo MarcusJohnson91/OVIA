@@ -8,7 +8,7 @@
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
-
+    
     void JPEG_Read_StartOfFrame(JPEGOptions *Options, BitBuffer *BitB, uint16_t SegmentSize) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -26,11 +26,11 @@ extern "C" {
         }
         BitBuffer_Seek(BitB, Bytes2Bits(SegmentSize - ((Options->NumChannels * 3) + 8)));
     }
-
+    
     static void JPEG_Huffman_CreateHUFFSIZETable(uint8_t BITS[16], uint8_t *HUFFVAL) { // Generate_size_table
-
+        
     }
-
+    
     static uint8_t *tjei_huff_get_code_lengths(uint8_t huffsize[/*256*/], uint8_t const *bits) {
         int k = 0;
         for (int i = 0; i < 16; ++i) {
@@ -41,17 +41,17 @@ extern "C" {
         }
         return huffsize;
     }
-
+    
     static void JPEG_Huffman_CreateHUFFCODETable(uint8_t BITS[16], uint8_t *HUFFVAL) { // Generate_code_table
-
+        
     }
-
+    
     static void JPEG_Huffman_Sort(uint8_t BITS[16], uint8_t *HUFFVAL) { // Order_codes
-
+        
     }
-
+    
     // Huffman values are written in big endian order; most significant to least
-
+    
     void JPEG_Read_DefineHuffmanTable(JPEGOptions *Options, BitBuffer *BitB, uint16_t SegmentSize) { // SegmentSize = 30
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -59,99 +59,99 @@ extern "C" {
         Options->Huffman->Values                            = calloc(2, sizeof(HuffmanValue*));
         AssertIO(Options->Huffman->Values != NULL);
         while (SegmentSize > 0) {
-                uint8_t TableType                        = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 4); // 0
-                Options->Huffman->TableID                   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 4); // 0
-                                                                                                                                            // TableType 0 = DC/Lossless, 1 = AC
-
-                if (TableType == 0) {
-                    uint8_t BitLengths[16]; // 01 00 03 01 | 01 01 01 01 | [01] 01 00 00 | 00 00 00 00
-                    uint8_t NumSymbols                   = 0;
-
-                    // BitLengths aka BITS needs to be copied to the specified TableID
-
-                    for (uint8_t Length = 0; Length < 16; Length++) { // BITS
-                        BitLengths[Length]               = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 8);
-                        NumSymbols                      += BitLengths[Length];
-                        SegmentSize                     -= 1;
-                    }
-
-                    Options->Huffman->NumValues[Options->Huffman->TableID]    = NumSymbols; // 12
-
-                    // Now we create the actual Huffman table from the BitLengths and their associated values called Vij in the Spec.
-                    /* HUFFVAL = {0, 7, 8, 9, 6, 5, 4, 3, 1, 2, 10}
-                     [BitLength = 1] = {0},
-                     [BitLength = 3] = {7, 8, 9},
-                     [BitLength = 4] = {6},
-                     [BitLength = 5] = {5},
-                     [BitLength = 6] = {4},
-                     [BitLength = 7] = {3},
-                     [BitLength = 8] = {1},
-                     [BitLength = 9] = {2},
-                     [BitLength = 10] = {10},
-                     */
-
-                    Options->Huffman->Values[Options->Huffman->TableID]       = calloc(NumSymbols, sizeof(HuffmanValue));
-                    if (Options->Huffman->Values[Options->Huffman->TableID] != NULL) {
-                        /*
-                         [0] = { BITS = 1E 00 01 00 | 03 01 01 01 | 01 01 01 01 | 00 00 00 00
-                         [0] = BitLength = 1;
-                         },
-
-
-                         So, this is how Huffman decoding works.
-
-                         How do we Encode, and then package both together in EntropyIO so we can do both?
-                         */
-                        uint8_t  BitLength                                = 0;
-                        uint16_t HuffCode                                 = 0;
-                        while (BitLength < 16) {
-                            if (BitLengths[BitLength] > 0) {
-                                Options->Huffman->Values[Options->Huffman->TableID]->BitLength = BitLength;
-                                Options->Huffman->Values[Options->Huffman->TableID]->HuffCode  = HuffCode;
-                                HuffCode                                 += 1;
-                                Options->Huffman->Values[Options->Huffman->TableID]->Symbol    = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 8);
-                                SegmentSize                              -= 1;
-                            }
-                            HuffCode                                    <<= 1; // Shift always
-                            BitLength                                    += 1;
-                        }
-                    } else if (TableType == 1) {
-                        uint16_t Bytes2Skip = 0;
-                        for (uint8_t i = 0; i < 16; i++) {
-                            Bytes2Skip                                   += BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 8);
-                        }
-                        BitBuffer_Seek(BitB, Bytes2Bits(Bytes2Skip));
-                        SegmentSize                                      -= Bytes2Skip;
-                    }
+            uint8_t TableType                        = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 4); // 0
+            Options->Huffman->TableID                   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 4); // 0
+                                                                                                                                           // TableType 0 = DC/Lossless, 1 = AC
+            
+            if (TableType == 0) {
+                uint8_t BitLengths[16]; // 01 00 03 01 | 01 01 01 01 | [01] 01 00 00 | 00 00 00 00
+                uint8_t NumSymbols                   = 0;
+                
+                // BitLengths aka BITS needs to be copied to the specified TableID
+                
+                for (uint8_t Length = 0; Length < 16; Length++) { // BITS
+                    BitLengths[Length]               = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 8);
+                    NumSymbols                      += BitLengths[Length];
+                    SegmentSize                     -= 1;
                 }
+                
+                Options->Huffman->NumValues[Options->Huffman->TableID]    = NumSymbols; // 12
+                
+                // Now we create the actual Huffman table from the BitLengths and their associated values called Vij in the Spec.
+                /* HUFFVAL = {0, 7, 8, 9, 6, 5, 4, 3, 1, 2, 10}
+                 [BitLength = 1] = {0},
+                 [BitLength = 3] = {7, 8, 9},
+                 [BitLength = 4] = {6},
+                 [BitLength = 5] = {5},
+                 [BitLength = 6] = {4},
+                 [BitLength = 7] = {3},
+                 [BitLength = 8] = {1},
+                 [BitLength = 9] = {2},
+                 [BitLength = 10] = {10},
+                 */
+                
+                Options->Huffman->Values[Options->Huffman->TableID]       = calloc(NumSymbols, sizeof(HuffmanValue));
+                if (Options->Huffman->Values[Options->Huffman->TableID] != NULL) {
+                    /*
+                     [0] = { BITS = 1E 00 01 00 | 03 01 01 01 | 01 01 01 01 | 00 00 00 00
+                     [0] = BitLength = 1;
+                     },
+                     
+                     
+                     So, this is how Huffman decoding works.
+                     
+                     How do we Encode, and then package both together in EntropyIO so we can do both?
+                     */
+                    uint8_t  BitLength                                = 0;
+                    uint16_t HuffCode                                 = 0;
+                    while (BitLength < 16) {
+                        if (BitLengths[BitLength] > 0) {
+                            Options->Huffman->Values[Options->Huffman->TableID]->BitLength = BitLength;
+                            Options->Huffman->Values[Options->Huffman->TableID]->HuffCode  = HuffCode;
+                            HuffCode                                 += 1;
+                            Options->Huffman->Values[Options->Huffman->TableID]->Symbol    = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 8);
+                            SegmentSize                              -= 1;
+                        }
+                        HuffCode                                    <<= 1; // Shift always
+                        BitLength                                    += 1;
+                    }
+                } else if (TableType == 1) {
+                    uint16_t Bytes2Skip = 0;
+                    for (uint8_t i = 0; i < 16; i++) {
+                        Bytes2Skip                                   += BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 8);
+                    }
+                    BitBuffer_Seek(BitB, Bytes2Bits(Bytes2Skip));
+                    SegmentSize                                      -= Bytes2Skip;
+                }
+            }
         }
     }
-
+    
     void JPEG_Read_DefineArithmeticTable(JPEGOptions *Options, BitBuffer *BitB, uint16_t SegmentSize) { // SegmentSize = LA
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         Options->Arithmetic->TableType           = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 4); // Tc
         Options->Arithmetic->TableID             = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 4); // Tb
-
+        
         Options->Arithmetic->CodeValue           = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 8); // Cs
         /* For DC (and lossless) conditioning tables Tc shall be zero and Cs shall contain two 4-bit parameters, U and L. U and L shall be in the range 0 ≤ L ≤ U ≤ 15 and the value of Cs shall be L + 16 × U. */
         BitBuffer_Seek(BitB, Bytes2Bits(SegmentSize - 6));
     }
-
+    
     void JPEG_Read_DefineRestartInterval(JPEGOptions *Options, BitBuffer *BitB, uint16_t SegmentSize) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         Options->RestartInterval                 = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 16);
         BitBuffer_Seek(BitB, Bytes2Bits(SegmentSize - 4));
     }
-
+    
     void JPEG_Read_DefineNumberOfLines(JPEGOptions *Options, BitBuffer *BitB, uint16_t SegmentSize) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         Options->Height                      = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 16);
         BitBuffer_Seek(BitB, Bytes2Bits(SegmentSize - 4));
     }
-
+    
     void JPEG_Read_Comment(JPEGOptions *Options, BitBuffer *BitB, uint16_t SegmentSize) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -166,7 +166,7 @@ extern "C" {
         }
         BitBuffer_Seek(BitB, Bytes2Bits(SegmentSize - Options->CommentSize));
     }
-
+    
     void JPEG_Read_StartOfScan(JPEGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -186,7 +186,7 @@ extern "C" {
         AssertIO(PlatformIO_Is(Options->EntropyCoder, EntropyCoder_Huffman));
         AssertIO(PlatformIO_Is(Options->EntropyCoder, CodingMode_Hierarchical));
     }
-
+    
     void JPEG_Parse(JPEGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -242,7 +242,7 @@ extern "C" {
                 break;
         }
     }
-
+    
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif

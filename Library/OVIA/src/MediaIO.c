@@ -839,7 +839,7 @@ extern "C" {
         AssertIO(Container != NULL);
         AssertIO(Vector != NULL);
         AssertIO(Index < Container->NumVectors);
-        Container->Vectors[Index] = &Vector;
+        Container->Vectors[Index] = Vector;
     }
     
     AudioVector *Audio3DContainer_GetVector(Audio3DContainer *Container, uint64_t Index) {

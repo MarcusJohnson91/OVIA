@@ -19,21 +19,21 @@ extern "C" {
     static void WAVParseDATAChunk(WAVOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-
+        
     }
     
     static void WAVParseFMTChunk(WAVOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-
-        Options->CompressionFormat = BitBuffer_ReadBits(ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, BitB, 16);
-        Options->NumChannels       = BitBuffer_ReadBits(ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, BitB, 16);
-        Options->SampleRate        = BitBuffer_ReadBits(ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, BitB, 32);
-        Options->ByteRate          = BitBuffer_ReadBits(ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, BitB, 32);
-        Options->BlockAlign        = BitBuffer_ReadBits(ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, BitB, 32);
-        Options->BitDepth          = BitBuffer_ReadBits(ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, BitB, 16);
+        
+        Options->CompressionFormat = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 16);
+        Options->NumChannels       = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 16);
+        Options->SampleRate        = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
+        Options->ByteRate          = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
+        Options->BlockAlign        = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
+        Options->BitDepth          = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 16);
         if (ChunkSize == 18) {
-            uint16_t CBSize             = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 16);
+            uint16_t CBSize        = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 16);
             BitBuffer_Seek(BitB, Bytes2Bits(CBSize - 16));
         } else if (ChunkSize == 40) {
             uint16_t CBSize             = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 16);
@@ -52,7 +52,7 @@ extern "C" {
         AssertIO(BitB != NULL);
         uint32_t ChunkID   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
         uint32_t ChunkSize = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
-
+        
         switch (ChunkID) {
             case WAV_LIST:
                 break;
@@ -70,7 +70,7 @@ extern "C" {
                 break;
         }
     }
-
+    
     Audio2DContainer *WAVExtractSamples(WAVOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -87,7 +87,7 @@ extern "C" {
             uint8_t **Samples = (uint8_t**) Audio2DContainer_GetArray(Audio);
             for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                 for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
-                    Samples[Channel][Sample] = BitBuffer_ReadBits(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, Bits2Bytes(BitDepth, Yes));
+                    Samples[Channel][Sample] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, Bits2Bytes(BitDepth, Yes));
                 }
             }
         } else if (BitDepth > 8 && BitDepth <= 16) {
@@ -95,7 +95,7 @@ extern "C" {
             uint16_t **Samples = (uint16_t**) Audio2DContainer_GetArray(Audio);
             for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                 for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
-                    Samples[Channel][Sample] = BitBuffer_ReadBits(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, Bits2Bytes(BitDepth, Yes));
+                    Samples[Channel][Sample] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, Bits2Bytes(BitDepth, Yes));
                 }
             }
         } else if (BitDepth > 16 && BitDepth <= 32) {
@@ -103,7 +103,7 @@ extern "C" {
             uint32_t **Samples = (uint32_t**) Audio2DContainer_GetArray(Audio);
             for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                 for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
-                    Samples[Channel][Sample] = BitBuffer_ReadBits(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, Bits2Bytes(BitDepth, Yes));
+                    Samples[Channel][Sample] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, Bits2Bytes(BitDepth, Yes));
                 }
             }
         }

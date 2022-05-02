@@ -1,3 +1,12 @@
+/*!
+ @header          AVCCodec.h
+ @author          Marcus Johnson
+ @copyright       2017+
+ @version         1.0.0
+ @brief           AVC fils are a collection of NAL-Units
+ 2.264 NAL-Units: {28 bytes, 536 bytes, }
+ */
+
 #include "../../include/CodecIO/AVCCodec.h"
 
 #include "../../../../Dependencies/FoundationIO/Library/include/AssertIO.h" /* Included for Assertions */
@@ -8,17 +17,23 @@
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
-
+    
     void AVC_ParseNAL(AVCOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-
+        
+        if (BitBuffer_PeekBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 1) == 0) { // NAL, probably; forbidden_zero_bit
+            BitBuffer_Seek(BitB, 1); // Skip the peeked bit
+            uint8_t nal_ref_idc = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 2); // 0b11
+            uint8_t nal_unit_type = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 2); // 0b00111
+        }
+        
         // left to right, first bit should be zero followed by nal_ref_idc aka 2 bits then nal_unit_type aka 5 bits
         bool StartBitShouldBeZero = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 1); // 0b0
         if (StartBitShouldBeZero == 0) {
             Options->NAL->RefIDC      = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 2); // 0b11 aka 3
             Options->NAL->NALUnitType = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 5); // 0b00111 aka 7
-
+            
             switch (Options->NAL->NALUnitType) { // nal_unit_type
                 case NAL_NonIDRSlice: // 1
                     ParseNALSliceNonPartitioned(Options, BitB); // slice_layer_without_partitioning_rbsp
@@ -81,7 +96,7 @@ extern "C" {
                     break;
             }
         }
-
+        
     }
     
     // Decode NALs, assembling packets as nessicary. this is the multiplexing stage.
@@ -233,14 +248,14 @@ extern "C" {
             // Read Arithmetic
         }
         
-        if (Options->SPS->ChromaArrayType == Chroma420 || Options->SPS->ChromaArrayType == Chroma422) {
+        if (Options->SPS->ChromaArrayType == AVCChroma_420 || Options->SPS->ChromaArrayType == AVCChroma_422) {
             for (uint8_t iCbCr = 0; iCbCr < 1; iCbCr++) {
                 ChromaDCLevel[iCbCr] = 4 * NumC8x8;
                 for (uint8_t ChromaBlock = 0; ChromaBlock < i4x4; ChromaBlock++) {
                     ChromaACLevel[iCbCr][(i8x8 * 4) + i4x4] = 0;
                 }
             }
-        } else if (Options->SPS->ChromaArrayType == Chroma444) {
+        } else if (Options->SPS->ChromaArrayType == AVCChroma_444) {
             
         }
     }
@@ -720,7 +735,7 @@ extern "C" {
     
     void pred_weight_table(AVCOptions *Options, BitBuffer *BitB) { // pred_weight_table
         Options->Slice->LumaWeightDenom = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, true);
-        if (Options->SPS->ChromaArrayType != ChromaBW) {
+        if (Options->SPS->ChromaArrayType != AVCChroma_Gray) {
             Options->Slice->ChromaWeightDenom = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, false);
         }
         for (uint8_t i = 0; i <= Options->MacroBlock->NumRefIndexActiveLevel0; i++) {
@@ -729,7 +744,7 @@ extern "C" {
                 Options->Slice->LumaWeight[0][i]  = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, true);
                 Options->Slice->LumaOffset[0][i]  = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, true);
             }
-            if (Options->SPS->ChromaArrayType != ChromaBW) {
+            if (Options->SPS->ChromaArrayType != AVCChroma_Gray) {
                 Options->Slice->ChromaWeightFlag[0] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
                 if (Options->Slice->ChromaWeightFlag[0] == true) {
                     for (int J = 0; J < 2; J++) {
@@ -746,7 +761,7 @@ extern "C" {
                     Options->Slice->LumaWeight[1][i]  = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, true);
                     Options->Slice->LumaOffset[1][i]  = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, true);
                 }
-                if (Options->SPS->ChromaArrayType != ChromaBW) {
+                if (Options->SPS->ChromaArrayType != AVCChroma_Gray) {
                     Options->Slice->ChromaWeightFlag[1] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
                     if (Options->Slice->ChromaWeightFlag[1] == true) {
                         for (uint8_t J = 0; J < 2; J++) {
@@ -794,7 +809,7 @@ extern "C" {
         Intra16x16ACLevel = i16x16AClevel;
         LumaLevel4x4 = level4x4;
         LumaLevel8x8 = level8x8;
-        if ((Options->SPS->ChromaArrayType == Chroma420) || (Options->SPS->ChromaArrayType == Chroma422)) {
+        if ((Options->SPS->ChromaArrayType == AVCChroma_420) || (Options->SPS->ChromaArrayType == AVCChroma_422)) {
             NumC8x8 = (4 / (SubWidthC * SubHeightC));
             for (uint8_t iCbCr = 0; iCbCr < 2; iCbCr++) {
                 if ((Options->MacroBlock->BlockPatternChroma & 3) && (startIdx == 0)) { /* chroma DC residual present */
@@ -818,7 +833,7 @@ extern "C" {
                     }
                 }
             }
-        } else if (Options->SPS->ChromaArrayType == Chroma444) {
+        } else if (Options->SPS->ChromaArrayType == AVCChroma_444) {
             ResidualLuma(i16x16DClevel, i16x16AClevel, level4x4, level8x8, startIdx, endIdx);
             CbIntra16x16DCLevel = i16x16DClevel;
             CbIntra16x16ACLevel = i16x16AClevel;
@@ -913,7 +928,7 @@ extern "C" {
     }
     
     void ScanNALUnits(AVCOptions *Options, BitBuffer *BitB) {
-
+        
     }
     
     void RescanSync(BitBuffer *BitB) {
@@ -995,20 +1010,20 @@ extern "C" {
         /*
          Within a NAL, we need to check the size of the NAL, then scan through the input stream to make sure there are no bytes set to 0x000003, 0x000004, or 0x000005?
          */
-
+        
         /*
          NAL rules:
-
+         
          Can not end with a zero byte
          */
         return NULL;
     }
-
+    
     /* Sequence Parameter Set */
     void ParseSequenceParameterSetData(AVCOptions *Options, BitBuffer *BitB) { // seq_parameter_set_data
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-
+        
         Options->SPS->ProfileIDC                                                        = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 8); // 244
         Options->SPS->ConstraintFlag0                                                   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1); // 0
         Options->SPS->ConstraintFlag1                                                   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1); // 0
@@ -1019,7 +1034,7 @@ extern "C" {
         BitBuffer_Seek(BitB, 2); // Zero bits.
         Options->SPS->LevelIDC[0]                                                       = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 8); // 62
         Options->SPS->SeqParamSetID                                                     = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, false); // 1
-
+        
         if ((Options->SPS->ProfileIDC == 44)  ||
             (Options->SPS->ProfileIDC == 83)  ||
             (Options->SPS->ProfileIDC == 86)  ||
@@ -1034,16 +1049,16 @@ extern "C" {
             (Options->SPS->ProfileIDC == 244)) {
             ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, false);
             Options->SPS->ChromaFormatIDC                                               = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, false); // 1 aka 420
-            if (Options->SPS->ChromaFormatIDC == Chroma444) {
+            if (Options->SPS->ChromaFormatIDC == AVCChroma_444) {
                 Options->SPS->SeperateColorPlane                                        = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
             }
             Options->SPS->LumaBitDepthMinus8                                            = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, false); // 8
             Options->SPS->ChromaBitDepthMinus8                                          = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, false);
             Options->SPS->QPPrimeBypassFlag                                             = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1); // qpprime_y_zero_transform_bypass_flag
             Options->SPS->ScalingMatrixFlag                                             = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
-
+            
             if (Options->SPS->ScalingMatrixFlag == true) {
-                for (uint8_t i = 0; i < ((Options->SPS->ChromaFormatIDC != Chroma444) ? 8 : 12); i++) {
+                for (uint8_t i = 0; i < ((Options->SPS->ChromaFormatIDC != AVCChroma_444) ? 8 : 12); i++) {
                     Options->SPS->ScalingListFlag[i]                                    = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
                     if (Options->SPS->ScalingListFlag[i] == true) {
                         if (i < 6) {
@@ -1067,7 +1082,7 @@ extern "C" {
             for (uint8_t i = 0; i < Options->SPS->RefFramesInPicOrder; i++) {
                 Options->SPS->RefFrameOffset[i]                                         = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, true);
             }
-
+            
         }
         Options->SPS->MaxRefFrames                                                      = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, false);
         Options->SPS->GapsInFrameNumAllowed                                             = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
@@ -1090,7 +1105,7 @@ extern "C" {
             ParseVideoUsabilityInformation(Options, BitB);
         }
     }
-
+    
     void ParseNALSequenceParameterSetExtended(AVCOptions *Options, BitBuffer *BitB) { // seq_parameter_set_extension_rbsp?
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -1105,7 +1120,7 @@ extern "C" {
         Options->SPS->AdditionalExtensionFlag                                           = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
         BitBuffer_Align(BitB, 1); // rbsp_trailing_bits
     }
-
+    
     void ParseNALSubsetSPS(AVCOptions *Options, BitBuffer *BitB) { // subset_seq_parameter_set_rbsp
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -1141,15 +1156,15 @@ extern "C" {
         }
         BitBuffer_Align(BitB, 1); // rbsp_trailing_bits
     }
-
+    
     void ParseNALSequenceParameterSet(AVCOptions *Options, BitBuffer *BitB) { // seq_parameter_set_rbsp
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-
+        
         ParseSequenceParameterSetData(Options, BitB);                        // seq_parameter_set_data
         BitBuffer_Align(BitB, 1);                                         // rbsp_trailing_bits();
     }
-
+    
     /* Video Usability Information */
     void ParseVideoUsabilityInformation(AVCOptions *Options, BitBuffer *BitB) { // Video Usability Information; ParseVUIParameters
         AssertIO(Options != NULL);
@@ -1211,7 +1226,7 @@ extern "C" {
             Options->VUI->MaxFrameBuffer[0]                                             = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, false);
         }
     }
-
+    
     void ParseMVCDVUIParametersExtension(AVCOptions *Options, BitBuffer *BitB) { // mvcd_vui_parameters_extension
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -1244,7 +1259,7 @@ extern "C" {
             Options->VUI->VUIMVCDPicStructPresent[MVCDOpPoint]                          = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
         }
     }
-
+    
     void ParseMVCVUIParametersExtension(AVCOptions *Options, BitBuffer *BitB) { // mvc_vui_parameters_extension
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -1275,7 +1290,7 @@ extern "C" {
             Options->VUI->PicStructPresent[Operation]                                   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
         }
     }
-
+    
     void ParseSVCVUIExtension(AVCOptions *Options, BitBuffer *BitB) { // svc_vui_parameters_extension
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -1304,7 +1319,7 @@ extern "C" {
             Options->VUI->VUIExtPicStructPresentFlag[VUIExtEntry]                       = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
         }
     }
-
+    
     /* Picture Parameter Set */
     void ParseNALPictureParameterSet(AVCOptions *Options, BitBuffer *BitB) { // pic_parameter_set_rbsp
         AssertIO(Options != NULL);
@@ -1351,7 +1366,7 @@ extern "C" {
             Options->PPS->TransformIs8x8                                                = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
             Options->PPS->SeperateScalingMatrix                                         = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
             if (Options->PPS->SeperateScalingMatrix == true) {
-                for (uint8_t i = 0; i < 6 + ((Options->SPS->ChromaFormatIDC != Chroma444) ? 2 : 6) * Options->PPS->TransformIs8x8; i++) {
+                for (uint8_t i = 0; i < 6 + ((Options->SPS->ChromaFormatIDC != AVCChroma_444) ? 2 : 6) * Options->PPS->TransformIs8x8; i++) {
                     Options->PPS->PicScalingList[i]                                     = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
                     if (Options->PPS->PicScalingList[i] == true) {
                         if (i < 6) {
@@ -1366,7 +1381,7 @@ extern "C" {
             BitBuffer_Align(BitB, 1);
         }
     }
-
+    
     /* Scalable Video Coding */
     void ParseNALSVCExtension(AVCOptions *Options, BitBuffer *BitB) { // nal_unit_header_svc_extension
         AssertIO(Options != NULL);
@@ -1382,20 +1397,20 @@ extern "C" {
         Options->NAL->OutputFlag                                                        = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
         BitBuffer_Seek(BitB, 2); // reserved_three_2bits
     }
-
+    
     void ParseNALSequenceParameterSetSVC(AVCOptions *Options, BitBuffer *BitB) { // seq_parameter_set_svc_extension
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         Options->SVC->InterLayerDeblockingFilterPresent                                 = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
         Options->SVC->ExtendedSpatialScalabilityIDC                                     = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 2);
-        if ((Options->SPS->ChromaFormatIDC == Chroma420) || (Options->SPS->ChromaFormatIDC == Chroma422)) {
+        if ((Options->SPS->ChromaFormatIDC == AVCChroma_420) || (Options->SPS->ChromaFormatIDC == AVCChroma_422)) {
             Options->SVC->ChromaPhaseXFlag                                              = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
         }
-        if (Options->SPS->ChromaFormatIDC == Chroma420) {
+        if (Options->SPS->ChromaFormatIDC == AVCChroma_420) {
             Options->SVC->ChromaPhaseY                                                  = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 2);
         }
         if (Options->SVC->ExtendedSpatialScalabilityIDC == 1) {
-            if (Options->SPS->ChromaFormatIDC != ChromaBW) {
+            if (Options->SPS->ChromaFormatIDC != AVCChroma_Gray) {
                 Options->SVC->SeqRefLayerChromaPhaseX                                   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
                 Options->SVC->SeqRefLayerChromaPhaseY                                   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 2);
             }
@@ -1410,7 +1425,7 @@ extern "C" {
         }
         Options->SVC->SliceHeaderRestricted                                             = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
     }
-
+    
     void ParseNALPrefixUnitSVC(AVCOptions *Options, BitBuffer *BitB) { // prefix_nal_unit_svc
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -1433,7 +1448,7 @@ extern "C" {
         }
         BitBuffer_Align(BitB, 1); // rbsp_trailing_bits()
     }
-
+    
     /* Multi-View Coding */
     void ParseNALMVCExtension(AVCOptions *Options, BitBuffer *BitB) { // nal_unit_header_mvc_extension
         AssertIO(Options != NULL);
@@ -1446,7 +1461,7 @@ extern "C" {
         Options->NAL->InterViewFlag                                                     = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
         BitBuffer_Seek(BitB, 1);
     }
-
+    
     void ParseSPSMVCDExtension(AVCOptions *Options, BitBuffer *BitB) { // seq_parameter_set_mvcd_extension
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -1507,7 +1522,7 @@ extern "C" {
             ParseMVCVUIParametersExtension(Options, BitB); //mvc_vui_parameters_extension();
         }
     }
-
+    
     void ParseNALDepthParameterSet(AVCOptions *Options, BitBuffer *BitB) { // depth_parameter_set_rbsp
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -1539,11 +1554,11 @@ extern "C" {
         }
         BitBuffer_Align(BitB, 1); // rbsp_trailing_bits
     }
-
+    
     void ParseSPS3DAVCExtension(AVCOptions *Options, BitBuffer *BitB) { // seq_parameter_set_3davc_extension
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-
+        
         if (Options->DPS->NumDepthViews > 0) {
             Options->SPS->AVC3DAcquisitionIDC                                           = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, false);
             for (uint8_t View = 0; View < Options->DPS->NumDepthViews; View++) {
@@ -1613,7 +1628,7 @@ extern "C" {
             }
         }
     }
-
+    
     void ParseNAL3DAVCExtension(AVCOptions *Options, BitBuffer *BitB) { // nal_unit_header_3davc_extension
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -1624,7 +1639,7 @@ extern "C" {
         Options->NAL->IsAnchorPicture                                                   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
         Options->NAL->InterViewFlag                                                     = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
     }
-
+    
     /* Hypothetical Reference Decoder */
     void ParseHypotheticalReferenceDecoder(AVCOptions *Options, BitBuffer *BitB) { // hrd_parameters
         AssertIO(Options != NULL);
@@ -1642,7 +1657,7 @@ extern "C" {
         Options->HRD->DBPDelay                                                          = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 5) + 1;
         Options->HRD->TimeOffsetSize                                                    = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 5);
     }
-
+    
     /* Generic */
     void ParseNALSliceHeader(AVCOptions *Options, BitBuffer *BitB) { // slice_header
         AssertIO(Options != NULL);
@@ -1650,11 +1665,11 @@ extern "C" {
         Options->Slice->FirstMacroBlockInSlice                                          = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, false); // 0
         Options->Slice->Type                                                            = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, false); // 0, 34 0s remaining
         Options->PPS->PicParamSetID                                                     = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, false); // 0, 26 0s remaining
-
+        
         if (Options->SPS->SeperateColorPlane == true) {
             Options->Slice->ColorPlaneID                                                = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 2);
         }
-
+        
         Options->Slice->FrameNumber                                                     = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, false); // FIXME: Should I use BitBuffer_ReadBits?
         if (Options->SPS->OnlyMacroBlocksInFrame == false) {
             Options->Slice->SliceIsInterlaced                                           = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
@@ -1683,7 +1698,7 @@ extern "C" {
         }
         if ((Options->Slice->Type == SliceB1) || (Options->Slice->Type == SliceB2)) {
             Options->Slice->DirectSpatialMVPredictionFlag                               = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
-
+            
         }
         if ((Options->Slice->Type == SliceP1)  || (Options->Slice->Type == SliceP2)  ||
             (Options->Slice->Type == SliceSP1) || (Options->Slice->Type == SliceSP2) ||
@@ -1722,7 +1737,7 @@ extern "C" {
         if (
             (Options->Slice->Type == SliceSP1) || (Options->Slice->Type == SliceSP2) ||
             (Options->Slice->Type == SliceSI1) || (Options->Slice->Type == SliceSI2)) {
-
+                
                 if ((Options->Slice->Type == SliceSP1) || (Options->Slice->Type == SliceSP2)) {
                     Options->Slice->DecodePMBAsSPSlice                                      = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
                 }
@@ -1740,7 +1755,7 @@ extern "C" {
             Options->Slice->SliceGroupChangeCycle                                       = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, Ceili(log2(Options->PPS->PicSizeInMapUnits /  Options->Slice->SliceGroupChangeRate)));
         }
     }
-
+    
     void ParseNALSliceData(AVCOptions *Options, BitBuffer *BitB, uint8_t Category) { // slice_data
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -1762,7 +1777,7 @@ extern "C" {
             }
         }
     }
-
+    
     void ParseNALSlicePartitionA(AVCOptions *Options, BitBuffer *BitB) { // slice_data_partition_a_layer_rbsp
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -1771,7 +1786,7 @@ extern "C" {
         ParseSliceData(Options, BitB, 2); /* only category 2 parts of slice_data() syntax */
         rbsp_slice_trailing_bits(Options, BitB); // BitBuffer_Align(BitB, 1);
     }
-
+    
     void ParseNALSlicePartitionB(AVCOptions *Options, BitBuffer *BitB) { // slice_data_partition_b_layer_rbsp
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -1785,7 +1800,7 @@ extern "C" {
         ParseSliceData(Options, BitB, 3);
         rbsp_slice_trailing_bits(Options, BitB); // BitBuffer_Align(BitB, 1);
     }
-
+    
     void ParseNALSlicePartitionC(AVCOptions *Options, BitBuffer *BitB) { // slice_data_partition_c_layer_rbsp
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -1799,16 +1814,16 @@ extern "C" {
         ParseSliceData(Options, BitB, 4);
         rbsp_slice_trailing_bits(Options, BitB); // BitBuffer_Align(BitB, 1);
     }
-
+    
     void ParseNALSliceNonPartitioned(AVCOptions *Options, BitBuffer *BitB) { // slice_layer_without_partitioning_rbsp
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         ParseNALSliceHeader(Options, BitB);
         ParseNALSliceData(Options, BitB, 0); // TODO: Fix category
-
+        
         BitBuffer_Align(BitB, 1); // rbsp_slice_trailing_bits();
     }
-
+    
     void ParseNALFillerData(AVCOptions *Options, BitBuffer *BitB) { // filler_data_rbsp
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -1816,7 +1831,7 @@ extern "C" {
             BitBuffer_Seek(BitB, 8);
         }
     }
-
+    
     void ParseNALPrefixUnit(AVCOptions *Options, BitBuffer *BitB) { // prefix_nal_unit_rbsp
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -1824,14 +1839,14 @@ extern "C" {
             ParseNALPrefixUnitSVC(Options, BitB);
         }
     }
-
+    
     void ParseNALAccessUnitDelimiter(AVCOptions *Options, BitBuffer *BitB) { // access_unit_delimiter_rbsp
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         Options->Slice->PictureType                                                     = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 3);
         BitBuffer_Align(BitB, 1);
     }
-
+    
     /* Supplemental Enhancement Information */
     void ParseSEIBufferingPeriod(AVCOptions *Options, BitBuffer *BitB) { // buffering_period
         AssertIO(Options != NULL);
@@ -1851,7 +1866,7 @@ extern "C" {
             }
         }
     }
-
+    
     uint8_t GetClockTS(uint8_t PicStruct) {
         uint8_t ClockTS                                                             = 0;
         if ((PicStruct == 0) || (PicStruct == 1) || (PicStruct == 2)) {
@@ -1863,7 +1878,7 @@ extern "C" {
         }
         return ClockTS;
     }
-
+    
     void ParseSEIPictureTiming(AVCOptions *Options, BitBuffer *BitB) { // pic_timing
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -1908,7 +1923,7 @@ extern "C" {
             }
         }
     }
-
+    
     void ParseSEIPanScan(AVCOptions *Options, BitBuffer *BitB) { // pan_scan_rect
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -1925,13 +1940,13 @@ extern "C" {
             Options->SEI->PanScanRepitionPeriod                                         = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, false);
         }
     }
-
+    
     void ParseSEIFiller(AVCOptions *Options, BitBuffer *BitB) { // filler_payload
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         BitBuffer_Seek(BitB, Bytes2Bits(Options->SEI->SEISize));
     }
-
+    
     void ParseSEIRegisteredUserData(AVCOptions *Options, BitBuffer *BitB) { // user_data_registered_itu_t_t35
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -1945,14 +1960,14 @@ extern "C" {
             Options->SEI->CountryCode                                                  += BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 8);
         }
     }
-
+    
     void ParseSEIUnregisteredUserData(AVCOptions *Options, BitBuffer *BitB) { // user_data_unregistered
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         Options->SEI->UnregisteredUserDataUUID = ReadUUID(BitB); // DC45E9BD-E6D9-48B7-962C-D820D923EEEF, x264 UserID.
         BitBuffer_Seek(BitB, Bytes2Bits(Options->SEI->SEISize - BitIOBinaryUUIDSize));
     }
-
+    
     void ParseSEIRecoveryPoint(AVCOptions *Options, BitBuffer *BitB) { // recovery_point
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -1961,7 +1976,7 @@ extern "C" {
         Options->SEI->BrokenLinkFlag                                                    = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
         Options->SEI->ChangingSliceGroupIDC                                             = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 2);
     }
-
+    
     void ParseSEIRepetitiveReferencePicture(AVCOptions *Options, BitBuffer *BitB) { // dec_ref_pic_marking_repetition
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -1975,12 +1990,12 @@ extern "C" {
         }
         DecodeRefPicMarking(Options, BitB); // dec_ref_pic_marking();
     }
-
+    
     void ParseSEISparePicture(AVCOptions *Options, BitBuffer *BitB) { // spare_pic
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         uint8_t MapUnitCount = 0;
-
+        
         Options->SEI->TargetFrameNum                                                    = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, false);
         Options->SEI->SpareFieldFlag                                                    = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
         if (Options->SEI->SpareFieldFlag == true) {
@@ -2005,7 +2020,7 @@ extern "C" {
             }
         }
     }
-
+    
     void ParseSEISceneInfo(AVCOptions *Options, BitBuffer *BitB) { // scene_info
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -2018,7 +2033,7 @@ extern "C" {
             }
         }
     }
-
+    
     void ParseSEISubSequenceInfo(AVCOptions *Options, BitBuffer *BitB) { // sub_seq_info
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -2032,7 +2047,7 @@ extern "C" {
             Options->SEI->SubSeqFrameNum                                                 = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, false);
         }
     }
-
+    
     void ParseSEISubSequenceLayerProperties(AVCOptions *Options, BitBuffer *BitB) { // sub_seq_layer_characteristics
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -2043,7 +2058,7 @@ extern "C" {
             Options->SEI->AverageFrameRate                                               = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 16);
         }
     }
-
+    
     void ParseSEISubSequenceProperties(AVCOptions *Options, BitBuffer *BitB) { // sub_seq_characteristics
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -2066,38 +2081,38 @@ extern "C" {
             Options->SEI->RefSubSeqDirection                                             = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
         }
     }
-
+    
     void ParseSEIFullFrameFreeze(AVCOptions *Options, BitBuffer *BitB) { // full_frame_freeze
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         Options->SEI->FullFrameFreezeRepitionPeriod                                      = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, false);
     }
-
+    
     void ParseSEIFullFrameFreezeRelease(AVCOptions *Options, BitBuffer *BitB) { // full_frame_freeze_release
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         BitBuffer_Seek(BitB, Bytes2Bits(Options->SEI->SEISize));
     }
-
+    
     void ParseSEIFullFrameSnapshot(AVCOptions *Options, BitBuffer *BitB) { // full_frame_snapshot
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         Options->SEI->SnapshotID = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, false);
     }
-
+    
     void ParseSEIProgressiveRefinementSegmentStart(AVCOptions *Options, BitBuffer *BitB) { // progressive_refinement_segment_start
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         Options->SEI->ProgressiveRefinementID                                            = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, false);
         Options->SEI->NumRefinementSteps                                                 = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, false) + 1;
     }
-
+    
     void ParseSEIProgressiveRefinementSegmentEnd(AVCOptions *Options, BitBuffer *BitB) { // progressive_refinement_segment_end
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         Options->SEI->ProgressiveRefinementID                                            = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, false);
     }
-
+    
     void ParseSEIMotionConstrainedSliceGroupSet(AVCOptions *Options, BitBuffer *BitB) { // motion_constrained_slice_group_set
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -2113,7 +2128,7 @@ extern "C" {
             Options->SEI->PanScanID                                                      = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, false);
         }
     }
-
+    
     void ParseSEIFilmGrainCharacteristics(AVCOptions *Options, BitBuffer *BitB) { // film_grain_characteristics
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -2150,7 +2165,7 @@ extern "C" {
             Options->SEI->FilmGrainCharacteristicsRepetitionPeriod                       = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, false);
         }
     }
-
+    
     void ParseSEIDeblockingFilterDisplayPreference(AVCOptions *Options, BitBuffer *BitB) { // deblocking_filter_display_preference
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -2161,7 +2176,7 @@ extern "C" {
             Options->SEI->DeblockingDisplayPreferenceRepetitionPeriod = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, false);
         }
     }
-
+    
     void ParseSEIStereoVideoInfo(AVCOptions *Options, BitBuffer *BitB) { // stereo_video_info
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -2175,7 +2190,7 @@ extern "C" {
         Options->SEI->LeftViewSelfContainedFlag    = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
         Options->SEI->RightViewSelfContainedFlag   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
     }
-
+    
     void ParseSEIPostFilterHint(AVCOptions *Options, BitBuffer *BitB) { // post_filter_hint
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -2191,7 +2206,7 @@ extern "C" {
         }
         Options->SPS->AdditionalExtensionFlag = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
     }
-
+    
     void ParseSEIToneMappingInfo(AVCOptions *Options, BitBuffer *BitB) { // tone_mapping_info
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -2238,7 +2253,7 @@ extern "C" {
             }
         }
     }
-
+    
     void ParseSEIScalabilityInfo(AVCOptions *Options, BitBuffer *BitB) { // scalability_info
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -2310,7 +2325,7 @@ extern "C" {
                         Options->SEI->FirstMacroBlockInROI[Layer][ROI] = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, false);
                         Options->SEI->ROIWidthInMacroBlock[Layer][ROI] = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, false) + 1;
                         Options->SEI->ROIHeightInMacroBlock[Layer][ROI] = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, false) + 1;
-
+                        
                     }
                 }
             }
@@ -2380,13 +2395,13 @@ extern "C" {
             }
         }
     }
-
+    
     void ParseSEISubPictureScalableLayer(AVCOptions *Options, BitBuffer *BitB) { // sub_pic_scalable_layer
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         Options->SEI->LayerID[0] = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, false);
     }
-
+    
     void ParseSEINonRequiredLayerRep(AVCOptions *Options, BitBuffer *BitB) { // non_required_layer_rep
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -2400,7 +2415,7 @@ extern "C" {
             }
         }
     }
-
+    
     void ParseSEIPriorityLayerInfo(AVCOptions *Options, BitBuffer *BitB) { // priority_layer_info
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -2410,7 +2425,7 @@ extern "C" {
             Options->SEI->AltPriorityIDs[PriorityID] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 6);
         }
     }
-
+    
     void ParseSEILayersNotPresent(AVCOptions *Options, BitBuffer *BitB) { // layers_not_present
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -2419,7 +2434,7 @@ extern "C" {
             Options->SEI->LayerID[Layer] = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, false);
         }
     }
-
+    
     void ParseSEILayerDependencyChange(AVCOptions *Options, BitBuffer *BitB) { // layer_dependency_change
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -2437,7 +2452,7 @@ extern "C" {
             }
         }
     }
-
+    
     void ParseSEIScalableNesting(AVCOptions *Options, BitBuffer *BitB) { // scalable_nesting
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -2453,7 +2468,7 @@ extern "C" {
         BitBuffer_Align(BitB, 1);
         ParseSEIMessage(Options, BitB); // sei_message();
     }
-
+    
     void ParseSEIBaseLayerTemporalHRD(AVCOptions *Options, BitBuffer *BitB) { // base_layer_temporal_hrd
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -2480,7 +2495,7 @@ extern "C" {
             Options->SEI->SEIPicStructPresentFlag[TemporalLayer] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
         }
     }
-
+    
     void ParseSEIQualityLayerIntegrityCheck(AVCOptions *Options, BitBuffer *BitB) { // quality_layer_integrity_check
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -2490,7 +2505,7 @@ extern "C" {
             Options->SEI->SEIQualityLayerCRC[IntegrityCheck] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 16);
         }
     }
-
+    
     void ParseSEIRedundantPicProperty(AVCOptions *Options, BitBuffer *BitB) { // redundant_pic_property
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -2514,20 +2529,20 @@ extern "C" {
             }
         }
     }
-
+    
     void ParseSEITemporalDependencyRepresentationIndex(AVCOptions *Options, BitBuffer *BitB) { // tl0_dep_rep_index
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         Options->SEI->TemporalDependencyRepresentationIndexLevel0 = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 8);
         Options->SEI->EffectiveIDRPicID                           = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 16);
     }
-
+    
     void ParseSEITemporalLevelSwitchingPoint(AVCOptions *Options, BitBuffer *BitB) { // tl_switching_point
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         Options->SEI->DeltaFrameNum = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, true);
     }
-
+    
     void ParseSEIParallelDecodingInfo(AVCOptions *Options, BitBuffer *BitB) { // parallel_decoding_info
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -2550,7 +2565,7 @@ extern "C" {
             }
         }
     }
-
+    
     void ParseSEIMVCScalableNesting(AVCOptions *Options, BitBuffer *BitB) { // mvc_scalable_nesting
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -2573,7 +2588,7 @@ extern "C" {
         BitBuffer_Align(BitB, 1);
         ParseSEIMessage(Options, BitB); // sei_message();
     }
-
+    
     void ParseSEIViewScalabilityInfo(AVCOptions *Options, BitBuffer *BitB) { // view_scalability_info FIXME: FINISH THIS FUNCTION!!!
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -2672,13 +2687,13 @@ extern "C" {
             }
         }
     }
-
+    
     void ParseSEIMVCSceneInfo(AVCOptions *Options, BitBuffer *BitB) { // multiview_scene_info
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         Options->SEI->MaxDisparity = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, false);
     }
-
+    
     void ParseSEIMVCAcquisitionInfo(AVCOptions *Options, BitBuffer *BitB) { // multiview_acquisition_info
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -2748,7 +2763,7 @@ extern "C" {
             }
         }
     }
-
+    
     void ParseSEINonRequiredViewComponent(AVCOptions *Options, BitBuffer *BitB) { // non_required_view_component
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -2761,7 +2776,7 @@ extern "C" {
             }
         }
     }
-
+    
     void ParseSEIViewDependencyChange(AVCOptions *Options, BitBuffer *BitB) { // view_dependency_change
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -2789,7 +2804,7 @@ extern "C" {
             }
         }
     }
-
+    
     void ParseSEIOperationPointNotPresent(AVCOptions *Options, BitBuffer *BitB) { // operation_point(s)_not_present
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -2798,7 +2813,7 @@ extern "C" {
             Options->SEI->OperationPointNotPresentID[OperationPoint] = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, false);
         }
     }
-
+    
     void ParseSEIBaseViewTemporalHRD(AVCOptions *Options, BitBuffer *BitB) { // base_view_temporal_hrd
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -2807,7 +2822,7 @@ extern "C" {
             Options->SEI->SEIMVCTemporalID[TemporalLayer] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 3);
         }
     }
-
+    
     void ParseSEIFramePackingArrangement(AVCOptions *Options, BitBuffer *BitB) { // frame_packing_arrangement
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -2834,7 +2849,7 @@ extern "C" {
         }
         Options->SEI->FramePackingArrangementExtensionFlag = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
     }
-
+    
     void ParseSEIMVCViewPosition(AVCOptions *Options, BitBuffer *BitB) { // multiview_view_position
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -2844,7 +2859,7 @@ extern "C" {
         }
         Options->SEI->MVCViewPositionExtensionFlag = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
     }
-
+    
     void ParseSEIDisplayOrientation(AVCOptions *Options, BitBuffer *BitB) { // display_orientation
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -2857,7 +2872,7 @@ extern "C" {
             Options->SEI->DisplayOrientationExtensionFlag = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
         }
     }
-
+    
     void ParseSEIDepthRepresentationInformation(AVCOptions *Options, BitBuffer *BitB) { // depth_representation_info
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -2907,14 +2922,14 @@ extern "C" {
             }
         }
     }
-
+    
     void ParseSEI3DReferenceDisplayInfo(AVCOptions *Options, BitBuffer *BitB) { // three_dimensional_reference_displays_info
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         Options->SEI->TruncationErrorExponent                           = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, false);
         Options->SEI->TruncatedWidthExponent                            = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, false);
         Options->SEI->ReferenceViewingDistanceFlag                      = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
-
+        
         if (Options->SEI->ReferenceViewingDistanceFlag == true) {
             Options->SEI->TruncatedReferenveViewingDistanceExponent     = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, false);
         }
@@ -2935,12 +2950,12 @@ extern "C" {
         }
         Options->SEI->ReferenceDisplays3DFlag                           = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
     }
-
+    
     void ParseSEIDepthTiming(AVCOptions *Options, BitBuffer *BitB) { // depth_timing
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         Options->SEI->PerViewDepthTimingFlag                              = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
-
+        
         if (Options->SEI->PerViewDepthTimingFlag == true) {
             for (uint8_t View = 0; View < Options->DPS->NumDepthViews; View++) {
                 Options->SEI->OffsetLength[View]                          = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 5) + 1;
@@ -2949,7 +2964,7 @@ extern "C" {
             }
         }
     }
-
+    
     void ParseSEIDepthGridPosition(AVCOptions *Options, BitBuffer *BitB) { // depth_grid_position()
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -2960,7 +2975,7 @@ extern "C" {
         Options->SEI->DepthGridPositionYDP                                = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 4);
         Options->SEI->DepthGridPositionYSignFlag                          = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
     }
-
+    
     void ParseSEIDepthSamplingInfo(AVCOptions *Options, BitBuffer *BitB) { // depth_sampling_info
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -2979,14 +2994,14 @@ extern "C" {
             ParseSEIDepthGridPosition(Options, BitB);
         }
     }
-
+    
     void ParseSEIConstrainedDepthParameterSetID(AVCOptions *Options, BitBuffer *BitB) { // constrained_depth_parameter_set_identifier
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         Options->SEI->MaxDPSID                                            = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, false);
         Options->SEI->MaxDPSIDDiff                                        = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, false);
     }
-
+    
     void ParseSEIMeteringDisplayColorVolume(AVCOptions *Options, BitBuffer *BitB) { // mastering_display_color_volume
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -2999,7 +3014,7 @@ extern "C" {
         Options->SEI->MaxDisplayMasteringLuminance                        = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 32);
         Options->SEI->MinDisplayMasteringLuminance                        = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 32);
     }
-
+    
     void ParseSEIMVCDScalableNesting(AVCOptions *Options, BitBuffer *BitB) { // mvcd_scalable_nesting
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -3028,7 +3043,7 @@ extern "C" {
         BitBuffer_Align(BitB, 1);
         ParseSEIMessage(Options, BitB); // sei_message();
     }
-
+    
     void ParseSEIDepthRepresentationElement(BitBuffer *BitB, uint8_t OutSign, uint8_t OutExp, uint8_t OutMantissa, uint8_t OutManLen) { // depth_representation_sei_element
         AssertIO(BitB != NULL);
         bool     DASignFlag                                           = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1); // da_sign_flag
@@ -3036,12 +3051,12 @@ extern "C" {
         uint8_t  DAMatissaSize                                        = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 5) + 1;
         uint64_t DAMatissa                                            = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, DAMatissaSize);
     }
-
+    
     void SkipSEIReservedMessage(BitBuffer *BitB, size_t SEISize) { // reserved_sei_message
         AssertIO(BitB != NULL);
         BitBuffer_Seek(BitB, Bytes2Bits(SEISize));
     }
-
+    
     void ParseSEIMessage(AVCOptions *Options, BitBuffer *BitB) { // sei_message
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -3050,13 +3065,13 @@ extern "C" {
             Options->SEI->SEIType += 255;
         }
         Options->SEI->SEIType += BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 8); // last_payload_type_byte, 5
-
+        
         while (BitBuffer_PeekBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8) == 0xFF) {
             BitBuffer_Seek(BitB, 8);
             Options->SEI->SEISize    += 255;
         }
         Options->SEI->SEISize += BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 8); // last_payload_size_byte, 692, emulation prevention bytes not included, but these fields are.
-
+        
         switch (Options->SEI->SEIType) { // sei_payload
             case SEI_BufferingPeriod:                         // 0
                 ParseSEIBufferingPeriod(Options, BitB);
@@ -3232,7 +3247,7 @@ extern "C" {
                 break;
         }
     }
-
+    
     void ParseAVC3DSliceDataExtension(AVCOptions *Options, BitBuffer *BitB) { // slice_data_in_3davc_extension
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -3255,7 +3270,7 @@ extern "C" {
             }
         }
     }
-
+    
     void ParseAVC3DSlice(AVCOptions *Options, BitBuffer *BitB) { // slice_header_in_3davc_extension
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -3278,7 +3293,7 @@ extern "C" {
                 }
             }
             if ((Options->PPS->WeightedPrediction == true && ((Options->Slice->Type == SliceP1) || (Options->Slice->Type == SliceP2) || (Options->Slice->Type == SliceSP1) || (Options->Slice->Type == SliceSP2))) || ((Options->PPS->WeightedBiPrediction == 1 && ((Options->Slice->Type == SliceB1) || (Options->Slice->Type == SliceB2))))) {
-
+                
                 Options->Slice->PrePredictionWeightTableSrc = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 2);
                 if (Options->Slice->PrePredictionWeightTableSrc == false) {
                     pred_weight_table(Options, BitB);
@@ -3387,7 +3402,7 @@ extern "C" {
             }
         }
     }
-
+    
     /* Scalable Video Coding */
     void ParseScalableSlice(AVCOptions *Options, BitBuffer *BitB) { // slice_header_in_scalable_extension
         AssertIO(Options != NULL);
@@ -3482,9 +3497,9 @@ extern "C" {
                 if (Options->SPS->SeperateColorPlane == false) {
                     Options->SPS->ChromaArrayType = Options->SPS->ChromaFormatIDC;
                 } else {
-                    Options->SPS->ChromaArrayType = ChromaBW;
+                    Options->SPS->ChromaArrayType = AVCChroma_Gray;
                 }
-                if (Options->SPS->ChromaArrayType > ChromaBW) {
+                if (Options->SPS->ChromaArrayType > AVCChroma_Gray) {
                     BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
                     Options->Slice->RefLayerChromaPhaseXFlag = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 1);
                     Options->Slice->RefLayerChromaPhaseY     = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 2) - 1;
@@ -3523,7 +3538,7 @@ extern "C" {
             Options->Slice->ScanIndexEnd   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, 4);
         }
     }
-
+    
     void ParseNALAuxiliarySliceExtension(AVCOptions *Options, BitBuffer *BitB) { // slice_layer_extension_rbsp
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -3540,7 +3555,7 @@ extern "C" {
         }
         BitBuffer_Align(BitB, 1); // rbsp_slice_trailing_bits()
     }
-
+    
     void ParseScalableSliceData(AVCOptions *Options, BitBuffer *BitB) { // slice_data_in_scalable_extension
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -3590,7 +3605,7 @@ extern "C" {
             Options->Slice->CurrentMacroBlockAddress = NextMacroBlockAddress(Options, Options->Slice->CurrentMacroBlockAddress);
         }
     }
-
+    
     void ParseUnpartitionedSliceLayer(AVCOptions *Options, BitBuffer *BitB) { // slice_layer_without_partitioning_rbsp
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -3598,7 +3613,7 @@ extern "C" {
         ParseSliceData(Options, BitB, 0);
         rbsp_slice_trailing_bits(Options, BitB);
     }
-
+    
     void ParseMacroBlockLayerInSVC(AVCOptions *Options, BitBuffer *BitB) { // macroblock_layer_in_scalable_extension
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -3714,26 +3729,26 @@ extern "C" {
             }
         }
     }
-
+    
     void CalculateMacroBlockDimensions(AVCOptions *Options) {
         AssertIO(Options != NULL);
-        if ((Options->SPS->ChromaFormatIDC == ChromaBW) && (Options->Slice->SeperateColorPlaneFlag == false)) {
+        if ((Options->SPS->ChromaFormatIDC == AVCChroma_Gray) && (Options->Slice->SeperateColorPlaneFlag == false)) {
             Options->SPS->MacroBlockWidthChroma  = 0;
             Options->SPS->MacroBlockHeightChroma = 0;
-        } else if ((Options->SPS->ChromaFormatIDC == Chroma420) && (Options->Slice->SeperateColorPlaneFlag == false)) {
+        } else if ((Options->SPS->ChromaFormatIDC == AVCChroma_420) && (Options->Slice->SeperateColorPlaneFlag == false)) {
             Options->SPS->MacroBlockWidthChroma  = 8;
             Options->SPS->MacroBlockHeightChroma = 8;
-        } else if ((Options->SPS->ChromaFormatIDC == Chroma422) && (Options->Slice->SeperateColorPlaneFlag == false)) {
+        } else if ((Options->SPS->ChromaFormatIDC == AVCChroma_422) && (Options->Slice->SeperateColorPlaneFlag == false)) {
             Options->SPS->MacroBlockWidthChroma  = 8;
             Options->SPS->MacroBlockHeightChroma = 16;
-        } else if ((Options->SPS->ChromaFormatIDC == Chroma444) && (Options->Slice->SeperateColorPlaneFlag == false)) {
+        } else if ((Options->SPS->ChromaFormatIDC == AVCChroma_444) && (Options->Slice->SeperateColorPlaneFlag == false)) {
             Options->SPS->MacroBlockWidthChroma  = 16;
             Options->SPS->MacroBlockHeightChroma = 16;
         } else if (Options->Slice->SeperateColorPlaneFlag == true) {
             // Samples need to be handled differently.
         }
     }
-
+    
     void ParseMBPredictionInSVC(AVCOptions *Options, BitBuffer *BitB) { // mb_pred_in_scalable_extension
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -3842,19 +3857,19 @@ extern "C" {
             }
         }
     }
-
+    
     void ParseAVC3DMacroBlockPredictionExtension(AVCOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         if (MacroBlockPartitionPredictionMode(Options, Options->MacroBlock->Type, 0) == Intra_4x4) {
-
+            
         } else if (MacroBlockPartitionPredictionMode(Options, Options->MacroBlock->Type, 0) == Intra_8x8) {
-
+            
         } else if (MacroBlockPartitionPredictionMode(Options, Options->MacroBlock->Type, 0) == Intra_16x16) {
-
+            
         }
     }
-
+    
     uint8_t NumMacroBlockPartitions(uint8_t MacroBlockType) { // NumMbPart
         if (MacroBlockType == 0) {
             return 1;
@@ -3866,7 +3881,7 @@ extern "C" {
             return 1;
         }
     }
-
+    
     void MacroBlockLayer(AVCOptions *Options, BitBuffer *BitB) { // macroblock_layer
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -3954,7 +3969,7 @@ extern "C" {
             }
         }
     }
-
+    
     void mb_pred(AVCOptions *Options, BitBuffer *BitB, uint8_t mb_type) { // mb_pred
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -3977,7 +3992,7 @@ extern "C" {
                         }
                     }
                 }
-                if ((Options->SPS->ChromaArrayType == Chroma420) || (Options->SPS->ChromaArrayType == Chroma422)) {
+                if ((Options->SPS->ChromaArrayType == AVCChroma_420) || (Options->SPS->ChromaArrayType == AVCChroma_422)) {
                     Options->MacroBlock->IntraChromaPredictionMode = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, false);
                 }
             } else if (MacroBlockPredictionMode != Direct) {
@@ -4025,7 +4040,7 @@ extern "C" {
                         }
                     }
                 }
-                if ((Options->SPS->ChromaArrayType == Chroma420) || (Options->SPS->ChromaArrayType == Chroma422)) {
+                if ((Options->SPS->ChromaArrayType == AVCChroma_420) || (Options->SPS->ChromaArrayType == AVCChroma_422)) {
                     Options->MacroBlock->IntraChromaPredictionMode = ReadArithmetic(BitB, NULL, NULL, NULL, NULL);
                 }
             } else if (MacroBlockPredictionMode != Direct) {
@@ -4064,21 +4079,21 @@ extern "C" {
         Options->Slice->RawMacroBlockSizeInBits  = 256 * Options->SPS->BitDepthLuma + 2 * Options->SPS->MacroBlockWidthChroma * Options->SPS->MacroBlockHeightChroma * Options->SPS->BitDepthChroma;
         Options->SPS->QPBDOffsetChroma           = Options->SPS->ChromaBitDepthMinus8 * 6;
     }
-
+    
     void DecodeMacroBlock(AVCOptions *Options, uint8_t *MacroBlock, size_t MacroBlockSize) {
         AssertIO(Options != NULL);
         AssertIO(MacroBlock != NULL);
-        if (Options->SPS->ChromaFormatIDC == ChromaBW) { // black and white
-
-        } else if (Options->SPS->ChromaFormatIDC == Chroma420) { // 4:2:0
-
-        } else if (Options->SPS->ChromaFormatIDC == Chroma422) { // 4:2:2
-
-        } else if (Options->SPS->ChromaFormatIDC == Chroma444) { // 4:4:4
-
+        if (Options->SPS->ChromaFormatIDC == AVCChroma_Gray) { // black and white
+            
+        } else if (Options->SPS->ChromaFormatIDC == AVCChroma_420) { // 4:2:0
+            
+        } else if (Options->SPS->ChromaFormatIDC == AVCChroma_422) { // 4:2:2
+            
+        } else if (Options->SPS->ChromaFormatIDC == AVCChroma_444) { // 4:4:4
+            
         }
     }
-
+    
     void ParseSubMacroBlockPredictionInSVC(AVCOptions *Options, BitBuffer *BitB) { // sub_mb_pred_in_scalable_extension
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -4098,15 +4113,15 @@ extern "C" {
             }
             for (uint8_t MacroBlockPiece = 0; MacroBlockPiece < 4; MacroBlockPiece++) { // MacroBlockPiece
                 if ((Options->MacroBlock->NumRefIndexActiveLevel0 > 0 || Options->Slice->MacroBlockFieldDecodingFlag != Options->Slice->SliceIsInterlaced) && Options->MacroBlock->Type != P_8x8ref0 && SubMacroBlockType[MacroBlockPiece] != B_Direct_8x8 && SubMbPredMode(SubMacroBlockType[MacroBlockPiece]) != Pred_L1 && !motion_prediction_flag_l0[MacroBlockPiece]) {
-
+                    
                     Options->SPS->RefIndexLevel0[MacroBlockPiece] = ReadRICE(BitB, true, 0) + 1;
                 }
                 if ((Options->MacroBlock->NumRefIndexActiveLevel1 > 0 || Options->Slice->MacroBlockFieldDecodingFlag != Options->Slice->SliceIsInterlaced) && SubMacroBlockType[MacroBlockPiece] != B_Direct_8x8 && SubMbPredMode(SubMacroBlockType[MacroBlockPiece]) != Pred_L0 && !motion_prediction_flag_l1[MacroBlockPiece]) {
-
+                    
                     Options->SPS->RefIndexLevel1[MacroBlockPiece] = ReadRICE(BitB, true, 0) + 1;
-
+                    
                 }
-
+                
                 if (SubMacroBlockType[MacroBlockPiece] != B_Direct_8x8 && SubMbPredMode(SubMacroBlockType[MacroBlockPiece]) != Pred_L1) {
                     for (uint32_t SubMacroBlockPiece = 0; SubMacroBlockPiece < NumSubMbPart(SubMacroBlockType[MacroBlockPiece]); SubMacroBlockPiece++) {
                         for (uint8_t compIdx = 0; compIdx < 2; compIdx++) {
@@ -4114,7 +4129,7 @@ extern "C" {
                         }
                     }
                 }
-
+                
                 if (SubMacroBlockType[MacroBlockPiece] != B_Direct_8x8 && SubMbPredMode(SubMacroBlockType[MacroBlockPiece]) != Pred_L0) {
                     for (uint32_t SubMacroBlockPiece = 0; SubMacroBlockPiece < NumSubMbPart(SubMacroBlockType[MacroBlockPiece]); SubMacroBlockPiece++) {
                         for (uint8_t compIdx = 0; compIdx < 2; compIdx++) {
@@ -4139,16 +4154,16 @@ extern "C" {
             }
             for (uint8_t MacroBlockPiece = 0; MacroBlockPiece < 4; MacroBlockPiece++) { // MacroBlockPiece
                 if ((Options->MacroBlock->NumRefIndexActiveLevel0 > 0 || Options->Slice->MacroBlockFieldDecodingFlag != Options->Slice->SliceIsInterlaced) && Options->MacroBlock->Type != P_8x8ref0 && SubMacroBlockType[MacroBlockPiece] != B_Direct_8x8 && SubMbPredMode(SubMacroBlockType[MacroBlockPiece]) != Pred_L1 && !motion_prediction_flag_l0[MacroBlockPiece]) {
-
+                    
                     Options->SPS->RefIndexLevel0[MacroBlockPiece] = ReadArithmetic(BitB, NULL, NULL, NULL, NULL) + 1;
-
+                    
                 }
                 if ((Options->MacroBlock->NumRefIndexActiveLevel1 > 0 || Options->Slice->MacroBlockFieldDecodingFlag != Options->Slice->SliceIsInterlaced) && SubMacroBlockType[MacroBlockPiece] != B_Direct_8x8 && SubMbPredMode(SubMacroBlockType[MacroBlockPiece]) != Pred_L0 && !motion_prediction_flag_l1[MacroBlockPiece]) {
-
+                    
                     Options->SPS->RefIndexLevel1[MacroBlockPiece] = ReadArithmetic(BitB, NULL, NULL, NULL, NULL) + 1;
-
+                    
                 }
-
+                
                 if (SubMacroBlockType[MacroBlockPiece] != B_Direct_8x8 && SubMbPredMode(SubMacroBlockType[MacroBlockPiece]) != Pred_L1) {
                     for (uint32_t SubMacroBlockPiece = 0; SubMacroBlockPiece < NumSubMbPart(SubMacroBlockType[MacroBlockPiece]); SubMacroBlockPiece++) {
                         for (uint8_t compIdx = 0; compIdx < 2; compIdx++) {
@@ -4156,7 +4171,7 @@ extern "C" {
                         }
                     }
                 }
-
+                
                 if (SubMacroBlockType[MacroBlockPiece] != B_Direct_8x8 && SubMbPredMode(SubMacroBlockType[MacroBlockPiece]) != Pred_L0) {
                     for (uint32_t SubMacroBlockPiece = 0; SubMacroBlockPiece < NumSubMbPart(SubMacroBlockType[MacroBlockPiece]); SubMacroBlockPiece++) {
                         for (uint8_t compIdx = 0; compIdx < 2; compIdx++) {
@@ -4167,7 +4182,7 @@ extern "C" {
             }
         }
     }
-
+    
     void ParseReferenceBasePictureSyntax(AVCOptions *Options, BitBuffer *BitB) { // dec_ref_base_pic_marking
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -4179,11 +4194,11 @@ extern "C" {
             } else if (Options->SVC->BaseControlOperation == 2) {
                 Options->SVC->LongTermBasePicNum = ReadExpGolomb(ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, BitB, CountUnary, AVCStopBit);
             } while(Options->SVC->BaseControlOperation != 0) {
-
+                
             }
         }
     }
-
+    
     void ParseSubMacroBlockPrediction(AVCOptions *Options, BitBuffer *BitB, uint8_t mb_type) { // sub_mb_pred
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);

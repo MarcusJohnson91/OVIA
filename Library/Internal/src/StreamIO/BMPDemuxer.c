@@ -8,7 +8,7 @@
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
-
+    
     void BMPParseMetadata(BMPOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -67,7 +67,7 @@ extern "C" {
             BitBuffer_Seek(BitB, Bits2Bytes((Options->Offset - 14) - Options->DIBSize, RoundingType_Down));
         }
     }
-
+    
     void BMPExtractImage(BMPOptions *Options, BitBuffer *BitB, ImageContainer *Image) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -78,9 +78,9 @@ extern "C" {
         uint32_t Height          = AbsoluteI(Options->Height);
         ImageChannelMap *Map    = ImageContainer_GetChannelMap(Image);
         MediaIO_ImageTypes Type = ImageContainer_GetType(Image);
-
+        
         AssertIO(Options->CompressionType == BMP_RGB);
-
+        
         if (BitDepth <= 8) {
             uint8_t ****Array  = (uint8_t****) ImageContainer_GetArray(Image);
             for (uint64_t View = 0ULL; View < ImageChannelMap_GetNumViews(Map); View++) {
@@ -104,14 +104,14 @@ extern "C" {
                 }
             }
         }
-
+        
         if (IsUpsideDown) { // The Image is upside down, so we need to flip it
             ImageContainer_Flip(Image, FlipType_Vertical);
         }
-
+        
         AssertIO(Options->ColorsIndexed == false);
     }
-
+    
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif

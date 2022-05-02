@@ -7,7 +7,7 @@
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
-
+    
     AVCOptions *AVCOptions_Init(void) {
         AVCOptions *Options           = calloc(1, sizeof(AVCOptions));
         AssertIO(Options != NULL);
@@ -23,7 +23,7 @@ extern "C" {
         Options->MacroBlock           = calloc(1, sizeof(MacroBlock));
         return Options;
     }
-
+    
     bool AreAllViewsPaired(AVCOptions *Options) {
         AssertIO(Options != NULL);
         bool AllViewsPairedFlag = false;
@@ -32,7 +32,7 @@ extern "C" {
         }
         return AllViewsPairedFlag;
     }
-
+    
     int64_t InverseRasterScan(int64_t A, int64_t B, int64_t C, int64_t D, int64_t E) {
         int64_t Result = 0;
         if (E == 0) {
@@ -42,7 +42,7 @@ extern "C" {
         }
         return Result;
     }
-
+    
     int64_t Clip3(int16_t X, int16_t Y, int16_t Z) {
         int64_t Result = 0;
         if (Z < X) {
@@ -54,19 +54,19 @@ extern "C" {
         }
         return Result;
     }
-
+    
     int64_t Clip1Luma(int16_t X, uint8_t BitDepth) { // Clip1y
         return Clip3(0, (1 << BitDepth) -1, X);
     }
-
+    
     int64_t Clip1Chroma(int16_t X, uint8_t BitDepth) { // Clip1c
         return Clip3(0, (1 << BitDepth) -1, X);
     }
-
+    
     int64_t Median(double X, double Y, double Z) {
         return X + Y + Z - Minimum(X, Minimum(Y, Z)) - Maximum(X, Maximum(Y, Z));
     }
-
+    
     int8_t Sign(double X) {
         return X >= 0 ? 1 : -1;
     }
@@ -77,7 +77,7 @@ extern "C" {
         while ((Bits2Encode >= High) && (Bits2Encode <= Low)) {
             Range = (High - Low) + 1;
             Probability = ProbabilityTable[Range]; // Probability should be an int table ordered on how often a symbol shows up, not it's quantized probability.
-
+            
         }
     }
     
@@ -90,7 +90,7 @@ extern "C" {
         double Low;
         double High;
     } Probability;
-
+    
     /*
      // Create a function to lookup the symbol from the probabilities
      uint16_t FindSymbolFromProbability(double Probability, uint64_t	*MaximumTable, uint64_t *MinimumTable, size_t TableSize) {
@@ -129,13 +129,13 @@ extern "C" {
     }
     
     bool IsThereMoreDataInThisNAL() { // more_rbsp_data
-            /*
-            if (there is no more data) {
-                return false;
-            } else {
-                // find the rightmost 1 bit, Given the position of this bit, which is the first bit (rbsp_stop_one_bit) of the rbsp_trailing_bits( ) syntax structure
-            }
-             */
+        /*
+         if (there is no more data) {
+         return false;
+         } else {
+         // find the rightmost 1 bit, Given the position of this bit, which is the first bit (rbsp_stop_one_bit) of the rbsp_trailing_bits( ) syntax structure
+         }
+         */
         return false;
     }
     
@@ -148,7 +148,7 @@ extern "C" {
     size_t GetSizeOfNALUnit(AVCOptions *Options, BitBuffer *BitB) {
         return 0;
     }
-
+    
     void AVCOptions_Deinit(AVCOptions *Options) {
         free(Options->NAL);
         free(Options->SPS);

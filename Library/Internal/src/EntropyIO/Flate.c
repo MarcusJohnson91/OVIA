@@ -7,7 +7,7 @@
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
-
+    
     void Flate_ReadZlibHeader(BitBuffer *BitB) { // This will be the main function for each Zlib block
         AssertIO(BitB != NULL);
         uint8_t  CompressionMethod = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 4);
@@ -28,7 +28,7 @@ extern "C" {
             DictID  = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
         }
     }
-
+    
     HuffmanTree *Flate_BuildHuffmanTree(uint16_t *SymbolLengths, uint16_t NumSymbols) {
         AssertIO(SymbolLengths != NULL);
         HuffmanTree *Tree = HuffmanTree_Init(SymbolLengths, NumSymbols);
@@ -36,13 +36,13 @@ extern "C" {
         for (uint16_t Symbol = 0; Symbol < NumSymbols; Symbol++) {
             Tree->Frequency[SymbolLengths[Symbol]] += 1;
         }
-
+        
         uint16_t *Offsets = calloc(MaxBitsPerSymbol + 1, sizeof(uint16_t));
         AssertIO(Offsets != NULL);
         for (uint16_t SymbolLength = 1; SymbolLength < MaxBitsPerSymbol; SymbolLength++) {
             Offsets[SymbolLength + 1] = Offsets[SymbolLength] + Tree->Frequency[SymbolLength];
         }
-
+        
         for (uint16_t Symbol = 0; Symbol < NumSymbols; Symbol++) {
             if (SymbolLengths[Symbol] != 0) {
                 Tree->Symbol[Offsets[SymbolLengths[Symbol]] + 1] = Symbol;
@@ -51,14 +51,14 @@ extern "C" {
         free(Offsets);
         return Tree;
     }
-
+    
     void HuffmanTree_Deinit(HuffmanTree *Tree) {
         AssertIO(Tree != NULL);
         free(Tree->Frequency);
         free(Tree->Symbol);
         free(Tree);
     }
-
+    
     void Flate_ReadDeflateBlock(BitBuffer *BitB) {
         AssertIO(BitB != NULL);
         bool    BFINAL        = No;
@@ -83,16 +83,16 @@ extern "C" {
                 AssertIO(NumLengthCodes <= MaxLiteralLengthCodes);
                 AssertIO(NumDistCodes <= MaxDistanceCodes);
                 uint16_t *CodeLengthCodeLengths   = calloc(NumMetaCodes, sizeof(uint16_t));
-
+                
                 for (uint8_t CodeLengthCodeLengthCode = 0; CodeLengthCodeLengthCode < NumCodeLengthCodeLengthCodes; CodeLengthCodeLengthCode++) {
                     CodeLengthCodeLengths[MetaCodeLengthOrder[CodeLengthCodeLengthCode]] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 3);
                 }
-
+                
                 HuffmanTree *Tree2DecodeTrees     = Flate_BuildHuffmanTree(CodeLengthCodeLengths, NumMetaCodes);
                 uint16_t Index = 0;
                 do {
                     uint64_t Length2Repeat        = 0; // len
-
+                    
                     uint16_t Symbol               = ReadSymbol(BitB, Tree2DecodeTrees);
                     if (Symbol <= MaxBitsPerSymbol) {
                         CodeLengthCodeLengths[Index + 1] = Symbol;

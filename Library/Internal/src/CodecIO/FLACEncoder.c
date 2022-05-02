@@ -9,7 +9,7 @@
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
-
+    
     void FLAC_Encode(FLACOptions *Options, Audio2DContainer *Audio, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(Audio != NULL);
@@ -24,7 +24,7 @@ extern "C" {
             Options->Frame->PartitionOrder        = 15;
         }
     }
-
+    
     void FLAC_Compose(FLACOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
@@ -60,7 +60,7 @@ extern "C" {
         BitBuffer_WriteUTF8(BitB, OVIAVersion, StringTerminator_Sized);
         UTF8_Deinit(OVIAVersion);
     }
-
+    
     void FLAC_Write_Audio(FLACOptions *Options, BitBuffer *BitB, Audio2DContainer *Audio) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);

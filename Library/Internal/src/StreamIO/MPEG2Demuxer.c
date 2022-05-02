@@ -7,17 +7,17 @@
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
-
+    
     // Each elementary stream needs it's own PES packet.
     // A Program Stream can contain multiple elementary streams encapsulated into PES packets.
     // Transport Streams and Program streams are like brothers, they do the same things, but some are more capable than others.
-
+    
     // Access Unit = A coded representation of a Presentation Unit. In audio, an AU = a frame. in video, an AU = a picture + all padding and metadata.
     // PacketID    = an int that identifies elementary streams (audio or video) in a program.
     // Program     = Elementary streams that are to be played synchronized with the same time base.
-
+    
     // Transport Streams CAN CONTAIN PROGRAM STREAMS, OR ELEMENTARY STREAMS.
-
+    
     // So, for Demuxing, the general idea is to accumulate PES packets until you've got a whole NAL or whateve?
     // Also, we need a way to identify the stream type
     
@@ -27,7 +27,7 @@ extern "C" {
     /* REAL INFO */
     // Transport streams have no global header.
     // Packet size is 188 bytes, M2ts adds 4 bytes for copyright and timestamp.
-
+    
     static void ParseConditionalAccessDescriptor(MPEG2Options *Options, BitBuffer *BitB) { // CA_descriptor
         int N                                                 = 0;// TODO: what is N?
         uint8_t  DescriptorTag                                = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);// descriptor_tag
@@ -39,7 +39,7 @@ extern "C" {
             BitBuffer_Seek(BitB, 8); // private_data_byte
         }
     }
-
+    
     static void ParseConditionalAccessSection(MPEG2Options *Options, BitBuffer *BitB) { // CA_section
         int N = 0; // TODO: find out what the hell N is
         Options->Condition->TableID                = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
@@ -56,7 +56,7 @@ extern "C" {
         }
         Options->Condition->ConditionCRC32         = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
     }
-
+    
     static void ParseProgramAssociationTable(MPEG2Options *Options, BitBuffer *BitB) { // program_association_section
         Options->Program->TableID                = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
         Options->Program->SectionSyntaxIndicator = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1);
@@ -73,7 +73,7 @@ extern "C" {
         Options->Program->ProgramMapPID          = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 13);
         Options->Program->ProgramCRC32           = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
     }
-
+    
     static void ParsePackHeader(MPEG2Options *Program, BitBuffer *BitB) { // pack_header
         Program->PSP->PackStartCode           = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
         BitBuffer_Seek(BitB, 2); // 01
@@ -94,10 +94,10 @@ extern "C" {
         Program->PSP->PackStuffingSize        = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 3);
         BitBuffer_Seek(BitB, Bytes2Bits(Program->PSP->PackStuffingSize));
         if (BitBuffer_PeekBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 0) == 0) { // MPEG2TSSystemHeaderStartCode
-            // system_header();
+                                                                                                     // system_header();
         }
     }
-
+    
     static void ParsePESPacket(PacketizedElementaryStream *Stream, BitBuffer *BitB) { // PES_packet
         int N3                                       = 0, N2 = 0, N1 = 0;// FIXME : WTF IS N3, N2, and N1?
         Stream->PacketStartCodePrefix                = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 24);
@@ -288,7 +288,7 @@ extern "C" {
             }
         }
     }
-
+    
     static void ParseTransportStreamAdaptionField(MPEG2Options *Options, BitBuffer *BitB) { // adaptation_field
         Options->Adaptation->AdaptationFieldSize                       = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
         Options->Adaptation->DiscontinuityIndicator                    = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1);
@@ -355,7 +355,7 @@ extern "C" {
             BitBuffer_Seek(BitB, 8); // Stuffing so 0b11111111, throw it away.
         }
     }
-
+    
     static void ParseTransportStreamPacket(MPEG2Options *Options, BitBuffer *BitB, uint8_t *TransportStream, size_t TransportStreamSize) { // transport_packet
         Options->Packet->SyncByte                              = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
         Options->Packet->TransportErrorIndicator               = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1); // false
@@ -374,7 +374,7 @@ extern "C" {
             }
         }
     }
-
+    
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif
