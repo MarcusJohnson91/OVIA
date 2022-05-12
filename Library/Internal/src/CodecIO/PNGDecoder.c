@@ -292,89 +292,107 @@ extern "C" {
         AssertIO(BitB != NULL);
     }
     
-    uint8_t ParsePNGMetadata(BitBuffer *BitB, PNGOptions *Options) {
+    uint8_t PNG_ReadChunks(BitBuffer *BitB, PNGOptions *Options) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        
-        char     ChunkID[4];
-        uint32_t ChunkID2 = 0;
-        for (uint8_t i = 0; i < 4; i++) {
-            ChunkID2 <<= 8;
-            ChunkID2   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
-        }
-        
+
+        uint32_t ChunkID         = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
         uint32_t ChunkSize       = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        
-        for (uint8_t ChunkIDSize = 0; ChunkIDSize < 4; ChunkIDSize++) {
-            ChunkID[ChunkIDSize] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
-        }
         BitBuffer_Seek(BitB, -32); // Now we need to skip back so we can read the ChunkID as part of the CRC check.
-        
-        if (ChunkID2 == PNGMarker_iHDR) {        // iHDR
-            PNG_Read_IHDR(Options, BitB, ChunkSize);
-        } else if (ChunkID2 == PNGMarker_PLTE) { // PLTE
-            Options->PLTEExists = true;
-            PNG_Read_PLTE(Options, BitB, ChunkSize);
-        } else if (ChunkID2 == PNGMarker_bKGD) { // bKGD
-            Options->bkGDExists = true;
-            PNG_Read_BKGD(Options, BitB, ChunkSize);
-        } else if (ChunkID2 == PNGMarker_cHRM) { // cHRM
-            Options->cHRMExists = true;
-            PNG_Read_CHRM(Options, BitB, ChunkSize);
-        } else if (ChunkID2 == PNGMarker_gAMA) { // gAMA
-            Options->gAMAExists = true;
-            PNG_Read_GAMA(Options, BitB, ChunkSize);
-        } else if (ChunkID2 == PNGMarker_oFFs) { // oFFs
-            Options->oFFsExists = true;
-            PNG_Read_OFFS(Options, BitB, ChunkSize);
-        } else if (ChunkID2 == PNGMarker_pHYs) { // pHYs
-            Options->pHYsExists = true;
-            PNG_Read_PHYS(Options, BitB, ChunkSize);
-        } else if (ChunkID2 == PNGMarker_sBIT) { // sBIT
-            Options->sBITExists = true;
-            PNG_Read_SBIT(Options, BitB, ChunkSize);
-        } else if (ChunkID2 == PNGMarker_sCAL) { // sCAL
-            Options->sCALExists = true;
-            PNG_Read_SCAL(Options, BitB, ChunkSize);
-        } else if (ChunkID2 == PNGMarker_sRGB) { // sRGB
-            Options->sRGBExists = true;
-            PNG_Read_SRGB(Options, BitB, ChunkSize);
-        } else if (ChunkID2 == PNGMarker_sTER) { // sTER
-            Options->sTERExists = true;
-            PNG_Read_STER(Options, BitB, ChunkSize);
-        } else if (ChunkID2 == PNGMarker_tEXt) { // tEXt
-            Options->TextExists = true;
-            PNG_Read_TEXT(Options, BitB, ChunkSize);
-        } else if (ChunkID2 == PNGMarker_zTXt) { // zTXt
-            Options->TextExists = true;
-            PNG_Read_ZTXT(Options, BitB, ChunkSize);
-        } else if (ChunkID2 == PNGMarker_iTXt) { // iTXt
-            Options->TextExists = true;
-            PNG_Read_ITXT(Options, BitB, ChunkSize);
-        } else if (ChunkID2 == PNGMarker_tIME) { // tIME
-            Options->tIMEExists = true;
-            PNG_Read_TIME(Options, BitB, ChunkSize);
-        } else if (ChunkID2 == PNGMarker_tRNS) { // tRNS
-            Options->tRNSExists = true;
-            PNG_Read_TRNS(Options, BitB, ChunkSize);
-        } else if (ChunkID2 == PNGMarker_hIST && Options->PLTEExists) { // hIST
-            Options->hISTExists = true;
-            PNG_Read_HIST(Options, BitB, ChunkSize);
-        } else if (ChunkID2 == PNGMarker_iCCP) { // iCCP
-            Options->iCCPExists = true;
-            PNG_Read_ICCP(Options, BitB, ChunkSize);
-        } else if (ChunkID2 == PNGMarker_pCAL) { // pCAL
-            Options->pCALExists = true;
-            PNG_Read_PCAL(Options, BitB, ChunkSize);
-        } else if (ChunkID2 == PNGMarker_sPLT) { // sPLT
-            Options->sPLTExists = true;
-            PNG_Read_SPLT(Options, BitB, ChunkSize);
-        } else if (ChunkID2 == PNGMarker_acTL) { // acTL
-            Options->acTLExists = true;
-            PNG_Read_ACTL(Options, BitB, ChunkSize);
-        } else if (ChunkID2 == PNGMarker_fcTL) { // fcTL
-            Options->fcTLExists = true;
-            PNG_Read_FCTL(Options, BitB, ChunkSize);
+
+        switch (ChunkID) {
+            case PNGMarker_iHDR:
+                PNG_Read_IHDR(Options, BitB, ChunkSize);
+                break;
+            case PNGMarker_PLTE:
+                Options->PLTEExists = true;
+                PNG_Read_PLTE(Options, BitB, ChunkSize);
+                break;
+            case PNGMarker_bKGD:
+                Options->bkGDExists = true;
+                PNG_Read_BKGD(Options, BitB, ChunkSize);
+                break;
+            case PNGMarker_cHRM:
+                Options->cHRMExists = true;
+                PNG_Read_CHRM(Options, BitB, ChunkSize);
+                break;
+            case PNGMarker_gAMA:
+                Options->gAMAExists = true;
+                PNG_Read_GAMA(Options, BitB, ChunkSize);
+                break;
+            case PNGMarker_oFFs:
+                Options->oFFsExists = true;
+                PNG_Read_OFFS(Options, BitB, ChunkSize);
+                break;
+            case PNGMarker_pHYs:
+                Options->pHYsExists = true;
+                PNG_Read_PHYS(Options, BitB, ChunkSize);
+                break;
+            case PNGMarker_sBIT:
+                Options->sBITExists = true;
+                PNG_Read_SBIT(Options, BitB, ChunkSize);
+                break;
+            case PNGMarker_sCAL:
+                Options->sCALExists = true;
+                PNG_Read_SCAL(Options, BitB, ChunkSize);
+                break;
+            case PNGMarker_sRGB:
+                Options->sRGBExists = true;
+                PNG_Read_SRGB(Options, BitB, ChunkSize);
+                break;
+            case PNGMarker_sTER:
+                Options->sTERExists = true;
+                PNG_Read_STER(Options, BitB, ChunkSize);
+                break;
+            case PNGMarker_tEXt:
+                Options->TextExists = true;
+                PNG_Read_TEXT(Options, BitB, ChunkSize);
+                break;
+            case PNGMarker_zTXt:
+                Options->TextExists = true;
+                PNG_Read_ZTXT(Options, BitB, ChunkSize);
+                break;
+            case PNGMarker_iTXt:
+                Options->TextExists = true;
+                PNG_Read_ITXT(Options, BitB, ChunkSize);
+                break;
+            case PNGMarker_tIME:
+                Options->tIMEExists = true;
+                PNG_Read_TIME(Options, BitB, ChunkSize);
+                break;
+            case PNGMarker_tRNS:
+                Options->tRNSExists = true;
+                PNG_Read_TRNS(Options, BitB, ChunkSize);
+                break;
+            case PNGMarker_hIST:
+                // Make sure PLTe Exists
+                AssertIO(Options->PLTEExists == true);
+                Options->hISTExists = true;
+                PNG_Read_HIST(Options, BitB, ChunkSize);
+                break;
+            case PNGMarker_iCCP:
+                Options->iCCPExists = true;
+                PNG_Read_ICCP(Options, BitB, ChunkSize);
+                break;
+            case PNGMarker_pCAL:
+                Options->pCALExists = true;
+                PNG_Read_PCAL(Options, BitB, ChunkSize);
+                break;
+            case PNGMarker_sPLT:
+                Options->sPLTExists = true;
+                PNG_Read_SPLT(Options, BitB, ChunkSize);
+                break;
+            case PNGMarker_acTL:
+                Options->acTLExists = true;
+                PNG_Read_ACTL(Options, BitB, ChunkSize);
+                break;
+            case PNGMarker_fcTL:
+                Options->fcTLExists = true;
+                PNG_Read_FCTL(Options, BitB, ChunkSize);
+                break;
+            default:
+                Log(Severity_WARNING, PlatformIO_FunctionName, UTF8String("Unknown ChunkID = '0x%X', Skipping"), ChunkID);
+                break;
         }
         return EXIT_SUCCESS;
     }
@@ -987,7 +1005,7 @@ extern "C" {
         }
         
         //PNG_DAT_Decode(Options, BitB, Decoded);
-        Flate_ReadDeflateBlock(Options, BitB, Decoded);
+        Flate_ReadDeflateBlock(BitB);
     }
     
     void PNG_Adam7_Deinterlace(ImageContainer *Image) {
@@ -1369,11 +1387,11 @@ extern "C" {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         /* When checking the CRC, you need to skip over the ChunkSize field, but include the ChunkID */
-        uint32_t GeneratedCRC     = GenerateCRC32(BitB, ChunkSize);
+        uint32_t GeneratedCRC         = BitBuffer_CalculateCRC(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 0, 13, 0x00000000, CRCPolynomial_IEEE802_3);
         Options->iHDR->Width          = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        Options->iHDR->Height         = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest,32);
-        Options->iHDR->BitDepth       = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest,8);
-        Options->iHDR->ColorType      = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest,8);
+        Options->iHDR->Height         = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+        Options->iHDR->BitDepth       = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+        Options->iHDR->ColorType      = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
         AssertIO(Options->iHDR->ColorType != 1);
         AssertIO(Options->iHDR->ColorType != 5);
         AssertIO(Options->iHDR->ColorType < 7);
@@ -1390,14 +1408,14 @@ extern "C" {
     void ParsePLTE(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) { // Palette
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        if (Options->iHDR->ColorType == PNG_PalettedRGB || Options->iHDR->ColorType == PNG_RGB) {
+        if (Options->iHDR->ColorType == PNGColor_Palette || Options->iHDR->ColorType == PNGColor_RGB) {
             Options->PLTE->Palette = calloc(1, (3 * Options->PLTE->NumEntries) * Bits2Bytes(Options->iHDR->BitDepth, Yes));
-        } else if (Options->iHDR->ColorType == PNG_RGBA) {
+        } else if (Options->iHDR->ColorType == PNGColor_RGBAlpha) {
             Options->PLTE->Palette = calloc(1, (4 * Options->PLTE->NumEntries) * Bits2Bytes(Options->iHDR->BitDepth, Yes));
         }
         
         
-        for (uint8_t Channel = 0; Channel < ModernPNGChannelsPerColorType[Options->iHDR->ColorType]; Channel++) {
+        for (uint8_t Channel = 0; Channel < PNGNumChannelsFromColorType[Options->iHDR->ColorType]; Channel++) {
             for (uint16_t PaletteEntry = 0; PaletteEntry < ChunkSize / 3; PaletteEntry++) {
                 Options->PLTE->Palette[Channel][PaletteEntry] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, Options->iHDR->BitDepth);
             }
@@ -1409,17 +1427,17 @@ extern "C" {
         AssertIO(BitB != NULL);
         Options->tRNS->NumEntries = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
         uint16_t **Entries    = NULL;
-        if (Options->iHDR->ColorType == PNG_RGB) {
+        if (Options->iHDR->ColorType == PNGColor_RGB) {
             Entries = calloc(3, Bits2Bytes(Options->iHDR->BitDepth, true) * sizeof(uint16_t));
-        } else if (Options->iHDR->ColorType == PNG_RGBA) {
+        } else if (Options->iHDR->ColorType == PNGColor_RGBAlpha) {
             Entries = calloc(4, Bits2Bytes(Options->iHDR->BitDepth, true) * sizeof(uint16_t));
-        } else if (Options->iHDR->ColorType == PNG_Grayscale) {
+        } else if (Options->iHDR->ColorType == PNGColor_Gray) {
             Entries = calloc(1, Bits2Bytes(Options->iHDR->BitDepth, true) * sizeof(uint16_t));
-        } else if (Options->iHDR->ColorType == PNG_GrayAlpha) {
+        } else if (Options->iHDR->ColorType == PNGColor_GrayAlpha) {
             Entries = calloc(2, Bits2Bytes(Options->iHDR->BitDepth, true) * sizeof(uint16_t));
         }
         AssertIO(Entries != NULL);
-        for (uint8_t Color = 0; Color < ModernPNGChannelsPerColorType[Options->iHDR->ColorType]; Color++) {
+        for (uint8_t Color = 0; Color < PNGNumChannelsFromColorType[Options->iHDR->ColorType]; Color++) {
             Entries[Color]    = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, Bits2Bytes(Options->iHDR->BitDepth, true));
         }
         //Options->tRNS->Palette = Entries;
@@ -1645,91 +1663,6 @@ extern "C" {
     void ParseSPLT(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-    }
-    
-    uint8_t ParsePNGMetadata(BitBuffer *BitB, PNGOptions *Options) {
-        AssertIO(Options != NULL);
-        AssertIO(BitB != NULL);
-        uint64_t FileMagic    = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 64);
-        
-        char     *ChunkID        = calloc(4, sizeof(uint8_t));
-        uint32_t ChunkSize       = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        
-        for (uint8_t ChunkIDSize = 0; ChunkIDSize < 4; ChunkIDSize++) {
-            ChunkID[ChunkIDSize] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
-        }
-        BitBuffer_Seek(BitB, -32); // Now we need to skip back so we can read the ChunkID as part of the CRC check.
-                                   // Now we call the VerifyCRC32 function with the ChunkSize
-        VerifyCRC32(BitB, ChunkSize);
-        
-        if (*ChunkID == iHDRMarker) {        // iHDR
-            ParseIHDR(Options, BitB, ChunkSize);
-        } else if (*ChunkID == PLTEMarker) { // PLTE
-            Options->PLTEExists = true;
-            ParsePLTE(Options, BitB, ChunkSize);
-        } else if (*ChunkID == bKGDMarker) { // bKGD
-            Options->bkGDExists = true;
-            ParseBKGD(Options, BitB, ChunkSize);
-        } else if (*ChunkID == cHRMMarker) { // cHRM
-            Options->cHRMExists = true;
-            ParseCHRM(Options, BitB, ChunkSize);
-        } else if (*ChunkID == gAMAMarker) { // gAMA
-            Options->gAMAExists = true;
-            ParseGAMA(Options, BitB, ChunkSize);
-        } else if (*ChunkID == oFFsMarker) { // oFFs
-            Options->oFFsExists = true;
-            ParseOFFS(Options, BitB, ChunkSize);
-        } else if (*ChunkID == pHYsMarker) { // pHYs
-            Options->pHYsExists = true;
-            ParsePHYS(Options, BitB, ChunkSize);
-        } else if (*ChunkID == sBITMarker) { // sBIT
-            Options->sBITExists = true;
-            ParseSBIT(Options, BitB, ChunkSize);
-        } else if (*ChunkID == sCALMarker) { // sCAL
-            Options->sCALExists = true;
-            ParseSCAL(Options, BitB, ChunkSize);
-        } else if (*ChunkID == sRGBMarker) { // sRGB
-            Options->sRGBExists = true;
-            ParseSRGB(Options, BitB, ChunkSize);
-        } else if (*ChunkID == sTERMarker) { // sTER
-            Options->sTERExists = true;
-            ParseSTER(Options, BitB, ChunkSize);
-        } else if (*ChunkID == tEXtMarker) { // tEXt
-            Options->TextExists = true;
-            ParseTEXt(Options, BitB, ChunkSize);
-        } else if (*ChunkID == zTXtMarker) { // zTXt
-            Options->TextExists = true;
-            ParseZTXt(Options, BitB, ChunkSize);
-        } else if (*ChunkID == iTXtMarker) { // iTXt
-            Options->TextExists = true;
-            ParseITXt(Options, BitB, ChunkSize);
-        } else if (*ChunkID == tIMEMarker) { // tIME
-            Options->tIMEExists = true;
-            ParseTIME(Options, BitB, ChunkSize);
-        } else if (*ChunkID == tRNSMarker) { // tRNS
-            Options->tRNSExists = true;
-            ParseTRNS(Options, BitB, ChunkSize);
-        } else if (*ChunkID == hISTMarker && Options->PLTEExists) { // hIST
-            Options->hISTExists = true;
-            ParseHIST(Options, BitB, ChunkSize);
-        } else if (*ChunkID == iCCPMarker) { // iCCP
-            Options->iCCPExists = true;
-            ParseICCP(Options, BitB, ChunkSize);
-        } else if (*ChunkID == pCALMarker) { // pCAL
-            Options->pCALExists = true;
-            ParsePCAL(Options, BitB, ChunkSize);
-        } else if (*ChunkID == sPLTMarker) { // sPLT
-            Options->sPLTExists = true;
-            ParseSPLT(Options, BitB, ChunkSize);
-        } else if (*ChunkID == acTLMarker) { // acTL
-            Options->acTLExists = true;
-            ParseACTL(Options, BitB, ChunkSize);
-        } else if (*ChunkID == fcTLMarker) { // fcTL
-            Options->fcTLExists = true;
-            ParseFCTL(Options, BitB, ChunkSize);
-        }
-        free(ChunkID);
-        return EXIT_SUCCESS;
     }
     
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)

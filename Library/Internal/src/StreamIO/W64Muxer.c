@@ -35,13 +35,15 @@ extern "C" {
         uint8_t  BitDepth    = Bits2Bytes(W64->BitDepth, RoundingType_Up);
         uint64_t W64Size     = (NumSamples * NumChannels * BitDepth);
         uint64_t FMTSize     = 40;
+
+        Audio2DContainer *Audio = NULL;
         
         BitBuffer_WriteGUUID(BitB, GUUIDType_GUIDString, W64_RIFF_GUIDString);
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 64, W64Size);
         BitBuffer_WriteGUUID(BitB, GUUIDType_GUIDString, W64_WAVE_GUIDString);
         BitBuffer_WriteGUUID(BitB, GUUIDType_GUIDString, W64_FMT_GUIDString);
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 64, FMTSize);
-        W64WriteFMTChunk(Options, BitB);
+        W64WriteFMTChunk(Audio, BitB);
         BitBuffer_WriteGUUID(BitB, GUUIDType_GUIDString, W64_DATA_GUIDString);
         BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 64, NumSamples);
     }

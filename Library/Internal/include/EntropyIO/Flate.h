@@ -24,6 +24,8 @@ extern "C" {
         BlockType_Invalid = 3,
     } Flate_BlockTypes;
 
+    void Flate_ReadDeflateBlock(BitBuffer *BitB);
+
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif

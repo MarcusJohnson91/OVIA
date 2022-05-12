@@ -822,8 +822,8 @@ extern "C" {
     }
     
     typedef struct Audio3DContainer {
-        AudioVector *Vectors;
-        uint64_t     NumVectors;
+        AudioVector **Vectors;
+        uint64_t      NumVectors;
     } Audio3DContainer;
     
     Audio3DContainer *Audio3DContainer_Init(size_t NumVectors) {
@@ -845,14 +845,14 @@ extern "C" {
     AudioVector *Audio3DContainer_GetVector(Audio3DContainer *Container, uint64_t Index) {
         AssertIO(Container != NULL);
         AssertIO(Index < Container->NumVectors);
-        return &Container->Vectors[Index];
+        return Container->Vectors[Index];
     }
     
     uint64_t Audio3DContainer_GetTotalNumSamples(Audio3DContainer *Container) {
         AssertIO(Container != NULL);
         uint64_t NumSamples = 0ULL;
         for (uint64_t Vector = 0ULL; Vector < Container->NumVectors; Vector++) {
-            NumSamples += Container->Vectors[Vector].NumSamples;
+            NumSamples += Container->Vectors[Vector]->NumSamples;
         }
         return NumSamples;
     }
@@ -867,22 +867,22 @@ extern "C" {
         uint8_t Verification = 0xFE;
         for (uint64_t Vector = 0ULL; Vector < Container->NumVectors; Vector++) {
             for (uint64_t Direction = 0ULL;
-                 Direction < Container->Vectors[Vector].NumDirections; Direction++) {
-                Container->Vectors[Vector].Directions[Direction] = NewValue;
+                 Direction < Container->Vectors[Vector]->NumDirections; Direction++) {
+                Container->Vectors[Vector]->Directions[Direction] = NewValue;
             }
-            if ((Container->Vectors[Vector].Type & AudioType_Integer8) == AudioType_Integer8) {
-                for (uint64_t Sample = 0ULL; Sample < Container->Vectors[Vector].NumSamples; Sample++) {
-                    uint8_t *Samples = (uint8_t*) Container->Vectors[Vector].Samples;
+            if ((Container->Vectors[Vector]->Type & AudioType_Integer8) == AudioType_Integer8) {
+                for (uint64_t Sample = 0ULL; Sample < Container->Vectors[Vector]->NumSamples; Sample++) {
+                    uint8_t *Samples = (uint8_t*) Container->Vectors[Vector]->Samples;
                     Samples[Sample] = NewValue;
                 }
-            } else if ((Container->Vectors[Vector].Type & AudioType_Integer16) == AudioType_Integer16) {
-                for (uint64_t Sample = 0ULL; Sample < Container->Vectors[Vector].NumSamples; Sample++) {
-                    uint16_t *Samples = (uint16_t*) Container->Vectors[Vector].Samples;
+            } else if ((Container->Vectors[Vector]->Type & AudioType_Integer16) == AudioType_Integer16) {
+                for (uint64_t Sample = 0ULL; Sample < Container->Vectors[Vector]->NumSamples; Sample++) {
+                    uint16_t *Samples = (uint16_t*) Container->Vectors[Vector]->Samples;
                     Samples[Sample] = NewValue;
                 }
-            } else if ((Container->Vectors[Vector].Type & AudioType_Integer32) == AudioType_Integer32) {
-                for (uint64_t Sample = 0ULL; Sample < Container->Vectors[Vector].NumSamples; Sample++) {
-                    uint32_t *Samples = (uint32_t*) Container->Vectors[Vector].Samples;
+            } else if ((Container->Vectors[Vector]->Type & AudioType_Integer32) == AudioType_Integer32) {
+                for (uint64_t Sample = 0ULL; Sample < Container->Vectors[Vector]->NumSamples; Sample++) {
+                    uint32_t *Samples = (uint32_t*) Container->Vectors[Vector]->Samples;
                     Samples[Sample] = NewValue;
                 }
             }
@@ -893,8 +893,8 @@ extern "C" {
     void Audio3DContainer_Deinit(Audio3DContainer *Container) {
         AssertIO(Container != NULL);
         for (uint64_t Vector = 0ULL; Vector < Container->NumVectors; Vector++) {
-            free(Container->Vectors[Vector].Directions);
-            free(Container->Vectors[Vector].Samples);
+            free(Container->Vectors[Vector]->Directions);
+            free(Container->Vectors[Vector]->Samples);
         }
         free(Container->Vectors);
         free(Container);

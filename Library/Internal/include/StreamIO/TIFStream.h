@@ -17,6 +17,55 @@
 extern "C" {
 #endif
 
+    /*!
+     @enum       TIF_Types
+     @abstract                                     What kind of data is this?
+     @constant   Type_Unspecified                  No type
+     @constant   Type_UInteger8                    Called BYTE in the spec
+     @constant   Type_String                       Called ASCII in the spec
+     @constant   Type_UInteger16                   Called SHORT in the spec
+     @constant   Type_UInteger32                   Called LONG  in the spec
+     @constant   Type_Fraction                     Called RATIONAL in the spec; two fields of Type_UInteger32 first is numerator followed by denominator
+     @constant   Type_SInteger8                    Called SBYTE in the spec
+     @constant   Type_Undefined                    Called UNDEFINED in the spec, context dependent.
+     @constant   Type_SInteger16                   Called SSHORT in the spec
+     @constant   Type_SInteger32                   Called SLONG in the spec
+     @constant   Type_SFraction                    Called SRATIONAL in the spec; two fields of Type_SInteger32 first is numerator followed by denominator
+     @constant   Type_Float                        Called FLOAT in the spec, 32 bit IEEE754
+     @constant   Type_Double                       Called DOUBLE in the spec, 64 bit IEEE754
+     */
+    typedef enum TIF_Types {
+        Type_Unspecified = 0,
+        Type_UInteger8   = 1,
+        Type_String      = 2,
+        Type_UInteger16  = 3,
+        Type_UInteger32  = 4,
+        Type_Fraction    = 5,
+        Type_SInteger8   = 6,
+        Type_Undefined   = 7,
+        Type_SInteger16  = 8,
+        Type_SInteger32  = 9,
+        Type_SFraction   = 10,
+        Type_Float       = 11,
+        Type_Double      = 12,
+    } TIF_Types;
+
+    typedef enum TIF_NewSubFileTypes {
+        NSFType_ReducedResolution = 0x1,
+        NSFType_SplitPage         = 0x2,
+        NSFType_AlphaMask         = 0x4,
+    } TIF_NewSubFileTypes;
+
+    typedef enum TIF_CompressionTypes {
+        CompressionType_Uncompressed = 1,
+        CompressionType_Huffman      = 2,
+        CompressionType_JPEG         = 7,
+        CompressionType_Deflate      = 8,
+        CompressionType_PackBits     = 0x8005,
+        CompressionType_NikonNEF     = 0x8799,
+        CompressionType_LossyJPEG    = 0x884C, // Instant fail
+    } TIF_CompressionTypes;
+
 #ifdef OVIA_StreamIO_TIFF
     extern const OVIA_MagicIDs TIFFSignature;
 
@@ -218,13 +267,13 @@ extern "C" {
         TIFFFieldTypes FieldType;
     } TIFFIFDEntry;
 
-    typedef struct TIFFOptions {
+    typedef struct TIFOptions {
         TIFFIFDEntry       *IFDEntries;
         uint32_t            IFD1Offset;
         uint16_t            Version;
         uint16_t            NumIFDEntries;
         BufferIO_ByteOrders ByteOrder;
-    } TIFFOptions;
+    } TIFOptions;
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }

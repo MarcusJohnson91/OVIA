@@ -12,9 +12,8 @@
 		2C0AA9C927C760000088E210 /* InterFrames.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C0AA9C627C760000088E210 /* InterFrames.h */; };
 		2C0AA9CA27C760000088E210 /* IntraFrame.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C0AA9C727C760000088E210 /* IntraFrame.h */; };
 		2C0AA9CC27C760090088E210 /* Asymmetric.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C0AA9CB27C760090088E210 /* Asymmetric.h */; };
-		2C0AA9D427C760680088E210 /* InterFrames.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C0AA9D127C760680088E210 /* InterFrames.c */; };
-		2C0AA9D527C760680088E210 /* IntraFrame.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C0AA9D227C760680088E210 /* IntraFrame.c */; };
-		2C0AA9D627C760680088E210 /* ClusterIO.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C0AA9D327C760680088E210 /* ClusterIO.c */; };
+		2C0AA9D527C760680088E210 /* Image.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C0AA9D227C760680088E210 /* Image.c */; };
+		2C0AA9D627C760680088E210 /* Shots.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C0AA9D327C760680088E210 /* Shots.c */; };
 		2C0AA9DA27C760730088E210 /* LIVCDecoder.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C0AA9D727C760730088E210 /* LIVCDecoder.c */; };
 		2C0AA9DB27C760730088E210 /* LIVCCodec.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C0AA9D827C760730088E210 /* LIVCCodec.c */; };
 		2C0AA9DC27C760730088E210 /* LIVCEncoder.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C0AA9D927C760730088E210 /* LIVCEncoder.c */; };
@@ -85,7 +84,6 @@
 		2C69A87227C70B3B00946D68 /* MPEG2Muxer.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C69A85D27C70B3B00946D68 /* MPEG2Muxer.c */; };
 		2C69A87327C70B3B00946D68 /* BMPDemuxer.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C69A85E27C70B3B00946D68 /* BMPDemuxer.c */; };
 		2C69A88027C70B6300946D68 /* Huffman.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C69A87C27C70B6300946D68 /* Huffman.c */; };
-		2C69A88127C70B6300946D68 /* Flate.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C69A87D27C70B6300946D68 /* Flate.c */; };
 		2C69A88227C70B6300946D68 /* Arithmetic.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C69A87E27C70B6300946D68 /* Arithmetic.c */; };
 		2C69A89527C70B8E00946D68 /* PNGCodec.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C69A88927C70B8D00946D68 /* PNGCodec.c */; };
 		2C69A89627C70B8E00946D68 /* JPEGCodec.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C69A88A27C70B8E00946D68 /* JPEGCodec.c */; };
@@ -632,9 +630,8 @@
 		2C0AA9C627C760000088E210 /* InterFrames.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = InterFrames.h; path = ../Library/External/LIVC/include/ClusterIO/InterFrames.h; sourceTree = "<group>"; };
 		2C0AA9C727C760000088E210 /* IntraFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = IntraFrame.h; path = ../Library/External/LIVC/include/ClusterIO/IntraFrame.h; sourceTree = "<group>"; };
 		2C0AA9CB27C760090088E210 /* Asymmetric.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = Asymmetric.h; path = ../Library/External/LIVC/include/EntropyIO/Asymmetric.h; sourceTree = "<group>"; };
-		2C0AA9D127C760680088E210 /* InterFrames.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = InterFrames.c; path = ../Library/External/LIVC/src/ClusterIO/InterFrames.c; sourceTree = "<group>"; };
-		2C0AA9D227C760680088E210 /* IntraFrame.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = IntraFrame.c; path = ../Library/External/LIVC/src/ClusterIO/IntraFrame.c; sourceTree = "<group>"; };
-		2C0AA9D327C760680088E210 /* ClusterIO.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = ClusterIO.c; path = ../Library/External/LIVC/src/ClusterIO/ClusterIO.c; sourceTree = "<group>"; };
+		2C0AA9D227C760680088E210 /* Image.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = Image.c; path = ../Library/External/LIVC/src/ClusterIO/Image.c; sourceTree = "<group>"; };
+		2C0AA9D327C760680088E210 /* Shots.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = Shots.c; path = ../Library/External/LIVC/src/ClusterIO/Shots.c; sourceTree = "<group>"; };
 		2C0AA9D727C760730088E210 /* LIVCDecoder.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = LIVCDecoder.c; path = ../Library/External/LIVC/src/CodecIO/LIVCDecoder.c; sourceTree = "<group>"; };
 		2C0AA9D827C760730088E210 /* LIVCCodec.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = LIVCCodec.c; path = ../Library/External/LIVC/src/CodecIO/LIVCCodec.c; sourceTree = "<group>"; };
 		2C0AA9D927C760730088E210 /* LIVCEncoder.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = LIVCEncoder.c; path = ../Library/External/LIVC/src/CodecIO/LIVCEncoder.c; sourceTree = "<group>"; };
@@ -1032,9 +1029,8 @@
 		2C0AA9D027C760570088E210 /* ClusterIO */ = {
 			isa = PBXGroup;
 			children = (
-				2C0AA9D327C760680088E210 /* ClusterIO.c */,
-				2C0AA9D127C760680088E210 /* InterFrames.c */,
-				2C0AA9D227C760680088E210 /* IntraFrame.c */,
+				2C0AA9D227C760680088E210 /* Image.c */,
+				2C0AA9D327C760680088E210 /* Shots.c */,
 			);
 			name = ClusterIO;
 			sourceTree = "<group>";
@@ -1105,10 +1101,10 @@
 			isa = PBXGroup;
 			children = (
 				2C0AA9E427C9CAC70088E210 /* OVIA.h */,
+				2C0AA9F427C9CACA0088E210 /* OVIA.c */,
 				2C69A81527C70A2300946D68 /* OVIA */,
 				2C69A7D427C6F7F800946D68 /* Internal */,
 				2C69A7D627C6F81500946D68 /* External */,
-				2C0AA9F427C9CACA0088E210 /* OVIA.c */,
 			);
 			name = Library;
 			sourceTree = "<group>";
@@ -1945,7 +1941,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 2C69A52F27C6440C00946D68 /* Build configuration list for PBXProject "OVIA_Framework" */;
+			buildConfigurationList = 2C69A52F27C6440C00946D68 /* Build configuration list for PBXProject "OVIA" */;
 			compatibilityVersion = "Xcode 8.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -2116,7 +2112,7 @@
 			files = (
 				2C69A87327C70B3B00946D68 /* BMPDemuxer.c in Sources */,
 				2C69A89D27C70B8E00946D68 /* AVCEncoder.c in Sources */,
-				2C0AA9D527C760680088E210 /* IntraFrame.c in Sources */,
+				2C0AA9D527C760680088E210 /* Image.c in Sources */,
 				2C69A83527C70AE900946D68 /* YCoCgR.c in Sources */,
 				2C69A86927C70B3B00946D68 /* TIFStream.c in Sources */,
 				2C69A88227C70B6300946D68 /* Arithmetic.c in Sources */,
@@ -2149,7 +2145,6 @@
 				2C69A86527C70B3B00946D68 /* AIFDemuxer.c in Sources */,
 				2C69A86227C70B3B00946D68 /* TIFDemuxer.c in Sources */,
 				2C69A89E27C70B8E00946D68 /* FLACCodec.c in Sources */,
-				2C69A88127C70B6300946D68 /* Flate.c in Sources */,
 				2C69A89827C70B8E00946D68 /* PNGDecoder.c in Sources */,
 				2C0AA9E227C760810088E210 /* LCoCaCg.c in Sources */,
 				2C69A82927C70A6700946D68 /* StreamIO.c in Sources */,
@@ -2158,7 +2153,7 @@
 				2C69A89627C70B8E00946D68 /* JPEGCodec.c in Sources */,
 				2C0AA9DB27C760730088E210 /* LIVCCodec.c in Sources */,
 				2C0AA9DA27C760730088E210 /* LIVCDecoder.c in Sources */,
-				2C0AA9D627C760680088E210 /* ClusterIO.c in Sources */,
+				2C0AA9D627C760680088E210 /* Shots.c in Sources */,
 				2C69A86127C70B3B00946D68 /* PNMMuxer.c in Sources */,
 				2C69A84127C70B0900946D68 /* APETags.c in Sources */,
 				2C69A87127C70B3B00946D68 /* BMPMuxer.c in Sources */,
@@ -2166,7 +2161,6 @@
 				2C0AA9DE27C760780088E210 /* Asymmetric.c in Sources */,
 				2C69A87027C70B3B00946D68 /* MPEG2Demuxer.c in Sources */,
 				2C69A89F27C70B8E00946D68 /* JPEGDecoder.c in Sources */,
-				2C0AA9D427C760680088E210 /* InterFrames.c in Sources */,
 				2C69A89C27C70B8E00946D68 /* AVCCodec.c in Sources */,
 				2C69A84227C70B0900946D68 /* VorbisTags.c in Sources */,
 				2C69A86E27C70B3B00946D68 /* PNMDemuxer.c in Sources */,
@@ -3137,7 +3131,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		2C69A52F27C6440C00946D68 /* Build configuration list for PBXProject "OVIA_Framework" */ = {
+		2C69A52F27C6440C00946D68 /* Build configuration list for PBXProject "OVIA" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2C69A53A27C6440D00946D68 /* Debug */,
