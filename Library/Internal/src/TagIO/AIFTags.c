@@ -13,7 +13,7 @@ extern "C" {
     void AIF_Read_Name(TagIO_Tags *Tags, BitBuffer *BitB) {
         AssertIO(Tags != NULL);
         AssertIO(BitB != NULL);
-        uint64_t StringSize            = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
+        uint64_t StringSize            = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32);
         uint64_t Index                 = TagIO_GetNextUnusedIndex(Tags);
         UTF8    *String                = BitBuffer_ReadUTF8(BitB, StringSize);
         Tags->Tags[Index]->TagValue    = UTF8_Decode(String);
@@ -24,7 +24,7 @@ extern "C" {
     void AIF_Read_Author(TagIO_Tags *Tags, BitBuffer *BitB) {
         AssertIO(Tags != NULL);
         AssertIO(BitB != NULL);
-        uint64_t StringSize            = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
+        uint64_t StringSize            = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32);
         uint64_t Index                 = TagIO_GetNextUnusedIndex(Tags);
         UTF8    *String                = BitBuffer_ReadUTF8(BitB, StringSize);
         Tags->Tags[Index]->TagValue    = UTF8_Decode(String);
@@ -35,7 +35,7 @@ extern "C" {
     void AIF_Read_Annotation(TagIO_Tags *Tags, BitBuffer *BitB) {
         AssertIO(Tags != NULL);
         AssertIO(BitB != NULL);
-        uint64_t StringSize            = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
+        uint64_t StringSize            = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32);
         uint64_t Index                 = TagIO_GetNextUnusedIndex(Tags);
         UTF8    *String                = BitBuffer_ReadUTF8(BitB, StringSize);
         Tags->Tags[Index]->TagValue    = UTF8_Decode(String);
@@ -46,7 +46,7 @@ extern "C" {
     void AIF_Read_Comment(TagIO_Tags *Tags, BitBuffer *BitB) {
         AssertIO(Tags != NULL);
         AssertIO(BitB != NULL);
-        uint64_t StringSize            = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
+        uint64_t StringSize            = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32);
         uint64_t Index                 = TagIO_GetNextUnusedIndex(Tags);
         UTF8    *String                = BitBuffer_ReadUTF8(BitB, StringSize);
         Tags->Tags[Index]->TagValue    = UTF8_Decode(String);

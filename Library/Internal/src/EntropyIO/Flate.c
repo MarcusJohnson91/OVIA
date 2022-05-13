@@ -10,11 +10,11 @@ extern "C" {
     
     void Flate_ReadZlibHeader(BitBuffer *BitB) { // This will be the main function for each Zlib block
         AssertIO(BitB != NULL);
-        uint8_t  CompressionMethod = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 4);
-        uint8_t  CompressionInfo   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 4);
-        uint8_t  FCHECK            = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 5);
-        bool     FDICT             = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1);
-        uint8_t  FLEVEL            = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 2);
+        uint8_t  CompressionMethod = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 4);
+        uint8_t  CompressionInfo   = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 4);
+        uint8_t  FCHECK            = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 5);
+        bool     FDICT             = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 1);
+        uint8_t  FLEVEL            = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 2);
         uint32_t DictID  = 0;
         AssertIO(CompressionInfo != 7);
         AssertIO(CompressionMethod != 8);
@@ -25,7 +25,7 @@ extern "C" {
         FCheck         |= FCHECK;
         AssertIO(FCheck % 31 == 0);
         if (FDICT == Yes) {
-            DictID  = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
+            DictID  = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
         }
     }
     
@@ -64,12 +64,12 @@ extern "C" {
         bool    BFINAL        = No;
         uint8_t BTYPE         = 0;
         do {
-            BFINAL            = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1); // Yes
-            BTYPE             = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 2); // 0b10 aka 2 aka BlockType_Dynamic
+            BFINAL            = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 1); // Yes
+            BTYPE             = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 2); // 0b10 aka 2 aka BlockType_Dynamic
             if (BTYPE == BlockType_Literal) {
                 BitBuffer_Align(BitB, 1);
-                uint16_t LEN  = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16);
-                uint16_t NLEN = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16) ^ 0xFFFF;
+                uint16_t LEN  = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 16);
+                uint16_t NLEN = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 16) ^ 0xFFFF;
                 AssertIO(LEN == NLEN);
                 // Copy LEN bytes from the stream to the image
             } else if (BTYPE == BlockType_Fixed) {
@@ -77,15 +77,15 @@ extern "C" {
                 HuffmanTable *Distance      = Flate_BuildHuffmanTree(FixedDistanceTable, 32);
                 PNG_Flate_ReadHuffman(PNG, BitB, Length, Distance, Image);
             } else if (BTYPE == BlockType_Dynamic) {
-                uint16_t NumLengthCodes               = 257 + BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 5); // HLIT; 21, 26?
-                uint8_t  NumDistCodes                 = 1   + BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 5); // HDIST; 17, 9?
-                uint8_t  NumCodeLengthCodeLengthCodes = 4   + BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 4); // HCLEN; 13,
+                uint16_t NumLengthCodes               = 257 + BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 5); // HLIT; 21, 26?
+                uint8_t  NumDistCodes                 = 1   + BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 5); // HDIST; 17, 9?
+                uint8_t  NumCodeLengthCodeLengthCodes = 4   + BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 4); // HCLEN; 13,
                 AssertIO(NumLengthCodes <= MaxLiteralLengthCodes);
                 AssertIO(NumDistCodes <= MaxDistanceCodes);
                 uint16_t *CodeLengthCodeLengths   = calloc(NumMetaCodes, sizeof(uint16_t));
                 
                 for (uint8_t CodeLengthCodeLengthCode = 0; CodeLengthCodeLengthCode < NumCodeLengthCodeLengthCodes; CodeLengthCodeLengthCode++) {
-                    CodeLengthCodeLengths[MetaCodeLengthOrder[CodeLengthCodeLengthCode]] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 3);
+                    CodeLengthCodeLengths[MetaCodeLengthOrder[CodeLengthCodeLengthCode]] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, 3);
                 }
                 
                 HuffmanTree *Tree2DecodeTrees     = Flate_BuildHuffmanTree(CodeLengthCodeLengths, NumMetaCodes);
@@ -99,11 +99,11 @@ extern "C" {
                     } else {
                         if (Symbol == 16) {
                             Length2Repeat         = CodeLengthCodeLengths[Index - 1];
-                            Symbol                = 3 + BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 2);
+                            Symbol                = 3 + BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, 2);
                         } else if (Symbol == 17) {
-                            Symbol                = 3 + BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 3);
+                            Symbol                = 3 + BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, 3);
                         } else {
-                            Symbol                = 11 + BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 7);
+                            Symbol                = 11 + BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, 7);
                         }
                         while (Symbol -= 1) {
                             CodeLengthCodeLengths[Index += 1] = Length2Repeat;

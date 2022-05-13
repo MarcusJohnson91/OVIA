@@ -24,14 +24,14 @@ extern "C" {
         CharSet8 *String = UTF8_Init(NumCodeUnits);
         AssertIO(String != NULL);
         for (size_t CodeUnit = 0; CodeUnit < NumCodeUnits; CodeUnit++) {
-            String[CodeUnit] = BitBuffer_ReadBits(BitB, Options->ByteOrder, BitOrder_LSBitIsNearest, 8);
+            String[CodeUnit] = BitBuffer_ReadBits(BitB, Options->ByteOrder, BitOrder_MSBitIsRight, 8);
         }
         return String;
     }
 
     static double TIF_ReadFraction(TIFOptions *Options, BitBuffer *BitB) {
-        int32_t Numerator   = BitBuffer_ReadBits(BitB, Options->ByteOrder, BitOrder_LSBitIsNearest, 32);
-        int32_t Denominator = BitBuffer_ReadBits(BitB, Options->ByteOrder, BitOrder_LSBitIsNearest, 32);
+        int32_t Numerator   = BitBuffer_ReadBits(BitB, Options->ByteOrder, BitOrder_MSBitIsRight, 32);
+        int32_t Denominator = BitBuffer_ReadBits(BitB, Options->ByteOrder, BitOrder_MSBitIsRight, 32);
         AssertIO(Numerator != 0);
         AssertIO(Denominator != 0);
         return Numerator / Denominator;
@@ -39,17 +39,17 @@ extern "C" {
 
     static void TIF_ReadOldSubFileType(TIFOptions *Options, BitBuffer *BitB) {
         // read a 32 bit flag of the purpose of this subfile
-        uint16_t Flag = BitBuffer_ReadBits(BitB, Options->ByteOrder, BitOrder_LSBitIsNearest, 16);
+        uint16_t Flag = BitBuffer_ReadBits(BitB, Options->ByteOrder, BitOrder_MSBitIsRight, 16);
     }
 
     static void TIF_ReadNewSubFileType(TIFOptions *Options, BitBuffer *BitB) {
         // read a 32 bit flag of the purpose of this subfile
-        uint32_t Flag = BitBuffer_ReadBits(BitB, Options->ByteOrder, BitOrder_LSBitIsNearest, 32);
+        uint32_t Flag = BitBuffer_ReadBits(BitB, Options->ByteOrder, BitOrder_MSBitIsRight, 32);
     }
 
     static void DePackBits(TIFOptions *Options, BitBuffer *BitB) {
         // Read HeaderByte
-        int8_t HeaderByte = BitBuffer_ReadBits(BitB, Options->ByteOrder, BitOrder_LSBitIsNearest, 8);
+        int8_t HeaderByte = BitBuffer_ReadBits(BitB, Options->ByteOrder, BitOrder_MSBitIsRight, 8);
         if (HeaderByte >= 0) { // Copy HeaderByte + 1 bytes of data
 
         } else if (HeaderByte < 0) { // Repeat the byte 1 - HeaderByte times
@@ -61,23 +61,23 @@ extern "C" {
     
     void TIF_ReadHeader(TIFOptions *Options, BitBuffer *BitB) {
         // Read 2 bytes, depending on byte order, should be at least 42 aka 0x2A00 for LE
-        uint16_t ByteOrder        = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 16); // II aka ii
+        uint16_t ByteOrder        = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 16); // II aka ii
         if (ByteOrder == TIFF_ByteOrder_LE) {
-            Options->ByteOrder    = ByteOrder_LSByteIsNearest;
+            Options->ByteOrder    = ByteOrder_MSByteIsRight;
         } else if (ByteOrder == TIFF_ByteOrder_BE) {
-            Options->ByteOrder    = ByteOrder_LSByteIsFarthest;
+            Options->ByteOrder    = ByteOrder_MSByteIsLeft;
         }
-        Options->Version          = BitBuffer_ReadBits(BitB, Options->ByteOrder, BitOrder_LSBitIsNearest, 16); // 42
-        Options->IFD1Offset       = BitBuffer_ReadBits(BitB, Options->ByteOrder, BitOrder_LSBitIsNearest, 32) - 8; // 0
+        Options->Version          = BitBuffer_ReadBits(BitB, Options->ByteOrder, BitOrder_MSBitIsRight, 16); // 42
+        Options->IFD1Offset       = BitBuffer_ReadBits(BitB, Options->ByteOrder, BitOrder_MSBitIsRight, 32) - 8; // 0
         BitBuffer_Seek(BitB, Bytes2Bits(Options->IFD1Offset));
-        Options->NumIFDEntries   = BitBuffer_ReadBits(BitB, Options->ByteOrder, BitOrder_LSBitIsNearest, 16); // 22
+        Options->NumIFDEntries   = BitBuffer_ReadBits(BitB, Options->ByteOrder, BitOrder_MSBitIsRight, 16); // 22
         Options->IFDEntries      = calloc(Options->NumIFDEntries, sizeof(TIFFIFDEntry));
         AssertIO(Options->IFDEntries != NULL);
         for (uint16_t IFDEntry = 0; IFDEntry < Options->NumIFDEntries; IFDEntry++) {
-            Options->IFDEntries[IFDEntry].FieldTag    = BitBuffer_ReadBits(BitB, Options->ByteOrder, BitOrder_LSBitIsNearest, 16); // 254
-            Options->IFDEntries[IFDEntry].FieldType   = BitBuffer_ReadBits(BitB, Options->ByteOrder, BitOrder_LSBitIsNearest, 16); // 4
-            Options->IFDEntries[IFDEntry].FieldCount  = BitBuffer_ReadBits(BitB, Options->ByteOrder, BitOrder_LSBitIsNearest, 32); // 1
-            Options->IFDEntries[IFDEntry].ValueOffset = BitBuffer_ReadBits(BitB, Options->ByteOrder, BitOrder_LSBitIsNearest, 32); // 1
+            Options->IFDEntries[IFDEntry].FieldTag    = BitBuffer_ReadBits(BitB, Options->ByteOrder, BitOrder_MSBitIsRight, 16); // 254
+            Options->IFDEntries[IFDEntry].FieldType   = BitBuffer_ReadBits(BitB, Options->ByteOrder, BitOrder_MSBitIsRight, 16); // 4
+            Options->IFDEntries[IFDEntry].FieldCount  = BitBuffer_ReadBits(BitB, Options->ByteOrder, BitOrder_MSBitIsRight, 32); // 1
+            Options->IFDEntries[IFDEntry].ValueOffset = BitBuffer_ReadBits(BitB, Options->ByteOrder, BitOrder_MSBitIsRight, 32); // 1
             switch (Options->IFDEntries[IFDEntry].FieldTag) {
                 case TIFFTag_NewSubFileType:
                     TIF_ReadNewSubFileType(Options, BitB);

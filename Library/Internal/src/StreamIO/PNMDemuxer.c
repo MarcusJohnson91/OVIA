@@ -12,11 +12,11 @@ extern "C" {
     static uint64_t PNMCheckForComment(BitBuffer *BitB) {
         AssertIO(BitB != NULL);
         uint64_t CommentSize = 0;
-        if (BitBuffer_PeekBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8) == PNMCommentStart) {
+        if (BitBuffer_PeekBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8) == PNMCommentStart) {
             BitBuffer_Seek(BitB, 8);
             do {
                 CommentSize += 1;
-            } while (BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8) != PNMEndField);
+            } while (BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8) != PNMEndField);
         }
         return CommentSize;
     }
@@ -150,7 +150,7 @@ extern "C" {
                 for (uint64_t Height = 0; Height < Options->Height; Height++) {
                     for (uint8_t Channel = 0; Channel < Options->NumChannels; Channel++) {
                         for (uint8_t SubPixelByte = 0; SubPixelByte < 3; SubPixelByte++) {
-                            Component[SubPixelByte]      = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+                            Component[SubPixelByte]      = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
                         }
                         Array[0][Width][Height][Channel] = UTF8_String2Integer(Base_Integer | Base_Radix10, Component);
                     }
@@ -163,7 +163,7 @@ extern "C" {
                 for (uint64_t Height = 0; Height < Options->Height; Height++) {
                     for (uint8_t Channel = 0; Channel < Options->NumChannels; Channel++) {
                         for (uint8_t SubPixelByte = 0; SubPixelByte < 3; SubPixelByte++) {
-                            Component[SubPixelByte]      = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8);
+                            Component[SubPixelByte]      = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
                         }
                         Array[0][Width][Height][Channel] = UTF8_String2Integer(Base_Integer | Base_Radix10, Component);
                     }
@@ -183,7 +183,7 @@ extern "C" {
             for (uint64_t Width = 0; Width < Options->Width; Width++) {
                 for (uint64_t Height = 0; Height < Options->Height; Height++) {
                     for (uint8_t Channel = 0; Channel < Options->NumChannels; Channel++) {
-                        uint8_t CurrentPixel                 = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, Options->BitDepth);
+                        uint8_t CurrentPixel                 = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, Options->BitDepth);
                         if (Options->TupleType == PNM_TUPLE_BnW) {
                             Array[0][Width][Height][Channel] = ~CurrentPixel; // 1 = black, 0 = white
                         } else {
@@ -198,7 +198,7 @@ extern "C" {
             for (uint64_t Width = 0; Width < Options->Width; Width++) {
                 for (uint64_t Height = 0; Height < Options->Height; Height++) {
                     for (uint8_t Channel = 0; Channel < Options->NumChannels; Channel++) {
-                        uint16_t CurrentPixel                = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, Options->BitDepth);
+                        uint16_t CurrentPixel                = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, Options->BitDepth);
                         if (Options->TupleType == PNM_TUPLE_BnW) {
                             Array[0][Width][Height][Channel] = ~CurrentPixel; // 1 = black, 0 = white
                         } else {

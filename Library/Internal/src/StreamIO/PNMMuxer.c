@@ -12,14 +12,14 @@ extern "C" {
     static void PNM_WriteWidth(BitBuffer *BitB, uint64_t Width) {
         UTF8 *WidthString = UTF8_Integer2String(Base_Integer | Base_Radix10, Width);
         BitBuffer_WriteUTF8(BitB, WidthString, StringTerminator_Sized);
-        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, PNMEndField);
+        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8, PNMEndField);
         UTF8_Deinit(WidthString);
     }
     
     static void PNM_WriteHeight(BitBuffer *BitB, uint64_t Height) {
         UTF8 *HeightString = UTF8_Integer2String(Base_Integer | Base_Radix10, Height);
         BitBuffer_WriteUTF8(BitB, HeightString, StringTerminator_Sized);
-        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, PNMEndField);
+        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8, PNMEndField);
         UTF8_Deinit(HeightString);
     }
     
@@ -27,14 +27,14 @@ extern "C" {
         uint64_t MaxVal    = Exponentiate(2, BitDepth) - 1;
         UTF8    *BitDepthString = UTF8_Integer2String(Base_Integer | Base_Radix10, MaxVal);
         BitBuffer_WriteUTF8(BitB, BitDepthString, StringTerminator_Sized);
-        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, 0x0A);
+        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8, 0x0A);
         UTF8_Deinit(BitDepthString);
     }
     
     static void PNM_WriteNumChannels(BitBuffer *BitB, uint64_t NumChannels) {
         UTF8    *NumChannelsString  = UTF8_Integer2String(Base_Integer | Base_Radix10, NumChannels);
         BitBuffer_WriteUTF8(BitB, NumChannelsString, StringTerminator_Sized);
-        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, 0x0A);
+        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8, 0x0A);
         UTF8_Deinit(NumChannelsString);
     }
     
@@ -72,7 +72,7 @@ extern "C" {
         AssertIO(BitB != NULL);
         
         BitBuffer_WriteUTF8(BitB, UTF8String("P7"), StringTerminator_Sized);
-        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, 0x0A);
+        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8, 0x0A);
         
         /* Write the Width */
         BitBuffer_WriteUTF8(BitB, UTF8String("WIDTH "), StringTerminator_Sized);
@@ -108,13 +108,31 @@ extern "C" {
         } else if (TupleType == PNM_TUPLE_RGBAlpha) {
             BitBuffer_WriteUTF8(BitB, UTF8String("RGB_ALPHA"), StringTerminator_Sized);
         }
-        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, 0x0A);
+        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8, 0x0A);
         /* Write the TUPLTYPE */
         
         /* Write the ENDHDR */
         BitBuffer_WriteUTF8(BitB, UTF8String("ENDHDR"), StringTerminator_Sized);
-        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 8, 0x0A);
+        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8, 0x0A);
         /* Write the ENDHDR */
+    }
+
+    void PNM_WriteHeader(PNMOptions *Options, BitBuffer *BitB, PNMTypes Type) {
+        switch (Type) {
+            case PNMType_ASCII:
+                PNMWriteHeader_ASCII(Options, BitB);
+                break;
+            case PNMType_Binary:
+                PNMWriteHeader_Binary(Options, BitB);
+                break;
+            case PNMType_PAM:
+                PNMWriteHeader_PAM(Options, BitB);
+                break;
+            case PNMType_Unspecified:
+            default:
+                
+                break;
+        }
     }
     
     void PNMInsertImage(PNMOptions *Options, BitBuffer *BitB, ImageContainer *Image) {
@@ -131,7 +149,7 @@ extern "C" {
             for (uint64_t W = 0ULL; W < Width; W++) {
                 for (uint64_t H = 0ULL; H < Height; H++) {
                     for (uint16_t Channel = 0; Channel < ChannelCount; Channel++) {
-                        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, ChannelCount, Array[W * H * Channel]);
+                        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, ChannelCount, Array[W * H * Channel]);
                     }
                 }
             }
@@ -140,7 +158,7 @@ extern "C" {
             for (uint64_t W = 0ULL; W < Width; W++) {
                 for (uint64_t H = 0ULL; H < Height; H++) {
                     for (uint16_t Channel = 0; Channel < ChannelCount; Channel++) {
-                        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, ChannelCount, Array[W * H * Channel]);
+                        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, ChannelCount, Array[W * H * Channel]);
                     }
                 }
             }

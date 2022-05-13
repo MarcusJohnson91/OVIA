@@ -13,42 +13,42 @@ extern "C" {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         BitBuffer_Seek(BitB, 16);                           // Skip BMPMagic
-        Options->FileSize = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
+        Options->FileSize = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32);
         BitBuffer_Seek(BitB, 32);                           // 2 16 bit Reserved fields
-        Options->Offset                                      = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
+        Options->Offset                                      = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32);
         if (Options->Offset > 14) { // DIB Header
-            Options->DIBSize = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
+            Options->DIBSize = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32);
             if (Options->DIBSize >= 40) {
-                Options->Width = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
-                Options->Height = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
+                Options->Width = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32);
+                Options->Height = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32);
             } else if (Options->DIBSize == 12) {
-                Options->Width = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 16);
-                Options->Height = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 16);
+                Options->Width = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 16);
+                Options->Height = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 16);
             }
             BitBuffer_Seek(BitB, 16);                       // NumPlanes, always 1
-            Options->BitDepth                                = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 16);
-            Options->CompressionType                               = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
-            Options->NumBytesUsedBySamples       = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
-            Options->WidthPixelsPerMeter         = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
-            Options->HeightPixelsPerMeter        = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
-            Options->ColorsIndexed               = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
-            Options->IndexedColorsUsed           = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
+            Options->BitDepth                                = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 16);
+            Options->CompressionType                               = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32);
+            Options->NumBytesUsedBySamples       = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32);
+            Options->WidthPixelsPerMeter         = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32);
+            Options->HeightPixelsPerMeter        = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32);
+            Options->ColorsIndexed               = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32);
+            Options->IndexedColorsUsed           = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32);
             if (Options->DIBSize >= 56) {
-                Options->ColorSpaceType          = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
+                Options->ColorSpaceType          = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32);
                 if (Options->DIBSize >= 108) {
-                    Options->XCoordinate         = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
-                    Options->YCoordinate         = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
-                    Options->ZCoordinate         = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
-                    Options->RGamma              = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
-                    Options->GGamma              = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
-                    Options->BGamma              = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
+                    Options->XCoordinate         = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32);
+                    Options->YCoordinate         = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32);
+                    Options->ZCoordinate         = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32);
+                    Options->RGamma              = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32);
+                    Options->GGamma              = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32);
+                    Options->BGamma              = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32);
                     if (Options->DIBSize >= 124) {
-                        Options->ICCIntent       = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
-                        Options->ICCSize         = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
+                        Options->ICCIntent       = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32);
+                        Options->ICCSize         = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32);
                         Options->ICCPayload      = calloc(Options->ICCSize, sizeof(uint8_t));
                         AssertIO(Options->ICCPayload != NULL);
                         for (uint32_t ICCByte = 0; ICCByte < Options->ICCSize; ICCByte++) {
-                            Options->ICCPayload[ICCByte] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 8);
+                            Options->ICCPayload[ICCByte] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 8);
                         }
                         BitBuffer_Seek(BitB, 32); // More Reserved data.
                                                   // Ok so when the Height is positive, the image is upside down, the bottom of the image is at the top of the file.
@@ -57,11 +57,11 @@ extern "C" {
             }
             BitBuffer_Seek(BitB, Options->DIBSize - BitBuffer_GetPosition(BitB)); // Skip the remaining bits.
         } else if (Options->DIBSize == 40 && (Options->CompressionType == BMP_BitFields || Options->CompressionType == BMP_RGBABitFields)) {
-            Options->RMask = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, Options->BitDepth);
-            Options->GMask = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, Options->BitDepth);
-            Options->BMask = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, Options->BitDepth);
+            Options->RMask = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, Options->BitDepth);
+            Options->GMask = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, Options->BitDepth);
+            Options->BMask = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, Options->BitDepth);
             if (Options->CompressionType == BMP_RGBABitFields) {
-                Options->AMask = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, Options->BitDepth);
+                Options->AMask = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, Options->BitDepth);
             }
         } else {
             BitBuffer_Seek(BitB, Bits2Bytes((Options->Offset - 14) - Options->DIBSize, RoundingType_Down));
@@ -87,7 +87,7 @@ extern "C" {
                 for (uint64_t W = 0ULL; W < Width; W++) {
                     for (uint64_t H = 0ULL; H < Height; H++) {
                         for (uint64_t Channel = 0ULL; Channel < 3; Channel++) {
-                            Array[View][W][H][Channel] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, Bits2Bytes(BitDepth, RoundingType_Up));
+                            Array[View][W][H][Channel] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, Bits2Bytes(BitDepth, RoundingType_Up));
                         }
                     }
                 }
@@ -98,7 +98,7 @@ extern "C" {
                 for (uint64_t W = 0ULL; W < Width; W++) {
                     for (uint64_t H = 0ULL; H < Height; H++) {
                         for (uint64_t Channel = 0ULL; Channel < 3; Channel++) {
-                            Array[View][W][H][Channel] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, Bits2Bytes(BitDepth, RoundingType_Up));
+                            Array[View][W][H][Channel] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, Bits2Bytes(BitDepth, RoundingType_Up));
                         }
                     }
                 }

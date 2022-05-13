@@ -28,11 +28,11 @@ extern "C" {
     void FLAC_Compose(FLACOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32, FLACMagic);
+        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32, FLACMagic);
         bool IsLastMetadataBlock = false;
-        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 1, IsLastMetadataBlock);
+        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 1, IsLastMetadataBlock);
         FLAC_BlockTypes BlockType = BlockType_StreamInfo;
-        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 7, BlockType);
+        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 7, BlockType);
         FLAC_Write_StreamInfo(Options, BitB);
         // Write all the Metadata blocks, then start writing the actual audio in the FLAC_Append function
     }
@@ -40,22 +40,22 @@ extern "C" {
     void FLAC_Write_StreamInfo(FLACOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 24, 34); // StreamInfoSize
-        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, Options->StreamInfo->MinimumBlockSize);
-        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16, Options->StreamInfo->MaximumBlockSize);
-        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 24, Options->StreamInfo->MinimumFrameSize);
-        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 24, Options->StreamInfo->MaximumFrameSize);
-        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 20, Options->StreamInfo->CodedSampleRate);
-        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest,  3, Options->StreamInfo->CodedSampleRate - 1);
-        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest,  5, Options->StreamInfo->CodedBitDepth - 1);
-        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 36, Options->StreamInfo->SamplesInStream);
+        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 24, 34); // StreamInfoSize
+        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 16, Options->StreamInfo->MinimumBlockSize);
+        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 16, Options->StreamInfo->MaximumBlockSize);
+        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 24, Options->StreamInfo->MinimumFrameSize);
+        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 24, Options->StreamInfo->MaximumFrameSize);
+        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 20, Options->StreamInfo->CodedSampleRate);
+        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight,  3, Options->StreamInfo->CodedSampleRate - 1);
+        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight,  5, Options->StreamInfo->CodedBitDepth - 1);
+        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 36, Options->StreamInfo->SamplesInStream);
         BitBuffer_Seek(BitB, 128); // Room for the MD5
     }
     
     void FLAC_Write_Vorbis(FLACOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        BitBuffer_WriteBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsFarthest, 32, 4);
+        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, 32, 4);
         UTF8 *OVIAVersion = UTF8_Format(UTF8String("OVIA %d.%d.%d\n"), OVIA_Version_Major, OVIA_Version_Minor, OVIA_Version_Patch);
         BitBuffer_WriteUTF8(BitB, OVIAVersion, StringTerminator_Sized);
         UTF8_Deinit(OVIAVersion);

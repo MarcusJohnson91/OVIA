@@ -26,22 +26,22 @@ extern "C" {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         
-        Options->CompressionFormat = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 16);
-        Options->NumChannels       = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 16);
-        Options->SampleRate        = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
-        Options->ByteRate          = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
-        Options->BlockAlign        = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
-        Options->BitDepth          = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 16);
+        Options->CompressionFormat = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 16);
+        Options->NumChannels       = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 16);
+        Options->SampleRate        = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32);
+        Options->ByteRate          = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32);
+        Options->BlockAlign        = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32);
+        Options->BitDepth          = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 16);
         if (ChunkSize == 18) {
-            uint16_t CBSize        = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 16);
+            uint16_t CBSize        = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 16);
             BitBuffer_Seek(BitB, Bytes2Bits(CBSize - 16));
         } else if (ChunkSize == 40) {
-            uint16_t CBSize             = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 16);
-            uint16_t ValidBitsPerSample = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 16);
+            uint16_t CBSize             = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 16);
+            uint16_t ValidBitsPerSample = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 16);
             if (ValidBitsPerSample != 0) {
                 Options->BitDepth = ValidBitsPerSample;
             }
-            uint32_t  SpeakerMask       = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
+            uint32_t  SpeakerMask       = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32);
             uint8_t  *BinaryGUIDFormat  = BitBuffer_ReadGUUID(BitB, GUUIDType_BinaryGUID);
             BitBuffer_Seek(BitB, Bytes2Bits(CBSize - 22));
         }
@@ -50,8 +50,8 @@ extern "C" {
     void WAVParseMetadata(WAVOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        uint32_t ChunkID   = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 32);
-        uint32_t ChunkSize = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsNearest, BitOrder_LSBitIsNearest, 32);
+        uint32_t ChunkID   = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
+        uint32_t ChunkSize = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32);
         
         switch (ChunkID) {
             case WAV_LIST:
@@ -87,7 +87,7 @@ extern "C" {
             uint8_t **Samples = (uint8_t**) Audio2DContainer_GetArray(Audio);
             for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                 for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
-                    Samples[Channel][Sample] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, Bits2Bytes(BitDepth, Yes));
+                    Samples[Channel][Sample] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, Bits2Bytes(BitDepth, Yes));
                 }
             }
         } else if (BitDepth > 8 && BitDepth <= 16) {
@@ -95,7 +95,7 @@ extern "C" {
             uint16_t **Samples = (uint16_t**) Audio2DContainer_GetArray(Audio);
             for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                 for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
-                    Samples[Channel][Sample] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, Bits2Bytes(BitDepth, Yes));
+                    Samples[Channel][Sample] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, Bits2Bytes(BitDepth, Yes));
                 }
             }
         } else if (BitDepth > 16 && BitDepth <= 32) {
@@ -103,7 +103,7 @@ extern "C" {
             uint32_t **Samples = (uint32_t**) Audio2DContainer_GetArray(Audio);
             for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                 for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
-                    Samples[Channel][Sample] = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, Bits2Bytes(BitDepth, Yes));
+                    Samples[Channel][Sample] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, Bits2Bytes(BitDepth, Yes));
                 }
             }
         }

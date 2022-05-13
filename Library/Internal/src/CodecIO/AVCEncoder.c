@@ -104,7 +104,7 @@ extern "C" {
         BitBuffer_Align(BitB, 1); // rbsp_trailing_bits();
         if (Options->PPS->EntropyCodingMode == Arithmetic) {
             while (more_rbsp_trailing_data()) {
-                uint16_t CABACZeroWord = BitBuffer_ReadBits(BitB, ByteOrder_LSByteIsFarthest, BitOrder_LSBitIsNearest, 16); /* equal to 0x0000 */
+                uint16_t CABACZeroWord = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 16); /* equal to 0x0000 */
             }
         }
     }

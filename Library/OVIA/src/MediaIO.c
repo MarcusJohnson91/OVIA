@@ -434,7 +434,7 @@ extern "C" {
      */
     
     typedef struct Audio2DHistogram {
-        uint64_t                 **Array; // Channel, Sample
+        void                     **Array; // Channel, Sample
         MediaIO_AudioMask         *ChannelMap;
         uint64_t                   NumEntries;
         uint8_t                    NumChannels;
@@ -736,7 +736,7 @@ extern "C" {
     
     AudioVectorHistogram *AudioVectorHistogram_Init(AudioVector *Vector) {
         AssertIO(Vector != NULL);
-        AudioVectorHistogram *Histogram = AudioVectorHistogram_Init(Vector);
+        AudioVectorHistogram *Histogram = calloc(1, sizeof(AudioVectorHistogram));
         AssertIO(Histogram != NULL);
         Histogram->Type             = Vector->Type;
         uint8_t  BitDepth           = AudioType_GetBitDepth(Vector->Type);
