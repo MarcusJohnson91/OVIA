@@ -30,6 +30,21 @@ extern "C" {
         MacroBlockMaxPixels                         = 256,
         AVCStopBit                                  =   1,
     } AVCConstants;
+
+    /*!
+     Golomb_Unsigned  ue(v)
+     Golomb_Signed    se(v)
+     Golomb_Truncated te(v)
+     Golomb_Mapped    me(v)
+     Golomb_String    st(v)
+     */
+    typedef enum AVCGolombTypes {
+        Golomb_Unspecified = 0,
+        Golomb_Unsigned    = 1,
+        Golomb_Signed      = 2,
+        Golomb_Truncated   = 3,
+        Golomb_Mapped      = 4,
+    } AVCGolombTypes;
     
     typedef enum AVCCompressionType {
         ExpGolomb                                   =  0,

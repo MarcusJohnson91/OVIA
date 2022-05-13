@@ -23,6 +23,44 @@ extern "C" {
         Options->MacroBlock           = calloc(1, sizeof(MacroBlock));
         return Options;
     }
+
+    static uint64_t ReadExpGolomb(AVCOptions *Options, BitBuffer *BitB, BufferIO_ByteOrders ByteOrder, BufferIO_BitOrders BitOrder, AVCGolombTypes Type) { // ue/me/te/se or when entropy_coding_mode_flag == 0
+
+        // te = truncaed exp-golomb, special process
+        // Read the number of 0 bits, counting them, stopping when the stop bit of 1 is seen, including the stop bit in the count
+        size_t NumZeroBits = 0;
+        while (BitBuffer_ReadBits(BitB, ByteOrder, BitOrder, 1) == 0) {
+            NumZeroBits += 1;
+        }
+        uint64_t Unary = Exponentiate(2, NumZeroBits) - 1; // 4^2 = 15, 4 - 1 = 3
+        uint64_t Binary = BitBuffer_ReadBits(BitB, ByteOrder, BitOrder, NumZeroBits); // 0b0001
+        uint64_t CodeNum = Unary + Binary; // 16 + 1 = 17
+        if (Type == Golomb_Unsigned) {
+            return CodeNum; // 0; 3
+        } else if (Type == Golomb_Signed) {
+            int64_t Sign = (CodeNum & 1) - 1;
+            return ((CodeNum >> 1) ^ Sign) + 1;
+        } else if (Type == Golomb_Mapped) {
+            return 0;
+            if (Options->MacroBlock->BlockPattern == Intra_4x4 || Options->MacroBlock->BlockPattern == Intra_8x8) {
+
+            } else if (Options->MacroBlock->BlockPattern == Inter_4x4 || Options->MacroBlock->BlockPattern == Inter_4x4) {
+
+            }
+
+            if (Options->SPS->ChromaArrayType == 0 || Options->SPS->ChromaArrayType == 3) {
+
+            } else if (Options->SPS->ChromaArrayType == 1 || Options->SPS->ChromaArrayType == 2) {
+                // Intra_4x4, Intra_8x8, Inter
+            }
+        }
+
+        /*
+         1 = 0
+         01 = read one bit
+         001 = read two bits
+         */
+    }
     
     bool AreAllViewsPaired(AVCOptions *Options) {
         AssertIO(Options != NULL);
