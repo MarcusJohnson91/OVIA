@@ -60,6 +60,7 @@ extern "C" {
          01 = read one bit
          001 = read two bits
          */
+        return 0;
     }
     
     bool AreAllViewsPaired(AVCOptions *Options) {
@@ -184,7 +185,91 @@ extern "C" {
     }
     
     size_t GetSizeOfNALUnit(AVCOptions *Options, BitBuffer *BitB) {
+        AssertIO(Options != NULL);
+        AssertIO(BitB != NULL);
         return 0;
+    }
+
+    uint8_t CalculateNumberOfTimeStamps(AVCOptions *Options) { // PicOrderCount
+        AssertIO(Options != NULL);
+        uint8_t NumTimeStamps = 0;
+        if ((Options->Slice->SliceIsInterlaced == false) && (Options->Slice->TopFieldOrderCount == Options->Slice->BottomFieldOrderCount)) {
+            NumTimeStamps = 1;
+        } else if (0 == 1) {
+
+        }
+        return 0;
+    }
+
+    uint8_t MacroBlockPartitionPredictionMode(AVCOptions *Options, uint8_t MacroBlockType, uint8_t PartitionNumber) {  // MbPartPredMode
+        uint8_t ReturnValue = 0;
+        AssertIO(Options != NULL);
+        if (MacroBlockType == 0) {
+            if (Options->MacroBlock->TransformSizeIs8x8 == true) {
+                ReturnValue = Intra_8x8;
+            } else {
+                ReturnValue = Intra_4x4;
+            }
+        } else if (MacroBlockType == 1) {
+            ReturnValue = I_16x16_0_0_0;
+        } else if (MacroBlockType == 2) {
+            ReturnValue  = I_16x16_1_0_0;
+        } else if (MacroBlockType == 3) {
+            ReturnValue  = I_16x16_2_0_0;
+        } else if (MacroBlockType == 4) {
+            ReturnValue  = I_16x16_3_0_0;
+        } else if (MacroBlockType == 5) {
+            ReturnValue  = I_16x16_0_1_0;
+        } else if (MacroBlockType == 6) {
+            ReturnValue  = I_16x16_1_1_0;
+        } else if (MacroBlockType == 7) {
+            ReturnValue  = I_16x16_2_1_0;
+        } else if (MacroBlockType == 8) {
+            ReturnValue  = I_16x16_3_1_0;
+        } else if (MacroBlockType == 9) {
+            ReturnValue  = I_16x16_0_2_0;
+        } else if (MacroBlockType == 10) {
+            ReturnValue  = I_16x16_1_2_0;
+        } else if (MacroBlockType == 11) {
+            ReturnValue  = I_16x16_2_2_0;
+        } else if (MacroBlockType == 12) {
+            ReturnValue  = I_16x16_3_2_0;
+        } else if (MacroBlockType == 13) {
+            ReturnValue  = I_16x16_0_0_1;
+        } else if (MacroBlockType == 14) {
+            ReturnValue  = I_16x16_1_0_1;
+        } else if (MacroBlockType == 15) {
+            ReturnValue  = I_16x16_2_0_1;
+        } else if (MacroBlockType == 16) {
+            ReturnValue  = I_16x16_3_0_1;
+        } else if (MacroBlockType == 17) {
+            ReturnValue  = I_16x16_0_1_1;
+        } else if (MacroBlockType == 18) {
+            ReturnValue  = I_16x16_1_1_1;
+        } else if (MacroBlockType == 19) {
+            ReturnValue  = I_16x16_2_1_1;
+        } else if (MacroBlockType == 20) {
+            ReturnValue  = I_16x16_3_1_1;
+        } else if (MacroBlockType == 21) {
+            ReturnValue  = I_16x16_0_2_1;
+        } else if (MacroBlockType == 22) {
+            ReturnValue  = I_16x16_1_2_1;
+        } else if (MacroBlockType == 23) {
+            ReturnValue  = I_16x16_2_2_1;
+        } else if (MacroBlockType == 24) {
+            ReturnValue  = I_16x16_3_2_1;
+        } else if (MacroBlockType == 25) {
+            ReturnValue  = I_PCM;
+        }
+        /*
+         if (NotPartitioned == true) {
+         return BlockPredictionMode;
+         } else if (PartitionNumber >= 0) {
+         PartitionMode;
+         }
+         }
+         */
+        return ReturnValue;
     }
     
     void AVCOptions_Deinit(AVCOptions *Options) {

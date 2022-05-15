@@ -12,6 +12,7 @@
 #define OVIA_CodecIO_PNGCodec_H
 
 #include "../../../OVIA/include/CodecIO.h"
+#include "../../../OVIA/include/MediaIO.h"
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
@@ -255,67 +256,63 @@ extern "C" {
     } sPLT;
 
     typedef struct PNGOptions {
-        struct acTL   *acTL;
-        struct bkGD   *bkGD;
-        struct cHRM   *cHRM;
-        struct DAT    *DAT;
-        struct fcTL   *fcTL;
-        struct fdAT   *fdAT;
-        struct gAMA   *gAMA;
-        struct hIST   *hIST;
-        struct iCCP   *iCCP;
-        struct iHDR   *iHDR;
-        struct oFFs   *oFFs;
-        struct pCAL   *pCAL;
-        struct pHYs   *pHYs;
-        struct PLTE   *PLTE;
-        struct sBIT   *sBIT;
-        struct sCAL   *sCAL;
-        struct sPLT   *sPLT;
-        struct sRGB   *sRGB;
-        struct sTER   *sTER;
-        struct Text   *Text;
-        struct tIMe   *tIMe;
-        struct tRNS   *tRNS;
-        uint32_t       NumSPLTChunks;
-        uint32_t       NumTextChunks;
-        uint32_t       CurrentFrame;
-        uint32_t       LineWidth;
-        uint32_t       LinePadding;
-        bool           PNGIsAnimated:1;
-        bool           PNGIs3D:1;
-        bool           acTLExists:1;
-        bool           bkGDExists:1;
-        bool           cHRMExists:1;
-        bool           fcTLExists:1;
-        bool           gAMAExists:1;
-        bool           hISTExists:1;
-        bool           iCCPExists:1;
-        bool           oFFsExists:1;
-        bool           pCALExists:1;
-        bool           pHYsExists:1;
-        bool           PLTEExists:1;
-        bool           sBITExists:1;
-        bool           sCALExists:1;
-        bool           sPLTExists:1;
-        bool           sRGBExists:1;
-        bool           sTERExists:1;
-        bool           TextExists:1;
-        bool           tIMEExists:1;
-        bool           tRNSExists:1;
+        ImageChannelMap *Map;
+        struct acTL     *acTL;
+        struct bkGD     *bkGD;
+        struct cHRM     *cHRM;
+        struct DAT      *DAT;
+        struct fcTL     *fcTL;
+        struct fdAT     *fdAT;
+        struct gAMA     *gAMA;
+        struct hIST     *hIST;
+        struct iCCP     *iCCP;
+        struct iHDR     *iHDR;
+        struct oFFs     *oFFs;
+        struct pCAL     *pCAL;
+        struct pHYs     *pHYs;
+        struct PLTE     *PLTE;
+        struct sBIT     *sBIT;
+        struct sCAL     *sCAL;
+        struct sPLT     *sPLT;
+        struct sRGB     *sRGB;
+        struct sTER     *sTER;
+        struct Text     *Text;
+        struct tIMe     *tIMe;
+        struct tRNS     *tRNS;
+        uint32_t        NumSPLTChunks;
+        uint32_t        NumTextChunks;
+        uint32_t        CurrentFrame;
+        uint32_t        LineWidth;
+        uint32_t        LinePadding;
+        bool            PNGIsAnimated:1;
+        bool            acTLExists:1;
+        bool            bkGDExists:1;
+        bool            cHRMExists:1;
+        bool            fcTLExists:1;
+        bool            gAMAExists:1;
+        bool            hISTExists:1;
+        bool            iCCPExists:1;
+        bool            oFFsExists:1;
+        bool            pCALExists:1;
+        bool            pHYsExists:1;
+        bool            PLTEExists:1;
+        bool            sBITExists:1;
+        bool            sCALExists:1;
+        bool            sPLTExists:1;
+        bool            sRGBExists:1;
+        bool            sTERExists:1;
+        bool            TextExists:1;
+        bool            tIMEExists:1;
+        bool            tRNSExists:1;
     } PNGOptions;
 
-    static const uint8_t PNGNumChannelsFromColorType[7] = {
-        1, 0, 3, 3, 4, 0, 4
-    };
+    uint8_t PNG_GetNumChannels(PNGColorTypes ColorType);
 
     void *PNGOptions_Init(void);
 
     void  PNG_Parse(PNGOptions *Options, BitBuffer *BitB);
 
     void  PNG_Extract(PNGOptions *Options, BitBuffer *BitB, void *Container);
-    
-    bool  PNGGetStereoscopicStatus(PNGOptions *Options);
 
     void  PNGOptions_Deinit(PNGOptions *Options);
 

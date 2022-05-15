@@ -36,27 +36,28 @@ extern "C" {
         AssertIO(BitB != NULL);
         uint8_t *ChunkUUIDString = BitBuffer_ReadGUUID(BitB, GUUIDType_BinaryGUID);
         uint64_t W64Size         = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 64);
-        if (GUUID_Compare(GUUIDType_BinaryGUID, ChunkUUIDString, W64_RIFF_GUIDString) == true) {
+
+        if (BinaryGUUID_Compare(ChunkUUIDString, W64_RIFF_GUIDString) == true) {
             
-        } else if (GUUID_Compare(GUUIDType_BinaryGUID, ChunkUUIDString, W64_WAVE_GUIDString) == true) {
+        } else if (BinaryGUUID_Compare(ChunkUUIDString, W64_WAVE_GUIDString) == true) {
             
-        } else if (GUUID_Compare(GUUIDType_BinaryGUID, ChunkUUIDString, W64_FMT_GUIDString) == true) {
+        } else if (BinaryGUUID_Compare(ChunkUUIDString, W64_FMT_GUIDString) == true) {
             W64ReadFMTChunk(Options, BitB);
-        } else if (GUUID_Compare(GUUIDType_BinaryGUID, ChunkUUIDString, W64_DATA_GUIDString) == true) {
+        } else if (BinaryGUUID_Compare(ChunkUUIDString, W64_DATA_GUIDString) == true) {
             
-        } else if (GUUID_Compare(GUUIDType_BinaryGUID, ChunkUUIDString, W64_LEVL_GUIDString) == true) {
+        } else if (BinaryGUUID_Compare(ChunkUUIDString, W64_LEVL_GUIDString) == true) {
             
-        } else if (GUUID_Compare(GUUIDType_BinaryGUID, ChunkUUIDString, W64_BEXT_GUIDString) == true) {
+        } else if (BinaryGUUID_Compare(ChunkUUIDString, W64_BEXT_GUIDString) == true) {
             W64ReadBEXTChunk(Options, BitB);
-        } else if (GUUID_Compare(GUUIDType_BinaryGUID, ChunkUUIDString, W64_FACT_GUIDString) == true) {
+        } else if (BinaryGUUID_Compare(ChunkUUIDString, W64_FACT_GUIDString) == true) {
             
-        } else if (GUUID_Compare(GUUIDType_BinaryGUID, ChunkUUIDString, W64_JUNK_GUIDString) == true) {
+        } else if (BinaryGUUID_Compare(ChunkUUIDString, W64_JUNK_GUIDString) == true) {
             
-        } else if (GUUID_Compare(GUUIDType_BinaryGUID, ChunkUUIDString, W64_MRKR_GUIDString) == true) {
+        } else if (BinaryGUUID_Compare(ChunkUUIDString, W64_MRKR_GUIDString) == true) {
             
-        } else if (GUUID_Compare(GUUIDType_BinaryGUID, ChunkUUIDString, W64_SUMM_GUIDString) == true) {
+        } else if (BinaryGUUID_Compare(ChunkUUIDString, W64_SUMM_GUIDString) == true) {
             
-        } else if (GUUID_Compare(GUUIDType_BinaryGUID, ChunkUUIDString, W64_LIST_GUIDString) == true) {
+        } else if (BinaryGUUID_Compare(ChunkUUIDString, W64_LIST_GUIDString) == true) {
             
         }
     }

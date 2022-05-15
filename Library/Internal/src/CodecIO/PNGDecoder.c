@@ -27,13 +27,14 @@ extern "C" {
         AssertIO(Options->iHDR->ColorType != 1);
         AssertIO(Options->iHDR->ColorType != 5);
         AssertIO(Options->iHDR->ColorType < 7);
+        Options->Map = ImageChannelMap_Init(Options->sTERExists ? 2 : 1, PNG_GetNumChannels(Options->iHDR->ColorType));
         Options->iHDR->Compression    = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
         Options->iHDR->FilterMethod   = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
         Options->iHDR->IsInterlaced   = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
         
-        uint32_t ComputedCRC      = BitBuffer_CalculateCRC(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, BitBuffer_GetPosition(BitB) - 104, 13, 0xFFFFFFFF, CRCPolynomial_IEEE802_3);
+        uint32_t ComputedCRC          = BitBuffer_CalculateCRC(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, BitBuffer_GetPosition(BitB) - 104, 13, 0xFFFFFFFF, CRCPolynomial_IEEE802_3);
         
-        uint32_t CRC              = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
+        uint32_t CRC                  = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
         AssertIO(ComputedCRC == CRC);
     }
     
@@ -47,7 +48,7 @@ extern "C" {
         }
         
         
-        for (uint8_t Channel = 0; Channel < PNGNumChannelsFromColorType[Options->iHDR->ColorType]; Channel++) {
+        for (uint8_t Channel = 0; Channel < PNG_GetNumChannels(Options->iHDR->ColorType); Channel++) {
             for (uint16_t PaletteEntry = 0; PaletteEntry < ChunkSize / 3; PaletteEntry++) {
                 Options->PLTE->Palette[Channel][PaletteEntry] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, Options->iHDR->BitDepth);
             }
@@ -69,7 +70,7 @@ extern "C" {
             Entries = calloc(2, Bits2Bytes(Options->iHDR->BitDepth, RoundingType_Down) * sizeof(uint16_t));
         }
         AssertIO(Entries != NULL);
-        for (uint8_t Color = 0; Color < PNGNumChannelsFromColorType[Options->iHDR->ColorType]; Color++) {
+        for (uint8_t Color = 0; Color < PNG_GetNumChannels(Options->iHDR->ColorType); Color++) {
             Entries[Color]    = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, Bits2Bytes(Options->iHDR->BitDepth, RoundingType_Down));
         }
     }
@@ -178,7 +179,6 @@ extern "C" {
     void PNG_Read_STER(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->PNGIs3D                     = true;
         Options->sTER->StereoType            = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
         
         // No matter what StereoType is used, both images are arranged side by side, and the left edge is aligned on a boundary of the 8th column in case interlacing is used.
@@ -526,7 +526,7 @@ extern "C" {
         
         uint8_t ***DeFilteredData = calloc((Options->iHDR->Height * Options->iHDR->Width), Bits2Bytes(Options->iHDR->BitDepth, RoundingType_Down));
         
-        for (uint8_t StereoView = 0; StereoView < PNGGetStereoscopicStatus(Options); StereoView++) {
+        for (uint8_t StereoView = 0; StereoView < ImageChannelMap_GetNumViews(Options->Map); StereoView++) {
             for (size_t Line = 0; Line < Options->iHDR->Height; Line++) {
                 PNGFilterTypes FilterType = ExtractLineFilterType(*DeFilteredData[Line]);
                 switch (FilterType) {
@@ -1066,7 +1066,7 @@ extern "C" {
             Entries = calloc(2, Bits2Bytes(Options->iHDR->BitDepth, RoundingType_Up) * sizeof(uint16_t));
         }
         AssertIO(Entries != NULL);
-        for (uint8_t Color = 0; Color < PNGNumChannelsFromColorType[Options->iHDR->ColorType]; Color++) {
+        for (uint8_t Color = 0; Color < PNG_GetNumChannels(Options->iHDR->ColorType); Color++) {
             Entries[Color]    = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, Bits2Bytes(Options->iHDR->BitDepth, RoundingType_Up));
         }
         //Ovia->tRNS->Palette = Entries;
@@ -1075,7 +1075,7 @@ extern "C" {
     void PNG_BKGD_Parse(PNGOptions *Options, BitBuffer *BitB) { // Background
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        for (uint8_t Entry = 0; Entry < PNGNumChannelsFromColorType[Options->iHDR->ColorType]; Entry++) {
+        for (uint8_t Entry = 0; Entry < PNG_GetNumChannels(Options->iHDR->ColorType); Entry++) {
             Options->bkGD->BackgroundPaletteEntry[Entry] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, Options->iHDR->BitDepth);
         }
     }
@@ -1415,7 +1415,7 @@ extern "C" {
         }
         
         
-        for (uint8_t Channel = 0; Channel < PNGNumChannelsFromColorType[Options->iHDR->ColorType]; Channel++) {
+        for (uint8_t Channel = 0; Channel < PNG_GetNumChannels(Options->iHDR->ColorType); Channel++) {
             for (uint16_t PaletteEntry = 0; PaletteEntry < ChunkSize / 3; PaletteEntry++) {
                 Options->PLTE->Palette[Channel][PaletteEntry] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, Options->iHDR->BitDepth);
             }
@@ -1437,7 +1437,7 @@ extern "C" {
             Entries = calloc(2, Bits2Bytes(Options->iHDR->BitDepth, true) * sizeof(uint16_t));
         }
         AssertIO(Entries != NULL);
-        for (uint8_t Color = 0; Color < PNGNumChannelsFromColorType[Options->iHDR->ColorType]; Color++) {
+        for (uint8_t Color = 0; Color < PNG_GetNumChannels(Options->iHDR->ColorType); Color++) {
             Entries[Color]    = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, Bits2Bytes(Options->iHDR->BitDepth, true));
         }
         //Options->tRNS->Palette = Entries;

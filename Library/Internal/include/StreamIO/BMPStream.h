@@ -70,7 +70,7 @@ extern "C" {
 
     BMPOptions     *BMPOptions_Init(void);
 
-    static uint64_t BMPGetRowSize(const uint16_t BitsPerPixel, const uint32_t ImageWidth);
+    uint64_t        BMPGetRowSize(const uint16_t BitsPerPixel, const uint32_t ImageWidth);
 
     static uint64_t BMPGetPixelArraySize(const uint64_t RowSize, const int32_t ImageHeight);
 

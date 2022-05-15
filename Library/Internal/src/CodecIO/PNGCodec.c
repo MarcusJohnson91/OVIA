@@ -8,12 +8,8 @@
 extern "C" {
 #endif
     
-    uint32_t PNG_CalculateSTERPadding(const uint32_t Width) {
-        return 7 - ((Width - 1) % 8);
-    }
-    
     void *PNGOptions_Init(void) {
-        PNGOptions *Options     = calloc(1, sizeof(PNGOptions));
+        PNGOptions *Options = calloc(1, sizeof(PNGOptions));
         AssertIO(Options != NULL);
         Options->acTL       = calloc(1, sizeof(acTL));
         Options->bkGD       = calloc(1, sizeof(bkGD));
@@ -34,6 +30,28 @@ extern "C" {
         Options->tIMe       = calloc(1, sizeof(tIMe));
         Options->tRNS       = calloc(1, sizeof(tRNS));
         return Options;
+    }
+
+    uint32_t PNG_CalculateSTERPadding(const uint32_t Width) {
+        return 7 - ((Width - 1) % 8);
+    }
+
+    uint8_t PNG_GetNumChannels(PNGColorTypes ColorType) {
+        switch (ColorType) {
+            case PNGColor_Gray:
+                return 1;
+                break;
+            case PNGColor_GrayAlpha:
+                return 2;
+                break;
+            case PNGColor_Palette:
+            case PNGColor_RGB:
+                return 3;
+                break;
+            case PNGColor_RGBAlpha:
+                return 4;
+                break;
+        }
     }
     
     /* PNG Get functions */
@@ -72,11 +90,6 @@ extern "C" {
     bool PNGGetInterlaceStatus(PNGOptions *Options) {
         AssertIO(Options != NULL);
         return Options->iHDR->IsInterlaced;
-    }
-    
-    bool PNGGetStereoscopicStatus(PNGOptions *Options) {
-        AssertIO(Options != NULL);
-        return Options->PNGIs3D;
     }
     
     uint32_t PNGGetWhitepointX(PNGOptions *Options) {

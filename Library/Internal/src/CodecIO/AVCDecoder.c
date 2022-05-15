@@ -157,79 +157,7 @@ extern "C" {
      }
      }
      */
-    
-    void ParseTransformCoeffs(AVCOptions *Options, uint8_t i16x16DC, uint8_t i16x16AC, uint8_t Level4x4, uint8_t Level8x8, uint8_t StartIndex, uint8_t EndIndex) { // residual_block
-        uint8_t Intra16x16DCLevel = i16x16DC, Intra16x16ACLevel = i16x16AC, LumaLevel4x4 = Level4x4, LumaLevel8x8 = Level8x8;
-        // Return the first 4 variables
-        if (Options->PPS->EntropyCodingMode == ExpGolomb) {
-            // Read ExpGolomb
-        } else {
-            // Read Arithmetic
-        }
-        
-        if (Options->SPS->ChromaArrayType == AVCChroma_420 || Options->SPS->ChromaArrayType == AVCChroma_422) {
-            for (uint8_t iCbCr = 0; iCbCr < 1; iCbCr++) {
-                ChromaDCLevel[iCbCr] = 4 * NumC8x8;
-                for (uint8_t ChromaBlock = 0; ChromaBlock < i4x4; ChromaBlock++) {
-                    ChromaACLevel[iCbCr][(i8x8 * 4) + i4x4] = 0;
-                }
-            }
-        } else if (Options->SPS->ChromaArrayType == AVCChroma_444) {
-            
-        }
-    }
-    
-    void ResidualLuma(AVCOptions *Options, BitBuffer *BitB, int i16x16DClevel, int i16x16AClevel, int level4x4,
-                      int level8x8, int startIdx, int endIdx) { // residual_luma
-        if (startIdx == 0 && MacroBlockPartitionPredictionMode(Options, Options->MacroBlock->Type, 0) == Intra_16x16) {
-            residual_block(i16x16DClevel, 0, 15, 16);
-        }
-        for (uint8_t i8x8 = 0; i8x8 < 4; i8x8++) {
-            if (Options->MacroBlock->TransformSizeIs8x8 == false || Options->PPS->EntropyCodingMode == ExpGolomb) {
-                for (uint8_t i4x4 = 0; i4x4 < 4; i4x4++) {
-                    if (Options->MacroBlock->BlockPatternLuma & (1 << i8x8)) {
-                        if (MacroBlockPartitionPredictionMode(Options, Options->MacroBlock->Type, 0) == Intra_16x16) {
-                            //residual_block(i16x16AClevel[i8x8 * 4 + i4x4], Maximum(0, startIdx - 1), endIdx - 1, 15);
-                        } else {
-                            //residual_block(level4x4[i8x8 * 4 + i4x4], startIdx, endIdx, 16);
-                        }
-                    } else if (MacroBlockPartitionPredictionMode(Options, Options->MacroBlock->Type, 0) == Intra_16x16) {
-                        for (uint8_t i = 0; i < 15; i++) {
-                            //i16x16AClevel[i8x8 * 4 + i4x4][i] = 0;
-                        }
-                    } else {
-                        for (uint8_t i = 0; i < 16; i++) {
-                            //level4x4[i8x8 * 4 + i4x4][i] = 0;
-                        }
-                    }
-                }
-            }
-            
-            if (Options->PPS->EntropyCodingMode == ExpGolomb && Options->MacroBlock->TransformSizeIs8x8) {
-                for (uint8_t i = 0; i < 16; i++) {
-                    //level8x8[i8x8][4 * i + i4x4] = level4x4[i8x8 * 4 + i4x4][i];
-                }
-            } else if (Options->MacroBlock->BlockPatternLuma & (1 << i8x8)) {
-                // residual_block(level8x8[i8x8], 4 * startIdx, 4 * endIdx + 3, 64);
-            } else {
-                for (uint8_t i = 0; i < 64; i++) {
-                    level8x8[i8x8][i] = 0;
-                }
-            }
-        }
-    }
-    
-    void rbsp_slice_trailing_bits(AVCOptions *Options, BitBuffer *BitB) {
-        AssertIO(Options != NULL);
-        AssertIO(BitB != NULL);
-        BitBuffer_Align(BitB, 1); // rbsp_trailing_bits();
-        if (Options->PPS->EntropyCodingMode == Arithmetic) {
-            while (more_rbsp_trailing_data()) {
-                uint64_t CABACZeroWord = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 16); /* equal to 0x0000 */
-            }
-        }
-    }
-    
+
     uint8_t MacroBlockPartitionPredictionMode(AVCOptions *Options, uint8_t MacroBlockType, uint8_t PartitionNumber) {  // MbPartPredMode
         AssertIO(Options != NULL);
         uint8_t ReturnValue = 0;
@@ -299,6 +227,57 @@ extern "C" {
          }
          */
         return ReturnValue;
+    }
+    
+    void ResidualLuma(AVCOptions *Options, BitBuffer *BitB, int i16x16DClevel, int i16x16AClevel, int level4x4,
+                      int level8x8, int startIdx, int endIdx) { // residual_luma
+        if (startIdx == 0 && MacroBlockPartitionPredictionMode(Options, Options->MacroBlock->Type, 0) == Intra_16x16) {
+            residual_block(i16x16DClevel, 0, 15, 16);
+        }
+        for (uint8_t i8x8 = 0; i8x8 < 4; i8x8++) {
+            if (Options->MacroBlock->TransformSizeIs8x8 == false || Options->PPS->EntropyCodingMode == ExpGolomb) {
+                for (uint8_t i4x4 = 0; i4x4 < 4; i4x4++) {
+                    if (Options->MacroBlock->BlockPatternLuma & (1 << i8x8)) {
+                        if (MacroBlockPartitionPredictionMode(Options, Options->MacroBlock->Type, 0) == Intra_16x16) {
+                            //residual_block(i16x16AClevel[i8x8 * 4 + i4x4], Maximum(0, startIdx - 1), endIdx - 1, 15);
+                        } else {
+                            //residual_block(level4x4[i8x8 * 4 + i4x4], startIdx, endIdx, 16);
+                        }
+                    } else if (MacroBlockPartitionPredictionMode(Options, Options->MacroBlock->Type, 0) == Intra_16x16) {
+                        for (uint8_t i = 0; i < 15; i++) {
+                            //i16x16AClevel[i8x8 * 4 + i4x4][i] = 0;
+                        }
+                    } else {
+                        for (uint8_t i = 0; i < 16; i++) {
+                            //level4x4[i8x8 * 4 + i4x4][i] = 0;
+                        }
+                    }
+                }
+            }
+            
+            if (Options->PPS->EntropyCodingMode == ExpGolomb && Options->MacroBlock->TransformSizeIs8x8) {
+                for (uint8_t i = 0; i < 16; i++) {
+                    //level8x8[i8x8][4 * i + i4x4] = level4x4[i8x8 * 4 + i4x4][i];
+                }
+            } else if (Options->MacroBlock->BlockPatternLuma & (1 << i8x8)) {
+                // residual_block(level8x8[i8x8], 4 * startIdx, 4 * endIdx + 3, 64);
+            } else {
+                for (uint8_t i = 0; i < 64; i++) {
+                    level8x8[i8x8][i] = 0;
+                }
+            }
+        }
+    }
+    
+    void rbsp_slice_trailing_bits(AVCOptions *Options, BitBuffer *BitB) {
+        AssertIO(Options != NULL);
+        AssertIO(BitB != NULL);
+        BitBuffer_Align(BitB, 1); // rbsp_trailing_bits();
+        if (Options->PPS->EntropyCodingMode == Arithmetic) {
+            while (more_rbsp_trailing_data()) {
+                uint64_t CABACZeroWord = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 16); /* equal to 0x0000 */
+            }
+        }
     }
     
     uint64_t NextMacroBlockAddress(AVCOptions *Options, uint64_t CurrentMacroBlockAddress) { // NextMbAddress
@@ -455,90 +434,6 @@ extern "C" {
             }
         }
         return Type;
-    }
-    
-    void AcquisitionElement3DV(AVCOptions *Options, BitBuffer *BitB, uint8_t numViews, uint8_t DeltaFlag, uint8_t PredDirection, uint8_t precMode, uint8_t expLen, uint8_t OutSign[MVCMaxViews], uint8_t OutExp, uint8_t OutMantissa, uint8_t OutManLen[MVCMaxViews]) { // 3dv_acquisition_element
-        
-        uint8_t element_equal_flag, numValues, matissa_len_minus1, prec, sign0, exponent0, mantissa0, skip_flag, sign1, exponent_skip_flag, manLen;
-        uint8_t mantissaPred, mantissa_diff, exponent1;
-        
-        if (numViews - DeltaFlag > 1) {
-            element_equal_flag = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 1);
-        }
-        if (element_equal_flag == false) {
-            numValues = numViews - DeltaFlag;
-        } else {
-            numValues = 1;
-        }
-        for (uint8_t Value = 0; Value < numValues; Value++) {
-            if ((PredDirection == 2) && (Value = 0)) {
-                if (precMode == 0) {
-                    matissa_len_minus1 = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 5) + 1;
-                    OutManLen[index, Value] = manLen = matissa_len_minus1;
-                } else {
-                    prec = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 5);
-                }
-            }
-            if (PredDirection == 2) {
-                sign0 = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 1);
-                OutSign[index, Value] = sign0;
-                exponent0 = ReadExpGolomb(Options, BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight);
-                
-                OutExp[index, Value] = exponent0;
-                if (precMode == 1) {
-                    if (exponent0 == 0) {
-                        OutManLen[index, Value] = manLen = Maximum(0, prec - 30);
-                    } else {
-                        OutManLen[index, Value] = manLen = Maximum(0, exponent0 + prec - 31);
-                    }
-                }
-                mantissa0 = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, BitB, manLen);
-                OutMantissa[index, Value] = mantissa0;
-            } else {
-                skip_flag = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 1);
-                if (skip_flag == 0) {
-                    sign1 = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 1);
-                    OutSign[index, Value] = sign1;
-                    exponent_skip_flag = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 1);
-                    if (exponent_skip_flag == 0) {
-                        exponent1 = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, BitB, expLen);
-                        OutExp[index, Value] = exponent1;
-                    } else {
-                        OutExp[index, Value] = OutExp[Options->DPS->ReferenceDPSID[1], Value];
-                    }
-                    mantissa_diff = ReadExpGolomb(Options, BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight);
-                    mantissaPred = ((OutMantissa[Options->DPS->ReferenceDPSID[1], Value] * Options->DPS->PredictedWeight0 + OutMantissa[Options->DPS->ReferenceDPSID[1], Value] * (64 - Options->DPS->PredictedWeight0) + 32) >> 6);
-                    OutMantissa[index, Value] = mantissaPred + mantissa_diff;
-                    OutManLen[index, Value] = OutManLen[Options->DPS->ReferenceDPSID[1], Value];
-                } else {
-                    OutSign[index, Value] = OutSign[Options->DPS->ReferenceDPSID[1], Value];
-                    OutExp[index, Value] = OutExp[Options->DPS->ReferenceDPSID[1], Value];
-                    OutMantissa[index, Value] = OutMantissa[Options->DPS->ReferenceDPSID[1], Value];
-                    OutManLen[index, Value] = OutManLen[Options->DPS->ReferenceDPSID[1], Value];
-                }
-            }
-        }
-        if (element_equal_flag == 1) {
-            for (uint8_t View = 0; View < Options->SPS->ViewCount; View++) {
-                OutSign[index, View] = OutSign[index, 0];
-                OutExp[index, View] = OutExp[index, 0];
-                OutMantissa[index, View] = OutMantissa[index, 0];
-                OutManLen[index, View] = OutManLen[index, 0];
-            }
-        }
-    }
-    
-    uint64_t DepthRanges(BitBuffer *BitB, uint64_t NumberOfViews, bool PredDirection, uint64_t Index) { // depth_ranges
-        bool NearFlag = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 1);
-        bool FarFlag  = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 1);
-        
-        if (NearFlag == true) {
-            AcquisitionElement3DV(NumberOfViews, 0, PredDirection, 7, 0, ZNearSign, ZNearExp, ZNearMantissa, ZNearManLen)
-        } else if (FarFlag == true) {
-            AcquisitionElement3DV(NumberOfViews, 0, PredDirection, 7, 0, ZFarSign, ZFarExp, ZFarMantissa, ZFarManLen);
-        }
-        
-        return 0;
     }
     
     void vsp_param(AVCOptions *Options, BitBuffer *BitB, uint8_t numViews, uint8_t Direction, uint8_t DepthPS) { // vsp_param

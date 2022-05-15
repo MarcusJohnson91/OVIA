@@ -67,7 +67,7 @@ extern "C" {
     void WriteBKGDChunk(PNGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        uint8_t  NumChannels   = PNGNumChannelsFromColorType[Options->iHDR->ColorType];
+        uint8_t  NumChannels   = PNG_GetNumChannels(Options->iHDR->ColorType);
         uint32_t Size          = 0;
         uint8_t  BKGDEntrySize = 0; // in bits
         
@@ -146,7 +146,7 @@ extern "C" {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         uint8_t ChunkSize = 0;
-        uint8_t NumChannels = PNGNumChannelsFromColorType[Options->iHDR->ColorType];
+        uint8_t NumChannels = PNG_GetNumChannels(Options->iHDR->ColorType);
         if (Options->iHDR->ColorType == PNGColor_Gray) {
             ChunkSize = 1;
         } else if (Options->iHDR->ColorType == PNGColor_RGB || Options->iHDR->ColorType == PNGColor_Palette) {

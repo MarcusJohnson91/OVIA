@@ -18,11 +18,11 @@ extern "C" {
 #endif
     
     typedef enum PNMTypes {
-        UnknownPNM            = 0,
-        BlackAndWhitePNM      = 1,
-        BinaryPNM             = 2,
-        ASCIIPNM              = 3,
-        PAMPNM                = 4,
+        PNMType_Unspecified   = 0,
+        PNMType_Grayscale     = 1,
+        PNMType_Binary        = 2,
+        PNMType_ASCII         = 3,
+        PNMType_PAM           = 4,
     } PNMTypes;
     
     typedef enum PNMTupleTypes {

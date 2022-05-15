@@ -2531,6 +2531,7 @@
 				SUPPORTS_MACCATALYST = YES;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
+				WARNING_CFLAGS = "-Wno-discarded-qualifiers ";
 			};
 			name = Debug;
 		};
@@ -2593,6 +2594,7 @@
 				SUPPORTS_MACCATALYST = YES;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
+				WARNING_CFLAGS = "-Wno-discarded-qualifiers ";
 			};
 			name = Release;
 		};
