@@ -115,27 +115,12 @@ extern "C" {
     const OVIA_Extensions PNMExtensions = {
         .NumExtensions     = 5,
         .Extensions        = {
-            [0]            = {
-                .Size      = 3,
-                .Extension = UTF32String("pbm"),
-            },
-            [1]            = {
-                .Size      = 3,
-                .Extension = UTF32String("pgm"),
-            },
-            [2]            = {
-                .Size      = 3,
-                .Extension = UTF32String("ppm"),
-            },
-            [3]            = {
-                .Size      = 3,
-                .Extension = UTF32String("pnm"),
-            },
-            [4]            = {
-                .Size      = 3,
-                .Extension = UTF32String("pam"),
-            },
-        },
+            OVIA_RegisterExtension(0, UTF32String("pbm"))
+            OVIA_RegisterExtension(1, UTF32String("pgm"))
+            OVIA_RegisterExtension(2, UTF32String("ppm"))
+            OVIA_RegisterExtension(3, UTF32String("pnm"))
+            OVIA_RegisterExtension(4, UTF32String("pam"))
+        }
     };
 
     extern const OVIA_MIMETypes PNMMIMETypes;
@@ -143,27 +128,12 @@ extern "C" {
     const OVIA_MIMETypes PNMMIMETypes = {
         .NumMIMETypes     = 5,
         .MIMETypes        = {
-            [0]           = {
-                .Size     = 23,
-                .MIMEType = UTF32String("image/x-portable-bitmap"),
-            },
-            [1]           = {
-                .Size     = 23,
-                .MIMEType = UTF32String("image/x-portable-pixmap"),
-            },
-            [2]           = {
-                .Size     = 23,
-                .MIMEType = UTF32String("image/x-portable-anymap"),
-            },
-            [3]           = {
-                .Size     = 24,
-                .MIMEType = UTF32String("image/x-portable-graymap"),
-            },
-            [4]           = {
-                .Size     = 29,
-                .MIMEType = UTF32String("image/x-portable-arbitrarymap"),
-            }
-        },
+            OVIA_RegisterMIMEType(0, UTF32String("image/x-portable-bitmap"))
+            OVIA_RegisterMIMEType(1, UTF32String("image/x-portable-pixmap"))
+            OVIA_RegisterMIMEType(2, UTF32String("image/x-portable-anymap"))
+            OVIA_RegisterMIMEType(3, UTF32String("image/x-portable-graymap"))
+            OVIA_RegisterMIMEType(4, UTF32String("image/x-portable-arbitrarymap"))
+        }
     };
     
 #if defined(OVIA_StreamIO_Encode)

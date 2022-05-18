@@ -1391,47 +1391,23 @@ extern "C" {
     const OVIA_MIMETypes AVCMIMETypes = {
         .NumMIMETypes     = 4,
         .MIMETypes        = {
-            [0]           = {
-                .Size     = 9,
-                .MIMEType = UTF32String("video/avc"),
-            },
-            [1]           = {
-                .Size     = 9,
-                .MIMEType = UTF32String("video/mvc"),
-            },
-            [2]           = {
-                .Size     = 9,
-                .MIMEType = UTF32String("video/svc"),
-            },
-            [3]           = {
-                .Size     = 10,
-                .MIMEType = UTF32String("video/h264"),
-            },
-        },
+            OVIA_RegisterMIMEType(0, UTF32String("video/h264"))
+            OVIA_RegisterMIMEType(1, UTF32String("video/avc"))
+            OVIA_RegisterMIMEType(2, UTF32String("video/mvc"))
+            OVIA_RegisterMIMEType(3, UTF32String("video/svc"))
+        }
     };
 
     extern const OVIA_Extensions AVCExtensions;
 
     const OVIA_Extensions AVCExtensions = {
         .NumExtensions     = 4,
-        .Extensions        = {
-            [0]            = {
-                .Size      = 4,
-                .Extension = UTF32String("h264"),
-            },
-            [1]            = {
-                .Size      = 4,
-                .Extension = UTF32String("avc"),
-            },
-            [2]            = {
-                .Size      = 3,
-                .Extension = UTF32String("mvc"),
-            },
-            [3]            = {
-                .Size      = 3,
-                .Extension = UTF32String("svc"),
-            },
-        },
+        .Extensions = {
+        OVIA_RegisterExtension(0, UTF32String("h264"))
+        OVIA_RegisterExtension(1, UTF32String("avc"))
+        OVIA_RegisterExtension(2, UTF32String("mvc"))
+        OVIA_RegisterExtension(3, UTF32String("svc"))
+        }
     };
 
     extern const OVIA_MagicIDs AVCMagicIDs;

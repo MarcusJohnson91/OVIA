@@ -36,11 +36,8 @@ extern "C" {
     const OVIA_Extensions FLACExtensions = {
         .NumExtensions     = 1,
         .Extensions        = {
-            [0]            = {
-                .Size      = 4,
-                .Extension = UTF32String("flac"),
-            },
-        },
+            OVIA_RegisterExtension(0, UTF32String("flac"))
+        }
     };
 
     extern const OVIA_MIMETypes FLACMIMETypes;
@@ -48,11 +45,8 @@ extern "C" {
     const OVIA_MIMETypes FLACMIMETypes = {
         .NumMIMETypes     = 1,
         .MIMETypes        = {
-            [0]           = {
-                .Size     = 10,
-                .MIMEType = UTF32String("audio/flac"),
-            },
-        },
+            OVIA_RegisterMIMEType(0, UTF32String("audio/flac"))
+        }
     };
     
 #if defined(OVIA_StreamIO_Encode)

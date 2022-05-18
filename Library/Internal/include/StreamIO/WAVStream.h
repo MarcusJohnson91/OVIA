@@ -250,15 +250,9 @@ extern "C" {
     const OVIA_Extensions WAVExtensions = {
         .NumExtensions     = 2,
         .Extensions        = {
-            [1]            = {
-                .Size      = 3,
-                .Extension = UTF32String("wav"),
-            },
-            [2]            = {
-                .Size      = 4,
-                .Extension = UTF32String("wave"),
-            },
-        },
+            OVIA_RegisterExtension(0, UTF32String("wave"))
+            OVIA_RegisterExtension(1, UTF32String("wav"))
+        }
     };
 
     extern const OVIA_MIMETypes WAVMIMETypes;
@@ -266,15 +260,9 @@ extern "C" {
     const OVIA_MIMETypes WAVMIMETypes = {
         .NumMIMETypes     = 2,
         .MIMETypes        = {
-            [0]           = {
-                .Size     = 10,
-                .MIMEType = UTF32String("audio/wav"),
-            },
-            [1]           = {
-                .Size     = 12,
-                .MIMEType = UTF32String("audio/x-wav"),
-            }
-        },
+            OVIA_RegisterMIMEType(0, UTF32String("audio/wav"))
+            OVIA_RegisterMIMEType(1, UTF32String("audio/x-wav"))
+        }
     };
 
 #if defined(OVIA_StreamIO_Encode)

@@ -52,6 +52,13 @@ extern "C" {
         const OVIA_ExtensionInfo Extensions[];
     } OVIA_Extensions;
 
+#define OVIA_RegisterExtension(ID, ExtensionString)  \
+    [ID] = { \
+        .Size = PlatformIO_GetStringSize(ExtensionString) \
+        .Extension = ExtensionString \
+    },
+
+
     typedef struct OVIA_MIMEInfo {
         const uint8_t                Size;
         UTF32                       *MIMEType;
@@ -61,6 +68,12 @@ extern "C" {
         const uint8_t            NumMIMETypes;
         const OVIA_MIMEInfo      MIMETypes[];
     } OVIA_MIMETypes;
+
+#define OVIA_RegisterMIMEType(ID, MIMEString)  \
+    [ID] = { \
+        .Size = PlatformIO_GetStringSize(MIMEString) \
+        .Extension = MIMEString \
+    },
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }

@@ -100,11 +100,8 @@ extern "C" {
     const OVIA_Extensions W64Extensions = {
         .NumExtensions     = 1,
         .Extensions        = {
-            [1]            = {
-                .Size      = 3,
-                .Extension = UTF32String("w64"),
-            },
-        },
+            OVIA_RegisterExtension(0, UTF32String("w64"))
+        }
     };
 
     extern const OVIA_MIMETypes W64MIMETypes;
@@ -112,15 +109,9 @@ extern "C" {
     const OVIA_MIMETypes W64MIMETypes = {
         .NumMIMETypes     = 2,
         .MIMETypes        = {
-            [0]           = {
-                .Size     = 10,
-                .MIMEType = UTF32String("audio/w64"),
-            },
-            [1]           = {
-                .Size     = 12,
-                .MIMEType = UTF32String("audio/x-w64"),
-            }
-        },
+            OVIA_RegisterMIMEType(0, UTF32String("audio/w64"))
+            OVIA_RegisterMIMEType(1, UTF32String("audio/x-w64"))
+        }
     };
 
 #if defined(OVIA_StreamIO_Encode)

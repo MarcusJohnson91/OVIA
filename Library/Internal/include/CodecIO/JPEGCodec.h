@@ -185,15 +185,9 @@ extern "C" {
     const OVIA_MIMETypes JPEGMIMETypes = {
         .NumMIMETypes     = 2,
         .MIMETypes        = {
-            [0]           = {
-                .Size     = 10,
-                .MIMEType = UTF32String("image/jpeg"),
-            },
-            [1]           = {
-                .Size     = 10,
-                .MIMEType = UTF32String("image/pjpeg"),
-            },
-        },
+            OVIA_RegisterMIMEType(0, UTF32String("image/jpeg"))
+            OVIA_RegisterMIMEType(1, UTF32String("image/pjpeg"))
+        }
     };
 
     extern const OVIA_Extensions JPEGExtensions;
@@ -201,31 +195,13 @@ extern "C" {
     const OVIA_Extensions JPEGExtensions = {
         .NumExtensions     = 6,
         .Extensions        = {
-            [0]            = {
-                .Size      = 4,
-                .Extension = UTF32String("jpeg"),
-            },
-            [1]            = {
-                .Size      = 4,
-                .Extension = UTF32String("jfif"),
-            },
-            [2]            = {
-                .Size      = 3,
-                .Extension = UTF32String("jpe"),
-            },
-            [3]            = {
-                .Size      = 3,
-                .Extension = UTF32String("jpg"),
-            },
-            [4]            = {
-                .Size      = 3,
-                .Extension = UTF32String("jfi"),
-            },
-            [5]            = {
-                .Size      = 3,
-                .Extension = UTF32String("jif"),
-            },
-        },
+            OVIA_RegisterExtension(0, UTF32String("jpeg"))
+            OVIA_RegisterExtension(1, UTF32String("jfif"))
+            OVIA_RegisterExtension(2, UTF32String("jpe"))
+            OVIA_RegisterExtension(3, UTF32String("jpg"))
+            OVIA_RegisterExtension(4, UTF32String("jfi"))
+            OVIA_RegisterExtension(5, UTF32String("jif"))
+        }
     };
 
     extern const OVIA_MagicIDs JPEGMagicIDs;

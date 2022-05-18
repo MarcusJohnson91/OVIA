@@ -102,19 +102,10 @@ extern "C" {
     const OVIA_Extensions AIFExtensions = {
         .NumExtensions     = 3,
         .Extensions        = {
-            [1]            = {
-                .Size      = 4,
-                .Extension = UTF32String("aiff"),
-            },
-            [2]            = {
-                .Size      = 4,
-                .Extension = UTF32String("aifc"),
-            },
-            [3]            = {
-                .Size      = 3,
-                .Extension = UTF32String("aif"),
-            },
-        },
+            OVIA_RegisterExtension(0, UTF32String("aiff"))
+            OVIA_RegisterExtension(1, UTF32String("aifc"))
+            OVIA_RegisterExtension(2, UTF32String("aif"))
+        }
     };
 
     extern const OVIA_MIMETypes AIFMIMETypes;
@@ -122,15 +113,9 @@ extern "C" {
     const OVIA_MIMETypes AIFMIMETypes = {
         .NumMIMETypes     = 2,
         .MIMETypes        = {
-            [0]           = {
-                .Size     = 10,
-                .MIMEType = UTF32String("audio/aiff"),
-            },
-            [1]           = {
-                .Size     = 12,
-                .MIMEType = UTF32String("audio/x-aiff"),
-            }
-        },
+            OVIA_RegisterMIMEType(0, UTF32String("audio/aiff"))
+            OVIA_RegisterMIMEType(1, UTF32String("audio/x-aiff"))
+        }
     };
     
 #if defined(OVIA_StreamIO_Encode)

@@ -34,37 +34,16 @@ extern "C" {
     extern const OVIA_Extensions OGGExtensions;
     
     const OVIA_Extensions OGGExtensions = {
-        .NumExtensions     = 4,
+        .NumExtensions     = 7,
         .Extensions        = {
-            [0]            = {
-                .Size      = 4,
-                .Extension = UTF32String("opus"),
-            },
-            [1]            = {
-                .Size      = 3,
-                .Extension = UTF32String("ogg"),
-            },
-            [2]            = {
-                .Size      = 3,
-                .Extension = UTF32String("ogv"),
-            },
-            [3]            = {
-                .Size      = 3,
-                .Extension = UTF32String("oga"),
-            },
-            [4]            = {
-                .Size      = 3,
-                .Extension = UTF32String("ogx"),
-            },
-            [5]            = {
-                .Size      = 3,
-                .Extension = UTF32String("ogm"),
-            },
-            [6]            = {
-                .Size      = 3,
-                .Extension = UTF32String("spx"),
-            },
-        },
+            OVIA_RegisterExtension(0, UTF32String("opus"))
+            OVIA_RegisterExtension(1, UTF32String("ogg"))
+            OVIA_RegisterExtension(2, UTF32String("ogv"))
+            OVIA_RegisterExtension(3, UTF32String("oga"))
+            OVIA_RegisterExtension(4, UTF32String("ogx"))
+            OVIA_RegisterExtension(5, UTF32String("ogm"))
+            OVIA_RegisterExtension(6, UTF32String("spx"))
+        }
     };
     
     extern const OVIA_MIMETypes OGGMIMETypes;
@@ -72,19 +51,10 @@ extern "C" {
     const OVIA_MIMETypes OGGMIMETypes = {
         .NumMIMETypes     = 3,
         .MIMETypes        = {
-            [0]           = {
-                .Size     = 9,
-                .MIMEType = UTF32String("audio/ogg"),
-            },
-            [1]           = {
-                .Size     = 9,
-                .MIMEType = UTF32String("video/ogg"),
-            },
-            [2]           = {
-                .Size     = 15,
-                .MIMEType = UTF32String("application/ogg"),
-            },
-        },
+            OVIA_RegisterMIMEType(0, UTF32String("audio/ogg"))
+            OVIA_RegisterMIMEType(1, UTF32String("video/ogg"))
+            OVIA_RegisterMIMEType(2, UTF32String("application/ogg"))
+        }
     };
     
 #if defined(OVIA_StreamIO_Encode)

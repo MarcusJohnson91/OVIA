@@ -340,29 +340,13 @@ extern "C" {
     extern const OVIA_MIMETypes PNGMIMETypes;
     
     const OVIA_MIMETypes PNGMIMETypes = {
-        .NumMIMETypes     = 5,
+        .NumMIMETypes     = 4,
         .MIMETypes        = {
-            [0]           = {
-                .Size     = 9,
-                .MIMEType = UTF32String("image/png"),
-            },
-            [1]           = {
-                .Size     = 10,
-                .MIMEType = UTF32String("image/apng"),
-            },
-            [2]           = {
-                .Size     = 11,
-                .MIMEType = UTF32String("image/x-mng"),
-            },
-            [3]           = {
-                .Size     = 11,
-                .MIMEType = UTF32String("video/x-mng"),
-            },
-            [4]           = {
-                .Size     = 11,
-                .MIMEType = UTF32String("image/x-jng"),
-            },
-        },
+            OVIA_RegisterMIMEType(0, UTF32String("image/apng"))
+            OVIA_RegisterMIMEType(1, UTF32String("image/png"))
+            OVIA_RegisterMIMEType(2, UTF32String("image/x-mng"))
+            OVIA_RegisterMIMEType(3, UTF32String("image/x-jng"))
+        }
     };
     
     extern const OVIA_Extensions PNGExtensions;
@@ -370,23 +354,11 @@ extern "C" {
     const OVIA_Extensions PNGExtensions = {
         .NumExtensions     = 4,
         .Extensions        = {
-            [0]            = {
-                .Size      = 4,
-                .Extension = UTF32String("apng"),
-            },
-            [1]            = {
-                .Size      = 3,
-                .Extension = UTF32String("png"),
-            },
-            [2]            = {
-                .Size      = 3,
-                .Extension = UTF32String("mng"),
-            },
-            [3]            = {
-                .Size      = 3,
-                .Extension = UTF32String("jng"),
-            }
-        },
+            OVIA_RegisterExtension(0, UTF32String("apng"))
+            OVIA_RegisterExtension(1, UTF32String("png"))
+            OVIA_RegisterExtension(2, UTF32String("mng"))
+            OVIA_RegisterExtension(3, UTF32String("jng"))
+        }
     };
     
     extern const OVIA_MagicIDs PNGMagicIDs;

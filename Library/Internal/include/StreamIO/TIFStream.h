@@ -88,41 +88,25 @@ extern "C" {
     extern const OVIA_Extensions TIFFExtensions;
 
     const OVIA_Extensions TIFFExtensions = {
-        .NumExtensions     = 3,
+        .NumExtensions     = 4,
         .Extensions        = {
-            [0]            = {
-                .Size      = 4,
-                .Extension = UTF32String("tiff"),
-            },
-            [1]            = {
-                .Size      = 3,
-                .Extension = UTF32String("tif"),
-            },
-            [2]            = {
-                .Size      = 3,
-                .Extension = UTF32String("dng"),
-            },
-        },
+            OVIA_RegisterExtension(0, UTF32String("tiff"))
+            OVIA_RegisterExtension(1, UTF32String("tif"))
+            OVIA_RegisterExtension(2, UTF32String("dng"))
+            OVIA_RegisterExtension(3, UTF32String("nef"))
+        }
     };
 
     extern const OVIA_MIMETypes TIFFMIMETypes;
 
     const OVIA_MIMETypes TIFFMIMETypes = {
-        .NumMIMETypes     = 1,
+        .NumMIMETypes     = 4,
         .MIMETypes        = {
-            [0]           = {
-                .Size     = 10,
-                .MIMEType = UTF32String("image/tiff"),
-            },
-            [1]           = {
-                .Size     = 10,
-                .MIMEType = UTF32String("image/x-tiff"),
-            },
-            [2]           = {
-                .Size     = 17,
-                .MIMEType = UTF32String("image/x-adobe-dng"),
-            },
-        },
+            OVIA_RegisterMIMEType(0, UTF32String("image/tiff"))
+            OVIA_RegisterMIMEType(1, UTF32String("image/x-tiff"))
+            OVIA_RegisterMIMEType(2, UTF32String("image/x-adobe-dng"))
+            OVIA_RegisterMIMEType(3, UTF32String("image/x-nikon-nef"))
+        }
     };
 
 #if defined(OVIA_StreamIO_Encode)

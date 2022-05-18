@@ -95,15 +95,9 @@ extern "C" {
     const OVIA_Extensions BMPExtensions = {
         .NumExtensions     = 2,
         .Extensions        = {
-            [0]            = {
-                .Size      = 3,
-                .Extension = UTF32String("bmp"),
-            },
-            [1]            = {
-                .Size      = 3,
-                .Extension = UTF32String("dib"),
-            },
-        },
+            OVIA_RegisterExtension(0, UTF32String("bmp"))
+            OVIA_RegisterExtension(1, UTF32String("dib"))
+        }
     };
 
     extern const OVIA_MIMETypes BMPMIMETypes;
@@ -111,15 +105,9 @@ extern "C" {
     const OVIA_MIMETypes BMPMIMETypes = {
         .NumMIMETypes     = 2,
         .MIMETypes        = {
-            [0]           = {
-                .Size     = 9,
-                .MIMEType = UTF32String("image/bmp"),
-            },
-            [1]           = {
-                .Size     = 11,
-                .MIMEType = UTF32String("image/x-bmp"),
-            }
-        },
+            OVIA_RegisterMIMEType(0, UTF32String("image/bmp"))
+            OVIA_RegisterMIMEType(1, UTF32String("image/x-bmp"))
+        }
     };
     
 #if defined(OVIA_StreamIO_Encode)
