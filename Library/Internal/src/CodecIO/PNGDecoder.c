@@ -1,5 +1,5 @@
-#include "../../include/EntropyIO/Flate.h"
 #include "../../include/CodecIO/PNGCodec.h"
+#include "../../include/EntropyIO/Flate.h"
 
 #include "../../../../Dependencies/FoundationIO/Library/include/AssertIO.h" /* Included for Assertions */
 #include "../../../../Dependencies/FoundationIO/Library/include/BufferIO.h"
@@ -685,11 +685,10 @@ extern "C" {
         AssertIO(Image != NULL);
         
         uint8_t     ****ImageArrayBytes        = (uint8_t****) ImageContainer_GetArray(Image);
-        HuffmanTable   *Tree                   = NULL;
         bool     IsFinalBlock                  = false;
         do {
             IsFinalBlock                       = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 1); // 0
-            Flate_BlockTypes BlockType                  = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 2); // 0b00 = 0
+            Flate_BlockTypes BlockType         = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 2); // 0b00 = 0
             if (BlockType == BlockType_Literal) {
                 BitBuffer_Align(BitB, 1); // Skip the remaining 5 bits
                 uint16_t Bytes2Copy    = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 16); // 0x4F42 = 20,290
@@ -699,59 +698,12 @@ extern "C" {
                     ImageArrayBytes[0][0][0][Byte] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 8);
                 }
             } else if (BlockType == BlockType_Fixed) {
-                //Tree = Flate_BuildHuffmanTree();
+                //Tree = HuffmanTree_Init();
             } else if (BlockType == BlockType_Dynamic) {
-                //Tree = Flate_BuildHuffmanTree();
+                //Tree = HuffmanTree_Init();
             }
             //PNG_Flate_Decode(Options, BitB); // Actually read the data
         } while (IsFinalBlock == false);
-    }
-    
-    uint64_t ReadSymbol(BitBuffer *BitB, HuffmanTree *Tree) { // EQUILIVENT OF DECODE IN PUFF
-        AssertIO(BitB != NULL);
-        AssertIO(Tree != NULL);
-        uint64_t Symbol              = 0ULL;
-        uint16_t Count               = 0;
-        uint32_t FirstSymbolOfLength = 0;
-        for (uint8_t Bit = 1; Bit <= MaxBitsPerSymbol; Bit++) {
-            Symbol             <<= 1;
-            Symbol              |= BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 1);
-            Count                = Tree->Frequency[Bit];
-            if (Symbol - Count < FirstSymbolOfLength) {
-                Symbol           = Tree->Symbol[Bit + (Symbol - FirstSymbolOfLength)];
-            }
-        }
-        return Symbol;
-    }
-    
-    void PNG_Flate_ReadHuffman(PNGOptions *Options, BitBuffer *BitB, HuffmanTree *LengthTree, HuffmanTree *DistanceTree, ImageContainer *Image) { // Codes in Puff
-        AssertIO(Options != NULL);
-        AssertIO(BitB != NULL);
-        AssertIO(LengthTree != NULL);
-        AssertIO(DistanceTree != NULL);
-        AssertIO(Image != NULL);
-        // Out = ImageContainer array
-        uint64_t Symbol = 0ULL;
-        uint64_t Offset = 0ULL;
-        do {
-            Symbol                              = ReadSymbol(BitB, LengthTree);
-            if (Symbol > 256) { // length
-                Symbol  -= 257;
-                uint64_t Length                 = LengthBase[Symbol] + BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, LengthAdditionalBits[Symbol]);
-                
-                Symbol                          = ReadSymbol(BitB, DistanceTree);
-                uint64_t Distance               = DistanceBase[Symbol] + BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, DistanceAdditionalBits[Symbol]);
-                
-                uint8_t ****ImageArray          = (uint8_t****) ImageContainer_GetArray(Image);
-                AssertIO(ImageArray != NULL);
-                for (uint64_t NumBytes2Copy = 0; NumBytes2Copy < Length; NumBytes2Copy++) {
-                    // Copy NumBytes2Copde from Offset - Distance
-                    
-                    // We need to convert the View, Width, Height, and Channel as well as BitDepth into a byte location.
-                    // This function might also be useful in ContainerIO as well.
-                }
-            }
-        } while (Symbol != EndOfBlock); // end of block symbol
     }
     /* Old code above */
     
@@ -969,13 +921,13 @@ extern "C" {
         bool     Is3D           = Options->sTER->StereoType > 0 ? Yes : No;
         uint8_t  BitDepth       = Options->iHDR->BitDepth;
         uint8_t  ColorType      = Options->iHDR->ColorType;
-        uint8_t  NumChannels    = PNGNumChannelsFromColorType[ColorType];
+        uint8_t  NumChannels    = PNG_GetNumChannels(ColorType);
         uint64_t Width          = Options->iHDR->Width;
         uint64_t Height         = Options->iHDR->Height;
         ImageContainer *Decoded = NULL;
         MediaIO_ImageMask Mask  = 0;
         
-        Flate_ReadZlibHeader(Options, BitB);
+        Flate_ReadZlibHeader(BitB);
         
         if (Is3D == true) {
             Mask += ImageMask_3D_L;
@@ -1005,7 +957,7 @@ extern "C" {
         }
         
         //PNG_DAT_Decode(Options, BitB, Decoded);
-        Flate_ReadDeflateBlock(BitB);
+        Flate_ReadDeflateBlock(Options, BitB);
     }
     
     void PNG_Adam7_Deinterlace(ImageContainer *Image) {
@@ -1513,21 +1465,15 @@ extern "C" {
             HeightString[HeightCodePoint] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
         }
         
-        Options->sCAL->PixelWidth  = UTF8_String2Decimal(WidthString);
-        Options->sCAL->PixelHeight = UTF8_String2Decimal(HeightString);
+        Options->sCAL->PixelWidth  = UTF8_String2Decimal(Base_Integer | Base_Radix10, WidthString);
+        Options->sCAL->PixelHeight = UTF8_String2Decimal(Base_Integer | Base_Radix10, HeightString);
     }
     
     void ParsePCAL(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        char CalibrationName[80];
-        while (BitBuffer_PeekBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8) != 0x0) {
-            for (uint8_t Byte = 0; Byte < 80; Byte++) {
-                CalibrationName[Byte] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
-            }
-        }
-        Options->pCAL->CalibrationName     = CalibrationName;
-        Options->pCAL->CalibrationNameSize = UTF8_GetStringSizeInCodePoints(Options->pCAL->CalibrationName);
+        Options->pCAL->CalibrationNameSize = BitBuffer_GetUTF8StringSize(BitB);
+        Options->pCAL->CalibrationName     = BitBuffer_ReadUTF8(BitB, Options->pCAL->CalibrationNameSize);
     }
     
     void ParseSBIT(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) { // Significant bits per sample
@@ -1547,7 +1493,6 @@ extern "C" {
     void ParseSTER(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->PNGIs3D                     = true;
         Options->sTER->StereoType            = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
         
         // No matter what StereoType is used, both images are arranged side by side, and the left edge is aligned on a boundary of the 8th column in case interlacing is used.

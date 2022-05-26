@@ -7,6 +7,36 @@
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
+
+    HuffmanTree *HuffmanTree_Init(uint16_t *SymbolLengths, uint16_t NumSymbols) {
+        AssertIO(SymbolLengths != NULL);
+        HuffmanTree *Tree = HuffmanTree_Init(SymbolLengths, NumSymbols);
+        AssertIO(Tree != NULL);
+        for (uint16_t Symbol = 0; Symbol < NumSymbols; Symbol++) {
+            Tree->Frequency[SymbolLengths[Symbol]] += 1;
+        }
+
+        uint16_t *Offsets = calloc(MaxBitsPerSymbol + 1, sizeof(uint16_t));
+        AssertIO(Offsets != NULL);
+        for (uint16_t SymbolLength = 1; SymbolLength < MaxBitsPerSymbol; SymbolLength++) {
+            Offsets[SymbolLength + 1] = Offsets[SymbolLength] + Tree->Frequency[SymbolLength];
+        }
+
+        for (uint16_t Symbol = 0; Symbol < NumSymbols; Symbol++) {
+            if (SymbolLengths[Symbol] != 0) {
+                Tree->Symbol[Offsets[SymbolLengths[Symbol]] + 1] = Symbol;
+            }
+        }
+        free(Offsets);
+        return Tree;
+    }
+
+    void HuffmanTree_Deinit(HuffmanTree *Tree) {
+        AssertIO(Tree != NULL);
+        free(Tree->Frequency);
+        free(Tree->Symbol);
+        free(Tree);
+    }
     
     /* Create a Min Heap data structure */
     typedef struct Heap {
@@ -61,7 +91,7 @@ extern "C" {
      
      
      */
-    
+    /*
     HuffmanTree *HuffmanTree_Init(uint8_t BitLengths[16], uint8_t *Values) {
         HuffmanTree *Tree = calloc(1, sizeof(HuffmanTree));
         if (Tree != NULL) {
@@ -111,10 +141,11 @@ extern "C" {
              
              
              */
+    /*
         }
         return Tree;
     }
-    
+    */
 #define ALP_SIZE      256
 #define ALP_LAST      (ALP_SIZE - 1)
 #define BITS_PER_BYTE 8

@@ -77,7 +77,6 @@ extern "C" {
         bool     IsUpsideDown    = (Options->Height & 0x80000000) >> 31;
         uint32_t Height          = AbsoluteI(Options->Height);
         ImageChannelMap *Map    = ImageContainer_GetChannelMap(Image);
-        MediaIO_ImageTypes Type = ImageContainer_GetType(Image);
         
         AssertIO(Options->CompressionType == BMP_RGB);
         

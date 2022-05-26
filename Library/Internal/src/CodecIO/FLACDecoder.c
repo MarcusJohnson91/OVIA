@@ -13,7 +13,7 @@ extern "C" {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         AssertIO(Audio != NULL);
-        uint8_t Reserved1                 = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, 1); // 0
+        uint8_t Reserved1                = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, 1); // 0
         AssertIO(Reserved1 == 0);
         Options->Frame->BlockType        = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, 1); // 0, Fixed
         Options->Frame->CodedBlockSize   = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, 4); // 5
@@ -317,12 +317,11 @@ extern "C" {
     bool FLAC_Parse_Blocks(FLACOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        bool IsLastBlock                     = false;
+        bool IsLastBlock                 = false;
         IsLastBlock                      = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 1);  // 1
-        uint8_t *PictureArray            = NULL;
         // Actual audio data starts at: 1056166
         if (IsLastBlock == false) {
-            FLAC_BlockTypes BlockType         = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 7);  // 6
+            FLAC_BlockTypes BlockType    = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 7);  // 6
             uint32_t BlockSize           = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 24); // 865,236
             switch (BlockType) {
                 case BlockType_StreamInfo:
@@ -344,7 +343,7 @@ extern "C" {
                     FLAC_CUE_Parse(Options, BitB);
                     break;
                 case BlockType_Picture:
-                    PictureArray = FLAC_Pic_Read(Options, BitB);
+                    FLAC_Pic_Read(Options, BitB);
                     break;
                 default:
                     Log(Severity_DEBUG, PlatformIO_FunctionName, UTF8String("Invalid Block Type: %d\n"), BlockType);
@@ -417,11 +416,11 @@ extern "C" {
         Options->CueSheet->NumTracks = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, 8);
         
         for (uint8_t Track = 0; Track < Options->CueSheet->NumTracks; Track++) {
-            Options->CueSheet->Offset[Track] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, 64);
-            uint8_t   ISRCSize            = BitBuffer_GetUTF8StringSize(BitB);
-            Options->CueSheet->ISRC          = BitBuffer_ReadUTF8(BitB, ISRCSize);
-            Options->CueSheet->IsAudio       = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 1);
-            Options->CueSheet->PreEmphasis   = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 1);
+            Options->CueSheet->Offset[Track]        = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, 64);
+            uint8_t   ISRCSize                      = BitBuffer_GetUTF8StringSize(BitB);
+            Options->CueSheet->ISRC[Track]          = BitBuffer_ReadUTF8(BitB, ISRCSize);
+            Options->CueSheet->IsAudio[Track]       = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 1);
+            Options->CueSheet->PreEmphasis[Track]   = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 1);
             
             BitBuffer_Seek(BitB, 152); // Reserved, all 0
             BitBuffer_Seek(BitB, 8); // NumIndexPoints
@@ -432,31 +431,27 @@ extern "C" {
         BitBuffer_Seek(BitB, 24); // Reserved
     }
     
-    uint8_t *FLAC_Pic_Read(FLACOptions *Options, BitBuffer *BitB) { // 1,047,358
+    void FLAC_Pic_Read(FLACOptions *Options, BitBuffer *BitB) { // 1,047,358
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        uint8_t *PictureBuffer = NULL;
-        
-        uint32_t PicType            = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32); // 0
-        uint32_t MIMESize           = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32); // 9
-        UTF8    *MIMEType           = BitBuffer_ReadUTF8(BitB, MIMESize); // image/png
-        
-        uint32_t PicDescriptionSize = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32); // 0
-        UTF8    *PicDescription     = BitBuffer_ReadUTF8(BitB, PicDescriptionSize); //
-        
-        uint32_t Width              = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32); // 1200
-        uint32_t Height             = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32); // 1200
-        uint32_t BitDepth           = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32); // 24
-        uint32_t ColorsUsed         = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32); // 0
-        uint32_t PicSize            = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32); // 000FFB15 aka 1,047,317
-                                                                                                                         // Pop in the address of the start of the data, and skip over the data instead of buffering it.
-                                                                                                                         // Ok so allocate a buffer
-        PictureBuffer               = calloc(PicSize, sizeof(uint8_t));
-        AssertIO(PictureBuffer != NULL);
-        for (uint32_t Byte = 0; Byte < PicSize - 1; Byte++) {
-            PictureBuffer[Byte] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, ByteOrder_MSByteIsLeft, 8);
+
+        Options->NumPictures                         += 1;
+        size_t PicID                                  = Options->NumPictures - 1;
+        Options->Pictures[PicID].PicType              = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
+        uint32_t MIMESize                             = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32); // 9
+        Options->Pictures[PicID].MIMEString           = BitBuffer_ReadUTF8(BitB, MIMESize);
+        uint32_t PicDescriptionSize                   = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
+        Options->Pictures[PicID].PicDescriptionString = BitBuffer_ReadUTF8(BitB, PicDescriptionSize);
+        Options->Pictures[PicID].Width                = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
+        Options->Pictures[PicID].Height               = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
+        Options->Pictures[PicID].BitDepth             = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
+        Options->Pictures[PicID].ColorsUsed           = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
+        Options->Pictures[PicID].PictureSize          = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32); // 000FFB15 aka 1,047,317
+        Options->Pictures[PicID].PicData              = calloc(Options->Pictures[PicID].PictureSize, sizeof(uint8_t));
+        AssertIO(Options->Pictures[PicID].PicData != NULL);
+        for (uint32_t Byte = 0; Byte < Options->Pictures[PicID].PictureSize - 1; Byte++) {
+            Options->Pictures[PicID].PicData[Byte]    = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
         }
-        return PictureBuffer;
     }
     
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)

@@ -69,7 +69,7 @@ extern "C" {
         HuffmanNode *Root;
     } HuffmanTree;
 
-    HuffmanTree *HuffmanTree_Init(uint8_t BitLengths[16], uint8_t *Values);
+    HuffmanTree *HuffmanTree_Init(uint16_t *BitLengths, size_t NumBitLengths);
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }

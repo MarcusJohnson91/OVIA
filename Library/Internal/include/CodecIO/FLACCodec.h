@@ -147,7 +147,7 @@ extern "C" {
     } CueSheetTrack;
 
     typedef struct FLACCueSheet {
-        UTF8          *ISRC;
+        UTF8         **ISRC;
         uint64_t      *Offset;
         uint8_t       *Num;
         bool          *IsAudio;
@@ -170,6 +170,7 @@ extern "C" {
     } SeekTable;
 
     typedef struct Picture {
+        uint8_t      *PicData;
         uint32_t     *PictureStart; // Pointer to the start of the picture
         uint8_t      *MIMEString;
         uint8_t      *PicDescriptionString;
@@ -228,7 +229,7 @@ extern "C" {
     } FLACLPC;
 
     typedef struct FLACOptions {
-        Picture        **Pictures;
+        Picture         *Pictures;
         StreamInfo      *StreamInfo;
         FLACCueSheet    *CueSheet;
         SeekTable       *SeekPoints;
@@ -277,7 +278,7 @@ extern "C" {
 
     void        FLAC_CUE_Parse(FLACOptions *Options, BitBuffer *BitB);
 
-    uint8_t    *FLAC_Pic_Read(FLACOptions *Options, BitBuffer *BitB);
+    void        FLAC_Pic_Read(FLACOptions *Options, BitBuffer *BitB);
 
     void        FLACOptions_Deinit(FLACOptions *Options);
 
