@@ -1,7 +1,7 @@
 **OVIA:**
 ========
 * OVIA is multimedia framework; it's the LLVM of multimedia codecs and formats.
-* The name is a pronouncable acronym for Input Output Audio Video.
+* The name is a pronounceable acronym for Input Output Audio Video.
 
 License:
 =======
