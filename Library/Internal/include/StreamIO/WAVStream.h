@@ -237,11 +237,7 @@ extern "C" {
     const OVIA_MagicIDs WAVSignature = {
         .NumMagicIDs          = 1,
         .MagicIDs             = {
-            [0]               = {
-                .OffsetInBits = 0,
-                .SizeInBits   = 32,
-                .Signature    = (uint8_t[4]) {0x57, 0x41, 0x56, 0x45},
-            },
+            OVIA_RegisterSignature(0, 32, (uint8_t[4]) {0x57, 0x41, 0x56, 0x45})
         },
     };
 
@@ -250,8 +246,8 @@ extern "C" {
     const OVIA_Extensions WAVExtensions = {
         .NumExtensions     = 2,
         .Extensions        = {
-            OVIA_RegisterExtension(0, UTF32String("wave"))
-            OVIA_RegisterExtension(1, UTF32String("wav"))
+            OVIA_RegisterExtension("wave")
+            OVIA_RegisterExtension("wav")
         }
     };
 
@@ -260,8 +256,8 @@ extern "C" {
     const OVIA_MIMETypes WAVMIMETypes = {
         .NumMIMETypes     = 2,
         .MIMETypes        = {
-            OVIA_RegisterMIMEType(0, UTF32String("audio/wav"))
-            OVIA_RegisterMIMEType(1, UTF32String("audio/x-wav"))
+            OVIA_RegisterMIMEType("audio/wav")
+            OVIA_RegisterMIMEType("audio/x-wav")
         }
     };
 

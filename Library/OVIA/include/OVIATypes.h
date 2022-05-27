@@ -37,6 +37,13 @@ extern "C" {
         const uint8_t *Signature;
     } OVIA_Signature;
 
+#define OVIA_RegisterSignature(OffsetNumBits, SizeNumBits, SignatureWithBraces)  \
+[__COUNTER__] = { \
+.OffsetInBits = OffsetNumBits, \
+.SizeInBits = SizeNumBits \
+.Signature = SignatureWithBraces \
+},
+
     typedef struct OVIA_MagicIDs {
         const uint64_t          NumMagicIDs;
         const OVIA_Signature    MagicIDs[];
@@ -52,10 +59,10 @@ extern "C" {
         const OVIA_ExtensionInfo Extensions[];
     } OVIA_Extensions;
 
-#define OVIA_RegisterExtension(ID, ExtensionString)  \
-    [ID] = { \
+#define OVIA_RegisterExtension(ExtensionString)  \
+    [__COUNTER__] = { \
         .Size = PlatformIO_GetStringSize(ExtensionString) \
-        .Extension = ExtensionString \
+        .Extension = UTF32String(ExtensionString) \
     },
 
 
@@ -69,10 +76,10 @@ extern "C" {
         const OVIA_MIMEInfo      MIMETypes[];
     } OVIA_MIMETypes;
 
-#define OVIA_RegisterMIMEType(ID, MIMEString)  \
-    [ID] = { \
+#define OVIA_RegisterMIMEType(MIMEString)  \
+    [__COUNTER__] = { \
         .Size = PlatformIO_GetStringSize(MIMEString) \
-        .Extension = MIMEString \
+        .Extension = UTF32String(MIMEString) \
     },
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)

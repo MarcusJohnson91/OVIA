@@ -72,16 +72,8 @@ extern "C" {
     const OVIA_MagicIDs TIFFSignature = {
         .NumMagicIDs          = 2,
         .MagicIDs             = {
-            [0]               = {
-                .OffsetInBits = 0,
-                .SizeInBits   = 16,
-                .Signature    = (uint8_t[2]){0x49, 0x49}, // LL, little endian
-            },
-            [1]               = {
-                .OffsetInBits = 0,
-                .SizeInBits   = 16,
-                .Signature    = (uint8_t[2]){0x4D, 0x4D}, // MM, big endian
-            },
+            OVIA_RegisterSignature(0, 16, (uint8_t[2]){0x49, 0x49})
+            OVIA_RegisterSignature(0, 16, (uint8_t[2]){0x4D, 0x4D})
         },
     };
 
@@ -90,10 +82,10 @@ extern "C" {
     const OVIA_Extensions TIFFExtensions = {
         .NumExtensions     = 4,
         .Extensions        = {
-            OVIA_RegisterExtension(0, UTF32String("tiff"))
-            OVIA_RegisterExtension(1, UTF32String("tif"))
-            OVIA_RegisterExtension(2, UTF32String("dng"))
-            OVIA_RegisterExtension(3, UTF32String("nef"))
+            OVIA_RegisterExtension("tiff")
+            OVIA_RegisterExtension("tif")
+            OVIA_RegisterExtension("dng")
+            OVIA_RegisterExtension("nef")
         }
     };
 
@@ -102,10 +94,10 @@ extern "C" {
     const OVIA_MIMETypes TIFFMIMETypes = {
         .NumMIMETypes     = 4,
         .MIMETypes        = {
-            OVIA_RegisterMIMEType(0, UTF32String("image/tiff"))
-            OVIA_RegisterMIMEType(1, UTF32String("image/x-tiff"))
-            OVIA_RegisterMIMEType(2, UTF32String("image/x-adobe-dng"))
-            OVIA_RegisterMIMEType(3, UTF32String("image/x-nikon-nef"))
+            OVIA_RegisterMIMEType("image/tiff")
+            OVIA_RegisterMIMEType("image/x-tiff")
+            OVIA_RegisterMIMEType("image/x-adobe-dng")
+            OVIA_RegisterMIMEType("image/x-nikon-nef")
         }
     };
 

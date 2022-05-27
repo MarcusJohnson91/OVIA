@@ -1391,10 +1391,10 @@ extern "C" {
     const OVIA_MIMETypes AVCMIMETypes = {
         .NumMIMETypes     = 4,
         .MIMETypes        = {
-            OVIA_RegisterMIMEType(0, UTF32String("video/h264"))
-            OVIA_RegisterMIMEType(1, UTF32String("video/avc"))
-            OVIA_RegisterMIMEType(2, UTF32String("video/mvc"))
-            OVIA_RegisterMIMEType(3, UTF32String("video/svc"))
+            OVIA_RegisterMIMEType("video/h264")
+            OVIA_RegisterMIMEType("video/avc")
+            OVIA_RegisterMIMEType("video/mvc")
+            OVIA_RegisterMIMEType("video/svc")
         }
     };
 
@@ -1403,10 +1403,10 @@ extern "C" {
     const OVIA_Extensions AVCExtensions = {
         .NumExtensions     = 4,
         .Extensions = {
-        OVIA_RegisterExtension(0, UTF32String("h264"))
-        OVIA_RegisterExtension(1, UTF32String("avc"))
-        OVIA_RegisterExtension(2, UTF32String("mvc"))
-        OVIA_RegisterExtension(3, UTF32String("svc"))
+        OVIA_RegisterExtension("h264")
+        OVIA_RegisterExtension("avc")
+        OVIA_RegisterExtension("mvc")
+        OVIA_RegisterExtension("svc")
         }
     };
 
@@ -1415,16 +1415,8 @@ extern "C" {
     const OVIA_MagicIDs AVCMagicIDs = {
         .NumMagicIDs          = 2,
         .MagicIDs             = {
-            [0]               = {
-                .OffsetInBits = 0,
-                .SizeInBits   = 24,
-                .Signature    = (uint8_t[3]) {0x00, 0x00, 0x01},
-            },
-            [1]               = {
-                .OffsetInBits = 0,
-                .SizeInBits   = 32,
-                .Signature    = (uint8_t[4]) {0x00, 0x00, 0x00, 0x01},
-            },
+            OVIA_RegisterSignature(0, 24, (uint8_t[3]) {0x00, 0x00, 0x01})
+            OVIA_RegisterSignature(0, 32, (uint8_t[4]) {0x00, 0x00, 0x00, 0x01})
         },
     };
 

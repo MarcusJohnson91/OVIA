@@ -342,10 +342,10 @@ extern "C" {
     const OVIA_MIMETypes PNGMIMETypes = {
         .NumMIMETypes     = 4,
         .MIMETypes        = {
-            OVIA_RegisterMIMEType(0, UTF32String("image/apng"))
-            OVIA_RegisterMIMEType(1, UTF32String("image/png"))
-            OVIA_RegisterMIMEType(2, UTF32String("image/x-mng"))
-            OVIA_RegisterMIMEType(3, UTF32String("image/x-jng"))
+            OVIA_RegisterMIMEType("image/apng")
+            OVIA_RegisterMIMEType("image/png")
+            OVIA_RegisterMIMEType("image/x-mng")
+            OVIA_RegisterMIMEType("image/x-jng")
         }
     };
     
@@ -354,10 +354,10 @@ extern "C" {
     const OVIA_Extensions PNGExtensions = {
         .NumExtensions     = 4,
         .Extensions        = {
-            OVIA_RegisterExtension(0, UTF32String("apng"))
-            OVIA_RegisterExtension(1, UTF32String("png"))
-            OVIA_RegisterExtension(2, UTF32String("mng"))
-            OVIA_RegisterExtension(3, UTF32String("jng"))
+            OVIA_RegisterExtension("apng")
+            OVIA_RegisterExtension("png")
+            OVIA_RegisterExtension("mng")
+            OVIA_RegisterExtension("jng")
         }
     };
     
@@ -366,21 +366,9 @@ extern "C" {
     const OVIA_MagicIDs PNGMagicIDs = {
         .NumMagicIDs   = 3,
         .MagicIDs      = {
-            [0]        = {
-                .OffsetInBits = 0,
-                .SizeInBits   = 64,
-                .Signature    = (uint8_t[8]) {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}, // PNG / APNG
-            },
-            [1]        = {
-                .OffsetInBits = 0,
-                .SizeInBits   = 64,
-                .Signature    = (uint8_t[8]) {0x8A, 0x4D, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}, // MNG
-            },
-            [2]        = {
-                .OffsetInBits = 0,
-                .SizeInBits   = 64,
-                .Signature    = (uint8_t[8]) {0x8B, 0x4A, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}, // JNG
-            },
+            OVIA_RegisterSignature(0, 64, (uint8_t[8]) {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A})
+            OVIA_RegisterSignature(0, 64, (uint8_t[8]) {0x8A, 0x4D, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A})
+            OVIA_RegisterSignature(0, 64, (uint8_t[8]) {0x8B, 0x4A, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A})
         },
     };
     

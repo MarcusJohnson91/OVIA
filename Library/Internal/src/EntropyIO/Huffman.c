@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-    HuffmanTree *HuffmanTree_Init(uint16_t *SymbolLengths, uint16_t NumSymbols) {
+    HuffmanTree *HuffmanTree_Init(uint16_t *SymbolLengths, size_t NumSymbols) {
         AssertIO(SymbolLengths != NULL);
         HuffmanTree *Tree = calloc(1, sizeof(HuffmanTree));
         AssertIO(Tree != NULL);

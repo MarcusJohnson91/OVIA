@@ -82,11 +82,7 @@ extern "C" {
     const OVIA_MagicIDs BMPSignature = {
         .NumMagicIDs          = 1,
         .MagicIDs             = {
-            [0]               = {
-                .OffsetInBits = 0,
-                .SizeInBits   = 16,
-                .Signature    = (uint8_t[2]){0x42, 0x4D},
-            },
+            OVIA_RegisterSignature(0, 16, (uint8_t[2]) {0x42, 0x4D})
         },
     };
     
@@ -95,8 +91,8 @@ extern "C" {
     const OVIA_Extensions BMPExtensions = {
         .NumExtensions     = 2,
         .Extensions        = {
-            OVIA_RegisterExtension(0, UTF32String("bmp"))
-            OVIA_RegisterExtension(1, UTF32String("dib"))
+            OVIA_RegisterExtension("bmp")
+            OVIA_RegisterExtension("dib")
         }
     };
 
@@ -105,8 +101,8 @@ extern "C" {
     const OVIA_MIMETypes BMPMIMETypes = {
         .NumMIMETypes     = 2,
         .MIMETypes        = {
-            OVIA_RegisterMIMEType(0, UTF32String("image/bmp"))
-            OVIA_RegisterMIMEType(1, UTF32String("image/x-bmp"))
+            OVIA_RegisterMIMEType("image/bmp")
+            OVIA_RegisterMIMEType("image/x-bmp")
         }
     };
     

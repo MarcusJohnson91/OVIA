@@ -185,8 +185,8 @@ extern "C" {
     const OVIA_MIMETypes JPEGMIMETypes = {
         .NumMIMETypes     = 2,
         .MIMETypes        = {
-            OVIA_RegisterMIMEType(0, UTF32String("image/jpeg"))
-            OVIA_RegisterMIMEType(1, UTF32String("image/pjpeg"))
+            OVIA_RegisterMIMEType("image/jpeg")
+            OVIA_RegisterMIMEType("image/pjpeg")
         }
     };
 
@@ -195,12 +195,12 @@ extern "C" {
     const OVIA_Extensions JPEGExtensions = {
         .NumExtensions     = 6,
         .Extensions        = {
-            OVIA_RegisterExtension(0, UTF32String("jpeg"))
-            OVIA_RegisterExtension(1, UTF32String("jfif"))
-            OVIA_RegisterExtension(2, UTF32String("jpe"))
-            OVIA_RegisterExtension(3, UTF32String("jpg"))
-            OVIA_RegisterExtension(4, UTF32String("jfi"))
-            OVIA_RegisterExtension(5, UTF32String("jif"))
+            OVIA_RegisterExtension("jpeg")
+            OVIA_RegisterExtension("jfif")
+            OVIA_RegisterExtension("jpe")
+            OVIA_RegisterExtension("jpg")
+            OVIA_RegisterExtension("jfi")
+            OVIA_RegisterExtension("jif")
         }
     };
 
@@ -209,12 +209,8 @@ extern "C" {
     const OVIA_MagicIDs JPEGMagicIDs = {
         .NumMagicIDs          = 1,
         .MagicIDs             = {
-            [0]               = {
-                .OffsetInBits = 0,
-                .SizeInBits   = 16,
-                .Signature    = (uint8_t[2]) {0xFF, 0xD8},
-            },
-        },
+            OVIA_RegisterSignature(0, 16, (uint8_t[2]) {0xFF, 0xD8})
+        }
     };
     
 #if defined(OVIA_CodecIO_Encode)

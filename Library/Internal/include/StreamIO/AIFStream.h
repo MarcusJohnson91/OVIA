@@ -89,11 +89,7 @@ extern "C" {
     const OVIA_MagicIDs AIFSignature = {
         .NumMagicIDs          = 1,
         .MagicIDs             = {
-            [0]               = {
-                .OffsetInBits = 0,
-                .SizeInBits   = 32,
-                .Signature    = (uint8_t[4]) {0x46, 0x4F, 0x52, 0x4D},
-            },
+            OVIA_RegisterSignature(0, 32, (uint8_t[4]) {0x46, 0x4F, 0x52, 0x4D})
         },
     };
     
@@ -102,9 +98,9 @@ extern "C" {
     const OVIA_Extensions AIFExtensions = {
         .NumExtensions     = 3,
         .Extensions        = {
-            OVIA_RegisterExtension(0, UTF32String("aiff"))
-            OVIA_RegisterExtension(1, UTF32String("aifc"))
-            OVIA_RegisterExtension(2, UTF32String("aif"))
+            OVIA_RegisterExtension("aiff")
+            OVIA_RegisterExtension("aifc")
+            OVIA_RegisterExtension("aif")
         }
     };
 
@@ -113,8 +109,8 @@ extern "C" {
     const OVIA_MIMETypes AIFMIMETypes = {
         .NumMIMETypes     = 2,
         .MIMETypes        = {
-            OVIA_RegisterMIMEType(0, UTF32String("audio/aiff"))
-            OVIA_RegisterMIMEType(1, UTF32String("audio/x-aiff"))
+            OVIA_RegisterMIMEType("audio/aiff")
+            OVIA_RegisterMIMEType("audio/x-aiff")
         }
     };
     

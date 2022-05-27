@@ -43,7 +43,7 @@ extern "C" {
         OVIA_Function_Parse   Function_Parse;
         OVIA_Function_Coder   Function_Media;
         OVIA_Function_Deinit  Function_Deinitalize;
-        const OVIA_MagicIDs     *MagicIDs;
+        const OVIA_MagicIDs  *MagicIDs;
     } CodecIO_Encoder;
 
     typedef struct CodecIO_Decoder {

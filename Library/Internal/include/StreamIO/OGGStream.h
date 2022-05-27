@@ -23,11 +23,7 @@ extern "C" {
     const OVIA_MagicIDs OGGSignature = {
         .NumMagicIDs          = 1,
         .MagicIDs             = {
-            [0]               = {
-                .OffsetInBits = 0,
-                .SizeInBits   = 32,
-                .Signature    = (uint8_t[4]){0x4F, 0x67, 0x67, 0x53},
-            },
+            OVIA_RegisterSignature(0, 32, (uint8_t[4]){0x4F, 0x67, 0x67, 0x53})
         },
     };
     
@@ -36,13 +32,13 @@ extern "C" {
     const OVIA_Extensions OGGExtensions = {
         .NumExtensions     = 7,
         .Extensions        = {
-            OVIA_RegisterExtension(0, UTF32String("opus"))
-            OVIA_RegisterExtension(1, UTF32String("ogg"))
-            OVIA_RegisterExtension(2, UTF32String("ogv"))
-            OVIA_RegisterExtension(3, UTF32String("oga"))
-            OVIA_RegisterExtension(4, UTF32String("ogx"))
-            OVIA_RegisterExtension(5, UTF32String("ogm"))
-            OVIA_RegisterExtension(6, UTF32String("spx"))
+            OVIA_RegisterExtension("opus")
+            OVIA_RegisterExtension("ogg")
+            OVIA_RegisterExtension("ogv")
+            OVIA_RegisterExtension("oga")
+            OVIA_RegisterExtension("ogx")
+            OVIA_RegisterExtension("ogm")
+            OVIA_RegisterExtension("spx")
         }
     };
     
@@ -51,9 +47,9 @@ extern "C" {
     const OVIA_MIMETypes OGGMIMETypes = {
         .NumMIMETypes     = 3,
         .MIMETypes        = {
-            OVIA_RegisterMIMEType(0, UTF32String("audio/ogg"))
-            OVIA_RegisterMIMEType(1, UTF32String("video/ogg"))
-            OVIA_RegisterMIMEType(2, UTF32String("application/ogg"))
+            OVIA_RegisterMIMEType("audio/ogg")
+            OVIA_RegisterMIMEType("video/ogg")
+            OVIA_RegisterMIMEType("application/ogg")
         }
     };
     

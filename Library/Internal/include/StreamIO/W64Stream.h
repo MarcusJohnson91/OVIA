@@ -87,11 +87,7 @@ extern "C" {
     const OVIA_MagicIDs W64Signature = {
         .NumMagicIDs          = 1,
         .MagicIDs             = {
-            [0]               = {
-                .OffsetInBits = 0,
-                .SizeInBits   = 128,
-                .Signature    = &W64_RIFF_GUIDString,
-            },
+            OVIA_RegisterSignature(0, 128, &W64_RIFF_GUIDString)
         },
     };
 
@@ -100,7 +96,7 @@ extern "C" {
     const OVIA_Extensions W64Extensions = {
         .NumExtensions     = 1,
         .Extensions        = {
-            OVIA_RegisterExtension(0, UTF32String("w64"))
+            OVIA_RegisterExtension("w64")
         }
     };
 
@@ -109,8 +105,8 @@ extern "C" {
     const OVIA_MIMETypes W64MIMETypes = {
         .NumMIMETypes     = 2,
         .MIMETypes        = {
-            OVIA_RegisterMIMEType(0, UTF32String("audio/w64"))
-            OVIA_RegisterMIMEType(1, UTF32String("audio/x-w64"))
+            OVIA_RegisterMIMEType("audio/w64")
+            OVIA_RegisterMIMEType("audio/x-w64")
         }
     };
 

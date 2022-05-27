@@ -23,11 +23,7 @@ extern "C" {
     const OVIA_MagicIDs FLACSignature = {
         .NumMagicIDs          = 1,
         .MagicIDs             = {
-            [0]               = {
-                .OffsetInBits = 0,
-                .SizeInBits   = 32,
-                .Signature    = (uint8_t[4]){0x66, 0x4C, 0x61, 0x43},
-            },
+            OVIA_RegisterSignature(0, 32, (uint8_t[4]){0x66, 0x4C, 0x61, 0x43})
         },
     };
     
@@ -36,7 +32,7 @@ extern "C" {
     const OVIA_Extensions FLACExtensions = {
         .NumExtensions     = 1,
         .Extensions        = {
-            OVIA_RegisterExtension(0, UTF32String("flac"))
+            OVIA_RegisterExtension("flac")
         }
     };
 
@@ -45,7 +41,7 @@ extern "C" {
     const OVIA_MIMETypes FLACMIMETypes = {
         .NumMIMETypes     = 1,
         .MIMETypes        = {
-            OVIA_RegisterMIMEType(0, UTF32String("audio/flac"))
+            OVIA_RegisterMIMEType("audio/flac")
         }
     };
     

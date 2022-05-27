@@ -72,41 +72,13 @@ extern "C" {
     const OVIA_MagicIDs PNMSignatures = {
         .NumMagicIDs          = 7,
         .MagicIDs             = {
-            [0]               = {
-                .OffsetInBits = 0,
-                .SizeInBits   = 16,
-                .Signature    = (uint8_t[4]){0x42, 0x31},
-            },
-            [1]               = {
-                .OffsetInBits = 0,
-                .SizeInBits   = 16,
-                .Signature    = (uint8_t[4]){0x42, 0x34},
-            },
-            [2]               = {
-                .OffsetInBits = 0,
-                .SizeInBits   = 16,
-                .Signature    = (uint8_t[4]){0x42, 0x32},
-            },
-            [3]               = {
-                .OffsetInBits = 0,
-                .SizeInBits   = 16,
-                .Signature    = (uint8_t[4]){0x42, 0x35},
-            },
-            [4]               = {
-                .OffsetInBits = 0,
-                .SizeInBits   = 16,
-                .Signature    = (uint8_t[4]){0x50, 0x33},
-            },
-            [5]               = {
-                .OffsetInBits = 0,
-                .SizeInBits   = 16,
-                .Signature    = (uint8_t[4]){0x50, 0x36},
-            },
-            [6]               = {
-                .OffsetInBits = 0,
-                .SizeInBits   = 16,
-                .Signature    = (uint8_t[4]){0x50, 0x37},
-            },
+            OVIA_RegisterSignature(0, 16, (uint8_t[2]){0x42, 0x31})
+            OVIA_RegisterSignature(0, 16, (uint8_t[2]){0x42, 0x34})
+            OVIA_RegisterSignature(0, 16, (uint8_t[2]){0x42, 0x32})
+            OVIA_RegisterSignature(0, 16, (uint8_t[2]){0x42, 0x35})
+            OVIA_RegisterSignature(0, 16, (uint8_t[2]){0x50, 0x33})
+            OVIA_RegisterSignature(0, 16, (uint8_t[2]){0x50, 0x36})
+            OVIA_RegisterSignature(0, 16, (uint8_t[2]){0x50, 0x37})
         },
     };
     
@@ -115,11 +87,11 @@ extern "C" {
     const OVIA_Extensions PNMExtensions = {
         .NumExtensions     = 5,
         .Extensions        = {
-            OVIA_RegisterExtension(0, UTF32String("pbm"))
-            OVIA_RegisterExtension(1, UTF32String("pgm"))
-            OVIA_RegisterExtension(2, UTF32String("ppm"))
-            OVIA_RegisterExtension(3, UTF32String("pnm"))
-            OVIA_RegisterExtension(4, UTF32String("pam"))
+            OVIA_RegisterExtension("pbm")
+            OVIA_RegisterExtension("pgm")
+            OVIA_RegisterExtension("ppm")
+            OVIA_RegisterExtension("pnm")
+            OVIA_RegisterExtension("pam")
         }
     };
 
@@ -128,11 +100,11 @@ extern "C" {
     const OVIA_MIMETypes PNMMIMETypes = {
         .NumMIMETypes     = 5,
         .MIMETypes        = {
-            OVIA_RegisterMIMEType(0, UTF32String("image/x-portable-bitmap"))
-            OVIA_RegisterMIMEType(1, UTF32String("image/x-portable-pixmap"))
-            OVIA_RegisterMIMEType(2, UTF32String("image/x-portable-anymap"))
-            OVIA_RegisterMIMEType(3, UTF32String("image/x-portable-graymap"))
-            OVIA_RegisterMIMEType(4, UTF32String("image/x-portable-arbitrarymap"))
+            OVIA_RegisterMIMEType("image/x-portable-bitmap")
+            OVIA_RegisterMIMEType("image/x-portable-pixmap")
+            OVIA_RegisterMIMEType("image/x-portable-anymap")
+            OVIA_RegisterMIMEType("image/x-portable-graymap")
+            OVIA_RegisterMIMEType("image/x-portable-arbitrarymap")
         }
     };
     
