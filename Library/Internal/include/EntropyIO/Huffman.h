@@ -71,6 +71,8 @@ extern "C" {
 
     HuffmanTree *HuffmanTree_Init(uint16_t *BitLengths, size_t NumBitLengths);
 
+    void HuffmanTree_Deinit(HuffmanTree *Tree);
+
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
 #endif

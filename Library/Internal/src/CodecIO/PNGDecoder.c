@@ -926,8 +926,8 @@ extern "C" {
         uint64_t Height         = Options->iHDR->Height;
         ImageContainer *Decoded = NULL;
         MediaIO_ImageMask Mask  = 0;
-        
-        Flate_ReadZlibHeader(BitB);
+        FlateOptions *Flate = FlateOptions_Init();
+        Flate_ReadZlibHeader(Flate, BitB);
         
         if (Is3D == true) {
             Mask += ImageMask_3D_L;

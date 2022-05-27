@@ -10,7 +10,7 @@ extern "C" {
 
     HuffmanTree *HuffmanTree_Init(uint16_t *SymbolLengths, uint16_t NumSymbols) {
         AssertIO(SymbolLengths != NULL);
-        HuffmanTree *Tree = HuffmanTree_Init(SymbolLengths, NumSymbols);
+        HuffmanTree *Tree = calloc(1, sizeof(HuffmanTree));
         AssertIO(Tree != NULL);
         for (uint16_t Symbol = 0; Symbol < NumSymbols; Symbol++) {
             Tree->Frequency[SymbolLengths[Symbol]] += 1;

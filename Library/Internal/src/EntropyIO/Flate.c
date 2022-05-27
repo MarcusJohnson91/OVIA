@@ -1,3 +1,4 @@
+#include "../../include/EntropyIO/Huffman.h"
 #include "../../include/EntropyIO/Flate.h"
 
 #include "../../../../Dependencies/FoundationIO/Library/include/AssertIO.h" /* Included for Assertions */
@@ -16,9 +17,10 @@ extern "C" {
         uint16_t NumLiteralCodes; // HLIT
         uint8_t  NumDistanceCodes; // HDIST
         uint8_t  NumLengthCodes; // HCLEN
+        uint8_t  Window[32768]; // The sliding window for LZ77
     } FlateOptions;
 
-    FlateOptions *FlateOpions_Init(void) {
+    FlateOptions *FlateOptions_Init(void) {
         return calloc(1, sizeof(FlateOptions));
     }
     
@@ -41,6 +43,50 @@ extern "C" {
         if (FDICT == Yes) {
             DictID  = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
         }
+    }
+
+    static uint64_t ReadSymbol(BitBuffer *BitB, HuffmanTree *Tree) { // EQUILIVENT OF DECODE IN PUFF
+        AssertIO(BitB != NULL);
+        AssertIO(Tree != NULL);
+        uint64_t Symbol              = 0ULL;
+        uint16_t Count               = 0;
+        uint32_t FirstSymbolOfLength = 0;
+        for (uint8_t Bit = 1; Bit <= MaxBitsPerSymbol; Bit++) {
+            Symbol             <<= 1;
+            Symbol              |= BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 1);
+            Count                = Tree->Frequency[Bit];
+            if (Symbol - Count < FirstSymbolOfLength) {
+                Symbol           = Tree->Symbol[Bit + (Symbol - FirstSymbolOfLength)];
+            }
+        }
+        return Symbol;
+    }
+
+    void Flate_ReadHuffman(FlateOptions *Options, BitBuffer *BitB, HuffmanTree *LengthTree, HuffmanTree *DistanceTree) { // Codes in Puff
+        AssertIO(Options != NULL);
+        AssertIO(BitB != NULL);
+        AssertIO(LengthTree != NULL);
+        AssertIO(DistanceTree != NULL);
+        uint64_t Symbol = 0ULL;
+        uint64_t Offset = 0ULL;
+        do {
+            Symbol                              = ReadSymbol(BitB, LengthTree);
+            if (Symbol > 256) { // length
+                Symbol  -= 257;
+                uint64_t Length                 = LengthBase[Symbol] + BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, LengthAdditionalBits[Symbol]);
+
+                Symbol                          = ReadSymbol(BitB, DistanceTree);
+                uint64_t Distance               = DistanceBase[Symbol] + BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, DistanceAdditionalBits[Symbol]);
+
+                AssertIO(ImageArray != NULL);
+                for (uint64_t NumBytes2Copy = 0; NumBytes2Copy < Length; NumBytes2Copy++) {
+                    // Copy NumBytes2Copde from Offset - Distance
+
+                    // We need to convert the View, Width, Height, and Channel as well as BitDepth into a byte location.
+                    // This function might also be useful in ContainerIO as well.
+                }
+            }
+        } while (Symbol != EndOfBlock); // end of block symbol
     }
 
     static void Flate_ReadLiteralBlock(FlateOptions *Options, BitBuffer *BitB) {
@@ -121,53 +167,6 @@ extern "C" {
                     break;
             }
         } while (BFINAL == No);
-    }
-
-    static uint64_t ReadSymbol(BitBuffer *BitB, HuffmanTree *Tree) { // EQUILIVENT OF DECODE IN PUFF
-        AssertIO(BitB != NULL);
-        AssertIO(Tree != NULL);
-        uint64_t Symbol              = 0ULL;
-        uint16_t Count               = 0;
-        uint32_t FirstSymbolOfLength = 0;
-        for (uint8_t Bit = 1; Bit <= MaxBitsPerSymbol; Bit++) {
-            Symbol             <<= 1;
-            Symbol              |= BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 1);
-            Count                = Tree->Frequency[Bit];
-            if (Symbol - Count < FirstSymbolOfLength) {
-                Symbol           = Tree->Symbol[Bit + (Symbol - FirstSymbolOfLength)];
-            }
-        }
-        return Symbol;
-    }
-
-    void Flate_ReadHuffman(FlateOptions *Options, BitBuffer *BitB, HuffmanTree *LengthTree, HuffmanTree *DistanceTree) { // Codes in Puff
-        AssertIO(Options != NULL);
-        AssertIO(BitB != NULL);
-        AssertIO(LengthTree != NULL);
-        AssertIO(DistanceTree != NULL);
-        AssertIO(Image != NULL);
-        // Out = ImageContainer array
-        uint64_t Symbol = 0ULL;
-        uint64_t Offset = 0ULL;
-        do {
-            Symbol                              = ReadSymbol(BitB, LengthTree);
-            if (Symbol > 256) { // length
-                Symbol  -= 257;
-                uint64_t Length                 = LengthBase[Symbol] + BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, LengthAdditionalBits[Symbol]);
-
-                Symbol                          = ReadSymbol(BitB, DistanceTree);
-                uint64_t Distance               = DistanceBase[Symbol] + BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, DistanceAdditionalBits[Symbol]);
-
-                uint8_t ****ImageArray          = (uint8_t****) ImageContainer_GetArray(Image);
-                AssertIO(ImageArray != NULL);
-                for (uint64_t NumBytes2Copy = 0; NumBytes2Copy < Length; NumBytes2Copy++) {
-                    // Copy NumBytes2Copde from Offset - Distance
-
-                    // We need to convert the View, Width, Height, and Channel as well as BitDepth into a byte location.
-                    // This function might also be useful in ContainerIO as well.
-                }
-            }
-        } while (Symbol != EndOfBlock); // end of block symbol
     }
 
     /*
