@@ -12,16 +12,15 @@
 		2C0AA9C927C760000088E210 /* InterFrames.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C0AA9C627C760000088E210 /* InterFrames.h */; };
 		2C0AA9CA27C760000088E210 /* IntraFrame.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C0AA9C727C760000088E210 /* IntraFrame.h */; };
 		2C0AA9CC27C760090088E210 /* Asymmetric.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C0AA9CB27C760090088E210 /* Asymmetric.h */; };
-		2C0AA9D527C760680088E210 /* Image.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C0AA9D227C760680088E210 /* Image.c */; };
-		2C0AA9D627C760680088E210 /* Shots.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C0AA9D327C760680088E210 /* Shots.c */; };
-		2C0AA9DA27C760730088E210 /* LIVCDecoder.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C0AA9D727C760730088E210 /* LIVCDecoder.c */; };
+		2C0AA9D527C760680088E210 /* IntraFrame.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C0AA9D227C760680088E210 /* IntraFrame.c */; };
+		2C0AA9D627C760680088E210 /* InterFrames.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C0AA9D327C760680088E210 /* InterFrames.c */; };
 		2C0AA9DB27C760730088E210 /* LIVCCodec.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C0AA9D827C760730088E210 /* LIVCCodec.c */; };
-		2C0AA9DC27C760730088E210 /* LIVCEncoder.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C0AA9D927C760730088E210 /* LIVCEncoder.c */; };
 		2C0AA9DE27C760780088E210 /* Asymmetric.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C0AA9DD27C760780088E210 /* Asymmetric.c */; };
 		2C0AA9E127C760810088E210 /* LCoCa.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C0AA9DF27C760810088E210 /* LCoCa.c */; };
 		2C0AA9E227C760810088E210 /* LCoCaCg.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C0AA9E027C760810088E210 /* LCoCaCg.c */; };
 		2C0AA9F327C9CAC70088E210 /* OVIA.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C0AA9E427C9CAC70088E210 /* OVIA.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2C0AA9F527C9CACA0088E210 /* OVIA.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C0AA9F427C9CACA0088E210 /* OVIA.c */; };
+		2C2EEC2628308A58003EAC4B /* Flate.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C69A87D27C70B6300946D68 /* Flate.c */; };
 		2C69A7ED27C708D400946D68 /* VorbisTags.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C69A7E727C708D400946D68 /* VorbisTags.h */; };
 		2C69A7EE27C708D400946D68 /* APETags.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C69A7E827C708D400946D68 /* APETags.h */; };
 		2C69A7EF27C708D400946D68 /* AIFTags.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C69A7E927C708D400946D68 /* AIFTags.h */; };
@@ -97,6 +96,7 @@
 		2C69A89E27C70B8E00946D68 /* FLACCodec.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C69A89227C70B8E00946D68 /* FLACCodec.c */; };
 		2C69A89F27C70B8E00946D68 /* JPEGDecoder.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C69A89327C70B8E00946D68 /* JPEGDecoder.c */; };
 		2C69A8A027C70B8E00946D68 /* JPEGEncoder.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C69A89427C70B8E00946D68 /* JPEGEncoder.c */; };
+		2CA82F812834AD54005BB87C /* MKVStream.h in Headers */ = {isa = PBXBuildFile; fileRef = 2CA82F722834AD54005BB87C /* MKVStream.h */; };
 		2CB52BC527DE64F100F1410C /* OVIATypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 2CB52BC427DE64F100F1410C /* OVIATypes.h */; };
 		2CB6F3FA281B8C5800DF24AB /* Test_AVCCodec.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C69A8A527C70BA100946D68 /* Test_AVCCodec.c */; };
 		2CB6F40A281B8C6100DF24AB /* Test_FLACCodec.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C69A8A427C70BA100946D68 /* Test_FLACCodec.c */; };
@@ -630,8 +630,8 @@
 		2C0AA9C627C760000088E210 /* InterFrames.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = InterFrames.h; path = ../Library/External/LIVC/include/ClusterIO/InterFrames.h; sourceTree = "<group>"; };
 		2C0AA9C727C760000088E210 /* IntraFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = IntraFrame.h; path = ../Library/External/LIVC/include/ClusterIO/IntraFrame.h; sourceTree = "<group>"; };
 		2C0AA9CB27C760090088E210 /* Asymmetric.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = Asymmetric.h; path = ../Library/External/LIVC/include/EntropyIO/Asymmetric.h; sourceTree = "<group>"; };
-		2C0AA9D227C760680088E210 /* Image.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = Image.c; path = ../Library/External/LIVC/src/ClusterIO/Image.c; sourceTree = "<group>"; };
-		2C0AA9D327C760680088E210 /* Shots.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = Shots.c; path = ../Library/External/LIVC/src/ClusterIO/Shots.c; sourceTree = "<group>"; };
+		2C0AA9D227C760680088E210 /* IntraFrame.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = IntraFrame.c; path = ../Library/External/LIVC/src/ClusterIO/IntraFrame.c; sourceTree = "<group>"; };
+		2C0AA9D327C760680088E210 /* InterFrames.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = InterFrames.c; path = ../Library/External/LIVC/src/ClusterIO/InterFrames.c; sourceTree = "<group>"; };
 		2C0AA9D727C760730088E210 /* LIVCDecoder.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = LIVCDecoder.c; path = ../Library/External/LIVC/src/CodecIO/LIVCDecoder.c; sourceTree = "<group>"; };
 		2C0AA9D827C760730088E210 /* LIVCCodec.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = LIVCCodec.c; path = ../Library/External/LIVC/src/CodecIO/LIVCCodec.c; sourceTree = "<group>"; };
 		2C0AA9D927C760730088E210 /* LIVCEncoder.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = LIVCEncoder.c; path = ../Library/External/LIVC/src/CodecIO/LIVCEncoder.c; sourceTree = "<group>"; };
@@ -761,6 +761,7 @@
 		2C69A8A327C70BA100946D68 /* Test_JPEGCodec.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = Test_JPEGCodec.c; path = ../Library/Internal/src/CodecIO/Tests/Test_JPEGCodec.c; sourceTree = "<group>"; };
 		2C69A8A427C70BA100946D68 /* Test_FLACCodec.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = Test_FLACCodec.c; path = ../Library/Internal/src/CodecIO/Tests/Test_FLACCodec.c; sourceTree = "<group>"; };
 		2C69A8A527C70BA100946D68 /* Test_AVCCodec.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = Test_AVCCodec.c; path = ../Library/Internal/src/CodecIO/Tests/Test_AVCCodec.c; sourceTree = "<group>"; };
+		2CA82F722834AD54005BB87C /* MKVStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MKVStream.h; path = ../Library/Internal/include/StreamIO/MKVStream.h; sourceTree = "<group>"; };
 		2CB52BC427DE64F100F1410C /* OVIATypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = OVIATypes.h; path = ../Library/OVIA/include/OVIATypes.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -1029,8 +1030,8 @@
 		2C0AA9D027C760570088E210 /* ClusterIO */ = {
 			isa = PBXGroup;
 			children = (
-				2C0AA9D227C760680088E210 /* Image.c */,
-				2C0AA9D327C760680088E210 /* Shots.c */,
+				2C0AA9D227C760680088E210 /* IntraFrame.c */,
+				2C0AA9D327C760680088E210 /* InterFrames.c */,
 			);
 			name = ClusterIO;
 			sourceTree = "<group>";
@@ -1185,6 +1186,7 @@
 				2C69A7F327C708E100946D68 /* AIFStream.h */,
 				2C69A7F927C708E100946D68 /* BMPStream.h */,
 				2C69A7FA27C708E100946D68 /* FLACStream.h */,
+				2CA82F722834AD54005BB87C /* MKVStream.h */,
 				2C69A7F827C708E100946D68 /* MPEG2Stream.h */,
 				2C69A7F527C708E100946D68 /* OGGStream.h */,
 				2C69A7F627C708E100946D68 /* PNMStream.h */,
@@ -1427,6 +1429,7 @@
 				2C69A80127C708E100946D68 /* MPEG2Stream.h in Headers */,
 				2C0AA9C827C760000088E210 /* ClusterIO.h in Headers */,
 				2C69A7F127C708D400946D68 /* RIFFTags.h in Headers */,
+				2CA82F812834AD54005BB87C /* MKVStream.h in Headers */,
 				2C0AA9CC27C760090088E210 /* Asymmetric.h in Headers */,
 				2C69A80B27C708F100946D68 /* Flate.h in Headers */,
 				2C0AA9CA27C760000088E210 /* IntraFrame.h in Headers */,
@@ -1868,7 +1871,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastUpgradeCheck = 1320;
+				LastUpgradeCheck = 1330;
 				TargetAttributes = {
 					2C69A53427C6440D00946D68 = {
 						CreatedOnToolsVersion = 13.2.1;
@@ -2112,8 +2115,9 @@
 			files = (
 				2C69A87327C70B3B00946D68 /* BMPDemuxer.c in Sources */,
 				2C69A89D27C70B8E00946D68 /* AVCEncoder.c in Sources */,
-				2C0AA9D527C760680088E210 /* Image.c in Sources */,
+				2C0AA9D527C760680088E210 /* IntraFrame.c in Sources */,
 				2C69A83527C70AE900946D68 /* YCoCgR.c in Sources */,
+				2C2EEC2628308A58003EAC4B /* Flate.c in Sources */,
 				2C69A86927C70B3B00946D68 /* TIFStream.c in Sources */,
 				2C69A88227C70B6300946D68 /* Arithmetic.c in Sources */,
 				2C69A89B27C70B8E00946D68 /* FLACEncoder.c in Sources */,
@@ -2121,7 +2125,6 @@
 				2C69A86727C70B3B00946D68 /* PNMStream.c in Sources */,
 				2C69A86327C70B3B00946D68 /* BMPStream.c in Sources */,
 				2C69A86D27C70B3B00946D68 /* WAVDemuxer.c in Sources */,
-				2C0AA9DC27C760730088E210 /* LIVCEncoder.c in Sources */,
 				2C69A85F27C70B3B00946D68 /* WAVMuxer.c in Sources */,
 				2C69A83F27C70B0900946D68 /* AIFTags.c in Sources */,
 				2C69A82B27C70A6700946D68 /* TagIO.c in Sources */,
@@ -2152,8 +2155,7 @@
 				2C69A89527C70B8E00946D68 /* PNGCodec.c in Sources */,
 				2C69A89627C70B8E00946D68 /* JPEGCodec.c in Sources */,
 				2C0AA9DB27C760730088E210 /* LIVCCodec.c in Sources */,
-				2C0AA9DA27C760730088E210 /* LIVCDecoder.c in Sources */,
-				2C0AA9D627C760680088E210 /* Shots.c in Sources */,
+				2C0AA9D627C760680088E210 /* InterFrames.c in Sources */,
 				2C69A86127C70B3B00946D68 /* PNMMuxer.c in Sources */,
 				2C69A84127C70B0900946D68 /* APETags.c in Sources */,
 				2C69A87127C70B3B00946D68 /* BMPMuxer.c in Sources */,
@@ -2603,7 +2605,7 @@
 			buildSettings = {
 				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -2670,6 +2672,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -2683,6 +2686,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -2696,6 +2700,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -2709,6 +2714,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -2722,6 +2728,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -2735,6 +2742,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -2748,6 +2756,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -2761,6 +2770,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -2773,6 +2783,7 @@
 		2C69A64127C6546200946D68 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -2783,6 +2794,7 @@
 		2C69A64227C6546200946D68 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -2793,6 +2805,7 @@
 		2C69A64C27C6547100946D68 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -2803,6 +2816,7 @@
 		2C69A64D27C6547100946D68 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -2813,6 +2827,7 @@
 		2C69A65727C6547E00946D68 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -2823,6 +2838,7 @@
 		2C69A65827C6547E00946D68 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -2833,6 +2849,7 @@
 		2C69A66227C6548E00946D68 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -2843,6 +2860,7 @@
 		2C69A66327C6548E00946D68 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -2853,6 +2871,7 @@
 		2C69A66D27C654A000946D68 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -2863,6 +2882,7 @@
 		2C69A66E27C654A000946D68 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -2873,6 +2893,7 @@
 		2C69A67827C654AF00946D68 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -2883,6 +2904,7 @@
 		2C69A67927C654AF00946D68 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -2893,6 +2915,7 @@
 		2C69A68327C654BE00946D68 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -2903,6 +2926,7 @@
 		2C69A68427C654BE00946D68 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -2913,6 +2937,7 @@
 		2C69A68E27C654D000946D68 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -2923,6 +2948,7 @@
 		2C69A68F27C654D000946D68 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -2933,6 +2959,7 @@
 		2C69A69927C654DE00946D68 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -2943,6 +2970,7 @@
 		2C69A69A27C654DE00946D68 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -2953,6 +2981,7 @@
 		2C69A6A427C654EC00946D68 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -2963,6 +2992,7 @@
 		2C69A6A527C654EC00946D68 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -2973,6 +3003,7 @@
 		2C69A6AF27C654FA00946D68 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -2983,6 +3014,7 @@
 		2C69A6B027C654FA00946D68 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -2993,6 +3025,7 @@
 		2C69A6BA27C6553700946D68 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -3003,6 +3036,7 @@
 		2C69A6BB27C6553700946D68 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -3013,6 +3047,7 @@
 		2C69A6C527C6554900946D68 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -3023,6 +3058,7 @@
 		2C69A6C627C6554900946D68 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -3033,6 +3069,7 @@
 		2C69A6D027C6555700946D68 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -3043,6 +3080,7 @@
 		2C69A6D127C6555700946D68 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -3053,6 +3091,7 @@
 		2C69A6DB27C6556500946D68 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -3063,6 +3102,7 @@
 		2C69A6DC27C6556500946D68 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -3073,6 +3113,7 @@
 		2C69A6E627C6556F00946D68 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -3083,6 +3124,7 @@
 		2C69A6E727C6556F00946D68 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -3093,6 +3135,7 @@
 		2C69A6F127C6558200946D68 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -3103,6 +3146,7 @@
 		2C69A6F227C6558200946D68 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -3113,6 +3157,7 @@
 		2C69A6FC27C6559600946D68 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -3123,6 +3168,7 @@
 		2C69A6FD27C6559600946D68 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 628J9L7WK5;
 				ENABLE_HARDENED_RUNTIME = YES;
