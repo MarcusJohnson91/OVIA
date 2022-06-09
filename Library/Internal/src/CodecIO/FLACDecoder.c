@@ -74,8 +74,8 @@ extern "C" {
         AssertIO(BitB != NULL);
         AssertIO(Audio != NULL);
         MediaIO_AudioTypes Type  = Audio2DContainer_GetType(Audio);
-        if ((Type & AudioType_Unsigned) == AudioType_Unsigned) {
-            if ((Type & AudioType_Integer32) == AudioType_Integer32) {
+        if PlatformIO_Is(Type, AudioType_Unsigned) {
+            if PlatformIO_Is(Type, AudioType_Integer32) {
                 uint32_t **Array = (uint32_t**) Audio2DContainer_GetArray(Audio);
                 
                 for (uint8_t WarmupSample = 0; WarmupSample < NumWarmupSamples; WarmupSample++) { // NumWarmupSamples = 8 in FLAC?
@@ -83,33 +83,33 @@ extern "C" {
                     // 28FE 264D 22E31E2E18D013E3E59B19B35A6AEBE79F3371AABE6300B080E303120688888928CF172A
                     // 2E1E, 2B59, 28F9, 264D, 22E3, 1E2E, 18D0, 13E3
                 }
-            } else if ((Type & AudioType_Integer16) == AudioType_Integer16) {
+            } else if PlatformIO_Is(Type, AudioType_Integer16) {
                 uint16_t **Array = (uint16_t**) Audio2DContainer_GetArray(Audio);
                 
                 for (uint8_t WarmupSample = 0; WarmupSample < NumWarmupSamples; WarmupSample++) {
                     Array[0][WarmupSample] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, FLAC_GetBitDepth(Options));
                 }
-            } else if ((Type & AudioType_Integer8) == AudioType_Integer8) {
+            } else if PlatformIO_Is(Type, AudioType_Integer8) {
                 uint8_t **Array  = (uint8_t**)  Audio2DContainer_GetArray(Audio);
                 
                 for (uint8_t WarmupSample = 0; WarmupSample < NumWarmupSamples; WarmupSample++) {
                     Array[0][WarmupSample] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, FLAC_GetBitDepth(Options));
                 }
             }
-        } else if ((Type & AudioType_Signed) == AudioType_Signed) {
-            if ((Type & AudioType_Integer32) == AudioType_Integer32) {
+        } else if PlatformIO_Is(Type, AudioType_Signed) {
+            if PlatformIO_Is(Type, AudioType_Integer32) {
                 int32_t **Array  = (int32_t**) Audio2DContainer_GetArray(Audio);
                 
                 for (uint8_t WarmupSample = 0; WarmupSample < NumWarmupSamples; WarmupSample++) {
                     Array[0][WarmupSample] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, FLAC_GetBitDepth(Options));
                 }
-            } else if ((Type & AudioType_Integer16) == AudioType_Integer16) {
+            } else if PlatformIO_Is(Type, AudioType_Integer16) {
                 int16_t **Array  = (int16_t**) Audio2DContainer_GetArray(Audio);
                 
                 for (uint8_t WarmupSample = 0; WarmupSample < NumWarmupSamples; WarmupSample++) {
                     Array[0][WarmupSample] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, FLAC_GetBitDepth(Options));
                 }
-            } else if ((Type & AudioType_Integer8) == AudioType_Integer8) {
+            } else if PlatformIO_Is(Type, AudioType_Integer8) {
                 int8_t **Array   = (int8_t**)  Audio2DContainer_GetArray(Audio);
                 
                 for (uint8_t WarmupSample = 0; WarmupSample < NumWarmupSamples; WarmupSample++) {
