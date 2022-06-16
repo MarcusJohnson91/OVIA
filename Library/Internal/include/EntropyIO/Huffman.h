@@ -1,7 +1,7 @@
 /*!
  @header              Huffman.h
  @author              Marcus Johnson
- @copyright           2022+
+ @copyright           2020+
  @version             1.0.0
  @brief               This header contains code for a Canonical Huffman entropy coder.
  */

@@ -1,7 +1,7 @@
 /*!
  @header              Flate.h
  @author              Marcus Johnson
- @copyright           2022+
+ @copyright           2017+
  @version             1.0.0
  @brief               This header contains code for a Deflate/Inflate entropy coder.
  */
