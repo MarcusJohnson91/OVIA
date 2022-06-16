@@ -17,61 +17,17 @@
 extern "C" {
 #endif
 
+    typedef enum HuffmanConstants {
+        NumBitlengths = 16,
+    } HuffmanConstants;
 
-    typedef struct Huffman { // Each Huffman Code aka binary string corresponds to a value that it represents
-        uint32_t Code; // Binary string
-        uint32_t Value; // Value represented by the string
-    } Huffman;
+    typedef struct HuffmanOptions HuffmanOptions;
 
+    HuffmanOptions *HuffmanOptions_Init(size_t NumSymbols, size_t MaxBitLength);
 
+    void Huffman_ReadBitLengths(HuffmanOptions *Options, BitBuffer *BitB);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // Old below
-
-    /*!
-     @constant BitString     The actual Huffman encoded value
-     @constant BitStringSize The number of bits this BitString requires
-     @constant RelativeFreq  How common is this symbol, compared to all the other symbols
-     @constant Symbol        The actual value the BitString represents
-     */
-    typedef struct HuffmanData {
-        uint16_t BitString;
-        uint8_t  BitStringSize;
-        uint8_t  RelativeFreq;
-        uint8_t  Symbol;
-    } HuffmanData;
-
-    typedef struct HuffmanNode {
-        HuffmanData         Symbol;
-        struct HuffmanNode *Left;
-        struct HuffmanNode *Right;
-    } HuffmanNode;
-
-    typedef struct HuffmanTree {
-        HuffmanNode *Root;
-    } HuffmanTree;
-
-    HuffmanTree *HuffmanTree_Init(uint16_t *BitLengths, size_t NumBitLengths);
-
-    void HuffmanTree_Deinit(HuffmanTree *Tree);
+    void Huffman_BuildTreeFromBitlengths(HuffmanOptions *Options, uint16_t *BitLengths, size_t NumBitLengths, uint16_t *Symbols, size_t NumSymbols);
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
