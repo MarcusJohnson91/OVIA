@@ -21,7 +21,7 @@ extern "C" {
         return NumChannels * (BitDepth / 8);
     }
     
-    MediaIO_AudioMask W64ChannelMap2AudioMask(uint64_t ChannelMask) {
+    MediaIO_AudioMask W64ChannelMap2AudioMask(uint32_t ChannelMask) {
         MediaIO_AudioMask AudioMask = 0;
         if (ChannelMask & 0x1) {
             AudioMask += AudioMask_FrontLeft;
