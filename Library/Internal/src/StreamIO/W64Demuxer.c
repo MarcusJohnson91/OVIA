@@ -12,12 +12,12 @@ extern "C" {
     static void W64ReadFMTChunk(W64Options *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->CompressionFormat           = (uint16_t) BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 16);
-        Options->NumChannels                 = (uint16_t) BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 16);
-        Options->SampleRate                  = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32);
-        Options->BlockAlign                  = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32);
-        Options->BlockAlignment              = (uint16_t) BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 16);
-        Options->BitDepth                    = (uint16_t) BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 16);
+        Options->CompressionFormat           = (uint16_t) BitBuffer_ReadBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 16);
+        Options->NumChannels                 = (uint16_t) BitBuffer_ReadBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 16);
+        Options->SampleRate                  = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 32);
+        Options->BlockAlign                  = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 32);
+        Options->BlockAlignment              = (uint16_t) BitBuffer_ReadBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 16);
+        Options->BitDepth                    = (uint16_t) BitBuffer_ReadBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 16);
         // Read the SpeakerMask
     }
     
@@ -35,7 +35,7 @@ extern "C" {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         uint8_t *ChunkUUIDString = BitBuffer_ReadGUUID(BitB, GUUIDType_BinaryGUID);
-        uint64_t W64Size         = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 64);
+        uint64_t W64Size         = BitBuffer_ReadBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 64);
 
         if (BinaryGUUID_Compare(ChunkUUIDString, W64_RIFF_GUIDString) == true) {
             
@@ -74,21 +74,21 @@ extern "C" {
             uint8_t **Samples = (uint8_t**) Audio2DContainer_GetArray(Audio);
             for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                 for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
-                    Samples[Channel][Sample] = (uint8_t) BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, BitDepthRound);
+                    Samples[Channel][Sample] = (uint8_t) BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, BitDepthRound);
                 }
             }
         } else if (BitDepth <= 16) {
             uint16_t **Samples = (uint16_t**) Audio2DContainer_GetArray(Audio);
             for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                 for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
-                    Samples[Channel][Sample] = (uint16_t) BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, BitDepthRound);
+                    Samples[Channel][Sample] = (uint16_t) BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, BitDepthRound);
                 }
             }
         } else if (BitDepth <= 32) {
             uint32_t **Samples = (uint32_t**) Audio2DContainer_GetArray(Audio);
             for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                 for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
-                    Samples[Channel][Sample] = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, BitDepthRound);
+                    Samples[Channel][Sample] = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, BitDepthRound);
                 }
             }
         }

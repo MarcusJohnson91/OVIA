@@ -20,21 +20,21 @@ extern "C" {
          warn_impcast_integer_precision
          warn_impcast_integer_64_32
          */
-        Options->iHDR->Width          = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->iHDR->Height         = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->iHDR->BitDepth       = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
-        Options->iHDR->ColorType      = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+        Options->iHDR->Width          = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->iHDR->Height         = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->iHDR->BitDepth       = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
+        Options->iHDR->ColorType      = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
         AssertIO(Options->iHDR->ColorType != 1);
         AssertIO(Options->iHDR->ColorType != 5);
         AssertIO(Options->iHDR->ColorType < 7);
         Options->Map = ImageChannelMap_Init(Options->sTERExists ? 2 : 1, PNG_GetNumChannels(Options->iHDR->ColorType));
-        Options->iHDR->Compression    = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
-        Options->iHDR->FilterMethod   = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
-        Options->iHDR->IsInterlaced   = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+        Options->iHDR->Compression    = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
+        Options->iHDR->FilterMethod   = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
+        Options->iHDR->IsInterlaced   = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
         
-        uint32_t ComputedCRC          = BitBuffer_CalculateCRC(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, BitBuffer_GetPosition(BitB) - 104, 13, 0xFFFFFFFF, CRCPolynomial_IEEE802_3);
+        uint32_t ComputedCRC          = BitBuffer_CalculateCRC(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, BitBuffer_GetPosition(BitB) - 104, 13, 0xFFFFFFFF, CRCPolynomial_IEEE802_3);
         
-        uint32_t CRC                  = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
+        uint32_t CRC                  = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
         AssertIO(ComputedCRC == CRC);
     }
     
@@ -50,7 +50,7 @@ extern "C" {
         
         for (uint8_t Channel = 0; Channel < PNG_GetNumChannels(Options->iHDR->ColorType); Channel++) {
             for (uint16_t PaletteEntry = 0; PaletteEntry < ChunkSize / 3; PaletteEntry++) {
-                Options->PLTE->Palette[Channel][PaletteEntry] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, Options->iHDR->BitDepth);
+                Options->PLTE->Palette[Channel][PaletteEntry] = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, Options->iHDR->BitDepth);
             }
         }
     }
@@ -58,7 +58,7 @@ extern "C" {
     void PNG_Read_TRNS(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) { // Transparency
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->tRNS->NumEntries = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
+        Options->tRNS->NumEntries = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
         uint16_t *Entries    = NULL;
         if (Options->iHDR->ColorType == PNGColor_RGB) {
             Entries = calloc(3, Bits2Bytes(Options->iHDR->BitDepth, RoundingType_Down) * sizeof(uint16_t));
@@ -71,7 +71,7 @@ extern "C" {
         }
         AssertIO(Entries != NULL);
         for (uint8_t Color = 0; Color < PNG_GetNumChannels(Options->iHDR->ColorType); Color++) {
-            Entries[Color]    = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, Bits2Bytes(Options->iHDR->BitDepth, RoundingType_Down));
+            Entries[Color]    = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, Bits2Bytes(Options->iHDR->BitDepth, RoundingType_Down));
         }
     }
     
@@ -79,56 +79,56 @@ extern "C" {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         for (uint8_t Entry = 0; Entry < 3; Entry++) {
-            Options->bkGD->BackgroundPaletteEntry[Entry] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+            Options->bkGD->BackgroundPaletteEntry[Entry] = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
         }
     }
     
     void PNG_Read_CHRM(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) { // Chromaticities
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->cHRM->WhitePointX = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->cHRM->WhitePointY = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->cHRM->RedX        = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->cHRM->RedY        = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->cHRM->GreenX      = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->cHRM->GreenY      = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->cHRM->BlueX       = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->cHRM->BlueY       = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
+        Options->cHRM->WhitePointX = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->cHRM->WhitePointY = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->cHRM->RedX        = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->cHRM->RedY        = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->cHRM->GreenX      = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->cHRM->GreenY      = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->cHRM->BlueX       = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->cHRM->BlueY       = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
     }
     
     void PNG_Read_GAMA(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) { // Gamma
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->gAMA->Gamma = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
+        Options->gAMA->Gamma = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
     }
     
     void PNG_Read_OFFS(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) { // Image Offset
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->oFFs->XOffset       = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->oFFs->YOffset       = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->oFFs->UnitSpecifier = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+        Options->oFFs->XOffset       = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->oFFs->YOffset       = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->oFFs->UnitSpecifier = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
     }
     
     void PNG_Read_PHYS(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) { // Aspect ratio, Physical pixel size
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->pHYs->PixelsPerUnitXAxis = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->pHYs->PixelsPerUnitYAxis = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->pHYs->UnitSpecifier      = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+        Options->pHYs->PixelsPerUnitXAxis = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->pHYs->PixelsPerUnitYAxis = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->pHYs->UnitSpecifier      = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
     }
     
     void PNG_Read_SCAL(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) { // Physical Scale
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         // Ok, so we need to take the size of the chunk into account.
-        Options->sCAL->UnitSpecifier = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8); // 1 = Meter, 2 = Radian
+        Options->sCAL->UnitSpecifier = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8); // 1 = Meter, 2 = Radian
         
         uint32_t WidthStringSize  = 0;
         uint32_t HeightStringSize = 0;
         
         for (uint32_t Byte = 0UL; Byte < ChunkSize - 1; Byte++) { // Get the sizes for the field strings
-            if (BitBuffer_PeekBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8) != '\0') {
+            if (BitBuffer_PeekBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8) != '\0') {
                 WidthStringSize += 1;
             }
         }
@@ -138,11 +138,11 @@ extern "C" {
         UTF8 *HeightString = calloc(HeightStringSize, sizeof(UTF8));
         
         for (uint32_t WidthCodePoint = 0; WidthCodePoint < WidthStringSize; WidthCodePoint++) {
-            WidthString[WidthCodePoint] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+            WidthString[WidthCodePoint] = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
         }
         BitBuffer_Seek(BitB, 8); // Skip the NULL seperator
         for (uint32_t HeightCodePoint = 0; HeightCodePoint < HeightStringSize; HeightCodePoint++) {
-            HeightString[HeightCodePoint] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+            HeightString[HeightCodePoint] = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
         }
         
         Options->sCAL->PixelWidth  = UTF8_String2Decimal(Base_Decimal | Base_Radix10, WidthString);
@@ -153,9 +153,9 @@ extern "C" {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         UTF8 CalibrationName[80];
-        while (BitBuffer_PeekBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8) != 0x0) {
+        while (BitBuffer_PeekBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8) != 0x0) {
             for (uint8_t Byte = 0; Byte < 80; Byte++) {
-                CalibrationName[Byte] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+                CalibrationName[Byte] = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
             }
         }
         Options->pCAL->CalibrationName     = CalibrationName;
@@ -165,21 +165,21 @@ extern "C" {
     void PNG_Read_SBIT(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) { // Significant bits per sample
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->sBIT->Red                   = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
-        Options->sBIT->Green                 = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
-        Options->sBIT->Blue                  = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+        Options->sBIT->Red                   = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
+        Options->sBIT->Green                 = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
+        Options->sBIT->Blue                  = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
     }
     
     void PNG_Read_SRGB(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->sRGB->RenderingIntent       = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+        Options->sRGB->RenderingIntent       = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
     }
     
     void PNG_Read_STER(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->sTER->StereoType            = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+        Options->sTER->StereoType            = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
         
         // No matter what StereoType is used, both images are arranged side by side, and the left edge is aligned on a boundary of the 8th column in case interlacing is used.
         // The two sub images must have the same dimensions after padding is removed.
@@ -201,7 +201,7 @@ extern "C" {
         uint8_t  CurrentByte = 0; // 1 is BULLshit
         
         do {
-            CurrentByte  = BitBuffer_PeekBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+            CurrentByte  = BitBuffer_PeekBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
             KeywordSize += 1;
         } while (CurrentByte != 0);
         
@@ -243,12 +243,12 @@ extern "C" {
     void PNG_Read_TIME(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->tIMe->Year                  = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 16);
-        Options->tIMe->Month                 = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
-        Options->tIMe->Day                   = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
-        Options->tIMe->Hour                  = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
-        Options->tIMe->Minute                = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
-        Options->tIMe->Second                = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+        Options->tIMe->Year                  = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 16);
+        Options->tIMe->Month                 = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
+        Options->tIMe->Day                   = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
+        Options->tIMe->Hour                  = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
+        Options->tIMe->Minute                = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
+        Options->tIMe->Second                = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
     }
     
     /* APNG */
@@ -256,22 +256,22 @@ extern "C" {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         Options->PNGIsAnimated               = true;
-        Options->acTL->NumFrames             = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->acTL->TimesToLoop           = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32); // If 0, loop forever.
+        Options->acTL->NumFrames             = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->acTL->TimesToLoop           = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32); // If 0, loop forever.
     }
     
     void PNG_Read_FCTL(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) { // Frame Control, part of APNG
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->fcTL->FrameNum              = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->fcTL->Width                 = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->fcTL->Height                = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->fcTL->XOffset               = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->fcTL->YOffset               = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->fcTL->FrameDelayNumerator   = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 16);
-        Options->fcTL->FrameDelayDenominator = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 16);
-        Options->fcTL->DisposeMethod         = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
-        Options->fcTL->BlendMethod           = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+        Options->fcTL->FrameNum              = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->fcTL->Width                 = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->fcTL->Height                = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->fcTL->XOffset               = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->fcTL->YOffset               = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->fcTL->FrameDelayNumerator   = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 16);
+        Options->fcTL->FrameDelayDenominator = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 16);
+        Options->fcTL->DisposeMethod         = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
+        Options->fcTL->BlendMethod           = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
     }
     /* End APNG */
     
@@ -284,7 +284,7 @@ extern "C" {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         uint8_t ProfileNameSize = 0;
-        ProfileNameSize = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+        ProfileNameSize = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
     }
     
     void PNG_Read_SPLT(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) {
@@ -296,8 +296,8 @@ extern "C" {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
 
-        uint32_t ChunkID         = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        uint32_t ChunkSize       = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
+        uint32_t ChunkID         = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        uint32_t ChunkSize       = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
         BitBuffer_Seek(BitB, -32); // Now we need to skip back so we can read the ChunkID as part of the CRC check.
 
         switch (ChunkID) {
@@ -410,8 +410,8 @@ extern "C" {
             free(Buffer2CRC);
             
         }
-        uint32_t ChunkCRC = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        uint32_t ContentCRC = BitBuffer_CalculateCRC(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, BitBuffer_GetPosition(BitB) - 104, ChunkSize, 0xFFFFFFFF, CRCPolynomial_IEEE802_3);
+        uint32_t ChunkCRC = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        uint32_t ContentCRC = BitBuffer_CalculateCRC(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, BitBuffer_GetPosition(BitB) - 104, ChunkSize, 0xFFFFFFFF, CRCPolynomial_IEEE802_3);
         bool CRCsMatch = No;
         if (ContentCRC == ChunkCRC) {
             CRCsMatch  = Yes;
@@ -561,15 +561,15 @@ extern "C" {
         
     };
     
-    void DecodeDEFLATEBlock(PNGOptions *Options, BitBuffer *DEFLATEBlock, BitBuffer *DecodedBlock) { // ByteOrder_MSByteIsRight
+    void DecodeDEFLATEBlock(PNGOptions *Options, BitBuffer *DEFLATEBlock, BitBuffer *DecodedBlock) { // ByteOrder_Right2Left
         AssertIO(Options != NULL);
         AssertIO(DEFLATEBlock != NULL);
         AssertIO(DecodedBlock != NULL);
         // Huffman codes are written MSBit first, everything else is writen LSBit first
         
         // DEFLATE Block header:
-        bool     BlockIsFinal = BitBuffer_ReadBits(DEFLATEBlock, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 1); // BFINAL
-        uint8_t  BlockType    = BitBuffer_ReadBits(DEFLATEBlock, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 2); // BTYPE
+        bool     BlockIsFinal = BitBuffer_ReadBits(DEFLATEBlock, ByteOrder_Left2Right, BitOrder_Right2Left, 1); // BFINAL
+        uint8_t  BlockType    = BitBuffer_ReadBits(DEFLATEBlock, ByteOrder_Left2Right, BitOrder_Right2Left, 2); // BTYPE
         
         if (BlockType == DynamicHuffmanBlock) {
             
@@ -590,19 +590,19 @@ extern "C" {
         // ok so how do we do that? I wrote some notes on the Zlib header last night...
         
         /* Compression Method and Flags byte */
-        uint8_t CompressionMethod = BitBuffer_ReadBits(DAT2Decode, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 4); // 8
-        uint8_t CompressionInfo   = BitBuffer_ReadBits(DAT2Decode, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 4); // 7
+        uint8_t CompressionMethod = BitBuffer_ReadBits(DAT2Decode, ByteOrder_Left2Right, BitOrder_Right2Left, 4); // 8
+        uint8_t CompressionInfo   = BitBuffer_ReadBits(DAT2Decode, ByteOrder_Left2Right, BitOrder_Right2Left, 4); // 7
         /* Compression Method and Flags byte */
         
         /* FlagByte */
-        uint8_t FCHECK            = BitBuffer_ReadBits(DAT2Decode, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 5); // 1E
-        bool    FDICTPresent      = BitBuffer_ReadBits(DAT2Decode, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 1); // 0
-        uint8_t FLEVEL            = BitBuffer_ReadBits(DAT2Decode, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 2); // 1
+        uint8_t FCHECK            = BitBuffer_ReadBits(DAT2Decode, ByteOrder_Left2Right, BitOrder_Right2Left, 5); // 1E
+        bool    FDICTPresent      = BitBuffer_ReadBits(DAT2Decode, ByteOrder_Left2Right, BitOrder_Right2Left, 1); // 0
+        uint8_t FLEVEL            = BitBuffer_ReadBits(DAT2Decode, ByteOrder_Left2Right, BitOrder_Right2Left, 2); // 1
         /* FlagByte */
         
         if (FDICTPresent) {
             // Read TableID which is 4 bytes
-            uint32_t DICTID       = BitBuffer_ReadBits(DAT2Decode, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
+            uint32_t DICTID       = BitBuffer_ReadBits(DAT2Decode, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
         }
         
         // Start reading the DEFLATE block?
@@ -614,8 +614,8 @@ extern "C" {
         AssertIO(BitB != NULL);
         // read the iDAT/fDAT chunk header, then do the other stuff.
         while (BitBuffer_GetSize(BitB) > 0) { // 12 is the start of IEND
-            uint32_t ChunkSize   = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-            uint32_t ChunkID     = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
+            uint32_t ChunkSize   = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+            uint32_t ChunkID     = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
             
             
             if (ChunkID == PNGMarker_acTL) {
@@ -687,15 +687,15 @@ extern "C" {
         uint8_t     ****ImageArrayBytes        = (uint8_t****) ImageContainer_GetArray(Image);
         bool     IsFinalBlock                  = false;
         do {
-            IsFinalBlock                       = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 1); // 0
-            Flate_BlockTypes BlockType         = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 2); // 0b00 = 0
+            IsFinalBlock                       = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 1); // 0
+            Flate_BlockTypes BlockType         = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 2); // 0b00 = 0
             if (BlockType == BlockType_Literal) {
                 BitBuffer_Align(BitB, 1); // Skip the remaining 5 bits
-                uint16_t Bytes2Copy    = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 16); // 0x4F42 = 20,290
-                uint16_t Bytes2CopyXOR = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 16) ^ 0xFFFF; // 0xB0BD = 0x4F42
+                uint16_t Bytes2Copy    = BitBuffer_ReadBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 16); // 0x4F42 = 20,290
+                uint16_t Bytes2CopyXOR = BitBuffer_ReadBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 16) ^ 0xFFFF; // 0xB0BD = 0x4F42
                 AssertIO(Bytes2Copy == Bytes2CopyXOR);
                 for (uint16_t Byte = 0ULL; Byte < Bytes2Copy; Byte++) {
-                    ImageArrayBytes[0][0][0][Byte] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 8);
+                    ImageArrayBytes[0][0][0][Byte] = BitBuffer_ReadBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 8);
                 }
             } else if (BlockType == BlockType_Fixed) {
                 //Tree = HuffmanTree_Init();
@@ -967,16 +967,16 @@ extern "C" {
     void PNG_IHDR_Parse(PNGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->iHDR->Width          = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->iHDR->Height         = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->iHDR->BitDepth       = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
-        Options->iHDR->ColorType      = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+        Options->iHDR->Width          = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->iHDR->Height         = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->iHDR->BitDepth       = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
+        Options->iHDR->ColorType      = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
         AssertIO(Options->iHDR->ColorType != 1);
         AssertIO(Options->iHDR->ColorType != 5);
         AssertIO(Options->iHDR->ColorType < 7);
-        Options->iHDR->Compression    = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
-        Options->iHDR->FilterMethod   = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
-        Options->iHDR->IsInterlaced   = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+        Options->iHDR->Compression    = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
+        Options->iHDR->FilterMethod   = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
+        Options->iHDR->IsInterlaced   = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
     }
     
     void PNG_PLTE_Parse(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) {
@@ -988,16 +988,16 @@ extern "C" {
             if (ColorType == PNGColor_Palette || ColorType == PNGColor_RGB) {
                 //PNG_PLTE_Init(Ovia);
                 for (uint32_t Entry = 0UL; Entry < ChunkSize / 3; Entry++) {
-                    Options->PLTE->Palette[0] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 8);
-                    Options->PLTE->Palette[1] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 8);
-                    Options->PLTE->Palette[2] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 8);
+                    Options->PLTE->Palette[0] = BitBuffer_ReadBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 8);
+                    Options->PLTE->Palette[1] = BitBuffer_ReadBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 8);
+                    Options->PLTE->Palette[2] = BitBuffer_ReadBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 8);
                 }
             } else if (ColorType == PNGColor_RGBAlpha) {
                 for (uint32_t Entry = 0UL; Entry < ChunkSize / 3; Entry++) {
-                    Options->PLTE->Palette[0] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 8);
-                    Options->PLTE->Palette[1] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 8);
-                    Options->PLTE->Palette[2] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 8);
-                    Options->PLTE->Palette[3] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 8);
+                    Options->PLTE->Palette[0] = BitBuffer_ReadBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 8);
+                    Options->PLTE->Palette[1] = BitBuffer_ReadBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 8);
+                    Options->PLTE->Palette[2] = BitBuffer_ReadBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 8);
+                    Options->PLTE->Palette[3] = BitBuffer_ReadBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 8);
                 }
             }
         }
@@ -1019,7 +1019,7 @@ extern "C" {
         }
         AssertIO(Entries != NULL);
         for (uint8_t Color = 0; Color < PNG_GetNumChannels(Options->iHDR->ColorType); Color++) {
-            Entries[Color]    = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, Bits2Bytes(Options->iHDR->BitDepth, RoundingType_Up));
+            Entries[Color]    = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, Bits2Bytes(Options->iHDR->BitDepth, RoundingType_Up));
         }
         //Ovia->tRNS->Palette = Entries;
     }
@@ -1028,49 +1028,49 @@ extern "C" {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         for (uint8_t Entry = 0; Entry < PNG_GetNumChannels(Options->iHDR->ColorType); Entry++) {
-            Options->bkGD->BackgroundPaletteEntry[Entry] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, Options->iHDR->BitDepth);
+            Options->bkGD->BackgroundPaletteEntry[Entry] = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, Options->iHDR->BitDepth);
         }
     }
     
     void PNG_CHRM_Parse(PNGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->cHRM->WhitePointX = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->cHRM->WhitePointY = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->cHRM->RedX        = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->cHRM->RedY        = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->cHRM->GreenX      = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->cHRM->GreenY      = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->cHRM->BlueX       = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->cHRM->BlueY       = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
+        Options->cHRM->WhitePointX = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->cHRM->WhitePointY = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->cHRM->RedX        = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->cHRM->RedY        = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->cHRM->GreenX      = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->cHRM->GreenY      = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->cHRM->BlueX       = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->cHRM->BlueY       = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
     }
     
     void PNG_GAMA_Parse(PNGOptions *Options, BitBuffer *BitB) { // Gamma
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->gAMA->Gamma = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
+        Options->gAMA->Gamma = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
     }
     
     void PNG_OFFS_Parse(PNGOptions *Options, BitBuffer *BitB) { // Image Offset
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->oFFs->XOffset       = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->oFFs->YOffset       = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->oFFs->UnitSpecifier = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+        Options->oFFs->XOffset       = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->oFFs->YOffset       = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->oFFs->UnitSpecifier = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
     }
     
     void PNG_PHYS_Parse(PNGOptions *Options, BitBuffer *BitB) { // Aspect ratio, Physical pixel size
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->pHYs->PixelsPerUnitXAxis = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->pHYs->PixelsPerUnitYAxis = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->pHYs->UnitSpecifier      = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+        Options->pHYs->PixelsPerUnitXAxis = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->pHYs->PixelsPerUnitYAxis = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->pHYs->UnitSpecifier      = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
     }
     
     void PNG_SCAL_Parse(PNGOptions *Options, BitBuffer *BitB) { // Physical Scale
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->sCAL->UnitSpecifier  = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8); // 1 = Meter, 2 = Radian
+        Options->sCAL->UnitSpecifier  = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8); // 1 = Meter, 2 = Radian
         
         uint32_t WidthStringSize  = BitBuffer_GetUTF8StringSize(BitB);
         uint32_t HeightStringSize = BitBuffer_GetUTF8StringSize(BitB);
@@ -1090,10 +1090,10 @@ extern "C" {
         AssertIO(BitB != NULL);
         uint8_t CalibrationSize              = BitBuffer_GetUTF8StringSize(BitB);
         Options->pCAL->CalibrationName           = BitBuffer_ReadUTF8(BitB, CalibrationSize);
-        Options->pCAL->OriginalZero              = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->pCAL->OriginalMax               = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->pCAL->EquationType              = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
-        Options->pCAL->NumParams                 = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+        Options->pCAL->OriginalZero              = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->pCAL->OriginalMax               = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->pCAL->EquationType              = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
+        Options->pCAL->NumParams                 = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
         uint8_t UnitNameSize                 = BitBuffer_GetUTF8StringSize(BitB);
         Options->pCAL->UnitName                  = BitBuffer_ReadUTF8(BitB, UnitNameSize);
         BitBuffer_Seek(BitB, 8); // NULL seperator
@@ -1112,32 +1112,32 @@ extern "C" {
         AssertIO(BitB != NULL);
         PNGColorTypes ColorType  = Options->iHDR->ColorType;
         if (ColorType == PNGColor_Gray) {
-            Options->sBIT->Grayscale = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+            Options->sBIT->Grayscale = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
         } else if (ColorType == PNGColor_RGB || ColorType == PNGColor_Palette) {
-            Options->sBIT->Red       = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
-            Options->sBIT->Green     = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
-            Options->sBIT->Blue      = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+            Options->sBIT->Red       = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
+            Options->sBIT->Green     = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
+            Options->sBIT->Blue      = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
         } else if (ColorType == PNGColor_GrayAlpha) {
-            Options->sBIT->Grayscale = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
-            Options->sBIT->Alpha     = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+            Options->sBIT->Grayscale = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
+            Options->sBIT->Alpha     = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
         } else if (ColorType == PNGColor_RGBAlpha) {
-            Options->sBIT->Red       = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
-            Options->sBIT->Green     = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
-            Options->sBIT->Blue      = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
-            Options->sBIT->Alpha     = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+            Options->sBIT->Red       = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
+            Options->sBIT->Green     = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
+            Options->sBIT->Blue      = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
+            Options->sBIT->Alpha     = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
         }
     }
     
     void PNG_SRGB_Parse(PNGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->sRGB->RenderingIntent = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+        Options->sRGB->RenderingIntent = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
     }
     
     void PNG_STER_Parse(PNGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->sTER->StereoType = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+        Options->sTER->StereoType = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
         // No matter what StereoType is used, both images are arranged side by side, and the left edge is aligned on a boundary of the 8th column in case interlacing is used.
         // The two sub images must have the same dimensions after padding is removed.
         // CROSS_FUSE_LAYOUT = 0, DIVERGING_FUSE_LAYOUT = 1
@@ -1190,43 +1190,43 @@ extern "C" {
     void PNG_TIME_Parse(PNGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->tIMe->Year                     = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 16);
-        Options->tIMe->Month                    = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
-        Options->tIMe->Day                      = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
-        Options->tIMe->Hour                     = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
-        Options->tIMe->Minute                   = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
-        Options->tIMe->Second                   = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+        Options->tIMe->Year                     = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 16);
+        Options->tIMe->Month                    = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
+        Options->tIMe->Day                      = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
+        Options->tIMe->Hour                     = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
+        Options->tIMe->Minute                   = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
+        Options->tIMe->Second                   = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
     }
     
     /* APNG */
     void PNG_ACTL_Parse(PNGOptions *Options, BitBuffer *BitB) { // Animation control, part of APNG
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->acTL->NumFrames             = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->acTL->TimesToLoop           = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32); // If 0, loop forever.
+        Options->acTL->NumFrames             = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->acTL->TimesToLoop           = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32); // If 0, loop forever.
     }
     
     void PNG_FCTL_Parse(PNGOptions *Options, BitBuffer *BitB) { // Frame Control, part of APNG
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->fcTL->FrameNum              = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->fcTL->Width                 = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->fcTL->Height                = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->fcTL->XOffset               = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->fcTL->YOffset               = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->fcTL->FrameDelayNumerator   = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 16);
-        Options->fcTL->FrameDelayDenominator = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 16);
-        Options->fcTL->DisposeMethod         = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
-        Options->fcTL->BlendMethod           = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+        Options->fcTL->FrameNum              = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->fcTL->Width                 = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->fcTL->Height                = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->fcTL->XOffset               = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->fcTL->YOffset               = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->fcTL->FrameDelayNumerator   = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 16);
+        Options->fcTL->FrameDelayDenominator = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 16);
+        Options->fcTL->DisposeMethod         = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
+        Options->fcTL->BlendMethod           = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
     }
     /* End APNG */
     
     void PNG_HIST_Parse(PNGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->hIST->NumColors = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
+        Options->hIST->NumColors = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
         for (uint32_t Color = 0; Color < Options->hIST->NumColors; Color++) {
-            Options->hIST->Histogram[Color] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, Options->iHDR->BitDepth);
+            Options->hIST->Histogram[Color] = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, Options->iHDR->BitDepth);
         }
     }
     
@@ -1235,9 +1235,9 @@ extern "C" {
         AssertIO(BitB != NULL);
         uint8_t ProfileNameSize    = BitBuffer_GetUTF8StringSize(BitB);
         Options->iCCP->ProfileName     = BitBuffer_ReadUTF8(BitB, ProfileNameSize);
-        Options->iCCP->CompressionType = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+        Options->iCCP->CompressionType = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
         // Decompress the data with Zlib
-        ProfileNameSize = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+        ProfileNameSize = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
     }
     
     void PNG_SPLT_Parse(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) {
@@ -1254,11 +1254,11 @@ extern "C" {
         }
         Options->sPLT[Options->NumSPLTChunks - 1].PaletteName = BitBuffer_ReadUTF8(BitB, PaletteNameSize);
         for (uint32_t Entry = 0; Entry < Options->sPLT->NumEntries; Entry++) {
-            Options->sPLT->Palette[Entry].Red       = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, Bytes2Bits(BitDepthInBytes));
-            Options->sPLT->Palette[Entry].Green     = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, Bytes2Bits(BitDepthInBytes));
-            Options->sPLT->Palette[Entry].Blue      = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, Bytes2Bits(BitDepthInBytes));
+            Options->sPLT->Palette[Entry].Red       = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, Bytes2Bits(BitDepthInBytes));
+            Options->sPLT->Palette[Entry].Green     = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, Bytes2Bits(BitDepthInBytes));
+            Options->sPLT->Palette[Entry].Blue      = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, Bytes2Bits(BitDepthInBytes));
             if (ColorType == PNGColor_RGBAlpha || ColorType == PNGColor_GrayAlpha) {
-                Options->sPLT->Palette[Entry].Alpha = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, Bytes2Bits(BitDepthInBytes));
+                Options->sPLT->Palette[Entry].Alpha = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, Bytes2Bits(BitDepthInBytes));
             }
         }
     }
@@ -1267,8 +1267,8 @@ extern "C" {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         while (BitBuffer_GetSize(BitB) > 0) {
-            uint32_t ChunkSize   = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-            uint32_t ChunkID     = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
+            uint32_t ChunkSize   = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+            uint32_t ChunkID     = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
             
             if (ChunkID == PNGMarker_acTL) {
                 PNG_ACTL_Parse(Options, BitB);
@@ -1339,19 +1339,19 @@ extern "C" {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         /* When checking the CRC, you need to skip over the ChunkSize field, but include the ChunkID */
-        uint32_t GeneratedCRC         = BitBuffer_CalculateCRC(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 0, 13, 0x00000000, CRCPolynomial_IEEE802_3);
-        Options->iHDR->Width          = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->iHDR->Height         = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->iHDR->BitDepth       = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
-        Options->iHDR->ColorType      = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+        uint32_t GeneratedCRC         = BitBuffer_CalculateCRC(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 0, 13, 0x00000000, CRCPolynomial_IEEE802_3);
+        Options->iHDR->Width          = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->iHDR->Height         = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->iHDR->BitDepth       = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
+        Options->iHDR->ColorType      = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
         AssertIO(Options->iHDR->ColorType != 1);
         AssertIO(Options->iHDR->ColorType != 5);
         AssertIO(Options->iHDR->ColorType < 7);
-        Options->iHDR->Compression    = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight,8);
-        Options->iHDR->FilterMethod   = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight,8);
-        Options->iHDR->IsInterlaced   = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight,8);
+        Options->iHDR->Compression    = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left,8);
+        Options->iHDR->FilterMethod   = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left,8);
+        Options->iHDR->IsInterlaced   = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left,8);
         
-        uint32_t CRC              = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight,32);
+        uint32_t CRC              = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left,32);
         AssertIO(GeneratedCRC != CRC);
         
         //VerifyCRC(Options->iHDR, ChunkSize, 1, 1, CRC);
@@ -1369,7 +1369,7 @@ extern "C" {
         
         for (uint8_t Channel = 0; Channel < PNG_GetNumChannels(Options->iHDR->ColorType); Channel++) {
             for (uint16_t PaletteEntry = 0; PaletteEntry < ChunkSize / 3; PaletteEntry++) {
-                Options->PLTE->Palette[Channel][PaletteEntry] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, Options->iHDR->BitDepth);
+                Options->PLTE->Palette[Channel][PaletteEntry] = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, Options->iHDR->BitDepth);
             }
         }
     }
@@ -1377,7 +1377,7 @@ extern "C" {
     void ParseTRNS(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) { // Transparency
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->tRNS->NumEntries = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
+        Options->tRNS->NumEntries = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
         uint16_t **Entries    = NULL;
         if (Options->iHDR->ColorType == PNGColor_RGB) {
             Entries = calloc(3, Bits2Bytes(Options->iHDR->BitDepth, true) * sizeof(uint16_t));
@@ -1390,7 +1390,7 @@ extern "C" {
         }
         AssertIO(Entries != NULL);
         for (uint8_t Color = 0; Color < PNG_GetNumChannels(Options->iHDR->ColorType); Color++) {
-            Entries[Color]    = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, Bits2Bytes(Options->iHDR->BitDepth, true));
+            Entries[Color]    = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, Bits2Bytes(Options->iHDR->BitDepth, true));
         }
         //Options->tRNS->Palette = Entries;
     }
@@ -1399,56 +1399,56 @@ extern "C" {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         for (uint8_t Entry = 0; Entry < 3; Entry++) {
-            Options->bkGD->BackgroundPaletteEntry[Entry] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+            Options->bkGD->BackgroundPaletteEntry[Entry] = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
         }
     }
     
     void ParseCHRM(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) { // Chromaticities
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->cHRM->WhitePointX = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->cHRM->WhitePointY = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->cHRM->RedX        = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->cHRM->RedY        = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->cHRM->GreenX      = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->cHRM->GreenY      = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->cHRM->BlueX       = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->cHRM->BlueY       = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
+        Options->cHRM->WhitePointX = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->cHRM->WhitePointY = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->cHRM->RedX        = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->cHRM->RedY        = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->cHRM->GreenX      = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->cHRM->GreenY      = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->cHRM->BlueX       = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->cHRM->BlueY       = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
     }
     
     void ParseGAMA(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) { // Gamma
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->gAMA->Gamma = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
+        Options->gAMA->Gamma = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
     }
     
     void ParseOFFS(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) { // Image Offset
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->oFFs->XOffset       = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->oFFs->YOffset       = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->oFFs->UnitSpecifier = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+        Options->oFFs->XOffset       = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->oFFs->YOffset       = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->oFFs->UnitSpecifier = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
     }
     
     void ParsePHYS(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) { // Aspect ratio, Physical pixel size
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->pHYs->PixelsPerUnitXAxis = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->pHYs->PixelsPerUnitYAxis = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->pHYs->UnitSpecifier      = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+        Options->pHYs->PixelsPerUnitXAxis = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->pHYs->PixelsPerUnitYAxis = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->pHYs->UnitSpecifier      = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
     }
     
     void ParseSCAL(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) { // Physical Scale
                                                                                // Ok, so we need to take the size of the chunk into account.
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->sCAL->UnitSpecifier = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8); // 1 = Meter, 2 = Radian
+        Options->sCAL->UnitSpecifier = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8); // 1 = Meter, 2 = Radian
         
         uint32_t WidthStringSize  = 0;
         uint32_t HeightStringSize = 0;
         
         for (uint32_t Byte = 0UL; Byte < ChunkSize - 1; Byte++) { // Get the sizes for the field strings
-            if (BitBuffer_PeekBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8) != '\0') {
+            if (BitBuffer_PeekBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8) != '\0') {
                 WidthStringSize += 1;
             }
         }
@@ -1458,11 +1458,11 @@ extern "C" {
         UTF8 *HeightString = calloc(HeightStringSize, sizeof(UTF8));
         
         for (uint32_t WidthCodePoint = 0; WidthCodePoint < WidthStringSize; WidthCodePoint++) {
-            WidthString[WidthCodePoint] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+            WidthString[WidthCodePoint] = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
         }
         BitBuffer_Seek(BitB, 8); // Skip the NULL seperator
         for (uint32_t HeightCodePoint = 0; HeightCodePoint < HeightStringSize; HeightCodePoint++) {
-            HeightString[HeightCodePoint] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+            HeightString[HeightCodePoint] = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
         }
         
         Options->sCAL->PixelWidth  = UTF8_String2Decimal(Base_Integer | Base_Radix10, WidthString);
@@ -1479,21 +1479,21 @@ extern "C" {
     void ParseSBIT(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) { // Significant bits per sample
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->sBIT->Red                   = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
-        Options->sBIT->Green                 = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
-        Options->sBIT->Blue                  = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+        Options->sBIT->Red                   = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
+        Options->sBIT->Green                 = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
+        Options->sBIT->Blue                  = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
     }
     
     void ParseSRGB(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->sRGB->RenderingIntent       = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+        Options->sRGB->RenderingIntent       = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
     }
     
     void ParseSTER(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->sTER->StereoType            = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+        Options->sTER->StereoType            = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
         
         // No matter what StereoType is used, both images are arranged side by side, and the left edge is aligned on a boundary of the 8th column in case interlacing is used.
         // The two sub images must have the same dimensions after padding is removed.
@@ -1515,7 +1515,7 @@ extern "C" {
         uint8_t  CurrentByte = 0; // 1 is BULLshit
         
         do {
-            CurrentByte  = BitBuffer_PeekBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+            CurrentByte  = BitBuffer_PeekBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
             KeywordSize += 1;
         } while (CurrentByte != 0);
         
@@ -1561,12 +1561,12 @@ extern "C" {
     void ParseTIME(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->tIMe->Year                  = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 16);
-        Options->tIMe->Month                 = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
-        Options->tIMe->Day                   = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
-        Options->tIMe->Hour                  = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
-        Options->tIMe->Minute                = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
-        Options->tIMe->Second                = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+        Options->tIMe->Year                  = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 16);
+        Options->tIMe->Month                 = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
+        Options->tIMe->Day                   = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
+        Options->tIMe->Hour                  = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
+        Options->tIMe->Minute                = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
+        Options->tIMe->Second                = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
     }
     
     /* APNG */
@@ -1574,22 +1574,22 @@ extern "C" {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         Options->PNGIsAnimated               = true;
-        Options->acTL->NumFrames             = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->acTL->TimesToLoop           = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32); // If 0, loop forever.
+        Options->acTL->NumFrames             = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->acTL->TimesToLoop           = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32); // If 0, loop forever.
     }
     
     void ParseFCTL(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) { // Frame Control, part of APNG
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->fcTL->FrameNum              = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->fcTL->Width                 = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->fcTL->Height                = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->fcTL->XOffset               = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->fcTL->YOffset               = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
-        Options->fcTL->FrameDelayNumerator   = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 16);
-        Options->fcTL->FrameDelayDenominator = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 16);
-        Options->fcTL->DisposeMethod         = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
-        Options->fcTL->BlendMethod           = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+        Options->fcTL->FrameNum              = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->fcTL->Width                 = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->fcTL->Height                = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->fcTL->XOffset               = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->fcTL->YOffset               = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
+        Options->fcTL->FrameDelayNumerator   = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 16);
+        Options->fcTL->FrameDelayDenominator = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 16);
+        Options->fcTL->DisposeMethod         = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
+        Options->fcTL->BlendMethod           = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
     }
     /* End APNG */
     
@@ -1602,7 +1602,7 @@ extern "C" {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         uint8_t ProfileNameSize = 0;
-        ProfileNameSize = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);
+        ProfileNameSize = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);
     }
     
     void ParseSPLT(PNGOptions *Options, BitBuffer *BitB, uint32_t ChunkSize) {

@@ -28,16 +28,16 @@ extern "C" {
         uint64_t BitDepth    = Options->BitDepth;
         uint8_t CBSize = 46;
         
-        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32, 40); // ChunkSize
-        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 16, 0xFFFE); // WaveFormatExtensible
-        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 16, NumChannels);
-        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32, SampleRate);
-        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32, SampleRate * NumChannels * BitDepth);
-        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32, Options->BlockAlign);
-        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 16, BitDepth);
-        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 16, CBSize);
-        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 16, BitDepth); // ValidBitsPerSample
-        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32, Options->ChannelMask);
+        BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 32, 40); // ChunkSize
+        BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 16, 0xFFFE); // WaveFormatExtensible
+        BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 16, NumChannels);
+        BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 32, SampleRate);
+        BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 32, SampleRate * NumChannels * BitDepth);
+        BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 32, Options->BlockAlign);
+        BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 16, BitDepth);
+        BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 16, CBSize);
+        BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 16, BitDepth); // ValidBitsPerSample
+        BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 32, Options->ChannelMask);
         BitBuffer_WriteGUUID(BitB, GUUIDType_BinaryGUID, WAVNULLBinaryGUID);
     }
     
@@ -61,42 +61,42 @@ extern "C" {
             uint8_t **Samples  = (uint8_t**) Audio2DContainer_GetArray(Container);
             for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                 for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
-                    BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, BitDepth, Samples[Channel][Sample]);
+                    BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, BitDepth, Samples[Channel][Sample]);
                 }
             }
         } else if (Type == (AudioType_Signed | AudioType_Integer8)) {
             int8_t **Samples   = (int8_t**) Audio2DContainer_GetArray(Container);
             for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                 for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
-                    BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, BitDepth, Samples[Channel][Sample]);
+                    BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, BitDepth, Samples[Channel][Sample]);
                 }
             }
         } else if (Type == (AudioType_Unsigned | AudioType_Integer16)) {
             uint16_t **Samples = (uint16_t**) Audio2DContainer_GetArray(Container);
             for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                 for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
-                    BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, BitDepth, Samples[Channel][Sample]);
+                    BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, BitDepth, Samples[Channel][Sample]);
                 }
             }
         } else if (Type == (AudioType_Signed | AudioType_Integer16)) {
             int16_t **Samples  = (int16_t**) Audio2DContainer_GetArray(Container);
             for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                 for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
-                    BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, BitDepth, Samples[Channel][Sample]);
+                    BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, BitDepth, Samples[Channel][Sample]);
                 }
             }
         } else if (Type == (AudioType_Unsigned | AudioType_Integer32)) {
             uint32_t **Samples = (uint32_t**) Audio2DContainer_GetArray(Container);
             for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                 for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
-                    BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, BitDepth, Samples[Channel][Sample]);
+                    BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, BitDepth, Samples[Channel][Sample]);
                 }
             }
         } else if (Type == (AudioType_Signed | AudioType_Integer32)) {
             int32_t **Samples  = (int32_t**) Audio2DContainer_GetArray(Container);
             for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                 for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
-                    BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, BitDepth, Samples[Channel][Sample]);
+                    BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, BitDepth, Samples[Channel][Sample]);
                 }
             }
         }

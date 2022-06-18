@@ -23,7 +23,7 @@ extern "C" {
         for (uint8_t SizeByte = 0; SizeByte < 4; SizeByte++) {
             BitBuffer_Seek(BitB, 1);
             HeaderSize <<= 7;
-            HeaderSize  |= BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsLeft, 7);
+            HeaderSize  |= BitBuffer_ReadBits(BitB, ByteOrder_Right2Left, BitOrder_Left2Right, 7);
         }
         return HeaderSize;
     }
@@ -46,27 +46,27 @@ extern "C" {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         if (Options->Flags == ID3Flags_Unspecified) {
-            BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsLeft, 8, ID3Flags_Unspecified);
+            BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Left2Right, 8, ID3Flags_Unspecified);
         } else {
             AssertIO(Options->VersionMajor == 2);
             if (Options->VersionMinor == 2) {
                 bool IsCompressed     = PlatformIO_Is(Options->Flags, ID3Flags_Compressed);
                 if (IsCompressed == Yes) {
-                    BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsLeft, 8, ID3Flags_Compressed);
+                    BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Left2Right, 8, ID3Flags_Compressed);
                 }
             } else if ((Options->VersionMinor >= 3 && Options->VersionMinor <= 4)) { // ID3v2.3-2.4
                 bool IsExtended       = PlatformIO_Is(Options->Flags, ID3Flags_IsExtended);
                 if (IsExtended == Yes) {
-                    BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsLeft, 8, ID3Flags_IsExtended);
+                    BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Left2Right, 8, ID3Flags_IsExtended);
                 }
                 bool IsExperimental   = PlatformIO_Is(Options->Flags, ID3Flags_IsExperimental);
                 if (IsExperimental == Yes) {
-                    BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsLeft, 8, ID3Flags_IsExperimental);
+                    BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Left2Right, 8, ID3Flags_IsExperimental);
                 }
             } else if (Options->VersionMinor == 4) { // ID3v2.4
                 bool HasFooter        = PlatformIO_Is(Options->Flags, ID3Flags_HasFooter);
                 if (HasFooter == Yes) {
-                    BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsLeft, 8, ID3Flags_HasFooter);
+                    BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Left2Right, 8, ID3Flags_HasFooter);
                 }
             }
         }
@@ -76,8 +76,8 @@ extern "C" {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         BitBuffer_WriteUTF8(BitB, UTF8String("ID3"), StringTerminator_Sized);
-        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsLeft, 8, Options->VersionMajor);
-        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsLeft, 8, Options->VersionMinor);
+        BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Left2Right, 8, Options->VersionMajor);
+        BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Left2Right, 8, Options->VersionMinor);
         ID3Options_WriteFlags(Options, BitB);
     }
     
@@ -85,8 +85,8 @@ extern "C" {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         BitBuffer_WriteUTF8(BitB, UTF8String("3DI"), StringTerminator_Sized);
-        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsLeft, 8, Options->VersionMajor);
-        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsLeft, 8, Options->VersionMinor);
+        BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Left2Right, 8, Options->VersionMajor);
+        BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Left2Right, 8, Options->VersionMinor);
         ID3Options_WriteFlags(Options, BitB);
     }
     
@@ -101,29 +101,29 @@ extern "C" {
     void ID3Options_ReadHeader(ID3Options *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->VersionMajor = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsLeft, 8);
-        Options->VersionMinor = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsLeft, 8);
-        bool UnsyncIsUsed     = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsLeft, 1);
+        Options->VersionMajor = BitBuffer_ReadBits(BitB, ByteOrder_Right2Left, BitOrder_Left2Right, 8);
+        Options->VersionMinor = BitBuffer_ReadBits(BitB, ByteOrder_Right2Left, BitOrder_Left2Right, 8);
+        bool UnsyncIsUsed     = BitBuffer_ReadBits(BitB, ByteOrder_Right2Left, BitOrder_Left2Right, 1);
         if (UnsyncIsUsed == Yes) {
             Options->Flags   |= ID3Flags_UnsyncIsUsed;
         }
         AssertIO(Options->VersionMajor == 2);
         if (Options->VersionMinor == 2) {
-            bool IsCompressed     = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsLeft, 1);
+            bool IsCompressed     = BitBuffer_ReadBits(BitB, ByteOrder_Right2Left, BitOrder_Left2Right, 1);
             if (IsCompressed == Yes) {
                 Options->Flags   |= ID3Flags_Compressed;
             }
         } else if ((Options->VersionMinor >= 3 && Options->VersionMinor <= 4)) { // ID3v2.3-2.4
-            bool IsExtended       = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsLeft, 1);
+            bool IsExtended       = BitBuffer_ReadBits(BitB, ByteOrder_Right2Left, BitOrder_Left2Right, 1);
             if (IsExtended == Yes) {
                 Options->Flags   |= ID3Flags_IsExtended;
             }
-            bool IsExperimental   = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsLeft, 1);
+            bool IsExperimental   = BitBuffer_ReadBits(BitB, ByteOrder_Right2Left, BitOrder_Left2Right, 1);
             if (IsExperimental == Yes) {
                 Options->Flags   |= ID3Flags_IsExperimental;
             }
         } else if (Options->VersionMinor == 4) { // ID3v2.4
-            bool HasFooter        = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsLeft, 1);
+            bool HasFooter        = BitBuffer_ReadBits(BitB, ByteOrder_Right2Left, BitOrder_Left2Right, 1);
             if (HasFooter == Yes) {
                 Options->Flags   |= ID3Flags_HasFooter;
             }

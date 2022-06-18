@@ -16,24 +16,24 @@ extern "C" {
         uint64_t FileSize      = DIBHeaderSize + 2 + ImageSize;
         uint16_t NumPlanes     = 1; // Constant
         
-        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 16, BMP_BM);
-        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32, FileSize);
-        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 16, 0); // Reserved1
-        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 16, 0); // Reserved2
-        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32, 2 + 40);
-        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32, DIBHeaderSize);
+        BitBuffer_WriteBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 16, BMP_BM);
+        BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 32, FileSize);
+        BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 16, 0); // Reserved1
+        BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 16, 0); // Reserved2
+        BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 32, 2 + 40);
+        BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 32, DIBHeaderSize);
         /* Write DIB Header */
-        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32, Options->Width);
-        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32, Options->Height);
+        BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 32, Options->Width);
+        BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 32, Options->Height);
         
-        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 16, NumPlanes);
-        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 16, Options->BitDepth);
-        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32, Options->CompressionType);
-        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32, ImageSize);
-        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32, Options->WidthPixelsPerMeter);
-        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32, Options->HeightPixelsPerMeter);
-        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32, Options->ColorsIndexed);
-        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32, Options->IndexedColorsUsed);
+        BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 16, NumPlanes);
+        BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 16, Options->BitDepth);
+        BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 32, Options->CompressionType);
+        BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 32, ImageSize);
+        BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 32, Options->WidthPixelsPerMeter);
+        BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 32, Options->HeightPixelsPerMeter);
+        BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 32, Options->ColorsIndexed);
+        BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 32, Options->IndexedColorsUsed);
     }
     
     void BMPInsertImage(BMPOptions *Options, BitBuffer *BitB, ImageContainer *Image) {
@@ -52,7 +52,7 @@ extern "C" {
             for (uint64_t W = 0; W < Width; W++) {
                 for (uint64_t H = 0; H < Height; H++) {
                     for (uint16_t C = 0; C < NumChannels; C++) {
-                        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, BitDepth, Array[0][W][H][C]);
+                        BitBuffer_WriteBits(BitB, ByteOrder_Left2Right, BitOrder_Left2Right, BitDepth, Array[0][W][H][C]);
                     }
                 }
             }
@@ -61,7 +61,7 @@ extern "C" {
             for (uint64_t W = 0; W < Width; W++) {
                 for (uint64_t H = 0; H < Height; H++) {
                     for (uint16_t C = 0; C < NumChannels; C++) {
-                        BitBuffer_WriteBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, BitDepth, Array[0][W][H][C]);
+                        BitBuffer_WriteBits(BitB, ByteOrder_Left2Right, BitOrder_Left2Right, BitDepth, Array[0][W][H][C]);
                     }
                 }
             }

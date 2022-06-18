@@ -12,16 +12,16 @@ extern "C" {
     void JPEG_Read_StartOfFrame(JPEGOptions *Options, BitBuffer *BitB, uint16_t SegmentSize) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->BitDepth                               = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);  // 9
-        Options->Height                                 = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 16); // 8, Height
-        Options->Width                                  = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 16); // 8, Width
-        Options->NumChannels                            = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);  // 3, Components
+        Options->BitDepth                               = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);  // 9
+        Options->Height                                 = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 16); // 8, Height
+        Options->Width                                  = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 16); // 8, Width
+        Options->NumChannels                            = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);  // 3, Components
         Options->Channels                               = calloc(Options->NumChannels, sizeof(JPEG_ChannelParameters));
         if (Options->Channels != NULL) {
             for (uint8_t Channel = 0; Channel < Options->NumChannels; Channel++) {
-                Options->Channels[Channel].ChannelID    = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8); // 1, 2, 3,
-                Options->Channels[Channel].HorizontalSF = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 4); // 1, 1, 1,
-                Options->Channels[Channel].VerticalSF   = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 4); // 1, 1, 1,
+                Options->Channels[Channel].ChannelID    = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8); // 1, 2, 3,
+                Options->Channels[Channel].HorizontalSF = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 4); // 1, 1, 1,
+                Options->Channels[Channel].VerticalSF   = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 4); // 1, 1, 1,
             }
         }
         BitBuffer_Seek(BitB, Bytes2Bits(SegmentSize - ((Options->NumChannels * 3) + 8)));
@@ -59,8 +59,8 @@ extern "C" {
         Options->Huffman->Values                            = calloc(2, sizeof(HuffmanValue*));
         AssertIO(Options->Huffman->Values != NULL);
         while (SegmentSize > 0) {
-            uint8_t TableType                        = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 4); // 0
-            Options->Huffman->TableID                   = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 4); // 0
+            uint8_t TableType                        = BitBuffer_ReadBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 4); // 0
+            Options->Huffman->TableID                   = BitBuffer_ReadBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 4); // 0
                                                                                                                                            // TableType 0 = DC/Lossless, 1 = AC
             
             if (TableType == 0) {
@@ -70,7 +70,7 @@ extern "C" {
                 // BitLengths aka BITS needs to be copied to the specified TableID
                 
                 for (uint8_t Length = 0; Length < 16; Length++) { // BITS
-                    BitLengths[Length]               = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, 8);
+                    BitLengths[Length]               = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Left2Right, 8);
                     NumSymbols                      += BitLengths[Length];
                     SegmentSize                     -= 1;
                 }
@@ -109,7 +109,7 @@ extern "C" {
                             Options->Huffman->Values[Options->Huffman->TableID]->BitLength = BitLength;
                             Options->Huffman->Values[Options->Huffman->TableID]->HuffCode  = HuffCode;
                             HuffCode                                 += 1;
-                            Options->Huffman->Values[Options->Huffman->TableID]->Symbol    = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, 8);
+                            Options->Huffman->Values[Options->Huffman->TableID]->Symbol    = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Left2Right, 8);
                             SegmentSize                              -= 1;
                         }
                         HuffCode                                    <<= 1; // Shift always
@@ -118,7 +118,7 @@ extern "C" {
                 } else if (TableType == 1) {
                     uint16_t Bytes2Skip = 0;
                     for (uint8_t i = 0; i < 16; i++) {
-                        Bytes2Skip                                   += BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, 8);
+                        Bytes2Skip                                   += BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Left2Right, 8);
                     }
                     BitBuffer_Seek(BitB, Bytes2Bits(Bytes2Skip));
                     SegmentSize                                      -= Bytes2Skip;
@@ -130,10 +130,10 @@ extern "C" {
     void JPEG_Read_DefineArithmeticTable(JPEGOptions *Options, BitBuffer *BitB, uint16_t SegmentSize) { // SegmentSize = LA
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->Arithmetic->TableType           = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 4); // Tc
-        Options->Arithmetic->TableID             = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 4); // Tb
+        Options->Arithmetic->TableType           = BitBuffer_ReadBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 4); // Tc
+        Options->Arithmetic->TableID             = BitBuffer_ReadBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 4); // Tb
         
-        Options->Arithmetic->CodeValue           = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 8); // Cs
+        Options->Arithmetic->CodeValue           = BitBuffer_ReadBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 8); // Cs
         /* For DC (and lossless) conditioning tables Tc shall be zero and Cs shall contain two 4-bit parameters, U and L. U and L shall be in the range 0 ≤ L ≤ U ≤ 15 and the value of Cs shall be L + 16 × U. */
         BitBuffer_Seek(BitB, Bytes2Bits(SegmentSize - 6));
     }
@@ -141,26 +141,26 @@ extern "C" {
     void JPEG_Read_DefineRestartInterval(JPEGOptions *Options, BitBuffer *BitB, uint16_t SegmentSize) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->RestartInterval                 = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 16);
+        Options->RestartInterval                 = BitBuffer_ReadBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 16);
         BitBuffer_Seek(BitB, Bytes2Bits(SegmentSize - 4));
     }
     
     void JPEG_Read_DefineNumberOfLines(JPEGOptions *Options, BitBuffer *BitB, uint16_t SegmentSize) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->Height                      = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 16);
+        Options->Height                      = BitBuffer_ReadBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 16);
         BitBuffer_Seek(BitB, Bytes2Bits(SegmentSize - 4));
     }
     
     void JPEG_Read_Comment(JPEGOptions *Options, BitBuffer *BitB, uint16_t SegmentSize) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->CommentSize                 = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, 16);
+        Options->CommentSize                 = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Left2Right, 16);
         if (Options->CommentSize >= 3) {
             Options->Comment                 = calloc(Options->CommentSize - 2, sizeof(CharSet8));
             if (Options->Comment != NULL) {
                 for (uint16_t Byte = 0; Byte < Options->CommentSize - 2; Byte++) {
-                    Options->Comment[Byte]   = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, 8);
+                    Options->Comment[Byte]   = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Left2Right, 8);
                 }
             }
         }
@@ -170,15 +170,15 @@ extern "C" {
     void JPEG_Read_StartOfScan(JPEGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        uint8_t  NumChannels                   = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8);  // 3
+        uint8_t  NumChannels                   = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8);  // 3
         JPEG_ChannelParameters *Channels       = calloc(NumChannels, sizeof(JPEG_ChannelParameters));
         AssertIO(Channels != NULL);
         for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
-            Channels[Channel].ChannelID    = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8); // 1, 2, 3,
-            Channels[Channel].HorizontalSF = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 4); // 0, 1, 1,
-            Channels[Channel].VerticalSF   = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 4); // 0, 0, 0
+            Channels[Channel].ChannelID    = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8); // 1, 2, 3,
+            Channels[Channel].HorizontalSF = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 4); // 0, 1, 1,
+            Channels[Channel].VerticalSF   = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 4); // 0, 0, 0
         }
-        Options->Predictor                        = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 8); // 1
+        Options->Predictor                        = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 8); // 1
         BitBuffer_Seek(BitB, 16); // 3 fields: Se, Ah, Al; 16 bits, should be zero, but otherwise have no meaning.
         /* SoS header parsing is over, now read the data */
         /* So, Markers can occur here, 0xFF is converted to 0xFF 0x00 by the encoder so undo that here */
@@ -190,8 +190,8 @@ extern "C" {
     void JPEG_Parse(JPEGOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        uint16_t Marker            = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, 16);
-        uint16_t SegmentSize       = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, 16);
+        uint16_t Marker            = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Left2Right, 16);
+        uint16_t SegmentSize       = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Left2Right, 16);
         switch (Marker) {
             case JPEGMarker_StartOfFrameLossless1:
                 Options->EntropyCoder = EntropyCoder_Huffman;

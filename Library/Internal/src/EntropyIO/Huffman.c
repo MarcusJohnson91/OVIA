@@ -42,7 +42,7 @@ extern "C" {
         size_t NumSymbols = 0;
         uint16_t BitLengths[16];
         for (uint8_t Length = 0; Length < NumBitlengths; Length++) {
-            BitLengths[Length] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, 8);
+            BitLengths[Length] = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Left2Right, 8);
             NumSymbols += BitLengths[Length];
         }
 
@@ -50,7 +50,7 @@ extern "C" {
 
         // Ok, now we read NumSymbols from the file and put them where?
         for (size_t Symbol = 0; Symbol < NumSymbols; Symbol++) {
-            Symbols[Symbol] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, 8);
+            Symbols[Symbol] = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Left2Right, 8);
             // Ok, so now we're done setting the HuffmanOptions, next we need to create the actual tree from the values set in the tree
         }
         Huffman_BuildTreeFromBitlengths(Options, BitLengths, NumBitlengths, Symbols, NumSymbols);

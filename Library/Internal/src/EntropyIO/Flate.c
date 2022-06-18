@@ -26,11 +26,11 @@ extern "C" {
     
     void Flate_ReadZlibHeader(FlateOptions *Options, BitBuffer *BitB) { // This will be the main function for each Zlib block
         AssertIO(BitB != NULL);
-        uint8_t  CompressionMethod = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 4);
-        uint8_t  CompressionInfo   = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 4);
-        uint8_t  FCHECK            = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 5);
-        bool     FDICT             = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 1);
-        uint8_t  FLEVEL            = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 2);
+        uint8_t  CompressionMethod = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 4);
+        uint8_t  CompressionInfo   = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 4);
+        uint8_t  FCHECK            = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 5);
+        bool     FDICT             = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 1);
+        uint8_t  FLEVEL            = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 2);
         uint32_t DictID  = 0;
         AssertIO(CompressionInfo != 7);
         AssertIO(CompressionMethod != 8);
@@ -41,7 +41,7 @@ extern "C" {
         FCheck         |= FCHECK;
         AssertIO(FCheck % 31 == 0);
         if (FDICT == Yes) {
-            DictID  = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 32);
+            DictID  = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32);
         }
     }
 
@@ -53,7 +53,7 @@ extern "C" {
         uint32_t FirstSymbolOfLength = 0;
         for (uint8_t Bit = 1; Bit <= MaxBitsPerSymbol; Bit++) {
             Symbol             <<= 1;
-            Symbol              |= BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 1);
+            Symbol              |= BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 1);
             Count                = Tree->Frequency[Bit];
             if (Symbol - Count < FirstSymbolOfLength) {
                 Symbol           = Tree->Symbol[Bit + (Symbol - FirstSymbolOfLength)];
@@ -73,10 +73,10 @@ extern "C" {
             Symbol                              = ReadSymbol(BitB, LengthTree);
             if (Symbol > 256) { // length
                 Symbol  -= 257;
-                uint64_t Length                 = LengthBase[Symbol] + BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, LengthAdditionalBits[Symbol]);
+                uint64_t Length                 = LengthBase[Symbol] + BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Left2Right, LengthAdditionalBits[Symbol]);
 
                 Symbol                          = ReadSymbol(BitB, DistanceTree);
-                uint64_t Distance               = DistanceBase[Symbol] + BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, DistanceAdditionalBits[Symbol]);
+                uint64_t Distance               = DistanceBase[Symbol] + BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Left2Right, DistanceAdditionalBits[Symbol]);
 
                 AssertIO(ImageArray != NULL);
                 for (uint64_t NumBytes2Copy = 0; NumBytes2Copy < Length; NumBytes2Copy++) {
@@ -91,8 +91,8 @@ extern "C" {
 
     static void Flate_ReadLiteralBlock(FlateOptions *Options, BitBuffer *BitB) {
         BitBuffer_Align(BitB, 1);
-        uint16_t LEN  = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 16);
-        uint16_t NLEN = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 16) ^ 0xFFFF;
+        uint16_t LEN  = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 16);
+        uint16_t NLEN = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 16) ^ 0xFFFF;
         AssertIO(LEN == NLEN);
         // Copy LEN bytes from the stream to the image
         // Literal block up to 65535 bytes of data
@@ -105,15 +105,15 @@ extern "C" {
     }
 
     static void Flate_ReadDynamicBlock(FlateOptions *Options, BitBuffer *BitB) {
-        uint16_t NumLengthCodes               = 257 + BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 5); // HLIT; 21, 26?
-        uint8_t  NumDistCodes                 = 1   + BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 5); // HDIST; 17, 9?
-        uint8_t  NumCodeLengthCodeLengthCodes = 4   + BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 4); // HCLEN; 13,
+        uint16_t NumLengthCodes               = 257 + BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 5); // HLIT; 21, 26?
+        uint8_t  NumDistCodes                 = 1   + BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 5); // HDIST; 17, 9?
+        uint8_t  NumCodeLengthCodeLengthCodes = 4   + BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 4); // HCLEN; 13,
         AssertIO(NumLengthCodes <= MaxLiteralLengthCodes);
         AssertIO(NumDistCodes <= MaxDistanceCodes);
         uint16_t *CodeLengthCodeLengths   = calloc(NumMetaCodes, sizeof(uint16_t));
 
         for (uint8_t CodeLengthCodeLengthCode = 0; CodeLengthCodeLengthCode < NumCodeLengthCodeLengthCodes; CodeLengthCodeLengthCode++) {
-            CodeLengthCodeLengths[MetaCodeLengthOrder[CodeLengthCodeLengthCode]] = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, 3);
+            CodeLengthCodeLengths[MetaCodeLengthOrder[CodeLengthCodeLengthCode]] = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Left2Right, 3);
         }
 
         HuffmanTree *Tree2DecodeTrees     = HuffmanTree_Init(CodeLengthCodeLengths, NumMetaCodes);
@@ -127,11 +127,11 @@ extern "C" {
             } else {
                 if (Symbol == 16) {
                     Length2Repeat         = CodeLengthCodeLengths[Index - 1];
-                    Symbol                = 3 + BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, 2);
+                    Symbol                = 3 + BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Left2Right, 2);
                 } else if (Symbol == 17) {
-                    Symbol                = 3 + BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, 3);
+                    Symbol                = 3 + BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Left2Right, 3);
                 } else {
-                    Symbol                = 11 + BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsLeft, 7);
+                    Symbol                = 11 + BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Left2Right, 7);
                 }
                 while (Symbol -= 1) {
                     CodeLengthCodeLengths[Index += 1] = Length2Repeat;
@@ -146,8 +146,8 @@ extern "C" {
         AssertIO(BitB != NULL);
         bool BFINAL           = No;
         do {
-            BFINAL            = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 1); // Yes
-            uint8_t BTYPE     = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsLeft, BitOrder_MSBitIsRight, 2); // 0b10 aka 2 aka BlockType_Dynamic
+            BFINAL            = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 1); // Yes
+            uint8_t BTYPE     = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 2); // 0b10 aka 2 aka BlockType_Dynamic
             switch (BTYPE) {
                 case BlockType_Literal:
                     Flate_ReadLiteralBlock(Options, BitB);

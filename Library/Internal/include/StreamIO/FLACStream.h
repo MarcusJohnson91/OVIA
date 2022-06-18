@@ -89,8 +89,8 @@ extern "C" {
         .MagicID           = &FLACSignature,
         .OffsetInBits      = 1,
         .FieldSizeInBits   = 7,
-        .ByteOrder         = ByteOrder_MSByteIsRight,
-        .BitOrder          = BitOrder_MSBitIsLeft,
+        .ByteOrder         = ByteOrder_Right2Left,
+        .BitOrder          = BitOrder_Left2Right,
     };
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)

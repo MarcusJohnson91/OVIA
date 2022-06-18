@@ -116,8 +116,8 @@ extern "C" {
     static void WAVReadLISTChunk(TagIO_Tags *Tags, BitBuffer *BitB) {
         AssertIO(Tags != NULL);
         AssertIO(BitB != NULL);
-        uint32_t SubChunkID     = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32);
-        uint32_t SubChunkSize   = BitBuffer_ReadBits(BitB, ByteOrder_MSByteIsRight, BitOrder_MSBitIsRight, 32);
+        uint32_t SubChunkID     = BitBuffer_ReadBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 32);
+        uint32_t SubChunkSize   = BitBuffer_ReadBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 32);
         uint64_t OriginalOffset = BitBuffer_GetPosition(BitB); // After reading each Chunk, make sure the offset is corrected
         uint64_t TargetOffset   = OriginalOffset + Bytes2Bits(SubChunkSize);
         
