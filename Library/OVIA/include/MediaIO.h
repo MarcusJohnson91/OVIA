@@ -168,22 +168,22 @@ extern "C" {
      @abstract                                      Gets the BitDepth of the Audio Samples.
      @param                 AudioType               The AudioType.
      */
-    uint8_t                 AudioType_GetBitDepth(MediaIO_AudioTypes AudioType);
+    uint8_t                 AudioType_GetBitDepth(PlatformIOTypes AudioType);
     
     /*!
      @abstract                                      Gets the BitDepth of the Image Samples.
      @param                 ImageType               The ImageType.
      */
-    uint8_t                 ImageType_GetBitDepth(MediaIO_ImageTypes ImageType);
+    uint8_t                 ImageType_GetBitDepth(PlatformIOTypes ImageType);
     
     /*!
      @abstract                                      Creates an empty Audio2DContainer.
-     @param                 Type                    A type from MediaIO_AudioTypes.
+     @param                 Type                    A type from PlatformIOTypes.
      @param                 ChannelMap              Array of ChannelMasks, one array entry for each channel.
      @param                 SampleRate              The number of samples in one second of audio.
      @param                 NumSamples              NumSamples is the number of channel independent samples, e.g. X samples is BitDepth * NumChannels * X.
      */
-    Audio2DContainer       *Audio2DContainer_Init(MediaIO_AudioTypes Type, AudioChannelMap *ChannelMap, uint64_t SampleRate, uint64_t NumSamples);
+    Audio2DContainer       *Audio2DContainer_Init(PlatformIOTypes Type, AudioChannelMap *ChannelMap, uint64_t SampleRate, uint64_t NumSamples);
     
     /*!
      @abstract                                      Returns the number of channel-agnostic samples in one second.
@@ -207,7 +207,7 @@ extern "C" {
      @abstract                                      Gets the type of the array contained by the Audio2DContainer.
      @param                 Audio                   A pointer to the instance of an Audio2DContainer in question.
      */
-    MediaIO_AudioTypes      Audio2DContainer_GetType(Audio2DContainer *Audio);
+    PlatformIOTypes      Audio2DContainer_GetType(Audio2DContainer *Audio);
     
     /*!
      @abstract                                      Gets a pointer to the array of samples.
@@ -381,7 +381,7 @@ extern "C" {
      @param                 ChannelMap              The ChannelMap to create the downmix with.
      @param                 Type                    The type of the audio, should this be gleaned from the 3D audio?
      */
-    Audio2DContainer       *Audio3DContainer_Mix2Audio2DContainer(Audio3DContainer *Audio3D, AudioChannelMap *ChannelMap, MediaIO_AudioTypes Type, uint64_t SampleRate);
+    Audio2DContainer       *Audio3DContainer_Mix2Audio2DContainer(Audio3DContainer *Audio3D, AudioChannelMap *ChannelMap, PlatformIOTypes Type, uint64_t SampleRate);
     
     
     /*!
@@ -527,7 +527,7 @@ extern "C" {
      @param                 Width                   The number of pixels making up one row.
      @param                 Height                  The number of pixels making up one column.
      */
-    ImageContainer         *ImageContainer_Init(MediaIO_ImageTypes Type, ImageChannelMap *ChannelMap, uint64_t Width, uint64_t Height);
+    ImageContainer         *ImageContainer_Init(PlatformIOTypes Type, ImageChannelMap *ChannelMap, uint64_t Width, uint64_t Height);
     
     /*!
      @abstract                                      Returns the number of pixels in one row of this image.
@@ -558,7 +558,7 @@ extern "C" {
      @abstract                                      Gets the type of the array contained by the ImageContainer.
      @param                 Image                   A pointer to the instance of an ImageContainer in question.
      */
-    MediaIO_ImageTypes      ImageContainer_GetType(ImageContainer *Image);
+    PlatformIOTypes      ImageContainer_GetType(ImageContainer *Image);
 
     /*!
      @abstract                                      Convienence function that just calls ImageContainer_GetType.

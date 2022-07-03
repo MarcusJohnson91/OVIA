@@ -15,20 +15,20 @@ extern "C" {
         return Options;
     }
 
-    static MediaIO_ImageTypes JPEG_GetImageType(JPEGOptions *JPEG) {
+    static PlatformIOTypes JPEG_GetImageType(JPEGOptions *JPEG) {
         AssertIO(JPEG != NULL);
-        MediaIO_ImageTypes Type = ImageType_Unknown;
+        PlatformIOTypes Type = PlatformIOType_Unspecified;
         if (JPEG->BitDepth > 8) {
-            Type          = ImageType_Integer8;
+            Type          = PlatformIOType_Integer8;
         } else {
-            Type          = ImageType_Integer16;
+            Type          = PlatformIOType_Integer16;
         }
         return Type;
     }
 
     static MediaIO_ImageMask JPEG_GetChannelMask(JPEGOptions *JPEG) {
         AssertIO(JPEG != NULL);
-        MediaIO_ImageMask Mask = ImageMask_Unknown;
+        MediaIO_ImageMask Mask = ImageMask_Unspecified;
         if (JPEG->NumChannels == 3) {
             Mask               = ImageMask_2D | ImageMask_Luma | ImageMask_Chroma1 | ImageMask_Chroma2;
         } else if (JPEG->NumChannels == 1) { // Todo: Actually find the channels encoded instead of assuming this basic shit

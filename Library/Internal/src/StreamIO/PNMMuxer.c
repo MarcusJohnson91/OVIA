@@ -143,8 +143,8 @@ extern "C" {
         uint64_t ChannelCount   = Options->NumChannels;
         uint64_t Width          = ImageContainer_GetWidth(Image);
         uint64_t Height         = ImageContainer_GetHeight(Image);
-        MediaIO_ImageTypes Type = ImageContainer_GetType(Image);
-        if (Type == ImageType_Integer8) {
+        PlatformIOTypes Type = ImageContainer_GetType(Image);
+        if (Type == PlatformIOType_Integer8) {
             uint8_t *Array  = (uint8_t*) ImageContainer_GetArray(Image);
             for (uint64_t W = 0ULL; W < Width; W++) {
                 for (uint64_t H = 0ULL; H < Height; H++) {
@@ -153,7 +153,7 @@ extern "C" {
                     }
                 }
             }
-        } else if (Type == ImageType_Integer16) {
+        } else if (Type == PlatformIOType_Integer16) {
             uint16_t *Array  = (uint16_t*) ImageContainer_GetArray(Image);
             for (uint64_t W = 0ULL; W < Width; W++) {
                 for (uint64_t H = 0ULL; H < Height; H++) {

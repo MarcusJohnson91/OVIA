@@ -7,20 +7,32 @@
 extern "C" {
 #endif
 
-    uint8_t AudioType_GetBitDepth(MediaIO_AudioTypes AudioType) {
-        AssertIO(AudioType != AudioType_Unknown);
-        static_assert(AudioType_Integer8 == 4, "AudioType enum changed, update this function");
-        static_assert(AudioType_Integer16 == 8, "AudioType enum changed, update this function");
-        static_assert(AudioType_Integer32 == 16, "AudioType enum changed, update this function");
+    /*
+     How should video be represented?
+
+     There's two views here, for example an MKV file opened for reading will be contained by BitBuffer that slides the window over the data in the frame in reasonable chunks.
+
+     for encoding and video analysis however is a harder problem.
+
+     for that we need numerous raw images in ImageContainers that we need to handle.
+
+     like, to cluster between frames, and to detect scene changes all the output we would need is to know when a frame changes enough from the previous ones.
+     */
+
+    uint8_t AudioType_GetBitDepth(PlatformIOTypes AudioType) {
+        AssertIO(AudioType != PlatformIOType_Unspecified);
+        static_assert(PlatformIOType_Integer8 == 4, "AudioType enum changed, update this function");
+        static_assert(PlatformIOType_Integer16 == 8, "AudioType enum changed, update this function");
+        static_assert(PlatformIOType_Integer32 == 16, "AudioType enum changed, update this function");
         return ((AudioType & 28) >> 2) * 8;
     }
 
-    uint8_t ImageType_GetBitDepth(MediaIO_ImageTypes ImageType) {
-        AssertIO(ImageType != ImageType_Unknown);
-        static_assert(ImageType_Integer8 == 1, "ImageType enum changed, update this function");
-        static_assert(ImageType_Integer16 == 2, "ImageType enum changed, update this function");
-        static_assert(ImageType_Integer32 == 4, "ImageType enum changed, update this function");
-        return (ImageType & (ImageType_Integer8 | ImageType_Integer16 | ImageType_Integer32)) * 8;
+    uint8_t ImageType_GetBitDepth(PlatformIOTypes ImageType) {
+        AssertIO(ImageType != PlatformIOType_Unspecified);
+        static_assert(PlatformIOType_Integer8 == 4, "ImageType enum changed, update this function");
+        static_assert(PlatformIOType_Integer16 == 8, "ImageType enum changed, update this function");
+        static_assert(PlatformIOType_Integer32 == 16, "ImageType enum changed, update this function");
+        return (ImageType & (PlatformIOType_Integer8 | PlatformIOType_Integer16 | PlatformIOType_Integer32)) / 4;
     }
 
     typedef struct FlatHistogram {
@@ -89,7 +101,7 @@ extern "C" {
         Index            = ChannelMap->NumChannels;
         uint64_t Channel = 0ULL;
         while (Channel < ChannelMap->NumChannels) {
-            if (ChannelMap->Map[Channel] != AudioMask_Unknown) {
+            if (ChannelMap->Map[Channel] != AudioMask_Unspecified) {
                 Index    = Channel;
                 break;
             }
@@ -112,11 +124,11 @@ extern "C" {
         uint64_t            NumSamples;
         uint64_t            SampleRate;
         uint64_t            Offset;
-        MediaIO_AudioTypes  Type;
+        PlatformIOTypes  Type;
     } Audio2DContainer;
     
-    Audio2DContainer *Audio2DContainer_Init(MediaIO_AudioTypes Type, AudioChannelMap *ChannelMap, uint64_t SampleRate, uint64_t NumSamples) {
-        AssertIO(Type != AudioMask_Unknown);
+    Audio2DContainer *Audio2DContainer_Init(PlatformIOTypes Type, AudioChannelMap *ChannelMap, uint64_t SampleRate, uint64_t NumSamples) {
+        AssertIO(Type != AudioMask_Unspecified);
         AssertIO(ChannelMap != NULL);
         AssertIO(SampleRate > 0);
         AssertIO(NumSamples > 0);
@@ -159,9 +171,9 @@ extern "C" {
         return NumSamples;
     }
     
-    MediaIO_AudioTypes Audio2DContainer_GetType(Audio2DContainer *Audio) {
+    PlatformIOTypes Audio2DContainer_GetType(Audio2DContainer *Audio) {
         AssertIO(Audio != NULL);
-        MediaIO_AudioTypes Type = Audio->Type;
+        PlatformIOTypes Type = Audio->Type;
         return Type;
     }
     
@@ -176,32 +188,32 @@ extern "C" {
         AssertIO(Channel < Audio->NumChannels);
         int64_t Average = 0LL;
 
-            if (Audio->Type == (AudioType_Unsigned | AudioType_Integer8)) {
+            if (Audio->Type == (PlatformIOType_Unsigned | PlatformIOType_Integer8)) {
                 uint8_t **Array = (uint8_t**) Audio2DContainer_GetArray(Audio);
                 for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
                     Average += Array[Channel][Sample];
                 }
-            } else if (Audio->Type == (AudioType_Signed | AudioType_Integer8)) {
+            } else if (Audio->Type == (PlatformIOType_Signed | PlatformIOType_Integer8)) {
                 int8_t **Array = (int8_t**) Audio2DContainer_GetArray(Audio);
                 for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
                     Average += Array[Channel][Sample];
                 }
-            } else if (Audio->Type == (AudioType_Unsigned | AudioType_Integer16)) {
+            } else if (Audio->Type == (PlatformIOType_Unsigned | PlatformIOType_Integer16)) {
                 uint16_t **Array = (uint16_t**) Audio2DContainer_GetArray(Audio);
                 for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
                     Average += Array[Channel][Sample];
                 }
-            } else if (Audio->Type == (AudioType_Signed | AudioType_Integer16)) {
+            } else if (Audio->Type == (PlatformIOType_Signed | PlatformIOType_Integer16)) {
                 int16_t **Array = (int16_t **) Audio2DContainer_GetArray(Audio);
                 for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
                     Average += Array[Channel][Sample];
                 }
-            } else if (Audio->Type == (AudioType_Unsigned | AudioType_Integer32)) {
+            } else if (Audio->Type == (PlatformIOType_Unsigned | PlatformIOType_Integer32)) {
                 uint32_t **Array = (uint32_t**) Audio2DContainer_GetArray(Audio);
                 for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
                     Average += Array[Channel][Sample];
                 }
-            } else if (Audio->Type == (AudioType_Signed | AudioType_Integer32)) {
+            } else if (Audio->Type == (PlatformIOType_Signed | PlatformIOType_Integer32)) {
                 int32_t **Array = (int32_t**) Audio2DContainer_GetArray(Audio);
                 for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
                     Average += Array[Channel][Sample];
@@ -217,7 +229,7 @@ extern "C" {
         AssertIO(Audio != NULL);
         AssertIO(Channel < Audio->NumChannels);
         int64_t Maximum = INT64_MIN;
-        if (Audio->Type == (AudioType_Unsigned | AudioType_Integer8)) {
+        if (Audio->Type == (PlatformIOType_Unsigned | PlatformIOType_Integer8)) {
             uint8_t **Array = (uint8_t**) Audio2DContainer_GetArray(Audio);
             uint8_t   Max   = (uint8_t) Exponentiate(2, Audio2DContainer_GetBitDepth(Audio)) - 1;
             for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
@@ -228,7 +240,7 @@ extern "C" {
                     break;
                 }
             }
-        } else if (Audio->Type == (AudioType_Signed | AudioType_Integer8)) {
+        } else if (Audio->Type == (PlatformIOType_Signed | PlatformIOType_Integer8)) {
             int8_t **Array = (int8_t**) Audio2DContainer_GetArray(Audio);
             int8_t   Max   = (int8_t) Exponentiate(2, Audio2DContainer_GetBitDepth(Audio) - 1) - 1;
             for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
@@ -239,7 +251,7 @@ extern "C" {
                     break;
                 }
             }
-        } else if (Audio->Type == (AudioType_Unsigned | AudioType_Integer16)) {
+        } else if (Audio->Type == (PlatformIOType_Unsigned | PlatformIOType_Integer16)) {
             uint16_t **Array = (uint16_t**) Audio2DContainer_GetArray(Audio);
             uint16_t   Max   = (uint16_t) Exponentiate(2, Audio2DContainer_GetBitDepth(Audio)) - 1;
             for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
@@ -250,7 +262,7 @@ extern "C" {
                     break;
                 }
             }
-        } else if (Audio->Type == (AudioType_Signed | AudioType_Integer16)) {
+        } else if (Audio->Type == (PlatformIOType_Signed | PlatformIOType_Integer16)) {
             int16_t **Array = (int16_t **) Audio2DContainer_GetArray(Audio);
             int16_t   Max   = (int16_t) Exponentiate(2, Audio2DContainer_GetBitDepth(Audio) - 1) - 1;
             for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
@@ -261,7 +273,7 @@ extern "C" {
                     break;
                 }
             }
-        } else if (Audio->Type == (AudioType_Unsigned | AudioType_Integer32)) {
+        } else if (Audio->Type == (PlatformIOType_Unsigned | PlatformIOType_Integer32)) {
             uint32_t **Array = (uint32_t**) Audio2DContainer_GetArray(Audio);
             uint32_t   Max   = (uint32_t) Exponentiate(2, Audio2DContainer_GetBitDepth(Audio)) - 1;
             for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
@@ -272,7 +284,7 @@ extern "C" {
                     break;
                 }
             }
-        } else if (Audio->Type == (AudioType_Signed | AudioType_Integer32)) {
+        } else if (Audio->Type == (PlatformIOType_Signed | PlatformIOType_Integer32)) {
             int32_t **Array = (int32_t**) Audio2DContainer_GetArray(Audio);
             int32_t   Max   = (int32_t) Exponentiate(2, Audio2DContainer_GetBitDepth(Audio) - 1) - 1;
             for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
@@ -291,7 +303,7 @@ extern "C" {
         AssertIO(Audio != NULL);
         AssertIO(Channel < Audio->NumChannels);
         int64_t Minimum = INT64_MAX;
-        if (Audio->Type == (AudioType_Unsigned | AudioType_Integer8)) {
+        if (Audio->Type == (PlatformIOType_Unsigned | PlatformIOType_Integer8)) {
             uint8_t **Array = (uint8_t**) Audio2DContainer_GetArray(Audio);
             for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
                 if (Array[Channel][Sample] < Minimum) {
@@ -301,7 +313,7 @@ extern "C" {
                     break;
                 }
             }
-        } else if (Audio->Type == (AudioType_Signed | AudioType_Integer8)) {
+        } else if (Audio->Type == (PlatformIOType_Signed | PlatformIOType_Integer8)) {
             int8_t **Array = (int8_t**) Audio2DContainer_GetArray(Audio);
             for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
                 if (Array[Channel][Sample] < Minimum) {
@@ -311,7 +323,7 @@ extern "C" {
                     break;
                 }
             }
-        } else if (Audio->Type == (AudioType_Unsigned | AudioType_Integer16)) {
+        } else if (Audio->Type == (PlatformIOType_Unsigned | PlatformIOType_Integer16)) {
             uint16_t **Array = (uint16_t**) Audio2DContainer_GetArray(Audio);
             for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
                 if (Array[Channel][Sample] < Minimum) {
@@ -321,7 +333,7 @@ extern "C" {
                     break;
                 }
             }
-        } else if (Audio->Type == (AudioType_Signed | AudioType_Integer16)) {
+        } else if (Audio->Type == (PlatformIOType_Signed | PlatformIOType_Integer16)) {
             int16_t **Array = (int16_t **) Audio2DContainer_GetArray(Audio);
             for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
                 if (Array[Channel][Sample] < Minimum) {
@@ -331,7 +343,7 @@ extern "C" {
                     break;
                 }
             }
-        } else if (Audio->Type == (AudioType_Unsigned | AudioType_Integer32)) {
+        } else if (Audio->Type == (PlatformIOType_Unsigned | PlatformIOType_Integer32)) {
             uint32_t **Array = (uint32_t**) Audio2DContainer_GetArray(Audio);
             for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
                 if (Array[Channel][Sample] < Minimum) {
@@ -341,7 +353,7 @@ extern "C" {
                     break;
                 }
             }
-        } else if (Audio->Type == (AudioType_Signed | AudioType_Integer32)) {
+        } else if (Audio->Type == (PlatformIOType_Signed | PlatformIOType_Integer32)) {
             int32_t **Array = (int32_t**) Audio2DContainer_GetArray(Audio);
             for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
                 if (Array[Channel][Sample] < Minimum) {
@@ -358,7 +370,7 @@ extern "C" {
     uint8_t Audio2DContainer_Erase(Audio2DContainer *Audio, uint8_t NewValue) {
         AssertIO(Audio != NULL);
         uint8_t Verification = 0xFE;
-        if (Audio->Type == (AudioType_Unsigned | AudioType_Integer8)) {
+        if (Audio->Type == (PlatformIOType_Unsigned | PlatformIOType_Integer8)) {
             uint8_t **Samples = (uint8_t**) Audio2DContainer_GetArray(Audio);
 
             for (uint64_t Channel = 0ULL; Channel < Audio2DContainer_GetNumChannels(Audio); Channel++) {
@@ -367,7 +379,7 @@ extern "C" {
                 }
             }
             Verification = (Samples[0][0] & 0xFF);
-        } else if (Audio->Type == (AudioType_Signed | AudioType_Integer8)) {
+        } else if (Audio->Type == (PlatformIOType_Signed | PlatformIOType_Integer8)) {
             int8_t **Samples = (int8_t**) Audio2DContainer_GetArray(Audio);
 
             for (uint64_t Channel = 0ULL; Channel < Audio2DContainer_GetNumChannels(Audio); Channel++) {
@@ -376,7 +388,7 @@ extern "C" {
                 }
             }
             Verification = (Samples[0][0] & 0xFF);
-        } else if (Audio->Type == (AudioType_Unsigned | AudioType_Integer16)) {
+        } else if (Audio->Type == (PlatformIOType_Unsigned | PlatformIOType_Integer16)) {
             uint16_t **Samples = (uint16_t**) Audio2DContainer_GetArray(Audio);
 
             for (uint64_t Channel = 0ULL; Channel < Audio2DContainer_GetNumChannels(Audio); Channel++) {
@@ -385,7 +397,7 @@ extern "C" {
                 }
             }
             Verification = (Samples[0][0] & 0xFF);
-        } else if (Audio->Type == (AudioType_Signed | AudioType_Integer16)) {
+        } else if (Audio->Type == (PlatformIOType_Signed | PlatformIOType_Integer16)) {
             int16_t **Samples = (int16_t **) Audio2DContainer_GetArray(Audio);
 
             for (uint64_t Channel = 0ULL; Channel < Audio2DContainer_GetNumChannels(Audio); Channel++) {
@@ -394,7 +406,7 @@ extern "C" {
                 }
             }
             Verification = (Samples[0][0] & 0xFF);
-        } else if (Audio->Type == (AudioType_Unsigned | AudioType_Integer32)) {
+        } else if (Audio->Type == (PlatformIOType_Unsigned | PlatformIOType_Integer32)) {
             uint32_t **Samples = (uint32_t**) Audio2DContainer_GetArray(Audio);
 
             for (uint64_t Channel = 0ULL; Channel < Audio2DContainer_GetNumChannels(Audio); Channel++) {
@@ -403,7 +415,7 @@ extern "C" {
                 }
             }
             Verification = (Samples[0][0] & 0xFF);
-        } else if (Audio->Type == (AudioType_Signed | AudioType_Integer32)) {
+        } else if (Audio->Type == (PlatformIOType_Signed | PlatformIOType_Integer32)) {
             int32_t **Samples = (int32_t**) Audio2DContainer_GetArray(Audio);
 
             for (uint64_t Channel = 0ULL; Channel < Audio2DContainer_GetNumChannels(Audio); Channel++) {
@@ -436,7 +448,7 @@ extern "C" {
         MediaIO_AudioMask         *ChannelMap;
         uint64_t                   NumEntries;
         uint8_t                    NumChannels;
-        MediaIO_AudioTypes         Type;
+        PlatformIOTypes         Type;
     } Audio2DHistogram;
     
     Audio2DHistogram *Audio2DHistogram_Init(Audio2DContainer *Audio) {
@@ -470,7 +482,7 @@ extern "C" {
     FlatHistogram *Audio2DHistogram_Flatten(Audio2DHistogram *Histogram) {
         AssertIO(Histogram != NULL);
         FlatHistogram *Flat                     = NULL;
-        if PlatformIO_Is(Histogram->Type, AudioType_Integer8) {
+        if PlatformIO_Is(Histogram->Type, PlatformIOType_Integer8) {
             uint8_t **Array                 = (uint8_t**) Histogram->Array;
             for (uint8_t Channel = 0; Channel < Histogram->NumChannels; Channel++) {
                 for (uint64_t Element = 0; Element < Histogram->NumEntries; Element++) {
@@ -478,7 +490,7 @@ extern "C" {
                     Flat->Histogram[Value] += 1;
                 }
             }
-        } else if PlatformIO_Is(Histogram->Type, AudioType_Integer16) {
+        } else if PlatformIO_Is(Histogram->Type, PlatformIOType_Integer16) {
             uint16_t **Array                 = (uint16_t**) Histogram->Array;
             for (uint8_t Channel = 0; Channel < Histogram->NumChannels; Channel++) {
                 for (uint64_t Element = 0; Element < Histogram->NumEntries; Element++) {
@@ -488,7 +500,7 @@ extern "C" {
                     Flat->Histogram[Value2] += 1;
                 }
             }
-        } else if PlatformIO_Is(Histogram->Type, AudioType_Integer32) {
+        } else if PlatformIO_Is(Histogram->Type, PlatformIOType_Integer32) {
             uint32_t **Array                 = (uint32_t**) Histogram->Array;
             for (uint8_t Channel = 0; Channel < Histogram->NumChannels; Channel++) {
                 for (uint64_t Element = 0; Element < Histogram->NumEntries; Element++) {
@@ -512,7 +524,7 @@ extern "C" {
         AssertIO(Histogram != NULL);
         uint8_t NumChannels = Audio2DContainer_GetNumChannels(Audio);
 
-        if (Histogram->Type == AudioType_Integer8) {
+        if (Histogram->Type == PlatformIOType_Integer8) {
             uint8_t **SampleArray = (uint8_t**) Audio->Samples;
             uint8_t  *HistArray   = (uint8_t*) Histogram->Array;
             for (uint64_t C = 0ULL; C < NumChannels; C++) {
@@ -521,7 +533,7 @@ extern "C" {
                     HistArray[Sample] += 1;
                 }
             }
-        } else if (Histogram->Type == AudioType_Integer16) {
+        } else if (Histogram->Type == PlatformIOType_Integer16) {
             uint16_t **SampleArray = (uint16_t**) Audio->Samples;
             uint16_t  *HistArray   = (uint16_t*) Histogram->Array;
 
@@ -531,7 +543,7 @@ extern "C" {
                     HistArray[Sample] += 1;
                 }
             }
-        } else if (Histogram->Type == AudioType_Integer32) {
+        } else if (Histogram->Type == PlatformIOType_Integer32) {
             uint32_t **SampleArray = (uint32_t**) Audio->Samples;
             uint32_t * HistArray   = (uint32_t*) Histogram->Array;
 
@@ -547,7 +559,7 @@ extern "C" {
     
     void Audio2DHistogram_Sort(Audio2DHistogram *Histogram, MediaIO_SortTypes Sort) {
         AssertIO(Histogram != NULL);
-        AssertIO(Sort != SortType_Unknown);
+        AssertIO(Sort != SortType_Unspecified);
         if (Sort == SortType_Descending) {
             qsort(Histogram->Array, Histogram->NumEntries, sizeof(uint64_t), Sort_Compare_Descending);
         } else if (Sort == SortType_Ascending) {
@@ -592,7 +604,7 @@ extern "C" {
     uint8_t Audio2DHistogram_Erase(Audio2DHistogram *Histogram, uint8_t NewValue) {
         AssertIO(Histogram != NULL);
         uint8_t Verification = 0xFE;
-        if (Histogram->Type == (AudioType_Unsigned | AudioType_Integer8)) {
+        if (Histogram->Type == (PlatformIOType_Unsigned | PlatformIOType_Integer8)) {
             uint8_t **Samples = (uint8_t**) Audio2DHistogram_GetArray(Histogram);
 
             for (uint64_t Channel = 0ULL; Channel < Histogram->NumChannels; Channel++) {
@@ -601,7 +613,7 @@ extern "C" {
                 }
             }
             Verification = (Samples[0][0] & 0xFF);
-        } else if (Histogram->Type == (AudioType_Signed | AudioType_Integer8)) {
+        } else if (Histogram->Type == (PlatformIOType_Signed | PlatformIOType_Integer8)) {
             int8_t **Samples = (int8_t**) Audio2DHistogram_GetArray(Histogram);
 
             for (uint64_t Channel = 0ULL; Channel < Histogram->NumChannels; Channel++) {
@@ -610,7 +622,7 @@ extern "C" {
                 }
             }
             Verification = (Samples[0][0] & 0xFF);
-        } else if (Histogram->Type == (AudioType_Unsigned | AudioType_Integer16)) {
+        } else if (Histogram->Type == (PlatformIOType_Unsigned | PlatformIOType_Integer16)) {
             uint16_t **Samples = (uint16_t**) Audio2DHistogram_GetArray(Histogram);
 
             for (uint64_t Channel = 0ULL; Channel < Histogram->NumChannels; Channel++) {
@@ -619,7 +631,7 @@ extern "C" {
                 }
             }
             Verification = (Samples[0][0] & 0xFF);
-        } else if (Histogram->Type == (AudioType_Signed | AudioType_Integer16)) {
+        } else if (Histogram->Type == (PlatformIOType_Signed | PlatformIOType_Integer16)) {
             int16_t **Samples = (int16_t **) Audio2DHistogram_GetArray(Histogram);
 
             for (uint64_t Channel = 0ULL; Channel < Histogram->NumChannels; Channel++) {
@@ -628,7 +640,7 @@ extern "C" {
                 }
             }
             Verification = (Samples[0][0] & 0xFF);
-        } else if (Histogram->Type == (AudioType_Unsigned | AudioType_Integer32)) {
+        } else if (Histogram->Type == (PlatformIOType_Unsigned | PlatformIOType_Integer32)) {
             uint32_t **Samples = (uint32_t**) Audio2DHistogram_GetArray(Histogram);
 
             for (uint64_t Channel = 0ULL; Channel < Histogram->NumChannels; Channel++) {
@@ -637,7 +649,7 @@ extern "C" {
                 }
             }
             Verification = (Samples[0][0] & 0xFF);
-        } else if (Histogram->Type == (AudioType_Signed | AudioType_Integer32)) {
+        } else if (Histogram->Type == (PlatformIOType_Signed | PlatformIOType_Integer32)) {
             int32_t **Samples = (int32_t**) Audio2DHistogram_GetArray(Histogram);
 
             for (uint64_t Channel = 0ULL; Channel < Histogram->NumChannels; Channel++) {
@@ -665,7 +677,7 @@ extern "C" {
         uint64_t               NumSamples;
         uint64_t               NumDirections;
         uint64_t               DirectionOffset;
-        MediaIO_AudioTypes     Type;
+        PlatformIOTypes     Type;
     } AudioVector;
     
     AudioVector *AudioVector_Init(void) {
@@ -687,19 +699,19 @@ extern "C" {
     
     uint8_t AudioVector_Erase(AudioVector *Vector, uint8_t NewValue) {
         AssertIO(Vector != NULL);
-        if PlatformIO_Is(Vector->Type, AudioType_Integer8) {
+        if PlatformIO_Is(Vector->Type, PlatformIOType_Integer8) {
             uint8_t *Samples = (uint8_t*) Vector->Samples;
 
             for (uint64_t Sample = 0ULL; Sample < Vector->NumSamples; Sample++) {
                 Samples[Sample] = NewValue;
             }
-        } else if PlatformIO_Is(Vector->Type, AudioType_Integer16) {
+        } else if PlatformIO_Is(Vector->Type, PlatformIOType_Integer16) {
             uint16_t *Samples = (uint16_t*) Vector->Samples;
 
             for (uint64_t Sample = 0ULL; Sample < Vector->NumSamples; Sample++) {
                 Samples[Sample] = NewValue;
             }
-        } else if PlatformIO_Is(Vector->Type, AudioType_Integer32) {
+        } else if PlatformIO_Is(Vector->Type, PlatformIOType_Integer32) {
             uint32_t *Samples = (uint32_t*) Vector->Samples;
 
             for (uint64_t Sample = 0ULL; Sample < Vector->NumSamples; Sample++) {
@@ -715,7 +727,7 @@ extern "C" {
         Vector->NumDirections   = 0;
         Vector->NumSamples      = 0;
         Vector->SampleRate      = 0;
-        Vector->Type            = AudioType_Unknown;
+        Vector->Type            = PlatformIOType_Unspecified;
         return NewValue;
     }
     
@@ -729,7 +741,7 @@ extern "C" {
     typedef struct AudioVectorHistogram {
         uint64_t          *Histogram;
         uint64_t           NumSamples;
-        MediaIO_AudioTypes Type; // for the BitDepth, there will be 2^BitDepth values in the Histogram array
+        PlatformIOTypes Type; // for the BitDepth, there will be 2^BitDepth values in the Histogram array
     } AudioVectorHistogram;
     
     AudioVectorHistogram *AudioVectorHistogram_Init(AudioVector *Vector) {
@@ -743,13 +755,13 @@ extern "C" {
         Histogram->Histogram        = calloc(NumValues, BitDepth / 8);
         AssertIO(Histogram->Histogram != NULL);
 
-        if PlatformIO_Is(Histogram->Type, AudioType_Integer8) {
+        if PlatformIO_Is(Histogram->Type, PlatformIOType_Integer8) {
             Histogram->NumSamples   = Minimum(256, Vector->NumSamples);
             Histogram->Histogram    = (uint64_t*) calloc(Histogram->NumSamples, sizeof(uint64_t));
-        } else if PlatformIO_Is(Histogram->Type, AudioType_Integer16) {
+        } else if PlatformIO_Is(Histogram->Type, PlatformIOType_Integer16) {
             Histogram->NumSamples   = Minimum(65536, Vector->NumSamples);
             Histogram->Histogram    = (uint64_t*) calloc(Histogram->NumSamples, sizeof(uint64_t));
-        } else if PlatformIO_Is(Histogram->Type, AudioType_Integer32) {
+        } else if PlatformIO_Is(Histogram->Type, PlatformIOType_Integer32) {
             Histogram->NumSamples   = Vector->NumSamples;
             Histogram->Histogram    = (uint64_t*) calloc(Histogram->NumSamples, sizeof(uint64_t));
         }
@@ -771,21 +783,21 @@ extern "C" {
         AssertIO(Vector != NULL);
         AudioVectorHistogram *Histogram = AudioVectorHistogram_Init(Vector);
         AssertIO(Histogram != NULL);
-        if PlatformIO_Is(Histogram->Type, AudioType_Integer8) {
+        if PlatformIO_Is(Histogram->Type, PlatformIOType_Integer8) {
             uint8_t *Samples = (uint8_t*) AudioVector_GetArray(Vector);
 
             for (uint64_t Sample = 0; Sample < Vector->NumSamples; Sample++) {
                 uint64_t Value = (uint64_t) Samples[Sample];
                 Histogram->Histogram[Value] += 1;
             }
-        } else if PlatformIO_Is(Histogram->Type, AudioType_Integer16) {
+        } else if PlatformIO_Is(Histogram->Type, PlatformIOType_Integer16) {
             uint16_t *Samples = (uint16_t*) AudioVector_GetArray(Vector);
 
             for (uint64_t Sample = 0; Sample < Vector->NumSamples; Sample++) {
                 uint64_t Value = (uint64_t) Samples[Sample];
                 Histogram->Histogram[Value] += 1;
             }
-        } else if PlatformIO_Is(Histogram->Type, AudioType_Integer32) {
+        } else if PlatformIO_Is(Histogram->Type, PlatformIOType_Integer32) {
             uint32_t *Samples = (uint32_t*) AudioVector_GetArray(Vector);
 
             for (uint64_t Sample = 0; Sample < Vector->NumSamples; Sample++) {
@@ -798,7 +810,7 @@ extern "C" {
     
     void AudioVectorHistogram_Sort(AudioVectorHistogram *Histogram, MediaIO_SortTypes Sort) {
         AssertIO(Histogram != NULL);
-        AssertIO(Sort != SortType_Unknown);
+        AssertIO(Sort != SortType_Unspecified);
         if (Sort == SortType_Descending) {
             qsort(Histogram->Histogram, Histogram->NumSamples, sizeof(uint64_t), Sort_Compare_Descending);
         } else if (Sort == SortType_Ascending) { // Bottom to Top
@@ -855,7 +867,7 @@ extern "C" {
         return NumSamples;
     }
     
-    Audio2DContainer *Audio3DContainer_Mix2Audio2DContainer(Audio3DContainer *Audio3D, AudioChannelMap *ChannelMap, MediaIO_AudioTypes Type, uint64_t SampleRate) {
+    Audio2DContainer *Audio3DContainer_Mix2Audio2DContainer(Audio3DContainer *Audio3D, AudioChannelMap *ChannelMap, PlatformIOTypes Type, uint64_t SampleRate) {
         AssertIO(Audio3D != NULL);
         return Audio2DContainer_Init(Type, ChannelMap, SampleRate, Audio3DContainer_GetTotalNumSamples(Audio3D));
     }
@@ -868,17 +880,17 @@ extern "C" {
                  Direction < Container->Vectors[Vector]->NumDirections; Direction++) {
                 Container->Vectors[Vector]->Directions[Direction] = NewValue;
             }
-            if PlatformIO_Is(Container->Vectors[Vector]->Type, AudioType_Integer8) {
+            if PlatformIO_Is(Container->Vectors[Vector]->Type, PlatformIOType_Integer8) {
                 for (uint64_t Sample = 0ULL; Sample < Container->Vectors[Vector]->NumSamples; Sample++) {
                     uint8_t *Samples = (uint8_t*) Container->Vectors[Vector]->Samples;
                     Samples[Sample] = NewValue;
                 }
-            } else if PlatformIO_Is(Container->Vectors[Vector]->Type, AudioType_Integer16) {
+            } else if PlatformIO_Is(Container->Vectors[Vector]->Type, PlatformIOType_Integer16) {
                 for (uint64_t Sample = 0ULL; Sample < Container->Vectors[Vector]->NumSamples; Sample++) {
                     uint16_t *Samples = (uint16_t*) Container->Vectors[Vector]->Samples;
                     Samples[Sample] = NewValue;
                 }
-            } else if PlatformIO_Is(Container->Vectors[Vector]->Type, AudioType_Integer32) {
+            } else if PlatformIO_Is(Container->Vectors[Vector]->Type, PlatformIOType_Integer32) {
                 for (uint64_t Sample = 0ULL; Sample < Container->Vectors[Vector]->NumSamples; Sample++) {
                     uint32_t *Samples = (uint32_t*) Container->Vectors[Vector]->Samples;
                     Samples[Sample] = NewValue;
@@ -928,7 +940,7 @@ extern "C" {
     
     uint8_t ImageChannelMap_GetChannelsIndex(ImageChannelMap *ChannelMap, MediaIO_ImageMask Mask) {
         AssertIO(ChannelMap != NULL);
-        AssertIO(Mask != ImageMask_Unknown);
+        AssertIO(Mask != ImageMask_Unspecified);
         uint8_t Index = 0xFF;
         Index     = ChannelMap->NumChannels;
         for (uint8_t Channel = 0; Channel < ChannelMap->NumChannels; Channel++) {
@@ -960,11 +972,11 @@ extern "C" {
         ImageChannelMap       *ChannelMap;
         uint64_t               Width;
         uint64_t               Height;
-        MediaIO_ImageTypes     Type;
+        PlatformIOTypes     Type;
     } ImageContainer;
     
-    ImageContainer *ImageContainer_Init(MediaIO_ImageTypes Type, ImageChannelMap *ChannelMap, uint64_t Width, uint64_t Height) {
-        AssertIO(Type != ImageType_Unknown);
+    ImageContainer *ImageContainer_Init(PlatformIOTypes Type, ImageChannelMap *ChannelMap, uint64_t Width, uint64_t Height) {
+        AssertIO(Type != PlatformIOType_Unspecified);
         AssertIO(ChannelMap != NULL);
         AssertIO(Width > 0);
         AssertIO(Height > 0);
@@ -1001,7 +1013,7 @@ extern "C" {
         Image->ChannelMap = ChannelMap;
     }
     
-    MediaIO_ImageTypes ImageContainer_GetType(ImageContainer *Image) {
+    PlatformIOTypes ImageContainer_GetType(ImageContainer *Image) {
         AssertIO(Image != NULL);
         return Image->Type;
     }
@@ -1036,14 +1048,14 @@ extern "C" {
         AssertIO(View < NumViews);
         uint8_t          NumChannels = ImageChannelMap_GetNumChannels(Map);
         AssertIO(Channel < NumChannels);
-        if (Image->Type == ImageType_Integer8) {
+        if (Image->Type == PlatformIOType_Integer8) {
             uint8_t ****Array = (uint8_t****) ImageContainer_GetArray(Image);
             for (uint64_t Width = 0ULL; Width < Image->Width; Width++) {
                 for (uint64_t Height = 0ULL; Height < Image->Height; Height++) {
                     Average += Array[View][Width][Height][Channel];
                 }
             }
-        } else if (Image->Type == ImageType_Integer16) {
+        } else if (Image->Type == PlatformIOType_Integer16) {
             uint16_t ****Array = (uint16_t****) ImageContainer_GetArray(Image);
             for (uint64_t Width = 0ULL; Width < Image->Width; Width++) {
                 for (uint64_t Height = 0ULL; Height < Image->Height; Height++) {
@@ -1062,12 +1074,12 @@ extern "C" {
         uint64_t Maximum = 0ULL;
         ImageChannelMap   *Map         = ImageContainer_GetChannelMap(Image);
         AssertIO(Map != NULL);
-        MediaIO_ImageTypes Type        = ImageContainer_GetType(Image);
+        PlatformIOTypes Type        = ImageContainer_GetType(Image);
         uint8_t            NumViews    = ImageChannelMap_GetNumViews(Map);
         AssertIO(View < NumViews);
         uint8_t            NumChannels = ImageChannelMap_GetNumChannels(Map);
         AssertIO(Channel < NumChannels);
-        if (Image->Type == ImageType_Integer8) {
+        if (Image->Type == PlatformIOType_Integer8) {
             uint8_t ****Array  = (uint8_t****) ImageContainer_GetArray(Image);
             uint8_t Max        = Exponentiate(2, ImageType_GetBitDepth(Type));
             for (uint64_t Width = 0ULL; Width < Image->Width; Width++) {
@@ -1080,7 +1092,7 @@ extern "C" {
                     }
                 }
             }
-        } else if (Image->Type == ImageType_Integer16) {
+        } else if (Image->Type == PlatformIOType_Integer16) {
             uint16_t ****Array  = (uint16_t****) ImageContainer_GetArray(Image);
             uint16_t Max        = Exponentiate(2, ImageType_GetBitDepth(Type));
             for (uint64_t Width = 0ULL; Width < Image->Width; Width++) {
@@ -1106,7 +1118,7 @@ extern "C" {
         AssertIO(View < NumViews);
         uint8_t          NumChannels = ImageChannelMap_GetNumChannels(Map);
         AssertIO(Channel < NumChannels);
-        if (Image->Type == ImageType_Integer8) {
+        if (Image->Type == PlatformIOType_Integer8) {
             uint8_t ****Array = (uint8_t****) ImageContainer_GetArray(Image);
             for (uint64_t Width = 0ULL; Width < Image->Width; Width++) {
                 for (uint64_t Height = 0ULL; Height < Image->Height; Height++) {
@@ -1118,7 +1130,7 @@ extern "C" {
                     }
                 }
             }
-        } else if (Image->Type == ImageType_Integer16) {
+        } else if (Image->Type == PlatformIOType_Integer16) {
             uint16_t ****Array = (uint16_t****) ImageContainer_GetArray(Image);
             for (uint64_t Width = 0ULL; Width < Image->Width; Width++) {
                 for (uint64_t Height = 0ULL; Height < Image->Height; Height++) {
@@ -1136,12 +1148,12 @@ extern "C" {
     
     void ImageContainer_Flip(ImageContainer *Image, MediaIO_FlipTypes FlipType) {
         AssertIO(Image != NULL);
-        AssertIO(FlipType != FlipType_Unknown);
+        AssertIO(FlipType != FlipType_Unspecified);
         ImageChannelMap *Map         = ImageContainer_GetChannelMap(Image);
         uint8_t          NumViews    = ImageChannelMap_GetNumViews(Map);
         uint8_t          NumChannels = ImageChannelMap_GetNumChannels(Map);
         if (FlipType == FlipType_Vertical || FlipType == FlipType_VerticalAndHorizontal) {
-            if (Image->Type == ImageType_Integer8) {
+            if (Image->Type == PlatformIOType_Integer8) {
                 uint8_t *Array = (uint8_t*) ImageContainer_GetArray(Image);
                 for (uint64_t View = 0ULL; View < NumViews; View++) {
                     for (uint64_t Width = 0ULL; Width < Image->Width; Width++) {
@@ -1158,7 +1170,7 @@ extern "C" {
                         }
                     }
                 }
-            } else if (Image->Type == ImageType_Integer16) {
+            } else if (Image->Type == PlatformIOType_Integer16) {
                 uint16_t *Array = (uint16_t*) ImageContainer_GetArray(Image);
                 for (uint64_t View = 0ULL; View < NumViews; View++) {
                     for (uint64_t Width = 0ULL; Width < Image->Width; Width++) {
@@ -1178,7 +1190,7 @@ extern "C" {
             }
         }
         if (FlipType == FlipType_Horizontal || FlipType == FlipType_VerticalAndHorizontal) {
-            if (Image->Type == ImageType_Integer8) {
+            if (Image->Type == PlatformIOType_Integer8) {
                 uint8_t *Array = (uint8_t*) ImageContainer_GetArray(Image);
                 for (uint64_t View = 1ULL; View <= NumViews; View++) {
                     for (uint64_t Left = 0ULL; Left < Image->Width; Left++) {
@@ -1195,7 +1207,7 @@ extern "C" {
                         }
                     }
                 }
-            } else if (Image->Type == ImageType_Integer16) {
+            } else if (Image->Type == PlatformIOType_Integer16) {
                 uint16_t *Array = (uint16_t*) ImageContainer_GetArray(Image);
                 for (uint64_t View = 0ULL; View < NumViews; View++) {
                     for (uint64_t Left = 0ULL; Left < Image->Width; Left++) {
@@ -1224,7 +1236,7 @@ extern "C" {
         uint8_t            NumChannels = ImageChannelMap_GetNumChannels(Map);
         uint64_t           Height      = ImageContainer_GetHeight(Image);
         uint64_t           Width       = ImageContainer_GetWidth(Image);
-        MediaIO_ImageTypes Type        = ImageContainer_GetType(Image);
+        PlatformIOTypes Type        = ImageContainer_GetType(Image);
 
         int64_t NewWidth  = 0;
         int64_t NewHeight = 0;
@@ -1236,7 +1248,7 @@ extern "C" {
 
         void ****New = (void****) calloc(NumViews * NewWidth * NewHeight * NumChannels, Type);
         AssertIO(New != NULL);
-        if (Type == ImageType_Integer8) {
+        if (Type == PlatformIOType_Integer8) {
             uint8_t ****Array    = (uint8_t****) ImageContainer_GetArray(Image);
             uint8_t ****NewArray = (uint8_t****) New;
             AssertIO(Array != NULL);
@@ -1252,7 +1264,7 @@ extern "C" {
             }
             ImageContainer_SetArray(Image, (void ****) NewArray);
             free(Array);
-        } else if (Type == ImageType_Integer16) {
+        } else if (Type == PlatformIOType_Integer16) {
             uint16_t ****Array = (uint16_t****) ImageContainer_GetArray(Image);
             uint16_t ****NewArray = (uint16_t****) New;
             AssertIO(Array != NULL);
@@ -1274,7 +1286,7 @@ extern "C" {
     ImageContainer *ImageContainer_Compare(ImageContainer *Reference, ImageContainer *Compare) {
         AssertIO(Reference != NULL);
         AssertIO(Compare != NULL);
-        MediaIO_ImageTypes  RefType     = ImageContainer_GetType(Reference);
+        PlatformIOTypes  RefType     = ImageContainer_GetType(Reference);
         ImageChannelMap    *RefMap      = ImageContainer_GetChannelMap(Reference);
         AssertIO(RefMap != NULL);
         uint8_t             RefNumChans = ImageChannelMap_GetNumChannels(RefMap);
@@ -1282,7 +1294,7 @@ extern "C" {
         uint64_t            RefHeight   = ImageContainer_GetHeight(Reference);
         uint64_t            RefWidth    = ImageContainer_GetWidth(Reference);
 
-        MediaIO_ImageTypes  ComType     = ImageContainer_GetType(Compare);
+        PlatformIOTypes  ComType     = ImageContainer_GetType(Compare);
         ImageChannelMap    *ComMap      = ImageContainer_GetChannelMap(Compare);
         AssertIO(ComMap != NULL);
         uint8_t             ComNumChans = ImageChannelMap_GetNumChannels(ComMap);
@@ -1298,7 +1310,7 @@ extern "C" {
 
         ImageContainer *Difference      = ImageContainer_Init(RefType, RefMap, RefWidth, RefHeight);
         AssertIO(Difference != NULL);
-        if (RefType == ImageType_Integer8) {
+        if (RefType == PlatformIOType_Integer8) {
             uint8_t ****RefArray = (uint8_t****) ImageContainer_GetArray(Reference);
             uint8_t ****ComArray = (uint8_t****) ImageContainer_GetArray(Compare);
             uint8_t ****DifArray = (uint8_t****) ImageContainer_GetArray(Difference);
@@ -1311,7 +1323,7 @@ extern "C" {
                     }
                 }
             }
-        } else if (RefType == ImageType_Integer16) {
+        } else if (RefType == PlatformIOType_Integer16) {
             uint16_t ****RefArray = (uint16_t****) ImageContainer_GetArray(Reference);
             uint16_t ****ComArray = (uint16_t****) ImageContainer_GetArray(Compare);
             uint16_t ****DifArray = (uint16_t****) ImageContainer_GetArray(Difference);
@@ -1336,7 +1348,7 @@ extern "C" {
         uint8_t          NumChannels = ImageChannelMap_GetNumChannels(Map);
         uint8_t          NumViews    = ImageChannelMap_GetNumViews(Map);
 
-        if (Image->Type == ImageType_Integer8) {
+        if (Image->Type == PlatformIOType_Integer8) {
             uint8_t ****Pixels = (uint8_t****) ImageContainer_GetArray(Image);
 
             for (uint64_t View = 0ULL; View < NumViews; View++) {
@@ -1349,7 +1361,7 @@ extern "C" {
                 }
             }
             Verification = Pixels[0][0][0][0] & 0xFF;
-        } else if (Image->Type == ImageType_Integer16) {
+        } else if (Image->Type == PlatformIOType_Integer16) {
             uint16_t ****Pixels = (uint16_t****) ImageContainer_GetArray(Image);
 
             for (uint64_t View = 0ULL; View < NumViews; View++) {
@@ -1377,7 +1389,7 @@ extern "C" {
         uint64_t           ***Array; // View, Channel, Sample
         ImageChannelMap      *ChannelMap;
         uint64_t              NumSamples; // aka 2^BitDepth
-        MediaIO_ImageTypes    Type;
+        PlatformIOTypes    Type;
     } ImageHistogram;
     
     ImageHistogram *ImageHistogram_Init(ImageContainer *Image) {
@@ -1424,7 +1436,7 @@ extern "C" {
     FlatHistogram *ImageHistogram_Flatten(ImageHistogram *Histogram) {
         AssertIO(Histogram != NULL);
         FlatHistogram *Flat                         = FlatHistogram_Init();
-        if PlatformIO_Is(Histogram->Type, ImageType_Integer8) {
+        if PlatformIO_Is(Histogram->Type, PlatformIOType_Integer8) {
             uint8_t ***Array                    = (uint8_t***) Histogram->Array;
             for (uint8_t View = 0; View < ImageChannelMap_GetNumViews(Histogram->ChannelMap); View++) {
                 for (uint8_t Channel = 0; Channel < ImageChannelMap_GetNumChannels(Histogram->ChannelMap); Channel++) {
@@ -1434,7 +1446,7 @@ extern "C" {
                     }
                 }
             }
-        } else if PlatformIO_Is(Histogram->Type, ImageType_Integer16) {
+        } else if PlatformIO_Is(Histogram->Type, PlatformIOType_Integer16) {
             uint16_t ***Array                    = (uint16_t***) Histogram->Array;
             for (uint8_t View = 0; View < ImageChannelMap_GetNumViews(Histogram->ChannelMap); View++) {
                 for (uint8_t Channel = 0; Channel < ImageChannelMap_GetNumChannels(Histogram->ChannelMap); Channel++) {
@@ -1446,7 +1458,7 @@ extern "C" {
                     }
                 }
             }
-        } else if PlatformIO_Is(Histogram->Type, ImageType_Integer32) {
+        } else if PlatformIO_Is(Histogram->Type, PlatformIOType_Integer32) {
             uint32_t ***Array                        = (uint32_t***) Histogram->Array;
             for (uint8_t View = 0; View < ImageChannelMap_GetNumViews(Histogram->ChannelMap); View++) {
                 for (uint8_t Channel = 0; Channel < ImageChannelMap_GetNumChannels(Histogram->ChannelMap); Channel++) {
@@ -1477,7 +1489,7 @@ extern "C" {
         uint64_t         Width       = ImageContainer_GetWidth(Image);
         uint64_t         Height      = ImageContainer_GetHeight(Image);
 
-        if (Histogram->Type == ImageType_Integer8) {
+        if (Histogram->Type == PlatformIOType_Integer8) {
             uint8_t ****ImageArray = (uint8_t****) Image->Pixels;
             uint8_t  ***HistArray  = (uint8_t***) Histogram->Array;
 
@@ -1491,7 +1503,7 @@ extern "C" {
                     }
                 }
             }
-        } else if (Histogram->Type == ImageType_Integer16) {
+        } else if (Histogram->Type == PlatformIOType_Integer16) {
             uint16_t ****ImageArray = (uint16_t****) Image->Pixels;
             uint16_t *** HistArray  = (uint16_t***) Histogram->Array;
 
@@ -1527,7 +1539,7 @@ extern "C" {
         uint8_t          NumChannels = ChannelMap->NumChannels;
         uint8_t          NumViews    = ChannelMap->NumViews;
 
-        if (Histogram->Type == ImageType_Integer8) {
+        if (Histogram->Type == PlatformIOType_Integer8) {
             uint8_t ***Pixels        = (uint8_t***) ImageHistogram_GetArray(Histogram);
 
             for (uint64_t View = 0ULL; View < NumViews; View++) {
@@ -1538,7 +1550,7 @@ extern "C" {
                 }
             }
             Verification = Pixels[0][0][0] & 0xFF;
-        } else if (Histogram->Type == ImageType_Integer16) {
+        } else if (Histogram->Type == PlatformIOType_Integer16) {
             uint16_t ***Pixels = (uint16_t***) ImageHistogram_GetArray(Histogram);
 
             for (uint64_t View = 0ULL; View < NumViews; View++) {

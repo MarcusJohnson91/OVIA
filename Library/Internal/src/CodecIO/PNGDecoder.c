@@ -709,9 +709,9 @@ extern "C" {
     
     void PNG_Filter_Sub(ImageContainer *Image) {
         AssertIO(Image != NULL);
-        MediaIO_ImageTypes Type = ImageContainer_GetType(Image);
+        PlatformIOTypes Type = ImageContainer_GetType(Image);
         ImageChannelMap   *Map  = ImageContainer_GetChannelMap(Image);
-        if (Type == ImageType_Integer8) {
+        if (Type == PlatformIOType_Integer8) {
             uint8_t  *ImageArray = (uint8_t*)  ImageContainer_GetArray(Image);
             
             for (uint8_t StereoView = 0; StereoView < ImageChannelMap_GetNumViews(Map); StereoView++) {
@@ -740,9 +740,9 @@ extern "C" {
     
     void PNG_Filter_Up(ImageContainer *Image) {
         AssertIO(Image != NULL);
-        MediaIO_ImageTypes Type = ImageContainer_GetType(Image);
+        PlatformIOTypes Type = ImageContainer_GetType(Image);
         ImageChannelMap   *Map  = ImageContainer_GetChannelMap(Image);
-        if (Type == ImageType_Integer8) {
+        if (Type == PlatformIOType_Integer8) {
             uint8_t  *ImageArray = (uint8_t*)  ImageContainer_GetArray(Image);
             
             for (uint8_t StereoView = 0; StereoView < ImageChannelMap_GetNumViews(Map); StereoView++) {
@@ -771,9 +771,9 @@ extern "C" {
     
     void PNG_Filter_Average(ImageContainer *Image) {
         AssertIO(Image != NULL);
-        MediaIO_ImageTypes Type = ImageContainer_GetType(Image);
+        PlatformIOTypes Type = ImageContainer_GetType(Image);
         ImageChannelMap   *Map  = ImageContainer_GetChannelMap(Image);
-        if (Type == ImageType_Integer8) {
+        if (Type == PlatformIOType_Integer8) {
             uint8_t  *ImageArray = (uint8_t*)  ImageContainer_GetArray(Image);
             
             for (uint8_t StereoView = 0; StereoView < ImageChannelMap_GetNumViews(Map); StereoView++) {
@@ -808,9 +808,9 @@ extern "C" {
     
     void PNG_Filter_Paeth(ImageContainer *Image) {
         AssertIO(Image != NULL);
-        MediaIO_ImageTypes Type = ImageContainer_GetType(Image);
+        PlatformIOTypes Type = ImageContainer_GetType(Image);
         ImageChannelMap   *Map  = ImageContainer_GetChannelMap(Image);
-        if (Type == ImageType_Integer8) {
+        if (Type == PlatformIOType_Integer8) {
             uint8_t  *ImageArray = (uint8_t*)  ImageContainer_GetArray(Image);
             
             for (uint8_t StereoView = 0; StereoView < ImageChannelMap_GetNumViews(Map); StereoView++) {
@@ -858,8 +858,8 @@ extern "C" {
     
     void PNG_Defilter(ImageContainer *Image) {
         AssertIO(Image != NULL);
-        MediaIO_ImageTypes Type = ImageContainer_GetType(Image);
-        if (Type == ImageType_Integer8) {
+        PlatformIOTypes Type = ImageContainer_GetType(Image);
+        if (Type == PlatformIOType_Integer8) {
             // Image8
             uint8_t  ****ImageArray = (uint8_t****) ImageContainer_GetArray(Image);
             
@@ -951,9 +951,9 @@ extern "C" {
         }
         AssertIO(BitDepth <= 16);
         if (BitDepth <= 8) {
-            Decoded = ImageContainer_Init(ImageType_Integer8, Mask, Width, Height);
+            Decoded = ImageContainer_Init(PlatformIOType_Integer8, Mask, Width, Height);
         } else if (BitDepth <= 16) {
-            Decoded = ImageContainer_Init(ImageType_Integer16, Mask, Width, Height);
+            Decoded = ImageContainer_Init(PlatformIOType_Integer16, Mask, Width, Height);
         }
         
         //PNG_DAT_Decode(Options, BitB, Decoded);

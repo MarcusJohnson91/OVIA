@@ -73,9 +73,9 @@ extern "C" {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         AssertIO(Audio != NULL);
-        MediaIO_AudioTypes Type  = Audio2DContainer_GetType(Audio);
-        if PlatformIO_Is(Type, AudioType_Unsigned) {
-            if PlatformIO_Is(Type, AudioType_Integer32) {
+        PlatformIOTypes Type  = Audio2DContainer_GetType(Audio);
+        if PlatformIO_Is(Type, PlatformIOType_Unsigned) {
+            if PlatformIO_Is(Type, PlatformIOType_Integer32) {
                 uint32_t **Array = (uint32_t**) Audio2DContainer_GetArray(Audio);
                 
                 for (uint8_t WarmupSample = 0; WarmupSample < NumWarmupSamples; WarmupSample++) { // NumWarmupSamples = 8 in FLAC?
@@ -83,33 +83,33 @@ extern "C" {
                     // 28FE 264D 22E31E2E18D013E3E59B19B35A6AEBE79F3371AABE6300B080E303120688888928CF172A
                     // 2E1E, 2B59, 28F9, 264D, 22E3, 1E2E, 18D0, 13E3
                 }
-            } else if PlatformIO_Is(Type, AudioType_Integer16) {
+            } else if PlatformIO_Is(Type, PlatformIOType_Integer16) {
                 uint16_t **Array = (uint16_t**) Audio2DContainer_GetArray(Audio);
                 
                 for (uint8_t WarmupSample = 0; WarmupSample < NumWarmupSamples; WarmupSample++) {
                     Array[0][WarmupSample] = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Left2Right, FLAC_GetBitDepth(Options));
                 }
-            } else if PlatformIO_Is(Type, AudioType_Integer8) {
+            } else if PlatformIO_Is(Type, PlatformIOType_Integer8) {
                 uint8_t **Array  = (uint8_t**)  Audio2DContainer_GetArray(Audio);
                 
                 for (uint8_t WarmupSample = 0; WarmupSample < NumWarmupSamples; WarmupSample++) {
                     Array[0][WarmupSample] = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Left2Right, FLAC_GetBitDepth(Options));
                 }
             }
-        } else if PlatformIO_Is(Type, AudioType_Signed) {
-            if PlatformIO_Is(Type, AudioType_Integer32) {
+        } else if PlatformIO_Is(Type, PlatformIOType_Signed) {
+            if PlatformIO_Is(Type, PlatformIOType_Integer32) {
                 int32_t **Array  = (int32_t**) Audio2DContainer_GetArray(Audio);
                 
                 for (uint8_t WarmupSample = 0; WarmupSample < NumWarmupSamples; WarmupSample++) {
                     Array[0][WarmupSample] = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Left2Right, FLAC_GetBitDepth(Options));
                 }
-            } else if PlatformIO_Is(Type, AudioType_Integer16) {
+            } else if PlatformIO_Is(Type, PlatformIOType_Integer16) {
                 int16_t **Array  = (int16_t**) Audio2DContainer_GetArray(Audio);
                 
                 for (uint8_t WarmupSample = 0; WarmupSample < NumWarmupSamples; WarmupSample++) {
                     Array[0][WarmupSample] = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Left2Right, FLAC_GetBitDepth(Options));
                 }
-            } else if PlatformIO_Is(Type, AudioType_Integer8) {
+            } else if PlatformIO_Is(Type, PlatformIOType_Integer8) {
                 int8_t **Array   = (int8_t**)  Audio2DContainer_GetArray(Audio);
                 
                 for (uint8_t WarmupSample = 0; WarmupSample < NumWarmupSamples; WarmupSample++) {
@@ -193,7 +193,7 @@ extern "C" {
         uint8_t  NumChannels                   = FLAC_GetNumChannels(Options); // 2
         uint32_t NumSamples                    = Options->Frame->SamplesInPartition;
         
-        if (Audio2DContainer_GetType(Audio) == (AudioType_Signed | AudioType_Integer32)) {
+        if (Audio2DContainer_GetType(Audio) == (PlatformIOType_Signed | PlatformIOType_Integer32)) {
             int32_t  **Array                   = (int32_t**) Audio2DContainer_GetArray(Audio);
             
             if (Options->Frame->Sub->SubFrameType == Subframe_Constant) {

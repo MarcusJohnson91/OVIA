@@ -83,7 +83,7 @@ extern "C" {
         AudioChannelMap *Map  = AudioChannelMap_Init(NumChannels);
         // ^ Add the masks for the channels from OVIA and blah blah blah
         if (BitDepth <= 8) {
-            Audio = Audio2DContainer_Init(AudioType_Integer8, Map, SampleRate, NumSamples);
+            Audio = Audio2DContainer_Init(PlatformIOType_Integer8, Map, SampleRate, NumSamples);
             uint8_t **Samples = (uint8_t**) Audio2DContainer_GetArray(Audio);
             for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                 for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
@@ -91,7 +91,7 @@ extern "C" {
                 }
             }
         } else if (BitDepth > 8 && BitDepth <= 16) {
-            Audio = Audio2DContainer_Init(AudioType_Integer16, Map, SampleRate, NumSamples);
+            Audio = Audio2DContainer_Init(PlatformIOType_Integer16, Map, SampleRate, NumSamples);
             uint16_t **Samples = (uint16_t**) Audio2DContainer_GetArray(Audio);
             for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                 for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
@@ -99,7 +99,7 @@ extern "C" {
                 }
             }
         } else if (BitDepth > 16 && BitDepth <= 32) {
-            Audio = Audio2DContainer_Init(AudioType_Integer32, Map, SampleRate, NumSamples);
+            Audio = Audio2DContainer_Init(PlatformIOType_Integer32, Map, SampleRate, NumSamples);
             uint32_t **Samples = (uint32_t**) Audio2DContainer_GetArray(Audio);
             for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                 for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
