@@ -217,7 +217,7 @@ extern "C" {
     
     
     typedef enum OVIA_CodecIDs {
-        CodecID_Unknown       = 0,
+        CodecID_Unspecified   = 0,
         CodecID_PCMAudio      = 1,
         CodecID_PCMImage      = 2,
         CodecID_FLAC          = 4,
@@ -230,26 +230,27 @@ extern "C" {
     } OVIA_CodecIDs;
     
     typedef enum OVIA_ContainerIDs {
-        ContainerID_Unknown    = 0,
-        ContainerID_RIFF       = 1,
-        ContainerID_AIF        = 2,
-        ContainerID_FLACNative = 3,
+        ContainerID_Unspecified = 0,
+        ContainerID_RIFF        = 1,
+        ContainerID_AIF         = 2,
+        ContainerID_FLACNative  = 3,
     } OVIA_ContainerIDs;
     
     typedef enum OVIA_ColorTransforms {
-        ColorTransform_Unknown = 0,
-        ColorTransform_RCT     = 1, // JPEG-2000 Reversible Color Transform
-        ColorTransform_YCoCgR  = 2, // AVC, HEVC Lossless Transform
-        OVIA_NumTransforms     = ColorTransform_YCoCgR,
+        ColorTransform_Unspecified = 0,
+        ColorTransform_RCT         = 1, // JPEG-2000 Reversible Color Transform
+        ColorTransform_YCoCgR      = 2, // AVC, HEVC Lossless Transform
+        OVIA_NumTransforms         = ColorTransform_YCoCgR,
     } OVIA_ColorTransforms;
     
     typedef enum OVIA_MediaTypes {
-        MediaType_Unknown   = 0,
-        MediaType_Container = 1,
-        MediaType_Audio2D   = 2,
-        MediaType_Audio3D   = 3,
-        MediaType_Image     = 4,
-        MediaType_Video     = 5,
+        MediaType_Unspecified = 0,
+        MediaType_Container   = 1,
+        MediaType_Audio2D     = 2,
+        MediaType_Audio3D     = 3,
+        MediaType_Image       = 4,
+        MediaType_Video       = 5,
+        MediaType_Caption     = 6,
     } OVIA_MediaTypes;
 
     /* Forward declarations from FoundationIO */

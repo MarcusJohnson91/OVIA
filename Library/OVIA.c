@@ -51,7 +51,7 @@ extern "C" {
     
     /*
     OVIA_CodecIDs OVIA_IdentifyFileType(OVIA *Ovia, BitBuffer *BitB) {
-        OVIA_CodecIDs Format      = CodecID_Unknown;
+        OVIA_CodecIDs Format      = CodecID_Unspecified;
         uint64_t OriginalPosition = BitBuffer_GetPosition(BitB);
         
         // We need to generatte the header containing the enabled components

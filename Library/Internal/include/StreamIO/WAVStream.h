@@ -39,7 +39,7 @@ extern "C" {
     } WAVSpeakerMask;
 
     typedef enum WAVCompressionFormats {
-        Codec_Unknown                 = 0x0000,
+        Codec_Unspecified             = 0x0000,
         Codec_PCM                     = 0x0001,
         Codec_ADPCM                   = 0x0002,
         Codec_Float                   = 0x0003,

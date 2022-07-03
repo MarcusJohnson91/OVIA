@@ -47,14 +47,14 @@ extern "C" {
     } JPEG_Markers;
 
     typedef enum JPEG_Predictors {
-        JPEGPredictor_Unknown = 0,
-        JPEGPredictor_1       = 1, // Predicted = Previous Sample: to the Left
-        JPEGPredictor_2       = 2, // Predicted = Previous Sample: Above
-        JPEGPredictor_3       = 3, // Predicted = Previous Sample: Diagonal, Above and Left
-        JPEGPredictor_4       = 4, // Predicted = Previous Sample: (_1 + _2) - _3
-        JPEGPredictor_5       = 5, // Predicted =  _1 + ((_2 – _3)/2)>>A)
-        JPEGPredictor_6       = 6, // Predicted =  _2 + ((_1 – _3)/2)>>A)
-        JPEGPredictor_7       = 7, // Predicted =  (_1+_2) / 2
+        JPEGPredictor_Unspecified = 0,
+        JPEGPredictor_1           = 1, // Predicted = Previous Sample: to the Left
+        JPEGPredictor_2           = 2, // Predicted = Previous Sample: Above
+        JPEGPredictor_3           = 3, // Predicted = Previous Sample: Diagonal, Above and Left
+        JPEGPredictor_4           = 4, // Predicted = Previous Sample: (_1 + _2) - _3
+        JPEGPredictor_5           = 5, // Predicted =  _1 + ((_2 – _3)/2)>>A)
+        JPEGPredictor_6           = 6, // Predicted =  _2 + ((_1 – _3)/2)>>A)
+        JPEGPredictor_7           = 7, // Predicted =  (_1+_2) / 2
     } JPEG_Predictors;
 
     typedef struct JPEG_ChannelParameters {
@@ -64,13 +64,13 @@ extern "C" {
     } JPEG_ChannelParameters;
 
     typedef enum JPEG_EntropyCoders {
-        EntropyCoder_Unknown    = 0,
-        EntropyCoder_Huffman    = 1,
-        EntropyCoder_Arithmetic = 2,
+        EntropyCoder_Unspecified = 0,
+        EntropyCoder_Huffman     = 1,
+        EntropyCoder_Arithmetic  = 2,
     } JPEG_EntropyCoders;
 
     typedef enum JPEG_CodingMode {
-        CodingMode_Unknown          = 0,
+        CodingMode_Unspecified      = 0,
         CodingMode_Hierarchical     = 1,
         CodingMode_NonHierarchical  = 2,
     } JPEG_CodingMode;

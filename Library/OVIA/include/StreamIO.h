@@ -21,15 +21,15 @@ extern "C" {
 #endif
 
     typedef enum StreamIO_PacketTypes {
-        PacketType_Unknown  = 0,
-        PacketType_Constant = 1,
-        PacketType_Variable = 2,
+        PacketType_Unspecified  = 0,
+        PacketType_Constant     = 1,
+        PacketType_Variable     = 2,
     } StreamIO_PacketTypes;
 
     typedef enum StreamIO_SyncTypes {
-        SyncType_Unknown = 0,
-        SyncType_Packet  = 1,
-        SyncType_Marker  = 2,
+        SyncType_Unspecified = 0,
+        SyncType_Packet      = 1,
+        SyncType_Marker      = 2,
     } StreamIO_SyncTypes;
 
     typedef struct OVIA_Stream {
@@ -64,11 +64,12 @@ extern "C" {
     } OVIAStream;
 
     typedef enum StreamIO_StreamTypes {
-        StreamType_Unknown = 0,
-        StreamType_Audio2D = 1,
-        StreamType_Audio3D = 2,
-        StreamType_Image   = 3,
-        StreamType_Video   = 4,
+        StreamType_Unspecified = 0,
+        StreamType_Audio2D     = 1,
+        StreamType_Audio3D     = 2,
+        StreamType_Image       = 3,
+        StreamType_Video       = 4,
+        StreamType_Caption     = 5,
     } StreamIO_StreamTypes;
 
     typedef struct StreamIO_Limitations {

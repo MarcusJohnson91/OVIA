@@ -19,8 +19,8 @@ extern "C" {
     
     /*!
      @enum         MediaIO_AudioMask
-     @abstract                                      Defines the MediaIO_AudioTypes values, OR-able.
-     @constant     AudioMask_Unknown                Invalid AudioMask, exists solely to tell when it hasn't been set.
+     @abstract                                      Defines the PlatformIOTypes values, OR-able.
+     @constant     AudioMask_Unspecified            Invalid AudioMask, exists solely to tell when it hasn't been set.
      @constant     AudioMask_FrontLeft              The channel's location is the front left.
      @constant     AudioMask_FrontRight             The channel's location is the front right.
      @constant     AudioMask_FrontCenter            The channel's location is the front center.
@@ -44,7 +44,7 @@ extern "C" {
      @constant     AudioMask_StereoRight            RF64 Extension, Stereo Downmix, Right.
      */
     typedef enum MediaIO_AudioMask {
-                   AudioMask_Unknown                = 0,
+                   AudioMask_Unspecified            = 0,
                    AudioMask_FrontLeft              = 1,
                    AudioMask_FrontRight             = 2,
                    AudioMask_FrontCenter            = 4,
@@ -69,28 +69,9 @@ extern "C" {
     } MediaIO_AudioMask;
     
     /*!
-     @enum         MediaIO_AudioTypes
-     @abstract                                      Defines the MediaIO_AudioTypes values, OR-able.
-     @constant     AudioType_Unknown                Invalid AudioType, exists solely to tell when it hasn't been set.
-     @constant     AudioType_Unsigned               The samples are unsigned.
-     @constant     AudioType_Signed                 The samples are signed.
-     @constant     AudioType_Integer8               The samples values are between 0 and 255        for Unsigned, -128        and 127        for Signed.
-     @constant     AudioType_Integer16              The samples values are between 0 and 65535      for Unsigned, -32768      and 32767      for Signed.
-     @constant     AudioType_Integer32              The samples values are between 0 and 4294967295 for Unsigned, -2147483648 and 2147483647 for Signed.
-     */
-    typedef enum MediaIO_AudioTypes {
-                   AudioType_Unknown                = 0,
-                   AudioType_Unsigned               = 1,
-                   AudioType_Signed                 = 2,
-                   AudioType_Integer8               = 4,
-                   AudioType_Integer16              = 8,
-                   AudioType_Integer32              = 16,
-    } MediaIO_AudioTypes;
-    
-    /*!
      @enum         MediaIO_ImageMask
      @abstract                                      Defines the ChannelMask values.
-     @constant     ImageMask_Unknown                Invalid ImageMask, exists solely to tell when it hasn't been set.
+     @constant     ImageMask_Unspecified            Invalid ImageMask, exists solely to tell when it hasn't been set.
      @constant     ImageMask_2D                     The image has two dimensions.
      @constant     ImageMask_3D_L                   The image has three dimensions, this one is the left.
      @constant     ImageMask_3D_R                   The image has three dimensions, this one is the right.
@@ -113,7 +94,7 @@ extern "C" {
      @constant     ImageMask_Ultraviolet            The channel is for Ultraviolet.
      */
     typedef enum MediaIO_ImageMask {
-                   ImageMask_Unknown                = 0,
+                   ImageMask_Unspecified            = 0,
                    ImageMask_2D                     = 1,
                    ImageMask_3D_L                   = 2,
                    ImageMask_3D_R                   = 4,
@@ -138,29 +119,15 @@ extern "C" {
     } MediaIO_ImageMask;
     
     /*!
-     @enum         MediaIO_ImageTypes
-     @abstract                                      Defines the type of image.
-     @constant     ImageType_Unknown                Invalid ImageType, exists solely to tell when it hasn't been set.
-     @constant     ImageType_Integer8               The pixels are unsigned 8  bit integers.
-     @constant     ImageType_Integer16              The pixels are unsigned 16 bit integers.
-     */
-    typedef enum MediaIO_ImageTypes {
-                   ImageType_Unknown                = 0,
-                   ImageType_Integer8               = 1,
-                   ImageType_Integer16              = 2,
-                   ImageType_Integer32              = 4,
-    } MediaIO_ImageTypes;
-    
-    /*!
      @enum         MediaIO_FlipTypes
      @abstract                                      Defines the type of flipping.
-     @constant     FlipType_Unknown                 Invalid ImageType, exists solely to tell when it hasn't been set.
+     @constant     FlipType_Unspecified             Invalid ImageType, exists solely to tell when it hasn't been set.
      @constant     FlipType_Vertical                Flip the imge vertically, up and down.
      @constant     FlipType_Horizontal              Flip the image horizontally, side to side.
      @constant     FlipType_VerticalAndHorizontal   Flip the image in both ways.
      */
     typedef enum MediaIO_FlipTypes {
-                   FlipType_Unknown                 = 0,
+                   FlipType_Unspecified             = 0,
                    FlipType_Vertical                = 1,
                    FlipType_Horizontal              = 2,
                    FlipType_VerticalAndHorizontal   = 3,
@@ -169,12 +136,12 @@ extern "C" {
     /*!
      @enum         MediaIO_SortTypes
      @abstract                                      Defines the type of sorting.
-     @constant     SortType_Unknown                 Invalid SortType, exists solely to tell when it hasn't been set.
+     @constant     SortType_Unspecified             Invalid SortType, exists solely to tell when it hasn't been set.
      @constant     SortType_Ascending               Index 0 contains the most common value.
      @constant     SortType_Descending              Index 0 contains the least common value.
      */
     typedef enum MediaIO_SortTypes {
-                   SortType_Unknown                 = 0,
+                   SortType_Unspecified             = 0,
                    SortType_Ascending               = 1,
                    SortType_Descending              = 2,
     } MediaIO_SortTypes;

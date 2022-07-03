@@ -19,7 +19,7 @@ extern "C" {
 #endif
 
     typedef enum Transform_BijectiveType {
-        BijectiveType_Unknown        = 0,
+        BijectiveType_Unspecified    = 0,
         BijectiveType_IsBijective    = 1,
         BijectiveType_IsNotBijective = 2,
     } Transform_BijectiveType;

@@ -26,7 +26,7 @@ extern "C" {
     } PNMTypes;
     
     typedef enum PNMTupleTypes {
-        PNM_TUPLE_Unknown     = 0,
+        PNM_TUPLE_Unspecified = 0,
         PNM_TUPLE_BnW         = 1,
         PNM_TUPLE_Gray        = 2,
         PNM_TUPLE_GrayAlpha   = 3,
