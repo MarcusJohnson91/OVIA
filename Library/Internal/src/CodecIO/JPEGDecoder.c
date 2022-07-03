@@ -52,20 +52,20 @@ extern "C" {
     
     // Huffman values are written in big endian order; most significant to least
     
-    void JPEG_Read_DefineHuffmanTable(JPEGOptions *Options, BitBuffer *BitB, uint16_t SegmentSize) { // SegmentSize = 30
+    void JPEG_Read_DefineHuffmanTable(JPEGOptions *Options, BitBuffer *BitB, uint16_t SegmentSize) { // Maximum Huffman Length = 16
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Options->EntropyCoder                               = EntropyCoder_Huffman;
-        Options->Huffman->Values                            = calloc(2, sizeof(HuffmanValue*));
+        Options->EntropyCoder                           = EntropyCoder_Huffman;
+        Options->Huffman->Values                        = calloc(2, sizeof(HuffmanValue*));
         AssertIO(Options->Huffman->Values != NULL);
         while (SegmentSize > 0) {
-            uint8_t TableType                        = BitBuffer_ReadBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 4); // 0
+            uint8_t TableType                           = BitBuffer_ReadBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 4); // 0
             Options->Huffman->TableID                   = BitBuffer_ReadBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 4); // 0
-                                                                                                                                           // TableType 0 = DC/Lossless, 1 = AC
+                // TableType 0 = DC/Lossless, 1 = AC
             
             if (TableType == 0) {
-                uint8_t BitLengths[16]; // 01 00 03 01 | 01 01 01 01 | [01] 01 00 00 | 00 00 00 00
-                uint8_t NumSymbols                   = 0;
+                uint8_t BitLengths[16]; // 00 01 00 02 | 02 03 01 01 | 01 01 00 00 | 00 00 00 00
+                uint8_t NumSymbols                   = 0; // 12
                 
                 // BitLengths aka BITS needs to be copied to the specified TableID
                 
