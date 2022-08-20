@@ -17,12 +17,14 @@
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 extern "C" {
 #endif
-    
-#ifndef PNGMagic
-#define PNGMagic 0x89504E470D0A1A0A
-#endif
 
-    typedef enum PNGChunkMarkers {
+    typedef enum PNGMagicNumbers : uint64_t {
+        PNGMagic                  = 0x89504E470D0A1A0A,
+        MNGMagic                  = 0x8A4D4E470D0A1A0A,
+        JNGMagic                  = 0x8B4A4E470D0A1A0A,
+    } PNGMagicNumbers;
+
+    typedef enum PNGChunkMarkers : uint32_t {
         PNGMarker_acTL            = 0x6163544C,
         PNGMarker_bKGD            = 0x626B4744,
         PNGMarker_cHRM            = 0x6348524D,
@@ -366,9 +368,9 @@ extern "C" {
     const OVIA_MagicIDs PNGMagicIDs = {
         .NumMagicIDs   = 3,
         .MagicIDs      = {
-            OVIA_RegisterSignature(0, 64, (uint8_t[8]) {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A})
-            OVIA_RegisterSignature(0, 64, (uint8_t[8]) {0x8A, 0x4D, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A})
-            OVIA_RegisterSignature(0, 64, (uint8_t[8]) {0x8B, 0x4A, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A})
+            OVIA_RegisterSignature(0, 64, (uint8_t[8]) PNGMagic)
+            OVIA_RegisterSignature(0, 64, (uint8_t[8]) MNGMagic)
+            OVIA_RegisterSignature(0, 64, (uint8_t[8]) JNGMagic)
         },
     };
     
