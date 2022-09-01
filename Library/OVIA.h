@@ -216,34 +216,36 @@ extern "C" {
     
     
     
-    typedef enum OVIA_CodecIDs {
+    typedef enum OVIA_CodecIDs : uint8_t {
         CodecID_Unspecified   = 0,
         CodecID_PCMAudio      = 1,
         CodecID_PCMImage      = 2,
-        CodecID_FLAC          = 4,
-        CodecID_BMP           = 5,
-        CodecID_PNG           = 6,
-        CodecID_PNM           = 7,
-        CodecID_JPEG          = 8,
+        CodecID_FLAC          = 3,
+        CodecID_BMP           = 4,
+        CodecID_PNG           = 5,
+        CodecID_PNM           = 6,
+        CodecID_JPEG          = 7,
         CodecID_LastCodec     = CodecID_JPEG,
         OVIA_NumCodecs        = CodecID_LastCodec,
     } OVIA_CodecIDs;
     
-    typedef enum OVIA_ContainerIDs {
+    typedef enum OVIA_ContainerIDs : uint8_t {
         ContainerID_Unspecified = 0,
         ContainerID_RIFF        = 1,
         ContainerID_AIF         = 2,
         ContainerID_FLACNative  = 3,
+        ContainerID_TIFF        = 4,
+        ContainerIO_Matroska    = 5,
     } OVIA_ContainerIDs;
     
-    typedef enum OVIA_ColorTransforms {
+    typedef enum OVIA_ColorTransforms : uint8_t {
         ColorTransform_Unspecified = 0,
         ColorTransform_RCT         = 1, // JPEG-2000 Reversible Color Transform
         ColorTransform_YCoCgR      = 2, // AVC, HEVC Lossless Transform
         OVIA_NumTransforms         = ColorTransform_YCoCgR,
     } OVIA_ColorTransforms;
     
-    typedef enum OVIA_MediaTypes {
+    typedef enum OVIA_MediaTypes : uint8_t {
         MediaType_Unspecified = 0,
         MediaType_Container   = 1,
         MediaType_Audio2D     = 2,

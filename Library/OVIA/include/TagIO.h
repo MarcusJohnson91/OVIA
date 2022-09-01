@@ -18,7 +18,7 @@
 extern "C" {
 #endif
 
-    typedef enum TagIO_TagTypes {
+    typedef enum TagIO_TagTypes : uint16_t {
         TagType_Unspecified      = 0,
         TagType_SpokenLanguage   = 1,
         TagType_WrittenLanguage  = 2,

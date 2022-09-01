@@ -61,7 +61,7 @@ extern "C" {
 
 #define OVIA_RegisterExtension(ExtensionString)  \
     [__COUNTER__] = { \
-        .Size = PlatformIO_GetStringSize(ExtensionString) \
+        .Size = PlatformIO_GetStringSizeInCodeUnits(ExtensionString) \
         .Extension = UTF32String(ExtensionString) \
     },
 
@@ -78,7 +78,7 @@ extern "C" {
 
 #define OVIA_RegisterMIMEType(MIMEString)  \
     [__COUNTER__] = { \
-        .Size = PlatformIO_GetStringSize(MIMEString) \
+        .Size = PlatformIO_GetStringSizeInCodeUnits(MIMEString) \
         .Extension = UTF32String(MIMEString) \
     },
 

@@ -18,7 +18,7 @@
 extern "C" {
 #endif
 
-    typedef enum Transform_BijectiveType {
+    typedef enum Transform_BijectiveType : uint8_t {
         BijectiveType_Unspecified    = 0,
         BijectiveType_IsBijective    = 1,
         BijectiveType_IsNotBijective = 2,

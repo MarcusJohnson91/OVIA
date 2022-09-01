@@ -43,7 +43,7 @@ extern "C" {
      @constant     AudioMask_StereoLeft             RF64 Extension, Stereo Downmix, Left.
      @constant     AudioMask_StereoRight            RF64 Extension, Stereo Downmix, Right.
      */
-    typedef enum MediaIO_AudioMask {
+    typedef enum MediaIO_AudioMask : uint32_t {
                    AudioMask_Unspecified            = 0,
                    AudioMask_FrontLeft              = 1,
                    AudioMask_FrontRight             = 2,
@@ -93,7 +93,7 @@ extern "C" {
      @constant     ImageMask_Infrared               The channel is for Infrared, sometimes used for dust removal.
      @constant     ImageMask_Ultraviolet            The channel is for Ultraviolet.
      */
-    typedef enum MediaIO_ImageMask {
+    typedef enum MediaIO_ImageMask : uint32_t {
                    ImageMask_Unspecified            = 0,
                    ImageMask_2D                     = 1,
                    ImageMask_3D_L                   = 2,
@@ -115,7 +115,6 @@ extern "C" {
                    ImageMask_Emerald                = 131072,
                    ImageMask_Infrared               = 262144,
                    ImageMask_Ultraviolet            = 524288,
-                   ImageMask_All                    = 1048575,
     } MediaIO_ImageMask;
     
     /*!
@@ -126,7 +125,7 @@ extern "C" {
      @constant     FlipType_Horizontal              Flip the image horizontally, side to side.
      @constant     FlipType_VerticalAndHorizontal   Flip the image in both ways.
      */
-    typedef enum MediaIO_FlipTypes {
+    typedef enum MediaIO_FlipTypes : uint8_t {
                    FlipType_Unspecified             = 0,
                    FlipType_Vertical                = 1,
                    FlipType_Horizontal              = 2,
@@ -140,7 +139,7 @@ extern "C" {
      @constant     SortType_Ascending               Index 0 contains the most common value.
      @constant     SortType_Descending              Index 0 contains the least common value.
      */
-    typedef enum MediaIO_SortTypes {
+    typedef enum MediaIO_SortTypes : uint8_t {
                    SortType_Unspecified             = 0,
                    SortType_Ascending               = 1,
                    SortType_Descending              = 2,

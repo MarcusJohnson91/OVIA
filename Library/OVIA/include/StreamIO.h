@@ -20,13 +20,13 @@
 extern "C" {
 #endif
 
-    typedef enum StreamIO_PacketTypes {
+    typedef enum StreamIO_PacketTypes : uint8_t {
         PacketType_Unspecified  = 0,
         PacketType_Constant     = 1,
         PacketType_Variable     = 2,
     } StreamIO_PacketTypes;
 
-    typedef enum StreamIO_SyncTypes {
+    typedef enum StreamIO_SyncTypes : uint8_t {
         SyncType_Unspecified = 0,
         SyncType_Packet      = 1,
         SyncType_Marker      = 2,
@@ -63,7 +63,7 @@ extern "C" {
          */
     } OVIAStream;
 
-    typedef enum StreamIO_StreamTypes {
+    typedef enum StreamIO_StreamTypes : uint8_t {
         StreamType_Unspecified = 0,
         StreamType_Audio2D     = 1,
         StreamType_Audio3D     = 2,
