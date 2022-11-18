@@ -1,6 +1,7 @@
 #include "../../include/EntropyIO/Huffman.h"
 
 #include "../../../../Dependencies/FoundationIO/Library/include/AssertIO.h"
+#include "../../../../Dependencies/FoundationIO/Library/include/ArrayIO.h"
 #include "../../../../Dependencies/FoundationIO/Library/include/BufferIO.h"
 #include "../../../../Dependencies/FoundationIO/Library/include/MathIO.h"
 
@@ -54,6 +55,14 @@ extern "C" {
         AssertIO(NumBitLengths > 0);
         AssertIO(NumSymbols > 0);
 
+        typedef struct Huffman_Node {
+            
+        } Huffman_Node;
+
+        typedef struct Huffman_Tree {
+
+        } HuffmanTree;
+
         size_t Entry  = 0;
         size_t Symbol = 1; // Actual value
         /*
@@ -64,7 +73,7 @@ extern "C" {
         for (size_t BitLength = 0; BitLength < NumBitLengths; BitLength++) {
             for (size_t Length = 0; Length < BitLengths[BitLength]; Length++) {
                 Options->Entries[Entry].Bitlength = BitLengths[BitLength] + 1;
-                Options->Entries[Entry].Symbol    = (Symbol + 1) << ((BitLengths[BitLength] + 1) - BitLengths[BitLength]);
+                Options->Entries[Entry].Value     = (Symbol + 1) << ((BitLengths[BitLength] + 1) - BitLengths[BitLength]);
                 Symbol += 1;
                 Entry  += 1;
             }
@@ -72,7 +81,44 @@ extern "C" {
         Options->NumEntries = NumSymbols;
     }
 
-    void Huffman_BuildTree_Histogram(HuffmanOptions *Options) {
+    void Huffman_BuildTree_Histogram(HuffmanOptions *Options, ArrayIO_Frequencies *Frequencies) {
+        AssertIO(Options != NULL);
+        AssertIO(Frequencies != NULL);
+        AssertIO(Options->NumEntries >= Frequencies->NumEntries);
+        /*
+         Code Assignment:
+
+         Loop from the least frequent to the most frequent; Assigning codes from 
+         */
+
+
+
+        /*
+         Make sure that the frequencies are sorted, for now just sort them again
+         then we need to take the sorted frequencies and assign the symbols to them as efficently as possible,
+         half of the tree needs to be empty so we can prefix longer codes
+
+         if we have say 4 codes to write, we need to leave 1 1bit code as a prefix, 1 2bit code as a prefix
+
+         NumBitsNeeded = Ciel(log2(NumEntries))
+         */
+        size_t BitDepth = Logarithm(2, Frequencies->NumEntries);
+        /*
+         Frequencies: 6 Entries
+         [0] = 245
+         [1] = 238
+         [2] = 188
+         [3] = 177
+         [4] = 92
+         [5] = 29
+
+         BitLength = 3
+         Values = {1, 2, 3, 4, 5, 6}
+         Symbols = {0b1, 0b10, 0b11, 0b100, 0b101, 0b110}
+
+         ok but these symbols can not be the prefix for any other code
+         */
+
         /*
          A histogram shouldn't nessessarily by tighly connected with a raw image or audio container...
 

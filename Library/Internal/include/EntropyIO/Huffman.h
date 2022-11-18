@@ -22,8 +22,14 @@ extern "C" {
         MaxBitlengthPNG  = 15,
     } HuffmanConstants;
 
+    /*!
+     A Huffman Symbol is the actual bitstring that will be seen in the Huffman-encoded stream.
+     A Value is the numeric value of the symbol.
+     A Bitlength is how long the bitstring is.
+     to get the Symbol you need to do ((2^Bitlength)-1) XOR Value
+     */
     typedef struct HuffmanEntry {
-        uint16_t Symbol;
+        uint16_t Value;
         uint8_t  Bitlength;
     } HuffmanEntry;
 
