@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{14927436-d9dd-416c-8e61-7fde9f2c976f}</ProjectGuid>
+    <RootNamespace>OVIA2</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Library\Internal\include\CodecIO\AVCCodec.h" />
+    <ClInclude Include="..\Library\Internal\include\CodecIO\FLACCodec.h" />
+    <ClInclude Include="..\Library\Internal\include\CodecIO\JPEGCodec.h" />
+    <ClInclude Include="..\Library\Internal\include\CodecIO\PNGCodec.h" />
+    <ClInclude Include="..\Library\Internal\include\EntropyIO\Arithmetic.h" />
+    <ClInclude Include="..\Library\Internal\include\EntropyIO\Flate.h" />
+    <ClInclude Include="..\Library\Internal\include\EntropyIO\Huffman.h" />
+    <ClInclude Include="..\Library\Internal\include\StreamIO\AIFStream.h" />
+    <ClInclude Include="..\Library\Internal\include\StreamIO\BMPStream.h" />
+    <ClInclude Include="..\Library\Internal\include\StreamIO\FLACStream.h" />
+    <ClInclude Include="..\Library\Internal\include\StreamIO\MKVStream.h" />
+    <ClInclude Include="..\Library\Internal\include\StreamIO\MPEG2Stream.h" />
+    <ClInclude Include="..\Library\Internal\include\StreamIO\OGGStream.h" />
+    <ClInclude Include="..\Library\Internal\include\StreamIO\PNMStream.h" />
+    <ClInclude Include="..\Library\Internal\include\StreamIO\TIFStream.h" />
+    <ClInclude Include="..\Library\Internal\include\StreamIO\W64Stream.h" />
+    <ClInclude Include="..\Library\Internal\include\StreamIO\WAVStream.h" />
+    <ClInclude Include="..\Library\Internal\include\TagIO\AIFTags.h" />
+    <ClInclude Include="..\Library\Internal\include\TagIO\APETags.h" />
+    <ClInclude Include="..\Library\Internal\include\TagIO\FLACTags.h" />
+    <ClInclude Include="..\Library\Internal\include\TagIO\ID3Tags.h" />
+    <ClInclude Include="..\Library\Internal\include\TagIO\RIFFTags.h" />
+    <ClInclude Include="..\Library\Internal\include\TagIO\VorbisTags.h" />
+    <ClInclude Include="..\Library\OVIA\include\CodecIO.h" />
+    <ClInclude Include="..\Library\OVIA\include\EntropyIO.h" />
+    <ClInclude Include="..\Library\OVIA\include\MediaIO.h" />
+    <ClInclude Include="..\Library\OVIA\include\OVIATypes.h" />
+    <ClInclude Include="..\Library\OVIA\include\StreamIO.h" />
+    <ClInclude Include="..\Library\OVIA\include\TagIO.h" />
+    <ClInclude Include="..\Library\OVIA\include\TransformIO.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Library\Internal\src\CodecIO\AVCCodec.c" />
+    <ClCompile Include="..\Library\Internal\src\CodecIO\AVCDecoder.c" />
+    <ClCompile Include="..\Library\Internal\src\CodecIO\AVCEncoder.c" />
+    <ClCompile Include="..\Library\Internal\src\CodecIO\FLACCodec.c" />
+    <ClCompile Include="..\Library\Internal\src\CodecIO\FLACDecoder.c" />
+    <ClCompile Include="..\Library\Internal\src\CodecIO\FLACEncoder.c" />
+    <ClCompile Include="..\Library\Internal\src\CodecIO\JPEGCodec.c" />
+    <ClCompile Include="..\Library\Internal\src\CodecIO\JPEGDecoder.c" />
+    <ClCompile Include="..\Library\Internal\src\CodecIO\JPEGEncoder.c" />
+    <ClCompile Include="..\Library\Internal\src\CodecIO\PNGCodec.c" />
+    <ClCompile Include="..\Library\Internal\src\CodecIO\PNGDecoder.c" />
+    <ClCompile Include="..\Library\Internal\src\CodecIO\PNGEncoder.c" />
+    <ClCompile Include="..\Library\Internal\src\EntropyIO\Arithmetic.c" />
+    <ClCompile Include="..\Library\Internal\src\EntropyIO\Flate.c" />
+    <ClCompile Include="..\Library\Internal\src\EntropyIO\Huffman.c" />
+    <ClCompile Include="..\Library\Internal\src\StreamIO\AIFDemuxer.c" />
+    <ClCompile Include="..\Library\Internal\src\StreamIO\AIFMuxer.c" />
+    <ClCompile Include="..\Library\Internal\src\StreamIO\AIFStream.c" />
+    <ClCompile Include="..\Library\Internal\src\StreamIO\BMPDemuxer.c" />
+    <ClCompile Include="..\Library\Internal\src\StreamIO\BMPMuxer.c" />
+    <ClCompile Include="..\Library\Internal\src\StreamIO\BMPStream.c" />
+    <ClCompile Include="..\Library\Internal\src\StreamIO\MPEG2Demuxer.c" />
+    <ClCompile Include="..\Library\Internal\src\StreamIO\MPEG2Muxer.c" />
+    <ClCompile Include="..\Library\Internal\src\StreamIO\MPEG2Stream.c" />
+    <ClCompile Include="..\Library\Internal\src\StreamIO\PNMDemuxer.c" />
+    <ClCompile Include="..\Library\Internal\src\StreamIO\PNMMuxer.c" />
+    <ClCompile Include="..\Library\Internal\src\StreamIO\PNMStream.c" />
+    <ClCompile Include="..\Library\Internal\src\StreamIO\TIFDemuxer.c" />
+    <ClCompile Include="..\Library\Internal\src\StreamIO\TIFMuxer.c" />
+    <ClCompile Include="..\Library\Internal\src\StreamIO\TIFStream.c" />
+    <ClCompile Include="..\Library\Internal\src\StreamIO\W64Demuxer.c" />
+    <ClCompile Include="..\Library\Internal\src\StreamIO\W64Muxer.c" />
+    <ClCompile Include="..\Library\Internal\src\StreamIO\W64Stream.c" />
+    <ClCompile Include="..\Library\Internal\src\StreamIO\WAVDemuxer.c" />
+    <ClCompile Include="..\Library\Internal\src\StreamIO\WAVMuxer.c" />
+    <ClCompile Include="..\Library\Internal\src\StreamIO\WAVStream.c" />
+    <ClCompile Include="..\Library\Internal\src\TagIO\AIFTags.c" />
+    <ClCompile Include="..\Library\Internal\src\TagIO\APETags.c" />
+    <ClCompile Include="..\Library\Internal\src\TagIO\ID3Tags.c" />
+    <ClCompile Include="..\Library\Internal\src\TagIO\RIFFTags.c" />
+    <ClCompile Include="..\Library\Internal\src\TagIO\VorbisTags.c" />
+    <ClCompile Include="..\Library\Internal\src\TransformIO\RCT.c" />
+    <ClCompile Include="..\Library\Internal\src\TransformIO\YCoCgR.c" />
+    <ClCompile Include="..\Library\OVIA\src\CodecIO.c" />
+    <ClCompile Include="..\Library\OVIA\src\EntropyIO.c" />
+    <ClCompile Include="..\Library\OVIA\src\MediaIO.c" />
+    <ClCompile Include="..\Library\OVIA\src\StreamIO.c" />
+    <ClCompile Include="..\Library\OVIA\src\TagIO.c" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

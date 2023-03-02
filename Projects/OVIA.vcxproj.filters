@@ -1,0 +1,297 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\OVIA">
+      <UniqueIdentifier>{9b7686fa-de4b-4d8a-bb55-acf1d540ca50}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal">
+      <UniqueIdentifier>{e21fc98d-cc33-402e-bf70-51b072e96ea1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\External">
+      <UniqueIdentifier>{89e4b203-2843-4d04-9a1e-31a35454d800}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal\CodecIO">
+      <UniqueIdentifier>{4ada64e7-f4a7-40bd-80b5-0fa3ab210306}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal\EntropyIO">
+      <UniqueIdentifier>{f3b9f55f-d314-40da-8370-7c00c6e327b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal\StreamIO">
+      <UniqueIdentifier>{081c8df4-605a-4bb4-99df-7515e0d6344f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal\TagIO">
+      <UniqueIdentifier>{21a4ef49-6830-4992-99b4-b6d69f65bd3a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\OVIA">
+      <UniqueIdentifier>{8df1f322-1efc-42c5-bc43-9dc8193fe331}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Internal">
+      <UniqueIdentifier>{27c8f08a-3334-461e-87a2-f20a7e318bb5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Internal\CodecIO">
+      <UniqueIdentifier>{f56f1bb3-67e9-4b9c-8db8-12291077588b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Internal\EntropyIO">
+      <UniqueIdentifier>{5fd626b8-134d-4fc6-ad1c-c4f5c5bd3e51}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Internal\StreamIO">
+      <UniqueIdentifier>{d333e84e-b199-4e70-ac1e-c4bfdd1b7d2f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Internal\TagIO">
+      <UniqueIdentifier>{334baaa2-4113-4b7a-a1bf-ac1859bb6339}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Internal\TransformIO">
+      <UniqueIdentifier>{ed5a4fd5-069b-47d6-acad-a3932d364dfa}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Library\OVIA\include\CodecIO.h">
+      <Filter>Header Files\OVIA</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\OVIA\include\EntropyIO.h">
+      <Filter>Header Files\OVIA</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\OVIA\include\MediaIO.h">
+      <Filter>Header Files\OVIA</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\OVIA\include\OVIATypes.h">
+      <Filter>Header Files\OVIA</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\OVIA\include\StreamIO.h">
+      <Filter>Header Files\OVIA</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\OVIA\include\TagIO.h">
+      <Filter>Header Files\OVIA</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\OVIA\include\TransformIO.h">
+      <Filter>Header Files\OVIA</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\Internal\include\CodecIO\AVCCodec.h">
+      <Filter>Header Files\Internal\CodecIO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\Internal\include\CodecIO\FLACCodec.h">
+      <Filter>Header Files\Internal\CodecIO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\Internal\include\CodecIO\JPEGCodec.h">
+      <Filter>Header Files\Internal\CodecIO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\Internal\include\CodecIO\PNGCodec.h">
+      <Filter>Header Files\Internal\CodecIO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\Internal\include\EntropyIO\Arithmetic.h">
+      <Filter>Header Files\Internal\EntropyIO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\Internal\include\EntropyIO\Flate.h">
+      <Filter>Header Files\Internal\EntropyIO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\Internal\include\EntropyIO\Huffman.h">
+      <Filter>Header Files\Internal\EntropyIO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\Internal\include\StreamIO\AIFStream.h">
+      <Filter>Header Files\Internal\StreamIO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\Internal\include\StreamIO\BMPStream.h">
+      <Filter>Header Files\Internal\StreamIO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\Internal\include\StreamIO\FLACStream.h">
+      <Filter>Header Files\Internal\StreamIO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\Internal\include\StreamIO\MKVStream.h">
+      <Filter>Header Files\Internal\StreamIO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\Internal\include\StreamIO\MPEG2Stream.h">
+      <Filter>Header Files\Internal\StreamIO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\Internal\include\StreamIO\OGGStream.h">
+      <Filter>Header Files\Internal\StreamIO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\Internal\include\StreamIO\PNMStream.h">
+      <Filter>Header Files\Internal\StreamIO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\Internal\include\StreamIO\TIFStream.h">
+      <Filter>Header Files\Internal\StreamIO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\Internal\include\StreamIO\W64Stream.h">
+      <Filter>Header Files\Internal\StreamIO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\Internal\include\StreamIO\WAVStream.h">
+      <Filter>Header Files\Internal\StreamIO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\Internal\include\TagIO\AIFTags.h">
+      <Filter>Header Files\Internal\TagIO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\Internal\include\TagIO\APETags.h">
+      <Filter>Header Files\Internal\TagIO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\Internal\include\TagIO\FLACTags.h">
+      <Filter>Header Files\Internal\TagIO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\Internal\include\TagIO\ID3Tags.h">
+      <Filter>Header Files\Internal\TagIO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\Internal\include\TagIO\RIFFTags.h">
+      <Filter>Header Files\Internal\TagIO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\Internal\include\TagIO\VorbisTags.h">
+      <Filter>Header Files\Internal\TagIO</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Library\OVIA\src\EntropyIO.c">
+      <Filter>Source Files\OVIA</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\OVIA\src\MediaIO.c">
+      <Filter>Source Files\OVIA</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\OVIA\src\StreamIO.c">
+      <Filter>Source Files\OVIA</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\OVIA\src\TagIO.c">
+      <Filter>Source Files\OVIA</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\OVIA\src\CodecIO.c">
+      <Filter>Source Files\OVIA</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\CodecIO\AVCEncoder.c">
+      <Filter>Source Files\Internal\CodecIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\CodecIO\FLACCodec.c">
+      <Filter>Source Files\Internal\CodecIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\CodecIO\FLACDecoder.c">
+      <Filter>Source Files\Internal\CodecIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\CodecIO\FLACEncoder.c">
+      <Filter>Source Files\Internal\CodecIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\CodecIO\JPEGCodec.c">
+      <Filter>Source Files\Internal\CodecIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\CodecIO\JPEGDecoder.c">
+      <Filter>Source Files\Internal\CodecIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\CodecIO\JPEGEncoder.c">
+      <Filter>Source Files\Internal\CodecIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\CodecIO\PNGCodec.c">
+      <Filter>Source Files\Internal\CodecIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\CodecIO\PNGDecoder.c">
+      <Filter>Source Files\Internal\CodecIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\CodecIO\PNGEncoder.c">
+      <Filter>Source Files\Internal\CodecIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\CodecIO\AVCCodec.c">
+      <Filter>Source Files\Internal\CodecIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\CodecIO\AVCDecoder.c">
+      <Filter>Source Files\Internal\CodecIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\EntropyIO\Flate.c">
+      <Filter>Source Files\Internal\EntropyIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\EntropyIO\Huffman.c">
+      <Filter>Source Files\Internal\EntropyIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\EntropyIO\Arithmetic.c">
+      <Filter>Source Files\Internal\EntropyIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\TransformIO\RCT.c">
+      <Filter>Source Files\Internal\TransformIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\TransformIO\YCoCgR.c">
+      <Filter>Source Files\Internal\TransformIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\TagIO\APETags.c">
+      <Filter>Source Files\Internal\TagIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\TagIO\ID3Tags.c">
+      <Filter>Source Files\Internal\TagIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\TagIO\RIFFTags.c">
+      <Filter>Source Files\Internal\TagIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\TagIO\VorbisTags.c">
+      <Filter>Source Files\Internal\TagIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\TagIO\AIFTags.c">
+      <Filter>Source Files\Internal\TagIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\StreamIO\PNMMuxer.c">
+      <Filter>Source Files\Internal\StreamIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\StreamIO\PNMStream.c">
+      <Filter>Source Files\Internal\StreamIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\StreamIO\TIFDemuxer.c">
+      <Filter>Source Files\Internal\StreamIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\StreamIO\TIFMuxer.c">
+      <Filter>Source Files\Internal\StreamIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\StreamIO\TIFStream.c">
+      <Filter>Source Files\Internal\StreamIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\StreamIO\W64Demuxer.c">
+      <Filter>Source Files\Internal\StreamIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\StreamIO\W64Muxer.c">
+      <Filter>Source Files\Internal\StreamIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\StreamIO\W64Stream.c">
+      <Filter>Source Files\Internal\StreamIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\StreamIO\WAVDemuxer.c">
+      <Filter>Source Files\Internal\StreamIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\StreamIO\WAVMuxer.c">
+      <Filter>Source Files\Internal\StreamIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\StreamIO\WAVStream.c">
+      <Filter>Source Files\Internal\StreamIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\StreamIO\AIFDemuxer.c">
+      <Filter>Source Files\Internal\StreamIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\StreamIO\AIFMuxer.c">
+      <Filter>Source Files\Internal\StreamIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\StreamIO\AIFStream.c">
+      <Filter>Source Files\Internal\StreamIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\StreamIO\BMPDemuxer.c">
+      <Filter>Source Files\Internal\StreamIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\StreamIO\BMPMuxer.c">
+      <Filter>Source Files\Internal\StreamIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\StreamIO\BMPStream.c">
+      <Filter>Source Files\Internal\StreamIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\StreamIO\MPEG2Demuxer.c">
+      <Filter>Source Files\Internal\StreamIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\StreamIO\MPEG2Muxer.c">
+      <Filter>Source Files\Internal\StreamIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\StreamIO\MPEG2Stream.c">
+      <Filter>Source Files\Internal\StreamIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Internal\src\StreamIO\PNMDemuxer.c">
+      <Filter>Source Files\Internal\StreamIO</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
