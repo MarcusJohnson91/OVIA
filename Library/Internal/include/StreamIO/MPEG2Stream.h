@@ -228,6 +228,47 @@ extern "C" {
      @abstract     Main muxing function
      */
     void MPEG2Mux(BitBuffer *BitB, Packet2Mux *Packet, uint64_t PacketType, uint64_t PacketLocale, uint64_t MainLocale);
+
+#ifdef OVIA_StreamIO_MPEG2
+    extern const OVIA_MagicIDs MKVSignature;
+
+    const OVIA_MagicIDs MKVSignature = {.NumMagicIDs = 2, .MagicIDs = {OVIA_RegisterSignature(0, 0, 32, (uint8_t[4]) {0x1A, 0x45, 0xDF, 0xA3})}};
+
+    extern const OVIA_Extensions MKVExtensions;
+
+    const OVIA_Extensions MKVExtensions = {.NumExtensions = 5, .Extensions = {OVIA_RegisterExtension("mk3d") OVIA_RegisterExtension("mkv") OVIA_RegisterExtension("mka") OVIA_RegisterExtension("mks") OVIA_RegisterExtension("webm")}};
+
+    extern const OVIA_MIMETypes MKVMIMETypes;
+
+    const OVIA_MIMETypes MKVMIMETypes = {.NumMIMETypes = 6, .MIMETypes = {OVIA_RegisterMIMEType("video/mkv") OVIA_RegisterMIMEType("video/webm") OVIA_RegisterMIMEType("audio/webm") OVIA_RegisterMIMEType("audio/x-matroska") OVIA_RegisterMIMEType("video/x-matroska") OVIA_RegisterMIMEType("application/x-matroska")}};
+
+#if defined(OVIA_StreamIO_Encode)
+    extern const OVIA_Stream MPEG2Muxer;
+
+    const OVIA_Stream MPEG2Muxer = {
+        .MediaType             = MediaType_Container,
+        .MagicID               = &MPEG2Signature,
+        .Function_Initialize   = MPEG2Options_Init,
+        .Function_Parse        = MPEG2ParseMetadata,
+        .Function_Decode       = MPEG2ExtractSamples,
+        .Function_Deinitialize = MPEG2Options_Deinit,
+    };
+#endif /* OVIA_StreamIO_Encode */
+
+#if defined(OVIA_StreamIO_Decode)
+    extern const StreamIO_Demuxer MPEG2Demuxer;
+
+    const StreamIO_Demuxer MPEG2Demuxer = {
+        .MediaType             = MediaType_Container,
+        .MagicID               = &MPEG2Signature,
+        .Function_Initialize   = MPEG2Options_Init,
+        .Function_Parse        = MPEG2ParseMetadata,
+        .Function_Decode       = MPEG2ExtractSamples,
+        .Function_Deinitialize = MPEG2Options_Deinit,
+    };
+#endif /* OVIA_StreamIO_Decode */
+
+#endif /* OVIA_StreamIO_MPEG2 */
     
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
