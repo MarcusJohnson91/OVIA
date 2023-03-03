@@ -66,59 +66,6 @@ extern "C" {
         CompressionType_LossyJPEG    = 0x884C, // Instant fail
     } TIF_CompressionTypes;
 
-#ifdef OVIA_StreamIO_TIFF
-    extern const OVIA_MagicIDs TIFFSignature;
-
-    const OVIA_MagicIDs TIFFSignature = {
-        .NumMagicIDs          = 2,
-        .MagicIDs             = {
-            OVIA_RegisterSignature(0, 16, (uint8_t[2]){0x49, 0x49})
-            OVIA_RegisterSignature(0, 16, (uint8_t[2]){0x4D, 0x4D})
-        },
-    };
-
-    extern const OVIA_Extensions TIFFExtensions;
-
-    const OVIA_Extensions TIFFExtensions = {
-        .NumExtensions     = 4,
-        .Extensions        = {
-            OVIA_RegisterExtension("tiff")
-            OVIA_RegisterExtension("tif")
-            OVIA_RegisterExtension("dng")
-            OVIA_RegisterExtension("nef")
-        }
-    };
-
-    extern const OVIA_MIMETypes TIFFMIMETypes;
-
-    const OVIA_MIMETypes TIFFMIMETypes = {
-        .NumMIMETypes     = 4,
-        .MIMETypes        = {
-            OVIA_RegisterMIMEType("image/tiff")
-            OVIA_RegisterMIMEType("image/x-tiff")
-            OVIA_RegisterMIMEType("image/x-adobe-dng")
-            OVIA_RegisterMIMEType("image/x-nikon-nef")
-        }
-    };
-
-#if defined(OVIA_StreamIO_Encode)
-    extern const OVIA_Stream TIFFMuxer;
-
-    const OVIA_Stream TIFFMuxer = {
-        .MagicID = &TIFFSignature,
-    };
-#endif /* OVIA_StreamIO_Encode */
-
-#if defined(OVIA_StreamIO_Decode)
-    extern const OVIA_Stream TIFFDemuxer;
-
-    const OVIA_Stream TIFFDemuxer = {
-        .MagicID = &TIFFSignature,
-    };
-#endif /* OVIA_StreamIO_Decode */
-
-#endif /* TIFF/EP Literals */
-
     typedef enum TIFFConstants {
         TIFF_ByteOrder_LE = 0x4949,
         TIFF_ByteOrder_BE = 0x4D4D,
@@ -226,7 +173,7 @@ extern "C" {
         TIFFTag_ImageHistory              = 37395,
         TIFFTag_SubjectLocation           = 37396,
         TIFFTag_ExposureIndex             = 37397,
-        TIFFTag_TIFFStandardID          = 37398,
+        TIFFTag_TIFFStandardID            = 37398,
         TIFFTag_SensingMethod             = 37399,
     } TIFFTagTypes;
 
@@ -250,6 +197,40 @@ extern "C" {
         uint16_t            NumIFDEntries;
         BufferIO_ByteOrders ByteOrder;
     } TIFOptions;
+
+#ifdef OVIA_StreamIO_TIFF
+    extern const OVIA_MagicIDs TIFFSignature;
+
+    const OVIA_MagicIDs TIFFSignature = {
+        .NumMagicIDs = 2,
+        .MagicIDs    = {OVIA_RegisterSignature(0, 16, (uint8_t[2]) {0x49, 0x49}) OVIA_RegisterSignature(0, 16, (uint8_t[2]) {0x4D, 0x4D})},
+    };
+
+    extern const OVIA_Extensions TIFFExtensions;
+
+    const OVIA_Extensions TIFFExtensions = {.NumExtensions = 4, .Extensions = {OVIA_RegisterExtension("tiff") OVIA_RegisterExtension("tif") OVIA_RegisterExtension("dng") OVIA_RegisterExtension("nef")}};
+
+    extern const OVIA_MIMETypes TIFFMIMETypes;
+
+    const OVIA_MIMETypes TIFFMIMETypes = {.NumMIMETypes = 4, .MIMETypes = {OVIA_RegisterMIMEType("image/tiff") OVIA_RegisterMIMEType("image/x-tiff") OVIA_RegisterMIMEType("image/x-adobe-dng") OVIA_RegisterMIMEType("image/x-nikon-nef")}};
+
+#if defined(OVIA_StreamIO_Encode)
+    extern const OVIA_Stream TIFFMuxer;
+
+    const OVIA_Stream TIFFMuxer = {
+        .MagicID = &TIFFSignature,
+    };
+#endif /* OVIA_StreamIO_Encode */
+
+#if defined(OVIA_StreamIO_Decode)
+    extern const OVIA_Stream TIFFDemuxer;
+
+    const OVIA_Stream TIFFDemuxer = {
+        .MagicID = &TIFFSignature,
+    };
+#endif /* OVIA_StreamIO_Decode */
+
+#endif /* TIFF/EP Literals */
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
