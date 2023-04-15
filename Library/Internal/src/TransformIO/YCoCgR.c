@@ -9,9 +9,9 @@
 extern "C" {
 #endif
     
-    void YCoCgR_Encode(ImageContainer *Image) {
+    void YCoCgR_Encode(ImageCanvas *Image) {
         AssertIO(Image != NULL);
-        ImageChannelMap *Map  = ImageContainer_GetChannelMap(Image);
+        ImageChannelMap *Map  = ImageCanvas_GetChannelMap(Image);
         AssertIO(Map != NULL);
         uint8_t  NumChannels  = ImageChannelMap_GetNumChannels(Map);
         AssertIO(NumChannels == 3);
@@ -20,12 +20,12 @@ extern "C" {
         uint8_t  BlueIndex                            = ImageChannelMap_GetChannelsIndex(Map, ImageMask_Blue);
         
         uint8_t  NumViews                             = ImageChannelMap_GetNumViews(Map);
-        uint8_t  BitDepth                             = ImageType_GetBitDepth(ImageContainer_GetType(Image));
-        uint64_t Width                                = ImageContainer_GetWidth(Image);
-        uint64_t Height                               = ImageContainer_GetHeight(Image);
+        uint8_t  BitDepth                             = ImageType_GetBitDepth(ImageCanvas_GetType(Image));
+        uint64_t Width                                = ImageCanvas_GetWidth(Image);
+        uint64_t Height                               = ImageCanvas_GetHeight(Image);
         
         if (BitDepth <= 8) {
-            uint8_t ****Array                         = (uint8_t****) ImageContainer_GetArray(Image);
+            uint8_t ****Array                         = (uint8_t****) ImageCanvas_GetArray(Image);
             
             for (uint8_t View = 0; View < NumViews; View++) {
                 for (uint64_t W = 0; W < Width; W++) {
@@ -46,7 +46,7 @@ extern "C" {
                 }
             }
         } else if (BitDepth <= 16) {
-            uint16_t ****Array  = (uint16_t****) ImageContainer_GetArray(Image);
+            uint16_t ****Array  = (uint16_t****) ImageCanvas_GetArray(Image);
             
             for (uint8_t View = 0; View < NumViews; View++) {
                 for (uint64_t W = 0; W < Width; W++) {
@@ -72,12 +72,12 @@ extern "C" {
         ImageChannelMap_AddMask(NewMap, RedIndex, ImageMask_Chroma1);
         ImageChannelMap_AddMask(NewMap, GreenIndex, ImageMask_Luma);
         ImageChannelMap_AddMask(NewMap, BlueIndex, ImageMask_Chroma2);
-        ImageContainer_SetChannelMap(Image, NewMap);
+        ImageCanvas_SetChannelMap(Image, NewMap);
     }
     
-    void YCoCgR_Decode(ImageContainer *Image) { // Not Bijective, requires an additional bit in the Chroma channels
+    void YCoCgR_Decode(ImageCanvas *Image) { // Not Bijective, requires an additional bit in the Chroma channels
         AssertIO(Image != NULL);
-        ImageChannelMap *Map  = ImageContainer_GetChannelMap(Image);
+        ImageChannelMap *Map  = ImageCanvas_GetChannelMap(Image);
         uint8_t  NumChannels  = ImageChannelMap_GetNumChannels(Map);
         AssertIO(NumChannels == 3);
         uint8_t  Chroma1Index                         = ImageChannelMap_GetChannelsIndex(Map, ImageMask_Chroma1);
@@ -85,12 +85,12 @@ extern "C" {
         uint8_t  Chroma2Index                         = ImageChannelMap_GetChannelsIndex(Map, ImageMask_Chroma2);
         
         uint8_t  NumViews                             = ImageChannelMap_GetNumViews(Map);
-        uint8_t  BitDepth                             = ImageType_GetBitDepth(ImageContainer_GetType(Image));
-        uint64_t Width                                = ImageContainer_GetWidth(Image);
-        uint64_t Height                               = ImageContainer_GetHeight(Image);
+        uint8_t  BitDepth                             = ImageType_GetBitDepth(ImageCanvas_GetType(Image));
+        uint64_t Width                                = ImageCanvas_GetWidth(Image);
+        uint64_t Height                               = ImageCanvas_GetHeight(Image);
         
         if (BitDepth <= 8) {
-            uint8_t ****Array                         = (uint8_t****) ImageContainer_GetArray(Image);
+            uint8_t ****Array                         = (uint8_t****) ImageCanvas_GetArray(Image);
             
             for (uint8_t View = 0; View < NumViews; View++) {
                 for (uint64_t W = 0; W < Width; W++) {
@@ -111,7 +111,7 @@ extern "C" {
                 }
             }
         } else if (BitDepth <= 16) {
-            uint16_t ****Array  = (uint16_t****) ImageContainer_GetArray(Image);
+            uint16_t ****Array  = (uint16_t****) ImageCanvas_GetArray(Image);
             
             for (uint8_t View = 0; View < NumViews; View++) {
                 for (uint64_t W = 0; W < Width; W++) {
@@ -136,7 +136,7 @@ extern "C" {
         ImageChannelMap_AddMask(NewMap, Chroma1Index, ImageMask_Red);
         ImageChannelMap_AddMask(NewMap, LumaIndex, ImageMask_Green);
         ImageChannelMap_AddMask(NewMap, Chroma2Index, ImageMask_Blue);
-        ImageContainer_SetChannelMap(Image, NewMap);
+        ImageCanvas_SetChannelMap(Image, NewMap);
     }
     
     OVIAColorTransform TransformYCoCgR = {

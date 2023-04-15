@@ -145,19 +145,19 @@ extern "C" {
                    SortType_Descending              = 2,
     } MediaIO_SortTypes;
     
-    typedef struct          Audio2DContainer        Audio2DContainer;
+    typedef struct          AudioScape2D        AudioScape2D;
     
     typedef struct          AudioChannelMap         AudioChannelMap;
     
     typedef struct          Audio2DHistogram        Audio2DHistogram;
     
-    typedef struct          Audio3DContainer        Audio3DContainer;
+    typedef struct          AudioScape3D        AudioScape3D;
     
     typedef struct          AudioVector             AudioVector;
     
     typedef struct          AudioVectorHistogram    AudioVectorHistogram;
     
-    typedef struct          ImageContainer          ImageContainer;
+    typedef struct          ImageCanvas             ImageCanvas;
     
     typedef struct          ImageChannelMap         ImageChannelMap;
     
@@ -176,86 +176,86 @@ extern "C" {
     uint8_t                 ImageType_GetBitDepth(PlatformIOTypes ImageType);
     
     /*!
-     @abstract                                      Creates an empty Audio2DContainer.
+     @abstract                                      Creates an empty AudioScape2D.
      @param                 Type                    A type from PlatformIOTypes.
      @param                 ChannelMap              Array of ChannelMasks, one array entry for each channel.
      @param                 SampleRate              The number of samples in one second of audio.
      @param                 NumSamples              NumSamples is the number of channel independent samples, e.g. X samples is BitDepth * NumChannels * X.
      */
-    Audio2DContainer       *Audio2DContainer_Init(PlatformIOTypes Type, AudioChannelMap *ChannelMap, uint64_t SampleRate, uint64_t NumSamples);
+    AudioScape2D       *AudioScape2D_Init(PlatformIOTypes Type, AudioChannelMap *ChannelMap, uint64_t SampleRate, uint64_t NumSamples);
     
     /*!
      @abstract                                      Returns the number of channel-agnostic samples in one second.
-     @param                 Audio                   A pointer to the instance of an Audio2DContainer in question.
+     @param                 Audio                   A pointer to the instance of an AudioScape2D in question.
      */
-    uint64_t                Audio2DContainer_GetSampleRate(Audio2DContainer *Audio);
+    uint64_t                AudioScape2D_GetSampleRate(AudioScape2D *Audio);
     
     /*!
      @abstract                                      Returns the number of bits required to represent a audio sample.
-     @param                 Audio                   A pointer to the instance of an Audio2DContainer in question.
+     @param                 Audio                   A pointer to the instance of an AudioScape2D in question.
      */
-    uint8_t                 Audio2DContainer_GetBitDepth(Audio2DContainer *Audio);
+    uint8_t                 AudioScape2D_GetBitDepth(AudioScape2D *Audio);
     
     /*!
      @abstract                                      Returns the number of channel-agnostic audio samples stored in the container.
-     @param                 Audio                   A pointer to the instance of an Audio2DContainer in question.
+     @param                 Audio                   A pointer to the instance of an AudioScape2D in question.
      */
-    uint64_t                Audio2DContainer_GetNumSamples(Audio2DContainer *Audio);
+    uint64_t                AudioScape2D_GetNumSamples(AudioScape2D *Audio);
     
     /*!
-     @abstract                                      Gets the type of the array contained by the Audio2DContainer.
-     @param                 Audio                   A pointer to the instance of an Audio2DContainer in question.
+     @abstract                                      Gets the type of the array contained by the AudioScape2D.
+     @param                 Audio                   A pointer to the instance of an AudioScape2D in question.
      */
-    PlatformIOTypes      Audio2DContainer_GetType(Audio2DContainer *Audio);
+    PlatformIOTypes      AudioScape2D_GetType(AudioScape2D *Audio);
     
     /*!
      @abstract                                      Gets a pointer to the array of samples.
-     @remark                                        You need to cast the pointer to the correct type you got from Audio2DContainer_GetType.
-     @param                 Audio                   A pointer to the instance of an Audio2DContainer in question.
+     @remark                                        You need to cast the pointer to the correct type you got from AudioScape2D_GetType.
+     @param                 Audio                   A pointer to the instance of an AudioScape2D in question.
      */
-    void                  **Audio2DContainer_GetArray(Audio2DContainer *Audio);
+    void                  **AudioScape2D_GetArray(AudioScape2D *Audio);
     
     /*!
      @abstract                                      Returns the average of the samples in the buffer.
-     @param                 Audio                   A pointer to the instance of an Audio2DContainer in question.
+     @param                 Audio                   A pointer to the instance of an AudioScape2D in question.
      @param                 Channel                 Which index should we get average?
      */
-    int64_t                 Audio2DContainer_GetAverage(Audio2DContainer *Audio, uint64_t Channel);
+    int64_t                 AudioScape2D_GetAverage(AudioScape2D *Audio, uint64_t Channel);
     
     /*!
      @abstract                                      Returns the highest valued sample in the buffer.
-     @param                 Audio                   A pointer to the instance of an Audio2DContainer in question.
+     @param                 Audio                   A pointer to the instance of an AudioScape2D in question.
      @param                 Channel                 Which index should we get the highest value from?
      */
-    int64_t                 Audio2DContainer_GetMax(Audio2DContainer *Audio, uint64_t Channel);
+    int64_t                 AudioScape2D_GetMax(AudioScape2D *Audio, uint64_t Channel);
     
     /*!
      @abstract                                      Returns the lowest valued sample in the buffer.
-     @param                 Audio                   A pointer to the instance of an Audio2DContainer in question.
+     @param                 Audio                   A pointer to the instance of an AudioScape2D in question.
      @param                 Channel                 Which index should we get the lowest value from?
      */
-    int64_t                 Audio2DContainer_GetMin(Audio2DContainer *Audio, uint64_t Channel);
+    int64_t                 AudioScape2D_GetMin(AudioScape2D *Audio, uint64_t Channel);
     
     /*!
-     @abstract                                      Securely erases an Audio2DContainer.
-     @param                 Audio                   A pointer to the instance of an Audio2DContainer in question.
+     @abstract                                      Securely erases an AudioScape2D.
+     @param                 Audio                   A pointer to the instance of an AudioScape2D in question.
      @param                 NewValue                The value to set each codeunit to while erasing.
      @return                                        Returns the value of the first element of String, or 0xFE if it was unsucessful
      */
-    uint8_t                 Audio2DContainer_Erase(Audio2DContainer *Audio, uint8_t NewValue);
+    uint8_t                 AudioScape2D_Erase(AudioScape2D *Audio, uint8_t NewValue);
     
     /*!
-     @abstract                                      Deletes an Audio2DContainer, and any samples stored within it.
-     @param                 Audio                   A pointer to the instance of an Audio2DContainer in question.
+     @abstract                                      Deletes an AudioScape2D, and any samples stored within it.
+     @param                 Audio                   A pointer to the instance of an AudioScape2D in question.
      */
-    void                    Audio2DContainer_Deinit(Audio2DContainer *Audio);
+    void                    AudioScape2D_Deinit(AudioScape2D *Audio);
     
     /*!
      @abstract                                      Creates a Audio2DHistogram.
-     @param                 Audio                   A pointer to the instance of an Audio2DContainer in question.
+     @param                 Audio                   A pointer to the instance of an AudioScape2D in question.
      @return                                        Returns the newly created Histogram.
      */
-    Audio2DHistogram       *Audio2DHistogram_Init(Audio2DContainer *Audio);
+    Audio2DHistogram       *Audio2DHistogram_Init(AudioScape2D *Audio);
     
     /*!
      @abstract                                      Gets a pointer to the histogram data.
@@ -272,11 +272,11 @@ extern "C" {
     void                    Audio2DHistogram_SetArray(Audio2DHistogram *Histogram, void **Array);
     
     /*!
-     @abstract                                      Generates a histogram from an Audio2DContainer.
-     @param                 Audio                   A pointer to the instance of an Audio2DContainer in question.
+     @abstract                                      Generates a histogram from an AudioScape2D.
+     @param                 Audio                   A pointer to the instance of an AudioScape2D in question.
      @return                                        Returns the newly created Histogram.
      */
-    Audio2DHistogram       *Audio2DHistogram_Generate(Audio2DContainer *Audio);
+    Audio2DHistogram       *Audio2DHistogram_Generate(AudioScape2D *Audio);
     
     /*!
      @abstract                                      Sorts a histogram.
@@ -286,8 +286,8 @@ extern "C" {
     void                    Audio2DHistogram_Sort(Audio2DHistogram *Histogram, MediaIO_SortTypes Sort);
     
     /*!
-     @abstract                                      Securely erases an Audio2DContainer.
-     @param                 Histogram               A pointer to the instance of an Audio2DContainer in question.
+     @abstract                                      Securely erases an AudioScape2D.
+     @param                 Histogram               A pointer to the instance of an AudioScape2D in question.
      @param                 NewValue                The value to set each codeunit to while erasing.
      @return                                        Returns the value of the first element of String, or 0xFE if it was unsucessful
      */
@@ -308,16 +308,16 @@ extern "C" {
     
     /*!
      @abstract                                      Gets a pointer to the ChannelMap.
-     @param                 Audio                   Audio2DContainer Pointer.
+     @param                 Audio                   AudioScape2D Pointer.
      @return                                        Returns a pointer to the ChannelMap.
      */
-    AudioChannelMap        *Audio2DContainer_GetChannelMap(Audio2DContainer *Audio);
+    AudioChannelMap        *AudioScape2D_GetChannelMap(AudioScape2D *Audio);
     
     /*!
      @abstract                                      Returns the number of audio channels.
-     @param                 Audio                   Audio2DContainer Pointer.
+     @param                 Audio                   AudioScape2D Pointer.
      */
-    uint64_t                Audio2DContainer_GetNumChannels(Audio2DContainer *Audio);
+    uint64_t                AudioScape2D_GetNumChannels(AudioScape2D *Audio);
     
     /*!
      @abstract                                      Adds a MediaIO_AudioMask at the specified Index to the ChannelMap.
@@ -329,7 +329,7 @@ extern "C" {
     
     /*!
      @abstract                                      Returns the ChannelMask for Index.
-     @param                 ChannelMap              Audio2DContainer Pointer.
+     @param                 ChannelMap              AudioScape2D Pointer.
      @param                 Index                   The channel index to get the mask for.
      */
     MediaIO_AudioMask       AudioChannelMap_GetMask(AudioChannelMap *ChannelMap, uint64_t Index);
@@ -347,55 +347,55 @@ extern "C" {
     void                    AudioChannelMap_Deinit(AudioChannelMap *ChannelMap);
     
     /*!
-     @abstract                                      Creates an empty Audio3DContainer.
+     @abstract                                      Creates an empty AudioScape3D.
      @param                 NumVectors             The number of vectors to create.
-     @return                                        Returns a pointer to an Audio3DContainer.
+     @return                                        Returns a pointer to an AudioScape3D.
      */
-    Audio3DContainer       *Audio3DContainer_Init(size_t NumVectors);
+    AudioScape3D       *AudioScape3D_Init(size_t NumVectors);
     
     /*!
-     @abstract                                      Adds a AudioVector to an Audio3DContainer.
-     @param                 Container               The Audio3DContainer to add the AudioVector to.
+     @abstract                                      Adds a AudioVector to an AudioScape3D.
+     @param                 Container               The AudioScape3D to add the AudioVector to.
      @param                 Vector                  The AudioVector to add.
      @param                 Index                   The order of the AudioVector.
      */
-    void                    Audio3DContainer_SetVector(Audio3DContainer *Container, AudioVector *Vector, uint64_t Index);
+    void                    AudioScape3D_SetVector(AudioScape3D *Container, AudioVector *Vector, uint64_t Index);
     
     /*!
      @abstract                                      Gets a pointer to an AudioVector.
-     @param                 Container               The Audio3DContainer to get the AudioVector from.
+     @param                 Container               The AudioScape3D to get the AudioVector from.
      @param                 Index                   The AudioVector to get.
      */
-    AudioVector            *Audio3DContainer_GetVector(Audio3DContainer *Container, uint64_t Index);
+    AudioVector            *AudioScape3D_GetVector(AudioScape3D *Container, uint64_t Index);
     
     /*!
-     @abstract                                      Gets the total number of samples in the Audio3DContainer.
-     @param                 Container               The Audio3DContainer to get the total number of samples from.
+     @abstract                                      Gets the total number of samples in the AudioScape3D.
+     @param                 Container               The AudioScape3D to get the total number of samples from.
      */
-    uint64_t                Audio3DContainer_GetTotalNumSamples(Audio3DContainer *Container);
+    uint64_t                AudioScape3D_GetTotalNumSamples(AudioScape3D *Container);
     
     /*!
      @abstract                                      Downmixes 3D audio to 2D audio.
-     @param                 Audio3D                 The Audio3DContainer to get the total number of samples from.
+     @param                 Audio3D                 The AudioScape3D to get the total number of samples from.
      @param                 ChannelMap              The ChannelMap to create the downmix with.
      @param                 Type                    The type of the audio, should this be gleaned from the 3D audio?
      */
-    Audio2DContainer       *Audio3DContainer_Mix2Audio2DContainer(Audio3DContainer *Audio3D, AudioChannelMap *ChannelMap, PlatformIOTypes Type, uint64_t SampleRate);
+    AudioScape2D       *AudioScape3D_Mix2Audio2DContainer(AudioScape3D *Audio3D, AudioChannelMap *ChannelMap, PlatformIOTypes Type, uint64_t SampleRate);
     
     
     /*!
-     @abstract                                      Securely erases an Audio3DContainer.
-     @param                 Container               A pointer to the instance of the Audio3DContainer in question.
+     @abstract                                      Securely erases an AudioScape3D.
+     @param                 Container               A pointer to the instance of the AudioScape3D in question.
      @param                 NewValue                The value to set each codeunit to while erasing.
      @return                                        Returns the value of the first element of String, or 0xFE if it was unsucessful.
      */
-    uint8_t                 Audio3DContainer_Erase(Audio3DContainer *Container, uint8_t NewValue);
+    uint8_t                 AudioScape3D_Erase(AudioScape3D *Container, uint8_t NewValue);
     
     /*!
-     @abstract                                      Frees a Audio3DContainer.
-     @param                 Container               A pointer to the Audio3DContainer to deinitialize.
+     @abstract                                      Frees a AudioScape3D.
+     @param                 Container               A pointer to the AudioScape3D to deinitialize.
      */
-    void                    Audio3DContainer_Deinit(Audio3DContainer *Container);
+    void                    AudioScape3D_Deinit(AudioScape3D *Container);
     
     /*!
      @abstract                                      Creates an empty AudioVector.
@@ -404,7 +404,7 @@ extern "C" {
     
     /*!
      @abstract                                      Gets a Pointer to an AudioVector.
-     @param                 Vector                  A pointer to the Audio3DContainer to deinitialize.
+     @param                 Vector                  A pointer to the AudioScape3D to deinitialize.
      */
     void                   *AudioVector_GetArray(AudioVector *Vector);
     
@@ -519,144 +519,144 @@ extern "C" {
     void                    ImageChannelMap_Deinit(ImageChannelMap *ChannelMap);
     
     /*!
-     @abstract                                      Creates an empty ImageContainer.
+     @abstract                                      Creates an empty ImageCanvas.
      @remark                                        All channels in an image must have the same bit depth, padding will be added if necessary.
      @param                 Type                    The type of array to create.
      @param                 ChannelMap              The channel map.
      @param                 Width                   The number of pixels making up one row.
      @param                 Height                  The number of pixels making up one column.
      */
-    ImageContainer         *ImageContainer_Init(PlatformIOTypes Type, ImageChannelMap *ChannelMap, uint64_t Width, uint64_t Height);
+    ImageCanvas         *ImageCanvas_Init(PlatformIOTypes Type, ImageChannelMap *ChannelMap, uint64_t Width, uint64_t Height);
     
     /*!
      @abstract                                      Returns the number of pixels in one row of this image.
-     @param                 Image                   A pointer to the instance of an ImageContainer in question.
+     @param                 Image                   A pointer to the instance of an ImageCanvas in question.
      */
-    uint64_t                ImageContainer_GetWidth(ImageContainer *Image);
+    uint64_t                ImageCanvas_GetWidth(ImageCanvas *Image);
     
     /*!
      @abstract                                      Returns the number of pixels in one column of this image.
-     @param                 Image                   A pointer to the instance of an ImageContainer in question.
+     @param                 Image                   A pointer to the instance of an ImageCanvas in question.
      */
-    uint64_t                ImageContainer_GetHeight(ImageContainer *Image);
+    uint64_t                ImageCanvas_GetHeight(ImageCanvas *Image);
     
     /*!
      @abstract                                      Gets the channel mask.
-     @param                 Image                   A pointer to the instance of an ImageContainer in question.
+     @param                 Image                   A pointer to the instance of an ImageCanvas in question.
      */
-    ImageChannelMap        *ImageContainer_GetChannelMap(ImageContainer *Image);
+    ImageChannelMap        *ImageCanvas_GetChannelMap(ImageCanvas *Image);
     
     /*!
      @abstract                                      Sets the channel mask.
-     @param                 Image                   A pointer to the instance of an ImageContainer in question.
+     @param                 Image                   A pointer to the instance of an ImageCanvas in question.
      @param                 ChannelMap              The new channel map to set to the Image.
      */
-    void                    ImageContainer_SetChannelMap(ImageContainer *Image, ImageChannelMap *ChannelMap);
+    void                    ImageCanvas_SetChannelMap(ImageCanvas *Image, ImageChannelMap *ChannelMap);
     
     /*!
-     @abstract                                      Gets the type of the array contained by the ImageContainer.
-     @param                 Image                   A pointer to the instance of an ImageContainer in question.
+     @abstract                                      Gets the type of the array contained by the ImageCanvas.
+     @param                 Image                   A pointer to the instance of an ImageCanvas in question.
      */
-    PlatformIOTypes      ImageContainer_GetType(ImageContainer *Image);
+    PlatformIOTypes      ImageCanvas_GetType(ImageCanvas *Image);
 
     /*!
-     @abstract                                      Convienence function that just calls ImageContainer_GetType.
-     @param                 Image                   A pointer to the instance of an ImageContainer in question.
+     @abstract                                      Convienence function that just calls ImageCanvas_GetType.
+     @param                 Image                   A pointer to the instance of an ImageCanvas in question.
      @return                                        Returns the BitDepth of the Container as an integer.
      */
-    uint8_t                 ImageContainer_GetBitDepth(ImageContainer *Image);
+    uint8_t                 ImageCanvas_GetBitDepth(ImageCanvas *Image);
 
     /*!
      @abstract                                      Convienence function that just calls ImageChannelMap_GetNumViews.
-     @param                 Image                   A pointer to the instance of an ImageContainer in question.
+     @param                 Image                   A pointer to the instance of an ImageCanvas in question.
      @return                                        Returns the NumViews of the Container as an integer.
      */
-    uint8_t                 ImageContainer_GetNumViews(ImageContainer *Image);
+    uint8_t                 ImageCanvas_GetNumViews(ImageCanvas *Image);
     
     /*!
      @abstract                                      Gets a pointer to the array of pixels.
      @remark                                        You need to cast the pointer to the correct type you got from ImageType_GetType.
-     @param                 Image                   A pointer to the instance of an ImageContainer in question.
+     @param                 Image                   A pointer to the instance of an ImageCanvas in question.
      */
-    void                ****ImageContainer_GetArray(ImageContainer *Image);
+    void                ****ImageCanvas_GetArray(ImageCanvas *Image);
     
     /*!
      @abstract                                      Sets a pointer to the array of pixels.
-     @param                 Image                   A pointer to the instance of an ImageContainer in question.
+     @param                 Image                   A pointer to the instance of an ImageCanvas in question.
      @param                 Array                   A pointer to the new array.
      */
-    void                    ImageContainer_SetArray(ImageContainer *Image, void ****Array);
+    void                    ImageCanvas_SetArray(ImageCanvas *Image, void ****Array);
     
     /*!
      @abstract                                      Returns the average value (rounded) of the pixels in this image.
-     @param                 Image                   A pointer to the instance of an ImageContainer in question.
+     @param                 Image                   A pointer to the instance of an ImageCanvas in question.
      @param                 View                    Which view should we get the minimum from?
      @param                 Channel                 Which channel should we get the minimum from?
      */
-    uint64_t                ImageContainer_GetAverage(ImageContainer *Image, uint8_t View, uint8_t Channel);
+    uint64_t                ImageCanvas_GetAverage(ImageCanvas *Image, uint8_t View, uint8_t Channel);
     
     /*!
      @abstract                                      Returns the highest value pixel in this image.
-     @param                 Image                   A pointer to the instance of an ImageContainer in question.
+     @param                 Image                   A pointer to the instance of an ImageCanvas in question.
      @param                 View                    Which view should we get the minimum from?
      @param                 Channel                 Which channel should we get the minimum from?
      */
-    uint64_t                ImageContainer_GetMax(ImageContainer *Image, uint8_t View, uint8_t Channel);
+    uint64_t                ImageCanvas_GetMax(ImageCanvas *Image, uint8_t View, uint8_t Channel);
     
     /*!
      @abstract                                      Returns the lowest value pixel in this image.
-     @param                 Image                   A pointer to the instance of an ImageContainer in question.
+     @param                 Image                   A pointer to the instance of an ImageCanvas in question.
      @param                 View                    Which view should we get the minimum from?
      @param                 Channel                 Which channel should we get the minimum from?
      */
-    uint64_t                ImageContainer_GetMin(ImageContainer *Image, uint8_t View, uint8_t Channel);
+    uint64_t                ImageCanvas_GetMin(ImageCanvas *Image, uint8_t View, uint8_t Channel);
     
     /*!
      @abstract                                      Rotates an Image, either Vertically, Horizontally, or both.
-     @param                 Image                   A pointer to the instance of an ImageContainer in question.
+     @param                 Image                   A pointer to the instance of an ImageCanvas in question.
      @param                 FlipType                The type of flipping to use.
      */
-    void                    ImageContainer_Flip(ImageContainer *Image, MediaIO_FlipTypes FlipType);
+    void                    ImageCanvas_Flip(ImageCanvas *Image, MediaIO_FlipTypes FlipType);
     
     /*!
      @abstract                                      Resizes an Image.
      @remark                                        0 means keep the same, -1 means remove one, 1 means add one.
-     @param                 Image                   A pointer to the instance of an ImageContainer in question.
+     @param                 Image                   A pointer to the instance of an ImageCanvas in question.
      @param                 Top                     The offset from the top of the image.
      @param                 Bottom                  The offset from the bottom of the image.
      @param                 Left                    The offset from the left of the image.
      @param                 Right                   The offset from the right of the image.
      */
-    void                    ImageContainer_Resize(ImageContainer *Image, int64_t Left, int64_t Right, int64_t Top, int64_t Bottom);
+    void                    ImageCanvas_Resize(ImageCanvas *Image, int64_t Left, int64_t Right, int64_t Top, int64_t Bottom);
     
     /*!
      @abstract                                      Compares two Images.
-     @param                 Reference               A pointer to the reference ImageContainer.
-     @param                 Compare                 A pointer to the ImageContainer to compare to the Reference.
-     @return                                        Returns an ImageContainer containing (Reference - Compare) % 2^BitDepth.
+     @param                 Reference               A pointer to the reference ImageCanvas.
+     @param                 Compare                 A pointer to the ImageCanvas to compare to the Reference.
+     @return                                        Returns an ImageCanvas containing (Reference - Compare) % 2^BitDepth.
      */
-    ImageContainer         *ImageContainer_Compare(ImageContainer *Reference, ImageContainer *Compare);
+    ImageCanvas         *ImageCanvas_Compare(ImageCanvas *Reference, ImageCanvas *Compare);
     
     /*!
-     @abstract                                      Securely erases an ImageContainer.
-     @param                 Image                   A pointer to the instance of an ImageContainer in question.
+     @abstract                                      Securely erases an ImageCanvas.
+     @param                 Image                   A pointer to the instance of an ImageCanvas in question.
      @param                 NewValue                The value to set each codeunit to while erasing.
      @return                                        Returns the value of the first element of String, or 0xFE if it was unsucessful.
      */
-    uint8_t                 ImageContainer_Erase(ImageContainer *Image, uint8_t NewValue);
+    uint8_t                 ImageCanvas_Erase(ImageCanvas *Image, uint8_t NewValue);
     
     /*!
-     @abstract                                      Deletes the ImageContainer pointed to.
-     @param                 Image                   A pointer to the instance of an ImageContainer in question.
+     @abstract                                      Deletes the ImageCanvas pointed to.
+     @param                 Image                   A pointer to the instance of an ImageCanvas in question.
      */
-    void                    ImageContainer_Deinit(ImageContainer *Image);
+    void                    ImageCanvas_Deinit(ImageCanvas *Image);
     
     /*!
      @abstract                                      Creates a ImageHistogram.
-     @param                 Image                   A pointer to the instance of an ImageContainer in question.
+     @param                 Image                   A pointer to the instance of an ImageCanvas in question.
      @return                                        Returns the newly created Histogram.
      */
-    ImageHistogram         *ImageHistogram_Init(ImageContainer *Image);
+    ImageHistogram         *ImageHistogram_Init(ImageCanvas *Image);
     
     /*!
      @abstract                                      Gets a pointer to the histogram data.
@@ -673,11 +673,11 @@ extern "C" {
     void                    ImageHistogram_SetArray(ImageHistogram *Histogram, uint64_t ***Array);
     
     /*!
-     @abstract                                      Generates a histogram from an ImageContainer.
-     @param                 Image                   A pointer to the instance of an ImageContainer in question.
+     @abstract                                      Generates a histogram from an ImageCanvas.
+     @param                 Image                   A pointer to the instance of an ImageCanvas in question.
      @return                                        Returns the newly created Histogram.
      */
-    ImageHistogram         *ImageHistogram_Generate(ImageContainer *Image);
+    ImageHistogram         *ImageHistogram_Generate(ImageCanvas *Image);
     
     /*!
      @abstract                                      Sorts a histogram.
@@ -688,7 +688,7 @@ extern "C" {
     
     /*!
      @abstract                                      Securely erases an ImageHistogram.
-     @param                 Histogram               A pointer to the instance of an ImageContainer in question.
+     @param                 Histogram               A pointer to the instance of an ImageCanvas in question.
      @param                 NewValue                The value to set each codeunit to while erasing.
      @return                                        Returns the value of the first element of String, or 0xFE if it was unsucessful.
      */

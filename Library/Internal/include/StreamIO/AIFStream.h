@@ -75,9 +75,9 @@ extern "C" {
     
     void              AIFParseMetadata(AIFOptions *AIF, BitBuffer *BitB);
     
-    void              AIFExtractSamples(AIFOptions *AIF, BitBuffer *BitB, Audio2DContainer *Audio);
+    void              AIFExtractSamples(AIFOptions *AIF, BitBuffer *BitB, AudioScape2D *Audio);
     
-    void              AIFAppendSamples(AIFOptions *AIF, BitBuffer *BitB, Audio2DContainer *Audio);
+    void              AIFAppendSamples(AIFOptions *AIF, BitBuffer *BitB, AudioScape2D *Audio);
     
     void              AIFWriteHeader(AIFOptions *AIF, BitBuffer *BitB);
     

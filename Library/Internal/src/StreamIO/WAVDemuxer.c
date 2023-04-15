@@ -71,11 +71,11 @@ extern "C" {
         }
     }
     
-    Audio2DContainer *WAVExtractSamples(WAVOptions *Options, BitBuffer *BitB) {
+    AudioScape2D *WAVExtractSamples(WAVOptions *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Audio2DContainer *Audio = NULL;
-        // Get the ChannelMap to initailize the Audio2DContainer
+        AudioScape2D *Audio = NULL;
+        // Get the ChannelMap to initailize the AudioScape2D
         uint64_t BitDepth     = Options->BitDepth;
         uint64_t NumChannels  = Options->NumChannels;
         uint64_t SampleRate   = Options->SampleRate;
@@ -83,24 +83,24 @@ extern "C" {
         AudioChannelMap *Map  = AudioChannelMap_Init(NumChannels);
         // ^ Add the masks for the channels from OVIA and blah blah blah
         if (BitDepth <= 8) {
-            Audio = Audio2DContainer_Init(PlatformIOType_Integer8, Map, SampleRate, NumSamples);
-            uint8_t **Samples = (uint8_t**) Audio2DContainer_GetArray(Audio);
+            Audio = AudioScape2D_Init(PlatformIOType_Integer8, Map, SampleRate, NumSamples);
+            uint8_t **Samples = (uint8_t**) AudioScape2D_GetArray(Audio);
             for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                 for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
                     Samples[Channel][Sample] = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, Bits2Bytes(BitDepth, Yes));
                 }
             }
         } else if (BitDepth > 8 && BitDepth <= 16) {
-            Audio = Audio2DContainer_Init(PlatformIOType_Integer16, Map, SampleRate, NumSamples);
-            uint16_t **Samples = (uint16_t**) Audio2DContainer_GetArray(Audio);
+            Audio = AudioScape2D_Init(PlatformIOType_Integer16, Map, SampleRate, NumSamples);
+            uint16_t **Samples = (uint16_t**) AudioScape2D_GetArray(Audio);
             for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                 for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
                     Samples[Channel][Sample] = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, Bits2Bytes(BitDepth, Yes));
                 }
             }
         } else if (BitDepth > 16 && BitDepth <= 32) {
-            Audio = Audio2DContainer_Init(PlatformIOType_Integer32, Map, SampleRate, NumSamples);
-            uint32_t **Samples = (uint32_t**) Audio2DContainer_GetArray(Audio);
+            Audio = AudioScape2D_Init(PlatformIOType_Integer32, Map, SampleRate, NumSamples);
+            uint32_t **Samples = (uint32_t**) AudioScape2D_GetArray(Audio);
             for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                 for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
                     Samples[Channel][Sample] = BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, Bits2Bytes(BitDepth, Yes));

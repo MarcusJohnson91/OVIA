@@ -14,7 +14,7 @@ extern "C" {
 
      for encoding and video analysis however is a harder problem.
 
-     for that we need numerous raw images in ImageContainers that we need to handle.
+     for that we need numerous raw images in ImageCanvass that we need to handle.
 
      like, to cluster between frames, and to detect scene changes all the output we would need is to know when a frame changes enough from the previous ones.
      */
@@ -116,8 +116,8 @@ extern "C" {
         free(ChannelMap);
     }
     
-    /* Audio2DContainer */
-    typedef struct Audio2DContainer {
+    /* AudioScape2D */
+    typedef struct AudioScape2D {
         void              **Samples;
         AudioChannelMap    *ChannelMap;
         uint64_t            NumChannels;
@@ -125,14 +125,14 @@ extern "C" {
         uint64_t            SampleRate;
         uint64_t            Offset;
         PlatformIOTypes  Type;
-    } Audio2DContainer;
+    } AudioScape2D;
     
-    Audio2DContainer *Audio2DContainer_Init(PlatformIOTypes Type, AudioChannelMap *ChannelMap, uint64_t SampleRate, uint64_t NumSamples) {
+    AudioScape2D *AudioScape2D_Init(PlatformIOTypes Type, AudioChannelMap *ChannelMap, uint64_t SampleRate, uint64_t NumSamples) {
         AssertIO(Type != AudioMask_Unspecified);
         AssertIO(ChannelMap != NULL);
         AssertIO(SampleRate > 0);
         AssertIO(NumSamples > 0);
-        Audio2DContainer *Audio = (Audio2DContainer*) calloc(1, sizeof(Audio2DContainer));
+        AudioScape2D *Audio = (AudioScape2D*) calloc(1, sizeof(AudioScape2D));
         void **Array       = (void**) calloc(ChannelMap->NumChannels * NumSamples, Type / 4);
         AssertIO(Array != NULL);
 
@@ -142,79 +142,79 @@ extern "C" {
         return Audio;
     }
     
-    AudioChannelMap *Audio2DContainer_GetChannelMap(Audio2DContainer *Audio) {
+    AudioChannelMap *AudioScape2D_GetChannelMap(AudioScape2D *Audio) {
         AssertIO(Audio != NULL);
         AudioChannelMap *Map = Audio->ChannelMap;
         return Map;
     }
     
-    uint8_t Audio2DContainer_GetBitDepth(Audio2DContainer *Audio) {
+    uint8_t AudioScape2D_GetBitDepth(AudioScape2D *Audio) {
         AssertIO(Audio != NULL);
         return AudioType_GetBitDepth(Audio->Type);
     }
     
-    uint64_t Audio2DContainer_GetNumChannels(Audio2DContainer *Audio) {
+    uint64_t AudioScape2D_GetNumChannels(AudioScape2D *Audio) {
         AssertIO(Audio != NULL);
         uint64_t NumChannels = Audio->NumChannels;
         return NumChannels;
     }
     
-    uint64_t Audio2DContainer_GetSampleRate(Audio2DContainer *Audio) {
+    uint64_t AudioScape2D_GetSampleRate(AudioScape2D *Audio) {
         AssertIO(Audio != NULL);
         uint64_t SampleRate = Audio->SampleRate;
         return SampleRate;
     }
     
-    uint64_t Audio2DContainer_GetNumSamples(Audio2DContainer *Audio) {
+    uint64_t AudioScape2D_GetNumSamples(AudioScape2D *Audio) {
         AssertIO(Audio != NULL);
         uint64_t NumSamples = Audio->NumSamples;
         return NumSamples;
     }
     
-    PlatformIOTypes Audio2DContainer_GetType(Audio2DContainer *Audio) {
+    PlatformIOTypes AudioScape2D_GetType(AudioScape2D *Audio) {
         AssertIO(Audio != NULL);
         PlatformIOTypes Type = Audio->Type;
         return Type;
     }
     
-    void **Audio2DContainer_GetArray(Audio2DContainer *Audio) {
+    void **AudioScape2D_GetArray(AudioScape2D *Audio) {
         AssertIO(Audio != NULL);
         void **AudioArray = Audio->Samples;
         return AudioArray;
     }
     
-    int64_t Audio2DContainer_GetAverage(Audio2DContainer *Audio, uint64_t Channel) {
+    int64_t AudioScape2D_GetAverage(AudioScape2D *Audio, uint64_t Channel) {
         AssertIO(Audio != NULL);
         AssertIO(Channel < Audio->NumChannels);
         int64_t Average = 0LL;
 
             if (Audio->Type == (PlatformIOType_Unsigned | PlatformIOType_Integer8)) {
-                uint8_t **Array = (uint8_t**) Audio2DContainer_GetArray(Audio);
+                uint8_t **Array = (uint8_t**) AudioScape2D_GetArray(Audio);
                 for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
                     Average += Array[Channel][Sample];
                 }
             } else if (Audio->Type == (PlatformIOType_Signed | PlatformIOType_Integer8)) {
-                int8_t **Array = (int8_t**) Audio2DContainer_GetArray(Audio);
+                int8_t **Array = (int8_t**) AudioScape2D_GetArray(Audio);
                 for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
                     Average += Array[Channel][Sample];
                 }
             } else if (Audio->Type == (PlatformIOType_Unsigned | PlatformIOType_Integer16)) {
-                uint16_t **Array = (uint16_t**) Audio2DContainer_GetArray(Audio);
+                uint16_t **Array = (uint16_t**) AudioScape2D_GetArray(Audio);
                 for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
                     Average += Array[Channel][Sample];
                 }
             } else if (Audio->Type == (PlatformIOType_Signed | PlatformIOType_Integer16)) {
-                int16_t **Array = (int16_t **) Audio2DContainer_GetArray(Audio);
+                int16_t **Array = (int16_t **) AudioScape2D_GetArray(Audio);
                 for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
                     Average += Array[Channel][Sample];
                 }
             } else if (Audio->Type == (PlatformIOType_Unsigned | PlatformIOType_Integer32)) {
-                uint32_t **Array = (uint32_t**) Audio2DContainer_GetArray(Audio);
+                uint32_t **Array = (uint32_t**) AudioScape2D_GetArray(Audio);
                 for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
                     Average += Array[Channel][Sample];
                 }
             } else if (Audio->Type == (PlatformIOType_Signed | PlatformIOType_Integer32)) {
-                int32_t **Array = (int32_t**) Audio2DContainer_GetArray(Audio);
+                int32_t **Array = (int32_t**) AudioScape2D_GetArray(Audio);
                 for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
                     Average += Array[Channel][Sample];
                 }
@@ -225,13 +225,13 @@ extern "C" {
         return Average;
     }
     
-    int64_t Audio2DContainer_GetMax(Audio2DContainer *Audio, uint64_t Channel) {
+    int64_t AudioScape2D_GetMax(AudioScape2D *Audio, uint64_t Channel) {
         AssertIO(Audio != NULL);
         AssertIO(Channel < Audio->NumChannels);
         int64_t Maximum = INT64_MIN;
         if (Audio->Type == (PlatformIOType_Unsigned | PlatformIOType_Integer8)) {
-            uint8_t **Array = (uint8_t**) Audio2DContainer_GetArray(Audio);
-            uint8_t   Max   = (uint8_t) Exponentiate(2, Audio2DContainer_GetBitDepth(Audio)) - 1;
+            uint8_t **Array = (uint8_t**) AudioScape2D_GetArray(Audio);
+            uint8_t   Max   = (uint8_t) Exponentiate(2, AudioScape2D_GetBitDepth(Audio)) - 1;
             for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
                 if (Array[Channel][Sample] > Maximum) {
                     Maximum = Array[Channel][Sample];
@@ -241,8 +241,8 @@ extern "C" {
                 }
             }
         } else if (Audio->Type == (PlatformIOType_Signed | PlatformIOType_Integer8)) {
-            int8_t **Array = (int8_t**) Audio2DContainer_GetArray(Audio);
-            int8_t   Max   = (int8_t) Exponentiate(2, Audio2DContainer_GetBitDepth(Audio) - 1) - 1;
+            int8_t **Array = (int8_t**) AudioScape2D_GetArray(Audio);
+            int8_t   Max   = (int8_t) Exponentiate(2, AudioScape2D_GetBitDepth(Audio) - 1) - 1;
             for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
                 if (Array[Channel][Sample] > Maximum) {
                     Maximum = Array[Channel][Sample];
@@ -252,8 +252,8 @@ extern "C" {
                 }
             }
         } else if (Audio->Type == (PlatformIOType_Unsigned | PlatformIOType_Integer16)) {
-            uint16_t **Array = (uint16_t**) Audio2DContainer_GetArray(Audio);
-            uint16_t   Max   = (uint16_t) Exponentiate(2, Audio2DContainer_GetBitDepth(Audio)) - 1;
+            uint16_t **Array = (uint16_t**) AudioScape2D_GetArray(Audio);
+            uint16_t   Max   = (uint16_t) Exponentiate(2, AudioScape2D_GetBitDepth(Audio)) - 1;
             for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
                 if (Array[Channel][Sample] > Maximum) {
                     Maximum = Array[Channel][Sample];
@@ -263,8 +263,8 @@ extern "C" {
                 }
             }
         } else if (Audio->Type == (PlatformIOType_Signed | PlatformIOType_Integer16)) {
-            int16_t **Array = (int16_t **) Audio2DContainer_GetArray(Audio);
-            int16_t   Max   = (int16_t) Exponentiate(2, Audio2DContainer_GetBitDepth(Audio) - 1) - 1;
+            int16_t **Array = (int16_t **) AudioScape2D_GetArray(Audio);
+            int16_t   Max   = (int16_t) Exponentiate(2, AudioScape2D_GetBitDepth(Audio) - 1) - 1;
             for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
                 if (Array[Channel][Sample] > Maximum) {
                     Maximum = Array[Channel][Sample];
@@ -274,8 +274,8 @@ extern "C" {
                 }
             }
         } else if (Audio->Type == (PlatformIOType_Unsigned | PlatformIOType_Integer32)) {
-            uint32_t **Array = (uint32_t**) Audio2DContainer_GetArray(Audio);
-            uint32_t   Max   = (uint32_t) Exponentiate(2, Audio2DContainer_GetBitDepth(Audio)) - 1;
+            uint32_t **Array = (uint32_t**) AudioScape2D_GetArray(Audio);
+            uint32_t   Max   = (uint32_t) Exponentiate(2, AudioScape2D_GetBitDepth(Audio)) - 1;
             for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
                 if (Array[Channel][Sample] > Maximum) {
                     Maximum = Array[Channel][Sample];
@@ -285,8 +285,8 @@ extern "C" {
                 }
             }
         } else if (Audio->Type == (PlatformIOType_Signed | PlatformIOType_Integer32)) {
-            int32_t **Array = (int32_t**) Audio2DContainer_GetArray(Audio);
-            int32_t   Max   = (int32_t) Exponentiate(2, Audio2DContainer_GetBitDepth(Audio) - 1) - 1;
+            int32_t **Array = (int32_t**) AudioScape2D_GetArray(Audio);
+            int32_t   Max   = (int32_t) Exponentiate(2, AudioScape2D_GetBitDepth(Audio) - 1) - 1;
             for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
                 if (Array[Channel][Sample] > Maximum) {
                     Maximum = Array[Channel][Sample];
@@ -299,12 +299,12 @@ extern "C" {
         return Maximum;
     }
     
-    int64_t Audio2DContainer_GetMin(Audio2DContainer *Audio, uint64_t Channel) {
+    int64_t AudioScape2D_GetMin(AudioScape2D *Audio, uint64_t Channel) {
         AssertIO(Audio != NULL);
         AssertIO(Channel < Audio->NumChannels);
         int64_t Minimum = INT64_MAX;
         if (Audio->Type == (PlatformIOType_Unsigned | PlatformIOType_Integer8)) {
-            uint8_t **Array = (uint8_t**) Audio2DContainer_GetArray(Audio);
+            uint8_t **Array = (uint8_t**) AudioScape2D_GetArray(Audio);
             for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
                 if (Array[Channel][Sample] < Minimum) {
                     Minimum = Array[Channel][Sample];
@@ -314,7 +314,7 @@ extern "C" {
                 }
             }
         } else if (Audio->Type == (PlatformIOType_Signed | PlatformIOType_Integer8)) {
-            int8_t **Array = (int8_t**) Audio2DContainer_GetArray(Audio);
+            int8_t **Array = (int8_t**) AudioScape2D_GetArray(Audio);
             for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
                 if (Array[Channel][Sample] < Minimum) {
                     Minimum = Array[Channel][Sample];
@@ -324,7 +324,7 @@ extern "C" {
                 }
             }
         } else if (Audio->Type == (PlatformIOType_Unsigned | PlatformIOType_Integer16)) {
-            uint16_t **Array = (uint16_t**) Audio2DContainer_GetArray(Audio);
+            uint16_t **Array = (uint16_t**) AudioScape2D_GetArray(Audio);
             for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
                 if (Array[Channel][Sample] < Minimum) {
                     Minimum = Array[Channel][Sample];
@@ -334,7 +334,7 @@ extern "C" {
                 }
             }
         } else if (Audio->Type == (PlatformIOType_Signed | PlatformIOType_Integer16)) {
-            int16_t **Array = (int16_t **) Audio2DContainer_GetArray(Audio);
+            int16_t **Array = (int16_t **) AudioScape2D_GetArray(Audio);
             for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
                 if (Array[Channel][Sample] < Minimum) {
                     Minimum = Array[Channel][Sample];
@@ -344,7 +344,7 @@ extern "C" {
                 }
             }
         } else if (Audio->Type == (PlatformIOType_Unsigned | PlatformIOType_Integer32)) {
-            uint32_t **Array = (uint32_t**) Audio2DContainer_GetArray(Audio);
+            uint32_t **Array = (uint32_t**) AudioScape2D_GetArray(Audio);
             for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
                 if (Array[Channel][Sample] < Minimum) {
                     Minimum = Array[Channel][Sample];
@@ -354,7 +354,7 @@ extern "C" {
                 }
             }
         } else if (Audio->Type == (PlatformIOType_Signed | PlatformIOType_Integer32)) {
-            int32_t **Array = (int32_t**) Audio2DContainer_GetArray(Audio);
+            int32_t **Array = (int32_t**) AudioScape2D_GetArray(Audio);
             for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
                 if (Array[Channel][Sample] < Minimum) {
                     Minimum = Array[Channel][Sample];
@@ -367,58 +367,58 @@ extern "C" {
         return Minimum;
     }
     
-    uint8_t Audio2DContainer_Erase(Audio2DContainer *Audio, uint8_t NewValue) {
+    uint8_t AudioScape2D_Erase(AudioScape2D *Audio, uint8_t NewValue) {
         AssertIO(Audio != NULL);
         uint8_t Verification = 0xFE;
         if (Audio->Type == (PlatformIOType_Unsigned | PlatformIOType_Integer8)) {
-            uint8_t **Samples = (uint8_t**) Audio2DContainer_GetArray(Audio);
+            uint8_t **Samples = (uint8_t**) AudioScape2D_GetArray(Audio);
 
-            for (uint64_t Channel = 0ULL; Channel < Audio2DContainer_GetNumChannels(Audio); Channel++) {
+            for (uint64_t Channel = 0ULL; Channel < AudioScape2D_GetNumChannels(Audio); Channel++) {
                 for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
                     Samples[Channel][Sample] = NewValue;
                 }
             }
             Verification = (Samples[0][0] & 0xFF);
         } else if (Audio->Type == (PlatformIOType_Signed | PlatformIOType_Integer8)) {
-            int8_t **Samples = (int8_t**) Audio2DContainer_GetArray(Audio);
+            int8_t **Samples = (int8_t**) AudioScape2D_GetArray(Audio);
 
-            for (uint64_t Channel = 0ULL; Channel < Audio2DContainer_GetNumChannels(Audio); Channel++) {
+            for (uint64_t Channel = 0ULL; Channel < AudioScape2D_GetNumChannels(Audio); Channel++) {
                 for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
                     Samples[Channel][Sample] = NewValue;
                 }
             }
             Verification = (Samples[0][0] & 0xFF);
         } else if (Audio->Type == (PlatformIOType_Unsigned | PlatformIOType_Integer16)) {
-            uint16_t **Samples = (uint16_t**) Audio2DContainer_GetArray(Audio);
+            uint16_t **Samples = (uint16_t**) AudioScape2D_GetArray(Audio);
 
-            for (uint64_t Channel = 0ULL; Channel < Audio2DContainer_GetNumChannels(Audio); Channel++) {
+            for (uint64_t Channel = 0ULL; Channel < AudioScape2D_GetNumChannels(Audio); Channel++) {
                 for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
                     Samples[Channel][Sample] = NewValue;
                 }
             }
             Verification = (Samples[0][0] & 0xFF);
         } else if (Audio->Type == (PlatformIOType_Signed | PlatformIOType_Integer16)) {
-            int16_t **Samples = (int16_t **) Audio2DContainer_GetArray(Audio);
+            int16_t **Samples = (int16_t **) AudioScape2D_GetArray(Audio);
 
-            for (uint64_t Channel = 0ULL; Channel < Audio2DContainer_GetNumChannels(Audio); Channel++) {
+            for (uint64_t Channel = 0ULL; Channel < AudioScape2D_GetNumChannels(Audio); Channel++) {
                 for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
                     Samples[Channel][Sample] = NewValue;
                 }
             }
             Verification = (Samples[0][0] & 0xFF);
         } else if (Audio->Type == (PlatformIOType_Unsigned | PlatformIOType_Integer32)) {
-            uint32_t **Samples = (uint32_t**) Audio2DContainer_GetArray(Audio);
+            uint32_t **Samples = (uint32_t**) AudioScape2D_GetArray(Audio);
 
-            for (uint64_t Channel = 0ULL; Channel < Audio2DContainer_GetNumChannels(Audio); Channel++) {
+            for (uint64_t Channel = 0ULL; Channel < AudioScape2D_GetNumChannels(Audio); Channel++) {
                 for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
                     Samples[Channel][Sample] = NewValue;
                 }
             }
             Verification = (Samples[0][0] & 0xFF);
         } else if (Audio->Type == (PlatformIOType_Signed | PlatformIOType_Integer32)) {
-            int32_t **Samples = (int32_t**) Audio2DContainer_GetArray(Audio);
+            int32_t **Samples = (int32_t**) AudioScape2D_GetArray(Audio);
 
-            for (uint64_t Channel = 0ULL; Channel < Audio2DContainer_GetNumChannels(Audio); Channel++) {
+            for (uint64_t Channel = 0ULL; Channel < AudioScape2D_GetNumChannels(Audio); Channel++) {
                 for (uint64_t Sample = 0ULL; Sample < Audio->NumSamples; Sample++) {
                     Samples[Channel][Sample] = NewValue;
                 }
@@ -428,7 +428,7 @@ extern "C" {
         return Verification;
     }
     
-    void Audio2DContainer_Deinit(Audio2DContainer *Audio) {
+    void AudioScape2D_Deinit(AudioScape2D *Audio) {
         AssertIO(Audio != NULL);
         free(Audio->Samples);
         free(Audio->ChannelMap);
@@ -451,12 +451,12 @@ extern "C" {
         PlatformIOTypes         Type;
     } Audio2DHistogram;
     
-    Audio2DHistogram *Audio2DHistogram_Init(Audio2DContainer *Audio) {
+    Audio2DHistogram *Audio2DHistogram_Init(AudioScape2D *Audio) {
         AssertIO(Audio != NULL);
         Audio2DHistogram *Histogram = calloc(1, sizeof(Audio2DHistogram));
         AssertIO(Histogram != NULL);
-        uint8_t  NumChannels      = Audio2DContainer_GetNumChannels(Audio);
-        uint64_t NumValues        = Exponentiate(2, Audio2DContainer_GetBitDepth(Audio));
+        uint8_t  NumChannels      = AudioScape2D_GetNumChannels(Audio);
+        uint64_t NumValues        = Exponentiate(2, AudioScape2D_GetBitDepth(Audio));
         Histogram->Array          = calloc(NumChannels, sizeof(uint64_t*));
         AssertIO(Histogram->Array != NULL);
         for (uint8_t Channel = 0; Channel < NumChannels; Channel++) {
@@ -518,11 +518,11 @@ extern "C" {
         return Flat;
     }
     
-    Audio2DHistogram *Audio2DHistogram_Generate(Audio2DContainer *Audio) {
+    Audio2DHistogram *Audio2DHistogram_Generate(AudioScape2D *Audio) {
         AssertIO(Audio != NULL);
         Audio2DHistogram *Histogram = Audio2DHistogram_Init(Audio);
         AssertIO(Histogram != NULL);
-        uint8_t NumChannels = Audio2DContainer_GetNumChannels(Audio);
+        uint8_t NumChannels = AudioScape2D_GetNumChannels(Audio);
 
         if (Histogram->Type == PlatformIOType_Integer8) {
             uint8_t **SampleArray = (uint8_t**) Audio->Samples;
@@ -567,25 +567,25 @@ extern "C" {
         }
     }
     
-    Audio2DContainer *Audio2DContainer_Upsample(Audio2DContainer *Container2Upsample, uint64_t SampleRate, uint8_t BitDepth) {
+    AudioScape2D *AudioScape2D_Upsample(AudioScape2D *Container2Upsample, uint64_t SampleRate, uint8_t BitDepth) {
         AssertIO(Container2Upsample != NULL);
         AssertIO(SampleRate > 0);
         AssertIO(BitDepth > 0);
-        Audio2DContainer *Upsammpled = NULL;
+        AudioScape2D *Upsammpled = NULL;
         return Upsammpled;
     }
     
-    Audio2DContainer *Audio2DContainer_Mix(Audio2DContainer *Container1, Audio2DContainer *Container2) {
+    AudioScape2D *AudioScape2D_Mix(AudioScape2D *Container1, AudioScape2D *Container2) {
         AssertIO(Container1 != NULL);
         AssertIO(Container2 != NULL);
-        Audio2DContainer *Mixed = NULL;
+        AudioScape2D *Mixed = NULL;
         // Get the sample rate bitdepth numchannels etc for each container
-        uint64_t Container1_NumChannels = Audio2DContainer_GetNumChannels(Container1);
-        uint64_t Container1_SampleRate  = Audio2DContainer_GetSampleRate(Container1);
-        uint8_t  Container1_BitDepth    = Audio2DContainer_GetBitDepth(Container1);
-        uint64_t Container2_NumChannels = Audio2DContainer_GetNumChannels(Container2);
-        uint64_t Container2_SampleRate  = Audio2DContainer_GetSampleRate(Container2);
-        uint8_t  Container2_BitDepth    = Audio2DContainer_GetBitDepth(Container2);
+        uint64_t Container1_NumChannels = AudioScape2D_GetNumChannels(Container1);
+        uint64_t Container1_SampleRate  = AudioScape2D_GetSampleRate(Container1);
+        uint8_t  Container1_BitDepth    = AudioScape2D_GetBitDepth(Container1);
+        uint64_t Container2_NumChannels = AudioScape2D_GetNumChannels(Container2);
+        uint64_t Container2_SampleRate  = AudioScape2D_GetSampleRate(Container2);
+        uint8_t  Container2_BitDepth    = AudioScape2D_GetBitDepth(Container2);
 
         uint64_t New_NumChannels        = Maximum(Container1_NumChannels, Container2_NumChannels);
         uint64_t New_SampleRate         = Maximum(Container1_SampleRate, Container2_SampleRate);
@@ -667,9 +667,9 @@ extern "C" {
         free(Histogram->Array);
         free(Histogram);
     }
-    /* Audio2DContainer */
+    /* AudioScape2D */
     
-    /* Audio3DContainer */
+    /* AudioScape3D */
     typedef struct AudioVector {
         void                  *Samples;
         uint64_t              *Directions;
@@ -831,13 +831,13 @@ extern "C" {
         free(Histogram);
     }
     
-    typedef struct Audio3DContainer {
+    typedef struct AudioScape3D {
         AudioVector **Vectors;
         uint64_t      NumVectors;
-    } Audio3DContainer;
+    } AudioScape3D;
     
-    Audio3DContainer *Audio3DContainer_Init(size_t NumVectors) {
-        Audio3DContainer *Container = calloc(1, sizeof(Audio3DContainer));
+    AudioScape3D *AudioScape3D_Init(size_t NumVectors) {
+        AudioScape3D *Container = calloc(1, sizeof(AudioScape3D));
         AssertIO(Container != NULL);
         Container->Vectors          = calloc(NumVectors, sizeof(AudioVector));
         AssertIO(Container->Vectors != NULL);
@@ -845,20 +845,20 @@ extern "C" {
         return Container;
     }
     
-    void Audio3DContainer_SetVector(Audio3DContainer *Container, AudioVector *Vector, uint64_t Index) {
+    void AudioScape3D_SetVector(AudioScape3D *Container, AudioVector *Vector, uint64_t Index) {
         AssertIO(Container != NULL);
         AssertIO(Vector != NULL);
         AssertIO(Index < Container->NumVectors);
         Container->Vectors[Index] = Vector;
     }
     
-    AudioVector *Audio3DContainer_GetVector(Audio3DContainer *Container, uint64_t Index) {
+    AudioVector *AudioScape3D_GetVector(AudioScape3D *Container, uint64_t Index) {
         AssertIO(Container != NULL);
         AssertIO(Index < Container->NumVectors);
         return Container->Vectors[Index];
     }
     
-    uint64_t Audio3DContainer_GetTotalNumSamples(Audio3DContainer *Container) {
+    uint64_t AudioScape3D_GetTotalNumSamples(AudioScape3D *Container) {
         AssertIO(Container != NULL);
         uint64_t NumSamples = 0ULL;
         for (uint64_t Vector = 0ULL; Vector < Container->NumVectors; Vector++) {
@@ -867,12 +867,12 @@ extern "C" {
         return NumSamples;
     }
     
-    Audio2DContainer *Audio3DContainer_Mix2Audio2DContainer(Audio3DContainer *Audio3D, AudioChannelMap *ChannelMap, PlatformIOTypes Type, uint64_t SampleRate) {
+    AudioScape2D *AudioScape3D_Mix2Audio2DContainer(AudioScape3D *Audio3D, AudioChannelMap *ChannelMap, PlatformIOTypes Type, uint64_t SampleRate) {
         AssertIO(Audio3D != NULL);
-        return Audio2DContainer_Init(Type, ChannelMap, SampleRate, Audio3DContainer_GetTotalNumSamples(Audio3D));
+        return AudioScape2D_Init(Type, ChannelMap, SampleRate, AudioScape3D_GetTotalNumSamples(Audio3D));
     }
     
-    uint8_t Audio3DContainer_Erase(Audio3DContainer *Container, uint8_t NewValue) {
+    uint8_t AudioScape3D_Erase(AudioScape3D *Container, uint8_t NewValue) {
         AssertIO(Container != NULL);
         uint8_t Verification = 0xFE;
         for (uint64_t Vector = 0ULL; Vector < Container->NumVectors; Vector++) {
@@ -900,7 +900,7 @@ extern "C" {
         return Verification;
     }
     
-    void Audio3DContainer_Deinit(Audio3DContainer *Container) {
+    void AudioScape3D_Deinit(AudioScape3D *Container) {
         AssertIO(Container != NULL);
         for (uint64_t Vector = 0ULL; Vector < Container->NumVectors; Vector++) {
             free(Container->Vectors[Vector]->Directions);
@@ -909,9 +909,9 @@ extern "C" {
         free(Container->Vectors);
         free(Container);
     }
-    /* Audio3DContainer */
+    /* AudioScape3D */
     
-    /* ImageContainer */
+    /* ImageCanvas */
     typedef struct ImageChannelMap {
         MediaIO_ImageMask **Map;
         uint8_t             NumChannels;
@@ -966,21 +966,21 @@ extern "C" {
         free(ChannelMap);
     }
     
-    typedef struct ImageContainer {
+    typedef struct ImageCanvas {
         // We need to add support for Planar formats as well.
         void               ****Pixels;
         ImageChannelMap       *ChannelMap;
         uint64_t               Width;
         uint64_t               Height;
         PlatformIOTypes     Type;
-    } ImageContainer;
+    } ImageCanvas;
     
-    ImageContainer *ImageContainer_Init(PlatformIOTypes Type, ImageChannelMap *ChannelMap, uint64_t Width, uint64_t Height) {
+    ImageCanvas *ImageCanvas_Init(PlatformIOTypes Type, ImageChannelMap *ChannelMap, uint64_t Width, uint64_t Height) {
         AssertIO(Type != PlatformIOType_Unspecified);
         AssertIO(ChannelMap != NULL);
         AssertIO(Width > 0);
         AssertIO(Height > 0);
-        ImageContainer *Image = calloc(1, sizeof(ImageContainer));
+        ImageCanvas *Image = calloc(1, sizeof(ImageCanvas));
         AssertIO(Image != NULL);
         uint8_t NumViews      = ImageChannelMap_GetNumViews(ChannelMap);
         uint8_t NumChannels   = ImageChannelMap_GetNumChannels(ChannelMap);
@@ -991,72 +991,72 @@ extern "C" {
         return Image;
     }
     
-    uint64_t ImageContainer_GetWidth(ImageContainer *Image) {
+    uint64_t ImageCanvas_GetWidth(ImageCanvas *Image) {
         AssertIO(Image != NULL);
         return Image->Width;
     }
     
-    uint64_t ImageContainer_GetHeight(ImageContainer *Image) {
+    uint64_t ImageCanvas_GetHeight(ImageCanvas *Image) {
         AssertIO(Image != NULL);
         return Image->Height;
     }
     
-    ImageChannelMap *ImageContainer_GetChannelMap(ImageContainer *Image) {
+    ImageChannelMap *ImageCanvas_GetChannelMap(ImageCanvas *Image) {
         AssertIO(Image != NULL);
         return Image->ChannelMap;
     }
     
-    void ImageContainer_SetChannelMap(ImageContainer *Image, ImageChannelMap *ChannelMap) {
+    void ImageCanvas_SetChannelMap(ImageCanvas *Image, ImageChannelMap *ChannelMap) {
         AssertIO(Image != NULL);
         AssertIO(ChannelMap != NULL);
         ImageChannelMap_Deinit(Image->ChannelMap);
         Image->ChannelMap = ChannelMap;
     }
     
-    PlatformIOTypes ImageContainer_GetType(ImageContainer *Image) {
+    PlatformIOTypes ImageCanvas_GetType(ImageCanvas *Image) {
         AssertIO(Image != NULL);
         return Image->Type;
     }
 
-    uint8_t ImageContainer_GetBitDepth(ImageContainer *Image) {
+    uint8_t ImageCanvas_GetBitDepth(ImageCanvas *Image) {
         AssertIO(Image != NULL);
         return ImageType_GetBitDepth(Image->Type);
     }
 
-    uint8_t ImageContainer_GetNumViews(ImageContainer *Image) {
+    uint8_t ImageCanvas_GetNumViews(ImageCanvas *Image) {
         AssertIO(Image != NULL);
         return ImageChannelMap_GetNumViews(Image->ChannelMap);
     }
     
-    void ****ImageContainer_GetArray(ImageContainer *Image) {
+    void ****ImageCanvas_GetArray(ImageCanvas *Image) {
         AssertIO(Image != NULL);
         return Image->Pixels;
     }
     
-    void ImageContainer_SetArray(ImageContainer *Image, void ****Array) {
+    void ImageCanvas_SetArray(ImageCanvas *Image, void ****Array) {
         AssertIO(Image != NULL);
         AssertIO(Array != NULL);
         Image->Pixels = (void****) Array;
     }
     
-    uint64_t ImageContainer_GetAverage(ImageContainer *Image, uint8_t View, uint8_t Channel) {
+    uint64_t ImageCanvas_GetAverage(ImageCanvas *Image, uint8_t View, uint8_t Channel) {
         AssertIO(Image != NULL);
         uint64_t Average = 0ULL;
-        ImageChannelMap *Map         = ImageContainer_GetChannelMap(Image);
+        ImageChannelMap *Map         = ImageCanvas_GetChannelMap(Image);
         AssertIO(Map != NULL);
         uint8_t          NumViews    = ImageChannelMap_GetNumViews(Map);
         AssertIO(View < NumViews);
         uint8_t          NumChannels = ImageChannelMap_GetNumChannels(Map);
         AssertIO(Channel < NumChannels);
         if (Image->Type == PlatformIOType_Integer8) {
-            uint8_t ****Array = (uint8_t****) ImageContainer_GetArray(Image);
+            uint8_t ****Array = (uint8_t****) ImageCanvas_GetArray(Image);
             for (uint64_t Width = 0ULL; Width < Image->Width; Width++) {
                 for (uint64_t Height = 0ULL; Height < Image->Height; Height++) {
                     Average += Array[View][Width][Height][Channel];
                 }
             }
         } else if (Image->Type == PlatformIOType_Integer16) {
-            uint16_t ****Array = (uint16_t****) ImageContainer_GetArray(Image);
+            uint16_t ****Array = (uint16_t****) ImageCanvas_GetArray(Image);
             for (uint64_t Width = 0ULL; Width < Image->Width; Width++) {
                 for (uint64_t Height = 0ULL; Height < Image->Height; Height++) {
                     Average += Array[View][Width][Height][Channel];
@@ -1069,18 +1069,18 @@ extern "C" {
         return Average;
     }
     
-    uint64_t ImageContainer_GetMax(ImageContainer *Image, uint8_t View, uint8_t Channel) {
+    uint64_t ImageCanvas_GetMax(ImageCanvas *Image, uint8_t View, uint8_t Channel) {
         AssertIO(Image != NULL);
         uint64_t Maximum = 0ULL;
-        ImageChannelMap   *Map         = ImageContainer_GetChannelMap(Image);
+        ImageChannelMap   *Map         = ImageCanvas_GetChannelMap(Image);
         AssertIO(Map != NULL);
-        PlatformIOTypes Type        = ImageContainer_GetType(Image);
+        PlatformIOTypes Type        = ImageCanvas_GetType(Image);
         uint8_t            NumViews    = ImageChannelMap_GetNumViews(Map);
         AssertIO(View < NumViews);
         uint8_t            NumChannels = ImageChannelMap_GetNumChannels(Map);
         AssertIO(Channel < NumChannels);
         if (Image->Type == PlatformIOType_Integer8) {
-            uint8_t ****Array  = (uint8_t****) ImageContainer_GetArray(Image);
+            uint8_t ****Array  = (uint8_t****) ImageCanvas_GetArray(Image);
             uint8_t Max        = Exponentiate(2, ImageType_GetBitDepth(Type));
             for (uint64_t Width = 0ULL; Width < Image->Width; Width++) {
                 for (uint64_t Height = 0ULL; Height < Image->Height; Height++) {
@@ -1093,7 +1093,7 @@ extern "C" {
                 }
             }
         } else if (Image->Type == PlatformIOType_Integer16) {
-            uint16_t ****Array  = (uint16_t****) ImageContainer_GetArray(Image);
+            uint16_t ****Array  = (uint16_t****) ImageCanvas_GetArray(Image);
             uint16_t Max        = Exponentiate(2, ImageType_GetBitDepth(Type));
             for (uint64_t Width = 0ULL; Width < Image->Width; Width++) {
                 for (uint64_t Height = 0ULL; Height < Image->Height; Height++) {
@@ -1109,17 +1109,17 @@ extern "C" {
         return Maximum;
     }
     
-    uint64_t ImageContainer_GetMin(ImageContainer *Image, uint8_t View, uint8_t Channel) {
+    uint64_t ImageCanvas_GetMin(ImageCanvas *Image, uint8_t View, uint8_t Channel) {
         AssertIO(Image != NULL);
         uint64_t Minimum = UINT64_MAX;
-        ImageChannelMap *Map         = ImageContainer_GetChannelMap(Image);
+        ImageChannelMap *Map         = ImageCanvas_GetChannelMap(Image);
         AssertIO(Map != NULL);
         uint8_t          NumViews    = ImageChannelMap_GetNumViews(Map);
         AssertIO(View < NumViews);
         uint8_t          NumChannels = ImageChannelMap_GetNumChannels(Map);
         AssertIO(Channel < NumChannels);
         if (Image->Type == PlatformIOType_Integer8) {
-            uint8_t ****Array = (uint8_t****) ImageContainer_GetArray(Image);
+            uint8_t ****Array = (uint8_t****) ImageCanvas_GetArray(Image);
             for (uint64_t Width = 0ULL; Width < Image->Width; Width++) {
                 for (uint64_t Height = 0ULL; Height < Image->Height; Height++) {
                     if (Array[View][Width][Height][Channel] < Minimum) {
@@ -1131,7 +1131,7 @@ extern "C" {
                 }
             }
         } else if (Image->Type == PlatformIOType_Integer16) {
-            uint16_t ****Array = (uint16_t****) ImageContainer_GetArray(Image);
+            uint16_t ****Array = (uint16_t****) ImageCanvas_GetArray(Image);
             for (uint64_t Width = 0ULL; Width < Image->Width; Width++) {
                 for (uint64_t Height = 0ULL; Height < Image->Height; Height++) {
                     if (Array[View][Width][Height][Channel] < Minimum) {
@@ -1146,15 +1146,15 @@ extern "C" {
         return Minimum;
     }
     
-    void ImageContainer_Flip(ImageContainer *Image, MediaIO_FlipTypes FlipType) {
+    void ImageCanvas_Flip(ImageCanvas *Image, MediaIO_FlipTypes FlipType) {
         AssertIO(Image != NULL);
         AssertIO(FlipType != FlipType_Unspecified);
-        ImageChannelMap *Map         = ImageContainer_GetChannelMap(Image);
+        ImageChannelMap *Map         = ImageCanvas_GetChannelMap(Image);
         uint8_t          NumViews    = ImageChannelMap_GetNumViews(Map);
         uint8_t          NumChannels = ImageChannelMap_GetNumChannels(Map);
         if (FlipType == FlipType_Vertical || FlipType == FlipType_VerticalAndHorizontal) {
             if (Image->Type == PlatformIOType_Integer8) {
-                uint8_t *Array = (uint8_t*) ImageContainer_GetArray(Image);
+                uint8_t *Array = (uint8_t*) ImageCanvas_GetArray(Image);
                 for (uint64_t View = 0ULL; View < NumViews; View++) {
                     for (uint64_t Width = 0ULL; Width < Image->Width; Width++) {
                         for (uint64_t TopLine = 0ULL; TopLine < Image->Height; TopLine++) {
@@ -1171,7 +1171,7 @@ extern "C" {
                     }
                 }
             } else if (Image->Type == PlatformIOType_Integer16) {
-                uint16_t *Array = (uint16_t*) ImageContainer_GetArray(Image);
+                uint16_t *Array = (uint16_t*) ImageCanvas_GetArray(Image);
                 for (uint64_t View = 0ULL; View < NumViews; View++) {
                     for (uint64_t Width = 0ULL; Width < Image->Width; Width++) {
                         for (uint64_t TopLine = 0ULL; TopLine < Image->Height; TopLine++) {
@@ -1191,7 +1191,7 @@ extern "C" {
         }
         if (FlipType == FlipType_Horizontal || FlipType == FlipType_VerticalAndHorizontal) {
             if (Image->Type == PlatformIOType_Integer8) {
-                uint8_t *Array = (uint8_t*) ImageContainer_GetArray(Image);
+                uint8_t *Array = (uint8_t*) ImageCanvas_GetArray(Image);
                 for (uint64_t View = 1ULL; View <= NumViews; View++) {
                     for (uint64_t Left = 0ULL; Left < Image->Width; Left++) {
                         for (uint64_t Right = Image->Width; Right > 0ULL; Right++) {
@@ -1208,7 +1208,7 @@ extern "C" {
                     }
                 }
             } else if (Image->Type == PlatformIOType_Integer16) {
-                uint16_t *Array = (uint16_t*) ImageContainer_GetArray(Image);
+                uint16_t *Array = (uint16_t*) ImageCanvas_GetArray(Image);
                 for (uint64_t View = 0ULL; View < NumViews; View++) {
                     for (uint64_t Left = 0ULL; Left < Image->Width; Left++) {
                         for (uint64_t Right = Image->Width; Right > 0ULL; Right++) {
@@ -1228,15 +1228,15 @@ extern "C" {
         }
     }
     
-    void ImageContainer_Resize(ImageContainer *Image, int64_t Left, int64_t Right, int64_t Top, int64_t Bottom) {
+    void ImageCanvas_Resize(ImageCanvas *Image, int64_t Left, int64_t Right, int64_t Top, int64_t Bottom) {
         AssertIO(Image != NULL);
-        ImageChannelMap *Map           = ImageContainer_GetChannelMap(Image);
+        ImageChannelMap *Map           = ImageCanvas_GetChannelMap(Image);
         AssertIO(Map != NULL);
         uint8_t            NumViews    = ImageChannelMap_GetNumViews(Map);
         uint8_t            NumChannels = ImageChannelMap_GetNumChannels(Map);
-        uint64_t           Height      = ImageContainer_GetHeight(Image);
-        uint64_t           Width       = ImageContainer_GetWidth(Image);
-        PlatformIOTypes Type        = ImageContainer_GetType(Image);
+        uint64_t           Height      = ImageCanvas_GetHeight(Image);
+        uint64_t           Width       = ImageCanvas_GetWidth(Image);
+        PlatformIOTypes Type        = ImageCanvas_GetType(Image);
 
         int64_t NewWidth  = 0;
         int64_t NewHeight = 0;
@@ -1249,7 +1249,7 @@ extern "C" {
         void ****New = (void****) calloc(NumViews * NewWidth * NewHeight * NumChannels, Type);
         AssertIO(New != NULL);
         if (Type == PlatformIOType_Integer8) {
-            uint8_t ****Array    = (uint8_t****) ImageContainer_GetArray(Image);
+            uint8_t ****Array    = (uint8_t****) ImageCanvas_GetArray(Image);
             uint8_t ****NewArray = (uint8_t****) New;
             AssertIO(Array != NULL);
             AssertIO(NewArray != NULL);
@@ -1262,10 +1262,10 @@ extern "C" {
                     }
                 }
             }
-            ImageContainer_SetArray(Image, (void ****) NewArray);
+            ImageCanvas_SetArray(Image, (void ****) NewArray);
             free(Array);
         } else if (Type == PlatformIOType_Integer16) {
-            uint16_t ****Array = (uint16_t****) ImageContainer_GetArray(Image);
+            uint16_t ****Array = (uint16_t****) ImageCanvas_GetArray(Image);
             uint16_t ****NewArray = (uint16_t****) New;
             AssertIO(Array != NULL);
             AssertIO(NewArray != NULL);
@@ -1278,29 +1278,29 @@ extern "C" {
                     }
                 }
             }
-            ImageContainer_SetArray(Image, (void****) NewArray);
+            ImageCanvas_SetArray(Image, (void****) NewArray);
             free(Array);
         }
     }
     
-    ImageContainer *ImageContainer_Compare(ImageContainer *Reference, ImageContainer *Compare) {
+    ImageCanvas *ImageCanvas_Compare(ImageCanvas *Reference, ImageCanvas *Compare) {
         AssertIO(Reference != NULL);
         AssertIO(Compare != NULL);
-        PlatformIOTypes  RefType     = ImageContainer_GetType(Reference);
-        ImageChannelMap    *RefMap      = ImageContainer_GetChannelMap(Reference);
+        PlatformIOTypes  RefType     = ImageCanvas_GetType(Reference);
+        ImageChannelMap    *RefMap      = ImageCanvas_GetChannelMap(Reference);
         AssertIO(RefMap != NULL);
         uint8_t             RefNumChans = ImageChannelMap_GetNumChannels(RefMap);
         uint8_t             RefNumViews = ImageChannelMap_GetNumViews(RefMap);
-        uint64_t            RefHeight   = ImageContainer_GetHeight(Reference);
-        uint64_t            RefWidth    = ImageContainer_GetWidth(Reference);
+        uint64_t            RefHeight   = ImageCanvas_GetHeight(Reference);
+        uint64_t            RefWidth    = ImageCanvas_GetWidth(Reference);
 
-        PlatformIOTypes  ComType     = ImageContainer_GetType(Compare);
-        ImageChannelMap    *ComMap      = ImageContainer_GetChannelMap(Compare);
+        PlatformIOTypes  ComType     = ImageCanvas_GetType(Compare);
+        ImageChannelMap    *ComMap      = ImageCanvas_GetChannelMap(Compare);
         AssertIO(ComMap != NULL);
         uint8_t             ComNumChans = ImageChannelMap_GetNumChannels(ComMap);
         uint8_t             ComNumViews = ImageChannelMap_GetNumViews(ComMap);
-        uint64_t            ComHeight   = ImageContainer_GetHeight(Compare);
-        uint64_t            ComWidth    = ImageContainer_GetWidth(Compare);
+        uint64_t            ComHeight   = ImageCanvas_GetHeight(Compare);
+        uint64_t            ComWidth    = ImageCanvas_GetWidth(Compare);
 
         AssertIO(RefType == ComType);
         AssertIO(RefNumChans == ComNumChans);
@@ -1308,12 +1308,12 @@ extern "C" {
         AssertIO(RefHeight == ComHeight);
         AssertIO(RefWidth == ComWidth);
 
-        ImageContainer *Difference      = ImageContainer_Init(RefType, RefMap, RefWidth, RefHeight);
+        ImageCanvas *Difference      = ImageCanvas_Init(RefType, RefMap, RefWidth, RefHeight);
         AssertIO(Difference != NULL);
         if (RefType == PlatformIOType_Integer8) {
-            uint8_t ****RefArray = (uint8_t****) ImageContainer_GetArray(Reference);
-            uint8_t ****ComArray = (uint8_t****) ImageContainer_GetArray(Compare);
-            uint8_t ****DifArray = (uint8_t****) ImageContainer_GetArray(Difference);
+            uint8_t ****RefArray = (uint8_t****) ImageCanvas_GetArray(Reference);
+            uint8_t ****ComArray = (uint8_t****) ImageCanvas_GetArray(Compare);
+            uint8_t ****DifArray = (uint8_t****) ImageCanvas_GetArray(Difference);
             for (uint8_t View = 0; View < RefNumViews; View++) {
                 for (uint64_t Width = 0ULL; Width < RefWidth; Width++) {
                     for (uint64_t Height = 0ULL; Height < RefHeight; Height++) {
@@ -1324,9 +1324,9 @@ extern "C" {
                 }
             }
         } else if (RefType == PlatformIOType_Integer16) {
-            uint16_t ****RefArray = (uint16_t****) ImageContainer_GetArray(Reference);
-            uint16_t ****ComArray = (uint16_t****) ImageContainer_GetArray(Compare);
-            uint16_t ****DifArray = (uint16_t****) ImageContainer_GetArray(Difference);
+            uint16_t ****RefArray = (uint16_t****) ImageCanvas_GetArray(Reference);
+            uint16_t ****ComArray = (uint16_t****) ImageCanvas_GetArray(Compare);
+            uint16_t ****DifArray = (uint16_t****) ImageCanvas_GetArray(Difference);
             for (uint8_t View = 0; View < RefNumViews; View++) {
                 for (uint64_t Width = 0ULL; Width < RefWidth; Width++) {
                     for (uint64_t Height = 0ULL; Height < RefHeight; Height++) {
@@ -1340,16 +1340,16 @@ extern "C" {
         return Difference;
     }
     
-    uint8_t ImageContainer_Erase(ImageContainer *Image, uint8_t NewValue) {
+    uint8_t ImageCanvas_Erase(ImageCanvas *Image, uint8_t NewValue) {
         AssertIO(Image != NULL);
         uint8_t Verification         = 0xFE;
-        ImageChannelMap *Map         = ImageContainer_GetChannelMap(Image);
+        ImageChannelMap *Map         = ImageCanvas_GetChannelMap(Image);
         AssertIO(Map != NULL);
         uint8_t          NumChannels = ImageChannelMap_GetNumChannels(Map);
         uint8_t          NumViews    = ImageChannelMap_GetNumViews(Map);
 
         if (Image->Type == PlatformIOType_Integer8) {
-            uint8_t ****Pixels = (uint8_t****) ImageContainer_GetArray(Image);
+            uint8_t ****Pixels = (uint8_t****) ImageCanvas_GetArray(Image);
 
             for (uint64_t View = 0ULL; View < NumViews; View++) {
                 for (uint64_t W = 0ULL; W < Image->Width; W++) {
@@ -1362,7 +1362,7 @@ extern "C" {
             }
             Verification = Pixels[0][0][0][0] & 0xFF;
         } else if (Image->Type == PlatformIOType_Integer16) {
-            uint16_t ****Pixels = (uint16_t****) ImageContainer_GetArray(Image);
+            uint16_t ****Pixels = (uint16_t****) ImageCanvas_GetArray(Image);
 
             for (uint64_t View = 0ULL; View < NumViews; View++) {
                 for (uint64_t W = 0ULL; W < Image->Width; W++) {
@@ -1378,7 +1378,7 @@ extern "C" {
         return Verification;
     }
     
-    void ImageContainer_Deinit(ImageContainer *Image) {
+    void ImageCanvas_Deinit(ImageCanvas *Image) {
         AssertIO(Image != NULL);
         free(Image->Pixels);
         free(Image->ChannelMap);
@@ -1392,11 +1392,11 @@ extern "C" {
         PlatformIOTypes    Type;
     } ImageHistogram;
     
-    ImageHistogram *ImageHistogram_Init(ImageContainer *Image) {
+    ImageHistogram *ImageHistogram_Init(ImageCanvas *Image) {
         AssertIO(Image != NULL);
         ImageHistogram *Histogram = calloc(1, sizeof(ImageHistogram));
         AssertIO(Histogram != NULL);
-        ImageChannelMap *Map                  = ImageContainer_GetChannelMap(Image);
+        ImageChannelMap *Map                  = ImageCanvas_GetChannelMap(Image);
         AssertIO(Map != NULL);
         uint8_t          NumViews             = ImageChannelMap_GetNumViews(Map);
         uint8_t          NumChannels          = ImageChannelMap_GetNumChannels(Map);
@@ -1478,16 +1478,16 @@ extern "C" {
         return Flat;
     }
     
-    ImageHistogram *ImageHistogram_Generate(ImageContainer *Image) {
+    ImageHistogram *ImageHistogram_Generate(ImageCanvas *Image) {
         AssertIO(Image != NULL);
         ImageHistogram *Histogram    = ImageHistogram_Init(Image);
         AssertIO(Histogram != NULL);
-        ImageChannelMap *ChannelMap  = ImageContainer_GetChannelMap(Image);
+        ImageChannelMap *ChannelMap  = ImageCanvas_GetChannelMap(Image);
         AssertIO(ChannelMap != NULL);
         uint8_t          NumChannels = ChannelMap->NumChannels;
         uint8_t          NumViews    = ChannelMap->NumViews;
-        uint64_t         Width       = ImageContainer_GetWidth(Image);
-        uint64_t         Height      = ImageContainer_GetHeight(Image);
+        uint64_t         Width       = ImageCanvas_GetWidth(Image);
+        uint64_t         Height      = ImageCanvas_GetHeight(Image);
 
         if (Histogram->Type == PlatformIOType_Integer8) {
             uint8_t ****ImageArray = (uint8_t****) Image->Pixels;
@@ -1576,7 +1576,7 @@ extern "C" {
         ImageChannelMap *Map = Histogram->ChannelMap;
         return Map;
     }
-    /* ImageContainer */
+    /* ImageCanvas */
     
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }

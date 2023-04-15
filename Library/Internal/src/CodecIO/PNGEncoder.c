@@ -370,11 +370,11 @@ extern "C" {
         /*
          Block max size is 65536.
          
-         We need to find out the total number of bytes in the ImageContainer by counting the number of Views * the Width * Height * Num Channels * BitDepth
+         We need to find out the total number of bytes in the ImageCanvas by counting the number of Views * the Width * Height * Num Channels * BitDepth
          */
     }
     
-    void PNG_Image_Insert(ImageContainer *Image, BitBuffer *BitB, bool OptimizePNG) {
+    void PNG_Image_Insert(ImageCanvas *Image, BitBuffer *BitB, bool OptimizePNG) {
         AssertIO(Image != NULL);
         AssertIO(BitB != NULL);
         /*
@@ -382,7 +382,7 @@ extern "C" {
          */
     }
     
-    void PNG_Filter_Image(ImageContainer *Image) {
+    void PNG_Filter_Image(ImageCanvas *Image) {
         AssertIO(Image != NULL);
         // Try each filter on each line, get the best by counting the diff between the symbols to decide which to use.
     }

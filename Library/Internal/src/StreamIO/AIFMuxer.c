@@ -8,16 +8,16 @@
 extern "C" {
 #endif
     
-    static void AIFWriteCOMM(Audio2DContainer *Audio, BitBuffer *BitB) {
+    static void AIFWriteCOMM(AudioScape2D *Audio, BitBuffer *BitB) {
         AssertIO(Audio != NULL);
         AssertIO(BitB != NULL);
         BitBuffer_WriteBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32, AIF_COMM);
         uint16_t COMMSize = 18;
         BitBuffer_WriteBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32, COMMSize);
-        BitBuffer_WriteBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 16, Audio2DContainer_GetNumChannels(Audio)); // 2
-        BitBuffer_WriteBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32, Audio2DContainer_GetNumSamples(Audio)); // 7979748
-        BitBuffer_WriteBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 16, Audio2DContainer_GetBitDepth(Audio)); // 16
-        uint64_t SampleRate = ConvertInteger2Double(Audio2DContainer_GetSampleRate(Audio));
+        BitBuffer_WriteBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 16, AudioScape2D_GetNumChannels(Audio)); // 2
+        BitBuffer_WriteBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32, AudioScape2D_GetNumSamples(Audio)); // 7979748
+        BitBuffer_WriteBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 16, AudioScape2D_GetBitDepth(Audio)); // 16
+        uint64_t SampleRate = ConvertInteger2Double(AudioScape2D_GetSampleRate(Audio));
         // 44100  = 0x400E 0xAC44000000000000
         // 48000  = 0x400E 0xBB80000000000000
         // 88200  = 0x400F 0xAC44000000000000
@@ -131,7 +131,7 @@ extern "C" {
         uint64_t NumSamples  = Options->NumSamples;
         uint64_t NumChannels = Options->NumChannels;
         uint64_t BitDepth    = Bytes2Bits(Bits2Bytes(Options->BitDepth, RoundingType_Up));
-        Audio2DContainer *Audio = NULL;
+        AudioScape2D *Audio = NULL;
         BitBuffer_WriteBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32, AIF_FORM);
         BitBuffer_WriteBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32, NumSamples * NumChannels * BitDepth); // FIXME: Options Size calculation is wrong
         BitBuffer_WriteBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, 32, AIF_AIFF);
@@ -141,55 +141,55 @@ extern "C" {
         AIFWriteSSND(Options, BitB);
     }
     
-    void AIFAppendSamples(AIFOptions *Options, BitBuffer *BitB, Audio2DContainer *Audio) {
+    void AIFAppendSamples(AIFOptions *Options, BitBuffer *BitB, AudioScape2D *Audio) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         AssertIO(Audio != NULL);
-        uint64_t NumSamples      = Audio2DContainer_GetNumSamples(Audio);
-        uint64_t NumChannels     = Audio2DContainer_GetNumChannels(Audio);
-        uint64_t BitDepth        = Audio2DContainer_GetBitDepth(Audio);
+        uint64_t NumSamples      = AudioScape2D_GetNumSamples(Audio);
+        uint64_t NumChannels     = AudioScape2D_GetNumChannels(Audio);
+        uint64_t BitDepth        = AudioScape2D_GetBitDepth(Audio);
         uint64_t Offset          = Options->SampleOffset;
         uint64_t BlockSize       = Options->BlockSize;
         uint8_t  BitDepthRounded = Bytes2Bits(Bits2Bytes(Options->BitDepth, RoundingType_Up));
         
-        PlatformIOTypes AudioType = Audio2DContainer_GetType(Audio);
+        PlatformIOTypes AudioType = AudioScape2D_GetType(Audio);
         if (AudioType == (PlatformIOType_Signed | PlatformIOType_Integer8)) {
-            int8_t **Samples  = (int8_t**) Audio2DContainer_GetArray(Audio);
+            int8_t **Samples  = (int8_t**) AudioScape2D_GetArray(Audio);
             for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                 for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
                     BitBuffer_WriteBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, BitDepthRounded, Samples[Channel][Sample]);
                 }
             }
         } else if (AudioType == (PlatformIOType_Unsigned | PlatformIOType_Integer8)) {
-            uint8_t **Samples  = (uint8_t**) Audio2DContainer_GetArray(Audio);
+            uint8_t **Samples  = (uint8_t**) AudioScape2D_GetArray(Audio);
             for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                 for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
                     BitBuffer_WriteBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, BitDepthRounded, Samples[Channel][Sample]);
                 }
             }
         } else if (AudioType == (PlatformIOType_Signed | PlatformIOType_Integer16)) {
-            int16_t **Samples  = (int16_t**) Audio2DContainer_GetArray(Audio);
+            int16_t **Samples  = (int16_t**) AudioScape2D_GetArray(Audio);
             for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                 for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
                     BitBuffer_WriteBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, BitDepthRounded, Samples[Channel][Sample]);
                 }
             }
         } else if (AudioType == (PlatformIOType_Unsigned | PlatformIOType_Integer16)) {
-            uint16_t **Samples  = (uint16_t**) Audio2DContainer_GetArray(Audio);
+            uint16_t **Samples  = (uint16_t**) AudioScape2D_GetArray(Audio);
             for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                 for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
                     BitBuffer_WriteBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, BitDepthRounded, Samples[Channel][Sample]);
                 }
             }
         } else if (AudioType == (PlatformIOType_Signed | PlatformIOType_Integer32)) {
-            int32_t **Samples  = (int32_t**) Audio2DContainer_GetArray(Audio);
+            int32_t **Samples  = (int32_t**) AudioScape2D_GetArray(Audio);
             for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                 for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
                     BitBuffer_WriteBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, BitDepthRounded, Samples[Channel][Sample]);
                 }
             }
         } else if (AudioType == (PlatformIOType_Unsigned | PlatformIOType_Integer32)) {
-            uint32_t **Samples  = (uint32_t**) Audio2DContainer_GetArray(Audio);
+            uint32_t **Samples  = (uint32_t**) AudioScape2D_GetArray(Audio);
             for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                 for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
                     BitBuffer_WriteBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, BitDepthRounded, Samples[Channel][Sample]);

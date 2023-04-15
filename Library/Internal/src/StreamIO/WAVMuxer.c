@@ -47,53 +47,53 @@ extern "C" {
         // Write the tags
     }
     
-    void WAVAppendSamples(WAVOptions *Options, Audio2DContainer *Container, BitBuffer *BitB) {
+    void WAVAppendSamples(WAVOptions *Options, AudioScape2D *Container, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(Container != NULL);
         AssertIO(BitB != NULL);
         
-        uint64_t NumChannels    = Audio2DContainer_GetNumChannels(Container);
-        uint64_t BitDepth       = Audio2DContainer_GetBitDepth(Container);
-        uint64_t NumSamples     = Audio2DContainer_GetNumSamples(Container);
-        PlatformIOTypes Type = Audio2DContainer_GetType(Container);
+        uint64_t NumChannels    = AudioScape2D_GetNumChannels(Container);
+        uint64_t BitDepth       = AudioScape2D_GetBitDepth(Container);
+        uint64_t NumSamples     = AudioScape2D_GetNumSamples(Container);
+        PlatformIOTypes Type = AudioScape2D_GetType(Container);
         
         if (Type == (PlatformIOType_Unsigned | PlatformIOType_Integer8)) {
-            uint8_t **Samples  = (uint8_t**) Audio2DContainer_GetArray(Container);
+            uint8_t **Samples  = (uint8_t**) AudioScape2D_GetArray(Container);
             for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                 for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
                     BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, BitDepth, Samples[Channel][Sample]);
                 }
             }
         } else if (Type == (PlatformIOType_Signed | PlatformIOType_Integer8)) {
-            int8_t **Samples   = (int8_t**) Audio2DContainer_GetArray(Container);
+            int8_t **Samples   = (int8_t**) AudioScape2D_GetArray(Container);
             for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                 for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
                     BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, BitDepth, Samples[Channel][Sample]);
                 }
             }
         } else if (Type == (PlatformIOType_Unsigned | PlatformIOType_Integer16)) {
-            uint16_t **Samples = (uint16_t**) Audio2DContainer_GetArray(Container);
+            uint16_t **Samples = (uint16_t**) AudioScape2D_GetArray(Container);
             for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                 for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
                     BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, BitDepth, Samples[Channel][Sample]);
                 }
             }
         } else if (Type == (PlatformIOType_Signed | PlatformIOType_Integer16)) {
-            int16_t **Samples  = (int16_t**) Audio2DContainer_GetArray(Container);
+            int16_t **Samples  = (int16_t**) AudioScape2D_GetArray(Container);
             for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                 for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
                     BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, BitDepth, Samples[Channel][Sample]);
                 }
             }
         } else if (Type == (PlatformIOType_Unsigned | PlatformIOType_Integer32)) {
-            uint32_t **Samples = (uint32_t**) Audio2DContainer_GetArray(Container);
+            uint32_t **Samples = (uint32_t**) AudioScape2D_GetArray(Container);
             for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                 for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
                     BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, BitDepth, Samples[Channel][Sample]);
                 }
             }
         } else if (Type == (PlatformIOType_Signed | PlatformIOType_Integer32)) {
-            int32_t **Samples  = (int32_t**) Audio2DContainer_GetArray(Container);
+            int32_t **Samples  = (int32_t**) AudioScape2D_GetArray(Container);
             for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                 for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
                     BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, BitDepth, Samples[Channel][Sample]);

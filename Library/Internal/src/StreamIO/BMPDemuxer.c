@@ -68,7 +68,7 @@ extern "C" {
         }
     }
     
-    void BMPExtractImage(BMPOptions *Options, BitBuffer *BitB, ImageContainer *Image) {
+    void BMPExtractImage(BMPOptions *Options, BitBuffer *BitB, ImageCanvas *Image) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         AssertIO(Image != NULL);
@@ -76,12 +76,12 @@ extern "C" {
         uint32_t Width           = Options->Width;
         bool     IsUpsideDown    = (Options->Height & 0x80000000) >> 31;
         uint32_t Height          = AbsoluteI(Options->Height);
-        ImageChannelMap *Map    = ImageContainer_GetChannelMap(Image);
+        ImageChannelMap *Map    = ImageCanvas_GetChannelMap(Image);
         
         AssertIO(Options->CompressionType == BMP_RGB);
         
         if (BitDepth <= 8) {
-            uint8_t ****Array  = (uint8_t****) ImageContainer_GetArray(Image);
+            uint8_t ****Array  = (uint8_t****) ImageCanvas_GetArray(Image);
             for (uint64_t View = 0ULL; View < ImageChannelMap_GetNumViews(Map); View++) {
                 for (uint64_t W = 0ULL; W < Width; W++) {
                     for (uint64_t H = 0ULL; H < Height; H++) {
@@ -92,7 +92,7 @@ extern "C" {
                 }
             }
         } else if (Options->BitDepth > 8 && Options->BitDepth <= 16) {
-            uint16_t ****Array = (uint16_t****) ImageContainer_GetArray(Image);
+            uint16_t ****Array = (uint16_t****) ImageCanvas_GetArray(Image);
             for (uint64_t View = 0ULL; View < ImageChannelMap_GetNumViews(Map); View++) {
                 for (uint64_t W = 0ULL; W < Width; W++) {
                     for (uint64_t H = 0ULL; H < Height; H++) {
@@ -105,7 +105,7 @@ extern "C" {
         }
         
         if (IsUpsideDown) { // The Image is upside down, so we need to flip it
-            ImageContainer_Flip(Image, FlipType_Vertical);
+            ImageCanvas_Flip(Image, FlipType_Vertical);
         }
         
         AssertIO(Options->ColorsIndexed == false);

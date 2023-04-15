@@ -139,12 +139,12 @@ extern "C" {
         /* Skip ENDHDR */
     }
     
-    void PNMExtractImage_ASCII(PNMOptions *Options, BitBuffer *BitB, ImageContainer *Image) {
+    void PNMExtractImage_ASCII(PNMOptions *Options, BitBuffer *BitB, ImageCanvas *Image) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         AssertIO(Image != NULL);
         if (Options->BitDepth <= 8) {
-            uint8_t ****Array        = (uint8_t****) ImageContainer_GetArray(Image);
+            uint8_t ****Array        = (uint8_t****) ImageCanvas_GetArray(Image);
             UTF8        Component[4] = {0, 0, 0, 0};
             for (uint64_t Width = 0; Width < Options->Width; Width++) {
                 for (uint64_t Height = 0; Height < Options->Height; Height++) {
@@ -157,7 +157,7 @@ extern "C" {
                 }
             }
         } else if (Options->BitDepth <= 16) {
-            uint16_t ****Array       = (uint16_t****) ImageContainer_GetArray(Image);
+            uint16_t ****Array       = (uint16_t****) ImageCanvas_GetArray(Image);
             UTF8        Component[6] = {0, 0, 0, 0, 0, 0};
             for (uint64_t Width = 0; Width < Options->Width; Width++) {
                 for (uint64_t Height = 0; Height < Options->Height; Height++) {
@@ -172,13 +172,13 @@ extern "C" {
         }
     }
     
-    void PNMExtractImage_Binary(PNMOptions *Options, BitBuffer *BitB, ImageContainer *Image) {
+    void PNMExtractImage_Binary(PNMOptions *Options, BitBuffer *BitB, ImageCanvas *Image) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         AssertIO(Image != NULL);
         
         if (Options->BitDepth <= 8) {
-            uint8_t ****Array  = (uint8_t****) ImageContainer_GetArray(Image);
+            uint8_t ****Array  = (uint8_t****) ImageCanvas_GetArray(Image);
             
             for (uint64_t Width = 0; Width < Options->Width; Width++) {
                 for (uint64_t Height = 0; Height < Options->Height; Height++) {
@@ -193,7 +193,7 @@ extern "C" {
                 }
             }
         } else if (Options->BitDepth <= 16) {
-            uint16_t ****Array  = (uint16_t****) ImageContainer_GetArray(Image);
+            uint16_t ****Array  = (uint16_t****) ImageCanvas_GetArray(Image);
             
             for (uint64_t Width = 0; Width < Options->Width; Width++) {
                 for (uint64_t Height = 0; Height < Options->Height; Height++) {

@@ -10,11 +10,11 @@
 extern "C" {
 #endif
     
-    void FLAC_Encode(FLACOptions *Options, Audio2DContainer *Audio, BitBuffer *BitB) {
+    void FLAC_Encode(FLACOptions *Options, AudioScape2D *Audio, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(Audio != NULL);
         AssertIO(BitB != NULL);
-        if (Options->EncodeSubset == true && Audio2DContainer_GetSampleRate(Audio) <= 48000) {
+        if (Options->EncodeSubset == true && AudioScape2D_GetSampleRate(Audio) <= 48000) {
             Options->StreamInfo->MaximumBlockSize = 4608;
             Options->Frame->Sub->LPCFilterOrder   = 12;
             Options->Frame->PartitionOrder        = 8;
@@ -61,11 +61,11 @@ extern "C" {
         UTF8_Deinit(OVIAVersion);
     }
     
-    void FLAC_Write_Audio(FLACOptions *Options, BitBuffer *BitB, Audio2DContainer *Audio) {
+    void FLAC_Write_Audio(FLACOptions *Options, BitBuffer *BitB, AudioScape2D *Audio) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         AssertIO(Audio != NULL);
-        // Take the Audio2DContainer, encode the contents, and write it out to the BitBuffer
+        // Take the AudioScape2D, encode the contents, and write it out to the BitBuffer
     }
     
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)

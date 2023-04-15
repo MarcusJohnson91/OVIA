@@ -179,11 +179,11 @@ extern "C" {
      
      Let's assume that the input file is discovered to be a BMP file.
      
-     Well then we need to have a function which calls the BMP decoder and returns an ImageContainer with the decoded data.
+     Well then we need to have a function which calls the BMP decoder and returns an ImageCanvas with the decoded data.
      
      so what about:
      
-     ImageContainer *OVIA_DecodeImage(BitBuffer *BitB);
+     ImageCanvas *OVIA_DecodeImage(BitBuffer *BitB);
      
      OVIA_RegisterDecoders
      
@@ -260,13 +260,13 @@ extern "C" {
     /* Forward declarations from FoundationIO */
 
     /* Forward declarations from MediaIO */
-    typedef struct       Audio2DContainer  Audio2DContainer; // Forward declare ContainerIO's tyoes
+    typedef struct       AudioScape2D  AudioScape2D; // Forward declare ContainerIO's tyoes
 
-    typedef struct       Audio3DContainer  Audio3DContainer;
+    typedef struct       AudioScape3D  AudioScape3D;
 
     typedef struct       AudioVector       AudioVector;
 
-    typedef struct       ImageContainer    ImageContainer; // Forward declare MediaIO's tyoes
+    typedef struct       ImageCanvas    ImageCanvas; // Forward declare MediaIO's tyoes
 
     typedef struct       MetadataContainer MetadataContainer;
     /* Forward declarations from MediaIO */
@@ -275,13 +275,13 @@ extern "C" {
     
     OVIA                *OVIA_Init(void);
     OVIA_CodecIDs        OVIA_IdentifyFileType(OVIA *Ovia, BitBuffer *BitB);
-    Audio2DContainer    *OVIA_ExtractSamples(BitBuffer *BitB, uint64_t MaxNumSamples);
+    AudioScape2D    *OVIA_ExtractSamples(BitBuffer *BitB, uint64_t MaxNumSamples);
     AudioVector         *OVIA_ExtractVector(BitBuffer *BitB);
-    ImageContainer      *OVIA_ExtractFrame(BitBuffer *BitB); // Used for both image and video formats
+    ImageCanvas      *OVIA_ExtractFrame(BitBuffer *BitB); // Used for both image and video formats
     MetadataContainer   *OVIA_ExtractMetadata(BitBuffer *BitB);
-    void                 OVIA_AppendSamples(Audio2DContainer *Audio, BitBuffer *BitB);
+    void                 OVIA_AppendSamples(AudioScape2D *Audio, BitBuffer *BitB);
     void                 OVIA_AppendVector(AudioVector *Vector, BitBuffer *BitB);
-    void                 OVIA_AppendFrame(ImageContainer *Frame, BitBuffer *BitB);
+    void                 OVIA_AppendFrame(ImageCanvas *Frame, BitBuffer *BitB);
     void                 OVIA_AppendMetadata(MetadataContainer *Metadata, BitBuffer *BitB);
     void                 OVIA_WriteHeader(BitBuffer *BitB);
     void                 OVIA_Deinit(OVIA *Ovia);
@@ -307,7 +307,7 @@ extern "C" {
 
      We then identify the requested output format, if one is specified by it's extension on the command line.
 
-     the corect encoder/muxer is called with the Audio2DContainer/ImageContainer as it's source.
+     the corect encoder/muxer is called with the AudioScape2D/ImageCanvas as it's source.
      */
     
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)

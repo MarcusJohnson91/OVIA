@@ -246,23 +246,23 @@ extern "C" {
 
     void        FLAC_Compose(FLACOptions *Options, BitBuffer *BitB);
 
-    void        FLAC_Write_Audio(FLACOptions *Options, BitBuffer *BitB, Audio2DContainer *Audio);
+    void        FLAC_Write_Audio(FLACOptions *Options, BitBuffer *BitB, AudioScape2D *Audio);
 
     void        FLAC_Write_StreamInfo(FLACOptions *Options, BitBuffer *BitB);
 
-    void        FLAC_Frame_Read(FLACOptions *Options, BitBuffer *BitB, Audio2DContainer *Audio);
+    void        FLAC_Frame_Read(FLACOptions *Options, BitBuffer *BitB, AudioScape2D *Audio);
 
     uint8_t     FLAC_GetNumChannels(FLACOptions *Options);
 
-    void        FLAC_SubFrame_Read(FLACOptions *Options, BitBuffer *BitB, Audio2DContainer *Audio, uint8_t Channel);
+    void        FLAC_SubFrame_Read(FLACOptions *Options, BitBuffer *BitB, AudioScape2D *Audio, uint8_t Channel);
 
-    void        FLAC_SubFrame_Verbatim(FLACOptions *Options, BitBuffer *BitB, Audio2DContainer *Audio);
+    void        FLAC_SubFrame_Verbatim(FLACOptions *Options, BitBuffer *BitB, AudioScape2D *Audio);
 
-    void        FLAC_SubFrame_Constant(FLACOptions *Options, BitBuffer *BitB, Audio2DContainer *Audio);
+    void        FLAC_SubFrame_Constant(FLACOptions *Options, BitBuffer *BitB, AudioScape2D *Audio);
 
-    void        FLAC_SubFrame_Fixed(FLACOptions *Options, BitBuffer *BitB, Audio2DContainer *Audio);
+    void        FLAC_SubFrame_Fixed(FLACOptions *Options, BitBuffer *BitB, AudioScape2D *Audio);
 
-    void        FLAC_SubFrame_LPC(FLACOptions *Options, BitBuffer *BitB, Audio2DContainer *Audio, uint8_t Channel);
+    void        FLAC_SubFrame_LPC(FLACOptions *Options, BitBuffer *BitB, AudioScape2D *Audio, uint8_t Channel);
 
     void        FLAC_Decode_RICE(FLACOptions *Options, BitBuffer *BitB, uint8_t RICEPartitionType);
 

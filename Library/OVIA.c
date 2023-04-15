@@ -39,7 +39,7 @@ extern "C" {
      
      What we do need is a way to exchange information between the various formats.
      
-     ImageContainers and Audio2DContainers work fine for actual content.
+     ImageCanvass and AudioScape2Ds work fine for actual content.
      
      but what about metadata?
      

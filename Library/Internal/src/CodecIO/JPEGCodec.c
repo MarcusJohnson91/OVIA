@@ -42,7 +42,7 @@ extern "C" {
         AssertIO(BitB != NULL);
         AssertIO(Container != NULL);
         JPEGOptions *JPEG            = Options;
-        ImageContainer *Image        = Container;
+        ImageCanvas *Image        = Container;
         uint16_t Symbol           = -1;
         /*
 

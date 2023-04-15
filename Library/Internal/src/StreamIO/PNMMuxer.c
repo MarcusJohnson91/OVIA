@@ -135,17 +135,17 @@ extern "C" {
         }
     }
     
-    void PNMInsertImage(PNMOptions *Options, BitBuffer *BitB, ImageContainer *Image) {
+    void PNMInsertImage(PNMOptions *Options, BitBuffer *BitB, ImageCanvas *Image) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         AssertIO(Image != NULL);
         
         uint64_t ChannelCount   = Options->NumChannels;
-        uint64_t Width          = ImageContainer_GetWidth(Image);
-        uint64_t Height         = ImageContainer_GetHeight(Image);
-        PlatformIOTypes Type = ImageContainer_GetType(Image);
+        uint64_t Width          = ImageCanvas_GetWidth(Image);
+        uint64_t Height         = ImageCanvas_GetHeight(Image);
+        PlatformIOTypes Type = ImageCanvas_GetType(Image);
         if (Type == PlatformIOType_Integer8) {
-            uint8_t *Array  = (uint8_t*) ImageContainer_GetArray(Image);
+            uint8_t *Array  = (uint8_t*) ImageCanvas_GetArray(Image);
             for (uint64_t W = 0ULL; W < Width; W++) {
                 for (uint64_t H = 0ULL; H < Height; H++) {
                     for (uint16_t Channel = 0; Channel < ChannelCount; Channel++) {
@@ -154,7 +154,7 @@ extern "C" {
                 }
             }
         } else if (Type == PlatformIOType_Integer16) {
-            uint16_t *Array  = (uint16_t*) ImageContainer_GetArray(Image);
+            uint16_t *Array  = (uint16_t*) ImageCanvas_GetArray(Image);
             for (uint64_t W = 0ULL; W < Width; W++) {
                 for (uint64_t H = 0ULL; H < Height; H++) {
                     for (uint16_t Channel = 0; Channel < ChannelCount; Channel++) {

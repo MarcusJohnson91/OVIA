@@ -65,27 +65,27 @@ extern "C" {
     void *W64ExtractSamples(W64Options *Options, BitBuffer *BitB) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
-        Audio2DContainer *Audio = NULL;
+        AudioScape2D *Audio = NULL;
         uint64_t BitDepth      = Options->BitDepth;
         uint64_t NumChannels   = Options->NumChannels;
         uint8_t  BitDepthRound = Bytes2Bits(Bits2Bytes(BitDepth, RoundingType_Up));
         uint8_t  NumSamples    = 3; // FIXME: This is complete bullshit
         if (BitDepth <= 8) {
-            uint8_t **Samples = (uint8_t**) Audio2DContainer_GetArray(Audio);
+            uint8_t **Samples = (uint8_t**) AudioScape2D_GetArray(Audio);
             for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                 for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
                     Samples[Channel][Sample] = (uint8_t) BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, BitDepthRound);
                 }
             }
         } else if (BitDepth <= 16) {
-            uint16_t **Samples = (uint16_t**) Audio2DContainer_GetArray(Audio);
+            uint16_t **Samples = (uint16_t**) AudioScape2D_GetArray(Audio);
             for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                 for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
                     Samples[Channel][Sample] = (uint16_t) BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, BitDepthRound);
                 }
             }
         } else if (BitDepth <= 32) {
-            uint32_t **Samples = (uint32_t**) Audio2DContainer_GetArray(Audio);
+            uint32_t **Samples = (uint32_t**) AudioScape2D_GetArray(Audio);
             for (uint64_t Sample = 0; Sample < NumSamples; Sample++) {
                 for (uint64_t Channel = 0; Channel < NumChannels; Channel++) {
                     Samples[Channel][Sample] = (uint32_t) BitBuffer_ReadBits(BitB, ByteOrder_Left2Right, BitOrder_Right2Left, BitDepthRound);

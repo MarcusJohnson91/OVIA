@@ -36,19 +36,19 @@ extern "C" {
         BitBuffer_WriteBits(BitB, ByteOrder_Right2Left, BitOrder_Right2Left, 32, Options->IndexedColorsUsed);
     }
     
-    void BMPInsertImage(BMPOptions *Options, BitBuffer *BitB, ImageContainer *Image) {
+    void BMPInsertImage(BMPOptions *Options, BitBuffer *BitB, ImageCanvas *Image) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
         AssertIO(Image != NULL);
-        uint64_t Width          = ImageContainer_GetWidth(Image);
-        uint64_t Height         = ImageContainer_GetHeight(Image);
-        ImageChannelMap *Map    = ImageContainer_GetChannelMap(Image);
-        PlatformIOTypes Type = ImageContainer_GetType(Image);
+        uint64_t Width          = ImageCanvas_GetWidth(Image);
+        uint64_t Height         = ImageCanvas_GetHeight(Image);
+        ImageChannelMap *Map    = ImageCanvas_GetChannelMap(Image);
+        PlatformIOTypes Type = ImageCanvas_GetType(Image);
         uint64_t NumChannels    = ImageChannelMap_GetNumChannels(Map);
         uint64_t BitDepth       = Bits2Bytes(ImageType_GetBitDepth(Type), RoundingType_Up);
         
         if (Type == PlatformIOType_Integer8) {
-            uint8_t ****Array = (uint8_t****) ImageContainer_GetArray(Image);
+            uint8_t ****Array = (uint8_t****) ImageCanvas_GetArray(Image);
             for (uint64_t W = 0; W < Width; W++) {
                 for (uint64_t H = 0; H < Height; H++) {
                     for (uint16_t C = 0; C < NumChannels; C++) {
@@ -57,7 +57,7 @@ extern "C" {
                 }
             }
         } else if (Type == PlatformIOType_Integer16) {
-            uint16_t ****Array = (uint16_t****) ImageContainer_GetArray(Image);
+            uint16_t ****Array = (uint16_t****) ImageCanvas_GetArray(Image);
             for (uint64_t W = 0; W < Width; W++) {
                 for (uint64_t H = 0; H < Height; H++) {
                     for (uint16_t C = 0; C < NumChannels; C++) {
