@@ -87,7 +87,12 @@ set(OVIA_SOURCE
 )
 
 set(LIVCPath "")
-include("${OVIA_Library_Dir}/External/LIVC/LIVC.cmake" OPTIONAL RESULT_VARIABLE LIVCPath)
+include("${OVIA_Library_Dir}/External/LIVC/" OPTIONAL RESULT_VARIABLE LIVCPath)
+
+if(EXISTS "${LIVCPath}/LIVC.cmake")
+include("${LIVCPath}/LIVC.cmake")
+set(OVIA_SOURCE "${OVIA_SOURCE} ${LIVC_SOURCE}")
+endif(EXISTS "${LIVCPath}/LIVC.cmake")
 
 include("${FoundationIO_Dir}/Projects/GetVersion.cmake")
 GetVersionString("${OVIA_Library_Dir}/OVIA.h" OVIA_VERSION)
