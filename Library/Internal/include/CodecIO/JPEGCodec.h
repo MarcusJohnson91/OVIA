@@ -2,6 +2,7 @@
  @header              JPEGCodec.h
  @author              Marcus Johnson
  @copyright           2020+
+ @SPDX-License-Identifier: Apache-2.0
  @version             1.0.0
  @brief               This header contains code for JPEG (encoding and decoding).
  @remak               ONLY LOSSLESS versions of JPEG will ever be supported.

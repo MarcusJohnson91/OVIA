@@ -2,6 +2,7 @@
  @header              PNGCodec.h
  @author              Marcus Johnson
  @copyright           2017+
+ @SPDX-License-Identifier: Apache-2.0
  @version             1.0.0
  @brief               This header contains code for PNG (encoding and decoding).
  */

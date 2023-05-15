@@ -6,7 +6,7 @@
 License:
 =======
 * Contributions are accepted only under the terms of the ['Unlicense'](https://tldrlegal.com/license/unlicense) license.
-* OVIA is released under the terms of the 3 [`Revised 3-clause BSD`](https://tldrlegal.com/license/bsd-3-clause-license-%28revised%29) license.
+* OVIA is released under the terms of the Apache 2.0 license.
 
 Here's a tl;dr of my license:
 

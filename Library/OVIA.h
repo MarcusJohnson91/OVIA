@@ -2,6 +2,7 @@
  @header              OVIA.h
  @author              Marcus Johnson
  @copyright           2018+
+ @SPDX-License-Identifier: Apache-2.0
  @version             0.3.7
  @brief               This header is for OVIA's public API.
  */

@@ -2,6 +2,7 @@
  @header              MPEG2Stream.h
  @author              Marcus Johnson
  @copyright           2017+
+ @SPDX-License-Identifier: Apache-2.0
  @version             0.1.0
  @brief               This header contains code for MPEG2 streams.
  */

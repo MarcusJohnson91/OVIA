@@ -2,6 +2,7 @@
  @header              MediaIO.h
  @author              Marcus Johnson
  @copyright           2018+
+ @SPDX-License-Identifier: Apache-2.0
  @version             1.1.0
  @brief               This header contains code for media (type generic arrays)
  */

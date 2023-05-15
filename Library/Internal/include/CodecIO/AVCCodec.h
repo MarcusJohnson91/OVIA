@@ -2,6 +2,7 @@
  @header              AVCCodec.h
  @author              Marcus Johnson
  @copyright           2016+
+ @SPDX-License-Identifier: Apache-2.0
  @version             1.1.0
  @brief               This header contains code for AVC (encoding and decoding).
  @remak               ONLY LOSSLESS versions of AVC will ever be supported.
