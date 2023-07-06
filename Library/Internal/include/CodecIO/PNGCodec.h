@@ -63,33 +63,37 @@ extern "C" {
 
     typedef enum PNGFilterTypes {
         PNGFilter_Unfiltered      = 0,
-        PNGFilter_Sub             = 1, // SubFilter
-        PNGFilter_Up              = 2, // UpFilter
-        PNGFilter_Average         = 3, // AverageFilter
-        PNGFilter_Paeth           = 4, // PaethFilter
+        PNGFilter_Sub             = 1,
+        PNGFilter_Up              = 2,
+        PNGFilter_Average         = 3,
+        PNGFilter_Paeth           = 4,
     } PNGFilterTypes;
 
     typedef enum PNGInterlaceTypes {
         PNGInterlace_Unspecified  = 0,
-        PNGInterlace_Uninterlaced = 1, // PNGNotInterlaced
-        PNGInterlace_Interlaced   = 2, // PNGInterlacedAdam7
+        PNGInterlace_Uninterlaced = 1,
+        PNGInterlace_Interlaced   = 2,
     } PNGInterlaceTypes;
+    
+    typedef enum PNGTextTypes {
+        PNGTextType_tEXt = 0,
+        PNGTextType_iTXt = 1,
+        PNGTextType_zTXt = 2,
+    } PNGTextTypes;
 
     typedef struct iHDR {
         uint32_t      Width;
         uint32_t      Height;
         uint8_t       BitDepth;
         uint8_t       Compression;
-        uint8_t       FilterMethod;
+        PNGFilterTypes FilterMethod;
         PNGColorTypes ColorType;
-        bool          IsInterlaced:1;
-        bool          CRCIsValid:1;
+        PNGInterlaceTypes InterlaceType;
     } iHDR;
 
     typedef struct acTL {
         uint32_t   NumFrames;
         uint32_t   TimesToLoop;
-        bool       CRCIsValid:1;
     } acTL;
 
     typedef struct fcTL {
@@ -102,29 +106,24 @@ extern "C" {
         uint16_t   FrameDelayDenominator;
         uint8_t    DisposeMethod;
         bool       BlendMethod:1;
-        bool       CRCIsValid:1;
     } fcTL;
 
     typedef struct PLTE {
         uint8_t  **Palette;
         uint8_t    NumEntries;
-        bool       CRCIsValid:1;
     } PLTE;
 
     typedef struct tRNS {
         uint8_t  **Palette;
         uint8_t    NumEntries;
-        bool       CRCIsValid:1;
     } tRNS;
 
     typedef struct bkGD {
-        uint8_t   *BackgroundPaletteEntry;
-        bool       CRCIsValid:1;
+        uint8_t   *BackgroundPaletteEntry; 
     } bkGD;
 
     typedef struct sTER {
         bool       StereoType:1;
-        bool       CRCIsValid:1;
     } sTER;
 
     typedef struct DAT {
@@ -140,7 +139,6 @@ extern "C" {
 
     typedef struct fdAT {
         uint32_t   FrameNum;
-        bool       CRCIsValid:1;
     } fdAT;
 
     typedef struct cHRM { // sRGB or iCCP overrides cHRM
@@ -152,26 +150,22 @@ extern "C" {
         uint32_t   GreenY;
         uint32_t   BlueX;
         uint32_t   BlueY;
-        bool       CRCIsValid:1;
     } cHRM;
 
     typedef struct gAMA { // sRGB or iCCP overrides gAMA
         uint32_t   Gamma;
-        bool       CRCIsValid:1;
     } gAMA;
 
     typedef struct oFFs {
         int32_t    XOffset;
         int32_t    YOffset;
         bool       UnitSpecifier:1;
-        bool       CRCIsValid:1;
     } oFFs;
 
     typedef struct iCCP {
         UTF8      *ProfileName;
         uint8_t   *CompressedICCPProfile;
         uint8_t    CompressionType;
-        bool       CRCIsValid:1;
     } iCCP;
 
     typedef struct sBIT {
@@ -180,19 +174,16 @@ extern "C" {
         uint8_t    Green;
         uint8_t    Blue;
         uint8_t    Alpha;
-        bool       CRCIsValid:1;
     } sBIT;
 
     typedef struct sRGB {
         uint8_t    RenderingIntent;
-        bool       CRCIsValid:1;
     } sRGB;
 
     typedef struct pHYs {
         uint32_t   PixelsPerUnitXAxis;
         uint32_t   PixelsPerUnitYAxis;
         uint8_t    UnitSpecifier;
-        bool       CRCIsValid:1;
     } pHYs;
 
     typedef struct pCAL {
@@ -205,33 +196,23 @@ extern "C" {
         uint8_t    UnitNameSize;
         uint8_t    EquationType;
         uint8_t    NumParams;
-        bool       CRCIsValid:1;
     } pCAL;
 
     typedef struct sCAL {
         float      PixelWidth; // ASCII float
         float      PixelHeight; // ASCII float
         uint8_t    UnitSpecifier;
-        bool       CRCIsValid:1;
     } sCAL;
 
     typedef struct hIST {
         uint32_t   NumColors;
         uint16_t  *Histogram; // For each PLTE entry, there needs to be 1 array element
-        bool       CRCIsValid:1;
     } hIST;
-
-    typedef enum PNGTextTypes {
-        PNGTextType_tEXt = 0,
-        PNGTextType_iTXt = 1,
-        PNGTextType_zTXt = 2,
-    } PNGTextTypes;
 
     typedef struct Text { // Replaces:  tEXt, iTXt, zTXt
         UTF8         *Keyword;
         UTF8         *Comment;
         PNGTextTypes  TextType;
-        bool          CRCIsValid:1;
     } Text;
 
     typedef struct tIMe {
@@ -241,7 +222,6 @@ extern "C" {
         uint8_t    Hour;
         uint8_t    Minute;
         uint8_t    Second;
-        bool       CRCIsValid:1;
     } tIMe;
 
     typedef struct PaletteEntry {
@@ -287,35 +267,15 @@ extern "C" {
         uint32_t        CurrentFrame;
         uint32_t        LineWidth;
         uint32_t        LinePadding;
-        bool            PNGIsAnimated:1;
-        bool            acTLExists:1;
-        bool            bkGDExists:1;
-        bool            cHRMExists:1;
-        bool            fcTLExists:1;
-        bool            gAMAExists:1;
-        bool            hISTExists:1;
-        bool            iCCPExists:1;
-        bool            oFFsExists:1;
-        bool            pCALExists:1;
-        bool            pHYsExists:1;
-        bool            PLTEExists:1;
-        bool            sBITExists:1;
-        bool            sCALExists:1;
-        bool            sPLTExists:1;
-        bool            sRGBExists:1;
-        bool            sTERExists:1;
-        bool            TextExists:1;
-        bool            tIMEExists:1;
-        bool            tRNSExists:1;
     } PNGOptions;
 
-    uint8_t PNG_GetNumChannels(PNGColorTypes ColorType);
-
-    void *PNGOptions_Init(void);
+    PNGOptions *PNGOptions_Init(void);
 
     void  PNG_Parse(PNGOptions *Options, BitBuffer *BitB);
 
     void  PNG_Extract(PNGOptions *Options, BitBuffer *BitB, void *Container);
+    
+    uint8_t PNG_GetNumChannels(PNGColorTypes ColorType);
 
     void  PNGOptions_Deinit(PNGOptions *Options);
 
