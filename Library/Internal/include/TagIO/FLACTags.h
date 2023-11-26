@@ -4,7 +4,7 @@
  @copyright           2020+
  @SPDX-License-Identifier: Apache-2.0
  @version             1.0.0
- @brief               This header contains code for Tag conversion (e.g. APE to Vorbis and vice versa).
+ @brief               This header contains code for reading and writing FLAC Tags.
  */
 
 #pragma once
