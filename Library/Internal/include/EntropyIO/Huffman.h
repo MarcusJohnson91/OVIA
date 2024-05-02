@@ -18,6 +18,8 @@
 extern "C" {
 #endif
 
+    typedef struct HuffmanTree HuffmanTree; // Forward declare the Huffman-tree-like data structure
+
     typedef enum HuffmanConstants {
         MaxBitlengthJPG  = 16,
         MaxBitlengthPNG  = 15,
@@ -29,23 +31,14 @@ extern "C" {
      A Bitlength is how long the bitstring is.
      to get the Symbol you need to do ((2^Bitlength)-1) XOR Value
      */
-    typedef struct HuffmanEntry {
-        uint16_t Value;
-        uint8_t  Bitlength;
-    } HuffmanEntry;
 
-    typedef struct HuffmanOptions {
-        HuffmanEntry *Entries;
-        size_t        NumEntries;
-    } HuffmanOptions;
+    HuffmanTree *HuffmanTree_Init(size_t NumSymbols, size_t MaxBitLength);
 
-    HuffmanOptions *HuffmanOptions_Init(size_t NumSymbols, size_t MaxBitLength);
+    void Huffman_ReadBitLengths(HuffmanTree *Options, BitBuffer *BitB, size_t NumBitLengths);
 
-    void Huffman_ReadBitLengths(HuffmanOptions *Options, BitBuffer *BitB, size_t NumBitLengths);
+    void Huffman_BuildTree_Bitlengths(HuffmanTree *Options, uint16_t *BitLengths, size_t NumBitLengths, uint16_t *Symbols, size_t NumSymbols);
 
-    void Huffman_BuildTree_Bitlengths(HuffmanOptions *Options, uint16_t *BitLengths, size_t NumBitLengths, uint16_t *Symbols, size_t NumSymbols);
-
-    void Huffman_Deinit(HuffmanOptions *Options);
+    void Huffman_Deinit(HuffmanTree *Options);
 
 #if (PlatformIO_Language == PlatformIO_LanguageIsCXX)
 }
