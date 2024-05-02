@@ -9,12 +9,23 @@
 extern "C" {
 #endif
 
-    HuffmanOptions *HuffmanOptions_Init(size_t NumSymbols, size_t MaxBitLength) {
-        HuffmanOptions *Options = calloc(1, sizeof(HuffmanOptions));
+    typedef struct HuffmanNode {
+        uint16_t Value; // Raw value the Code represents
+        uint16_t Code;
+        uint8_t  CodeLengthInBits;
+    } HuffmanNode;
+        
+    typedef struct HuffmanTree {
+        size_t       NumNodes;
+        HuffmanNode *Nodes;
+    } HuffmanTree;
+
+    HuffmanTree *HuffmanTree_Init(size_t NumSymbols, size_t MaxBitLength) {
+        HuffmanTree *Options = calloc(1, sizeof(HuffmanTree));
         AssertIO(Options != NULL);
-        Options->Entries = calloc(NumSymbols, sizeof(HuffmanEntry));
-        AssertIO(Options->Entries != NULL);
-        Options->NumEntries = NumSymbols;
+        Options->Nodes = calloc(NumSymbols, sizeof(HuffmanNode));
+        AssertIO(Options->Nodes != NULL);
+        Options->NumNodes = NumSymbols;
         return Options;
     }
 
@@ -26,7 +37,7 @@ extern "C" {
      Next, we need to be able to read the bitlengths from the JPEG file and create our tree; PNG needs to be able to generate default tables which should be a PNG specific thing
      */
 
-    void Huffman_ReadBitLengths(HuffmanOptions *Options, BitBuffer *BitB, size_t NumBitLengths) {
+    void Huffman_ReadBitLengths(HuffmanTree *Options, BitBuffer *BitB, size_t NumBitLengths) {
         AssertIO(Options != NULL);
         AssertIO(BitB != NULL);
 
@@ -46,22 +57,14 @@ extern "C" {
         }
         Huffman_BuildTree_Bitlengths(Options, BitLengths, NumBitLengths, Symbols, NumSymbols);
         free(Symbols);
-    }
+    } 
 
-    void Huffman_BuildTree_Bitlengths(HuffmanOptions *Options, uint16_t *BitLengths, size_t NumBitLengths, uint16_t *Symbols, size_t NumSymbols) {
+    void Huffman_BuildTree_Bitlengths(HuffmanTree *Options, uint16_t *BitLengths, size_t NumBitLengths, uint16_t *Symbols, size_t NumSymbols) {
         AssertIO(Options != NULL);
         AssertIO(BitLengths != NULL);
         AssertIO(Symbols != NULL);
         AssertIO(NumBitLengths > 0);
         AssertIO(NumSymbols > 0);
-
-        typedef struct Huffman_Node {
-            
-        } Huffman_Node;
-
-        typedef struct Huffman_Tree {
-
-        } HuffmanTree;
 
         size_t Entry  = 0;
         size_t Symbol = 1; // Actual value
@@ -81,10 +84,10 @@ extern "C" {
         Options->NumEntries = NumSymbols;
     }
 
-    void Huffman_BuildTree_Histogram(HuffmanOptions *Options, ArrayIO_Frequencies *Frequencies) {
+    void Huffman_BuildTree_Histogram(HuffmanTree *Options, ArrayIO_Frequencies *Frequencies) {
         AssertIO(Options != NULL);
         AssertIO(Frequencies != NULL);
-        AssertIO(Options->NumEntries >= Frequencies->NumEntries);
+        AssertIO(Options->NumNodes >= Frequencies->NumEntries);
         /*
          Code Assignment:
 
@@ -126,8 +129,8 @@ extern "C" {
          */
     }
 
-    void Huffman_Deinit(HuffmanOptions *Options) {
-        free(Options->Entries);
+    void Huffman_Deinit(HuffmanTree *Options) {
+        free(Options->Nodes);
         free(Options);
     }
     
